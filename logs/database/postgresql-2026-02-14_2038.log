@@ -1,0 +1,17 @@
+2026-02-14 20:38:50.670 UTC [42] LOG:  starting PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-02-14 20:38:50.674 UTC [42] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-02-14 20:38:50.720 UTC [46] LOG:  database system was shut down at 2026-02-14 20:38:47 UTC
+2026-02-14 20:38:50.754 UTC [42] LOG:  database system is ready to accept connections
+2026-02-14 20:38:52.077 UTC [42] LOG:  received fast shutdown request
+2026-02-14 20:38:52.081 UTC [42] LOG:  aborting any active transactions
+2026-02-14 20:38:52.083 UTC [42] LOG:  background worker "logical replication launcher" (PID 49) exited with exit code 1
+2026-02-14 20:38:52.083 UTC [44] LOG:  shutting down
+2026-02-14 20:38:52.086 UTC [44] LOG:  checkpoint starting: shutdown immediate
+2026-02-14 20:38:52.896 UTC [44] LOG:  checkpoint complete: wrote 926 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.266 s, sync=0.522 s, total=0.813 s; sync files=301, longest=0.012 s, average=0.002 s; distance=4272 kB, estimate=4272 kB; lsn=0/191E928, redo lsn=0/191E928
+2026-02-14 20:38:53.036 UTC [42] LOG:  database system is shut down
+2026-02-14 20:38:53.083 UTC [1] LOG:  starting PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+2026-02-14 20:38:53.083 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-02-14 20:38:53.083 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-02-14 20:38:53.091 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-02-14 20:38:53.110 UTC [60] LOG:  database system was shut down at 2026-02-14 20:38:52 UTC
+2026-02-14 20:38:53.134 UTC [1] LOG:  database system is ready to accept connections

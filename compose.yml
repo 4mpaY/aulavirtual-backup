@@ -1,0 +1,19 @@
+services:
+  database:
+    image: postgres:16-alpine
+    restart: always
+    hostname: ${DB_HOST}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    environment:
+      DATABASE_HOST: ${DB_HOST}
+      POSTGRES_PORT: ${DB_PORT}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      BASEPATH: ${BASEPATH}
+    volumes:
+      - ./docker/database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./logs/database:/var/log/postgresql
+      - ./data/database:/var/lib/postgresql/data
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf -p ${DB_PORT}
