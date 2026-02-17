@@ -4,7 +4,9 @@
       "Bash(ls -la \"D:\\\\GitHub\\\\apps-fly\\\\aula-virtual\\\\src\\\\features\\\\admin\"\" && ls -la \"D:GitHubapps-flyaula-virtualsrcfeaturespublic\"\")",
       "Bash(dir:*)",
       "Bash(findstr:*)",
-      "Bash(npx prisma format:*)"
+      "Bash(npx prisma format:*)",
+      "Bash(pnpm add:*)",
+      "Bash(mkdir:*)"
     ]
   }
 }

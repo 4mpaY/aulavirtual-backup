@@ -38,7 +38,7 @@
         "./src/@menu/*"
       ],
       "@assets/*": [
-        "./src/utils/components/assets/*"
+        "./src/utils/assets/*"
       ],
       "@components/*": [
         "./src/utils/components/*"

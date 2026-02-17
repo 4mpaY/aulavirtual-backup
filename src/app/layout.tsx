@@ -10,19 +10,28 @@ import '@/app/globals.css'
 // Generated Icon CSS Imports
 import '@assets/iconify-icons/generated-icons.css'
 
+// Component Imports
+import { Providers } from '@/components/Providers'
+
+// Server Imports
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/configs/auth'
+
 export const metadata = {
-  title: 'Vuexy - MUI Next.js Admin Dashboard Template',
-  description:
-    'Vuexy - MUI Next.js Admin Dashboard Template - is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.'
+  title: 'Aula Virtual - Sistema de gestión de cursos',
+  description: 'Plataforma de gestión de cursos online con sistema de exámenes y certificados'
 }
 
-const RootLayout = ({ children }: ChildrenType) => {
+const RootLayout = async ({ children }: ChildrenType) => {
   // Vars
   const direction = 'ltr'
+  const session = await getServerSession(authOptions)
 
   return (
-    <html id='__next' lang='en' dir={direction}>
-      <body className='flex is-full min-bs-full flex-auto flex-col'>{children}</body>
+    <html id='__next' lang='es' dir={direction}>
+      <body className='flex is-full min-bs-full flex-auto flex-col'>
+        <Providers session={session}>{children}</Providers>
+      </body>
     </html>
   )
 }

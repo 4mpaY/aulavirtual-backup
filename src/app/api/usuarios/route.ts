@@ -1,0 +1,180 @@
+import { NextResponse } from 'next/server'
+import prisma from '@/libs/prisma'
+import bcrypt from 'bcryptjs'
+import { crearUsuarioSchema, listarUsuariosQuerySchema } from '@/schemas/usuario.schema'
+import { validateRequest, handleApiError } from '@/libs/validation'
+import { requireAdmin } from '@/libs/auth-helpers'
+
+/**
+ * GET /api/usuarios
+ * Listar todos los usuarios (solo ADMIN)
+ */
+export async function GET(request: Request) {
+  try {
+    // Verificar que sea admin
+    const auth = await requireAdmin()
+    if (!auth.authorized) {
+      return auth.error
+    }
+
+    const { searchParams } = new URL(request.url)
+    const query = Object.fromEntries(searchParams.entries())
+
+    // Validar query params
+    const validation = validateRequest(listarUsuariosQuerySchema, query)
+
+    if (!validation.success) {
+      return validation.error
+    }
+
+    const { page, limit, rol, buscar, esta_activo } = validation.data
+
+    // Construir filtros
+    const where: any = {}
+
+    if (rol) {
+      where.rol = rol
+    }
+
+    if (esta_activo !== undefined) {
+      where.esta_activo = esta_activo
+    }
+
+    if (buscar) {
+      where.OR = [
+        { nombre: { contains: buscar, mode: 'insensitive' } },
+        { apellido: { contains: buscar, mode: 'insensitive' } },
+        { correo: { contains: buscar, mode: 'insensitive' } },
+        { numero_documento: { contains: buscar } }
+      ]
+    }
+
+    // Calcular paginación
+    const skip = (page - 1) * limit
+
+    // Consultar usuarios
+    const [usuarios, total] = await Promise.all([
+      prisma.usuario.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { creado_en: 'desc' },
+        select: {
+          id: true,
+          correo: true,
+          nombre: true,
+          apellido: true,
+          numero_documento: true,
+          celular: true,
+          avatar: true,
+          biografia: true,
+          rol: true,
+          esta_activo: true,
+          creado_en: true,
+          actualizado_en: true
+        }
+      }),
+      prisma.usuario.count({ where })
+    ])
+
+    return NextResponse.json({
+      usuarios,
+      paginacion: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    })
+  } catch (error) {
+    return handleApiError(error)
+  }
+}
+
+/**
+ * POST /api/usuarios
+ * Crear un nuevo usuario (solo ADMIN)
+ */
+export async function POST(request: Request) {
+  try {
+    // Verificar que sea admin
+    const auth = await requireAdmin()
+    if (!auth.authorized) {
+      return auth.error
+    }
+
+    const body = await request.json()
+
+    // Validar datos
+    const validation = validateRequest(crearUsuarioSchema, body)
+
+    if (!validation.success) {
+      return validation.error
+    }
+
+    const { correo, contrasena, nombre, apellido, numero_documento, celular, rol, biografia, avatar } =
+      validation.data
+
+    // Verificar si el correo ya existe
+    const correoExistente = await prisma.usuario.findUnique({
+      where: { correo }
+    })
+
+    if (correoExistente) {
+      return NextResponse.json({ message: 'El correo ya está registrado' }, { status: 409 })
+    }
+
+    // Verificar si el número de documento ya existe
+    const documentoExistente = await prisma.usuario.findUnique({
+      where: { numero_documento }
+    })
+
+    if (documentoExistente) {
+      return NextResponse.json(
+        { message: 'El número de documento ya está registrado' },
+        { status: 409 }
+      )
+    }
+
+    // Hash de la contraseña
+    const hashedPassword = await bcrypt.hash(contrasena, 10)
+
+    // Crear usuario
+    const nuevoUsuario = await prisma.usuario.create({
+      data: {
+        correo,
+        contrasena: hashedPassword,
+        nombre,
+        apellido,
+        numero_documento,
+        celular: celular || null,
+        rol: rol || 'ESTUDIANTE',
+        biografia: biografia || null,
+        avatar: avatar || null
+      },
+      select: {
+        id: true,
+        correo: true,
+        nombre: true,
+        apellido: true,
+        numero_documento: true,
+        celular: true,
+        avatar: true,
+        biografia: true,
+        rol: true,
+        esta_activo: true,
+        creado_en: true
+      }
+    })
+
+    return NextResponse.json(
+      {
+        message: 'Usuario creado exitosamente',
+        usuario: nuevoUsuario
+      },
+      { status: 201 }
+    )
+  } catch (error) {
+    return handleApiError(error)
+  }
+}
