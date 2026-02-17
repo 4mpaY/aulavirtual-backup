@@ -15,3 +15,8 @@
 2026-02-14 20:38:53.091 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
 2026-02-14 20:38:53.110 UTC [60] LOG:  database system was shut down at 2026-02-14 20:38:52 UTC
 2026-02-14 20:38:53.134 UTC [1] LOG:  database system is ready to accept connections
+2026-02-14 20:39:21.018 UTC [64] FATAL:  password authentication failed for user "crece_tienda"
+2026-02-14 20:39:21.018 UTC [64] DETAIL:  Role "crece_tienda" does not exist.
+	Connection matched file "/var/lib/postgresql/data/pg_hba.conf" line 128: "host all all all scram-sha-256"
+2026-02-14 20:43:53.132 UTC [58] LOG:  checkpoint starting: time
+2026-02-14 20:43:57.378 UTC [58] LOG:  checkpoint complete: wrote 44 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=4.166 s, sync=0.026 s, total=4.246 s; sync files=13, longest=0.004 s, average=0.002 s; distance=249 kB, estimate=249 kB; lsn=0/195D080, redo lsn=0/195D048

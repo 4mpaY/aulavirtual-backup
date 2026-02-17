@@ -1,0 +1,509 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Rol {
+  ADMIN
+  PROFESOR
+  ESTUDIANTE
+}
+
+enum EstadoCurso {
+  BORRADOR
+  PUBLICADO
+  ARCHIVADO
+}
+
+enum EstadoInscripcion {
+  PENDIENTE
+  ACTIVO
+  COMPLETADO
+  CANCELADO
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  PROCESANDO
+  COMPLETADO
+  CANCELADO
+  REEMBOLSADO
+}
+
+enum MetodoPago {
+  TARJETA_CREDITO
+  TARJETA_DEBITO
+  YAPE
+  PLIN
+  TRANSFERENCIA
+  OTRO
+}
+
+enum TipoPregunta {
+  OPCION_MULTIPLE
+  VERDADERO_FALSO
+  RESPUESTA_ABIERTA
+}
+
+enum TipoContenido {
+  VIDEO
+  DOCUMENTO
+  IMAGEN
+  AUDIO
+  ENLACE
+  INCRUSTADO
+}
+
+enum EstadoLeccion {
+  BORRADOR
+  PUBLICADO
+}
+
+enum TipoEmision {
+  SINCRONO
+  ASINCRONO
+}
+
+// ---------------------------------------------------------------------------
+// 1. Usuario
+// ---------------------------------------------------------------------------
+
+model Usuario {
+  id               String   @id @default(uuid())
+  correo           String   @unique
+  contrasena       String
+  nombre           String
+  numero_documento String   @unique
+  apellido         String
+  avatar           String?
+  biografia        String?
+  celular          String?
+  rol              Rol      @default(ESTUDIANTE)
+  esta_activo      Boolean  @default(true)
+  creado_en        DateTime @default(now())
+  actualizado_en   DateTime @updatedAt
+
+  // Relaciones
+  cursos_dictados    Curso[]           @relation("ProfesorCursos")
+  pedidos            Pedido[]
+  inscripciones      Inscripcion[]
+  intentos_examen    IntentoExamen[]
+  certificados       Certificado[]
+  progreso_lecciones ProgresoLeccion[]
+  progreso_cursos    ProgresoCurso[]
+
+  @@index([rol])
+  @@map("usuarios")
+}
+
+// ---------------------------------------------------------------------------
+// 2. Categoria
+// ---------------------------------------------------------------------------
+
+model Categoria {
+  id                 String  @id @default(uuid())
+  nombre             String  @unique
+  slug               String  @unique
+  descripcion        String?
+  categoria_padre_id String?
+  esta_activo        Boolean @default(true)
+
+  padre Categoria?  @relation("JerarquiaCategoria", fields: [categoria_padre_id], references: [id], onDelete: SetNull)
+  hijos Categoria[] @relation("JerarquiaCategoria")
+
+  cursos Curso[]
+
+  creado_en      DateTime @default(now())
+  actualizado_en DateTime @updatedAt
+
+  @@index([categoria_padre_id])
+  @@map("categorias")
+}
+
+// ---------------------------------------------------------------------------
+// 3. Curso
+// ---------------------------------------------------------------------------
+
+model Curso {
+  id                 String      @id @default(uuid())
+  titulo             String
+  slug               String      @unique
+  descripcion        String?
+  miniatura          String?
+  video_presentacion String?
+  duracion           String?
+  tipo_emision       TipoEmision @default(ASINCRONO)
+  estado             EstadoCurso @default(BORRADOR)
+  es_gratis          Boolean     @default(false)
+  precio             Decimal     @default(0) @db.Decimal(10, 2)
+  moneda             String      @default("PEN")
+  creado_en          DateTime    @default(now())
+  actualizado_en     DateTime    @updatedAt
+
+  profesor_id String
+  profesor    Usuario @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
+
+  categoria_id String?
+  categoria    Categoria? @relation(fields: [categoria_id], references: [id], onDelete: SetNull)
+
+  // Relaciones
+  modulos         Modulo[]
+  detalles_pedido DetallePedido[]
+  inscripciones   Inscripcion[]
+  examenes        Examen[]
+  certificados    Certificado[]
+  progreso        ProgresoCurso[]
+
+  @@index([profesor_id])
+  @@index([categoria_id])
+  @@index([estado])
+  @@map("cursos")
+}
+
+// ---------------------------------------------------------------------------
+// 4. Modulo
+// ---------------------------------------------------------------------------
+
+model Modulo {
+  id             String   @id @default(uuid())
+  titulo         String
+  descripcion    String?
+  orden          Int
+  creado_en      DateTime @default(now())
+  actualizado_en DateTime @updatedAt
+
+  curso_id String
+  curso    Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  lecciones Leccion[]
+
+  @@unique([curso_id, orden])
+  @@index([curso_id])
+  @@map("modulos")
+}
+
+// ---------------------------------------------------------------------------
+// 5. Leccion
+// ---------------------------------------------------------------------------
+
+model Leccion {
+  id             String        @id @default(uuid())
+  titulo         String
+  contenido      String?
+  orden          Int
+  duracion       Int?
+  enlace_reunion String?
+  estado         EstadoLeccion @default(BORRADOR)
+
+  creado_en      DateTime @default(now())
+  actualizado_en DateTime @updatedAt
+
+  modulo_id String
+  modulo    Modulo @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
+
+  contenidos ContenidoLeccion[]
+  progreso   ProgresoLeccion[]
+
+  @@unique([modulo_id, orden])
+  @@index([modulo_id])
+  @@map("lecciones")
+}
+
+// ---------------------------------------------------------------------------
+// 6. ContenidoLeccion
+// ---------------------------------------------------------------------------
+
+model ContenidoLeccion {
+  id             String        @id @default(uuid())
+  titulo         String?
+  tipo           TipoContenido
+  url            String
+  orden          Int
+  creado_en      DateTime      @default(now())
+  actualizado_en DateTime      @updatedAt
+
+  leccion_id String
+  leccion    Leccion @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+
+  @@index([leccion_id])
+  @@map("contenidos_leccion")
+}
+
+// ---------------------------------------------------------------------------
+// 7. Pedido
+// ---------------------------------------------------------------------------
+
+model Pedido {
+  id            String       @id @default(uuid())
+  numero_pedido Int          @unique @default(autoincrement())
+  estado        EstadoPedido @default(PENDIENTE)
+  metodo_pago   MetodoPago?
+  // subtotal      Decimal      @db.Decimal(10, 2)
+  // impuestos     Decimal      @default(0) @db.Decimal(10, 2)
+  total         Decimal      @db.Decimal(10, 2)
+  mensaje       String?
+  moneda        String       @default("PEN")
+
+  // Datos de Izipay
+  transaccion_id   String? @unique // ID de transacción de Izipay
+  referencia_pago  String? // Referencia interna de Izipay
+  url_pago         String? // URL de checkout de Izipay
+  token_pago       String? // Token de formulario de Izipay
+  respuesta_izipay Json? // Respuesta completa de Izipay (IPN/webhook)
+
+  creado_en    DateTime  @default(now())
+  pagado_en    DateTime?
+  cancelado_en DateTime?
+  actualizado_en DateTime      @updatedAt
+
+  usuario_id String
+  usuario    Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  // Relaciones
+  detalles      DetallePedido[]
+  inscripciones Inscripcion[]
+
+  @@index([usuario_id])
+  @@index([estado])
+  @@index([transaccion_id])
+  @@map("pedidos")
+}
+
+// ---------------------------------------------------------------------------
+// 8. DetallePedido
+// ---------------------------------------------------------------------------
+
+model DetallePedido {
+  id              String  @id @default(uuid())
+  cantidad        Int     @default(1)
+  descuento       Decimal @default(0) @db.Decimal(10, 2)
+  precio_unitario Decimal @db.Decimal(10, 2)
+  subtotal        Decimal @db.Decimal(10, 2)
+  total           Decimal @db.Decimal(10, 2)
+
+  pedido_id String
+  pedido    Pedido @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+
+  curso_id String
+  curso    Curso  @relation(fields: [curso_id], references: [id], onDelete: Restrict)
+
+  @@index([pedido_id])
+  @@index([curso_id])
+  @@map("detalles_pedido")
+}
+
+// ---------------------------------------------------------------------------
+// 9. Inscripcion
+// ---------------------------------------------------------------------------
+
+model Inscripcion {
+  id            String            @id @default(uuid())
+  estado        EstadoInscripcion @default(ACTIVO)
+  inscrito_en   DateTime          @default(now())
+  completado_en DateTime?
+
+  usuario_id String
+  usuario    Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  curso_id String
+  curso    Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  pedido_id String?
+  pedido    Pedido? @relation(fields: [pedido_id], references: [id], onDelete: SetNull)
+
+  @@unique([usuario_id, curso_id])
+  @@index([usuario_id])
+  @@index([curso_id])
+  @@index([pedido_id])
+  @@map("inscripciones")
+}
+
+// ---------------------------------------------------------------------------
+// 8. ProgresoLeccion
+// ---------------------------------------------------------------------------
+
+model ProgresoLeccion {
+  id              String    @id @default(uuid())
+  esta_completado Boolean   @default(false)
+  completado_en   DateTime?
+
+  usuario_id String
+  usuario    Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  leccion_id String
+  leccion    Leccion @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, leccion_id])
+  @@index([usuario_id])
+  @@index([leccion_id])
+  @@map("progreso_leccion")
+}
+
+// ---------------------------------------------------------------------------
+// 9. ProgresoCurso
+// ---------------------------------------------------------------------------
+
+model ProgresoCurso {
+  id                  String @id @default(uuid())
+  porcentaje_progreso Float  @default(0)
+
+  usuario_id String
+  usuario    Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  curso_id String
+  curso    Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  actualizado_en DateTime @updatedAt
+
+  @@unique([usuario_id, curso_id])
+  @@index([usuario_id])
+  @@index([curso_id])
+  @@map("progreso_curso")
+}
+
+// ---------------------------------------------------------------------------
+// 10. Examen
+// ---------------------------------------------------------------------------
+
+model Examen {
+  id                 String   @id @default(uuid())
+  titulo             String
+  descripcion        String?
+  limite_tiempo      Int?
+  puntaje_aprobacion Float    @default(60)
+  intentos_maximos   Int      @default(1)
+  mezclar_preguntas  Boolean  @default(false)
+  esta_publicado     Boolean  @default(false)
+  creado_en          DateTime @default(now())
+  actualizado_en     DateTime @updatedAt
+
+  curso_id String
+  curso    Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  preguntas Pregunta[]
+  intentos  IntentoExamen[]
+
+  @@index([curso_id])
+  @@map("examenes")
+}
+
+// ---------------------------------------------------------------------------
+// 11. Pregunta
+// ---------------------------------------------------------------------------
+
+model Pregunta {
+  id             String       @id @default(uuid())
+  texto          String
+  tipo           TipoPregunta
+  puntos         Float        @default(1)
+  orden          Int
+  creado_en      DateTime     @default(now())
+  actualizado_en DateTime     @updatedAt
+
+  examen_id String
+  examen    Examen @relation(fields: [examen_id], references: [id], onDelete: Cascade)
+
+  opciones   OpcionPregunta[]
+  respuestas RespuestaIntento[]
+
+  @@unique([examen_id, orden])
+  @@index([examen_id])
+  @@map("preguntas")
+}
+
+// ---------------------------------------------------------------------------
+// 12. OpcionPregunta
+// ---------------------------------------------------------------------------
+
+model OpcionPregunta {
+  id          String  @id @default(uuid())
+  texto       String
+  es_correcta Boolean @default(false)
+  orden       Int
+
+  pregunta_id String
+  pregunta    Pregunta @relation(fields: [pregunta_id], references: [id], onDelete: Cascade)
+
+  seleccionada_en RespuestaIntento[] @relation("OpcionSeleccionada")
+
+  @@index([pregunta_id])
+  @@map("opciones_pregunta")
+}
+
+// ---------------------------------------------------------------------------
+// 13. IntentoExamen
+// ---------------------------------------------------------------------------
+
+model IntentoExamen {
+  id            String    @id @default(uuid())
+  puntaje       Float?
+  esta_aprobado Boolean?
+  iniciado_en   DateTime  @default(now())
+  enviado_en    DateTime?
+
+  usuario_id String
+  usuario    Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  examen_id String
+  examen    Examen @relation(fields: [examen_id], references: [id], onDelete: Cascade)
+
+  respuestas RespuestaIntento[]
+
+  @@index([usuario_id])
+  @@index([examen_id])
+  @@map("intentos_examen")
+}
+
+// ---------------------------------------------------------------------------
+// 14. RespuestaIntento
+// ---------------------------------------------------------------------------
+
+model RespuestaIntento {
+  id               String   @id @default(uuid())
+  respuesta_texto  String?
+  es_correcta      Boolean?
+  puntos_obtenidos Float?
+
+  intento_id String
+  intento    IntentoExamen @relation(fields: [intento_id], references: [id], onDelete: Cascade)
+
+  pregunta_id String
+  pregunta    Pregunta @relation(fields: [pregunta_id], references: [id], onDelete: Cascade)
+
+  opcion_seleccionada_id String?
+  opcion_seleccionada    OpcionPregunta? @relation("OpcionSeleccionada", fields: [opcion_seleccionada_id], references: [id], onDelete: SetNull)
+
+  @@unique([intento_id, pregunta_id])
+  @@index([intento_id])
+  @@index([pregunta_id])
+  @@map("respuestas_intento")
+}
+
+// ---------------------------------------------------------------------------
+// 15. Certificado
+// ---------------------------------------------------------------------------
+
+model Certificado {
+  id                  String   @id @default(uuid())
+  codigo_verificacion String   @unique
+  emitido_en          DateTime @default(now())
+
+  usuario_id String
+  usuario    Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  curso_id String
+  curso    Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, curso_id])
+  @@index([usuario_id])
+  @@index([curso_id])
+  @@map("certificados")
+}
