@@ -79,4 +79,88 @@ export class AxiosCurso extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  // ===================== MÓDULOS =====================
+
+  async createModulo(cursoId: string, data: { titulo: string; descripcion?: string | null }): Promise<any> {
+    try {
+      const payload = await this.iPost(`/${cursoId}/modulos`, data)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async updateModulo(cursoId: string, moduloId: string, data: { titulo?: string; descripcion?: string | null }): Promise<any> {
+    try {
+      const payload = await this.iPatch(`/${cursoId}/modulos/${moduloId}`, data)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async deleteModulo(cursoId: string, moduloId: string): Promise<any> {
+    try {
+      const payload = await this.iDelete(`/${cursoId}/modulos/${moduloId}`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async reorderModulos(cursoId: string, items: { id: string; orden: number }[]): Promise<any> {
+    try {
+      const payload = await this.iPatch(`/${cursoId}/modulos/reordenar`, { items })
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  // ===================== LECCIONES =====================
+
+  async createLeccion(cursoId: string, moduloId: string, data: { titulo: string; contenido?: string | null; duracion?: number | null; enlace_reunion?: string | null }): Promise<any> {
+    try {
+      const payload = await this.iPost(`/${cursoId}/modulos/${moduloId}/lecciones`, data)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async updateLeccion(cursoId: string, moduloId: string, leccionId: string, data: any): Promise<any> {
+    try {
+      const payload = await this.iPatch(`/${cursoId}/modulos/${moduloId}/lecciones/${leccionId}`, data)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async deleteLeccion(cursoId: string, moduloId: string, leccionId: string): Promise<any> {
+    try {
+      const payload = await this.iDelete(`/${cursoId}/modulos/${moduloId}/lecciones/${leccionId}`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async reorderLecciones(cursoId: string, moduloId: string, items: { id: string; orden: number }[]): Promise<any> {
+    try {
+      const payload = await this.iPatch(`/${cursoId}/modulos/${moduloId}/lecciones/reordenar`, { items })
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

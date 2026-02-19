@@ -33,7 +33,7 @@ export function useCursos(query?: Record<string, string>) {
 }
 
 /**
- * Hook para obtener un curso por ID
+ * Hook para obtener un curso por ID (con módulos y lecciones)
  */
 export function useCurso(id: string) {
   const axiosCurso = axiosCursoFactory()
@@ -95,6 +95,90 @@ export function useCambiarEstadoCurso() {
 
   return useMutation<{ curso: Curso }, any, { id: string; data: CambiarEstadoCursoDto }>({
     mutationFn: async ({ id, data }) => await axiosCurso.cambiarEstado(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+// ===================== MÓDULOS =====================
+
+export function useCreateModulo() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; data: { titulo: string; descripcion?: string | null } }>({
+    mutationFn: async ({ cursoId, data }) => await axiosCurso.createModulo(cursoId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+export function useUpdateModulo() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; moduloId: string; data: { titulo?: string; descripcion?: string | null } }>({
+    mutationFn: async ({ cursoId, moduloId, data }) => await axiosCurso.updateModulo(cursoId, moduloId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+export function useDeleteModulo() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; moduloId: string }>({
+    mutationFn: async ({ cursoId, moduloId }) => await axiosCurso.deleteModulo(cursoId, moduloId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+export function useReorderModulos() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; items: { id: string; orden: number }[] }>({
+    mutationFn: async ({ cursoId, items }) => await axiosCurso.reorderModulos(cursoId, items),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+// ===================== LECCIONES =====================
+
+export function useCreateLeccion() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; moduloId: string; data: { titulo: string } }>({
+    mutationFn: async ({ cursoId, moduloId, data }) => await axiosCurso.createLeccion(cursoId, moduloId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+export function useUpdateLeccion() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; moduloId: string; leccionId: string; data: any }>({
+    mutationFn: async ({ cursoId, moduloId, leccionId, data }) => await axiosCurso.updateLeccion(cursoId, moduloId, leccionId, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+export function useDeleteLeccion() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; moduloId: string; leccionId: string }>({
+    mutationFn: async ({ cursoId, moduloId, leccionId }) => await axiosCurso.deleteLeccion(cursoId, moduloId, leccionId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+export function useReorderLecciones() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; moduloId: string; items: { id: string; orden: number }[] }>({
+    mutationFn: async ({ cursoId, moduloId, items }) => await axiosCurso.reorderLecciones(cursoId, moduloId, items),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
   })
 }

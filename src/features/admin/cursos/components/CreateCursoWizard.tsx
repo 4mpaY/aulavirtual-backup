@@ -386,6 +386,7 @@ const CreateCursoWizard: FC<CreateCursoWizardProps> = ({ open, handleClose, prof
                                         <Button
                                             variant='tonal'
                                             color='secondary'
+                                            type='button'
                                             onClick={handleBack}
                                             disabled={isSubmitting}
                                             startIcon={<i className='tabler-arrow-left' />}
@@ -399,6 +400,7 @@ const CreateCursoWizard: FC<CreateCursoWizardProps> = ({ open, handleClose, prof
                                     <Button
                                         variant='tonal'
                                         color='secondary'
+                                        type='button'
                                         onClick={handleCloseModal}
                                         disabled={isSubmitting}
                                     >
@@ -408,6 +410,7 @@ const CreateCursoWizard: FC<CreateCursoWizardProps> = ({ open, handleClose, prof
                                     {activeStep < steps.length - 1 ? (
                                         <Button
                                             variant='contained'
+                                            type='button'
                                             onClick={handleNext}
                                             disabled={activeStep === 0 && (!values.titulo.trim() || !values.profesor_id)}
                                             endIcon={<i className='tabler-arrow-right' />}

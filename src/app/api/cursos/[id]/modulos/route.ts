@@ -1,0 +1,57 @@
+import prisma from '@/utils/libs/prisma'
+import { crearModuloSchema } from '@/schemas/modulo.schema'
+import { validateRequest, handleApiError } from '@/utils/libs/validation'
+import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { ApiResponse } from '@/utils/libs/apiResponse'
+
+/**
+ * POST /api/cursos/[id]/modulos
+ * Crear un módulo dentro de un curso
+ */
+export async function POST(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const auth = await requireAdmin(request)
+    if (!auth.authorized) return auth.error
+
+    const { id: cursoId } = params
+    const body = await request.json()
+
+    const validation = validateRequest(crearModuloSchema, body, request)
+    if (!validation.success) return validation.error
+
+    // Verificar que el curso existe
+    const curso = await prisma.curso.findUnique({
+      where: { id: cursoId }
+    })
+
+    if (!curso) {
+      return ApiResponse.error(request, 'Curso no encontrado', 404)
+    }
+
+    // Calcular el siguiente orden
+    const ultimoModulo = await prisma.modulo.findFirst({
+      where: { curso_id: cursoId },
+      orderBy: { orden: 'desc' }
+    })
+
+    const orden = (ultimoModulo?.orden ?? -1) + 1
+
+    const nuevoModulo = await prisma.modulo.create({
+      data: {
+        titulo: validation.data.titulo,
+        descripcion: validation.data.descripcion || null,
+        orden,
+        curso_id: cursoId
+      },
+      include: {
+        lecciones: {
+          orderBy: { orden: 'asc' }
+        }
+      }
+    })
+
+    return ApiResponse.success(request, { modulo: nuevoModulo }, 201)
+  } catch (error) {
+    return handleApiError(error, request)
+  }
+}
