@@ -1,10 +1,10 @@
 'use client'
 
-import { Box, Button, Grid, MenuItem, styled, Typography, CircularProgress } from '@mui/material'
+import { Box, Button, Grid, MenuItem, styled, Typography, CircularProgress, InputAdornment, IconButton } from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
-import { type FC } from 'react'
+import { type FC, useState } from 'react'
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { actualizarUsuarioSchema, type ActualizarUsuarioDto } from '@/schemas/usuario.schema'
@@ -26,12 +26,19 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
   const { enqueueSnackbar } = useSnackbar()
   const { data: usuario, isLoading } = useUsuario(usuarioId || '')
   const editUsuarioMutation = useEditUsuario()
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (values: ActualizarUsuarioDto, { setSubmitting }: FormikHelpers<ActualizarUsuarioDto>) => {
     if (!usuarioId) return
 
     try {
-      await editUsuarioMutation.mutateAsync({ id: usuarioId, data: values })
+      // Si la contraseña está vacía, no la enviamos para evitar errores de validación o sobreescritura
+      const dataToSend = { ...values }
+      if (!dataToSend.contrasena) {
+        delete dataToSend.contrasena
+      }
+
+      await editUsuarioMutation.mutateAsync({ id: usuarioId, data: dataToSend })
 
       enqueueSnackbar('Usuario actualizado exitosamente', { variant: 'success' })
       handleClose()
@@ -67,14 +74,20 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
     celular: usuario.celular || '',
     biografia: usuario.biografia || '',
     rol: usuario.rol,
-    esta_activo: usuario.esta_activo
+    esta_activo: usuario.esta_activo,
+    contrasena: ''
   }
 
   return (
     <AppModal open={open} handleClose={handleClose}>
-      <Typography variant='h5' sx={{ mb: 2 }}>
-        Editar Usuario
-      </Typography>
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Typography variant='h4' sx={{ mb: 1, fontWeight: 600 }}>
+          Editar Usuario
+        </Typography>
+        <Typography variant='body2' color='text.secondary'>
+          Actualiza la información del perfil y los permisos del usuario.
+        </Typography>
+      </Box>
 
       <Formik
         initialValues={initialValues}
@@ -86,6 +99,13 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
           <form onSubmit={handleSubmit}>
             <FormWrapper>
               <Grid container spacing={3}>
+                {/* Sección: Información de Perfil */}
+                <Grid item xs={12}>
+                  <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
+                    Información de Perfil
+                  </Typography>
+                </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <CustomTextField
                     fullWidth
@@ -97,6 +117,13 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
                     error={touched.nombre && Boolean(errors.nombre)}
                     helperText={touched.nombre && errors.nombre}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-user text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
 
@@ -111,6 +138,13 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
                     error={touched.apellido && Boolean(errors.apellido)}
                     helperText={touched.apellido && errors.apellido}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-user text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
 
@@ -126,13 +160,20 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
                     error={touched.correo && Boolean(errors.correo)}
                     helperText={touched.correo && errors.correo}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-mail text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <CustomTextField
                     fullWidth
-                    label='Número de Documento (DNI)'
+                    label='DNI / Documento'
                     name='numero_documento'
                     value={values.numero_documento}
                     onChange={handleChange}
@@ -140,6 +181,13 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
                     error={touched.numero_documento && Boolean(errors.numero_documento)}
                     helperText={touched.numero_documento && errors.numero_documento}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-id text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
 
@@ -154,14 +202,50 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
                     error={touched.celular && Boolean(errors.celular)}
                     helperText={touched.celular && errors.celular}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-phone text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    fullWidth
+                    label='Biografía'
+                    name='biografia'
+                    placeholder='Describe brevemente al usuario'
+                    value={values.biografia}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.biografia && Boolean(errors.biografia)}
+                    helperText={touched.biografia && errors.biografia}
+                    disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-file-description text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+
+                {/* Sección: Seguridad y Permisos */}
+                <Grid item xs={12} sx={{ mt: 2 }}>
+                  <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
+                    Seguridad y Permisos
+                  </Typography>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <CustomTextField
                     select
                     fullWidth
-                    label='Rol'
+                    label='Rol de Usuario'
                     name='rol'
                     value={values.rol}
                     onChange={handleChange}
@@ -169,6 +253,13 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
                     error={touched.rol && Boolean(errors.rol)}
                     helperText={touched.rol && errors.rol}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-shield-lock text-xl text-textSecondary mr-2' />
+                        </InputAdornment>
+                      )
+                    }}
                   >
                     <MenuItem value={Rol.ESTUDIANTE}>Estudiante</MenuItem>
                     <MenuItem value={Rol.PROFESOR}>Profesor</MenuItem>
@@ -176,28 +267,59 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
                   </CustomTextField>
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item xs={12} sm={6}>
                   <CustomTextField
                     fullWidth
-                    multiline
-                    rows={3}
-                    label='Biografía'
-                    name='biografia'
-                    value={values.biografia}
+                    label='Nueva Contraseña (Opcional)'
+                    name='contrasena'
+                    type={showPassword ? 'text' : 'password'}
+                    value={values.contrasena}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={touched.biografia && Boolean(errors.biografia)}
-                    helperText={touched.biografia && errors.biografia}
+                    error={touched.contrasena && Boolean(errors.contrasena)}
+                    helperText={touched.contrasena && errors.contrasena}
                     disabled={isSubmitting}
+                    placeholder='Dejar en blanco para mantener la actual'
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-lock text-xl text-textSecondary' />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            onClick={() => setShowPassword(!showPassword)}
+                            onMouseDown={e => e.preventDefault()}
+                            aria-label='toggle password visibility'
+                          >
+                            <i className={showPassword ? 'tabler-eye-off' : 'tabler-eye'} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
               </Grid>
 
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
-                <Button variant='outlined' onClick={handleClose} disabled={isSubmitting}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 5 }}>
+                <Button
+                  variant='tonal'
+                  color='secondary'
+                  onClick={handleClose}
+                  disabled={isSubmitting}
+                  sx={{ px: 4 }}
+                >
                   Cancelar
                 </Button>
-                <Button variant='contained' type='submit' disabled={isSubmitting}>
+                <Button
+                  variant='contained'
+                  type='submit'
+                  disabled={isSubmitting}
+                  sx={{ px: 4 }}
+                  startIcon={<i className='tabler-check' />}
+                >
                   {isSubmitting ? 'Actualizando...' : 'Actualizar Usuario'}
                 </Button>
               </Box>

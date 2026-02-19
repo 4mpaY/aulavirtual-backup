@@ -1,10 +1,10 @@
 'use client'
 
-import { Box, Button, Grid, MenuItem, styled, Typography } from '@mui/material'
+import { Box, Button, Grid, MenuItem, styled, Typography, InputAdornment, IconButton } from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
-import { type FC } from 'react'
+import { type FC, useState } from 'react'
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { crearUsuarioSchema, type CrearUsuarioDto } from '@/schemas/usuario.schema'
@@ -24,6 +24,7 @@ const FormWrapper = styled(Box)(() => ({
 const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, onSuccess }) => {
   const { enqueueSnackbar } = useSnackbar()
   const createUsuarioMutation = useCreateUsuario()
+  const [showPassword, setShowPassword] = useState(false)
 
   const initialValues: CrearUsuarioDto = {
     correo: '',
@@ -43,6 +44,7 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
 
       enqueueSnackbar('Usuario creado exitosamente', { variant: 'success' })
       resetForm()
+      setShowPassword(false)
       handleClose()
       onSuccess?.()
     } catch (error: any) {
@@ -55,9 +57,14 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
 
   return (
     <AppModal open={open} handleClose={handleClose}>
-      <Typography variant='h5' sx={{ mb: 2 }}>
-        Crear Usuario
-      </Typography>
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Typography variant='h4' sx={{ mb: 1, fontWeight: 600 }}>
+          Nuevo Usuario
+        </Typography>
+        <Typography variant='body2' color='text.secondary'>
+          Completa la información para registrar un nuevo usuario en el sistema.
+        </Typography>
+      </Box>
 
       <Formik
         initialValues={initialValues}
@@ -68,17 +75,32 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
           <form onSubmit={handleSubmit}>
             <FormWrapper>
               <Grid container spacing={3}>
+                {/* Sección: Datos Personales */}
+                <Grid item xs={12}>
+                  <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
+                    Datos Personales
+                  </Typography>
+                </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <CustomTextField
                     fullWidth
                     label='Nombre'
                     name='nombre'
+                    placeholder='Ej: Juan'
                     value={values.nombre}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.nombre && Boolean(errors.nombre)}
                     helperText={touched.nombre && errors.nombre}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-user text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
 
@@ -87,13 +109,72 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
                     fullWidth
                     label='Apellido'
                     name='apellido'
+                    placeholder='Ej: Pérez'
                     value={values.apellido}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.apellido && Boolean(errors.apellido)}
                     helperText={touched.apellido && errors.apellido}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-user text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    fullWidth
+                    label='DNI / Documento'
+                    name='numero_documento'
+                    placeholder='12345678'
+                    value={values.numero_documento}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.numero_documento && Boolean(errors.numero_documento)}
+                    helperText={touched.numero_documento && errors.numero_documento}
+                    disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-id text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    fullWidth
+                    label='Biografía (Opcional)'
+                    name='biografia'
+                    placeholder='Breve descripción...'
+                    value={values.biografia}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={touched.biografia && Boolean(errors.biografia)}
+                    helperText={touched.biografia && errors.biografia}
+                    disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-file-description text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+
+                {/* Sección: Contacto y Cuenta */}
+                <Grid item xs={12} sx={{ mt: 2 }}>
+                  <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
+                    Contacto y Cuenta
+                  </Typography>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
@@ -102,41 +183,20 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
                     label='Correo Electrónico'
                     name='correo'
                     type='email'
+                    placeholder='usuario@ejemplo.com'
                     value={values.correo}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.correo && Boolean(errors.correo)}
                     helperText={touched.correo && errors.correo}
                     disabled={isSubmitting}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='Número de Documento (DNI)'
-                    name='numero_documento'
-                    value={values.numero_documento}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.numero_documento && Boolean(errors.numero_documento)}
-                    helperText={touched.numero_documento && errors.numero_documento}
-                    disabled={isSubmitting}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='Contraseña'
-                    name='contrasena'
-                    type='password'
-                    value={values.contrasena}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.contrasena && Boolean(errors.contrasena)}
-                    helperText={touched.contrasena && errors.contrasena}
-                    disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-mail text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
 
@@ -145,12 +205,20 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
                     fullWidth
                     label='Celular'
                     name='celular'
+                    placeholder='987654321'
                     value={values.celular}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={touched.celular && Boolean(errors.celular)}
                     helperText={touched.celular && errors.celular}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-phone text-xl text-textSecondary' />
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
 
@@ -158,7 +226,7 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
                   <CustomTextField
                     select
                     fullWidth
-                    label='Rol'
+                    label='Rol de Usuario'
                     name='rol'
                     value={values.rol}
                     onChange={handleChange}
@@ -166,6 +234,13 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
                     error={touched.rol && Boolean(errors.rol)}
                     helperText={touched.rol && errors.rol}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-shield-lock text-xl text-textSecondary mr-2' />
+                        </InputAdornment>
+                      )
+                    }}
                   >
                     <MenuItem value={Rol.ESTUDIANTE}>Estudiante</MenuItem>
                     <MenuItem value={Rol.PROFESOR}>Profesor</MenuItem>
@@ -173,28 +248,59 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
                   </CustomTextField>
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item xs={12} sm={6}>
                   <CustomTextField
                     fullWidth
-                    multiline
-                    rows={3}
-                    label='Biografía'
-                    name='biografia'
-                    value={values.biografia}
+                    label='Contraseña'
+                    name='contrasena'
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder='********'
+                    value={values.contrasena}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={touched.biografia && Boolean(errors.biografia)}
-                    helperText={touched.biografia && errors.biografia}
+                    error={touched.contrasena && Boolean(errors.contrasena)}
+                    helperText={touched.contrasena && errors.contrasena}
                     disabled={isSubmitting}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position='start'>
+                          <i className='tabler-lock text-xl text-textSecondary' />
+                        </InputAdornment>
+                      ),
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            onClick={() => setShowPassword(!showPassword)}
+                            onMouseDown={e => e.preventDefault()}
+                            aria-label='toggle password visibility'
+                          >
+                            <i className={showPassword ? 'tabler-eye-off' : 'tabler-eye'} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
                   />
                 </Grid>
               </Grid>
 
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
-                <Button variant='outlined' onClick={handleClose} disabled={isSubmitting}>
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 5 }}>
+                <Button
+                  variant='tonal'
+                  color='secondary'
+                  onClick={handleClose}
+                  disabled={isSubmitting}
+                  sx={{ px: 4 }}
+                >
                   Cancelar
                 </Button>
-                <Button variant='contained' type='submit' disabled={isSubmitting}>
+                <Button
+                  variant='contained'
+                  type='submit'
+                  disabled={isSubmitting}
+                  sx={{ px: 4 }}
+                  startIcon={<i className='tabler-user-plus' />}
+                >
                   {isSubmitting ? 'Creando...' : 'Crear Usuario'}
                 </Button>
               </Box>

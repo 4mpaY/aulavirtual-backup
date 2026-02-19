@@ -4,16 +4,17 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { loginSchema } from '@/schemas/auth.schema'
 import { handleApiError } from '@/utils/libs/validation'
+import { ApiResponse } from '@/utils/libs/apiResponse'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
 /**
  * POST /api/auth/login
  * Login para obtener JWT token (útil para Postman)
- * 
+ *
  * Body: { correo, contrasena }
  * Response: { token, usuario }
- * 
+ *
  * Uso en Postman:
  *   Header: Authorization: Bearer <token>
  */
@@ -25,10 +26,7 @@ export async function POST(request: Request) {
     const validacion = loginSchema.safeParse(body)
 
     if (!validacion.success) {
-      return NextResponse.json(
-        { message: 'Credenciales inválidas', errors: validacion.error.flatten().fieldErrors },
-        { status: 400 }
-      )
+      return ApiResponse.validationError(request, validacion.error.flatten().fieldErrors as Record<string, string[]>)
     }
 
     const { correo, contrasena } = validacion.data
@@ -39,28 +37,19 @@ export async function POST(request: Request) {
     })
 
     if (!usuario) {
-      return NextResponse.json(
-        { message: 'Correo o contraseña incorrectos' },
-        { status: 401 }
-      )
+      return ApiResponse.error(request, 'Correo o contraseña incorrectos', 401)
     }
 
     // Verificar si está activo
     if (!usuario.esta_activo) {
-      return NextResponse.json(
-        { message: 'Tu cuenta ha sido desactivada' },
-        { status: 403 }
-      )
+      return ApiResponse.error(request, 'Tu cuenta ha sido desactivada', 403)
     }
 
     // Verificar contraseña
     const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena)
 
     if (!contrasenaValida) {
-      return NextResponse.json(
-        { message: 'Correo o contraseña incorrectos' },
-        { status: 401 }
-      )
+      return ApiResponse.error(request, 'Correo o contraseña incorrectos', 401)
     }
 
     // Generar JWT
@@ -77,8 +66,7 @@ export async function POST(request: Request) {
       { expiresIn: '7d' }
     )
 
-    return NextResponse.json({
-      message: 'Login exitoso',
+    return ApiResponse.success(request, {
       token,
       usuario: {
         id: usuario.id,
@@ -91,6 +79,6 @@ export async function POST(request: Request) {
       }
     })
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }

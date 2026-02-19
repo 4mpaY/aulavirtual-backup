@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
 import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
 import { changePasswordSchema } from '@/schemas/auth.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireAuth } from '@/utils/libs/auth-helpers'
+import { ApiResponse } from '@/utils/libs/apiResponse'
 
 /**
  * PATCH /api/auth/change-password
@@ -12,7 +12,7 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 export async function PATCH(request: Request) {
   try {
     // Verificar autenticación
-    const auth = await requireAuth()
+    const auth = await requireAuth(request)
     if (!auth.authorized) {
       return auth.error
     }
@@ -20,7 +20,7 @@ export async function PATCH(request: Request) {
     const body = await request.json()
 
     // Validar datos
-    const validation = validateRequest(changePasswordSchema, body)
+    const validation = validateRequest(changePasswordSchema, body, request)
 
     if (!validation.success) {
       return validation.error
@@ -34,20 +34,14 @@ export async function PATCH(request: Request) {
     })
 
     if (!usuario) {
-      return NextResponse.json(
-        { message: 'Usuario no encontrado' },
-        { status: 404 }
-      )
+      return ApiResponse.error(request, 'Usuario no encontrado', 404)
     }
 
     // Verificar contraseña actual
     const contrasenaValida = await bcrypt.compare(contrasenaActual, usuario.contrasena)
 
     if (!contrasenaValida) {
-      return NextResponse.json(
-        { message: 'La contraseña actual es incorrecta' },
-        { status: 400 }
-      )
+      return ApiResponse.error(request, 'La contraseña actual es incorrecta', 400)
     }
 
     // Hash de la nueva contraseña
@@ -59,10 +53,8 @@ export async function PATCH(request: Request) {
       data: { contrasena: hashedPassword }
     })
 
-    return NextResponse.json({
-      message: 'Contraseña actualizada exitosamente'
-    })
+    return ApiResponse.success(request, { message: 'Contraseña actualizada exitosamente' })
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }

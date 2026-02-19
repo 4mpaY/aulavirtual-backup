@@ -14,16 +14,16 @@ export class AxiosUsuario extends AxiosInternalHttpClient {
   constructor(params: Params = {}) {
     super({
       axiosLib: params.axiosLib ?? axios,
-      baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api/usuarios`,
+      baseURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/usuarios`,
       getAuthToken: params.getAuthToken
-    })
+    })  
   }
 
   async searchAll(): Promise<Usuario[]> {
     try {
-      const payload = await this.iGet<Usuario[]>()
+      const payload = await this.iGet<{ usuarios: Usuario[]; paginacion: any }>()
 
-      return payload || []
+      return payload?.usuarios || []
     } catch (err: any) {
       throw err?.response?.data ?? err
     }
@@ -39,9 +39,9 @@ export class AxiosUsuario extends AxiosInternalHttpClient {
     }
   }
 
-  async create(usuario: CrearUsuarioDto): Promise<{ id: string }> {
+  async create(usuario: CrearUsuarioDto): Promise<{ usuario: Usuario }> {
     try {
-      const payload = await this.iPost<{ id: string }>('', usuario)
+      const payload = await this.iPost<{ usuario: Usuario }>('', usuario)
 
       return payload
     } catch (err: any) {
@@ -49,9 +49,9 @@ export class AxiosUsuario extends AxiosInternalHttpClient {
     }
   }
 
-  async update(id: string, usuario: ActualizarUsuarioDto): Promise<Usuario> {
+  async update(id: string, usuario: ActualizarUsuarioDto): Promise<{ usuario: Usuario }> {
     try {
-      const payload = await this.iPatch<Usuario>(`/${id}`, usuario)
+      const payload = await this.iPatch<{ usuario: Usuario }>(`/${id}`, usuario)
 
       return payload
     } catch (err: any) {
@@ -69,9 +69,9 @@ export class AxiosUsuario extends AxiosInternalHttpClient {
     }
   }
 
-  async toggleStatus(id: string, esta_activo: boolean): Promise<Usuario> {
+  async toggleStatus(id: string, esta_activo: boolean): Promise<{ usuario: Usuario }> {
     try {
-      const payload = await this.iPatch<Usuario>(`/${id}`, { esta_activo })
+      const payload = await this.iPatch<{ usuario: Usuario }>(`/${id}`, { esta_activo })
 
       return payload
     } catch (err: any) {

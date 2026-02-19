@@ -53,8 +53,8 @@ export type Config = {
 }
 
 const themeConfig: Config = {
-  templateName: 'Vuexy',
-  settingsCookieName: 'vuexy-mui-next-demo-1',
+  templateName: 'Aula Virtual',
+  settingsCookieName: 'aula-virtual',
   mode: 'system', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'
   semiDark: false, // true, false

@@ -1,9 +1,10 @@
-import { NextResponse } from 'next/server'
 import prisma from '@/utils/libs/prisma'
+import bcrypt from 'bcryptjs'
 import { actualizarUsuarioSchema } from '@/schemas/usuario.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireAdmin, requireAuth } from '@/utils/libs/auth-helpers'
 import { Rol } from '@prisma/client'
+import { ApiResponse } from '@/utils/libs/apiResponse'
 
 /**
  * GET /api/usuarios/[id]
@@ -12,7 +13,7 @@ import { Rol } from '@prisma/client'
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     // Verificar autenticación
-    const auth = await requireAuth()
+    const auth = await requireAuth(request)
     if (!auth.authorized) {
       return auth.error
     }
@@ -21,10 +22,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     // Verificar permisos: debe ser admin o el mismo usuario
     if (auth.user.rol !== Rol.ADMIN && auth.user.id !== id) {
-      return NextResponse.json(
-        { message: 'No tienes permisos para ver este usuario' },
-        { status: 403 }
-      )
+      return ApiResponse.error(request, 'No tienes permisos para ver este usuario', 403)
     }
 
     // Buscar usuario
@@ -47,12 +45,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
     })
 
     if (!usuario) {
-      return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 })
+      return ApiResponse.error(request, 'Usuario no encontrado', 404)
     }
 
-    return NextResponse.json(usuario)
+    return ApiResponse.success(request, usuario)
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }
 
@@ -63,7 +61,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     // Verificar que sea admin
-    const auth = await requireAdmin()
+    const auth = await requireAdmin(request)
     if (!auth.authorized) {
       return auth.error
     }
@@ -72,7 +70,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const body = await request.json()
 
     // Validar datos
-    const validation = validateRequest(actualizarUsuarioSchema, body)
+    const validation = validateRequest(actualizarUsuarioSchema, body, request)
 
     if (!validation.success) {
       return validation.error
@@ -86,7 +84,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     })
 
     if (!usuario) {
-      return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 })
+      return ApiResponse.error(request, 'Usuario no encontrado', 404)
     }
 
     // Si se actualiza el correo, verificar que no exista
@@ -96,7 +94,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       })
 
       if (correoExistente) {
-        return NextResponse.json({ message: 'El correo ya está registrado' }, { status: 409 })
+        return ApiResponse.error(request, 'El correo ya está registrado', 409)
       }
     }
 
@@ -107,11 +105,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       })
 
       if (documentoExistente) {
-        return NextResponse.json(
-          { message: 'El número de documento ya está registrado' },
-          { status: 409 }
-        )
+        return ApiResponse.error(request, 'El número de documento ya está registrado', 409)
       }
+    }
+
+    // Hash de la contraseña si existe
+    if (data.contrasena) {
+      data.contrasena = await bcrypt.hash(data.contrasena, 10)
     }
 
     // Actualizar usuario
@@ -133,12 +133,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
     })
 
-    return NextResponse.json({
-      message: 'Usuario actualizado exitosamente',
-      usuario: usuarioActualizado
-    })
+    return ApiResponse.success(request, { usuario: usuarioActualizado })
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }
 
@@ -149,7 +146,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
     // Verificar que sea admin
-    const auth = await requireAdmin()
+    const auth = await requireAdmin(request)
     if (!auth.authorized) {
       return auth.error
     }
@@ -162,12 +159,12 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     })
 
     if (!usuario) {
-      return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 })
+      return ApiResponse.error(request, 'Usuario no encontrado', 404)
     }
 
     // No permitir eliminar al propio admin
     if (auth.user.id === id) {
-      return NextResponse.json({ message: 'No puedes eliminar tu propia cuenta' }, { status: 400 })
+      return ApiResponse.error(request, 'No puedes eliminar tu propia cuenta', 400)
     }
 
     // Eliminar usuario
@@ -175,10 +172,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       where: { id }
     })
 
-    return NextResponse.json({
-      message: 'Usuario eliminado exitosamente'
-    })
+    return ApiResponse.success(request, { message: 'Usuario eliminado exitosamente' })
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }

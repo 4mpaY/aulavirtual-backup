@@ -47,7 +47,11 @@ export const crearUsuarioSchema = z.object({
     .string()
     .trim()
     .url('URL de avatar inválida')
+    .optional(),
+  esta_activo: z
+    .boolean()
     .optional()
+    .default(true),
 })
 
 export type CrearUsuarioDto = z.infer<typeof crearUsuarioSchema>
@@ -99,6 +103,11 @@ export const actualizarUsuarioSchema = z.object({
     .optional(),
   esta_activo: z
     .boolean()
+    .optional(),
+  contrasena: z
+    .string()
+    .trim()
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
     .optional()
 })
 

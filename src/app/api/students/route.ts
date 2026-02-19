@@ -1,21 +1,14 @@
-import { NextResponse } from 'next/server'
 import prisma from '@/utils/libs/prisma'
+import { handleApiError } from '@/utils/libs/validation'
+import { ApiResponse } from '@/utils/libs/apiResponse'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const students = await prisma.student.findMany()
-    return NextResponse.json(students)
+
+    return ApiResponse.success(request, students)
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 500 }
-      )
-    }
-     return NextResponse.json(
-        { message: 'Internal Server Error' },
-        { status: 500 }
-      )
+    return handleApiError(error, request)
   }
 }
 
@@ -29,17 +22,9 @@ export async function POST(request: Request) {
         email,
       },
     })
-    return NextResponse.json(newStudent)
+
+    return ApiResponse.success(request, newStudent, 201)
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 500 }
-      )
-    }
-     return NextResponse.json(
-        { message: 'Internal Server Error' },
-        { status: 500 }
-      )
+    return handleApiError(error, request)
   }
 }

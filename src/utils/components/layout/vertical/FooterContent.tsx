@@ -29,14 +29,14 @@ const FooterContent = () => {
       className={classnames(verticalLayoutClasses.footerContent, 'flex items-center justify-between flex-wrap gap-4')}
     >
       <p>
-        <span className='text-textSecondary'>{`© ${new Date().getFullYear()}, Made with `}</span>
+        <span className='text-textSecondary'>{`© ${new Date().getFullYear()}, Desarrollado con`}</span>
         <span>{`❤️`}</span>
-        <span className='text-textSecondary'>{` by `}</span>
-        <Link href='https://pixinvent.com' target='_blank' className='text-primary uppercase'>
-          Pixinvent
+        <span className='text-textSecondary'>{` por `}</span>
+        <Link href='https://fly-software.lovable.app/' target='_blank' className='text-primary'>
+          Fly
         </Link>
       </p>
-      {!isBreakpointReached && (
+      {/* {!isBreakpointReached && (
         <div className='flex items-center gap-4'>
           <Link href='https://themeforest.net/licenses/standard' target='_blank' className='text-primary'>
             License
@@ -55,7 +55,7 @@ const FooterContent = () => {
             Support
           </Link>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

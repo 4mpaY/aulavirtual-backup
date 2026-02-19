@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
 import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
 import { registerSchema } from '@/schemas/auth.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
+import { ApiResponse } from '@/utils/libs/apiResponse'
 
 /**
  * POST /api/auth/register
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     const body = await request.json()
 
     // Validar datos
-    const validation = validateRequest(registerSchema, body)
+    const validation = validateRequest(registerSchema, body, request)
 
     if (!validation.success) {
       return validation.error
@@ -27,10 +27,7 @@ export async function POST(request: Request) {
     })
 
     if (correoExistente) {
-      return NextResponse.json(
-        { message: 'El correo ya está registrado' },
-        { status: 409 }
-      )
+      return ApiResponse.error(request, 'El correo ya está registrado', 409)
     }
 
     // Verificar si el número de documento ya existe
@@ -39,10 +36,7 @@ export async function POST(request: Request) {
     })
 
     if (documentoExistente) {
-      return NextResponse.json(
-        { message: 'El número de documento ya está registrado' },
-        { status: 409 }
-      )
+      return ApiResponse.error(request, 'El número de documento ya está registrado', 409)
     }
 
     // Hash de la contraseña
@@ -72,14 +66,8 @@ export async function POST(request: Request) {
       }
     })
 
-    return NextResponse.json(
-      {
-        message: 'Usuario registrado exitosamente',
-        usuario: nuevoUsuario
-      },
-      { status: 201 }
-    )
+    return ApiResponse.success(request, { usuario: nuevoUsuario }, 201)
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }

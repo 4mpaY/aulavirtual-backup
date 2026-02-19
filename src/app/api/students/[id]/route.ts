@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
 import prisma from '@/utils/libs/prisma'
+import { handleApiError } from '@/utils/libs/validation'
+import { ApiResponse } from '@/utils/libs/apiResponse'
 
 interface Params {
   params: { id: string }
@@ -14,24 +15,12 @@ export async function GET(request: Request, { params }: Params) {
     })
 
     if (!student) {
-      return NextResponse.json(
-        { message: 'Student not found' },
-        { status: 404 }
-      )
+      return ApiResponse.error(request, 'Student not found', 404)
     }
 
-    return NextResponse.json(student)
+    return ApiResponse.success(request, student)
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 500 }
-      )
-    }
-    return NextResponse.json(
-        { message: 'Internal Server Error' },
-        { status: 500 }
-      )
+    return handleApiError(error, request)
   }
 }
 
@@ -49,18 +38,9 @@ export async function PUT(request: Request, { params }: Params) {
       },
     })
 
-    return NextResponse.json(updatedStudent)
+    return ApiResponse.success(request, updatedStudent)
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 500 }
-      )
-    }
-    return NextResponse.json(
-        { message: 'Internal Server Error' },
-        { status: 500 }
-      )
+    return handleApiError(error, request)
   }
 }
 
@@ -73,23 +53,11 @@ export async function DELETE(request: Request, { params }: Params) {
     })
 
     if (!deletedStudent) {
-      return NextResponse.json(
-        { message: 'Student not found' },
-        { status: 404 }
-      )
+      return ApiResponse.error(request, 'Student not found', 404)
     }
 
-    return NextResponse.json(deletedStudent)
+    return ApiResponse.success(request, deletedStudent)
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 500 }
-      )
-    }
-    return NextResponse.json(
-        { message: 'Internal Server Error' },
-        { status: 500 }
-      )
+    return handleApiError(error, request)
   }
 }

@@ -30,7 +30,10 @@ export class AxiosInternalHttpClient {
     }
 
     protected parseResponse<T = any>(res: AxiosResponse): T {
-        return res.data
+        // Extraer `result` de la respuesta estandarizada, con fallback a res.data
+        const data = res.data
+
+        return data?.result !== undefined ? data.result : data
     }
 
     protected async iGet<T = any>(url = '', config?: AxiosRequestConfig) {

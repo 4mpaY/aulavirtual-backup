@@ -64,7 +64,7 @@ export function useCreateUsuario() {
   const qc = useQueryClient()
   const axiosUsuario = axiosUsuarioFactory()
 
-  return useMutation<{ id: string }, any, CrearUsuarioDto>({
+  return useMutation<{ usuario: Usuario }, any, CrearUsuarioDto>({
     mutationFn: async (payload: CrearUsuarioDto) => await axiosUsuario.create(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.USUARIOS })
   })
@@ -77,7 +77,7 @@ export function useEditUsuario() {
   const qc = useQueryClient()
   const axiosUsuario = axiosUsuarioFactory()
 
-  return useMutation<Usuario, any, { id: string; data: ActualizarUsuarioDto }>({
+  return useMutation<{ usuario: Usuario }, any, { id: string; data: ActualizarUsuarioDto }>({
     mutationFn: async ({ id, data }) => await axiosUsuario.update(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.USUARIOS })
   })
@@ -103,7 +103,7 @@ export function useToggleUsuarioStatus() {
   const qc = useQueryClient()
   const axiosUsuario = axiosUsuarioFactory()
 
-  return useMutation<Usuario, any, { id: string; esta_activo: boolean }>({
+  return useMutation<{ usuario: Usuario }, any, { id: string; esta_activo: boolean }>({
     mutationFn: async ({ id, esta_activo }) => await axiosUsuario.toggleStatus(id, esta_activo),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.USUARIOS })
   })

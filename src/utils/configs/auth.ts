@@ -2,7 +2,10 @@ import type { NextAuthOptions, User } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import { loginSchema } from '@/schemas/auth.schema'
+
+const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -80,8 +83,20 @@ export const authOptions: NextAuthOptions = {
         token.avatar = user.avatar
         token.numero_documento = user.numero_documento
         token.esta_activo = user.esta_activo
-        // Generar accessToken usando el user.id
-        token.accessToken = user.id
+
+        // Generar un JWT real firmado (mismo payload que /api/auth/login)
+        token.accessToken = jwt.sign(
+          {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            rol: user.rol,
+            numero_documento: user.numero_documento,
+            esta_activo: user.esta_activo
+          },
+          JWT_SECRET,
+          { expiresIn: '30d' }
+        )
       }
       return token
     },

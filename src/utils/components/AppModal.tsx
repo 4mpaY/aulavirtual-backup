@@ -12,19 +12,27 @@ type AppModalProps = {
 const Wrapper = styled(Box)(({ theme }) => ({
   top: '50%',
   left: '50%',
-  padding: 18,
+  padding: theme.spacing(6),
   maxWidth: 700,
-  width: '100%',
-  borderRadius: 5,
+  width: 'calc(100% - 32px)',
+  maxHeight: 'calc(100% - 48px)', // Increased top/bottom margin slightly
+  borderRadius: theme.shape.borderRadius * 4,
   position: 'absolute',
   transform: 'translate(-50%, -50%)',
-  backgroundColor: lightTheme(theme) ? '#fff' : theme.palette.background.default
+  backgroundColor: lightTheme(theme) ? '#fff' : theme.palette.background.default,
+  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+  overflowY: 'auto',
+  outline: 'none',
+  [theme.breakpoints.up('sm')]: {
+    width: '100%',
+    padding: theme.spacing(10)
+  }
 }))
 
 const CloseButton = styled(IconButton)(() => ({
   position: 'absolute',
-  top: 2,
-  right: 2,
+  top: 12,
+  right: 12,
   zIndex: 100
 }))
 
@@ -32,6 +40,7 @@ const AppModal: FC<AppModalProps & BoxProps> = ({ children, open, handleClose, v
   return (
     <Modal
       open={open}
+      onClose={handleClose}
       slots={{
         backdrop: Backdrop
       }}
@@ -44,8 +53,8 @@ const AppModal: FC<AppModalProps & BoxProps> = ({ children, open, handleClose, v
       <Fade in={open}>
         <Wrapper {...props}>
           {viewIconClose && (
-            <CloseButton onClick={handleClose} aria-label='close' sx={{ width: 40, height: 40 }}>
-              <Icon icon='mdi:close-circle' fontSize={32} />
+            <CloseButton onClick={handleClose} aria-label='close' size='small'>
+              <Icon icon='tabler:x' fontSize={24} />
             </CloseButton>
           )}
           {children}
