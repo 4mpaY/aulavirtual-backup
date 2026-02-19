@@ -113,15 +113,11 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
       setIsLoading(true)
       setError('')
 
-      console.log('🔐 Intentando login con:', data.correo)
-
       const result = await signIn('credentials', {
         redirect: false,
         correo: data.correo,
         contrasena: data.contrasena
       })
-
-      console.log('📊 Resultado del login:', result)
 
       // Verificar si hubo error
       if (result?.error) {
@@ -143,8 +139,6 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         setError('Error al iniciar sesión. Intenta nuevamente.')
         return
       }
-
-      console.log('✅ Login exitoso, redirigiendo...')
 
       // Redirigir a dashboard genérico - el middleware redirigirá según el rol
       router.push('/dashboard')

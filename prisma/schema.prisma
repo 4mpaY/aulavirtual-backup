@@ -115,6 +115,7 @@ model Categoria {
   descripcion        String?
   categoria_padre_id String?
   esta_activo        Boolean @default(true)
+  orden              Int     @default(0)
 
   padre Categoria?  @relation("JerarquiaCategoria", fields: [categoria_padre_id], references: [id], onDelete: SetNull)
   hijos Categoria[] @relation("JerarquiaCategoria")
