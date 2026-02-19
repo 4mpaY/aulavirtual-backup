@@ -26,7 +26,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 // Type Imports
 import type { Settings } from '@core/contexts/settingsContext'
 import type { Direction } from '@core/types'
-import type { PrimaryColorConfig } from '@configs/primaryColorConfig'
+import type { PrimaryColorConfig } from '@/utils/configs/primaryColorConfig'
 
 // Icon Imports
 import SkinDefault from '@core/svg/SkinDefault'
@@ -40,7 +40,7 @@ import DirectionLtr from '@core/svg/DirectionLtr'
 import DirectionRtl from '@core/svg/DirectionRtl'
 
 // Config Imports
-import primaryColorConfig from '@configs/primaryColorConfig'
+import primaryColorConfig from '@/utils/configs/primaryColorConfig'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
@@ -341,8 +341,8 @@ const Customizer = ({ breakpoint = 'lg', dir = 'ltr', disableDirection = false }
                 </div>
               </div>
               {settings.mode === 'dark' ||
-              (settings.mode === 'system' && isSystemDark) ||
-              settings.layout === 'horizontal' ? null : (
+                (settings.mode === 'system' && isSystemDark) ||
+                settings.layout === 'horizontal' ? null : (
                 <div className='flex items-center justify-between'>
                   <label className='font-medium cursor-pointer' htmlFor='customizer-semi-dark'>
                     Semi Dark

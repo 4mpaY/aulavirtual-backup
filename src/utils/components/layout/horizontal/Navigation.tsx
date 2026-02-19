@@ -8,7 +8,7 @@ import classnames from 'classnames'
 import HorizontalMenu from './HorizontalMenu'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
+import themeConfig from '@/utils/configs/themeConfig'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
@@ -28,9 +28,8 @@ const StyledDiv = styled.div<StyledDivProps>`
     `
     padding: ${themeConfig.layoutPadding}px;
 
-    ${
-      isContentCompact &&
-      `
+    ${isContentCompact &&
+    `
       margin-inline: auto;
       max-inline-size: ${themeConfig.compactContentWidth}px;
     `

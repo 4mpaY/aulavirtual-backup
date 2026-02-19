@@ -1,0 +1,63 @@
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosStatic } from 'axios';
+import axios from 'axios'
+
+type Params = {
+    axiosLib?: AxiosStatic
+    baseURL: string
+    getAuthToken?: () => Promise<string | null> | string | null
+}
+
+export class AxiosInternalHttpClient {
+    protected client: AxiosInstance
+    protected getAuthToken?: () => Promise<string | null> | string | null
+
+    constructor({ axiosLib = axios, baseURL, getAuthToken }: Params) {
+        this.client = axiosLib.create({ baseURL })
+        this.getAuthToken = getAuthToken
+
+        this.client.interceptors.request.use(async (config) => {
+            try {
+                const token = typeof this.getAuthToken === 'function' ? await this.getAuthToken() : this.getAuthToken
+
+                if (token && config.headers) config.headers.Authorization = `Bearer ${token}`
+            } catch (e) {
+                // ignore token error
+            }
+
+
+            return config
+        })
+    }
+
+    protected parseResponse<T = any>(res: AxiosResponse): T {
+        return res.data
+    }
+
+    protected async iGet<T = any>(url = '', config?: AxiosRequestConfig) {
+        const res = await this.client.get(url, config)
+
+
+        return this.parseResponse<T>(res)
+    }
+
+    protected async iPost<T = any, B = any>(url = '', data?: B, config?: AxiosRequestConfig) {
+        const res = await this.client.post(url, data, config)
+
+
+        return this.parseResponse<T>(res)
+    }
+
+    protected async iPatch<T = any, B = any>(url = '', data?: B, config?: AxiosRequestConfig) {
+        const res = await this.client.patch(url, data, config)
+
+
+        return this.parseResponse<T>(res)
+    }
+
+    protected async iDelete<T = any>(url = '', config?: AxiosRequestConfig) {
+        const res = await this.client.delete(url, config)
+
+
+        return this.parseResponse<T>(res)
+    }
+}

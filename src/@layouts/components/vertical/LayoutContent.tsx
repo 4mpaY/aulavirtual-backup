@@ -14,6 +14,17 @@ import { verticalLayoutClasses } from '@layouts/utils/layoutClasses'
 
 // Styled Component Imports
 import StyledMain from '@layouts/styles/shared/StyledMain'
+import { MaterialDesignContent, SnackbarProvider } from 'notistack'
+import { styled } from '@mui/material'
+
+const StyledMaterialDesignContent = styled(MaterialDesignContent)(({ theme }) => ({
+  '&.notistack-MuiContent-error': {
+    backgroundColor: theme.palette.error.main
+  },
+  '&.notistack-MuiContent-success': {
+    backgroundColor: theme.palette.success.main
+  }
+}))
 
 const LayoutContent = ({ children }: ChildrenType) => {
   // Hooks
@@ -31,7 +42,21 @@ const LayoutContent = ({ children }: ChildrenType) => {
         [verticalLayoutClasses.contentWide]: contentWide
       })}
     >
-      {children}
+      <SnackbarProvider
+        maxSnack={5}
+        autoHideDuration={3000}
+        preventDuplicate
+        Components={{
+          success: StyledMaterialDesignContent,
+          error: StyledMaterialDesignContent
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right'
+        }}
+      >
+        {children}
+      </SnackbarProvider>
     </StyledMain>
   )
 }

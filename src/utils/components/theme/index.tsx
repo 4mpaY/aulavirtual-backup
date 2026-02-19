@@ -13,8 +13,8 @@ import {
 } from '@mui/material/styles'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter'
 import CssBaseline from '@mui/material/CssBaseline'
-import type {} from '@mui/material/themeCssVarsAugmentation' //! Do not remove this import otherwise you will get type errors while making a production build
-import type {} from '@mui/lab/themeAugmentation' //! Do not remove this import otherwise you will get type errors while making a production build
+import type { } from '@mui/material/themeCssVarsAugmentation' //! Do not remove this import otherwise you will get type errors while making a production build
+import type { } from '@mui/lab/themeAugmentation' //! Do not remove this import otherwise you will get type errors while making a production build
 
 // Third-party Imports
 import { useMedia } from 'react-use'
@@ -27,7 +27,7 @@ import type { ChildrenType, Direction, SystemMode } from '@core/types'
 import ModeChanger from './ModeChanger'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
+import themeConfig from '@/utils/configs/themeConfig'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'

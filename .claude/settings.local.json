@@ -6,7 +6,8 @@
       "Bash(findstr:*)",
       "Bash(npx prisma format:*)",
       "Bash(pnpm add:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(ls:*)"
     ]
   }
 }

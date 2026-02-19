@@ -259,10 +259,10 @@ model Pedido {
   token_pago       String? // Token de formulario de Izipay
   respuesta_izipay Json? // Respuesta completa de Izipay (IPN/webhook)
 
-  creado_en    DateTime  @default(now())
-  pagado_en    DateTime?
-  cancelado_en DateTime?
-  actualizado_en DateTime      @updatedAt
+  creado_en      DateTime  @default(now())
+  pagado_en      DateTime?
+  cancelado_en   DateTime?
+  actualizado_en DateTime  @updatedAt
 
   usuario_id String
   usuario    Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)

@@ -7,7 +7,7 @@ import classnames from 'classnames'
 import type { ChildrenType } from '@core/types'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
+import themeConfig from '@/utils/configs/themeConfig'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
@@ -17,6 +17,17 @@ import { horizontalLayoutClasses } from '@layouts/utils/layoutClasses'
 
 // Styled Component Imports
 import StyledMain from '@layouts/styles/shared/StyledMain'
+import { MaterialDesignContent, SnackbarProvider } from 'notistack'
+import { styled } from '@mui/material'
+
+const StyledMaterialDesignContent = styled(MaterialDesignContent)(({ theme }) => ({
+  '&.notistack-MuiContent-error': {
+    backgroundColor: theme.palette.error.main
+  },
+  '&.notistack-MuiContent-success': {
+    backgroundColor: theme.palette.success.main
+  }
+}))
 
 const LayoutContent = ({ children }: ChildrenType) => {
   // Hooks
@@ -35,7 +46,21 @@ const LayoutContent = ({ children }: ChildrenType) => {
       })}
       style={{ padding: themeConfig.layoutPadding }}
     >
-      {children}
+      <SnackbarProvider
+        maxSnack={5}
+        autoHideDuration={3000}
+        preventDuplicate
+        Components={{
+          success: StyledMaterialDesignContent,
+          error: StyledMaterialDesignContent
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right'
+        }}
+      >
+        {children}
+      </SnackbarProvider>
     </StyledMain>
   )
 }

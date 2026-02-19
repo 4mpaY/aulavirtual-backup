@@ -6,7 +6,7 @@ import styled from '@emotion/styled'
 import type { CSSObject } from '@emotion/styled'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
+import themeConfig from '@/utils/configs/themeConfig'
 
 // Util Imports
 import { horizontalLayoutClasses } from '@layouts/utils/layoutClasses'

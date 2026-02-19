@@ -1,5 +1,5 @@
 // Component Imports
-import Providers from '@components/Providers'
+import Providers from '@/utils/components/providers/Providers'
 import BlankLayout from '@layouts/BlankLayout'
 import NotFound from '@/features/shared/pages/NotFound'
 

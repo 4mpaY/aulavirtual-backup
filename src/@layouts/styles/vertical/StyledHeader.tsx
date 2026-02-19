@@ -6,7 +6,7 @@ import styled from '@emotion/styled'
 import type { CSSObject } from '@emotion/styled'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
+import themeConfig from '@/utils/configs/themeConfig'
 
 // Util Imports
 import { verticalLayoutClasses } from '@layouts/utils/layoutClasses'
@@ -127,7 +127,7 @@ const StyledHeader = styled.header<StyledHeaderProps>`
       &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerDetached}
       .${verticalLayoutClasses.navbar} {
       ${({ theme }) =>
-        `transition: ${theme.transitions.create(['box-shadow', 'border-width', 'padding-inline', 'backdrop-filter'])}`};
+    `transition: ${theme.transitions.create(['box-shadow', 'border-width', 'padding-inline', 'backdrop-filter'])}`};
     }
     &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerAttached}
       .${verticalLayoutClasses.navbar},

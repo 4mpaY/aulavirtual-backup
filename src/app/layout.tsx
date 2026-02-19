@@ -15,7 +15,7 @@ import { Providers } from '@/components/Providers'
 
 // Server Imports
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/configs/auth'
+import { authOptions } from '@/utils/configs/auth'
 
 export const metadata = {
   title: 'Aula Virtual - Sistema de gestión de cursos',

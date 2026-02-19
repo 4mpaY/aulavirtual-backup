@@ -8,9 +8,9 @@ import { createContext, useMemo, useState } from 'react'
 import type { Mode, Skin, Layout, LayoutComponentWidth, DemoName } from '@core/types'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
-import demoConfigs from '@configs/demoConfigs'
-import primaryColorConfig from '@configs/primaryColorConfig'
+import themeConfig from '@/utils/configs/themeConfig'
+import demoConfigs from '@/utils/configs/demoConfigs'
+import primaryColorConfig from '@/utils/configs/primaryColorConfig'
 
 // Hook Imports
 import { useObjectCookie } from '@core/hooks/useObjectCookie'

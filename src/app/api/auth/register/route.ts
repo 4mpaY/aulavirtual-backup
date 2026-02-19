@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/libs/prisma'
+import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
 import { registerSchema } from '@/schemas/auth.schema'
-import { validateRequest, handleApiError } from '@/libs/validation'
+import { validateRequest, handleApiError } from '@/utils/libs/validation'
 
 /**
  * POST /api/auth/register

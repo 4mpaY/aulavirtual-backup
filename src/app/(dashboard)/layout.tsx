@@ -10,7 +10,7 @@ import VerticalLayout from '@layouts/VerticalLayout'
 import HorizontalLayout from '@layouts/HorizontalLayout'
 
 // Component Imports
-import Providers from '@components/Providers'
+import Providers from '@/utils/components/providers/Providers'
 import Navigation from '@components/layout/vertical/Navigation'
 import Header from '@components/layout/horizontal/Header'
 import Navbar from '@components/layout/vertical/Navbar'

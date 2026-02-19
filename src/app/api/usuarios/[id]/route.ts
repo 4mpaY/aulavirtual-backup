@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/libs/prisma'
+import prisma from '@/utils/libs/prisma'
 import { actualizarUsuarioSchema } from '@/schemas/usuario.schema'
-import { validateRequest, handleApiError } from '@/libs/validation'
-import { requireAdmin, requireAuth } from '@/libs/auth-helpers'
+import { validateRequest, handleApiError } from '@/utils/libs/validation'
+import { requireAdmin, requireAuth } from '@/utils/libs/auth-helpers'
 import { Rol } from '@prisma/client'
 
 /**

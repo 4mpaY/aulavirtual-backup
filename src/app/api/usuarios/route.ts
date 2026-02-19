@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/libs/prisma'
+import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
 import { crearUsuarioSchema, listarUsuariosQuerySchema } from '@/schemas/usuario.schema'
-import { validateRequest, handleApiError } from '@/libs/validation'
-import { requireAdmin } from '@/libs/auth-helpers'
+import { validateRequest, handleApiError } from '@/utils/libs/validation'
+import { requireAdmin } from '@/utils/libs/auth-helpers'
 
 /**
  * GET /api/usuarios

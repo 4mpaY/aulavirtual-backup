@@ -44,7 +44,7 @@
         "./src/utils/components/*"
       ],
       "@configs/*": [
-        "./src/configs/*"
+        "./src/utils/configs/*"
       ],
       "@features/*": [
         "./src/features/*"

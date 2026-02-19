@@ -1,6 +1,6 @@
 import type { NextAuthOptions, User } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import prisma from '@/libs/prisma'
+import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
 import { loginSchema } from '@/schemas/auth.schema'
 
@@ -80,6 +80,8 @@ export const authOptions: NextAuthOptions = {
         token.avatar = user.avatar
         token.numero_documento = user.numero_documento
         token.esta_activo = user.esta_activo
+        // Generar accessToken usando el user.id
+        token.accessToken = user.id
       }
       return token
     },
@@ -90,6 +92,7 @@ export const authOptions: NextAuthOptions = {
         session.user.avatar = token.avatar as string | null
         session.user.numero_documento = token.numero_documento as string
         session.user.esta_activo = token.esta_activo as boolean
+        session.user.accessToken = token.accessToken as string
       }
       return session
     }
@@ -120,6 +123,7 @@ declare module 'next-auth' {
       avatar?: string | null
       numero_documento: string
       esta_activo: boolean
+      accessToken?: string
     }
   }
 }
@@ -131,5 +135,6 @@ declare module 'next-auth/jwt' {
     avatar?: string | null
     numero_documento?: string
     esta_activo?: boolean
+    accessToken?: string
   }
 }

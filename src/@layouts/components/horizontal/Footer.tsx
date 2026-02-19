@@ -11,7 +11,7 @@ import type { CSSObject } from '@emotion/styled'
 import type { ChildrenType } from '@core/types'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
+import themeConfig from '@/utils/configs/themeConfig'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'

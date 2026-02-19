@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/libs/prisma'
+import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
 import { changePasswordSchema } from '@/schemas/auth.schema'
-import { validateRequest, handleApiError } from '@/libs/validation'
-import { requireAuth } from '@/libs/auth-helpers'
+import { validateRequest, handleApiError } from '@/utils/libs/validation'
+import { requireAuth } from '@/utils/libs/auth-helpers'
 
 /**
  * PATCH /api/auth/change-password
