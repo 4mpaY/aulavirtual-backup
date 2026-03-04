@@ -25,6 +25,7 @@ export const crearCursoSchema = z.object({
   tipo_emision: z
     .enum(['SINCRONO', 'ASINCRONO'])
     .default('ASINCRONO'),
+
   // Paso 2: Configuración y precio (opcional al crear)
   es_gratis: z.boolean().default(false),
   precio: z.coerce
@@ -40,6 +41,7 @@ export const crearCursoSchema = z.object({
     .max(50)
     .optional()
     .nullable(),
+
   // Paso 3: Media (opcional al crear)
   miniatura: z
     .string()
@@ -106,7 +108,11 @@ export const actualizarCursoSchema = z.object({
     .string()
     .url('URL de video inválida')
     .optional()
-    .nullable()
+    .nullable(),
+  objetivos: z.array(z.string()).optional(),
+  metodologia: z.array(z.any()).optional(),
+  beneficios: z.array(z.any()).optional(),
+  incluye: z.array(z.any()).optional()
 })
 
 export type ActualizarCursoDto = z.infer<typeof actualizarCursoSchema>

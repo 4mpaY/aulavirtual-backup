@@ -1,0 +1,302 @@
+'use client'
+
+import React, { useState, useMemo } from 'react'
+
+import {
+    Box,
+    Container,
+    Typography,
+    Stack,
+    TextField,
+    InputAdornment,
+    Chip,
+    Fade,
+    MenuItem,
+    IconButton,
+    Tooltip,
+    Divider
+} from '@mui/material'
+
+import CourseList from './CourseList'
+
+interface Category {
+    id: string
+    nombre: string
+}
+
+interface CourseCatalogProps {
+    courses: any[]
+    categories: Category[]
+}
+
+const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) => {
+    const [searchTerm, setSearchTerm] = useState('')
+    const [selectedCategory, setSelectedCategory] = useState('all')
+    const [selectedLevel, setSelectedLevel] = useState('all')
+    const [selectedPrice, setSelectedPrice] = useState('all')
+    const [selectedModality, setSelectedModality] = useState('all')
+    const [sortBy, setSortBy] = useState('recent')
+
+    const filteredAndSortedCourses = useMemo(() => {
+        const filtered = courses.filter(course => {
+            const matchesSearch = course.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (course.descripcion && course.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
+
+            const matchesCategory = selectedCategory === 'all' || course.categoria_id === selectedCategory
+
+            const matchesLevel = selectedLevel === 'all' || course.nivel === selectedLevel
+
+            const matchesPrice = selectedPrice === 'all' ||
+                (selectedPrice === 'free' ? course.es_gratis : !course.es_gratis)
+
+            const matchesModality = selectedModality === 'all' || course.tipo_emision === selectedModality
+
+            return matchesSearch && matchesCategory && matchesLevel && matchesPrice && matchesModality
+        })
+
+        // Aplicar ordenamiento
+        return [...filtered].sort((a, b) => {
+            if (sortBy === 'recent') {
+                return new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime()
+            } else if (sortBy === 'alphabetical') {
+                return a.titulo.localeCompare(b.titulo)
+            }
+
+            return 0
+        })
+    }, [courses, searchTerm, selectedCategory, selectedLevel, selectedPrice, selectedModality, sortBy])
+
+    const clearFilters = () => {
+        setSearchTerm('')
+        setSelectedCategory('all')
+        setSelectedLevel('all')
+        setSelectedPrice('all')
+        setSelectedModality('all')
+        setSortBy('recent')
+    }
+
+    const hasFilters = searchTerm !== '' ||
+        selectedCategory !== 'all' ||
+        selectedLevel !== 'all' ||
+        selectedPrice !== 'all' ||
+        selectedModality !== 'all' ||
+        sortBy !== 'recent'
+
+
+
+    return (
+        <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', pb: 10 }}>
+            <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+                <Stack spacing={5}>
+                    <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="h3" sx={{ fontWeight: 900, mb: 1.5, color: '#1e293b', letterSpacing: '-0.03em' }}>
+                            Nuestros Cursos
+                        </Typography>
+                        <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 400, maxWidth: 600, mx: 'auto' }}>
+                            Aprende de expertos y potencia tu carrera profesional con nuestra selección premium.
+                        </Typography>
+                    </Box>
+
+                    <Stack spacing={4} alignItems="center">
+                        {/* Search Bar Premium */}
+                        <TextField
+                            fullWidth
+                            placeholder="Buscar por título o descripción..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            sx={{ maxWidth: 800 }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <i className="tabler-search" style={{ fontSize: '1.5rem', color: 'var(--mui-palette-primary-main)' }} />
+                                    </InputAdornment>
+                                ),
+                                endAdornment: searchTerm && (
+                                    <InputAdornment position="end">
+                                        <IconButton size="small" onClick={() => setSearchTerm('')}>
+                                            <i className="tabler-x" style={{ fontSize: '1.2rem' }} />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                                sx: {
+                                    borderRadius: '24px',
+                                    bgcolor: 'white',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                                    border: '1px solid #e2e8f0',
+                                    '&:hover': {
+                                        borderColor: '#2e7d32',
+                                    },
+                                    '&.Mui-focused': {
+                                        borderColor: '#2e7d32',
+                                        boxShadow: '0 0 0 4px rgba(46, 125, 50, 0.1)',
+                                    },
+                                    transition: 'all 0.3s ease',
+                                    '& fieldset': { border: 'none' },
+                                    px: 2,
+                                    height: 64,
+                                    fontSize: '1.1rem'
+                                }
+                            }}
+                        />
+
+                        {/* Filter Bar Premium */}
+                        <Box sx={{
+                            width: '100%',
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: 1.5,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            p: 2,
+                            bgcolor: 'white',
+                            borderRadius: '28px',
+                            boxShadow: '0 4px 25px rgba(0,0,0,0.03)',
+                            border: '1px solid #f1f5f9'
+                        }}>
+                            {/* Categoría */}
+                            <TextField
+                                select
+                                size="small"
+                                value={selectedCategory}
+                                onChange={(e) => setSelectedCategory(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <i className="tabler-category" style={{ color: '#64748b' }} />
+                                        </InputAdornment>
+                                    ),
+                                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
+                                }}
+                                sx={{ minWidth: 170, flexGrow: { xs: 1, md: 0 } }}
+                            >
+                                <MenuItem value="all">Todas las Categorías</MenuItem>
+                                {categories.map((cat) => (
+                                    <MenuItem key={cat.id} value={cat.id}>{cat.nombre}</MenuItem>
+                                ))}
+                            </TextField>
+
+                            {/* Nivel */}
+                            <TextField
+                                select
+                                size="small"
+                                value={selectedLevel}
+                                onChange={(e) => setSelectedLevel(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <i className="tabler-chart-bar" style={{ color: '#64748b' }} />
+                                        </InputAdornment>
+                                    ),
+                                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
+                                }}
+                                sx={{ minWidth: 140, flexGrow: { xs: 1, md: 0 } }}
+                            >
+                                <MenuItem value="all">Todos Niveles</MenuItem>
+                                <MenuItem value="BASICO">Básico</MenuItem>
+                                <MenuItem value="INTERMEDIO">Intermedio</MenuItem>
+                                <MenuItem value="AVANZADO">Avanzado</MenuItem>
+                            </TextField>
+
+                            {/* Tipo/Precio */}
+                            <TextField
+                                select
+                                size="small"
+                                value={selectedPrice}
+                                onChange={(e) => setSelectedPrice(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <i className="tabler-coin" style={{ color: '#64748b' }} />
+                                        </InputAdornment>
+                                    ),
+                                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
+                                }}
+                                sx={{ minWidth: 130, flexGrow: { xs: 1, md: 0 } }}
+                            >
+                                <MenuItem value="all">Tipo / Precio</MenuItem>
+                                <MenuItem value="free">Gratuito</MenuItem>
+                                <MenuItem value="premium">Premium</MenuItem>
+                            </TextField>
+
+                            {/* Modalidad */}
+                            <TextField
+                                select
+                                size="small"
+                                value={selectedModality}
+                                onChange={(e) => setSelectedModality(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <i className="tabler-device-laptop" style={{ color: '#64748b' }} />
+                                        </InputAdornment>
+                                    ),
+                                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
+                                }}
+                                sx={{ minWidth: 160, flexGrow: { xs: 1, md: 0 } }}
+                            >
+                                <MenuItem value="all">Cualquier Modalidad</MenuItem>
+                                <MenuItem value="ASINCRONO">Asincrónico</MenuItem>
+                                <MenuItem value="SINCRONO">En Vivo</MenuItem>
+                                <MenuItem value="MIXTO">Mixto</MenuItem>
+                            </TextField>
+
+                            <Divider orientation="vertical" flexItem sx={{ mx: 0.5, display: { xs: 'none', md: 'block' } }} />
+
+                            {/* Ordenamiento */}
+                            <TextField
+                                select
+                                size="small"
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <i className="tabler-sort-ascending" style={{ color: 'var(--mui-palette-primary-main)' }} />
+                                        </InputAdornment>
+                                    ),
+                                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: 'success.50', color: 'success.main', fontWeight: 700 }
+                                }}
+                                sx={{ minWidth: 170, flexGrow: { xs: 1, md: 0 } }}
+                            >
+                                <MenuItem value="recent">Recientes primero</MenuItem>
+                                <MenuItem value="alphabetical">A - Z</MenuItem>
+                            </TextField>
+
+                            {hasFilters && (
+                                <Tooltip title="Limpiar todos los filtros">
+                                    <IconButton
+                                        onClick={clearFilters}
+                                        sx={{
+                                            bgcolor: 'error.50',
+                                            color: 'error.main',
+                                            '&:hover': { bgcolor: 'error.100' },
+                                            width: 40,
+                                            height: 40
+                                        }}
+                                    >
+                                        <i className="tabler-refresh" />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                        </Box>
+                    </Stack>
+
+                    <Fade in={true} timeout={1000}>
+                        <Box>
+                            <Stack direction="row" spacing={1} sx={{ mb: 3, px: 1 }}>
+                                <Chip
+                                    label={`${filteredAndSortedCourses.length} cursos disponibles`}
+                                    size="small"
+                                    sx={{ bgcolor: 'white', fontWeight: 700, color: 'text.secondary', border: '1px solid #e2e8f0', px: 1 }}
+                                />
+                            </Stack>
+                            <CourseList courses={filteredAndSortedCourses} />
+                        </Box>
+                    </Fade>
+                </Stack>
+            </Container>
+        </Box>
+    )
+}
+
+export default CourseCatalog

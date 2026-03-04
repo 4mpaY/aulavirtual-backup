@@ -15,6 +15,8 @@ export interface CursoLeccionResumen {
   titulo: string
   orden: number
   duracion: number | null
+  video_url: string | null
+  recursos: any[]
   estado: 'BORRADOR' | 'PUBLICADO'
 }
 
@@ -48,6 +50,10 @@ export interface Curso {
   categoria_id: string | null
   categoria: CursoCategoria | null
   modulos: CursoModulo[]
+  objetivos: string[]
+  metodologia: any[]
+  beneficios: any[]
+  incluye: any[]
   _count: {
     modulos: number
     lecciones: number

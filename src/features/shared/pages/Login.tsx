@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 // Next Imports
 import { useRouter } from 'next/navigation'
+
 import { signIn } from 'next-auth/react'
 
 // MUI Imports
@@ -121,8 +122,8 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
       // Verificar si hubo error
       if (result?.error) {
-        console.error('❌ Error en login:', result.error)
-        // Manejar diferentes tipos de errores
+        console.error('❌ Error en login:', result.error);
+
         if (result.error === 'CredentialsSignin') {
           setError('Correo o contraseña incorrectos')
         } else if (result.error.includes('desactivada')) {
@@ -130,13 +131,13 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         } else {
           setError('Error al iniciar sesión. Intenta nuevamente.')
         }
-        return
       }
 
       // Verificar que el login fue exitoso
       if (!result?.ok) {
         console.error('❌ Login no exitoso, result.ok =', result?.ok)
         setError('Error al iniciar sesión. Intenta nuevamente.')
+
         return
       }
 

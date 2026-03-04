@@ -21,10 +21,15 @@ export const crearLeccionSchema = z.object({
     .optional()
     .nullable(),
   enlace_reunion: z
-    .string()
     .url('URL de reunión inválida')
     .optional()
-    .nullable()
+    .nullable(),
+  video_url: z
+    .string()
+    .url('URL de video inválida')
+    .optional()
+    .nullable(),
+  recursos: z.array(z.any()).optional()
 })
 
 export type CrearLeccionDto = z.infer<typeof crearLeccionSchema>
@@ -51,10 +56,15 @@ export const actualizarLeccionSchema = z.object({
     .optional()
     .nullable(),
   enlace_reunion: z
-    .string()
     .url('URL de reunión inválida')
     .optional()
     .nullable(),
+  video_url: z
+    .string()
+    .url('URL de video inválida')
+    .optional()
+    .nullable(),
+  recursos: z.array(z.any()).optional(),
   estado: z
     .enum(['BORRADOR', 'PUBLICADO'])
     .optional()
