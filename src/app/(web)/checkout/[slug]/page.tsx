@@ -1,12 +1,11 @@
 // Next Imports
 import React from 'react'
-
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
-
 import { Container, Stack, Button, Box, Typography, Divider } from '@mui/material'
 
 // Component Imports
-import CourseDetail from '@/features/web/courses/components/CourseDetail'
+import CheckoutView from '@/features/web/checkout/components/CheckoutView'
 import Logo from '@components/layout/shared/Logo'
 
 // Lib Imports
@@ -22,18 +21,7 @@ async function getCourseData(slug: string) {
             },
             include: {
                 profesor: {
-                    select: { nombre: true, apellido: true, avatar: true }
-                },
-                categoria: {
-                    select: { id: true, nombre: true }
-                },
-                modulos: {
-                    include: {
-                        lecciones: {
-                            orderBy: { orden: 'asc' }
-                        }
-                    },
-                    orderBy: { orden: 'asc' }
+                    select: { nombre: true, apellido: true }
                 }
             }
         })
@@ -42,13 +30,12 @@ async function getCourseData(slug: string) {
 
         return JSON.parse(JSON.stringify(course))
     } catch (error) {
-        console.error('Error fetching course data:', error)
-
+        console.error('Error fetching course data for checkout:', error)
         return null
     }
 }
 
-export default async function CourseDetailPage({ params }: { params: { slug: string } }) {
+export default async function CheckoutPage({ params }: { params: { slug: string } }) {
     const course = await getCourseData(params.slug)
 
     if (!course) {
@@ -57,25 +44,26 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
 
     return (
         <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            {/* Header / Nav */}
+            {/* Header Simplified */}
             <Box sx={{ py: 3, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
                 <Container maxWidth="lg">
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Logo />
-                        <Stack direction="row" spacing={2}>
-                            <Button href="/" color="inherit" sx={{ fontWeight: 600 }}>Volver al Catálogo</Button>
-                            <Button href="/login" variant="contained" sx={{ fontWeight: 600, borderRadius: '10px' }}>Iniciar Sesión</Button>
+                        <Link href="/">
+                            <Logo />
+                        </Link>
+                        <Stack direction="row" spacing={2} alignItems="center">
+                            <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
+                                ¿Tienes dudas? <b>WhatsApp +51 999 999 999</b>
+                            </Typography>
                         </Stack>
                     </Stack>
                 </Container>
             </Box>
 
-            {/* Course Detail Content */}
-            <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
-                <CourseDetail course={course} />
-            </Box>
+            {/* Checkout Content */}
+            <CheckoutView course={course} />
 
-            {/* Footer básico */}
+            {/* Footer Footer */}
             <Box sx={{ bgcolor: 'background.paper', py: 6, borderTop: 1, borderColor: 'divider' }}>
                 <Container maxWidth="lg">
                     <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={4}>
@@ -85,8 +73,7 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
                                 © 2026 Aula Virtual EdTech
                             </Typography>
                             <Divider orientation="vertical" flexItem sx={{ height: 16 }} />
-                            <Typography variant="body2" component="a" href="#" sx={{ color: 'text.secondary', textDecoration: 'none' }}>Privacidad</Typography>
-                            <Typography variant="body2" component="a" href="#" sx={{ color: 'text.secondary', textDecoration: 'none' }}>Términos</Typography>
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>Pagos Seguros vía SSL</Typography>
                         </Stack>
                     </Stack>
                 </Container>
@@ -96,12 +83,8 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-    const course = await getCourseData(params.slug)
-
-    if (!course) return { title: 'Curso no encontrado' }
-
     return {
-        title: `${course.titulo} | Aula Virtual`,
-        description: course.descripcion || 'Detalles del curso en nuestra plataforma EdTech.'
+        title: `Checkout - Comprar Curso | Aula Virtual`,
+        description: 'Finaliza tu inscripción y comienza a aprender hoy mismo.'
     }
 }

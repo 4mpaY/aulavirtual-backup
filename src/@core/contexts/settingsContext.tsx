@@ -58,7 +58,7 @@ export const SettingsProvider = (props: Props) => {
 
   // Initial Settings
   const initialSettings: Settings = {
-    mode: themeConfig.mode,
+    mode: 'light' as Mode,
     skin: themeConfig.skin,
     semiDark: themeConfig.semiDark,
     layout: themeConfig.layout,
@@ -71,7 +71,7 @@ export const SettingsProvider = (props: Props) => {
 
   const updatedInitialSettings = {
     ...initialSettings,
-    mode: props.mode || (demoName && demoConfigurations.mode) || themeConfig.mode
+    mode: 'light' as Mode
   }
 
   // Cookies

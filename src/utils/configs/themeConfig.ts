@@ -55,7 +55,7 @@ export type Config = {
 const themeConfig: Config = {
   templateName: 'Aula Virtual',
   settingsCookieName: 'aula-virtual',
-  mode: 'system', // 'system', 'light', 'dark'
+  mode: 'light', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'
   semiDark: false, // true, false
   layout: 'vertical', // 'vertical', 'collapsed', 'horizontal'

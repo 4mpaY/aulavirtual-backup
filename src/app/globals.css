@@ -17,9 +17,6 @@
   --backdrop-color: rgb(var(--mui-mainColorChannels-light) / 0.5);
 }
 
-[data-mui-color-scheme='dark'] {
-  --backdrop-color: rgb(23 25 37 / 0.6);
-}
 
 *,
 ::before,

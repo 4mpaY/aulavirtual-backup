@@ -2,6 +2,8 @@
 
 import React from 'react'
 
+import Link from 'next/link'
+
 import {
     Container,
     Grid,
@@ -38,6 +40,7 @@ interface CourseDetailProps {
     course: {
         id: string
         titulo: string
+        slug: string
         descripcion?: string
         miniatura?: string
         precio: number
@@ -161,6 +164,8 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                     color="success"
                                     fullWidth
                                     size="large"
+                                    component={Link}
+                                    href={`/checkout/${course.slug}`}
                                     sx={{
                                         py: 2,
                                         borderRadius: '16px',
@@ -395,6 +400,8 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                     color="success"
                                     fullWidth
                                     size="large"
+                                    component={Link}
+                                    href={`/checkout/${course.slug}`}
                                     sx={{
                                         py: 1.5,
                                         borderRadius: '12px',

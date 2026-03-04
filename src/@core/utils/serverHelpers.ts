@@ -5,11 +5,10 @@ import { cookies, headers } from 'next/headers'
 
 // Type Imports
 import type { Settings } from '@core/contexts/settingsContext'
-import type { DemoName, SystemMode } from '@core/types'
+import type { DemoName, SystemMode, Mode } from '@core/types'
 
 // Config Imports
 import themeConfig from '@/utils/configs/themeConfig'
-import demoConfigs from '@/utils/configs/demoConfigs'
 
 export const getDemoName = (): DemoName => {
   const headersList = headers()
@@ -19,34 +18,27 @@ export const getDemoName = (): DemoName => {
 
 export const getSettingsFromCookie = (): Settings => {
   const cookieStore = cookies()
-
   const demoName = getDemoName()
-
   const cookieName = demoName
     ? themeConfig.settingsCookieName.replace('demo-1', demoName)
     : themeConfig.settingsCookieName
 
-  return JSON.parse(cookieStore.get(cookieName)?.value || '{}')
+  const cookieValue = JSON.parse(cookieStore.get(cookieName)?.value || '{}')
+
+  // Retornar combinando con valores por defecto mínimos necesarios
+  return {
+    ...cookieValue,
+    mode: 'light',
+    primaryColor: cookieValue.primaryColor || '#7367F0' // Fallback al color primario por defecto
+  }
 }
 
-export const getMode = () => {
-  const settingsCookie = getSettingsFromCookie()
-
-  const demoName = getDemoName()
-
-  // Get mode from cookie or fallback to theme config
-  const _mode = settingsCookie.mode || (demoName && demoConfigs[demoName].mode) || themeConfig.mode
-
-  return _mode
+export const getMode = (): Mode => {
+  return 'light'
 }
 
 export const getSystemMode = (): SystemMode => {
-  const cookieStore = cookies()
-  const mode = getMode()
-
-  const colorPrefCookie = (cookieStore.get('colorPref')?.value || 'light') as SystemMode
-
-  return (mode === 'system' ? colorPrefCookie : mode) || 'light'
+  return 'light'
 }
 
 export const getServerMode = () => {
