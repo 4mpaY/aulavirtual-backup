@@ -2,6 +2,7 @@
 
 // MUI Imports
 import { useTheme } from '@mui/material/styles'
+import { Divider } from '@mui/material'
 
 // Third-party Imports
 import PerfectScrollbar from 'react-perfect-scrollbar'
@@ -73,6 +74,10 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
+        <MenuItem href='/mis-cursos' icon={<i className='tabler-smart-home' />}>
+          Mis Cursos
+        </MenuItem>
+        <Divider sx={{ my: 2 }} />
         <MenuItem href='/admin/usuarios' icon={<i className='tabler-users' />}>
           Usuarios
         </MenuItem>
