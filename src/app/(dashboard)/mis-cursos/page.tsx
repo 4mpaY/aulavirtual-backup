@@ -1,10 +1,14 @@
 import React from 'react'
+
+import { redirect } from 'next/navigation'
+
 import { Container, Typography, Box, Stack } from '@mui/material'
+
+import { getServerSession } from 'next-auth'
+
 import MyCoursesList from '@/features/estudiante/mis-cursos/components/MyCoursesList'
 import prisma from '@/utils/libs/prisma'
-import { getServerSession } from 'next-auth'
 import { authOptions } from '@/utils/configs/auth'
-import { redirect } from 'next/navigation'
 
 async function getInscribedCourses(userId: string) {
     try {
@@ -34,13 +38,14 @@ async function getInscribedCourses(userId: string) {
             id: ins.curso.id,
             titulo: ins.curso.titulo,
             slug: ins.curso.slug,
-            miniatura: ins.curso.miniatura,
+            miniatura: ins.curso.miniatura ?? undefined,
             profesor: ins.curso.profesor,
             categoria: ins.curso.categoria?.nombre,
             progreso: ins.curso.progreso[0]?.porcentaje_progreso || 0
         }))
     } catch (error) {
         console.error('Error fetching inscribed courses:', error)
+
         return []
     }
 }
@@ -56,7 +61,7 @@ export default async function MyCoursesPage() {
 
     return (
         <Box sx={{ py: 6 }}>
-            <Container maxWidth="lg">
+            <Container maxWidth={false} sx={{ px: { xs: 4, md: 8, lg: 12 } }}>
                 <Stack spacing={4}>
                     <Box>
                         <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, color: 'text.primary' }}>

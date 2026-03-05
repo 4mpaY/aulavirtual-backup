@@ -59,7 +59,7 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
         <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             {/* Header / Nav */}
             <Box sx={{ py: 3, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-                <Container maxWidth="lg">
+                <Container maxWidth={false} sx={{ px: { xs: 4, md: 8, lg: 12 } }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                         <Logo />
                         <Stack direction="row" spacing={2}>
@@ -77,7 +77,7 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
 
             {/* Footer básico */}
             <Box sx={{ bgcolor: 'background.paper', py: 6, borderTop: 1, borderColor: 'divider' }}>
-                <Container maxWidth="lg">
+                <Container maxWidth={false} sx={{ px: { xs: 4, md: 8, lg: 12 } }}>
                     <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={4}>
                         <Logo />
                         <Stack direction="row" spacing={3} alignItems="center">

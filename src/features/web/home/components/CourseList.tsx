@@ -44,7 +44,7 @@ const CourseList: React.FC<CourseListProps> = ({ courses, loading, error }) => {
 
     return (
         <Box sx={{ py: 2 }}>
-            <Grid container spacing={4}>
+            <Grid container spacing={6}>
                 {courses.map((course) => (
                     <Grid item key={course.id} xs={12} sm={6} md={4} lg={3}>
                         <CourseCard

@@ -1,5 +1,7 @@
 'use client'
 
+import React, { useMemo, useState } from 'react'
+
 import {
     Button,
     Card,
@@ -13,9 +15,6 @@ import {
     Avatar,
     Tooltip
 } from '@mui/material'
-
-import React, { useMemo, useState } from 'react'
-
 import {
     createColumnHelper,
     flexRender,
@@ -28,21 +27,21 @@ import {
     getPaginationRowModel,
     getSortedRowModel
 } from '@tanstack/react-table'
-
-import tableStyles from '@core/styles/table.module.css'
+import type { ColumnDef } from '@tanstack/react-table'
 import classnames from 'classnames'
 
-import CustomTextField from '@/@core/components/mui/TextField'
+import tableStyles from '@core/styles/table.module.css'
 
-import type { ColumnDef } from '@tanstack/react-table'
+import CustomTextField from '@/@core/components/mui/TextField'
 import type { ThemeColor } from '@/@core/types'
+
+import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
+import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
+import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 
 import type { Curso } from '../entity/Curso'
 import { useCursos } from '../hooks/useCursos'
 import { CursosActions } from '../components/CursosActions'
-import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
-import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
-import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 
 type EstadoColorMap = {
     [key: string]: ThemeColor
@@ -64,13 +63,11 @@ const columnHelper = createColumnHelper<Curso>()
 
 interface CursosPageProps {
     initialDataCursos: Curso[]
-    profesores: { id: string; nombre: string; apellido: string }[]
 }
 
-export function CursosPage({ initialDataCursos, profesores }: CursosPageProps) {
+export function CursosPage({ initialDataCursos }: CursosPageProps) {
     const [cursoToDelete, setCursoToDelete] = useState<Curso | null>(null)
     const [openDeleteModal, setOpenDeleteModal] = useState(false)
-    const [openCreateModal, setOpenCreateModal] = useState(false)
 
     const [rowSelection, setRowSelection] = useState({})
     const [globalFilter, setGlobalFilter] = useState('')
@@ -294,7 +291,8 @@ export function CursosPage({ initialDataCursos, profesores }: CursosPageProps) {
                         <Button
                             variant='contained'
                             startIcon={<i className='tabler-plus' />}
-                            onClick={() => setOpenCreateModal(true)}
+                            href='/admin/cursos/nuevo'
+                            component='a'
                             className='is-full sm:is-auto'
                         >
                             Nuevo Curso
@@ -370,10 +368,6 @@ export function CursosPage({ initialDataCursos, profesores }: CursosPageProps) {
 
             <CursosActions
                 cursoClicked={cursoToDelete}
-                addCurso={{
-                    isOpen: openCreateModal,
-                    closeHandler: () => setOpenCreateModal(false)
-                }}
                 deleteCurso={{
                     isOpen: openDeleteModal,
                     closeHandler: () => {
@@ -381,7 +375,6 @@ export function CursosPage({ initialDataCursos, profesores }: CursosPageProps) {
                         setCursoToDelete(null)
                     }
                 }}
-                profesores={profesores}
                 onSuccess={() => refetch()}
             />
         </>

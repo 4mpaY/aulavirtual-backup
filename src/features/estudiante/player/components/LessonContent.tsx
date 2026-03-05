@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Box, Typography, Card, CardContent, Divider, Stack, IconButton, Tooltip } from '@mui/material'
+
+import { Box, Typography, Card, CardContent, Stack, IconButton, Tooltip } from '@mui/material'
 
 interface Resource {
     id: string
@@ -25,7 +26,7 @@ const LessonContent: React.FC<LessonContentProps> = ({ titulo, descripcion, recu
             {descripcion && (
                 <Card variant="outlined" sx={{ mb: 4, borderRadius: '12px', borderStyle: 'dashed' }}>
                     <CardContent sx={{ p: 3 }}>
-                        <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
+                        <Typography variant="body1" sx={{ color: '#334155', lineHeight: 1.6 }}>
                             {descripcion}
                         </Typography>
                     </CardContent>

@@ -212,7 +212,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                         >
                             {profesor.nombre[0]}
                         </Avatar>
-                        <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600 }}>
+                        <Typography variant="body2" sx={{ color: '#334155', fontWeight: 700 }}>
                             Por {profesor.nombre} {profesor.apellido}
                         </Typography>
                     </Stack>

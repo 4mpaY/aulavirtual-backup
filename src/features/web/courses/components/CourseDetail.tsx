@@ -21,7 +21,8 @@ import {
     ListItemIcon,
     ListItemText,
     Divider,
-    Paper
+    Paper,
+    Breadcrumbs
 } from '@mui/material'
 
 interface Leccion {
@@ -69,8 +70,102 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
     return (
         <Box sx={{ pb: 10, bgcolor: '#f8fafc' }}>
             {/* New Premium Hero Section */}
-            <Box sx={{ bgcolor: 'white', pt: { xs: 4, md: 8 }, pb: { xs: 6, md: 10 }, borderBottom: '1px solid', borderColor: 'divider' }}>
-                <Container maxWidth="lg">
+            <Box sx={{
+                position: 'relative',
+                bgcolor: '#0f172a', // Dark base to make colors pop
+                pt: { xs: 4, md: 6 },
+                pb: { xs: 10, md: 16 },
+                minHeight: { md: '650px' },
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                overflow: 'hidden'
+            }}>
+                {/* Background Blur Image - More prominent */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: `url(${course.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        filter: 'blur(40px)', // Reduced blur for more definition
+                        opacity: 0.4, // Increased opacity
+                        transform: 'scale(1.1)',
+                        zIndex: 0
+                    }}
+                />
+
+                {/* Darker Overlay for Contrast */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'linear-gradient(to right, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.4) 100%)',
+                        zIndex: 0
+                    }}
+                />
+
+                <Container maxWidth={false} sx={{ px: { xs: 4, md: 8, lg: 12 }, position: 'relative', zIndex: 1 }}>
+                    {/* Breadcrumbs inside Hero */}
+                    <Box sx={{ mb: 6, mt: 2 }}>
+                        <Breadcrumbs
+                            separator={<i className="tabler-chevron-right" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)' }} />}
+                            aria-label="breadcrumb"
+                        >
+                            <Link
+                                href="/"
+                                style={{
+                                    textDecoration: 'none',
+                                    color: 'rgba(255,255,255,0.6)',
+                                    fontSize: '0.95rem',
+                                    fontWeight: 500
+                                }}
+                            >
+                                Inicio
+                            </Link>
+                            <Link
+                                href="/cursos"
+                                style={{
+                                    textDecoration: 'none',
+                                    color: 'rgba(255,255,255,0.6)',
+                                    fontSize: '0.95rem',
+                                    fontWeight: 500
+                                }}
+                            >
+                                Cursos
+                            </Link>
+                            {course.categoria && (
+                                <Typography
+                                    sx={{
+                                        color: 'rgba(255,255,255,0.6)',
+                                        fontSize: '0.95rem',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    {course.categoria.nombre}
+                                </Typography>
+                            )}
+                            <Typography
+                                sx={{
+                                    color: 'white',
+                                    fontSize: '0.95rem',
+                                    fontWeight: 700
+                                }}
+                            >
+                                {course.titulo}
+                            </Typography>
+                        </Breadcrumbs>
+                    </Box>
+
                     <Grid container spacing={6} alignItems="center">
                         {/* Left: Featured Image */}
                         <Grid item xs={12} md={6}>
@@ -79,7 +174,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                     position: 'relative',
                                     borderRadius: '32px',
                                     overflow: 'hidden',
-                                    boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
+                                    boxShadow: '0 20px 50px rgba(0,0,0,0.3)', // Stronger shadow
                                     aspectRatio: '16/9'
                                 }}
                             >
@@ -100,64 +195,71 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                         <Grid item xs={12} md={6}>
                             <Stack spacing={3}>
                                 <Stack direction="row" spacing={1}>
-                                    <Chip label={course.nivel === 'BASICO' ? 'Intermedio' : 'Avanzado'} size="small" sx={{ bgcolor: 'primary.50', color: 'primary.main', fontWeight: 600 }} />
-                                    <Chip label={course.tipo_emision === 'MIXTO' ? 'Mixto' : 'Sincrónico'} size="small" sx={{ bgcolor: 'secondary.50', color: 'secondary.main', fontWeight: 600 }} />
+                                    <Chip label={course.nivel === 'BASICO' ? 'Intermedio' : 'Avanzado'} size="small" sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 600 }} />
+                                    <Chip label={course.tipo_emision === 'MIXTO' ? 'Mixto' : 'Sincrónico'} size="small" sx={{ bgcolor: 'secondary.main', color: 'white', fontWeight: 600 }} />
                                 </Stack>
 
-                                <Typography variant="h3" component="h1" sx={{ fontWeight: 800, color: '#1e293b', lineHeight: 1.2 }}>
+                                <Typography variant="h2" component="h1" sx={{ fontWeight: 900, color: 'white', lineHeight: 1.1, fontSize: { xs: '2.5rem', md: '3.5rem' } }}>
                                     {course.titulo}
                                 </Typography>
 
                                 <Grid container spacing={2}>
                                     <Grid item xs={6}>
                                         <Stack direction="row" spacing={1.5} alignItems="center">
-                                            <Avatar sx={{ bgcolor: 'success.50', color: 'success.main', width: 36, height: 36 }}>
-                                                <i className="tabler-user" style={{ fontSize: '1.2rem' }} />
+                                            <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
+                                                <i className="tabler-user" style={{ fontSize: '1.4rem' }} />
                                             </Avatar>
                                             <Box>
-                                                <Typography variant="caption" color="text.secondary" display="block">Docente</Typography>
-                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>{course.profesor.nombre} {course.profesor.apellido}</Typography>
+                                                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Docente</Typography>
+                                                <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>{course.profesor.nombre} {course.profesor.apellido}</Typography>
                                             </Box>
                                         </Stack>
                                     </Grid>
                                     <Grid item xs={6}>
                                         <Stack direction="row" spacing={1.5} alignItems="center">
-                                            <Avatar sx={{ bgcolor: 'warning.50', color: 'warning.main', width: 36, height: 36 }}>
-                                                <i className="tabler-calendar" style={{ fontSize: '1.2rem' }} />
+                                            <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
+                                                <i className="tabler-calendar" style={{ fontSize: '1.4rem' }} />
                                             </Avatar>
                                             <Box>
-                                                <Typography variant="caption" color="text.secondary" display="block">Inicio</Typography>
-                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>07/04/2026</Typography>
+                                                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Inicio</Typography>
+                                                <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>07/04/2026</Typography>
                                             </Box>
                                         </Stack>
                                     </Grid>
                                     <Grid item xs={6}>
                                         <Stack direction="row" spacing={1.5} alignItems="center">
-                                            <Avatar sx={{ bgcolor: 'info.50', color: 'info.main', width: 36, height: 36 }}>
-                                                <i className="tabler-users" style={{ fontSize: '1.2rem' }} />
+                                            <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
+                                                <i className="tabler-users" style={{ fontSize: '1.4rem' }} />
                                             </Avatar>
                                             <Box>
-                                                <Typography variant="caption" color="text.secondary" display="block">Inscritos</Typography>
-                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>70 alumnos</Typography>
+                                                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Inscritos</Typography>
+                                                <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>70 alumnos</Typography>
                                             </Box>
                                         </Stack>
                                     </Grid>
                                     <Grid item xs={6}>
                                         <Stack direction="row" spacing={1.5} alignItems="center">
-                                            <Avatar sx={{ bgcolor: 'error.50', color: 'error.main', width: 36, height: 36 }}>
-                                                <i className="tabler-clock" style={{ fontSize: '1.2rem' }} />
+                                            <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
+                                                <i className="tabler-clock" style={{ fontSize: '1.4rem' }} />
                                             </Avatar>
                                             <Box>
-                                                <Typography variant="caption" color="text.secondary" display="block">Duración</Typography>
-                                                <Typography variant="body2" sx={{ fontWeight: 600 }}>4 Semanas</Typography>
+                                                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Duración</Typography>
+                                                <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>4 Semanas</Typography>
                                             </Box>
                                         </Stack>
                                     </Grid>
                                 </Grid>
 
-                                <Typography variant="h3" sx={{ fontWeight: 800, color: 'success.main', mt: 2 }}>
-                                    {course.es_gratis ? 'S/. 0.00' : `${course.moneda} ${course.precio}`}
-                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                                    <Typography variant="h2" sx={{ fontWeight: 900, color: '#4ade80', fontSize: { xs: '2.5rem', md: '3.5rem' } }}>
+                                        {course.es_gratis ? 'S/. 0.00' : `${course.moneda} ${course.precio}`}
+                                    </Typography>
+                                    {!course.es_gratis && (
+                                        <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'line-through' }}>
+                                            {course.moneda} {(course.precio * 1.5).toFixed(2)}
+                                        </Typography>
+                                    )}
+                                </Box>
 
                                 <Button
                                     variant="contained"
@@ -180,59 +282,72 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                             </Stack>
                         </Grid>
                     </Grid>
+
+                    {/* Benefit Highlights Cards - Now inside Hero */}
+                    <Box sx={{ mt: 8 }}>
+                        <Grid container spacing={3}>
+                            {(course.beneficios?.length ? course.beneficios : [
+                                { title: 'Clase en vivo', desc: 'Clases 100% en vivo por la plataforma de Zoom.', icon: 'tabler-video' },
+                                { title: 'Seguimiento personalizado', desc: 'Apoyo y soporte de la coordinadora académica.', icon: 'tabler-headset' },
+                                { title: 'Plataforma virtual', desc: 'Acceso 24/7 durante la duración del programa.', icon: 'tabler-device-laptop' },
+                                { title: 'Certificado Opcional', desc: 'Podrás solicitarlo durante o al finalizar el curso.', icon: 'tabler-certificate' }
+                            ]).map((item, index) => (
+                                <Grid item xs={12} sm={6} md={3} key={index}>
+                                    <Paper
+                                        elevation={0}
+                                        sx={{
+                                            p: 3,
+                                            height: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            textAlign: 'center',
+                                            borderRadius: '24px',
+                                            bgcolor: 'rgba(255, 255, 255, 0.05)', // Transparent white
+                                            backdropFilter: 'blur(10px)',
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            transition: 'transform 0.2s',
+                                            '&:hover': { transform: 'translateY(-5px)', bgcolor: 'rgba(255, 255, 255, 0.08)' }
+                                        }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                width: 48,
+                                                height: 48,
+                                                borderRadius: '12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                bgcolor: 'rgba(74, 222, 128, 0.1)',
+                                                color: '#4ade80',
+                                                mb: 2
+                                            }}
+                                        >
+                                            <i className={item.icon} style={{ fontSize: '1.5rem' }} />
+                                        </Box>
+                                        <Box>
+                                            <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, color: 'white' }}>{item.title}</Typography>
+                                            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{item.desc}</Typography>
+                                        </Box>
+                                    </Paper>
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </Box>
                 </Container>
             </Box>
 
-            {/* Benefit Highlights Cards */}
-            <Container maxWidth="lg" sx={{ mt: 4 }}>
-                <Grid container spacing={3}>
-                    {(course.beneficios?.length ? course.beneficios : [
-                        { title: 'Clase en vivo', desc: 'Clases 100% en vivo por la plataforma de Zoom.', icon: 'tabler-video' },
-                        { title: 'Seguimiento personalizado', desc: 'Apoyo y soporte de la coordinadora académica.', icon: 'tabler-headset' },
-                        { title: 'Plataforma virtual', desc: 'Acceso 24/7 durante la duración del programa.', icon: 'tabler-device-laptop' },
-                        { title: 'Certificado Opcional', desc: 'Podrás solicitarlo durante o al finalizar el curso.', icon: 'tabler-file-certificate' }
-                    ]).map((item, idx) => (
-                        <Grid item xs={12} sm={6} md={3} key={idx}>
-                            <Paper
-                                sx={{
-                                    p: 3,
-                                    height: '100%',
-                                    borderRadius: '20px',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    textAlign: 'center',
-                                    gap: 2,
-                                    border: '1px solid transparent',
-                                    transition: 'transform 0.2s',
-                                    '&:hover': { transform: 'translateY(-5px)', borderColor: 'success.light' }
-                                }}
-                            >
-                                <Box sx={{ p: 1.5, bgcolor: 'success.50', color: 'success.main', borderRadius: '12px' }}>
-                                    <i className={item.icon} style={{ fontSize: '2rem' }} />
-                                </Box>
-                                <Box>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>{item.title}</Typography>
-                                    <Typography variant="body2" color="text.secondary">{item.desc}</Typography>
-                                </Box>
-                            </Paper>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Container>
-
-            <Container maxWidth="lg" sx={{ mt: 6 }}>
+            <Container maxWidth={false} sx={{ mt: 6, px: { xs: 4, md: 8, lg: 12 } }}>
                 <Grid container spacing={4}>
                     {/* Main Content */}
                     <Grid item xs={12} md={8}>
                         <Stack spacing={4}>
                             {/* Methodology Section */}
                             <Paper sx={{ p: 4, borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-                                <Typography variant="h4" align="center" sx={{ fontWeight: 800, mb: 1 }}>
+                                <Typography variant="h3" align="center" sx={{ fontWeight: 900, mb: 1 }}>
                                     Metodología de <span style={{ color: 'primary.main' }}>Aprendizaje</span>
                                 </Typography>
-                                <Typography variant="body1" align="center" color="text.secondary" sx={{ mb: 4 }}>
+                                <Typography variant="h6" align="center" sx={{ color: '#475569', mb: 5, fontWeight: 500 }}>
                                     Basado en la experiencia del profesional
                                 </Typography>
 
@@ -254,10 +369,10 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                 textAlign: 'center',
                                                 gap: 2
                                             }}>
-                                                <Avatar sx={{ bgcolor: 'success.50', color: 'success.main', width: 60, height: 60 }}>
-                                                    <i className={m.icon} style={{ fontSize: '2rem' }} />
+                                                <Avatar sx={{ bgcolor: 'success.50', color: 'success.main', width: 70, height: 70 }}>
+                                                    <i className={m.icon} style={{ fontSize: '2.5rem' }} />
                                                 </Avatar>
-                                                <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                                                <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
                                                     {m.title}
                                                 </Typography>
                                             </Box>
@@ -267,7 +382,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                             </Paper>
 
                             <Box>
-                                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Typography variant="h4" sx={{ fontWeight: 800, mb: 4, display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                     Objetivos del <span style={{ color: 'primary.main' }}>curso</span>
                                 </Typography>
                                 <Stack spacing={2}>
@@ -277,15 +392,15 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                         'Identificar causas raíz y optimizar el rendimiento utilizando herramientas de última generación.'
                                     ]).map((text, idx) => (
                                         <Stack key={idx} direction="row" spacing={2} alignItems="flex-start">
-                                            <i className="tabler-check" style={{ color: 'primary.main', marginTop: '4px', fontSize: '1.2rem' }} />
-                                            <Typography variant="body1" color="text.secondary">{text}</Typography>
+                                            <i className="tabler-check" style={{ color: '#4ade80', marginTop: '4px', fontSize: '1.4rem', fontWeight: 900 }} />
+                                            <Typography variant="h6" sx={{ color: '#334155', fontWeight: 500, lineHeight: 1.5 }}>{text}</Typography>
                                         </Stack>
                                     ))}
                                 </Stack>
                             </Box>
 
                             <Box>
-                                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
+                                <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
                                     Contenido del curso
                                 </Typography>
                                 {course.modulos.length > 0 ? (
@@ -322,7 +437,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                         }}>
                                                             {index + 1}
                                                         </Box>
-                                                        <Typography sx={{ fontWeight: 600 }}>{modulo.titulo}</Typography>
+                                                        <Typography variant="h6" sx={{ fontWeight: 700 }}>{modulo.titulo}</Typography>
                                                     </Stack>
                                                 </AccordionSummary>
                                                 <AccordionDetails sx={{ p: 0 }}>
@@ -336,7 +451,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                                     </ListItemIcon>
                                                                     <ListItemText
                                                                         primary={leccion.titulo}
-                                                                        primaryTypographyProps={{ variant: 'body2', fontWeight: 500 }}
+                                                                        primaryTypographyProps={{ variant: 'body1', fontWeight: 600 }}
                                                                     />
                                                                     {leccion.duracion && (
                                                                         <Typography variant="caption" color="text.disabled">
@@ -367,7 +482,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                 <Typography variant="h6" align="center" sx={{ fontWeight: 800, color: 'success.main', mb: 1, textTransform: 'uppercase', letterSpacing: 1 }}>
                                     Programa {course.es_gratis ? 'Gratuito' : 'Premium'}
                                 </Typography>
-                                <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3, fontWeight: 600 }}>
+                                <Typography variant="body2" align="center" sx={{ color: '#475569', mb: 3, fontWeight: 600 }}>
                                     Regular
                                 </Typography>
 
@@ -388,7 +503,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                 className={benefit.active ? "tabler-circle-check" : "tabler-circle-x"}
                                                 style={{ color: benefit.active ? '#2e7d32' : '#ef4444', fontSize: '1.2rem' }}
                                             />
-                                            <Typography variant="body2" sx={{ color: benefit.active ? 'text.primary' : 'text.secondary', fontWeight: benefit.active ? 500 : 400 }}>
+                                            <Typography variant="body1" sx={{ color: benefit.active ? 'text.primary' : 'text.secondary', fontWeight: benefit.active ? 600 : 400 }}>
                                                 {benefit.text}
                                             </Typography>
                                         </Stack>

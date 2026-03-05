@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
+
 import { useRouter } from 'next/navigation'
+
 import {
     Card,
     CardContent,
@@ -108,13 +109,13 @@ const MyCourseCard: React.FC<MyCourseCardProps> = ({
                         {titulo}
                     </Typography>
 
-                    <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 500, mb: 2 }}>
+                    <Typography variant="body2" sx={{ color: '#334155', fontWeight: 600, mb: 2 }}>
                         Por {profesor.nombre} {profesor.apellido}
                     </Typography>
 
                     <Box sx={{ mb: 2 }}>
                         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+                            <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569' }}>
                                 Progreso
                             </Typography>
                             <Typography variant="caption" sx={{ fontWeight: 800, color: 'primary.main' }}>

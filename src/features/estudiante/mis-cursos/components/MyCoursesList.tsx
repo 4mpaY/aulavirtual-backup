@@ -1,7 +1,9 @@
 'use client'
 
 import React from 'react'
+
 import { Grid, Typography, Box } from '@mui/material'
+
 import MyCourseCard from './MyCourseCard'
 
 interface Course {
@@ -36,7 +38,7 @@ const MyCoursesList: React.FC<MyCoursesListProps> = ({ courses }) => {
     }
 
     return (
-        <Grid container spacing={6}>
+        <Grid container spacing={8}>
             {courses.map((course) => (
                 <Grid item xs={12} sm={6} md={4} key={course.id}>
                     <MyCourseCard

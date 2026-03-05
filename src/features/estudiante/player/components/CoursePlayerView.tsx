@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Box, Grid, Container, useMediaQuery, useTheme, Drawer, IconButton, Fab } from '@mui/material'
+
+import { Box, Grid, Container, useMediaQuery, useTheme, Drawer, Fab } from '@mui/material'
+
 import VideoPlayer from './VideoPlayer'
 import CourseContentSidebar from './CourseContentSidebar'
 import LessonContent from './LessonContent'
@@ -36,6 +38,7 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
     const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
+
     const [currentLessonId, setCurrentLessonId] = useState<string | undefined>(
         initialLessonId || course.modulos[0]?.lecciones[0]?.id
     )
@@ -55,6 +58,7 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
 
     const handleLessonSelect = (lessonId: string) => {
         setCurrentLessonId(lessonId)
+
         if (isMobile) {
             setSidebarOpen(false)
         }
@@ -72,7 +76,7 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
                     mr: sidebarOpen && !isMobile ? '350px' : 0
                 }}
             >
-                <Container maxWidth="xl">
+                <Container maxWidth={false} sx={{ px: { xs: 2, md: 4, lg: 6 } }}>
                     <Grid container spacing={4}>
                         <Grid item xs={12}>
                             <VideoPlayer

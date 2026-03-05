@@ -86,7 +86,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
 
     return (
         <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', pb: 10 }}>
-            <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
+            <Container maxWidth={false} sx={{ py: { xs: 6, md: 10 }, px: { xs: 4, md: 8, lg: 12 } }}>
                 <Stack spacing={5}>
                     <Box sx={{ textAlign: 'center' }}>
                         <Typography variant="h3" sx={{ fontWeight: 900, mb: 1.5, color: '#1e293b', letterSpacing: '-0.03em' }}>
