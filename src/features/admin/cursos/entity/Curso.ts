@@ -18,6 +18,8 @@ export interface CursoLeccionResumen {
   video_url: string | null
   recursos: any[]
   estado: 'BORRADOR' | 'PUBLICADO'
+  es_vista_previa: boolean
+  contenido: string | null
 }
 
 export interface CursoModulo {
@@ -37,8 +39,9 @@ export interface Curso {
   descripcion: string | null
   miniatura: string | null
   video_presentacion: string | null
+  fecha_inicio: string | Date | null
   duracion: string | null
-  tipo_emision: 'SINCRONO' | 'ASINCRONO'
+  tipo_emision: 'SINCRONO' | 'ASINCRONO' | 'MIXTO'
   estado: 'BORRADOR' | 'PUBLICADO' | 'ARCHIVADO'
   es_gratis: boolean
   precio: number

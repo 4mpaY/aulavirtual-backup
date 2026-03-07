@@ -8,6 +8,7 @@ import type { Settings } from '@core/contexts/settingsContext'
 import type { DemoName, SystemMode, Mode } from '@core/types'
 
 // Config Imports
+import primaryColorConfig from '@/utils/configs/primaryColorConfig'
 import themeConfig from '@/utils/configs/themeConfig'
 
 export const getDemoName = (): DemoName => {
@@ -19,6 +20,7 @@ export const getDemoName = (): DemoName => {
 export const getSettingsFromCookie = (): Settings => {
   const cookieStore = cookies()
   const demoName = getDemoName()
+
   const cookieName = demoName
     ? themeConfig.settingsCookieName.replace('demo-1', demoName)
     : themeConfig.settingsCookieName
@@ -29,7 +31,7 @@ export const getSettingsFromCookie = (): Settings => {
   return {
     ...cookieValue,
     mode: 'light',
-    primaryColor: cookieValue.primaryColor || '#7367F0' // Fallback al color primario por defecto
+    primaryColor: primaryColorConfig[0].main // Siempre usar el color configurado, ignorar el cookie
   }
 }
 

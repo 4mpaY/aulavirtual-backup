@@ -124,11 +124,11 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                                     boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
                                     border: '1px solid #e2e8f0',
                                     '&:hover': {
-                                        borderColor: '#2e7d32',
+                                        borderColor: 'var(--mui-palette-primary-main)',
                                     },
                                     '&.Mui-focused': {
-                                        borderColor: '#2e7d32',
-                                        boxShadow: '0 0 0 4px rgba(46, 125, 50, 0.1)',
+                                        borderColor: 'var(--mui-palette-primary-main)',
+                                        boxShadow: '0 0 0 4px rgb(var(--mui-palette-primary-mainChannel) / 0.1)',
                                     },
                                     transition: 'all 0.3s ease',
                                     '& fieldset': { border: 'none' },

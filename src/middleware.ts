@@ -1,5 +1,6 @@
-import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
+
+import { withAuth } from 'next-auth/middleware'
 import { Rol } from '@prisma/client'
 
 export default withAuth(
@@ -8,9 +9,11 @@ export default withAuth(
     const path = req.nextUrl.pathname
 
     // Si no hay token y está intentando acceder a rutas protegidas
-    if (!token && !path.startsWith('/login') && !path.startsWith('/register')) {
-      return NextResponse.redirect(new URL('/login', req.url))
-    }
+    // if (!token && !path.startsWith('/login') && !path.startsWith('/register')) {
+    //   console.log(path)
+
+    //     return NextResponse.redirect(new URL('/login', req.url))
+    // }
 
     // Si tiene token y está intentando acceder a login/register
     if (token && (path.startsWith('/login') || path.startsWith('/register'))) {
@@ -27,6 +30,8 @@ export default withAuth(
 
       return NextResponse.redirect(new URL('/estudiante/dashboard', req.url))
     }
+
+    console.log(path)
 
     // Redirigir /dashboard genérico según rol
     if (path === '/dashboard') {
@@ -56,8 +61,10 @@ export default withAuth(
       return NextResponse.redirect(new URL('/unauthorized', req.url))
     }
 
-    // Rutas de estudiante - todos los autenticados pueden acceder
-    // (pero podemos agregar restricciones si es necesario)
+    // Rutas de estudiante - solo ESTUDIANTE o ADMIN
+    if (path.startsWith('/estudiante') && rol !== Rol.ADMIN && rol !== Rol.ESTUDIANTE) {
+      return NextResponse.redirect(new URL('/unauthorized', req.url))
+    }
 
     return NextResponse.next()
   },
@@ -72,6 +79,7 @@ export default withAuth(
           path.startsWith('/register') ||
           path.startsWith('/cursos') ||
           path.startsWith('/verificar-certificado') ||
+          path.startsWith('/unauthorized') ||
           path === '/'
         ) {
           return true

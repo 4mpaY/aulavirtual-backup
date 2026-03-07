@@ -58,6 +58,9 @@ interface CourseDetailProps {
         categoria?: {
             nombre: string
         }
+        video_presentacion?: string | null
+        fecha_inicio?: string | Date | null
+        creado_en?: string | Date
         modulos: Modulo[]
         objetivos?: string[]
         metodologia?: any[]
@@ -67,6 +70,49 @@ interface CourseDetailProps {
 }
 
 const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
+    // Helper para obtener el ID de video y la URL de embebido
+    const getEmbedUrl = (url?: string | null) => {
+        if (!url) return null
+
+        // YouTube
+        const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
+
+        if (ytMatch) {
+            return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&rel=0`
+        }
+
+        // Vimeo
+        const vimeoMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/)
+
+        if (vimeoMatch) {
+            return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0`
+        }
+
+        return null
+    }
+
+    const embedUrl = getEmbedUrl(course.video_presentacion)
+
+    const getDisplayDate = () => {
+        const isSincrono = course.tipo_emision === 'SINCRONO' || course.tipo_emision === 'MIXTO'
+        const dateToUse = isSincrono ? course.fecha_inicio : course.creado_en
+
+        if (!dateToUse) return { label: isSincrono ? 'Inicio' : 'Publicado', value: 'Próximamente' }
+
+        const date = new Date(dateToUse)
+
+        return {
+            label: isSincrono ? 'Inicio' : 'Publicado',
+            value: date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            })
+        }
+    }
+
+    const { label: dateLabel, value: dateValue } = getDisplayDate()
+
     return (
         <Box sx={{ pb: 10, bgcolor: '#f8fafc' }}>
             {/* New Premium Hero Section */}
@@ -178,11 +224,27 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                     aspectRatio: '16/9'
                                 }}
                             >
-                                <Box
-                                    component="img"
-                                    src={course.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
-                                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                />
+                                {embedUrl ? (
+                                    <iframe
+                                        src={embedUrl}
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            width: '100%',
+                                            height: '100%',
+                                            border: 'none'
+                                        }}
+                                        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+                                        title={course.titulo}
+                                    />
+                                ) : (
+                                    <Box
+                                        component="img"
+                                        src={course.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
+                                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                )}
                                 {course.es_gratis && (
                                     <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
                                         <Chip label="CURSO GRATUITO" color="success" sx={{ fontWeight: 800, px: 1 }} />
@@ -221,8 +283,8 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                 <i className="tabler-calendar" style={{ fontSize: '1.4rem' }} />
                                             </Avatar>
                                             <Box>
-                                                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Inicio</Typography>
-                                                <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>07/04/2026</Typography>
+                                                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">{dateLabel}</Typography>
+                                                <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>{dateValue}</Typography>
                                             </Box>
                                         </Stack>
                                     </Grid>
@@ -342,6 +404,18 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                     {/* Main Content */}
                     <Grid item xs={12} md={8}>
                         <Stack spacing={4}>
+                            {/* Description Section */}
+                            {course.descripcion && (
+                                <Box>
+                                    <Typography variant="h4" sx={{ fontWeight: 800, mb: 2 }}>
+                                        Acerca de este <span style={{ color: 'primary.main' }}>curso</span>
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ color: '#475569', fontSize: '1.1rem', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
+                                        {course.descripcion}
+                                    </Typography>
+                                </Box>
+                            )}
+
                             {/* Methodology Section */}
                             <Paper sx={{ p: 4, borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
                                 <Typography variant="h3" align="center" sx={{ fontWeight: 900, mb: 1 }}>
@@ -450,8 +524,19 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                                         <i className="tabler-player-play" style={{ color: 'primary.main' }} />
                                                                     </ListItemIcon>
                                                                     <ListItemText
-                                                                        primary={leccion.titulo}
-                                                                        primaryTypographyProps={{ variant: 'body1', fontWeight: 600 }}
+                                                                        primary={
+                                                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                                                <Typography variant='body1' fontWeight={600}>{leccion.titulo}</Typography>
+                                                                                {(leccion as any).es_vista_previa && (
+                                                                                    <Chip
+                                                                                        size='small'
+                                                                                        label='VISTA PREVIA'
+                                                                                        color='primary'
+                                                                                        sx={{ height: 20, fontSize: '0.625rem', fontWeight: 800 }}
+                                                                                    />
+                                                                                )}
+                                                                            </Stack>
+                                                                        }
                                                                     />
                                                                     {leccion.duracion && (
                                                                         <Typography variant="caption" color="text.disabled">

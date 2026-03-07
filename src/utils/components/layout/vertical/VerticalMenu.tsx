@@ -6,6 +6,7 @@ import { Divider } from '@mui/material'
 
 // Third-party Imports
 import PerfectScrollbar from 'react-perfect-scrollbar'
+import { useSession } from 'next-auth/react'
 
 // Type Imports
 import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
@@ -45,9 +46,11 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
   const verticalNavOptions = useVerticalNav()
   const { settings } = useSettings()
   const { isBreakpointReached } = useVerticalNav()
+  const { data: session } = useSession()
 
   // Vars
   const { transitionDuration } = verticalNavOptions
+  const rol = session?.user?.rol
 
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
 
@@ -74,29 +77,43 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-        <MenuItem href='/mis-cursos' icon={<i className='tabler-smart-home' />}>
-          Mis Cursos
+        <MenuItem
+          href={rol === 'ADMIN' ? '/admin/dashboard' : (rol === 'PROFESOR' ? '/profesor/dashboard' : '/estudiante/dashboard')}
+          icon={<i className='tabler-smart-home' />}
+        >
+          Dashboard
         </MenuItem>
-        <Divider sx={{ my: 2 }} />
-        <MenuItem href='/admin/usuarios' icon={<i className='tabler-users' />}>
-          Usuarios
-        </MenuItem>
-        <MenuItem href='/admin/categorias' icon={<i className='tabler-category' />}>
-          Categorías
-        </MenuItem>
-        <MenuItem href='/admin/cursos' icon={<i className='tabler-book' />}>
-          Cursos
-        </MenuItem>
+
+        {rol === 'ESTUDIANTE' && (
+          <MenuItem href='/estudiante/mis-cursos' icon={<i className='tabler-book' />}>
+            Mis Cursos
+          </MenuItem>
+        )}
+
+        {rol === 'ADMIN' && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <MenuItem href='/admin/usuarios' icon={<i className='tabler-users' />}>
+              Usuarios
+            </MenuItem>
+            <MenuItem href='/admin/categorias' icon={<i className='tabler-category' />}>
+              Categorías
+            </MenuItem>
+            <MenuItem href='/admin/cursos' icon={<i className='tabler-book' />}>
+              Gestión Cursos
+            </MenuItem>
+          </>
+        )}
+
+        {rol === 'PROFESOR' && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <MenuItem href='/profesor/cursos' icon={<i className='tabler-book' />}>
+              Mis Cursos
+            </MenuItem>
+          </>
+        )}
       </Menu>
-      {/* <Menu
-        popoutMenuOffset={{ mainAxis: 23 }}
-        menuItemStyles={menuItemStyles(verticalNavOptions, theme, settings)}
-        renderExpandIcon={({ open }) => <RenderExpandIcon open={open} transitionDuration={transitionDuration} />}
-        renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
-        menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
-      >
-        <GenerateVerticalMenu menuData={menuData(dictionary, params)} />
-      </Menu> */}
     </ScrollWrapper>
   )
 }

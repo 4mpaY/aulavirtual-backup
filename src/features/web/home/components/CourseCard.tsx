@@ -38,6 +38,8 @@ interface CourseCardProps {
     }
     nivel?: string
     tipo_emision?: string
+    fecha_inicio?: string | Date | null
+    creado_en?: string | Date
     _count?: {
         lecciones: number
         inscripciones: number
@@ -72,6 +74,8 @@ const CourseCard: React.FC<CourseCardProps> = ({
     categoria,
     nivel,
     tipo_emision,
+    fecha_inicio,
+    creado_en,
     _count
 }) => {
     const router = useRouter()
@@ -90,6 +94,23 @@ const CourseCard: React.FC<CourseCardProps> = ({
         if (t === 'SINCRONO') return '#ef4444' // Rojo para Vivo
 
         return '#3b82f6' // Azul para otros
+    }
+
+    // Lógica de fecha solicitada por el usuario
+    const getDisplayDate = () => {
+        const dateToUse = (tipo_emision === 'SINCRONO' || tipo_emision === 'MIXTO')
+            ? fecha_inicio
+            : creado_en
+
+        if (!dateToUse) return 'Próximamente'
+
+        const date = new Date(dateToUse)
+
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })
     }
 
     return (
@@ -221,7 +242,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
                         <Stack direction="row" spacing={1} alignItems="center">
                             <i className="tabler-calendar" style={{ fontSize: '1.2rem', color: '#10b981' }} />
                             <Typography variant="body2" sx={{ color: '#1e293b', fontWeight: 600 }}>
-                                26/03/2026
+                                {getDisplayDate()}
                             </Typography>
                         </Stack>
                         <Stack direction="row" spacing={1} alignItems="center">

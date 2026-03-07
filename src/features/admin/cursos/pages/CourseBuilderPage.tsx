@@ -32,6 +32,7 @@ import TabPanel from '@mui/lab/TabPanel'
 import { useSnackbar } from 'notistack'
 
 import CustomTextField from '@core/components/mui/TextField'
+import MediaLibrary from '../components/MediaLibrary'
 
 import type { Curso, CursoLeccionResumen } from '../entity/Curso'
 import {
@@ -135,6 +136,8 @@ function TabInformacion({ curso, profesores, onSuccess }: { curso: Curso; profes
     const editMutation = useEditCurso()
     const { data: categorias = [] } = useCategorias()
 
+    const [openMedia, setOpenMedia] = useState(false)
+
     const [form, setForm] = useState({
         titulo: curso.titulo,
         descripcion: curso.descripcion || '',
@@ -143,7 +146,8 @@ function TabInformacion({ curso, profesores, onSuccess }: { curso: Curso; profes
         tipo_emision: curso.tipo_emision,
         duracion: curso.duracion || '',
         miniatura: curso.miniatura || '',
-        video_presentacion: curso.video_presentacion || ''
+        video_presentacion: curso.video_presentacion || '',
+        fecha_inicio: curso.fecha_inicio ? new Date(curso.fecha_inicio).toISOString().split('T')[0] : ''
     })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,13 +160,14 @@ function TabInformacion({ curso, profesores, onSuccess }: { curso: Curso; profes
                 id: curso.id,
                 data: {
                     titulo: form.titulo,
-                    descripcion: form.descripcion || null,
+                    descripcion: form.descripcion?.trim() || null,
                     categoria_id: form.categoria_id || null,
                     profesor_id: form.profesor_id,
-                    tipo_emision: form.tipo_emision as 'SINCRONO' | 'ASINCRONO',
+                    tipo_emision: form.tipo_emision as 'SINCRONO' | 'ASINCRONO' | 'MIXTO',
                     duracion: form.duracion || null,
                     miniatura: form.miniatura || null,
-                    video_presentacion: form.video_presentacion || null
+                    video_presentacion: form.video_presentacion || null,
+                    fecha_inicio: form.fecha_inicio ? new Date(form.fecha_inicio).toISOString() : null
                 }
             })
             enqueueSnackbar('Curso actualizado exitosamente', { variant: 'success' })
@@ -245,8 +250,32 @@ function TabInformacion({ curso, profesores, onSuccess }: { curso: Curso; profes
                     >
                         Síncrono
                     </Button>
+                    <Button
+                        variant={form.tipo_emision === 'MIXTO' ? 'contained' : 'outlined'}
+                        size='small'
+                        onClick={() => setForm(prev => ({ ...prev, tipo_emision: 'MIXTO' }))}
+                        startIcon={<i className='tabler-arrows-split' />}
+                    >
+                        Mixto
+                    </Button>
                 </Box>
             </Grid>
+            {(form.tipo_emision === 'SINCRONO' || form.tipo_emision === 'MIXTO') && (
+                <Grid item xs={12} sm={6}>
+                    <CustomTextField
+                        fullWidth
+                        type='date'
+                        label='Fecha de Inicio'
+                        name='fecha_inicio'
+                        value={form.fecha_inicio}
+                        onChange={handleChange}
+                        InputLabelProps={{ shrink: true }}
+                        InputProps={{
+                            startAdornment: <InputAdornment position='start'><i className='tabler-calendar text-xl text-textSecondary' /></InputAdornment>
+                        }}
+                    />
+                </Grid>
+            )}
             <Grid item xs={12} sm={6}>
                 <CustomTextField
                     fullWidth
@@ -261,15 +290,62 @@ function TabInformacion({ curso, profesores, onSuccess }: { curso: Curso; profes
                 />
             </Grid>
             <Grid item xs={12} sm={6}>
-                <CustomTextField
+                <Typography variant='subtitle2' sx={{ mb: 1 }}>Imagen de Portada</Typography>
+                {form.miniatura ? (
+                    <Box sx={{ position: 'relative', width: '100%', borderRadius: 2, overflow: 'hidden', mb: 2, bgcolor: '#f4f4f4', border: '1px solid', borderColor: 'divider' }}>
+                        <img
+                            src={form.miniatura}
+                            alt='Vista previa'
+                            style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block', maxHeight: 240 }}
+                        />
+                        <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
+                            <IconButton
+                                size='small'
+                                sx={{ bgcolor: 'background.paper', '&:hover': { bgcolor: 'background.paper' } }}
+                                onClick={() => setForm(prev => ({ ...prev, miniatura: '' }))}
+                            >
+                                <i className='tabler-trash text-error text-sm' />
+                            </IconButton>
+                        </Box>
+                    </Box>
+                ) : (
+                    <Box
+                        onClick={() => setOpenMedia(true)}
+                        sx={{
+                            width: '100%',
+                            height: 120,
+                            borderRadius: 2,
+                            border: '1px dashed',
+                            borderColor: 'divider',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            bgcolor: 'action.hover',
+                            mb: 2,
+                            '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.lightOpacity' }
+                        }}
+                    >
+                        <i className='tabler-photo-plus text-2xl text-textDisabled' />
+                        <Typography variant='caption' color='text.secondary' sx={{ mt: 1 }}>Click para seleccionar</Typography>
+                    </Box>
+                )}
+
+                <Button
+                    variant='outlined'
+                    size='small'
                     fullWidth
-                    label='URL Miniatura'
-                    name='miniatura'
-                    value={form.miniatura}
-                    onChange={handleChange}
-                    InputProps={{
-                        startAdornment: <InputAdornment position='start'><i className='tabler-photo text-xl text-textSecondary' /></InputAdornment>
-                    }}
+                    startIcon={<i className='tabler-photo' />}
+                    onClick={() => setOpenMedia(true)}
+                >
+                    {form.miniatura ? 'Cambiar Imagen' : 'Seleccionar Imagen'}
+                </Button>
+
+                <MediaLibrary
+                    open={openMedia}
+                    onClose={() => setOpenMedia(false)}
+                    onSelect={(url) => setForm(prev => ({ ...prev, miniatura: url }))}
                 />
             </Grid>
             <Grid item xs={12}>
@@ -308,18 +384,10 @@ function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }: any) 
     const [title, setTitle] = useState('')
     const [duration, setDuration] = useState<number | string>('')
     const [videoUrl, setVideoUrl] = useState('')
+    const [esVistaPrevia, setEsVistaPrevia] = useState(false)
     const [recursos, setRecursos] = useState<any[]>([])
-
+    const [contenido, setContenido] = useState('')
     const [newRecurso, setNewRecurso] = useState({ nombre: '', url: '' })
-
-    useState(() => {
-        if (lessonData) {
-            setTitle(lessonData.titulo || '')
-            setDuration(lessonData.duracion || '')
-            setVideoUrl(lessonData.video_url || '')
-            setRecursos(lessonData.recursos || [])
-        }
-    })
 
     // Usar useEffect para actualizar cuando cambie lessonData
     useEffect(() => {
@@ -327,7 +395,17 @@ function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }: any) 
             setTitle(lessonData.titulo || '')
             setDuration(lessonData.duracion || '')
             setVideoUrl(lessonData.video_url || '')
+            setEsVistaPrevia(lessonData.es_vista_previa || false)
             setRecursos(lessonData.recursos || [])
+            setContenido(lessonData.contenido || '')
+        } else {
+            // Reset fields when no lessonData (e.g. modal closed)
+            setTitle('')
+            setDuration('')
+            setVideoUrl('')
+            setEsVistaPrevia(false)
+            setRecursos([])
+            setContenido('')
         }
     }, [lessonData])
 
@@ -347,6 +425,8 @@ function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }: any) 
             titulo: title,
             duracion: duration ? Number(duration) : null,
             video_url: videoUrl || null,
+            es_vista_previa: esVistaPrevia,
+            contenido: contenido || null,
             recursos: recursos
         })
     }
@@ -364,6 +444,15 @@ function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }: any) 
                     />
                     <CustomTextField
                         fullWidth
+                        multiline
+                        rows={3}
+                        label='Contenido / Descripción'
+                        placeholder='Descripción o instrucciones de la lección...'
+                        value={contenido}
+                        onChange={e => setContenido(e.target.value)}
+                    />
+                    <CustomTextField
+                        fullWidth
                         type='number'
                         label='Duración (minutos)'
                         value={duration}
@@ -378,6 +467,22 @@ function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }: any) 
                         InputProps={{
                             startAdornment: <InputAdornment position='start'><i className='tabler-brand-vimeo text-xl text-textSecondary' /></InputAdornment>
                         }}
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={esVistaPrevia}
+                                onChange={e => setEsVistaPrevia(e.target.checked)}
+                                color='primary'
+                            />
+                        }
+                        label={
+                            <Box>
+                                <Typography variant='body2' fontWeight={600}>Vista Previa Gratuita</Typography>
+                                <Typography variant='caption' color='text.secondary'>Permite que esta lección sea vista sin estar matriculado.</Typography>
+                            </Box>
+                        }
                     />
 
                     <Divider />
@@ -547,6 +652,24 @@ function TabContenido({ curso, onSuccess }: { curso: Curso; onSuccess: () => voi
         }
     }
 
+    // Toggle vista previa
+    const handleToggleLessonPreview = async (moduloId: string, leccion: CursoLeccionResumen) => {
+        const nuevoValor = !leccion.es_vista_previa
+
+        try {
+            await updateLeccionMutation.mutateAsync({
+                cursoId: curso.id,
+                moduloId,
+                leccionId: leccion.id,
+                data: { es_vista_previa: nuevoValor }
+            })
+            enqueueSnackbar(`Vista previa ${nuevoValor ? 'activada' : 'desactivada'}`, { variant: 'success' })
+            onSuccess()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error', { variant: 'error' })
+        }
+    }
+
     // Reordenar lecciones
     const handleMoveLesson = async (moduloId: string, lecciones: CursoLeccionResumen[], index: number, direction: 'up' | 'down') => {
         const newIndex = direction === 'up' ? index - 1 : index + 1
@@ -698,6 +821,15 @@ function TabContenido({ curso, onSuccess }: { curso: Curso; onSuccess: () => voi
                                             label={leccion.estado === 'PUBLICADO' ? 'Publicado' : 'Borrador'}
                                             color={leccion.estado === 'PUBLICADO' ? 'success' : 'warning'}
                                         />
+                                        {leccion.es_vista_previa && (
+                                            <Chip
+                                                size='small'
+                                                variant='outlined'
+                                                label='Vista Previa'
+                                                color='primary'
+                                                icon={<i className='tabler-eye text-xs' />}
+                                            />
+                                        )}
                                         {leccion.duracion && (
                                             <Typography variant='caption' color='text.disabled'>
                                                 {leccion.duracion} min
@@ -713,6 +845,15 @@ function TabContenido({ curso, onSuccess }: { curso: Curso; onSuccess: () => voi
                                         <Tooltip title={leccion.estado === 'PUBLICADO' ? 'Pasar a borrador' : 'Publicar'}>
                                             <IconButton size='small' onClick={() => handleToggleLessonStatus(modulo.id, leccion)}>
                                                 <i className={`tabler-${leccion.estado === 'PUBLICADO' ? 'eye-off' : 'eye'} text-lg`} />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title={leccion.es_vista_previa ? 'Quitar vista previa' : 'Activar vista previa'}>
+                                            <IconButton
+                                                size='small'
+                                                color={leccion.es_vista_previa ? 'primary' : 'default'}
+                                                onClick={() => handleToggleLessonPreview(modulo.id, leccion)}
+                                            >
+                                                <i className={`tabler-lock${leccion.es_vista_previa ? '-open' : ''} text-lg`} />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title='Subir'>
@@ -766,6 +907,7 @@ function TabContenido({ curso, onSuccess }: { curso: Curso; onSuccess: () => voi
             ))}
 
             <LessonEditDialog
+                key={editingLesson?.leccion?.id || 'new'}
                 open={!!editingLesson}
                 onClose={() => setEditingLesson(null)}
                 lessonData={editingLesson?.leccion}

@@ -11,12 +11,14 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id: padreId } = params
     const body = await request.json()
 
     const validation = validateRequest(reordenarCategoriasSchema, body, request)
+
     if (!validation.success) return validation.error
 
     const { items } = validation.data

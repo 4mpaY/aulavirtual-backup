@@ -30,7 +30,6 @@ import { registerSchema, type RegisterDto } from '@/schemas/auth.schema'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Config Imports
-import themeConfig from '@/utils/configs/themeConfig'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
@@ -125,6 +124,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
 
       if (!response.ok) {
         setError(result.message || 'Error al registrar usuario')
+
         return
       }
 
@@ -132,7 +132,10 @@ const Register = ({ mode }: { mode: SystemMode }) => {
 
       // Redirigir al login después de 2 segundos
       setTimeout(() => {
-        router.push('/login')
+        const urlParams = new URLSearchParams(window.location.search)
+        const callbackUrl = urlParams.get('callbackUrl')
+
+        router.push(callbackUrl ? `/login?callbackUrl=${callbackUrl}` : '/login')
       }, 2000)
     } catch (err) {
       setError('Ocurrió un error al registrar el usuario')
@@ -348,7 +351,15 @@ const Register = ({ mode }: { mode: SystemMode }) => {
 
             <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>¿Ya tienes una cuenta?</Typography>
-              <Typography component={Link} href='/login' color='primary'>
+              <Typography
+                component={Link}
+                href={
+                  typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')
+                    ? `/login?callbackUrl=${new URLSearchParams(window.location.search).get('callbackUrl')}`
+                    : '/login'
+                }
+                color='primary'
+              >
                 Inicia sesión
               </Typography>
             </div>

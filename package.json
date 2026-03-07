@@ -39,6 +39,7 @@
     "axios": "^1.13.5",
     "bcryptjs": "^3.0.3",
     "classnames": "2.5.1",
+    "cloudflared": "^0.7.1",
     "formik": "^2.4.9",
     "iconify": "^1.4.0",
     "jsonwebtoken": "^9.0.3",

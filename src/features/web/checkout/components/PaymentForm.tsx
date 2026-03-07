@@ -1,6 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+
+import { useRouter } from 'next/navigation'
 
 import {
     Box,
@@ -14,13 +16,87 @@ import {
     Paper,
     InputAdornment
 } from '@mui/material'
+import { useSession } from 'next-auth/react'
 
-const PaymentForm = () => {
+import AuthDialog from './AuthDialog'
+
+interface PaymentFormProps {
+    course: {
+        id: string
+        titulo: string
+        slug: string
+        precio: number
+    }
+}
+
+const PaymentForm: React.FC<PaymentFormProps> = ({ course }) => {
+    const { data: session, status } = useSession()
+    const router = useRouter()
     const [tabValue, setTabValue] = useState(0)
+    const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+
+    // Form state
+    const [formData, setFormData] = useState({
+        nombres: '',
+        apellidos: '',
+        correo: ''
+    })
+
+    // Sync form with session
+    useEffect(() => {
+        if (session?.user) {
+            const user = session.user as any
+
+            setFormData({
+                nombres: user.nombre || '',
+                apellidos: user.apellido || '',
+                correo: user.email || ''
+            })
+        }
+    }, [session])
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue)
     }
+
+    const handleCheckout = async () => {
+        if (!session) {
+            setIsAuthDialogOpen(true)
+
+            return
+        }
+
+        try {
+            setIsLoading(true)
+
+            const response = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    cursoId: course.id
+                })
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Error al procesar la inscripción')
+            }
+
+            // Redirect to student dashboard
+            router.push('/estudiante/mis-cursos')
+        } catch (error: any) {
+            console.error('Error in checkout:', error)
+            alert(error.message || 'Ocurrió un error inesperado')
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const isGuest = status === 'unauthenticated'
 
     return (
         <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '24px', bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}>
@@ -28,25 +104,38 @@ const PaymentForm = () => {
                 Información de <span style={{ color: 'var(--mui-palette-primary-main)' }}>Pago</span>
             </Typography>
             <Typography variant="body2" sx={{ mb: 4, color: 'text.secondary', fontWeight: 500 }}>
-                Completa tus datos para finalizar la inscripción al curso.
+                {isGuest ? 'Identifícate e ingresa tus datos para finalizar la inscripción.' : 'Verifica tus datos y completa el pago.'}
             </Typography>
 
             <Stack spacing={4}>
                 {/* Personal Info */}
                 <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>Datos Personales</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>Datos del Estudiante</Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
-                            <TextField fullWidth label="Nombres" placeholder="Ej. Juan" variant="outlined" />
+                            <TextField
+                                fullWidth
+                                label="Nombres"
+                                value={formData.nombres}
+                                onChange={e => setFormData(p => ({ ...p, nombres: e.target.value }))}
+                                variant="outlined"
+                            />
                         </Grid>
                         <Grid item xs={12} sm={6}>
-                            <TextField fullWidth label="Apellidos" placeholder="Ej. Pérez" variant="outlined" />
+                            <TextField
+                                fullWidth
+                                label="Apellidos"
+                                value={formData.apellidos}
+                                onChange={e => setFormData(p => ({ ...p, apellidos: e.target.value }))}
+                                variant="outlined"
+                            />
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
                                 fullWidth
                                 label="Correo Electrónico"
-                                placeholder="juan.perez@email.com"
+                                value={formData.correo}
+                                onChange={e => setFormData(p => ({ ...p, correo: e.target.value }))}
                                 variant="outlined"
                                 InputProps={{
                                     startAdornment: (
@@ -115,7 +204,9 @@ const PaymentForm = () => {
                             />
                             <Typography variant="body2" sx={{ fontWeight: 600 }}>Escanea el código para pagar</Typography>
                             <Typography variant="caption" color="text.secondary">Sube tu constancia después de pagar</Typography>
-                            <Button variant="outlined" size="small" sx={{ mt: 2, borderRadius: '8px' }}>Adjuntar Comprobante</Button>
+                            <Box sx={{ mt: 2 }}>
+                                <Button variant="outlined" size="small" sx={{ borderRadius: '8px' }}>Adjuntar Comprobante</Button>
+                            </Box>
                         </Box>
                     )}
                 </Box>
@@ -124,6 +215,8 @@ const PaymentForm = () => {
                     variant="contained"
                     fullWidth
                     size="large"
+                    onClick={handleCheckout}
+                    disabled={isLoading}
                     sx={{
                         py: 2,
                         borderRadius: '16px',
@@ -133,9 +226,14 @@ const PaymentForm = () => {
                         textTransform: 'none'
                     }}
                 >
-                    Finalizar Compra
+                    {isLoading ? 'Procesando...' : (isGuest ? 'Identificarse para Comprar' : 'Finalizar Compra')}
                 </Button>
             </Stack>
+
+            <AuthDialog
+                open={isAuthDialogOpen}
+                onClose={() => setIsAuthDialogOpen(false)}
+            />
         </Paper>
     )
 }

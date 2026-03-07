@@ -8,18 +8,17 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  * POST /api/cursos/[id]/modulos/[moduloId]/lecciones
  * Crear una lección dentro de un módulo
  */
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string; moduloId: string } }
-) {
+export async function POST(request: Request, { params }: { params: { id: string; moduloId: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id: cursoId, moduloId } = params
     const body = await request.json()
 
     const validation = validateRequest(crearLeccionSchema, body, request)
+
     if (!validation.success) return validation.error
 
     // Verificar que el módulo existe y pertenece al curso
@@ -45,8 +44,10 @@ export async function POST(
         contenido: validation.data.contenido || null,
         duracion: validation.data.duracion || null,
         enlace_reunion: validation.data.enlace_reunion || null,
+        video_url: validation.data.video_url || null,
+        es_vista_previa: validation.data.es_vista_previa || false,
         orden,
-        estado: 'BORRADOR',
+        estado: 'PUBLICADO',
         modulo_id: moduloId
       }
     })

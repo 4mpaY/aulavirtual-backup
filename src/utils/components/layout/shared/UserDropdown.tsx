@@ -22,8 +22,9 @@ import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 
 // Hook Imports
-import { useSettings } from '@core/hooks/useSettings'
 import { signOut, useSession } from 'next-auth/react'
+
+import { useSettings } from '@core/hooks/useSettings'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -83,8 +84,8 @@ const UserDropdown = () => {
       >
         <Avatar
           ref={anchorRef}
-          alt='John Doe'
-          src='/images/avatars/1.png'
+          alt={data?.user?.name || 'User'}
+          src={data?.user?.avatar || '/images/avatars/1.png'}
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />
@@ -108,7 +109,7 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
-                    <Avatar alt={`${data?.user.name}`} src='/images/avatars/1.png' />
+                    <Avatar alt={data?.user?.name || ''} src={data?.user?.avatar || '/images/avatars/1.png'} />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
                         {`${data?.user.name}`}
@@ -121,6 +122,18 @@ const UserDropdown = () => {
                     <i className='tabler-user text-[22px]' />
                     <Typography color='text.primary'>Mi Perfil</Typography>
                   </MenuItem>
+                  {data?.user?.rol === 'ADMIN' && (
+                    <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/admin/dashboard')}>
+                      <i className='tabler-layout-dashboard text-[22px]' />
+                      <Typography color='text.primary'>Panel de Administración</Typography>
+                    </MenuItem>
+                  )}
+                  {data?.user?.rol === 'ESTUDIANTE' && (
+                    <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/estudiante/mis-cursos')}>
+                      <i className='tabler-book text-[22px]' />
+                      <Typography color='text.primary'>Mis Cursos</Typography>
+                    </MenuItem>
+                  )}
                   {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
                     <i className='tabler-settings text-[22px]' />
                     <Typography color='text.primary'>Settings</Typography>

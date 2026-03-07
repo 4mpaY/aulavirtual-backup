@@ -68,6 +68,9 @@ importers:
       classnames:
         specifier: 2.5.1
         version: 2.5.1
+      cloudflared:
+        specifier: ^0.7.1
+        version: 0.7.1
       formik:
         specifier: ^2.4.9
         version: 2.4.9(@types/react@18.2.65)(react@18.2.0)
@@ -1265,6 +1268,10 @@ packages:
 
   client-only@0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
+
+  cloudflared@0.7.1:
+    resolution: {integrity: sha512-jJn1Gu9Tf4qnIu8tfiHZ25Hs8rNcRYSVf8zAd97wvYdOCzftm1CTs1S/RPhijjGi8gUT1p9yzfDi9zYlU/0RwA==}
+    hasBin: true
 
   clsx@1.2.1:
     resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
@@ -4515,6 +4522,8 @@ snapshots:
   classnames@2.5.1: {}
 
   client-only@0.0.1: {}
+
+  cloudflared@0.7.1: {}
 
   clsx@1.2.1: {}
 

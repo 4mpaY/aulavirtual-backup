@@ -6,8 +6,14 @@ import { notFound } from 'next/navigation'
 import { Container, Stack, Button, Box, Typography, Divider } from '@mui/material'
 
 // Component Imports
+import { getServerSession } from 'next-auth'
+
 import CourseDetail from '@/features/web/courses/components/CourseDetail'
 import Logo from '@components/layout/shared/Logo'
+import UserDropdown from '@components/layout/shared/UserDropdown'
+
+// Auth Imports
+import { authOptions } from '@/utils/configs/auth'
 
 // Lib Imports
 import prisma from '@/utils/libs/prisma'
@@ -50,6 +56,7 @@ async function getCourseData(slug: string) {
 
 export default async function CourseDetailPage({ params }: { params: { slug: string } }) {
     const course = await getCourseData(params.slug)
+    const session = await getServerSession(authOptions)
 
     if (!course) {
         notFound()
@@ -62,9 +69,13 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
                 <Container maxWidth={false} sx={{ px: { xs: 4, md: 8, lg: 12 } }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                         <Logo />
-                        <Stack direction="row" spacing={2}>
+                        <Stack direction="row" spacing={2} alignItems="center">
                             <Button href="/" color="inherit" sx={{ fontWeight: 600 }}>Volver al Catálogo</Button>
-                            <Button href="/login" variant="contained" sx={{ fontWeight: 600, borderRadius: '10px' }}>Iniciar Sesión</Button>
+                            {session ? (
+                                <UserDropdown />
+                            ) : (
+                                <Button href="/login" variant="contained" sx={{ fontWeight: 600, borderRadius: '10px' }}>Iniciar Sesión</Button>
+                            )}
                         </Stack>
                     </Stack>
                 </Container>

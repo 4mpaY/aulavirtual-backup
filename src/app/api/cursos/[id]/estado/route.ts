@@ -11,12 +11,14 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id } = params
     const body = await request.json()
 
     const validation = validateRequest(cambiarEstadoCursoSchema, body, request)
+
     if (!validation.success) return validation.error
 
     const { estado } = validation.data
@@ -43,11 +45,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       const tieneContenido = curso.modulos.some(m => m.lecciones.length > 0)
 
       if (curso.modulos.length === 0) {
-        return ApiResponse.error(
-          request,
-          'No se puede publicar: el curso debe tener al menos un módulo',
-          400
-        )
+        return ApiResponse.error(request, 'No se puede publicar: el curso debe tener al menos un módulo', 400)
       }
 
       if (!tieneContenido) {

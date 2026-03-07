@@ -10,17 +10,20 @@ import {
     Grid,
     Typography,
     InputAdornment,
-    Stepper,
-    Step,
-    StepLabel,
-    Switch,
-    FormControlLabel,
     MenuItem,
     Card,
     CardContent,
     Stack,
-    CircularProgress
+    CircularProgress,
+    Tab,
+    Divider,
+    FormControlLabel,
+    Switch,
+    IconButton
 } from '@mui/material'
+import TabContext from '@mui/lab/TabContext'
+import TabList from '@mui/lab/TabList'
+import TabPanel from '@mui/lab/TabPanel'
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
@@ -28,6 +31,7 @@ import { useSnackbar } from 'notistack'
 import CustomTextField from '@core/components/mui/TextField'
 
 import { crearCursoSchema, type CrearCursoDto } from '@/schemas/curso.schema'
+import MediaLibrary from '../components/MediaLibrary'
 
 import { useCreateCurso } from '../hooks/useCursos'
 import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
@@ -36,14 +40,13 @@ interface CourseCreatePageProps {
     profesores: { id: string; nombre: string; apellido: string }[]
 }
 
-const steps = ['Información Básica', 'Configuración', 'Media']
-
 export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
     const { enqueueSnackbar } = useSnackbar()
     const router = useRouter()
-    const createCursoMutation = useCreateCurso()
+    const createMutation = useCreateCurso()
     const { data: categorias = [] } = useCategorias()
-    const [activeStep, setActiveStep] = useState(0)
+    const [activeTab, setActiveTab] = useState('1')
+    const [openMedia, setOpenMedia] = useState(false)
 
     const initialValues: CrearCursoDto = {
         titulo: '',
@@ -56,29 +59,23 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
         moneda: 'PEN',
         duracion: '',
         miniatura: null,
-        video_presentacion: null
+        video_presentacion: null,
+        fecha_inicio: null
     }
-
-    const handleNext = () => setActiveStep(prev => Math.min(prev + 1, steps.length - 1))
-    const handleBack = () => setActiveStep(prev => Math.max(prev - 1, 0))
 
     const handleSubmit = async (values: CrearCursoDto, { setSubmitting }: FormikHelpers<CrearCursoDto>) => {
         try {
-            const payload: any = { ...values }
-
-            if (!payload.categoria_id) delete payload.categoria_id
-            if (!payload.descripcion) delete payload.descripcion
-            if (!payload.duracion) delete payload.duracion
-            if (!payload.miniatura) delete payload.miniatura
-            if (!payload.video_presentacion) delete payload.video_presentacion
-
-            const result = await createCursoMutation.mutateAsync(payload)
+            // The backend should handle null/undefined values for optional fields,
+            // so we can pass 'values' directly.
+            // If the backend expects fields to be absent rather than null,
+            // the deletion logic would be needed.
+            // For now, assuming direct pass is fine or backend handles nulls.
+            const result = await createMutation.mutateAsync(values)
 
             enqueueSnackbar('Curso creado exitosamente', { variant: 'success' })
 
-            // Redirigir al curso builder del nuevo curso
-            if (result?.id) {
-                router.push(`/admin/cursos/${result.id}`)
+            if (result?.curso?.id) { // Assuming the result structure is { curso: { id: string, ... } }
+                router.push(`/admin/cursos/${result.curso.id}`)
             } else {
                 router.push('/admin/cursos')
             }
@@ -97,7 +94,7 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
                         Nuevo Curso
                     </Typography>
                     <Typography variant='body2' color='text.secondary'>
-                        Sigue los pasos para configurar tu nuevo programa educativo
+                        Configura los detalles de tu nuevo programa educativo
                     </Typography>
                 </Box>
                 <Button
@@ -109,14 +106,6 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
                 </Button>
             </Box>
 
-            <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 6 }}>
-                {steps.map(label => (
-                    <Step key={label}>
-                        <StepLabel>{label}</StepLabel>
-                    </Step>
-                ))}
-            </Stepper>
-
             <Formik
                 initialValues={initialValues}
                 validationSchema={toFormikValidationSchema(crearCursoSchema)}
@@ -124,120 +113,156 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
             >
                 {({ values, errors, touched, handleChange, handleBlur, handleSubmit: handleFormikSubmit, isSubmitting, setFieldValue }) => (
                     <form onSubmit={handleFormikSubmit}>
-                        <Card>
-                            <CardContent sx={{ p: 6 }}>
-                                {/* ============ PASO 1: Información Básica ============ */}
-                                {activeStep === 0 && (
-                                    <Grid container spacing={5}>
-                                        <Grid item xs={12}>
-                                            <CustomTextField
-                                                fullWidth
-                                                label='Título del Curso *'
-                                                name='titulo'
-                                                placeholder='Ej: Especialización en Gestión Ambiental'
-                                                value={values.titulo}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                error={touched.titulo && Boolean(errors.titulo)}
-                                                helperText={touched.titulo && errors.titulo}
-                                                disabled={isSubmitting}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position='start'>
-                                                            <i className='tabler-book text-xl text-textSecondary' />
-                                                        </InputAdornment>
-                                                    )
-                                                }}
-                                            />
-                                        </Grid>
+                        <TabContext value={activeTab}>
+                            <Card>
+                                <TabList onChange={(_, val) => setActiveTab(val)} variant='scrollable' sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                                    <Tab icon={<i className='tabler-info-circle' />} iconPosition='start' label='Información' value='1' />
+                                    <Tab icon={<i className='tabler-settings' />} iconPosition='start' label='Configuración' value='2' />
+                                    <Tab icon={<i className='tabler-photo' />} iconPosition='start' label='Media' value='3' />
+                                </TabList>
 
-                                        <Grid item xs={12}>
-                                            <CustomTextField
-                                                fullWidth
-                                                multiline
-                                                rows={4}
-                                                label='Descripción'
-                                                name='descripcion'
-                                                placeholder='Describe los objetivos y alcance del curso...'
-                                                value={values.descripcion}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                error={touched.descripcion && Boolean(errors.descripcion)}
-                                                helperText={touched.descripcion && errors.descripcion}
-                                                disabled={isSubmitting}
-                                            />
-                                        </Grid>
+                                <CardContent sx={{ p: 6 }}>
+                                    <TabPanel value='1' sx={{ p: 0 }}>
+                                        <Grid container spacing={5}>
+                                            <Grid item xs={12}>
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label='Título del Curso *'
+                                                    name='titulo'
+                                                    placeholder='Ej: Especialización en Gestión Ambiental'
+                                                    value={values.titulo}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    error={touched.titulo && Boolean(errors.titulo)}
+                                                    helperText={touched.titulo && errors.titulo}
+                                                    disabled={isSubmitting}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position='start'>
+                                                                <i className='tabler-book text-xl text-textSecondary' />
+                                                            </InputAdornment>
+                                                        )
+                                                    }}
+                                                />
+                                            </Grid>
 
-                                        <Grid item xs={12} sm={6}>
-                                            <CustomTextField
-                                                select
-                                                fullWidth
-                                                label='Categoría'
-                                                name='categoria_id'
-                                                value={values.categoria_id || ''}
-                                                onChange={handleChange}
-                                                disabled={isSubmitting}
-                                            >
-                                                <MenuItem value=''>Sin categoría</MenuItem>
-                                                {categorias.map(cat => (
-                                                    <MenuItem key={cat.id} value={cat.id}>
-                                                        {cat.nombre}
-                                                    </MenuItem>
-                                                ))}
-                                            </CustomTextField>
-                                        </Grid>
+                                            <Grid item xs={12}>
+                                                <CustomTextField
+                                                    fullWidth
+                                                    multiline
+                                                    rows={4}
+                                                    label='Descripción'
+                                                    name='descripcion'
+                                                    placeholder='Describe los objetivos y alcance del curso...'
+                                                    value={values.descripcion}
+                                                    onChange={handleChange}
+                                                    onBlur={handleBlur}
+                                                    disabled={isSubmitting}
+                                                />
+                                            </Grid>
 
-                                        <Grid item xs={12} sm={6}>
-                                            <CustomTextField
-                                                select
-                                                fullWidth
-                                                label='Profesor Asignado *'
-                                                name='profesor_id'
-                                                value={values.profesor_id}
-                                                onChange={handleChange}
-                                                error={touched.profesor_id && Boolean(errors.profesor_id)}
-                                                helperText={touched.profesor_id && errors.profesor_id}
-                                                disabled={isSubmitting}
-                                            >
-                                                {profesores.map(prof => (
-                                                    <MenuItem key={prof.id} value={prof.id}>
-                                                        {prof.nombre} {prof.apellido}
-                                                    </MenuItem>
-                                                ))}
-                                            </CustomTextField>
-                                        </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <CustomTextField
+                                                    select
+                                                    fullWidth
+                                                    label='Categoría'
+                                                    name='categoria_id'
+                                                    value={values.categoria_id || ''}
+                                                    onChange={handleChange}
+                                                    disabled={isSubmitting}
+                                                >
+                                                    <MenuItem value=''>Sin categoría</MenuItem>
+                                                    {categorias.map(cat => (
+                                                        <MenuItem key={cat.id} value={cat.id}>
+                                                            {cat.nombre}
+                                                        </MenuItem>
+                                                    ))}
+                                                </CustomTextField>
+                                            </Grid>
 
-                                        <Grid item xs={12}>
-                                            <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                                                <Typography variant='body1' fontWeight={500} color='text.secondary'>
-                                                    Modalidad de impartición:
-                                                </Typography>
-                                                <Stack direction='row' spacing={2}>
-                                                    <Button
-                                                        variant={values.tipo_emision === 'ASINCRONO' ? 'contained' : 'outlined'}
-                                                        onClick={() => setFieldValue('tipo_emision', 'ASINCRONO')}
-                                                        startIcon={<i className='tabler-player-play' />}
-                                                    >
-                                                        Asíncrono
-                                                    </Button>
-                                                    <Button
-                                                        variant={values.tipo_emision === 'SINCRONO' ? 'contained' : 'outlined'}
-                                                        onClick={() => setFieldValue('tipo_emision', 'SINCRONO')}
-                                                        startIcon={<i className='tabler-live-photo' />}
-                                                    >
-                                                        Síncrono (En Vivo)
-                                                    </Button>
-                                                </Stack>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                )}
+                                            <Grid item xs={12} sm={6}>
+                                                <CustomTextField
+                                                    select
+                                                    fullWidth
+                                                    label='Profesor Asignado *'
+                                                    name='profesor_id'
+                                                    value={values.profesor_id}
+                                                    onChange={handleChange}
+                                                    error={touched.profesor_id && Boolean(errors.profesor_id)}
+                                                    helperText={touched.profesor_id && errors.profesor_id}
+                                                    disabled={isSubmitting}
+                                                >
+                                                    {profesores.map(prof => (
+                                                        <MenuItem key={prof.id} value={prof.id}>
+                                                            {prof.nombre} {prof.apellido}
+                                                        </MenuItem>
+                                                    ))}
+                                                </CustomTextField>
+                                            </Grid>
 
-                                {/* ============ PASO 2: Configuración y Precio ============ */}
-                                {activeStep === 1 && (
-                                    <Grid container spacing={5}>
-                                        <Grid item xs={12}>
-                                            <Box sx={{ p: 4, bgcolor: 'action.hover', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+                                            <Grid item xs={12}>
+                                                <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                                                    <Typography variant='body2' color='text.secondary'>
+                                                        Modalidad de impartición:
+                                                    </Typography>
+                                                    <Stack direction='row' spacing={2}>
+                                                        <Button
+                                                            variant={values.tipo_emision === 'ASINCRONO' ? 'contained' : 'outlined'}
+                                                            size='small'
+                                                            onClick={() => setFieldValue('tipo_emision', 'ASINCRONO')}
+                                                            startIcon={<i className='tabler-player-play' />}
+                                                        >
+                                                            Asíncrono
+                                                        </Button>
+                                                        <Button
+                                                            variant={values.tipo_emision === 'SINCRONO' ? 'contained' : 'outlined'}
+                                                            size='small'
+                                                            onClick={() => setFieldValue('tipo_emision', 'SINCRONO')}
+                                                            startIcon={<i className='tabler-live-photo' />}
+                                                        >
+                                                            Síncrono
+                                                        </Button>
+                                                        <Button
+                                                            variant={values.tipo_emision === 'MIXTO' ? 'contained' : 'outlined'}
+                                                            size='small'
+                                                            onClick={() => setFieldValue('tipo_emision', 'MIXTO')}
+                                                            startIcon={<i className='tabler-arrows-split' />}
+                                                        >
+                                                            Mixto
+                                                        </Button>
+                                                    </Stack>
+                                                </Box>
+                                            </Grid>
+
+                                            {(values.tipo_emision === 'SINCRONO' || values.tipo_emision === 'MIXTO') && (
+                                                <Grid item xs={12} sm={6}>
+                                                    <CustomTextField
+                                                        fullWidth
+                                                        type='date'
+                                                        label='Fecha de Inicio'
+                                                        name='fecha_inicio'
+                                                        value={values.fecha_inicio || ''}
+                                                        onChange={handleChange}
+                                                        onBlur={handleBlur}
+                                                        disabled={isSubmitting}
+                                                        InputLabelProps={{ shrink: true }}
+                                                        InputProps={{
+                                                            startAdornment: (
+                                                                <InputAdornment position='start'>
+                                                                    <i className='tabler-calendar text-xl text-textSecondary' />
+                                                                </InputAdornment>
+                                                            )
+                                                        }}
+                                                    />
+                                                </Grid>
+                                            )}
+                                        </Grid>
+                                    </TabPanel>
+
+                                    <TabPanel value='2' sx={{ p: 0 }}>
+                                        <Grid container spacing={5}>
+                                            <Grid item xs={12}>
+                                                <Typography variant='h6' sx={{ mb: 2 }}>Precio</Typography>
                                                 <FormControlLabel
                                                     control={
                                                         <Switch
@@ -248,190 +273,156 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
                                                             }}
                                                         />
                                                     }
-                                                    label={
-                                                        <Typography variant='h6' fontWeight={600}>
-                                                            Marcar este curso como gratuito
-                                                        </Typography>
-                                                    }
+                                                    label='Este curso es gratis'
                                                 />
-                                                <Typography variant='body2' color='text.secondary' sx={{ ml: 10 }}>
-                                                    Los alumnos podrán inscribirse sin realizar ningún pago.
-                                                </Typography>
-                                            </Box>
+                                                {!values.es_gratis && (
+                                                    <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                                                        <CustomTextField
+                                                            type='number'
+                                                            label='Precio'
+                                                            name='precio'
+                                                            value={values.precio}
+                                                            onChange={handleChange}
+                                                            sx={{ width: 200 }}
+                                                        />
+                                                        <CustomTextField
+                                                            select
+                                                            label='Moneda'
+                                                            name='moneda'
+                                                            value={values.moneda}
+                                                            onChange={handleChange}
+                                                            sx={{ width: 120 }}
+                                                        >
+                                                            <MenuItem value='PEN'>PEN (S/)</MenuItem>
+                                                            <MenuItem value='USD'>USD ($)</MenuItem>
+                                                        </CustomTextField>
+                                                    </Box>
+                                                )}
+                                            </Grid>
+
+                                            <Grid item xs={12}><Divider /></Grid>
+
+                                            <Grid item xs={12}>
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label='Duración Sugerida'
+                                                    name='duracion'
+                                                    placeholder='Ej: 40 horas académicas'
+                                                    value={values.duracion || ''}
+                                                    onChange={handleChange}
+                                                    disabled={isSubmitting}
+                                                    InputProps={{
+                                                        startAdornment: (
+                                                            <InputAdornment position='start'>
+                                                                <i className='tabler-clock text-xl text-textSecondary' />
+                                                            </InputAdornment>
+                                                        )
+                                                    }}
+                                                />
+                                            </Grid>
                                         </Grid>
+                                    </TabPanel>
 
-                                        {!values.es_gratis && (
-                                            <>
-                                                <Grid item xs={12} sm={8}>
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        type='number'
-                                                        label='Precio del Curso'
-                                                        name='precio'
-                                                        value={values.precio}
-                                                        onChange={handleChange}
-                                                        onBlur={handleBlur}
-                                                        error={touched.precio && Boolean(errors.precio)}
-                                                        helperText={touched.precio && errors.precio}
-                                                        disabled={isSubmitting}
-                                                        InputProps={{
-                                                            startAdornment: (
-                                                                <InputAdornment position='start'>
-                                                                    <i className='tabler-coin-bitcoin text-xl text-textSecondary' />
-                                                                </InputAdornment>
-                                                            )
-                                                        }}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={12} sm={4}>
-                                                    <CustomTextField
-                                                        select
-                                                        fullWidth
-                                                        label='Moneda'
-                                                        name='moneda'
-                                                        value={values.moneda}
-                                                        onChange={handleChange}
-                                                        disabled={isSubmitting}
-                                                    >
-                                                        <MenuItem value='PEN'>Sol Peruano (S/)</MenuItem>
-                                                        <MenuItem value='USD'>Dólar (US$)</MenuItem>
-                                                    </CustomTextField>
-                                                </Grid>
-                                            </>
-                                        )}
-
-                                        <Grid item xs={12}>
-                                            <CustomTextField
-                                                fullWidth
-                                                label='Duración Sugerida'
-                                                name='duracion'
-                                                placeholder='Ej: 40 horas académicas / 8 semanas'
-                                                value={values.duracion || ''}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                disabled={isSubmitting}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position='start'>
-                                                            <i className='tabler-clock text-xl text-textSecondary' />
-                                                        </InputAdornment>
-                                                    )
-                                                }}
-                                            />
-                                        </Grid>
-                                    </Grid>
-                                )}
-
-                                {/* ============ PASO 3: Media ============ */}
-                                {activeStep === 2 && (
-                                    <Grid container spacing={5}>
-                                        <Grid item xs={12}>
-                                            <CustomTextField
-                                                fullWidth
-                                                label='URL de la Imagen de Portada (Miniatura)'
-                                                name='miniatura'
-                                                placeholder='https://tusitio.com/imagen.jpg'
-                                                value={values.miniatura || ''}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                error={touched.miniatura && Boolean(errors.miniatura)}
-                                                helperText={touched.miniatura && errors.miniatura}
-                                                disabled={isSubmitting}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position='start'>
-                                                            <i className='tabler-photo text-xl text-textSecondary' />
-                                                        </InputAdornment>
-                                                    )
-                                                }}
-                                            />
-                                            {values.miniatura && (
-                                                <Box sx={{ mt: 3, position: 'relative', borderRadius: 2, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+                                    <TabPanel value='3' sx={{ p: 0 }}>
+                                        <Grid container spacing={5}>
+                                            <Grid item xs={12}>
+                                                <Typography variant='subtitle2' sx={{ mb: 2 }}>Imagen de Portada</Typography>
+                                                {values.miniatura ? (
+                                                    <Box sx={{ position: 'relative', width: '100%', maxWidth: 400, borderRadius: 2, overflow: 'hidden', mb: 3, bgcolor: '#f4f4f4', border: '1px solid', borderColor: 'divider' }}>
+                                                        <img
+                                                            src={values.miniatura}
+                                                            alt='Vista previa'
+                                                            style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block', maxHeight: 280 }}
+                                                        />
+                                                        <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+                                                            <IconButton
+                                                                size='small'
+                                                                sx={{ bgcolor: 'background.paper', '&:hover': { bgcolor: 'background.paper' } }}
+                                                                onClick={() => setFieldValue('miniatura', '')}
+                                                            >
+                                                                <i className='tabler-trash text-error' />
+                                                            </IconButton>
+                                                        </Box>
+                                                    </Box>
+                                                ) : (
                                                     <Box
-                                                        component='img'
-                                                        src={values.miniatura}
-                                                        alt='Vista previa miniatura'
-                                                        sx={{ width: '100%', height: 200, objectFit: 'cover' }}
-                                                        onError={(e: any) => { e.target.style.display = 'none' }}
-                                                    />
+                                                        onClick={() => setOpenMedia(true)}
+                                                        sx={{
+                                                            width: '100%',
+                                                            maxWidth: 400,
+                                                            height: 200,
+                                                            borderRadius: 2,
+                                                            border: '2px dashed',
+                                                            borderColor: 'divider',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            cursor: 'pointer',
+                                                            bgcolor: 'action.hover',
+                                                            mb: 3,
+                                                            '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.lightOpacity' }
+                                                        }}
+                                                    >
+                                                        <i className='tabler-photo-plus text-4xl text-textDisabled' />
+                                                        <Typography color='text.secondary' sx={{ mt: 2 }}>Click para seleccionar imagen</Typography>
+                                                    </Box>
+                                                )}
+
+                                                <Button
+                                                    variant='outlined'
+                                                    size='small'
+                                                    startIcon={<i className='tabler-photo' />}
+                                                    onClick={() => setOpenMedia(true)}
+                                                >
+                                                    {values.miniatura ? 'Cambiar Imagen' : 'Seleccionar Imagen'}
+                                                </Button>
+
+                                                <MediaLibrary
+                                                    open={openMedia}
+                                                    onClose={() => setOpenMedia(false)}
+                                                    onSelect={(url) => setFieldValue('miniatura', url)}
+                                                />
+                                            </Grid>
+
+                                            <Grid item xs={12}>
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label='Enlace de Video Introductorio'
+                                                    name='video_presentacion'
+                                                    placeholder='https://vimeo.com/...'
+                                                    value={values.video_presentacion || ''}
+                                                    onChange={handleChange}
+                                                    disabled={isSubmitting}
+                                                />
+                                            </Grid>
+
+                                            <Grid item xs={12}>
+                                                <Box sx={{ p: 4, borderRadius: 2, bgcolor: 'primary.lightOpacity', border: '1px dashed', borderColor: 'primary.main', display: 'flex', alignItems: 'center', gap: 3 }}>
+                                                    <i className='tabler-info-circle text-3xl text-primary' />
+                                                    <Typography variant='body2' color='primary.dark'>
+                                                        El curso se creará en estado <strong>Borrador</strong>. Podrás añadir módulos y lecciones en la siguiente pantalla.
+                                                    </Typography>
                                                 </Box>
-                                            )}
+                                            </Grid>
                                         </Grid>
+                                    </TabPanel>
 
-                                        <Grid item xs={12}>
-                                            <CustomTextField
-                                                fullWidth
-                                                label='Enlace de Video Introductorio (Vimeo/YouTube)'
-                                                name='video_presentacion'
-                                                placeholder='https://vimeo.com/712...'
-                                                value={values.video_presentacion || ''}
-                                                onChange={handleChange}
-                                                onBlur={handleBlur}
-                                                error={touched.video_presentacion && Boolean(errors.video_presentacion)}
-                                                helperText={touched.video_presentacion && errors.video_presentacion}
-                                                disabled={isSubmitting}
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <InputAdornment position='start'>
-                                                            <i className='tabler-brand-vimeo text-xl text-textSecondary' />
-                                                        </InputAdornment>
-                                                    )
-                                                }}
-                                            />
-                                        </Grid>
-
-                                        <Grid item xs={12}>
-                                            <Box sx={{ p: 4, borderRadius: 2, bgcolor: 'primary.lightOpacity', border: '1px dashed', borderColor: 'primary.main', display: 'flex', alignItems: 'center', gap: 3 }}>
-                                                <i className='tabler-info-circle text-3xl text-primary' />
-                                                <Typography variant='body2' color='primary.dark'>
-                                                    Al crear el curso, este quedará en estado <strong>Borrador</strong>. Podrás añadir módulos, lecciones y materiales en la siguiente pantalla antes de publicarlo.
-                                                </Typography>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                )}
-
-                                {/* ============ BOTONES DE NAVEGACIÓN ============ */}
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 8 }}>
-                                    <Box>
-                                        {activeStep > 0 && (
-                                            <Button
-                                                variant='tonal'
-                                                color='secondary'
-                                                onClick={handleBack}
-                                                disabled={isSubmitting}
-                                                startIcon={<i className='tabler-arrow-left' />}
-                                            >
-                                                Paso Anterior
-                                            </Button>
-                                        )}
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 8 }}>
+                                        <Button
+                                            variant='contained'
+                                            color='primary'
+                                            type='submit'
+                                            size='large'
+                                            disabled={isSubmitting || !values.titulo.trim() || !values.profesor_id}
+                                            startIcon={isSubmitting ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-device-floppy' />}
+                                        >
+                                            {isSubmitting ? 'Creando...' : 'Finalizar y Crear Curso'}
+                                        </Button>
                                     </Box>
-
-                                    <Stack direction='row' spacing={2}>
-                                        {activeStep < steps.length - 1 ? (
-                                            <Button
-                                                variant='contained'
-                                                onClick={handleNext}
-                                                disabled={activeStep === 0 && (!values.titulo.trim() || !values.profesor_id)}
-                                                endIcon={<i className='tabler-arrow-right' />}
-                                            >
-                                                Siguiente Paso
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                variant='contained'
-                                                color='success'
-                                                type='submit'
-                                                disabled={isSubmitting || !values.titulo.trim() || !values.profesor_id}
-                                                startIcon={isSubmitting ? <Box sx={{ width: 20, height: 20, mr: 1 }}><CircularProgress size={20} color='inherit' /></Box> : <i className='tabler-check' />}
-                                            >
-                                                {isSubmitting ? 'Creando...' : 'Finalizar y Crear Curso'}
-                                            </Button>
-                                        )}
-                                    </Stack>
-                                </Box>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        </TabContext>
                     </form>
                 )}
             </Formik>

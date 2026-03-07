@@ -22,7 +22,7 @@ function generateSlug(text: string): string {
  * Genera un slug único para cursos
  */
 async function generateUniqueSlug(titulo: string, excludeId?: string): Promise<string> {
-  let slug = generateSlug(titulo)
+  const slug = generateSlug(titulo)
   let counter = 0
   let candidateSlug = slug
 
@@ -47,12 +47,14 @@ async function generateUniqueSlug(titulo: string, excludeId?: string): Promise<s
 export async function GET(request: Request) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { searchParams } = new URL(request.url)
     const query = Object.fromEntries(searchParams.entries())
 
     const validation = validateRequest(listarCursosQuerySchema, query, request)
+
     if (!validation.success) return validation.error
 
     const { page, limit, buscar, estado, categoria_id, profesor_id } = validation.data
@@ -103,7 +105,7 @@ export async function GET(request: Request) {
 
     // Contar lecciones por curso (Prisma no soporta nested _count directo)
     const cursosConLecciones = await Promise.all(
-      cursos.map(async (curso) => {
+      cursos.map(async curso => {
         const leccionesCount = await prisma.leccion.count({
           where: { modulo: { curso_id: curso.id } }
         })
@@ -139,11 +141,13 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const body = await request.json()
 
     const validation = validateRequest(crearCursoSchema, body, request)
+
     if (!validation.success) return validation.error
 
     const data = validation.data
@@ -189,6 +193,7 @@ export async function POST(request: Request) {
         duracion: data.duracion || null,
         miniatura: data.miniatura || null,
         video_presentacion: data.video_presentacion || null,
+        fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
         estado: 'BORRADOR'
       },
       include: {

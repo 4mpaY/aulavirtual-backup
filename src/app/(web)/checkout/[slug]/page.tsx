@@ -1,12 +1,19 @@
 // Next Imports
 import React from 'react'
-import Link from 'next/link'
+
 import { notFound } from 'next/navigation'
-import { Container, Stack, Button, Box, Typography, Divider } from '@mui/material'
+
+import { Container, Stack, Box, Typography, Divider } from '@mui/material'
 
 // Component Imports
+import { getServerSession } from 'next-auth'
+
 import CheckoutView from '@/features/web/checkout/components/CheckoutView'
 import Logo from '@components/layout/shared/Logo'
+import UserDropdown from '@components/layout/shared/UserDropdown'
+
+// Auth Imports
+import { authOptions } from '@/utils/configs/auth'
 
 // Lib Imports
 import prisma from '@/utils/libs/prisma'
@@ -31,12 +38,14 @@ async function getCourseData(slug: string) {
         return JSON.parse(JSON.stringify(course))
     } catch (error) {
         console.error('Error fetching course data for checkout:', error)
+
         return null
     }
 }
 
 export default async function CheckoutPage({ params }: { params: { slug: string } }) {
     const course = await getCourseData(params.slug)
+    const session = await getServerSession(authOptions)
 
     if (!course) {
         notFound()
@@ -48,13 +57,12 @@ export default async function CheckoutPage({ params }: { params: { slug: string 
             <Box sx={{ py: 3, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
                 <Container maxWidth="lg">
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Link href="/">
-                            <Logo />
-                        </Link>
+                        <Logo />
                         <Stack direction="row" spacing={2} alignItems="center">
                             <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' } }}>
                                 ¿Tienes dudas? <b>WhatsApp +51 999 999 999</b>
                             </Typography>
+                            {session ? <UserDropdown /> : null}
                         </Stack>
                     </Stack>
                 </Container>
@@ -82,7 +90,7 @@ export default async function CheckoutPage({ params }: { params: { slug: string 
     )
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata() {
     return {
         title: `Checkout - Comprar Curso | Aula Virtual`,
         description: 'Finaliza tu inscripción y comienza a aprender hoy mismo.'

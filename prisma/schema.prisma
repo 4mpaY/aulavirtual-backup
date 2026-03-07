@@ -58,6 +58,7 @@ model Curso {
   descripcion        String?
   miniatura          String?
   video_presentacion String?
+  fecha_inicio       DateTime?
   duracion           String?
   tipo_emision       TipoEmision     @default(ASINCRONO)
   nivel              NivelCurso      @default(BASICO)
@@ -115,7 +116,8 @@ model Leccion {
   video_url      String?
   recursos       Json?              @default("[]")
   enlace_reunion String?
-  estado         EstadoLeccion      @default(BORRADOR)
+  es_vista_previa Boolean            @default(false)
+  estado         EstadoLeccion      @default(PUBLICADO)
   creado_en      DateTime           @default(now())
   actualizado_en DateTime           @updatedAt
   modulo_id      String
@@ -351,6 +353,19 @@ model Tenant {
   esta_activo      Boolean  @default(true)
 
   @@map("tenants")
+}
+
+model Media {
+  id             String   @id @default(uuid())
+  nombre         String
+  url            String
+  tipo           String   // IMAGEN, VIDEO, DOCUMENTO
+  mimetype       String
+  peso           Int      // en bytes
+  creado_en      DateTime @default(now())
+  actualizado_en DateTime @updatedAt
+
+  @@map("media")
 }
 
 enum Rol {

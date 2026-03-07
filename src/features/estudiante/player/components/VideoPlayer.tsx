@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+
 import { Box, Paper } from '@mui/material'
 
 interface VideoPlayerProps {
@@ -34,6 +35,20 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, tipo = 'VIDEO' }) => {
     // Si es YouTube o Vimeo incrustado
     const isEmbedded = url.includes('youtube.com') || url.includes('vimeo.com') || tipo === 'INCRUSTADO'
 
+    const getEmbedUrl = (originalUrl: string) => {
+        if (originalUrl.includes('youtube.com/watch?v=')) {
+            return originalUrl.replace('watch?v=', 'embed/')
+        }
+
+        if (originalUrl.includes('vimeo.com/') && !originalUrl.includes('player.vimeo.com')) {
+            const videoId = originalUrl.split('vimeo.com/')[1]
+
+            return `https://player.vimeo.com/video/${videoId}`
+        }
+
+        return originalUrl
+    }
+
     return (
         <Box
             sx={{
@@ -49,7 +64,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, tipo = 'VIDEO' }) => {
                 <iframe
                     width="100%"
                     height="100%"
-                    src={url.includes('youtube.com/watch?v=') ? url.replace('watch?v=', 'embed/') : url}
+                    src={getEmbedUrl(url)}
                     title="Reproductor de video"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

@@ -19,7 +19,7 @@ function generateSlug(text: string): string {
 }
 
 async function generateUniqueSlug(titulo: string, excludeId?: string): Promise<string> {
-  let slug = generateSlug(titulo)
+  const slug = generateSlug(titulo)
   let counter = 0
   let candidateSlug = slug
 
@@ -54,6 +54,10 @@ const cursoInclude = {
           titulo: true,
           orden: true,
           duracion: true,
+          video_url: true,
+          recursos: true,
+          es_vista_previa: true,
+          contenido: true,
           estado: true
         }
       }
@@ -71,6 +75,7 @@ const cursoInclude = {
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAuth(request)
+
     if (!auth.authorized) return auth.error
 
     const { id } = params
@@ -97,12 +102,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id } = params
     const body = await request.json()
-
     const validation = validateRequest(actualizarCursoSchema, body, request)
+
     if (!validation.success) return validation.error
 
     const data = validation.data
@@ -121,6 +127,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     // Si se actualiza el título, regenerar slug
     if (data.titulo && data.titulo !== curso.titulo) {
       updateData.slug = await generateUniqueSlug(data.titulo, id)
+    }
+
+    if (data.fecha_inicio) {
+      updateData.fecha_inicio = new Date(data.fecha_inicio)
+    } else if (data.fecha_inicio === null) {
+      updateData.fecha_inicio = null
     }
 
     // Verificar profesor si se cambia
@@ -168,6 +180,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id } = params

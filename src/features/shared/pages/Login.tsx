@@ -14,10 +14,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -34,7 +31,6 @@ import { loginSchema, type LoginDto } from '@/schemas/auth.schema'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Config Imports
-import themeConfig from '@/utils/configs/themeConfig'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
@@ -141,8 +137,11 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         return
       }
 
-      // Redirigir a dashboard genérico - el middleware redirigirá según el rol
-      router.push('/dashboard')
+      // Redirigir a la URL solicitada o al dashboard genérico
+      const urlParams = new URLSearchParams(window.location.search)
+      const callbackUrl = urlParams.get('callbackUrl')
+
+      router.push(callbackUrl || '/dashboard')
       router.refresh()
     } catch (err) {
       console.error('💥 Error en login:', err)
@@ -248,7 +247,15 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
             <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>¿No tienes una cuenta?</Typography>
-              <Typography component={Link} href='/register' color='primary'>
+              <Typography
+                component={Link}
+                href={
+                  typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')
+                    ? `/register?callbackUrl=${new URLSearchParams(window.location.search).get('callbackUrl')}`
+                    : '/register'
+                }
+                color='primary'
+              >
                 Regístrate
               </Typography>
             </div>

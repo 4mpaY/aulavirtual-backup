@@ -4,13 +4,14 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { Container, Grid, Box, Typography, Stack, Breadcrumbs } from '@mui/material'
+import { Container, Grid, Box, Typography, Breadcrumbs } from '@mui/material'
 
 import OrderSummary from './OrderSummary'
 import PaymentForm from './PaymentForm'
 
 interface CheckoutViewProps {
     course: {
+        id: string
         titulo: string
         slug: string
         miniatura?: string
@@ -48,7 +49,7 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ course }) => {
                 <Grid container spacing={5}>
                     {/* Formulario de Pago */}
                     <Grid item xs={12} md={7} lg={8}>
-                        <PaymentForm />
+                        <PaymentForm course={course} />
                     </Grid>
 
                     {/* Resumen del Pedido */}

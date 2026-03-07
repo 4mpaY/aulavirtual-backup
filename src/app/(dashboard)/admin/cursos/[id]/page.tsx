@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { CourseBuilderPage } from '@/features/admin/cursos/pages/CourseBuilderPage'
-import { AxiosUsuario } from '@/features/admin/usuarios/http/axiosUsuario'
+import prisma from '@/utils/libs/prisma'
 import { authOptions } from '@/utils/configs/auth'
 
 export const metadata: Metadata = {
@@ -17,25 +17,31 @@ export default async function Page({ params }: { params: { id: string } }) {
         redirect('/login')
     }
 
-    const token = session.user?.accessToken ?? null
-
-    const axiosUsuario = new AxiosUsuario({
-        getAuthToken: () => token
-    })
-
     let profesores: { id: string; nombre: string; apellido: string }[] = []
 
     try {
-        const profs = await axiosUsuario.searchAll({ rol: 'PROFESOR', esta_activo: 'true' })
-        const admins = await axiosUsuario.searchAll({ rol: 'ADMIN', esta_activo: 'true' })
-        profesores = [...profs, ...admins].map(u => ({
+        const usuariosData = await prisma.usuario.findMany({
+            where: {
+                esta_activo: true,
+                rol: { in: ['PROFESOR', 'ADMIN'] }
+            },
+            select: {
+                id: true,
+                nombre: true,
+                apellido: true,
+                rol: true
+            }
+        })
+
+        profesores = usuariosData.map(u => ({
             id: u.id,
             nombre: u.nombre,
             apellido: u.apellido
         }))
     } catch (error) {
-        console.error('Error fetching profesores:', error)
+        console.error('Error fetching profesores from DB:', error)
     }
 
     return <CourseBuilderPage cursoId={params.id} profesores={profesores} />
 }
+
