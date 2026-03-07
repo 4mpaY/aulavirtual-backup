@@ -118,7 +118,7 @@ export default async function HomePage() {
             <Logo />
             <Stack direction="row" spacing={3} alignItems="center">
               <Typography variant="body2" color="text.secondary">
-                © 2026 Aula Virtual EdTech
+                © 2026 ELITE EdTech
               </Typography>
               <Divider orientation="vertical" flexItem sx={{ height: 16 }} />
               <Typography variant="body2" component="a" href="#" sx={{ color: 'text.secondary', textDecoration: 'none' }}>Privacidad</Typography>

@@ -313,7 +313,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                 </Grid>
 
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
-                                    <Typography variant="h2" sx={{ fontWeight: 900, color: '#4ade80', fontSize: { xs: '2.5rem', md: '3.5rem' } }}>
+                                    <Typography variant="h2" sx={{ fontWeight: 900, color: 'primary.light', fontSize: { xs: '2.5rem', md: '3.5rem' } }}>
                                         {course.es_gratis ? 'S/. 0.00' : `${course.moneda} ${course.precio}`}
                                     </Typography>
                                     {!course.es_gratis && (
@@ -325,7 +325,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
 
                                 <Button
                                     variant="contained"
-                                    color="success"
+                                    color="primary"
                                     fullWidth
                                     size="large"
                                     component={Link}
@@ -335,7 +335,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                         borderRadius: '16px',
                                         fontWeight: 700,
                                         fontSize: '1.2rem',
-                                        boxShadow: '0 8px 20px rgba(46, 125, 50, 0.2)',
+                                        boxShadow: 'var(--mui-palette-primary-darkOpacity)',
                                         textTransform: 'none'
                                     }}
                                 >
@@ -380,8 +380,8 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                bgcolor: 'rgba(74, 222, 128, 0.1)',
-                                                color: '#4ade80',
+                                                bgcolor: 'primary.lighterOpacity',
+                                                color: 'primary.light',
                                                 mb: 2
                                             }}
                                         >
@@ -443,7 +443,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                 textAlign: 'center',
                                                 gap: 2
                                             }}>
-                                                <Avatar sx={{ bgcolor: 'success.50', color: 'success.main', width: 70, height: 70 }}>
+                                                <Avatar sx={{ bgcolor: 'primary.lighterOpacity', color: 'primary.main', width: 70, height: 70 }}>
                                                     <i className={m.icon} style={{ fontSize: '2.5rem' }} />
                                                 </Avatar>
                                                 <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
@@ -466,7 +466,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                         'Identificar causas raíz y optimizar el rendimiento utilizando herramientas de última generación.'
                                     ]).map((text, idx) => (
                                         <Stack key={idx} direction="row" spacing={2} alignItems="flex-start">
-                                            <i className="tabler-check" style={{ color: '#4ade80', marginTop: '4px', fontSize: '1.4rem', fontWeight: 900 }} />
+                                            <i className="tabler-check" style={{ color: 'var(--mui-palette-primary-main)', marginTop: '4px', fontSize: '1.4rem', fontWeight: 900 }} />
                                             <Typography variant="h6" sx={{ color: '#334155', fontWeight: 500, lineHeight: 1.5 }}>{text}</Typography>
                                         </Stack>
                                     ))}
@@ -501,8 +501,8 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                                             width: 32,
                                                             height: 32,
                                                             borderRadius: '8px',
-                                                            bgcolor: 'success.50',
-                                                            color: 'success.main',
+                                            bgcolor: 'primary.lighterOpacity',
+                                            color: 'primary.main',
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
@@ -564,7 +564,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                     <Grid item xs={12} md={4}>
                         <Box sx={{ position: { md: 'sticky' }, top: 100 }}>
                             <Paper sx={{ p: 4, borderRadius: '24px', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.06)', border: '1px solid #f1f5f9' }}>
-                                <Typography variant="h6" align="center" sx={{ fontWeight: 800, color: 'success.main', mb: 1, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                <Typography variant="h6" align="center" sx={{ fontWeight: 800, color: 'primary.main', mb: 1, textTransform: 'uppercase', letterSpacing: 1 }}>
                                     Programa {course.es_gratis ? 'Gratuito' : 'Premium'}
                                 </Typography>
                                 <Typography variant="body2" align="center" sx={{ color: '#475569', mb: 3, fontWeight: 600 }}>
@@ -586,7 +586,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                         <Stack key={i} direction="row" spacing={1.5} alignItems="center">
                                             <i
                                                 className={benefit.active ? "tabler-circle-check" : "tabler-circle-x"}
-                                                style={{ color: benefit.active ? '#2e7d32' : '#ef4444', fontSize: '1.2rem' }}
+                                                style={{ color: benefit.active ? 'var(--mui-palette-primary-main)' : '#ef4444', fontSize: '1.2rem' }}
                                             />
                                             <Typography variant="body1" sx={{ color: benefit.active ? 'text.primary' : 'text.secondary', fontWeight: benefit.active ? 600 : 400 }}>
                                                 {benefit.text}
@@ -597,7 +597,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
 
                                 <Button
                                     variant="contained"
-                                    color="success"
+                                    color="primary"
                                     fullWidth
                                     size="large"
                                     component={Link}
@@ -606,7 +606,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                         py: 1.5,
                                         borderRadius: '12px',
                                         fontWeight: 700,
-                                        boxShadow: '0 4px 12px rgba(46, 125, 50, 0.15)',
+                                        boxShadow: 'var(--mui-palette-primary-darkOpacity)',
                                         textTransform: 'none'
                                     }}
                                 >

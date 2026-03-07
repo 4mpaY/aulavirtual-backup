@@ -8,13 +8,15 @@ import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 
 // Third-party Imports
+import { Montserrat } from 'next/font/google'
+
 import styled from '@emotion/styled'
 
 // Type Imports
 import type { VerticalNavContextProps } from '@menu/contexts/verticalNavContext'
 
 // Component Imports
-import VuexyLogo from '@core/svg/Logo'
+// import VuexyLogo from '@core/svg/Logo'
 
 // Config Imports
 import themeConfig from '@/utils/configs/themeConfig'
@@ -23,6 +25,8 @@ import themeConfig from '@/utils/configs/themeConfig'
 import useVerticalNav from '@menu/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
 
+const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '700'] })
+
 type LogoTextProps = {
   isHovered?: VerticalNavContextProps['isHovered']
   isCollapsed?: VerticalNavContextProps['isCollapsed']
@@ -30,21 +34,38 @@ type LogoTextProps = {
 }
 
 const LogoText = styled.span<LogoTextProps>`
-  font-size: 1.375rem;
-  line-height: 1.09091;
+  font-size: 1.25rem;
+  line-height: 1;
   font-weight: 700;
-  letter-spacing: 0.25px;
-  color: var(--mui-palette-text-primary);
+  letter-spacing: 0.2px;
+  color: ${process.env.NEXT_PUBLIC_PRIMARY_COLOR_MAIN || '#1178ac'};
+  display: flex;
+  justify-content: space-between;
+  inline-size: 100%;
   transition: ${({ transitionDuration }) =>
     `margin-inline-start ${transitionDuration}ms ease-in-out, opacity ${transitionDuration}ms ease-in-out`};
 
   ${({ isHovered, isCollapsed }) =>
-    isCollapsed && !isHovered ? 'opacity: 0; margin-inline-start: 0;' : 'opacity: 1; margin-inline-start: 12px;'}
+    isCollapsed && !isHovered ? 'opacity: 0; margin-inline-start: 0;' : 'opacity: 1; margin-inline-start: 10px;'}
+`
+
+const SloganText = styled.span<LogoTextProps>`
+  font-size: 0.55rem;
+  line-height: 1.5;
+  font-weight: 400;
+  color: ${process.env.NEXT_PUBLIC_PRIMARY_COLOR_MAIN || '#1178ac'};
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: ${({ transitionDuration }) =>
+    `margin-inline-start ${transitionDuration}ms ease-in-out, opacity ${transitionDuration}ms ease-in-out`};
+
+  ${({ isHovered, isCollapsed }) =>
+    isCollapsed && !isHovered ? 'opacity: 0; margin-inline-start: 0;' : 'opacity: 1; margin-inline-start: 10px;'}
 `
 
 const Logo = () => {
   // Refs
-  const logoTextRef = useRef<HTMLSpanElement>(null)
+  const logoTextRef = useRef<HTMLDivElement>(null)
 
   // Hooks
   const { isHovered, transitionDuration } = useVerticalNav()
@@ -68,19 +89,32 @@ const Logo = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovered, layout])
 
-  // You may return any JSX here to display a logo in the sidebar header
-  // return <Img src='/next.svg' width={100} height={25} alt='logo' /> // for example
   return (
     <Link href='/' className='flex items-center'>
-      <VuexyLogo className='text-2xl text-primary' />
-      <LogoText
+      <img src={themeConfig.templateLogo} alt='TERRAMETT Logo' className='bs-[34px]' />
+      <div
+        className={`flex flex-col ${montserrat.className}`}
         ref={logoTextRef}
-        isHovered={isHovered}
-        isCollapsed={layout === 'collapsed'}
-        transitionDuration={transitionDuration}
       >
-        {themeConfig.templateName}
-      </LogoText>
+        <LogoText
+          isHovered={isHovered}
+          isCollapsed={layout === 'collapsed'}
+          transitionDuration={transitionDuration}
+        >
+          {themeConfig.templateName.split('').map((char, index) => (
+            <span key={index}>{char}</span>
+          ))}
+        </LogoText>
+        {themeConfig.templateSlogan && (
+          <SloganText
+            isHovered={isHovered}
+            isCollapsed={layout === 'collapsed'}
+            transitionDuration={transitionDuration}
+          >
+            {themeConfig.templateSlogan}
+          </SloganText>
+        )}
+      </div>
     </Link>
   )
 }

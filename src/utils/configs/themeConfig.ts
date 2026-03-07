@@ -38,6 +38,8 @@ type Footer = {
 
 export type Config = {
   templateName: string
+  templateSlogan: string
+  templateLogo: string
   settingsCookieName: string
   mode: Mode
   skin: Skin
@@ -53,8 +55,13 @@ export type Config = {
 }
 
 const themeConfig: Config = {
-  templateName: 'Aula Virtual',
-  settingsCookieName: 'aula-virtual',
+  templateName: process.env.NEXT_PUBLIC_TEMPLATE_NAME || 'FLY',
+  templateSlogan:
+    process.env.NEXT_PUBLIC_TEMPLATE_SLOGAN !== undefined
+      ? process.env.NEXT_PUBLIC_TEMPLATE_SLOGAN
+      : 'Valomos a tu corazon',
+  templateLogo: process.env.NEXT_PUBLIC_TEMPLATE_LOGO || '/images/logoterra.png',
+  settingsCookieName: process.env.NEXT_PUBLIC_SETTINGS_COOKIE_NAME || 'terravirtual',
   mode: 'light', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'
   semiDark: false, // true, false

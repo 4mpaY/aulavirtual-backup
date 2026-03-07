@@ -64,7 +64,7 @@ const ThemeProvider = (props: Props) => {
 
   // Merge the primary color scheme override with the core theme
   const theme = useMemo(() => {
-    const primaryColor = settings.primaryColor || '#28C76F'
+    const primaryColor = settings.primaryColor || '#1178ac'
 
     const newColorScheme = {
       colorSchemes: {
