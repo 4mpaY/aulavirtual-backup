@@ -19,7 +19,7 @@ import { authOptions } from '@/utils/configs/auth'
 import prisma from '@/utils/libs/prisma'
 
 // Server Action / Data Fetching
-async function getCourseData(slug: string) {
+async function getCourseData(slug: string, userId?: string) {
     try {
         const course = await prisma.curso.findUnique({
             where: {
@@ -46,7 +46,23 @@ async function getCourseData(slug: string) {
 
         if (!course) return null
 
-        return JSON.parse(JSON.stringify(course))
+        let es_comprado = false
+
+        if (userId) {
+            const inscripcion = await prisma.inscripcion.findFirst({
+                where: {
+                    usuario_id: userId,
+                    curso_id: course.id,
+                    estado: 'ACTIVO'
+                }
+            })
+
+            if (inscripcion) {
+                es_comprado = true
+            }
+        }
+
+        return JSON.parse(JSON.stringify({ ...course, es_comprado }))
     } catch (error) {
         console.error('Error fetching course data:', error)
 
@@ -55,8 +71,8 @@ async function getCourseData(slug: string) {
 }
 
 export default async function CourseDetailPage({ params }: { params: { slug: string } }) {
-    const course = await getCourseData(params.slug)
     const session = await getServerSession(authOptions)
+    const course = await getCourseData(params.slug, session?.user?.id)
 
     if (!course) {
         notFound()

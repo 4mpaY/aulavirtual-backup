@@ -28,6 +28,7 @@ model Usuario {
   pedidos            Pedido[]
   progreso_cursos    ProgresoCurso[]
   progreso_lecciones ProgresoLeccion[]
+  comentarios        Comentario[]
 
   @@index([rol])
   @@map("usuarios")
@@ -124,6 +125,7 @@ model Leccion {
   contenidos     ContenidoLeccion[]
   modulo         Modulo             @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
   progreso       ProgresoLeccion[]
+  comentarios    Comentario[]
 
   @@unique([modulo_id, orden])
   @@index([modulo_id])
@@ -434,4 +436,27 @@ enum NivelCurso {
   BASICO
   INTERMEDIO
   AVANZADO
+}
+
+model Comentario {
+  id               String       @id @default(uuid())
+  contenido        String       @db.Text
+  creado_en        DateTime     @default(now())
+  actualizado_en   DateTime     @updatedAt
+
+  usuario_id       String
+  usuario          Usuario      @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  leccion_id       String
+  leccion          Leccion      @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+
+  // Autorelación para hilos de respuestas
+  respuesta_a_id   String?
+  respuesta_a      Comentario?  @relation("ComentarioRespuestas", fields: [respuesta_a_id], references: [id], onDelete: Cascade)
+  respuestas       Comentario[] @relation("ComentarioRespuestas")
+
+  @@index([usuario_id])
+  @@index([leccion_id])
+  @@index([respuesta_a_id])
+  @@map("comentarios")
 }

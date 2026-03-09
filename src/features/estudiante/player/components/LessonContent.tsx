@@ -2,7 +2,9 @@
 
 import React from 'react'
 
-import { Box, Typography, Card, CardContent, Stack, IconButton, Tooltip } from '@mui/material'
+import { Box, Typography, Card, CardContent, Stack, IconButton, Tooltip, Divider } from '@mui/material'
+
+import CommentsSection from './CommentsSection'
 
 interface Resource {
     id: string
@@ -11,12 +13,13 @@ interface Resource {
 }
 
 interface LessonContentProps {
+    id: string
     titulo: string
     descripcion?: string
     recursos?: Resource[]
 }
 
-const LessonContent: React.FC<LessonContentProps> = ({ titulo, descripcion, recursos = [] }) => {
+const LessonContent: React.FC<LessonContentProps> = ({ id, titulo, descripcion, recursos = [] }) => {
     return (
         <Box>
             <Typography variant="h4" sx={{ fontWeight: 900, mb: 2, color: 'text.primary' }}>
@@ -81,6 +84,11 @@ const LessonContent: React.FC<LessonContentProps> = ({ titulo, descripcion, recu
                     </Stack>
                 </Box>
             )}
+
+            <Divider sx={{ my: 6, borderColor: 'divider' }} />
+
+            {/* Inyección de la Sección de Comentarios */}
+            <CommentsSection leccionId={id} />
         </Box>
     )
 }

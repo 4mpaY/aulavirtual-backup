@@ -87,6 +87,7 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
                         <Grid item xs={12}>
                             {currentLesson && (
                                 <LessonContent
+                                    id={currentLesson.id}
                                     titulo={currentLesson.titulo}
                                     descripcion={currentLesson.contenido || undefined}
                                     recursos={currentLesson.recursos || []}

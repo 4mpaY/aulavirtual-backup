@@ -17,7 +17,7 @@ import { authOptions } from '@/utils/configs/auth'
 import prisma from '@/utils/libs/prisma'
 
 // Server Action / Data Fetching
-async function getData() {
+async function getData(userId?: string) {
   try {
     const [courses, categories] = await Promise.all([
       prisma.curso.findMany({
@@ -53,7 +53,19 @@ async function getData() {
       })
     ])
 
-    // Agregar conteo de lecciones
+    // Buscar inscripciones si el usuario está logueado
+    let userCourseIds = new Set<string>()
+
+    if (userId) {
+      const inscripciones = await prisma.inscripcion.findMany({
+        where: { usuario_id: userId, estado: 'ACTIVO' },
+        select: { curso_id: true }
+      })
+
+      userCourseIds = new Set(inscripciones.map((i: any) => i.curso_id))
+    }
+
+    // Agregar conteo de lecciones e indicador de si está comprado
     const coursesWithLecciones = await Promise.all(
       courses.map(async (course) => {
         const leccionesCount = await prisma.leccion.count({
@@ -62,6 +74,7 @@ async function getData() {
 
         return {
           ...course,
+          es_comprado: userId ? userCourseIds.has(course.id) : false,
           _count: {
             ...course._count,
             lecciones: leccionesCount
@@ -75,15 +88,15 @@ async function getData() {
       categories: JSON.parse(JSON.stringify(categories))
     }
   } catch (error) {
-    console.error('Error fetching data:', error)
+    console.error('Error fetching data in HomePage:', error)
 
     return { courses: [], categories: [] }
   }
 }
 
 export default async function HomePage() {
-  const { courses, categories } = await getData()
   const session = await getServerSession(authOptions)
+  const { courses, categories } = await getData(session?.user?.id)
 
   return (
     <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

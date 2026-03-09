@@ -1,0 +1,125 @@
+import { NextResponse } from 'next/server'
+
+import { getServerSession } from 'next-auth'
+
+import { authOptions } from '@/utils/configs/auth'
+import prisma from '@/utils/libs/prisma'
+
+// GET: Obtener comentarios de una lección particular
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const leccionId = params.id
+
+    // Solo traemos comentarios raíz (sin respuesta_a_id) y luego sus respuestas
+    const comentarios = await prisma.comentario.findMany({
+      where: {
+        leccion_id: leccionId,
+        respuesta_a_id: null
+      },
+      include: {
+        usuario: {
+          select: {
+            id: true,
+            nombre: true,
+            apellido: true,
+            avatar: true,
+            rol: true
+          }
+        },
+        respuestas: {
+          include: {
+            usuario: {
+              select: {
+                id: true,
+                nombre: true,
+                apellido: true,
+                avatar: true,
+                rol: true
+              }
+            }
+          },
+          orderBy: {
+            creado_en: 'asc'
+          }
+        }
+      },
+      orderBy: {
+        creado_en: 'desc'
+      }
+    })
+
+    return NextResponse.json(comentarios)
+  } catch (error) {
+    console.error('Error fetching comentarios:', error)
+
+    return NextResponse.json({ error: 'Error al obtener los comentarios' }, { status: 500 })
+  }
+}
+
+// POST: Crear un nuevo comentario o responder
+export async function POST(request: Request, { params }: { params: { id: string } }) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
+
+    const leccionId = params.id
+    const body = await request.json()
+    const { contenido, respuesta_a_id } = body
+
+    if (!contenido || contenido.trim() === '') {
+      return NextResponse.json({ error: 'El contenido es requerido' }, { status: 400 })
+    }
+
+    // Verificamos si la lección existe
+    const leccion = await prisma.leccion.findUnique({
+      where: { id: leccionId }
+    })
+
+    if (!leccion) {
+      return NextResponse.json({ error: 'Lección no encontrada' }, { status: 404 })
+    }
+
+    // Si es una respuesta, verificamos que el comentario padre exista y pertenezca a la misma lección
+    if (respuesta_a_id) {
+      const parentComment = await prisma.comentario.findUnique({
+        where: { id: respuesta_a_id }
+      })
+
+      if (!parentComment || parentComment.leccion_id !== leccionId) {
+        return NextResponse.json(
+          { error: 'El comentario original no existe o no pertenece a esta lección' },
+          { status: 400 }
+        )
+      }
+    }
+
+    const nuevoComentario = await prisma.comentario.create({
+      data: {
+        contenido: contenido.trim(),
+        usuario_id: session.user.id,
+        leccion_id: leccionId,
+        respuesta_a_id: respuesta_a_id || null
+      },
+      include: {
+        usuario: {
+          select: {
+            id: true,
+            nombre: true,
+            apellido: true,
+            avatar: true,
+            rol: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(nuevoComentario, { status: 201 })
+  } catch (error) {
+    console.error('Error creating comentario:', error)
+
+    return NextResponse.json({ error: 'Error al crear el comentario' }, { status: 500 })
+  }
+}
