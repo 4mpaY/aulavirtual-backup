@@ -5,7 +5,7 @@ import { handleApiError } from '@/utils/libs/validation'
 
 /**
  * POST /api/checkout
- * Procesa la inscripción a un curso
+ * Genera un pedido y obtiene el Session Token de Izipay Web Core
  */
 export async function POST(request: Request) {
   try {
@@ -42,46 +42,122 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'Ya estás inscrito en este curso', 400)
     }
 
-    // 3. Crear la inscripción y el pedido (si corresponde)
-    const result = await prisma.$transaction(async tx => {
-      // Crear pedido si no es gratuito (o siempre para registro)
-      const pedido = await tx.pedido.create({
-        data: {
-          usuario_id: auth.user.id,
-          total: curso.precio,
-          moneda: curso.moneda,
-          estado: 'COMPLETADO',
-          metodo_pago: 'OTRO', // Por ahora simplificado
-          pagado_en: new Date(),
-          detalles: {
-            create: {
-              curso_id: cursoId,
-              precio_unitario: curso.precio,
-              subtotal: curso.precio,
-              total: curso.precio
-            }
+    // 3. Crear el pedido en estado PENDIENTE
+    const pedido = await prisma.pedido.create({
+      data: {
+        usuario_id: auth.user.id,
+        total: curso.precio,
+        moneda: curso.moneda || 'PEN',
+        estado: 'PENDIENTE',
+        detalles: {
+          create: {
+            curso_id: cursoId,
+            precio_unitario: curso.precio,
+            subtotal: curso.precio,
+            total: curso.precio
           }
         }
-      })
-
-      // Crear inscripción vinculada al pedido
-      const inscripcion = await tx.inscripcion.create({
-        data: {
-          usuario_id: auth.user.id,
-          curso_id: cursoId,
-          pedido_id: pedido.id,
-          estado: 'ACTIVO'
-        }
-      })
-
-      return { pedido, inscripcion }
+      }
     })
+
+    // 4. Generar transactionId y dateTimeTransaction para Izipay
+    const transactionId = String(Date.now()) // Al menos 13 chars (timestamp)
+
+    // orderNumber debe tener entre 5-15 caracteres
+    const orderNumber = String(pedido.numero_pedido).padStart(10, '0')
+
+    // 5. Obtener Session Token de Izipay
+    const merchantCode = process.env.IZIPAY_MERCHANT_CODE
+    const apiKey = process.env.IZIPAY_API_KEY
+    const endpoint = process.env.IZIPAY_ENDPOINT
+
+    const tokenResponse = await fetch(`${endpoint}/security/v1/Token/Generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        transactionId: transactionId
+      },
+      body: JSON.stringify({
+        requestSource: 'ECOMMERCE',
+        merchantCode: merchantCode,
+        orderNumber: orderNumber,
+        publicKey: apiKey,
+        amount: String(Number(curso.precio).toFixed(2))
+      })
+    })
+
+    const tokenData = await tokenResponse.json()
+
+    console.log('--- IZIPAY TOKEN GENERATE RESPONSE ---')
+    console.dir(tokenData, { depth: null })
+    console.log('------------------------------------')
+
+    if (!tokenResponse.ok || tokenData.code !== '00') {
+      console.error('Izipay Token Error:', tokenData)
+
+      return ApiResponse.error(request, 'Error al obtener el token de sesión de Izipay', 500)
+    }
+
+    // 6. Extraer el token real y guardarlo en el pedido
+    const actualToken = tokenData.response?.token || tokenData.response
+
+    await prisma.pedido.update({
+      where: { id: pedido.id },
+      data: { token_pago: String(actualToken) }
+    })
+
+    // 7. Preparar el iziConfig para el frontend
+    const userName = auth.user.name || 'Cliente'
+    const firstName = userName.split(' ')[0]
+    const lastName = userName.split(' ').slice(1).join(' ') || 'Cliente'
+
+    // Documento debe ser generalmente de 8 chars para DNI
+    const documentStr = auth.user.numero_documento || '12345678'
+    const validDocument = documentStr.length >= 8 ? documentStr.substring(0, 15) : '12345678'
+
+    const iziConfig = {
+      transactionId,
+      action: 'pay',
+      merchantCode,
+      order: {
+        orderNumber: orderNumber,
+        currency: curso.moneda || 'PEN',
+        amount: String(Number(curso.precio).toFixed(2)),
+        payMethod: 'all',
+        processType: 'AT',
+        merchantBuyerId: String(auth.user.id).substring(0, 15),
+        dateTimeTransaction: String(Date.now())
+      },
+      billing: {
+        firstName,
+        lastName,
+        email: auth.user.email || 'cliente@email.com',
+        phoneNumber: '999999999',
+        street: 'Av. Default 123',
+        city: 'Lima',
+        state: 'Lima',
+        country: 'PE',
+        postalCode: '15000',
+        documentType: 'DNI',
+        document: validDocument
+      },
+      render: {
+        typeForm: 'pop-up'
+      }
+    }
 
     return ApiResponse.success(
       request,
       {
-        message: 'Inscripción completada con éxito',
-        ...result
+        message: 'Pasarela preparada correctamente',
+        iziConfig,
+
+        // Se envía el token extraído validado arriba
+        token: String(actualToken),
+        keyRSA: process.env.IZIPAY_RSA_KEY,
+        pedidoId: pedido.id,
+        _debugTokenData: tokenData // temporal para debug
       },
       201
     )
