@@ -112,9 +112,71 @@ export async function POST(request: Request, { params }: { params: { id: string 
             avatar: true,
             rol: true
           }
+        },
+        leccion: {
+          include: {
+            modulo: {
+              include: {
+                curso: {
+                  include: {
+                    profesor: true
+                  }
+                }
+              }
+            }
+          }
         }
       }
     })
+
+    // --- Lógica de Notificaciones ---
+    try {
+      const curso = nuevoComentario.leccion.modulo.curso
+      const profesorId = curso.profesor_id
+
+      if (!respuesta_a_id) {
+        // Es un comentario nuevo -> Notificar al profesor (si el que comenta no es el mismo profesor)
+        if (session.user.id !== profesorId) {
+          await prisma.notificacion.create({
+            data: {
+              titulo: 'Nuevo comentario en tu curso',
+              mensaje: `${session.user.name} comentó en "${nuevoComentario.leccion.titulo}" de tu curso "${curso.titulo}"`,
+              tipo: 'COMENTARIO_NUEVO',
+              usuario_id: profesorId,
+              enlace: `/profesor/cursos/${curso.id}` // Ajustar según ruta real
+            }
+          })
+        }
+      } else {
+        // Es una respuesta
+        const comentarioOriginal = await prisma.comentario.findUnique({
+          where: { id: respuesta_a_id },
+          include: { usuario: true }
+        })
+
+        if (comentarioOriginal && comentarioOriginal.usuario_id !== session.user.id) {
+          const replierRol = session.user.rol
+          const originalOwnerRol = comentarioOriginal.usuario.rol
+
+          // Estudiante recibe notificación si el profesor le responde
+          if (replierRol === 'PROFESOR' && originalOwnerRol === 'ESTUDIANTE') {
+            await prisma.notificacion.create({
+              data: {
+                titulo: 'Respuesta del profesor',
+                mensaje: `El profesor respondió a tu comentario en "${nuevoComentario.leccion.titulo}"`,
+                tipo: 'RESPUESTA_COMENTARIO',
+                usuario_id: comentarioOriginal.usuario_id,
+                enlace: `/estudiante/aprender/${curso.slug}`
+              }
+            })
+          }
+        }
+      }
+    } catch (notifError) {
+      console.error('Error al crear notificación:', notifError)
+
+      // No bloqueamos la creación del comentario si la notificación falla
+    }
 
     return NextResponse.json(nuevoComentario, { status: 201 })
   } catch (error) {

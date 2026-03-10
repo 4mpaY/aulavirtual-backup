@@ -14,10 +14,13 @@ import {
     MenuItem,
     IconButton,
     Tooltip,
-    Divider
+    Divider,
+    Badge,
+    Fab
 } from '@mui/material'
 
 import CourseList from './CourseList'
+import { useCart } from '../../cart/context/CartContext'
 
 interface Category {
     id: string
@@ -36,6 +39,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
     const [selectedPrice, setSelectedPrice] = useState('all')
     const [selectedModality, setSelectedModality] = useState('all')
     const [sortBy, setSortBy] = useState('recent')
+    const { itemCount, setIsCartDrawerOpen } = useCart()
 
     const filteredAndSortedCourses = useMemo(() => {
         const filtered = courses.filter(course => {
@@ -295,6 +299,27 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                     </Fade>
                 </Stack>
             </Container>
+
+            {/* Carrito Flotante */}
+            <Fab
+                color="primary"
+                aria-label="cart"
+                onClick={() => setIsCartDrawerOpen(true)}
+                sx={{
+                    position: 'fixed',
+                    bottom: 32,
+                    right: 32,
+                    boxShadow: '0 8px 32px rgba(var(--mui-palette-primary-mainChannel) / 0.4)',
+                    height: 70,
+                    width: 70,
+                    '&:hover': { transform: 'scale(1.1)' },
+                    transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                }}
+            >
+                <Badge badgeContent={itemCount} color="error" sx={{ '& .MuiBadge-badge': { fontSize: '0.9rem', height: 24, minWidth: 24, borderRadius: 12, fontWeight: 800 } }}>
+                    <i className="tabler-shopping-cart" style={{ fontSize: '2rem' }} />
+                </Badge>
+            </Fab>
         </Box>
     )
 }

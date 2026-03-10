@@ -9,6 +9,7 @@ import { getServerSession } from 'next-auth'
 import CourseCatalog from '@/features/web/home/components/CourseCatalog'
 import Logo from '@components/layout/shared/Logo'
 import UserDropdown from '@components/layout/shared/UserDropdown'
+import CartIcon from '@/features/web/cart/components/CartIcon'
 
 // Auth Imports
 import { authOptions } from '@/utils/configs/auth'
@@ -106,6 +107,7 @@ export default async function HomePage() {
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Logo />
             <Stack direction="row" spacing={2} alignItems="center">
+              <CartIcon />
               {session ? (
                 <UserDropdown />
               ) : (

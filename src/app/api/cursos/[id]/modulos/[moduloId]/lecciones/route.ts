@@ -1,7 +1,7 @@
 import prisma from '@/utils/libs/prisma'
 import { crearLeccionSchema } from '@/schemas/leccion.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
-import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 
 /**
@@ -10,9 +10,11 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  */
 export async function POST(request: Request, { params }: { params: { id: string; moduloId: string } }) {
   try {
-    const auth = await requireAdmin(request)
+    const auth = await requireProfesorOrAdmin(request)
 
     if (!auth.authorized) return auth.error
+
+    const { user } = auth
 
     const { id: cursoId, moduloId } = params
     const body = await request.json()
@@ -28,6 +30,16 @@ export async function POST(request: Request, { params }: { params: { id: string;
 
     if (!modulo) {
       return ApiResponse.error(request, 'Módulo no encontrado en este curso', 404)
+    }
+
+    // Verificar propiedad del curso
+    const curso = await prisma.curso.findUnique({
+      where: { id: cursoId },
+      select: { profesor_id: true }
+    })
+
+    if (user.rol === 'PROFESOR' && curso?.profesor_id !== user.id) {
+      return ApiResponse.error(request, 'No tienes permiso para gestionar este curso', 403)
     }
 
     // Calcular el siguiente orden

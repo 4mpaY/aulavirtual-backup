@@ -99,6 +99,24 @@ export async function POST(request: Request) {
         inscripciones.push(inscripcion)
       }
 
+      // Notificar a los administradores
+      const admins = await tx.usuario.findMany({
+        where: { rol: 'ADMIN' },
+        select: { id: true }
+      })
+
+      for (const admin of admins) {
+        await tx.notificacion.create({
+          data: {
+            titulo: 'Nuevo Pedido Completado',
+            mensaje: `El usuario ${auth.user.name} ha realizado un pedido por S/ ${pedido.total}.`,
+            tipo: 'PEDIDO_NUEVO',
+            usuario_id: admin.id,
+            enlace: `/admin/pedidos`
+          }
+        })
+      }
+
       return { pedido: pedidoActualizado, inscripciones }
     })
 

@@ -69,7 +69,7 @@ export default async function CheckoutPage({ params }: { params: { slug: string 
             </Box>
 
             {/* Checkout Content */}
-            <CheckoutView course={course} />
+            <CheckoutView courses={[course]} />
 
             {/* Footer Footer */}
             <Box sx={{ bgcolor: 'background.paper', py: 6, borderTop: 1, borderColor: 'divider' }}>

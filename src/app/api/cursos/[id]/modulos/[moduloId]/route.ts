@@ -1,25 +1,25 @@
 import prisma from '@/utils/libs/prisma'
 import { actualizarModuloSchema } from '@/schemas/modulo.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
-import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 
 /**
  * PATCH /api/cursos/[id]/modulos/[moduloId]
  * Actualizar un módulo
  */
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string; moduloId: string } }
-) {
+export async function PATCH(request: Request, { params }: { params: { id: string; moduloId: string } }) {
   try {
-    const auth = await requireAdmin(request)
+    const auth = await requireProfesorOrAdmin(request)
+
     if (!auth.authorized) return auth.error
 
+    const { user } = auth
     const { id: cursoId, moduloId } = params
     const body = await request.json()
 
     const validation = validateRequest(actualizarModuloSchema, body, request)
+
     if (!validation.success) return validation.error
 
     // Verificar que el módulo existe y pertenece al curso
@@ -29,6 +29,16 @@ export async function PATCH(
 
     if (!modulo) {
       return ApiResponse.error(request, 'Módulo no encontrado en este curso', 404)
+    }
+
+    // Verificar propiedad del curso
+    const curso = await prisma.curso.findUnique({
+      where: { id: cursoId },
+      select: { profesor_id: true }
+    })
+
+    if (user.rol === 'PROFESOR' && curso?.profesor_id !== user.id) {
+      return ApiResponse.error(request, 'No tienes permiso para gestionar este curso', 403)
     }
 
     const moduloActualizado = await prisma.modulo.update({
@@ -51,14 +61,13 @@ export async function PATCH(
  * DELETE /api/cursos/[id]/modulos/[moduloId]
  * Eliminar un módulo y sus lecciones en cascada
  */
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string; moduloId: string } }
-) {
+export async function DELETE(request: Request, { params }: { params: { id: string; moduloId: string } }) {
   try {
-    const auth = await requireAdmin(request)
+    const auth = await requireProfesorOrAdmin(request)
+
     if (!auth.authorized) return auth.error
 
+    const { user } = auth
     const { id: cursoId, moduloId } = params
 
     const modulo = await prisma.modulo.findFirst({
@@ -67,6 +76,16 @@ export async function DELETE(
 
     if (!modulo) {
       return ApiResponse.error(request, 'Módulo no encontrado en este curso', 404)
+    }
+
+    // Verificar propiedad del curso
+    const curso = await prisma.curso.findUnique({
+      where: { id: cursoId },
+      select: { profesor_id: true }
+    })
+
+    if (user.rol === 'PROFESOR' && curso?.profesor_id !== user.id) {
+      return ApiResponse.error(request, 'No tienes permiso para gestionar este curso', 403)
     }
 
     // Eliminar en cascada (lecciones → contenidos se eliminan por Prisma cascade)

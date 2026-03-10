@@ -205,6 +205,15 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                 header: () => <div className='w-full text-right'>Acciones</div>,
                 cell: ({ row }) => (
                     <div className='flex items-center justify-end w-full gap-1'>
+                        <Tooltip title='Ver en Reproductor (Moderación)'>
+                            <IconButton
+                                href={`/estudiante/aprender/${row.original.slug}`}
+                                component='a'
+                                target='_blank'
+                            >
+                                <i className='tabler-player-play text-[22px] text-primary' />
+                            </IconButton>
+                        </Tooltip>
                         <Tooltip title='Editar curso (Course Builder)'>
                             <IconButton
                                 href={`/admin/cursos/${row.original.id}`}

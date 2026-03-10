@@ -7,6 +7,7 @@ import classnames from 'classnames'
 import NavToggle from './NavToggle'
 import Logo from '@components/layout/shared/Logo'
 import UserDropdown from '@components/layout/shared/UserDropdown'
+import NotificationsDropdown from '@components/layout/shared/NotificationsDropdown'
 
 // Hook Imports
 import useHorizontalNav from '@menu/hooks/useHorizontalNav'
@@ -27,7 +28,8 @@ const NavbarContent = () => {
         {/* Hide Logo on Smaller screens */}
         {!isBreakpointReached && <Logo />}
       </div>
-      <div className='flex items-center'>
+      <div className='flex items-center gap-2'>
+        <NotificationsDropdown />
         <UserDropdown />
       </div>
     </div>

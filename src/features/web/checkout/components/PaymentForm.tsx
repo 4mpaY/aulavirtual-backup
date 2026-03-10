@@ -21,6 +21,8 @@ import { useSession } from 'next-auth/react'
 import AuthDialog from './AuthDialog'
 import IzipayScript from './IzipayScript'
 
+import { useCart } from '../../cart/context/CartContext'
+
 declare global {
   interface Window {
     Izipay: any
@@ -28,17 +30,18 @@ declare global {
 }
 
 interface PaymentFormProps {
-  course: {
+  courses: {
     id: string
     titulo: string
     slug: string
     precio: number
-  }
+  }[]
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ course }) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({ courses }) => {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { clearCart } = useCart()
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [paymentError, setPaymentError] = useState<string | null>(null)
@@ -82,6 +85,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ course }) => {
 
         if (confirmRes.ok) {
           setPaymentSuccess(true)
+          clearCart() // Limpiar el carrito tras compra exitosa
           setTimeout(() => {
             router.push('/estudiante/mis-cursos')
           }, 2000)
@@ -95,7 +99,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ course }) => {
       console.error('Error confirmando pago:', error)
       setPaymentError('Error inesperado al confirmar el pago')
     }
-  }, [router])
+  }, [router, clearCart])
 
   const handleCheckout = async () => {
     if (!session) {
@@ -113,7 +117,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ course }) => {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cursoId: course.id })
+        body: JSON.stringify({ cursoIds: courses.map(c => c.id) })
       })
 
       const data = await response.json()
@@ -298,7 +302,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ course }) => {
                 textTransform: 'none'
               }}
             >
-              {isLoading ? 'Preparando pasarela...' : (isGuest ? 'Identificarse para Comprar' : `Pagar S/ ${Number(course.precio).toFixed(2)}`)}
+              {isLoading ? 'Preparando pasarela...' : (isGuest ? 'Identificarse para Comprar' : `Pagar S/ ${courses.reduce((acc, c) => acc + Number(c.precio), 0).toFixed(2)}`)}
             </Button>
           </Box>
         </Box>

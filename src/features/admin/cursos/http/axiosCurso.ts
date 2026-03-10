@@ -92,7 +92,11 @@ export class AxiosCurso extends AxiosInternalHttpClient {
     }
   }
 
-  async updateModulo(cursoId: string, moduloId: string, data: { titulo?: string; descripcion?: string | null }): Promise<any> {
+  async updateModulo(
+    cursoId: string,
+    moduloId: string,
+    data: { titulo?: string; descripcion?: string | null }
+  ): Promise<any> {
     try {
       const payload = await this.iPatch(`/${cursoId}/modulos/${moduloId}`, data)
 
@@ -124,7 +128,11 @@ export class AxiosCurso extends AxiosInternalHttpClient {
 
   // ===================== LECCIONES =====================
 
-  async createLeccion(cursoId: string, moduloId: string, data: { titulo: string; contenido?: string | null; duracion?: number | null; enlace_reunion?: string | null }): Promise<any> {
+  async createLeccion(
+    cursoId: string,
+    moduloId: string,
+    data: { titulo: string; contenido?: string | null; duracion?: number | null; enlace_reunion?: string | null }
+  ): Promise<any> {
     try {
       const payload = await this.iPost(`/${cursoId}/modulos/${moduloId}/lecciones`, data)
 
@@ -157,6 +165,16 @@ export class AxiosCurso extends AxiosInternalHttpClient {
   async reorderLecciones(cursoId: string, moduloId: string, items: { id: string; orden: number }[]): Promise<any> {
     try {
       const payload = await this.iPatch(`/${cursoId}/modulos/${moduloId}/lecciones/reordenar`, { items })
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async getComentarios(cursoId: string): Promise<{ comentarios: any[] }> {
+    try {
+      const payload = await this.iGet<{ comentarios: any[] }>(`/${cursoId}/comentarios`)
 
       return payload
     } catch (err: any) {

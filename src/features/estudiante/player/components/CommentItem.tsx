@@ -74,7 +74,19 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, leccionId, onReplySu
                         </Typography>
 
                         {comment.usuario.rol === 'ADMIN' && (
-                            <Typography variant="caption" sx={{ bgcolor: 'secondary.main', color: 'white', px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.65rem', fontWeight: 'bold' }}>
+                            <Typography
+                                variant='caption'
+                                sx={{ bgcolor: 'error.main', color: 'white', px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.65rem', fontWeight: 'bold' }}
+                            >
+                                ADMIN
+                            </Typography>
+                        )}
+
+                        {comment.usuario.rol === 'PROFESOR' && (
+                            <Typography
+                                variant='caption'
+                                sx={{ bgcolor: 'primary.main', color: 'white', px: 0.8, py: 0.2, borderRadius: 1, fontSize: '0.65rem', fontWeight: 'bold' }}
+                            >
                                 PROFESOR
                             </Typography>
                         )}
@@ -124,9 +136,8 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, leccionId, onReplySu
                         </Box>
                     </Collapse>
 
-                    {/* Renderizar hilos de respuestas (Recursión) */}
                     {comment.respuestas && comment.respuestas.length > 0 && (
-                        <Box sx={{ mt: 2, pl: 0, borderLeft: '2px solid', borderColor: 'divider', ml: -1, pl: 3 }}>
+                        <Box sx={{ mt: 2, borderLeft: '2px solid', borderColor: 'divider', ml: -1, pl: 3 }}>
                             {comment.respuestas.map((reply) => (
                                 <CommentItem
                                     key={reply.id}

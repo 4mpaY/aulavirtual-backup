@@ -1,7 +1,7 @@
 import prisma from '@/utils/libs/prisma'
 import { cambiarEstadoCursoSchema } from '@/schemas/curso.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
-import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 
 /**
@@ -10,9 +10,11 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  */
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
-    const auth = await requireAdmin(request)
+    const auth = await requireProfesorOrAdmin(request)
 
     if (!auth.authorized) return auth.error
+
+    const { user } = auth
 
     const { id } = params
     const body = await request.json()
@@ -38,6 +40,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     if (!curso) {
       return ApiResponse.error(request, 'Curso no encontrado', 404)
+    }
+
+    // Si es PROFESOR, solo puede cambiar estado si es el dueño
+    if (user.rol === 'PROFESOR' && curso.profesor_id !== user.id) {
+      return ApiResponse.error(request, 'No tienes permiso para gestionar este curso', 403)
     }
 
     // Validar al publicar: requiere al menos 1 módulo con 1 lección publicada

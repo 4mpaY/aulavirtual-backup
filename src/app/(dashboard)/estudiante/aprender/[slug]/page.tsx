@@ -8,7 +8,7 @@ import prisma from '@/utils/libs/prisma'
 import { authOptions } from '@/utils/configs/auth'
 import CoursePlayerView from '@/features/estudiante/player/components/CoursePlayerView'
 
-async function getCoursePlayerData(slug: string, userId: string) {
+async function getCoursePlayerData(slug: string, userId: string, userRol: string) {
   try {
     const course = await prisma.curso.findUnique({
       where: { slug },
@@ -31,18 +31,24 @@ async function getCoursePlayerData(slug: string, userId: string) {
 
     if (!course) return null
 
-    // Verificar si el usuario está inscrito
-    const inscription = await prisma.inscripcion.findUnique({
-      where: {
-        usuario_id_curso_id: {
-          usuario_id: userId,
-          curso_id: course.id
-        }
-      }
-    })
+    // Si el usuario es ADMIN o el PROFESOR del curso, saltamos la verificación de inscripción
+    const isAdmin = userRol === 'ADMIN'
+    const isCourseProfessor = userRol === 'PROFESOR' && course.profesor_id === userId
 
-    if (!inscription || inscription.estado !== 'ACTIVO') {
-      return { error: 'UNCISCRIBED' }
+    if (!isAdmin && !isCourseProfessor) {
+      // Verificar si el usuario está inscrito
+      const inscription = await prisma.inscripcion.findUnique({
+        where: {
+          usuario_id_curso_id: {
+            usuario_id: userId,
+            curso_id: course.id
+          }
+        }
+      })
+
+      if (!inscription || inscription.estado !== 'ACTIVO') {
+        return { error: 'UNCISCRIBED' }
+      }
     }
 
     // Formatear datos para el componente
@@ -80,7 +86,7 @@ export default async function LearningPage({ params }: { params: { slug: string 
     redirect('/login')
   }
 
-  const data = await getCoursePlayerData(params.slug, session.user.id)
+  const data = await getCoursePlayerData(params.slug, session.user.id, session.user.rol)
 
   if (!data) {
     notFound()

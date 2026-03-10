@@ -14,10 +14,14 @@ import {
   Button,
   Stack,
   Box,
+  IconButton,
   Chip,
-  Avatar
+  Avatar,
+  Tooltip
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
+
+import { useCart } from '../../cart/context/CartContext'
 
 interface CourseCardProps {
   id: string
@@ -65,6 +69,7 @@ const StyledCard = styled(Card)(() => ({
 }))
 
 const CourseCard: React.FC<CourseCardProps> = ({
+  id,
   titulo,
   slug,
   miniatura,
@@ -81,6 +86,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
   _count
 }) => {
   const router = useRouter()
+  const { addToCart, isInCart } = useCart()
+
+  const inCart = isInCart(id)
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    addToCart({ id, titulo, slug, miniatura, precio, moneda })
+  }
 
   // Formatear nivel para mostrar texto amigable
   const getNivelLabel = (n?: string) => {
@@ -277,23 +290,58 @@ const CourseCard: React.FC<CourseCardProps> = ({
           </Typography>
         </Box>
 
-        <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ mt: 'auto', display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Button
             component={Link}
             href={es_comprado ? `/estudiante/aprender/${slug}` : `/cursos/${slug}`}
             variant="contained"
             sx={{
-              borderRadius: '8px',
+              borderRadius: '12px',
               textTransform: 'none',
               fontWeight: 700,
-              px: 4,
+              px: 3,
               py: 1.5,
+              height: 50,
               bgcolor: 'primary.main',
-              '&:hover': { bgcolor: 'primary.dark' }
+              boxShadow: '0 4px 14px 0 rgba(var(--mui-palette-primary-mainChannel) / 0.39)',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+                boxShadow: '0 6px 20px rgba(var(--mui-palette-primary-mainChannel) / 0.23)'
+              },
+              flexGrow: 1
             }}
           >
             {es_comprado ? 'Seguir aprendiendo' : 'Ir a matricularse'}
           </Button>
+
+          {!es_comprado && (
+            <Tooltip title={inCart ? 'En el carrito' : 'Añadir al carrito'}>
+              <IconButton
+                onClick={handleAddToCart}
+                disabled={inCart}
+                sx={{
+                  borderRadius: '12px',
+                  bgcolor: inCart ? 'success.50' : 'rgba(var(--mui-palette-primary-mainChannel) / 0.08)',
+                  color: inCart ? 'success.main' : 'primary.main',
+                  width: 50,
+                  height: 50,
+                  border: '1px solid',
+                  borderColor: inCart ? 'success.200' : 'rgba(var(--mui-palette-primary-mainChannel) / 0.12)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    bgcolor: inCart ? 'success.100' : 'rgba(var(--mui-palette-primary-mainChannel) / 0.15)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+                  },
+                  '& .tabler-shopping-cart-plus, & .tabler-shopping-cart-check': {
+                    fontSize: '1.4rem'
+                  }
+                }}
+              >
+                <i className={inCart ? 'tabler-shopping-cart-check' : 'tabler-shopping-cart-plus'} />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       </CardContent>
     </StyledCard>

@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
+
+import { useRouter } from 'next/navigation'
 
 import {
     Box,
@@ -24,12 +26,19 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    Avatar,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    List,
+    Paper
 } from '@mui/material'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import { useSnackbar } from 'notistack'
+import { useSession } from 'next-auth/react'
 
 import CustomTextField from '@core/components/mui/TextField'
 import MediaLibrary from '../components/MediaLibrary'
@@ -42,10 +51,10 @@ import {
     useDeleteModulo,
     useReorderModulos,
     useCreateLeccion,
-    useUpdateLeccion,
     useDeleteLeccion,
     useReorderLecciones,
-    useCambiarEstadoCurso
+    useCambiarEstadoCurso,
+    useComentariosCurso
 } from '../hooks/useCursos'
 import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
 
@@ -57,6 +66,8 @@ interface CourseBuilderPageProps {
 export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProps) {
     const { data: curso, isLoading, refetch } = useCurso(cursoId)
     const [activeTab, setActiveTab] = useState('1')
+    const router = useRouter()
+    const { data: session } = useSession()
 
     if (isLoading || !curso) {
         return (
@@ -88,8 +99,7 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                 </Box>
                 <Button
                     variant='outlined'
-                    href='/admin/cursos'
-                    component='a'
+                    onClick={() => router.push(session?.user?.rol === 'ADMIN' ? '/admin/cursos' : '/profesor/mis-cursos')}
                     startIcon={<i className='tabler-arrow-left' />}
                 >
                     Volver a Cursos
@@ -104,6 +114,7 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                         <Tab icon={<i className='tabler-list-tree' />} iconPosition='start' label='Contenido' value='2' />
                         <Tab icon={<i className='tabler-star' />} iconPosition='start' label='Detalles Premium' value='4' />
                         <Tab icon={<i className='tabler-settings' />} iconPosition='start' label='Configuración' value='3' />
+                        <Tab icon={<i className='tabler-message' />} iconPosition='start' label='Comentarios' value='5' />
                     </TabList>
 
                     <TabPanel value='1' sx={{ p: 5 }}>
@@ -120,6 +131,10 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
 
                     <TabPanel value='4' sx={{ p: 5 }}>
                         <TabDetallesPremium curso={curso} onSuccess={refetch} />
+                    </TabPanel>
+
+                    <TabPanel value='5' sx={{ p: 5 }}>
+                        <TabComentarios cursoId={curso.id} />
                     </TabPanel>
                 </Card>
             </TabContext>
@@ -1358,5 +1373,90 @@ function TabDetallesPremium({ curso, onSuccess }: { curso: Curso; onSuccess: () 
                 </Box>
             </Grid>
         </Grid>
+    )
+}
+
+// =====================================================================
+// TAB 5: COMENTARIOS
+// =====================================================================
+
+
+function TabComentarios({ cursoId }: { cursoId: string }) {
+    const { data, isLoading } = useComentariosCurso(cursoId)
+    const comentarios = data?.comentarios || []
+
+    if (isLoading) return <CircularProgress />
+
+    if (comentarios.length === 0) {
+        return (
+            <Box sx={{ p: 10, textAlign: 'center' }}>
+                <i className='tabler-message-off text-6xl text-textSecondary' />
+                <Typography variant='h5' sx={{ mt: 4 }}>No hay comentarios aún</Typography>
+                <Typography color='text.secondary'>Los comentarios de los estudiantes aparecerán aquí.</Typography>
+            </Box>
+        )
+    }
+
+    return (
+        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+            {comentarios.map((c: any) => (
+                <React.Fragment key={c.id}>
+                    <Paper variant='outlined' sx={{ mb: 3, p: 2 }}>
+                        <ListItem alignItems='flex-start' disablePadding>
+                            <ListItemAvatar>
+                                <Avatar alt={c.usuario.nombre} src={c.usuario.avatar || ''} />
+                            </ListItemAvatar>
+                            <ListItemText
+                                primary={
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Typography variant='subtitle1' fontWeight={600}>
+                                            {c.usuario.nombre} {c.usuario.apellido}
+                                            <Chip label={c.usuario.rol} size='small' variant='tonal' sx={{ ml: 2, height: 20 }} color={c.usuario.rol === 'ADMIN' ? 'error' : c.usuario.rol === 'PROFESOR' ? 'info' : 'primary'} />
+                                        </Typography>
+                                        <Typography variant='caption' color='text.secondary'>
+                                            {new Date(c.creado_en).toLocaleString()}
+                                        </Typography>
+                                    </Box>
+                                }
+                                secondary={
+                                    <Box sx={{ mt: 1 }}>
+                                        <Typography variant='body1' color='text.primary' sx={{ mb: 2 }}>
+                                            {c.contenido}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Chip
+                                                size='small'
+                                                icon={<i className='tabler-video' />}
+                                                label={`${c.leccion.modulo.titulo} > ${c.leccion.titulo}`}
+                                                variant='outlined'
+                                            />
+                                        </Box>
+                                    </Box>
+                                }
+                            />
+                        </ListItem>
+
+                        {c.respuestas && c.respuestas.length > 0 && (
+                            <Box sx={{ ml: 12, mt: 2, borderLeft: '2px solid', borderColor: 'divider', pl: 4 }}>
+                                {c.respuestas.map((r: any) => (
+                                    <Box key={r.id} sx={{ mb: 2 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                                            <Avatar sx={{ width: 24, height: 24 }} alt={r.usuario.nombre} src={r.usuario.avatar || ''} />
+                                            <Typography variant='subtitle2' fontWeight={600}>
+                                                {r.usuario.nombre} {r.usuario.apellido}
+                                            </Typography>
+                                            <Typography variant='caption' color='text.secondary'>
+                                                {new Date(r.creado_en).toLocaleString()}
+                                            </Typography>
+                                        </Box>
+                                        <Typography variant='body2'>{r.contenido}</Typography>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )}
+                    </Paper>
+                </React.Fragment>
+            ))}
+        </List>
     )
 }

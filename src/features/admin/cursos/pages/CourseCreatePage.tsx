@@ -74,10 +74,12 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
 
             enqueueSnackbar('Curso creado exitosamente', { variant: 'success' })
 
-            if (result?.curso?.id) { // Assuming the result structure is { curso: { id: string, ... } }
-                router.push(`/admin/cursos/${result.curso.id}`)
+            const redirectBase = session?.user?.rol === 'ADMIN' ? '/admin/cursos' : '/profesor/mis-cursos'
+
+            if (result?.curso?.id) {
+                router.push(`${redirectBase}/${result.curso.id}`)
             } else {
-                router.push('/admin/cursos')
+                router.push(redirectBase)
             }
         } catch (error: any) {
             enqueueSnackbar(error?.message || 'Error al crear curso', { variant: 'error' })
@@ -99,7 +101,7 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
                 </Box>
                 <Button
                     variant='outlined'
-                    onClick={() => router.push('/admin/cursos')}
+                    onClick={() => router.push(session?.user?.rol === 'ADMIN' ? '/admin/cursos' : '/profesor/mis-cursos')}
                     startIcon={<i className='tabler-arrow-left' />}
                 >
                     Cancelar y Volver

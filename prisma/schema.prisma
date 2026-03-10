@@ -29,6 +29,7 @@ model Usuario {
   progreso_cursos    ProgresoCurso[]
   progreso_lecciones ProgresoLeccion[]
   comentarios        Comentario[]
+  notificaciones     Notificacion[]
 
   @@index([rol])
   @@map("usuarios")
@@ -459,4 +460,26 @@ model Comentario {
   @@index([leccion_id])
   @@index([respuesta_a_id])
   @@map("comentarios")
+}
+
+model Notificacion {
+  id             String           @id @default(uuid())
+  titulo         String
+  mensaje        String
+  tipo           TipoNotificacion
+  leida          Boolean          @default(false)
+  enlace         String?
+  usuario_id     String
+  usuario        Usuario          @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  creado_en      DateTime         @default(now())
+
+  @@index([usuario_id])
+  @@map("notificaciones")
+}
+
+enum TipoNotificacion {
+  PEDIDO_NUEVO
+  COMENTARIO_NUEVO
+  RESPUESTA_COMENTARIO
+  SISTEMA
 }

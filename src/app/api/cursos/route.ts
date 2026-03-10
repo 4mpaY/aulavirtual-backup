@@ -1,7 +1,7 @@
 import prisma from '@/utils/libs/prisma'
 import { crearCursoSchema, listarCursosQuerySchema } from '@/schemas/curso.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
-import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 
 /**
@@ -46,9 +46,11 @@ async function generateUniqueSlug(titulo: string, excludeId?: string): Promise<s
  */
 export async function GET(request: Request) {
   try {
-    const auth = await requireAdmin(request)
+    const auth = await requireProfesorOrAdmin(request)
 
     if (!auth.authorized) return auth.error
+
+    const { user } = auth
 
     const { searchParams } = new URL(request.url)
     const query = Object.fromEntries(searchParams.entries())
@@ -71,6 +73,11 @@ export async function GET(request: Request) {
 
     if (profesor_id) {
       where.profesor_id = profesor_id
+    }
+
+    // Si es PROFESOR, solo puede ver sus propios cursos
+    if (user.rol === 'PROFESOR') {
+      where.profesor_id = user.id
     }
 
     if (buscar) {
@@ -140,9 +147,11 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    const auth = await requireAdmin(request)
+    const auth = await requireProfesorOrAdmin(request)
 
     if (!auth.authorized) return auth.error
+
+    const { user } = auth
 
     const body = await request.json()
 
@@ -152,17 +161,22 @@ export async function POST(request: Request) {
 
     const data = validation.data
 
-    // Verificar que el profesor existe y tiene rol PROFESOR
-    const profesor = await prisma.usuario.findUnique({
-      where: { id: data.profesor_id }
-    })
+    if (user.rol === 'PROFESOR') {
+      // Un profesor solo puede crearse cursos a sí mismo
+      data.profesor_id = user.id
+    } else {
+      // Un ADMIN debe especificar el profesor o se valida el enviado
+      const profesor = await prisma.usuario.findUnique({
+        where: { id: data.profesor_id }
+      })
 
-    if (!profesor) {
-      return ApiResponse.error(request, 'El profesor seleccionado no existe', 404)
-    }
+      if (!profesor) {
+        return ApiResponse.error(request, 'El profesor seleccionado no existe', 404)
+      }
 
-    if (profesor.rol !== 'PROFESOR' && profesor.rol !== 'ADMIN') {
-      return ApiResponse.error(request, 'El usuario seleccionado no tiene rol de profesor', 400)
+      if (profesor.rol !== 'PROFESOR' && profesor.rol !== 'ADMIN') {
+        return ApiResponse.error(request, 'El usuario seleccionado no tiene rol de profesor', 400)
+      }
     }
 
     // Verificar categoría si se proporcionó

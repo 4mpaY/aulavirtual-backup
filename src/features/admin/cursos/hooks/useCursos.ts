@@ -55,7 +55,7 @@ export function useCreateCurso() {
   const axiosCurso = axiosCursoFactory()
 
   return useMutation<{ curso: Curso }, any, CrearCursoDto>({
-    mutationFn: async (payload) => await axiosCurso.create(payload),
+    mutationFn: async payload => await axiosCurso.create(payload),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
   })
 }
@@ -81,7 +81,7 @@ export function useDeleteCurso() {
   const axiosCurso = axiosCursoFactory()
 
   return useMutation<{ message: string }, any, string>({
-    mutationFn: async (id) => await axiosCurso.delete(id),
+    mutationFn: async id => await axiosCurso.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
   })
 }
@@ -115,7 +115,11 @@ export function useUpdateModulo() {
   const qc = useQueryClient()
   const axiosCurso = axiosCursoFactory()
 
-  return useMutation<any, any, { cursoId: string; moduloId: string; data: { titulo?: string; descripcion?: string | null } }>({
+  return useMutation<
+    any,
+    any,
+    { cursoId: string; moduloId: string; data: { titulo?: string; descripcion?: string | null } }
+  >({
     mutationFn: async ({ cursoId, moduloId, data }) => await axiosCurso.updateModulo(cursoId, moduloId, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
   })
@@ -158,7 +162,8 @@ export function useUpdateLeccion() {
   const axiosCurso = axiosCursoFactory()
 
   return useMutation<any, any, { cursoId: string; moduloId: string; leccionId: string; data: any }>({
-    mutationFn: async ({ cursoId, moduloId, leccionId, data }) => await axiosCurso.updateLeccion(cursoId, moduloId, leccionId, data),
+    mutationFn: async ({ cursoId, moduloId, leccionId, data }) =>
+      await axiosCurso.updateLeccion(cursoId, moduloId, leccionId, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
   })
 }
@@ -168,7 +173,8 @@ export function useDeleteLeccion() {
   const axiosCurso = axiosCursoFactory()
 
   return useMutation<any, any, { cursoId: string; moduloId: string; leccionId: string }>({
-    mutationFn: async ({ cursoId, moduloId, leccionId }) => await axiosCurso.deleteLeccion(cursoId, moduloId, leccionId),
+    mutationFn: async ({ cursoId, moduloId, leccionId }) =>
+      await axiosCurso.deleteLeccion(cursoId, moduloId, leccionId),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
   })
 }
@@ -180,5 +186,19 @@ export function useReorderLecciones() {
   return useMutation<any, any, { cursoId: string; moduloId: string; items: { id: string; orden: number }[] }>({
     mutationFn: async ({ cursoId, moduloId, items }) => await axiosCurso.reorderLecciones(cursoId, moduloId, items),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+/**
+ * Hook para obtener todos los comentarios de un curso
+ */
+export function useComentariosCurso(cursoId: string) {
+  const axiosCurso = axiosCursoFactory()
+
+  return useQuery<{ comentarios: any[] }, any>({
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'comentarios'],
+    queryFn: async () => await axiosCurso.getComentarios(cursoId),
+    enabled: !!cursoId,
+    staleTime: 30_000
   })
 }

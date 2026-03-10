@@ -13,49 +13,59 @@ export async function POST(request: Request) {
 
     if (!auth.authorized) return auth.error
 
-    const { cursoId } = await request.json()
+    const { cursoIds } = await request.json()
 
-    if (!cursoId) {
-      return ApiResponse.error(request, 'El ID del curso es requerido', 400)
+    if (!cursoIds || !Array.isArray(cursoIds) || cursoIds.length === 0) {
+      return ApiResponse.error(request, 'Se requiere al menos un ID de curso', 400)
     }
 
-    // 1. Verificar que el curso exista
-    const curso = await prisma.curso.findUnique({
-      where: { id: cursoId }
+    // 1. Obtener los cursos
+    const cursos = await prisma.curso.findMany({
+      where: { id: { in: cursoIds } }
     })
 
-    if (!curso) {
-      return ApiResponse.error(request, 'El curso no existe', 404)
+    if (cursos.length === 0) {
+      return ApiResponse.error(request, 'No se encontraron los cursos seleccionados', 404)
     }
 
-    // 2. Verificar si el usuario ya está inscrito
-    const inscripcionExistente = await prisma.inscripcion.findUnique({
+    // 2. Verificar inscripciones existentes
+    const inscripcionesExistentes = await prisma.inscripcion.findMany({
       where: {
-        usuario_id_curso_id: {
-          usuario_id: auth.user.id,
-          curso_id: cursoId
-        }
+        usuario_id: auth.user.id,
+        curso_id: { in: cursoIds }
       }
     })
 
-    if (inscripcionExistente) {
-      return ApiResponse.error(request, 'Ya estás inscrito en este curso', 400)
+    if (inscripcionesExistentes.length > 0) {
+      const titulos = inscripcionesExistentes
+        .map(i => {
+          const c = cursos.find(curso => curso.id === i.curso_id)
+
+          return c?.titulo
+        })
+        .join(', ')
+
+      return ApiResponse.error(request, `Ya estás inscrito en: ${titulos}`, 400)
     }
 
-    // 3. Crear el pedido en estado PENDIENTE
+    // 3. Calcular total y preparar detalles
+    const total = cursos.reduce((acc, c) => acc + Number(c.precio), 0)
+    const moneda = cursos[0].moneda || 'PEN'
+
+    // 4. Crear el pedido
     const pedido = await prisma.pedido.create({
       data: {
         usuario_id: auth.user.id,
-        total: curso.precio,
-        moneda: curso.moneda || 'PEN',
+        total,
+        moneda,
         estado: 'PENDIENTE',
         detalles: {
-          create: {
-            curso_id: cursoId,
-            precio_unitario: curso.precio,
-            subtotal: curso.precio,
-            total: curso.precio
-          }
+          create: cursos.map(c => ({
+            curso_id: c.id,
+            precio_unitario: c.precio,
+            subtotal: c.precio,
+            total: c.precio
+          }))
         }
       }
     })
@@ -66,6 +76,7 @@ export async function POST(request: Request) {
     // orderNumber debe tener entre 5-15 caracteres
     const orderNumber = String(pedido.numero_pedido).padStart(10, '0')
 
+    // 5. Obtener Session Token de Izipay
     // 5. Obtener Session Token de Izipay
     const merchantCode = process.env.IZIPAY_MERCHANT_CODE
     const apiKey = process.env.IZIPAY_API_KEY
@@ -83,7 +94,7 @@ export async function POST(request: Request) {
         merchantCode: merchantCode,
         orderNumber: orderNumber,
         publicKey: apiKey,
-        amount: String(Number(curso.precio).toFixed(2))
+        amount: String(Number(total).toFixed(2))
       })
     })
 
@@ -122,8 +133,8 @@ export async function POST(request: Request) {
       merchantCode,
       order: {
         orderNumber: orderNumber,
-        currency: curso.moneda || 'PEN',
-        amount: String(Number(curso.precio).toFixed(2)),
+        currency: moneda,
+        amount: String(Number(total).toFixed(2)),
         payMethod: 'all',
         processType: 'AT',
         merchantBuyerId: String(auth.user.id).substring(0, 15),
