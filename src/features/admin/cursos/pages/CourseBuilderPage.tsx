@@ -51,6 +51,7 @@ import {
     useDeleteModulo,
     useReorderModulos,
     useCreateLeccion,
+    useUpdateLeccion,
     useDeleteLeccion,
     useReorderLecciones,
     useCambiarEstadoCurso,
