@@ -163,7 +163,8 @@ function TabInformacion({ curso, profesores, onSuccess }: { curso: Curso; profes
         duracion: curso.duracion || '',
         miniatura: curso.miniatura || '',
         video_presentacion: curso.video_presentacion || '',
-        fecha_inicio: curso.fecha_inicio ? new Date(curso.fecha_inicio).toISOString().split('T')[0] : ''
+        fecha_inicio: curso.fecha_inicio ? new Date(curso.fecha_inicio).toISOString().split('T')[0] : '',
+        nivel: curso.nivel || 'BASICO'
     })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,7 +184,8 @@ function TabInformacion({ curso, profesores, onSuccess }: { curso: Curso; profes
                     duracion: form.duracion || null,
                     miniatura: form.miniatura || null,
                     video_presentacion: form.video_presentacion || null,
-                    fecha_inicio: form.fecha_inicio ? new Date(form.fecha_inicio).toISOString() : null
+                    fecha_inicio: form.fecha_inicio ? new Date(form.fecha_inicio).toISOString() : null,
+                    nivel: form.nivel as 'BASICO' | 'INTERMEDIO' | 'AVANZADO'
                 }
             })
             enqueueSnackbar('Curso actualizado exitosamente', { variant: 'success' })
@@ -245,6 +247,20 @@ function TabInformacion({ curso, profesores, onSuccess }: { curso: Curso; profes
                     {profesores.map(p => (
                         <MenuItem key={p.id} value={p.id}>{p.nombre} {p.apellido}</MenuItem>
                     ))}
+                </CustomTextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <CustomTextField
+                    select
+                    fullWidth
+                    label='Nivel del Curso'
+                    name='nivel'
+                    value={form.nivel}
+                    onChange={handleChange}
+                >
+                    <MenuItem value='BASICO'>Básico</MenuItem>
+                    <MenuItem value='INTERMEDIO'>Intermedio</MenuItem>
+                    <MenuItem value='AVANZADO'>Avanzado</MenuItem>
                 </CustomTextField>
             </Grid>
             <Grid item xs={12}>

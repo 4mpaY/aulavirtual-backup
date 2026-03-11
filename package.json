@@ -19,6 +19,9 @@
     "db:main:seed": "dotenv -- tsx ./prisma/seed/main",
     "db:aula:seed": "dotenv -- tsx ./prisma/seed/restaurante"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed_student.ts"
+  },
   "dependencies": {
     "@emotion/cache": "11.11.0",
     "@emotion/react": "11.11.4",

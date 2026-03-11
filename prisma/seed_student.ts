@@ -1,9 +1,10 @@
 const { PrismaClient } = require('@prisma/client')
+
 const prisma = new PrismaClient()
 
 async function main() {
   const userId = '2aa2acfd-ebf0-422a-9fc9-660311292be6' // María Estudiante
-  
+
   // Obtener cursos publicados
   const cursos = await prisma.curso.findMany({
     where: { estado: 'PUBLICADO' }
@@ -22,7 +23,7 @@ async function main() {
           }
         },
         update: {
-            estado: 'ACTIVO'
+          estado: 'ACTIVO'
         },
         create: {
           usuario_id: userId,
@@ -33,6 +34,7 @@ async function main() {
 
       // Crear progreso aleatorio
       const progreso = Math.floor(Math.random() * 100)
+
       await prisma.progresoCurso.upsert({
         where: {
           usuario_id_curso_id: {
@@ -41,12 +43,12 @@ async function main() {
           }
         },
         update: {
-            porcentaje_progreso: progreso
+          porcentaje_progreso: progreso
         },
         create: {
-            usuario_id: userId,
-            curso_id: curso.id,
-            porcentaje_progreso: progreso
+          usuario_id: userId,
+          curso_id: curso.id,
+          porcentaje_progreso: progreso
         }
       })
 
@@ -58,7 +60,7 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error(e)
     process.exit(1)
   })

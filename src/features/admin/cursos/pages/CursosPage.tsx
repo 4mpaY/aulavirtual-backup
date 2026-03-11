@@ -73,14 +73,21 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
     const [globalFilter, setGlobalFilter] = useState('')
     const [estadoFilter, setEstadoFilter] = useState<string>('all')
 
-    const { data, refetch } = useCursos()
-    const cursos = data?.cursos ?? initialDataCursos
+    // Estado para paginación manual
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: 10
+    })
 
-    const filteredData = useMemo(() => {
-        if (estadoFilter === 'all') return cursos
+    const { data, isLoading, refetch } = useCursos({
+        page: (pagination.pageIndex + 1).toString(),
+        limit: pagination.pageSize.toString(),
+        buscar: globalFilter,
+        estado: estadoFilter === 'all' ? '' : estadoFilter
+    })
 
-        return cursos.filter(c => c.estado === estadoFilter)
-    }, [cursos, estadoFilter])
+    const cursos = useMemo(() => data?.cursos ?? (pagination.pageIndex === 0 ? initialDataCursos : []), [data, initialDataCursos, pagination.pageIndex])
+    const totalCursos = useMemo(() => data?.paginacion?.total ?? initialDataCursos.length, [data, initialDataCursos.length])
 
     const handleDeleteClick = (curso: Curso) => {
         setCursoToDelete(curso)
@@ -94,7 +101,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                 header: '#',
                 cell: ({ row }) => (
                     <Typography color='text.secondary' variant='body2'>
-                        {row.index + 1}
+                        {pagination.pageIndex * pagination.pageSize + row.index + 1}
                     </Typography>
                 )
             }),
@@ -231,24 +238,22 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                 )
             })
         ],
-        []
+        [pagination]
     )
 
     const table = useReactTable({
-        data: filteredData,
+        data: cursos,
         columns,
         filterFns: {
             fuzzy: fuzzyFilter
         },
         state: {
             rowSelection,
-            globalFilter
+            pagination
         },
-        initialState: {
-            pagination: {
-                pageSize: 10
-            }
-        },
+        onPaginationChange: setPagination,
+        manualPagination: true,
+        rowCount: totalCursos,
         enableRowSelection: true,
         globalFilterFn: fuzzyFilter,
         onRowSelectionChange: setRowSelection,
@@ -283,7 +288,10 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                         <CustomTextField
                             select
                             value={estadoFilter}
-                            onChange={e => setEstadoFilter(e.target.value)}
+                            onChange={e => {
+                                setEstadoFilter(e.target.value)
+                                table.setPageIndex(0)
+                            }}
                             className='is-full sm:is-[200px]'
                         >
                             <MenuItem value='all'>Todos los estados</MenuItem>
@@ -293,7 +301,10 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                         </CustomTextField>
                         <DebouncedInput
                             value={globalFilter ?? ''}
-                            onChange={value => setGlobalFilter(String(value))}
+                            onChange={value => {
+                                setGlobalFilter(String(value))
+                                table.setPageIndex(0)
+                            }}
                             placeholder='Buscar curso'
                             className='is-full sm:is-auto'
                         />
@@ -309,7 +320,12 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                     </div>
                 </div>
 
-                <div className='overflow-x-auto'>
+                <div className='overflow-x-auto relative min-h-[200px]'>
+                    {isLoading && (
+                        <div className='absolute inset-0 bg-white/50 z-10 flex items-center justify-center'>
+                            <Typography variant='body2'>Cargando cursos...</Typography>
+                        </div>
+                    )}
                     <table className={tableStyles.table}>
                         <thead>
                             {table.getHeaderGroups().map(headerGroup => (
@@ -338,7 +354,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                                 </tr>
                             ))}
                         </thead>
-                        {table.getFilteredRowModel().rows.length === 0 ? (
+                        {cursos.length === 0 ? (
                             <tbody>
                                 <tr>
                                     <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
@@ -350,7 +366,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                             <tbody>
                                 {table
                                     .getRowModel()
-                                    .rows.slice(0, table.getState().pagination.pageSize)
+                                    .rows
                                     .map(row => (
                                         <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
                                             {row.getVisibleCells().map(cell => (
@@ -366,12 +382,11 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                 </div>
                 <TablePagination
                     component={() => <TablePaginationComponent table={table} />}
-                    count={table.getFilteredRowModel().rows.length}
-                    rowsPerPage={table.getState().pagination.pageSize}
-                    page={table.getState().pagination.pageIndex}
+                    count={totalCursos}
+                    rowsPerPage={pagination.pageSize}
+                    page={pagination.pageIndex}
                     onPageChange={(_, page) => table.setPageIndex(page)}
-                    rowsPerPageOptions={[5, 10, 25, 50]}
-                    onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
+                    rowsPerPageOptions={[10, 25, 50]}
                 />
             </Card>
 
