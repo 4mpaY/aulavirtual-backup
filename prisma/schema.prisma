@@ -164,11 +164,14 @@ model Pedido {
   cancelado_en     DateTime?
   actualizado_en   DateTime        @updatedAt
   usuario_id       String
+  cupon_id         String?
   detalles         DetallePedido[]
   inscripciones    Inscripcion[]
   usuario          Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  cupon            Cupon?          @relation(fields: [cupon_id], references: [id])
 
   @@index([usuario_id])
+  @@index([cupon_id])
   @@index([estado])
   @@index([transaccion_id])
   @@map("pedidos")
@@ -403,6 +406,22 @@ model Comentario {
   @@map("comentarios")
 }
 
+model Cupon {
+  id               String         @id @default(uuid())
+  codigo           String         @unique
+  valor            Decimal        @db.Decimal(10, 2)
+  tipo             TipoDescuento  @default(PORCENTAJE)
+  limite_uso       Int?
+  usos_actuales    Int            @default(0)
+  fecha_expiracion DateTime?
+  esta_activo      Boolean        @default(true)
+  creado_en        DateTime       @default(now())
+  actualizado_en   DateTime       @updatedAt
+  pedidos          Pedido[]
+
+  @@map("cupones")
+}
+
 enum Rol {
   ADMIN
   PROFESOR
@@ -469,4 +488,9 @@ enum NivelCurso {
   BASICO
   INTERMEDIO
   AVANZADO
+}
+
+enum TipoDescuento {
+  PORCENTAJE
+  MONTO_FIJO
 }

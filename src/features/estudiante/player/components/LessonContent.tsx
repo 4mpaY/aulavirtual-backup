@@ -1,11 +1,9 @@
 'use client'
 
 import React from 'react'
-
-import { Box, Typography, Card, CardContent, Stack, IconButton, Tooltip, Divider } from '@mui/material'
-
-import CommentsSection from './CommentsSection'
-
+ 
+import { Box, Typography, Card, CardContent, Stack, IconButton, Tooltip } from '@mui/material'
+ 
 interface Resource {
     id: string
     nombre: string
@@ -19,15 +17,21 @@ interface LessonContentProps {
     recursos?: Resource[]
 }
 
-const LessonContent: React.FC<LessonContentProps> = ({ id, titulo, descripcion, recursos = [] }) => {
+const LessonContent: React.FC<LessonContentProps> = ({ 
+    id, 
+    titulo, 
+    descripcion, 
+    recursos = []
+}) => {
+
     return (
         <Box>
-            <Typography variant="h4" sx={{ fontWeight: 900, mb: 2, color: 'text.primary' }}>
+            <Typography variant="h4" sx={{ fontWeight: 900, color: 'text.primary', mb: 2 }}>
                 {titulo}
             </Typography>
 
             {descripcion && (
-                <Card variant="outlined" sx={{ mb: 4, borderRadius: '12px', borderStyle: 'dashed' }}>
+                <Card key={`lesson-desc-${id}`} variant="outlined" sx={{ mb: 4, borderRadius: '12px', borderStyle: 'dashed' }}>
                     <CardContent sx={{ p: 3 }}>
                         <Typography variant="body1" sx={{ color: '#334155', lineHeight: 1.6 }}>
                             {descripcion}
@@ -37,12 +41,12 @@ const LessonContent: React.FC<LessonContentProps> = ({ id, titulo, descripcion, 
             )}
 
             {recursos && recursos.length > 0 && (
-                <Box>
+                <Box key={`lesson-resources-${id}`}>
                     <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Recursos descargables</Typography>
                     <Stack spacing={2}>
-                        {recursos.map((res) => (
+                        {recursos.map((res, index) => (
                             <Card
-                                key={res.id}
+                                key={`res-${res.id || index}`}
                                 variant="outlined"
                                 sx={{
                                     borderRadius: '10px',
@@ -85,10 +89,6 @@ const LessonContent: React.FC<LessonContentProps> = ({ id, titulo, descripcion, 
                 </Box>
             )}
 
-            <Divider sx={{ my: 6, borderColor: 'divider' }} />
-
-            {/* Inyección de la Sección de Comentarios */}
-            <CommentsSection leccionId={id} />
         </Box>
     )
 }

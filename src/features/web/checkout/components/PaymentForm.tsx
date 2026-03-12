@@ -36,9 +36,11 @@ interface PaymentFormProps {
     slug: string
     precio: number
   }[]
+  appliedCouponCode?: string
+  finalTotal?: number
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ courses }) => {
+const PaymentForm: React.FC<PaymentFormProps> = ({ courses, appliedCouponCode, finalTotal }) => {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { clearCart } = useCart()
@@ -53,6 +55,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses }) => {
     apellidos: '',
     correo: ''
   })
+
+  const subtotal = courses.reduce((acc, c) => acc + Number(c.precio), 0)
+  const displayTotal = finalTotal !== undefined ? finalTotal : subtotal
 
   // Sync form with session
   useEffect(() => {
@@ -117,7 +122,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses }) => {
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cursoIds: courses.map(c => c.id) })
+        body: JSON.stringify({ 
+          cursoIds: courses.map(c => c.id),
+          codigoCupon: appliedCouponCode
+        })
       })
 
       const data = await response.json()
@@ -208,7 +216,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses }) => {
 
   return (
     <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '24px', bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}>
-      {/* Cargar SDK de Izipay */}
       <IzipayScript />
 
       <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: 'text.primary' }}>
@@ -219,14 +226,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses }) => {
       </Typography>
 
       <Stack spacing={4}>
-        {/* Error Alert */}
         {paymentError && (
           <Alert severity="error" onClose={() => setPaymentError(null)} sx={{ borderRadius: '12px' }}>
             {paymentError}
           </Alert>
         )}
 
-        {/* Personal Info */}
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>Datos del Estudiante</Typography>
           <Grid container spacing={2}>
@@ -270,7 +275,6 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses }) => {
           </Grid>
         </Box>
 
-        {/* Checkout Button */}
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>Método de Pago</Typography>
 
@@ -302,7 +306,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses }) => {
                 textTransform: 'none'
               }}
             >
-              {isLoading ? 'Preparando pasarela...' : (isGuest ? 'Identificarse para Comprar' : `Pagar S/ ${courses.reduce((acc, c) => acc + Number(c.precio), 0).toFixed(2)}`)}
+              {isLoading ? 'Preparando pasarela...' : (isGuest ? 'Identificarse para Comprar' : `Pagar S/ ${displayTotal.toFixed(2)}`)}
             </Button>
           </Box>
         </Box>

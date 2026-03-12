@@ -31,7 +31,7 @@ export default withAuth(
       return NextResponse.redirect(new URL('/estudiante/dashboard', req.url))
     }
 
-    console.log(path)
+
 
     // Redirigir /dashboard genérico según rol
     if (path === '/dashboard') {

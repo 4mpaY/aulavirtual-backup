@@ -55,7 +55,12 @@ import {
     useDeleteLeccion,
     useReorderLecciones,
     useCambiarEstadoCurso,
-    useComentariosCurso
+    useComentariosCurso,
+    useExamenCurso,
+    useSaveExamen,
+    useCreatePregunta,
+    useUpdatePregunta,
+    useDeletePregunta
 } from '../hooks/useCursos'
 import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
 
@@ -114,6 +119,7 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                         <Tab icon={<i className='tabler-info-circle' />} iconPosition='start' label='Información' value='1' />
                         <Tab icon={<i className='tabler-list-tree' />} iconPosition='start' label='Contenido' value='2' />
                         <Tab icon={<i className='tabler-star' />} iconPosition='start' label='Detalles Premium' value='4' />
+                        <Tab icon={<i className='tabler-clipboard-check' />} iconPosition='start' label='Evaluación' value='6' />
                         <Tab icon={<i className='tabler-settings' />} iconPosition='start' label='Configuración' value='3' />
                         <Tab icon={<i className='tabler-message' />} iconPosition='start' label='Comentarios' value='5' />
                     </TabList>
@@ -136,6 +142,10 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
 
                     <TabPanel value='5' sx={{ p: 5 }}>
                         <TabComentarios cursoId={curso.id} />
+                    </TabPanel>
+
+                    <TabPanel value='6' sx={{ p: 5 }}>
+                        <TabEvaluacion cursoId={curso.id} />
                     </TabPanel>
                 </Card>
             </TabContext>
@@ -1477,3 +1487,404 @@ function TabComentarios({ cursoId }: { cursoId: string }) {
         </List>
     )
 }
+
+// =====================================================================
+// TAB 6: EVALUACIÓN (EXAMEN)
+// =====================================================================
+
+function TabEvaluacion({ cursoId }: { cursoId: string }) {
+    const { enqueueSnackbar } = useSnackbar()
+    const { data, isLoading, refetch } = useExamenCurso(cursoId)
+    const saveExamenMutation = useSaveExamen()
+    const deletePreguntaMutation = useDeletePregunta()
+    const createPreguntaMutation = useCreatePregunta()
+    const updatePreguntaMutation = useUpdatePregunta()
+
+    const [editingQuestion, setEditingQuestion] = useState<any>(null)
+    const [isConfiguring, setIsConfiguring] = useState(false)
+
+    // Formulario de configuración del examen
+    const [configForm, setConfigForm] = useState({
+        titulo: '',
+        descripcion: '',
+        puntaje_aprobacion: 60,
+        intentos_maximos: 1,
+        esta_publicado: false
+    })
+
+    useEffect(() => {
+        if (data?.examen) {
+            setConfigForm({
+                titulo: data.examen.titulo || '',
+                descripcion: data.examen.descripcion || '',
+                puntaje_aprobacion: data.examen.puntaje_aprobacion || 60,
+                intentos_maximos: data.examen.intentos_maximos || 1,
+                esta_publicado: data.examen.esta_publicado || false
+            })
+        }
+    }, [data])
+
+    const handleSaveConfig = async () => {
+        try {
+            await saveExamenMutation.mutateAsync({ cursoId, data: configForm })
+            enqueueSnackbar('Configuración del examen guardada', { variant: 'success' })
+            setIsConfiguring(false)
+            refetch()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al guardar configuración', { variant: 'error' })
+        }
+    }
+
+    const handleDeleteQuestion = async (preguntaId: string) => {
+        if (!window.confirm('¿Estás seguro de eliminar esta pregunta?')) return
+
+        try {
+            await deletePreguntaMutation.mutateAsync({ cursoId, preguntaId })
+            enqueueSnackbar('Pregunta eliminada', { variant: 'success' })
+            refetch()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al eliminar', { variant: 'error' })
+        }
+    }
+
+    const handleSaveQuestion = async (formData: any) => {
+        try {
+            if (editingQuestion?.id) {
+                await updatePreguntaMutation.mutateAsync({ cursoId, preguntaId: editingQuestion.id, data: formData })
+                enqueueSnackbar('Pregunta actualizada', { variant: 'success' })
+            } else {
+                await createPreguntaMutation.mutateAsync({ cursoId, data: formData })
+                enqueueSnackbar('Pregunta añadida', { variant: 'success' })
+            }
+
+            setEditingQuestion(null)
+            refetch()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al guardar pregunta', { variant: 'error' })
+        }
+    }
+
+    if (isLoading) return <CircularProgress />
+
+    const examen = data?.examen
+
+    return (
+        <Box>
+            {/* Si no hay examen o si se está editando la configuración */}
+            {(!examen || isConfiguring) ? (
+                <Paper sx={{ p: 6, borderRadius: '24px' }}>
+                    <Typography variant='h5' sx={{ mb: 4, fontWeight: 800 }}>Configuración de la Evaluación</Typography>
+                    <Grid container spacing={4}>
+                        <Grid item xs={12}>
+                            <CustomTextField
+                                fullWidth
+                                label='Título del Examen'
+                                placeholder='Ej: Examen Final de Marketing Digital'
+                                value={configForm.titulo}
+                                onChange={(e) => setConfigForm({ ...configForm, titulo: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <CustomTextField
+                                fullWidth
+                                multiline
+                                rows={2}
+                                label='Descripción'
+                                placeholder='Instrucciones para la evaluación...'
+                                value={configForm.descripcion}
+                                onChange={(e) => setConfigForm({ ...configForm, descripcion: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <CustomTextField
+                                fullWidth
+                                type='number'
+                                label='Puntaje de Aprobación (%)'
+                                value={configForm.puntaje_aprobacion}
+                                onChange={(e) => setConfigForm({ ...configForm, puntaje_aprobacion: Number(e.target.value) })}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <CustomTextField
+                                fullWidth
+                                type='number'
+                                label='Intentos Máximos'
+                                value={configForm.intentos_maximos}
+                                onChange={(e) => setConfigForm({ ...configForm, intentos_maximos: Number(e.target.value) })}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                             <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={configForm.esta_publicado}
+                                        onChange={e => setConfigForm({ ...configForm, esta_publicado: e.target.checked })}
+                                        color='success'
+                                    />
+                                }
+                                label='Examen publicado y disponible'
+                            />
+                        </Grid>
+                        <Grid item xs={12} sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                            {examen && (
+                                <Button variant='outlined' onClick={() => setIsConfiguring(false)}>Cancelar</Button>
+                            )}
+                            <Button
+                                variant='contained'
+                                onClick={handleSaveConfig}
+                                disabled={!configForm.titulo || saveExamenMutation.isPending}
+                            >
+                                {saveExamenMutation.isPending ? 'Guardando...' : 'Guardar y Continuar'}
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Paper>
+            ) : (
+                <Box>
+                    {/* Resumen del Examen */}
+                    <Card sx={{ mb: 4, border: '1px solid', borderColor: 'divider' }}>
+                        <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box>
+                                <Typography variant='h5' fontWeight={800}>{examen.titulo}</Typography>
+                                <Stack direction='row' spacing={2} sx={{ mt: 1 }}>
+                                    <Chip size='small' label={`${examen.preguntas?.length || 0} preguntas`} />
+                                    <Chip size='small' variant='tonal' color='success' label={`${examen.puntaje_aprobacion}% para aprobar`} />
+                                    <Chip size='small' variant='tonal' color='primary' label={`${examen.intentos_maximos} intentos`} />
+                                </Stack>
+                            </Box>
+                            <Button
+                                variant='tonal'
+                                color='primary'
+                                startIcon={<i className='tabler-edit' />}
+                                onClick={() => setIsConfiguring(true)}
+                            >
+                                Editar Configuración
+                            </Button>
+                        </CardContent>
+                    </Card>
+
+                    <Divider sx={{ mb: 4 }} />
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+                        <Typography variant='h6' sx={{ fontWeight: 700 }}>Banco de Preguntas</Typography>
+                        <Button
+                            variant='contained'
+                            startIcon={<i className='tabler-plus' />}
+                            onClick={() => setEditingQuestion({ texto: '', tipo: 'OPCION_MULTIPLE', puntos: 1, opciones: [{ texto: '', es_correcta: false }, { texto: '', es_correcta: false }] })}
+                        >
+                            Añadir Pregunta
+                        </Button>
+                    </Box>
+
+                    {examen.preguntas?.length === 0 ? (
+                        <Paper sx={{ p: 10, textAlign: 'center', bgcolor: 'action.hover', border: '1px dashed', borderColor: 'divider' }}>
+                            <i className='tabler-help text-5xl text-textDisabled' />
+                            <Typography sx={{ mt: 2, color: 'text.secondary' }}>No hay preguntas en este examen. ¡Añade la primera!</Typography>
+                        </Paper>
+                    ) : (
+                        <Stack spacing={3}>
+                            {examen.preguntas.map((p: any, idx: number) => (
+                                <Card key={p.id} variant='outlined' sx={{ p: 4, position: 'relative' }}>
+                                    <Box sx={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 1 }}>
+                                        <IconButton size='small' color='primary' onClick={() => setEditingQuestion(p)}>
+                                            <i className='tabler-edit' />
+                                        </IconButton>
+                                        <IconButton size='small' color='error' onClick={() => handleDeleteQuestion(p.id)}>
+                                            <i className='tabler-trash' />
+                                        </IconButton>
+                                    </Box>
+                                    <Typography variant='subtitle1' sx={{ fontWeight: 700, mb: 2, pr: 10 }}>
+                                        {idx + 1}. {p.texto}
+                                        <Chip label={`${p.puntos} pto(s)`} size='small' sx={{ ml: 2, height: 20 }} />
+                                    </Typography>
+
+                                    <Grid container spacing={2}>
+                                        {p.opciones.map((opt: any, optIdx: number) => (
+                                            <Grid item xs={12} sm={6} key={opt.id}>
+                                                <Box
+                                                    sx={{
+                                                        p: 2,
+                                                        borderRadius: 1,
+                                                        border: '1px solid',
+                                                        borderColor: opt.es_correcta ? 'success.main' : 'divider',
+                                                        bgcolor: opt.es_correcta ? 'success.lightOpacity' : 'transparent',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: 2
+                                                    }}
+                                                >
+                                                    <Box
+                                                        sx={{
+                                                            width: 24,
+                                                            height: 24,
+                                                            borderRadius: '50%',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: 700,
+                                                            bgcolor: opt.es_correcta ? 'success.main' : 'action.disabledBackground',
+                                                            color: opt.es_correcta ? 'white' : 'text.disabled'
+                                                        }}
+                                                    >
+                                                        {String.fromCharCode(65 + optIdx)}
+                                                    </Box>
+                                                    <Typography variant='body2' sx={{ color: opt.es_correcta ? 'success.main' : 'text.primary', fontWeight: opt.es_correcta ? 600 : 400 }}>
+                                                        {opt.texto}
+                                                    </Typography>
+                                                    {opt.es_correcta && <i className='tabler-check text-success text-lg ms-auto' />}
+                                                </Box>
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                </Card>
+                            ))}
+                        </Stack>
+                    )}
+                </Box>
+            )}
+
+            <QuestionEditDialog
+                key={editingQuestion?.id || 'new'}
+                open={!!editingQuestion}
+                onClose={() => setEditingQuestion(null)}
+                questionData={editingQuestion}
+                onSave={handleSaveQuestion}
+                isSaving={createPreguntaMutation.isPending || updatePreguntaMutation.isPending}
+            />
+        </Box>
+    )
+}
+
+function QuestionEditDialog({ open, onClose, questionData, onSave, isSaving }: any) {
+    const [texto, setTexto] = useState('')
+    const [puntos, setPuntos] = useState(1)
+    const [opciones, setOpciones] = useState<any[]>([])
+
+    useEffect(() => {
+        if (questionData) {
+            setTexto(questionData.texto || '')
+            setPuntos(questionData.puntos || 1)
+            setOpciones(questionData.opciones?.map((o: any) => ({ ...o })) || [
+                { texto: '', es_correcta: false },
+                { texto: '', es_correcta: false }
+            ])
+        }
+    }, [questionData])
+
+    const handleAddOption = () => {
+        setOpciones([...opciones, { texto: '', es_correcta: false }])
+    }
+
+    const handleRemoveOption = (idx: number) => {
+        if (opciones.length <= 2) return
+        setOpciones(opciones.filter((_, i) => i !== idx))
+    }
+
+    const handleOptionChange = (idx: number, field: string, value: any) => {
+        const newOptions = [...opciones]
+        
+        if (field === 'es_correcta' && value === true) {
+            // Solo una opción correcta (Opción Múltiple básica)
+            newOptions.forEach((opt, i) => opt.es_correcta = i === idx)
+        } else {
+            newOptions[idx][field] = value
+        }
+
+        setOpciones(newOptions)
+    }
+
+    const handleSave = () => {
+        if (!texto.trim()) return
+
+        if (!opciones.some(o => o.es_correcta)) {
+            alert('Debes marcar al menos una opción como correcta')
+
+            return
+        }
+
+        if (opciones.some(o => !o.texto.trim())) {
+            alert('Todas las opciones deben tener texto')
+
+            return
+        }
+
+        onSave({
+            texto,
+            tipo: 'OPCION_MULTIPLE',
+            puntos,
+            opciones
+        })
+    }
+
+    return (
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth='sm'>
+            <DialogTitle>{questionData?.id ? 'Editar Pregunta' : 'Nueva Pregunta'}</DialogTitle>
+            <DialogContent dividers>
+                <Stack spacing={4} sx={{ mt: 2 }}>
+                    <CustomTextField
+                        fullWidth
+                        multiline
+                        rows={2}
+                        label='Enunciado de la pregunta'
+                        value={texto}
+                        onChange={e => setTexto(e.target.value)}
+                        required
+                    />
+                    <CustomTextField
+                        label='Puntos'
+                        type='number'
+                        value={puntos}
+                        onChange={e => setPuntos(Number(e.target.value))}
+                        sx={{ width: 120 }}
+                    />
+
+                    <Divider />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant='subtitle2' fontWeight={700}>Respuestas</Typography>
+                        <Button size='small' startIcon={<i className='tabler-plus' />} onClick={handleAddOption}>Añadir Opción</Button>
+                    </Box>
+
+                    <Stack spacing={2}>
+                        {opciones.map((opt, idx) => (
+                            <Box key={idx} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                <Tooltip title='Marcar como correcta'>
+                                    <Switch
+                                        size='small'
+                                        color='success'
+                                        checked={opt.es_correcta}
+                                        onChange={e => handleOptionChange(idx, 'es_correcta', e.target.checked)}
+                                    />
+                                </Tooltip>
+                                <CustomTextField
+                                    fullWidth
+                                    size='small'
+                                    placeholder={`Opción ${idx + 1}`}
+                                    value={opt.texto}
+                                    onChange={e => handleOptionChange(idx, 'texto', e.target.value)}
+                                    error={opt.es_correcta}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            bgcolor: opt.es_correcta ? 'success.lightOpacity' : 'transparent',
+                                            borderColor: opt.es_correcta ? 'success.main' : 'inherit'
+                                        }
+                                    }}
+                                />
+                                <IconButton size='small' color='error' disabled={opciones.length <= 2} onClick={() => handleRemoveOption(idx)}>
+                                    <i className='tabler-trash text-lg' />
+                                </IconButton>
+                            </Box>
+                        ))}
+                    </Stack>
+                </Stack>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose}>Cancelar</Button>
+                <Button variant='contained' onClick={handleSave} disabled={isSaving || !texto}>
+                    {isSaving ? 'Guardando...' : 'Guardar Pregunta'}
+                </Button>
+            </DialogActions>
+        </Dialog>
+    )
+}
+

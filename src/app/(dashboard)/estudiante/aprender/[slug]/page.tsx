@@ -25,6 +25,13 @@ async function getCoursePlayerData(slug: string, userId: string, userRol: string
             }
           },
           orderBy: { orden: 'asc' }
+        },
+        examenes: {
+          select: {
+            id: true,
+            titulo: true,
+            esta_publicado: true
+          }
         }
       }
     })
@@ -68,7 +75,8 @@ async function getCoursePlayerData(slug: string, userId: string, userRol: string
           completada: l.progreso[0]?.esta_completado || false,
           recursos: l.recursos as any[] || []
         }))
-      }))
+      })),
+      examenes: course.examenes
     }
 
     return { course: JSON.parse(JSON.stringify(formattedCourse)) }

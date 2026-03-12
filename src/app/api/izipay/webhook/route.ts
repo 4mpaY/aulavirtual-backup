@@ -27,6 +27,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Pedido no encontrado' }, { status: 404 })
     }
 
+    if (pedido.estado === 'COMPLETADO') {
+      return NextResponse.json({ message: 'Pedido ya completado' }, { status: 200 })
+    }
+
     if (orderStatus === 'PAID') {
       const transaccion = transactions?.[0]
       const transaccionId = transaccion?.uuid
@@ -41,6 +45,14 @@ export async function POST(request: Request) {
             respuesta_izipay: body
           }
         })
+
+        // Incrementar usos del cupón si existe
+        if (pedido.cupon_id) {
+          await tx.cupon.update({
+            where: { id: pedido.cupon_id },
+            data: { usos_actuales: { increment: 1 } }
+          })
+        }
 
         const detalles = await tx.detallePedido.findMany({
           where: { pedido_id: pedido.id }

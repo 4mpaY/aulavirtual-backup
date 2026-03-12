@@ -68,6 +68,10 @@ const StyledHeader = styled.header<StyledHeaderProps>`
     &.${verticalLayoutClasses.headerDetached} .${verticalLayoutClasses.navbar} {
       border-end-start-radius: var(--border-radius);
       border-end-end-radius: var(--border-radius);
+
+      ${({ theme }) => theme.breakpoints.down('lg')} {
+        border-radius: 0;
+      }
     }
 
     &.${verticalLayoutClasses.headerDetached}, &.${verticalLayoutClasses.headerFloating} {
@@ -140,11 +144,19 @@ const StyledHeader = styled.header<StyledHeaderProps>`
   &.${verticalLayoutClasses.headerFloating} {
     padding-block-start: 16px;
 
+    ${({ theme }) => theme.breakpoints.down('lg')} {
+      padding-block-start: 0;
+    }
+
     .${verticalLayoutClasses.navbar} {
       background-color: var(--mui-palette-background-paper);
       border-radius: var(--border-radius);
       padding-inline: 16px;
       box-shadow: var(--mui-customShadows-sm);
+
+      ${({ theme }) => theme.breakpoints.down('lg')} {
+        border-radius: 0;
+      }
 
       [data-skin='bordered'] & {
         box-shadow: none;
@@ -158,6 +170,10 @@ const StyledHeader = styled.header<StyledHeaderProps>`
     &.${verticalLayoutClasses.headerFixed}.${verticalLayoutClasses.headerDetached}
     .${verticalLayoutClasses.navbar} {
     inline-size: calc(100% - ${2 * themeConfig.layoutPadding}px);
+
+    ${({ theme }) => theme.breakpoints.down('lg')} {
+      inline-size: 100%;
+    }
   }
 
   &:not(.${verticalLayoutClasses.headerFloating}).${verticalLayoutClasses.headerStatic}

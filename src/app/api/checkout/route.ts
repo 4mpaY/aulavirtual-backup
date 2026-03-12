@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     if (!auth.authorized) return auth.error
 
-    const { cursoIds } = await request.json()
+    const { cursoIds, codigoCupon } = await request.json()
 
     if (!cursoIds || !Array.isArray(cursoIds) || cursoIds.length === 0) {
       return ApiResponse.error(request, 'Se requiere al menos un ID de curso', 400)
@@ -49,23 +49,65 @@ export async function POST(request: Request) {
     }
 
     // 3. Calcular total y preparar detalles
-    const total = cursos.reduce((acc, c) => acc + Number(c.precio), 0)
+    const subtotal = cursos.reduce((acc, c) => acc + Number(c.precio), 0)
+    let total = subtotal
+    let cuponId = null
+    let descuentoTotal = 0
+
+    // 3.1. Validar cupón si se proporciona
+    if (codigoCupon) {
+      const cupon = await prisma.cupon.findUnique({
+        where: { codigo: codigoCupon.toUpperCase(), esta_activo: true }
+      })
+
+      if (cupon) {
+        // Verificar expiración y límite
+        const ahora = new Date()
+        const expirado = cupon.fecha_expiracion && cupon.fecha_expiracion < ahora
+        const limiteAlcanzado = cupon.limite_uso !== null && cupon.usos_actuales >= cupon.limite_uso
+
+        if (!expirado && !limiteAlcanzado) {
+          cuponId = cupon.id
+
+          if (cupon.tipo === 'PORCENTAJE') {
+            descuentoTotal = subtotal * (Number(cupon.valor) / 100)
+          } else if (cupon.tipo === 'MONTO_FIJO') {
+            descuentoTotal = Number(cupon.valor)
+          }
+
+          if (descuentoTotal > subtotal) descuentoTotal = subtotal
+          total = subtotal - descuentoTotal
+        }
+      }
+    }
+
     const moneda = cursos[0].moneda || 'PEN'
 
     // 4. Crear el pedido
     const pedido = await prisma.pedido.create({
       data: {
         usuario_id: auth.user.id,
+        cupon_id: cuponId,
         total,
         moneda,
         estado: 'PENDIENTE',
         detalles: {
-          create: cursos.map(c => ({
-            curso_id: c.id,
-            precio_unitario: c.precio,
-            subtotal: c.precio,
-            total: c.precio
-          }))
+          create: cursos.map(c => {
+            const precioCurso = Number(c.precio)
+
+            // Distribuir el descuento proporcionalmente para los detalles si hay más de un curso
+            // O simplemente aplicar el descuento proporcional al precio del curso respecto al subtotal
+            const proporcion = subtotal > 0 ? precioCurso / subtotal : 0
+            const descuentoCurso = descuentoTotal * proporcion
+
+            return {
+              curso_id: c.id,
+              precio_unitario: c.precio,
+              descuento: descuentoCurso,
+              subtotal: c.precio,
+              total: precioCurso - descuentoCurso
+            }
+          })
         }
       }
     })
@@ -94,7 +136,8 @@ export async function POST(request: Request) {
         merchantCode: merchantCode,
         orderNumber: orderNumber,
         publicKey: apiKey,
-        amount: String(Number(total).toFixed(2))
+        amount: String(Number(total).toFixed(2)),
+        currency: moneda
       })
     })
 

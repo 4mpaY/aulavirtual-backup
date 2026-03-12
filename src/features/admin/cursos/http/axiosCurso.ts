@@ -1,8 +1,9 @@
+import axios from 'axios'
+import type { AxiosStatic } from 'axios'
+
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { Curso } from '../entity/Curso'
 import type { CrearCursoDto, ActualizarCursoDto, CambiarEstadoCursoDto } from '@/schemas/curso.schema'
-import axios from 'axios'
-import type { AxiosStatic } from 'axios'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -175,6 +176,58 @@ export class AxiosCurso extends AxiosInternalHttpClient {
   async getComentarios(cursoId: string): Promise<{ comentarios: any[] }> {
     try {
       const payload = await this.iGet<{ comentarios: any[] }>(`/${cursoId}/comentarios`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  // ===================== EXÁMENES =====================
+
+  async getExamen(cursoId: string): Promise<{ examen: any | null }> {
+    try {
+      const payload = await this.iGet<{ examen: any | null }>(`/${cursoId}/examen`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async saveExamen(cursoId: string, data: any): Promise<{ examen: any }> {
+    try {
+      const payload = await this.iPost<{ examen: any }>(`/${cursoId}/examen`, data)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async createPregunta(cursoId: string, data: any): Promise<{ pregunta: any }> {
+    try {
+      const payload = await this.iPost<{ pregunta: any }>(`/${cursoId}/examen/preguntas`, data)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async updatePregunta(cursoId: string, preguntaId: string, data: any): Promise<{ pregunta: any }> {
+    try {
+      const payload = await this.iPatch<{ pregunta: any }>(`/${cursoId}/examen/preguntas/${preguntaId}`, data)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async deletePregunta(cursoId: string, preguntaId: string): Promise<{ message: string }> {
+    try {
+      const payload = await this.iDelete<{ message: string }>(`/${cursoId}/examen/preguntas/${preguntaId}`)
 
       return payload
     } catch (err: any) {

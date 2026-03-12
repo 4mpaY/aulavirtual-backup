@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
+
 import type { Curso } from '../entity/Curso'
 import type { CrearCursoDto, ActualizarCursoDto, CambiarEstadoCursoDto } from '@/schemas/curso.schema'
 import { AxiosCurso } from '../http/axiosCurso'
@@ -200,5 +201,58 @@ export function useComentariosCurso(cursoId: string) {
     queryFn: async () => await axiosCurso.getComentarios(cursoId),
     enabled: !!cursoId,
     staleTime: 30_000
+  })
+}
+
+// ===================== EXÁMENES =====================
+
+export function useExamenCurso(cursoId: string) {
+  const axiosCurso = axiosCursoFactory()
+
+  return useQuery<{ examen: any | null }, any>({
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examen'],
+    queryFn: async () => await axiosCurso.getExamen(cursoId),
+    enabled: !!cursoId,
+    staleTime: 30_000
+  })
+}
+
+export function useSaveExamen() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; data: any }>({
+    mutationFn: async ({ cursoId, data }) => await axiosCurso.saveExamen(cursoId, data),
+    onSuccess: (_, { cursoId }) => qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examen'] })
+  })
+}
+
+export function useCreatePregunta() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; data: any }>({
+    mutationFn: async ({ cursoId, data }) => await axiosCurso.createPregunta(cursoId, data),
+    onSuccess: (_, { cursoId }) => qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examen'] })
+  })
+}
+
+export function useUpdatePregunta() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; preguntaId: string; data: any }>({
+    mutationFn: async ({ cursoId, preguntaId, data }) => await axiosCurso.updatePregunta(cursoId, preguntaId, data),
+    onSuccess: (_, { cursoId }) => qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examen'] })
+  })
+}
+
+export function useDeletePregunta() {
+  const qc = useQueryClient()
+  const axiosCurso = axiosCursoFactory()
+
+  return useMutation<any, any, { cursoId: string; preguntaId: string }>({
+    mutationFn: async ({ cursoId, preguntaId }) => await axiosCurso.deletePregunta(cursoId, preguntaId),
+    onSuccess: (_, { cursoId }) => qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examen'] })
   })
 }

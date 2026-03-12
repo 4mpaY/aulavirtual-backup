@@ -64,9 +64,16 @@ export async function POST(request: Request) {
           pagado_en: new Date(),
           transaccion_id: izipayResponse.transactionId || null,
           respuesta_izipay: izipayResponse,
-          metodo_pago: 'TARJETA_CREDITO'
         }
       })
+
+      // Incrementar usos del cupón si existe
+      if (pedido.cupon_id) {
+        await tx.cupon.update({
+          where: { id: pedido.cupon_id },
+          data: { usos_actuales: { increment: 1 } }
+        })
+      }
 
       // Obtener los cursos del pedido
       const detalles = await tx.detallePedido.findMany({

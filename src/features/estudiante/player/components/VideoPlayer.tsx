@@ -7,9 +7,10 @@ import { Box, Paper } from '@mui/material'
 interface VideoPlayerProps {
     url?: string
     tipo?: 'VIDEO' | 'INCRUSTADO'
+    onEnded?: () => void
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, tipo = 'VIDEO' }) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, tipo = 'VIDEO', onEnded }) => {
     if (!url) {
         return (
             <Paper
@@ -20,7 +21,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, tipo = 'VIDEO' }) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderRadius: '12px',
+                    borderRadius: { xs: 0, md: '12px' },
                     overflow: 'hidden'
                 }}
             >
@@ -55,7 +56,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, tipo = 'VIDEO' }) => {
                 width: '100%',
                 aspectRatio: '16/9',
                 bgcolor: 'black',
-                borderRadius: '12px',
+                borderRadius: { xs: 0, md: '12px' },
                 overflow: 'hidden',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
             }}
@@ -74,6 +75,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, tipo = 'VIDEO' }) => {
             ) : (
                 <video
                     controls
+                    onEnded={onEnded}
                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 >
                     <source src={url} />

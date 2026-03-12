@@ -60,9 +60,9 @@ export default async function MyCoursesPage() {
     const courses = await getInscribedCourses(session.user.id)
 
     return (
-        <Box sx={{ py: 6 }}>
-            <Container maxWidth={false} sx={{ px: { xs: 4, md: 8, lg: 12 } }}>
-                <Stack spacing={4}>
+        <Box sx={{ py: { xs: 4, md: 6 } }}>
+            <Container maxWidth={false} sx={{ px: { xs: 2, sm: 4, md: 8, lg: 12 } }}>
+                <Stack spacing={{ xs: 3, md: 4 }}>
                     <Box>
                         <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, color: 'text.primary' }}>
                             Mis <span style={{ color: 'var(--mui-palette-primary-main)' }}>Cursos</span>

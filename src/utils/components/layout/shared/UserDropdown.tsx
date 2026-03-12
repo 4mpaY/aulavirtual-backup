@@ -44,8 +44,6 @@ const UserDropdown = () => {
   const anchorRef = useRef<HTMLDivElement>(null)
   const { data } = useSession()
 
-  console.log("data", data)
-
   // Hooks
   const router = useRouter()
 
@@ -118,7 +116,7 @@ const UserDropdown = () => {
                     </div>
                   </div>
                   <Divider className='mlb-1' />
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
+                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/perfil')}>
                     <i className='tabler-user text-[22px]' />
                     <Typography color='text.primary'>Mi Perfil</Typography>
                   </MenuItem>
