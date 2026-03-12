@@ -32,20 +32,24 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     // Load cart from localStorage on mount
     useEffect(() => {
-        const savedCart = localStorage.getItem('cart')
+        try {
+            const savedCart = localStorage.getItem('cart:v1')
 
-        if (savedCart) {
-            try {
+            if (savedCart) {
                 setCart(JSON.parse(savedCart))
-            } catch (error) {
-                console.error('Error parsing cart from localStorage:', error)
             }
+        } catch {
+            // Safari private mode, quota exceeded, or disabled
         }
     }, [])
 
     // Save cart to localStorage on changes
     useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cart))
+        try {
+            localStorage.setItem('cart:v1', JSON.stringify(cart))
+        } catch {
+            // Safari private mode, quota exceeded, or disabled
+        }
     }, [cart])
 
     const addToCart = (item: CartItem) => {

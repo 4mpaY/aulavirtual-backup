@@ -19,23 +19,24 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'Se requiere al menos un ID de curso', 400)
     }
 
-    // 1. Obtener los cursos
-    const cursos = await prisma.curso.findMany({
-      where: { id: { in: cursoIds } }
-    })
+    // 1. Obtener los cursos y verificar inscripciones en paralelo (Promise.all)
+    const [cursos, inscripcionesExistentes] = await Promise.all([
+      prisma.curso.findMany({
+        where: { id: { in: cursoIds } }
+      }),
+      prisma.inscripcion.findMany({
+        where: {
+          usuario_id: auth.user.id,
+          curso_id: { in: cursoIds }
+        }
+      })
+    ])
 
     if (cursos.length === 0) {
       return ApiResponse.error(request, 'No se encontraron los cursos seleccionados', 404)
     }
 
     // 2. Verificar inscripciones existentes
-    const inscripcionesExistentes = await prisma.inscripcion.findMany({
-      where: {
-        usuario_id: auth.user.id,
-        curso_id: { in: cursoIds }
-      }
-    })
-
     if (inscripcionesExistentes.length > 0) {
       const titulos = inscripcionesExistentes
         .map(i => {

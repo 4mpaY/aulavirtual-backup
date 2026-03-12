@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -86,10 +86,17 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
         }
     }, [initialLessonId, setCurrentLessonId, mounted])
 
-    // Encontrar la lección actual y las adyacentes
-    const flatLessons = storeCourse?.modulos.flatMap(m => m.lecciones) || []
+    // Encontrar la lección actual y las adyacentes (memoizado para evitar recálculos)
+    const flatLessons = useMemo(
+        () => storeCourse?.modulos.flatMap(m => m.lecciones) || [],
+        [storeCourse?.modulos]
+    )
     
-    const currentIndex = flatLessons.findIndex(l => l.id === currentLessonId)
+    const currentIndex = useMemo(
+        () => flatLessons.findIndex(l => l.id === currentLessonId),
+        [flatLessons, currentLessonId]
+    )
+
     const currentLesson = currentIndex >= 0 ? flatLessons[currentIndex] : undefined
     
     const prevLesson = currentIndex > 0 ? flatLessons[currentIndex - 1] : undefined
@@ -267,7 +274,7 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
                     </Stack>
 
                     {/* Renderizamos el contenido según la pestaña activa */}
-                    {mobileTab === 0 && currentLesson && (
+                    {mobileTab === 0 && currentLesson ? (
                         <Box sx={{ mt: 1 }}>
                             <LessonContent
                                 id={currentLesson.id}
@@ -276,20 +283,20 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
                                 recursos={currentLesson.recursos || []}
                             />
                         </Box>
-                    )}
+                    ) : null}
 
-                    {mobileTab === 1 && currentLesson && (
+                    {mobileTab === 1 && currentLesson ? (
                         <Box sx={{ mt: 1 }}>
                             <CommentsSection leccionId={currentLesson.id} />
                         </Box>
-                    )}
+                    ) : null}
 
                     {/* En mobile, si seleccionamos Temario (Tab 2) */}
-                    {isMobile && mobileTab === 2 && (
+                    {isMobile && mobileTab === 2 ? (
                         <Box sx={{ mt: 0 }}>
                             <CourseContentSidebar onLessonSelect={handleLessonSelect} />
                         </Box>
-                    )}
+                    ) : null}
                 </Grid>
             </>
         )

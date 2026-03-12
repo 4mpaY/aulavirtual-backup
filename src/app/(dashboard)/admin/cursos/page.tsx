@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 
 import { getServerSession } from 'next-auth'
 
-import { CursosPage } from '@/features/admin/cursos'
+import { CursosPage } from '@/features/admin/cursos/pages/CursosPage'
 import { AxiosCurso } from '@/features/admin/cursos/http/axiosCurso'
 import { authOptions } from '@/utils/configs/auth'
 import type { Curso } from '@/features/admin/cursos/entity/Curso'

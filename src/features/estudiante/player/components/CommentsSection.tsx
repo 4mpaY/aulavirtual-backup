@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React from 'react'
 
+import { useQuery } from '@tanstack/react-query'
 import {
     Box,
     Typography,
@@ -19,36 +20,20 @@ interface CommentsSectionProps {
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
-    const [comments, setComments] = useState<CommentData[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
-    const fetchComments = useCallback(async () => {
-        setIsLoading(true)
-        setError(null)
-
-        try {
+    const { data: comments = [], isLoading, error, refetch } = useQuery<CommentData[]>({
+        queryKey: ['comentarios', 'leccion', leccionId],
+        queryFn: async () => {
             const res = await fetch(`/api/lecciones/${leccionId}/comentarios`)
 
             if (!res.ok) {
                 throw new Error('No se pudieron cargar los comentarios')
             }
 
-            const data = await res.json()
-
-            setComments(data)
-        } catch (err: any) {
-            setError(err.message)
-        } finally {
-            setIsLoading(false)
-        }
-    }, [leccionId])
-
-    useEffect(() => {
-        if (leccionId) {
-            fetchComments()
-        }
-    }, [leccionId, fetchComments])
+            return res.json()
+        },
+        enabled: !!leccionId,
+        staleTime: 30_000
+    })
 
     // Se calcula el número total de comentarios (padres + hijos)
     const countTotalComments = (items: CommentData[]): number => {
@@ -89,7 +74,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
                 </Typography>
                 <CommentForm
                     leccionId={leccionId}
-                    onSuccess={fetchComments}
+                    onSuccess={refetch}
                 />
             </Box>
 
@@ -101,7 +86,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
                     <CircularProgress />
                 </Box>
             ) : error ? (
-                <Alert severity="error">{error}</Alert>
+                <Alert severity="error">{(error as Error).message}</Alert>
             ) : comments.length === 0 ? (
                 <Box sx={{ textAlign: 'center', py: 6, borderRadius: '12px' }}>
                     <i className="tabler-messages" style={{ fontSize: '3rem', color: 'var(--mui-palette-text-disabled)', marginBottom: '16px' }} />
@@ -119,7 +104,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
                             key={comment.id}
                             comment={comment}
                             leccionId={leccionId}
-                            onReplySuccess={fetchComments}
+                            onReplySuccess={refetch}
                         />
                     ))}
                 </Box>

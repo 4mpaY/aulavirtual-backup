@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
+
 import { getServerSession } from 'next-auth'
-import { CourseCreatePage } from '@/features/admin/cursos'
+
+import { CourseCreatePage } from '@/features/admin/cursos/pages/CourseCreatePage'
 import { authOptions } from '@/utils/configs/auth'
 
 export const metadata = {

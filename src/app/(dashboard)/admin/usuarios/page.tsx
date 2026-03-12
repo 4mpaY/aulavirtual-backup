@@ -1,7 +1,11 @@
-import type { Metadata } from 'next'
-import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { Usuario, UsuariosPage } from '@/features/admin/usuarios'
+
+import type { Metadata } from 'next'
+
+import { getServerSession } from 'next-auth'
+
+import { UsuariosPage } from '@/features/admin/usuarios/pages/UsuariosPage'
+import type { Usuario } from '@/features/admin/usuarios/entity/Usuario'
 import { AxiosUsuario } from '@/features/admin/usuarios/http/axiosUsuario'
 import { authOptions } from '@/utils/configs/auth'
 

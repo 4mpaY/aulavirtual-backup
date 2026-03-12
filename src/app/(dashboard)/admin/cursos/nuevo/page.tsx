@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 
 import { getServerSession } from 'next-auth'
 
-import { CourseCreatePage } from '@/features/admin/cursos'
+import { CourseCreatePage } from '@/features/admin/cursos/pages/CourseCreatePage'
 import prisma from '@/utils/libs/prisma'
 import { authOptions } from '@/utils/configs/auth'
 

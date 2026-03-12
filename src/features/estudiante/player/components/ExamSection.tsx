@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { useQuery } from '@tanstack/react-query'
 import {
     Box,
     Typography,
@@ -53,38 +54,42 @@ interface ExamSectionProps {
 }
 
 const ExamSection: React.FC<ExamSectionProps> = ({ examenId, onExamPassed }) => {
-    const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
-    const [examen, setExamen] = useState<ExamenData | null>(null)
     const [respuestas, setRespuestas] = useState<Record<string, string>>({})
     const [resultado, setResultado] = useState<any>(null)
     const [yaAprobado, setYaAprobado] = useState(false)
     const [intentosRestantes, setIntentosRestantes] = useState(0)
     const [tiempoRestante, setTiempoRestante] = useState<number | null>(null)
     const [examenIniciado, setExamenIniciado] = useState(false)
-    const [error, setError] = useState<string | null>(null)
 
-    // Cargar examen
+    // Cargar examen con React Query
+    const { data: queryData, isLoading: loading, error: queryError } = useQuery<{
+        examen: ExamenData
+        yaAprobado: boolean
+        intentosRestantes: number
+    }>({
+        queryKey: ['examen', 'estudiante', examenId],
+        queryFn: async () => {
+            const res = await axios.get(`/api/estudiante/examen/${examenId}`)
+
+            if (!res.data.status) throw new Error('Error al cargar el examen')
+
+            return res.data.result
+        },
+        enabled: !!examenId,
+        staleTime: 60_000
+    })
+
+    const examen = queryData?.examen ?? null
+    const error = queryError ? (queryError as any).response?.data?.message || (queryError as Error).message : null
+
+    // Sincronizar estado local desde query data
     useEffect(() => {
-        const fetchExamen = async () => {
-            try {
-                setLoading(true)
-                const res = await axios.get(`/api/estudiante/examen/${examenId}`)
-
-                if (res.data.status) {
-                    setExamen(res.data.result.examen)
-                    setYaAprobado(res.data.result.yaAprobado)
-                    setIntentosRestantes(res.data.result.intentosRestantes)
-                }
-            } catch (err: any) {
-                setError(err.response?.data?.message || 'Error al cargar el examen')
-            } finally {
-                setLoading(false)
-            }
+        if (queryData) {
+            setYaAprobado(queryData.yaAprobado)
+            setIntentosRestantes(queryData.intentosRestantes)
         }
-
-        fetchExamen()
-    }, [examenId])
+    }, [queryData])
 
     // Temporizador
     useEffect(() => {
