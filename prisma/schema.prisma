@@ -10,11 +10,12 @@ datasource db {
 model Usuario {
   id                 String            @id @default(uuid())
   correo             String            @unique
-  contrasena         String
+  contrasena         String?
+  numero_documento   String?           @unique
   nombre             String
-  numero_documento   String            @unique
   apellido           String
   avatar             String?
+  google_id          String?           @unique
   biografia          String?
   celular            String?
   rol                Rol               @default(ESTUDIANTE)

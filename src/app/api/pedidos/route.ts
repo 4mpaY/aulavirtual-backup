@@ -59,6 +59,11 @@ export async function GET(request: Request) {
               correo: true
             }
           },
+          cupon: {
+            select: {
+              codigo: true
+            }
+          },
           detalles: {
             include: {
               curso: {

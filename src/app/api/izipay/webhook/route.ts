@@ -36,6 +36,13 @@ export async function POST(request: Request) {
       const transaccionId = transaccion?.uuid
 
       await prisma.$transaction(async tx => {
+        // Obtener pedido más reciente
+        const currentPedido = await tx.pedido.findUnique({
+          where: { id: pedido.id }
+        })
+
+        if (!currentPedido) throw new Error('Pedido no encontrado en webhook')
+
         await tx.pedido.update({
           where: { id: pedido.id },
           data: {
@@ -47,9 +54,9 @@ export async function POST(request: Request) {
         })
 
         // Incrementar usos del cupón si existe
-        if (pedido.cupon_id) {
+        if (currentPedido.cupon_id) {
           await tx.cupon.update({
-            where: { id: pedido.cupon_id },
+            where: { id: currentPedido.cupon_id },
             data: { usos_actuales: { increment: 1 } }
           })
         }

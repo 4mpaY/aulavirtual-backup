@@ -99,6 +99,24 @@ export function PedidosPage() {
                     </Typography>
                 )
             }),
+            columnHelper.accessor('cupon', {
+                header: 'Descuento / Cupón',
+                cell: ({ row }) => (
+                    <Typography variant='body2' color='text.secondary'>
+                        {row.original.cupon?.codigo ? (
+                            <Chip 
+                                label={row.original.cupon.codigo} 
+                                size='small' 
+                                variant='outlined' 
+                                color='primary' 
+                                sx={{ fontWeight: 600 }}
+                            />
+                        ) : (
+                            '-'
+                        )}
+                    </Typography>
+                )
+            }),
             columnHelper.accessor('metodo_pago', {
                 header: 'Método',
                 cell: ({ row }) => (

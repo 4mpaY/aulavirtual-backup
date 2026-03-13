@@ -1,10 +1,12 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Next Imports
 import { useRouter } from 'next/navigation'
+
+import { signIn } from 'next-auth/react'
 
 // MUI Imports
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -13,6 +15,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
@@ -68,6 +71,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
   const [error, setError] = useState<string>('')
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [loginUrl, setLoginUrl] = useState('/login')
 
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
@@ -83,6 +87,14 @@ const Register = ({ mode }: { mode: SystemMode }) => {
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const authBackground = useImageVariant(mode, lightImg, darkImg)
+
+  useEffect(() => {
+    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl')
+
+    if (callbackUrl) {
+      setLoginUrl(`/login?callbackUrl=${callbackUrl}`)
+    }
+  }, [])
 
   const characterIllustration = useImageVariant(
     mode,
@@ -139,6 +151,45 @@ const Register = ({ mode }: { mode: SystemMode }) => {
       }, 2000)
     } catch (err) {
       setError('Ocurrió un error al registrar el usuario')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleRegister = async () => {
+    try {
+      setIsLoading(true)
+      const result = await signIn('google', { redirect: false })
+
+      if (result?.url) {
+        const width = 500
+        const height = 600
+        const left = window.screenX + (window.outerWidth - width) / 2
+        const top = window.screenY + (window.outerHeight - height) / 2
+
+        const popup = window.open(
+          result.url,
+          'google-register',
+          `width=${width},height=${height},left=${left},top=${top}`
+        )
+
+        const checkPopup = setInterval(() => {
+          if (!popup || popup.closed) {
+            clearInterval(checkPopup)
+            router.refresh()
+
+            const urlParams = new URLSearchParams(window.location.search)
+            const callbackUrl = urlParams.get('callbackUrl')
+
+            router.push(callbackUrl || '/dashboard')
+          }
+        }, 1000)
+      } else {
+        setError('No se pudo obtener la URL de registro de Google.')
+      }
+    } catch (err) {
+      console.error('Error al iniciar registro con Google:', err)
+      setError('Ocurrió un error al conectar con Google.')
     } finally {
       setIsLoading(false)
     }
@@ -353,15 +404,26 @@ const Register = ({ mode }: { mode: SystemMode }) => {
               <Typography>¿Ya tienes una cuenta?</Typography>
               <Typography
                 component={Link}
-                href={
-                  typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')
-                    ? `/login?callbackUrl=${new URLSearchParams(window.location.search).get('callbackUrl')}`
-                    : '/login'
-                }
+                href={loginUrl}
                 color='primary'
               >
                 Inicia sesión
               </Typography>
+            </div>
+
+            <Divider className='gap-2'>o</Divider>
+
+            <div className='flex justify-center items-center gap-1.5'>
+              <Button
+                fullWidth
+                variant='outlined'
+                color='secondary'
+                startIcon={<i className='tabler-brand-google-filled' />}
+                onClick={handleGoogleRegister}
+                disabled={isLoading || success}
+              >
+                Registrarse con Google
+              </Button>
             </div>
           </form>
         </div>

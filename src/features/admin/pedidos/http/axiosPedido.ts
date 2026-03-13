@@ -1,8 +1,10 @@
+import axios from 'axios'
+
+import type { AxiosStatic } from 'axios'
+
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { Pedido } from '../entity/Pedido'
 import type { CrearPedidoManualDto } from '@/schemas/pedido.schema'
-import axios from 'axios'
-import type { AxiosStatic } from 'axios'
 
 type Params = {
   axiosLib?: AxiosStatic

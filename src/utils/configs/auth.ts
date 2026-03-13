@@ -1,69 +1,88 @@
 import type { NextAuthOptions, User } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import prisma from '@/utils/libs/prisma'
+import GoogleProvider from 'next-auth/providers/google'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import { sign } from 'jsonwebtoken'
+
+import prisma from '@/utils/libs/prisma'
 import { loginSchema } from '@/schemas/auth.schema'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
-export const authOptions: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        correo: { label: 'Correo', type: 'email' },
-        contrasena: { label: 'Contraseña', type: 'password' }
-      },
-      async authorize(credentials) {
-        try {
-          // Validar credenciales
-          const validacion = loginSchema.safeParse(credentials)
+const providers: NextAuthOptions['providers'] = [
+  CredentialsProvider({
+    name: 'Credentials',
+    credentials: {
+      correo: { label: 'Correo', type: 'email' },
+      contrasena: { label: 'Contraseña', type: 'password' }
+    },
+    async authorize(credentials) {
+      try {
+        // Validar credenciales
+        const validacion = loginSchema.safeParse(credentials)
 
-          if (!validacion.success) {
-            return null
-          }
-
-          const { correo, contrasena } = validacion.data
-
-          // Buscar usuario
-          const usuario = await prisma.usuario.findUnique({
-            where: { correo }
-          })
-
-          if (!usuario) {
-            return null
-          }
-
-          // Verificar si está activo
-          if (!usuario.esta_activo) {
-            throw new Error('Tu cuenta ha sido desactivada')
-          }
-
-          // Verificar contraseña
-          const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena)
-
-          if (!contrasenaValida) {
-            return null
-          }
-
-          // Retornar usuario
-          return {
-            id: usuario.id,
-            email: usuario.correo,
-            name: `${usuario.nombre} ${usuario.apellido}`,
-            rol: usuario.rol,
-            avatar: usuario.avatar,
-            numero_documento: usuario.numero_documento,
-            esta_activo: usuario.esta_activo
-          } as User
-        } catch (error) {
-          console.error('Error en authorize:', error)
+        if (!validacion.success) {
           return null
         }
+
+        const { correo, contrasena } = validacion.data
+
+        // Buscar usuario
+        const usuario = await prisma.usuario.findUnique({
+          where: { correo }
+        })
+
+        if (!usuario) {
+          return null
+        }
+
+        // Verificar si está activo
+        if (!usuario.esta_activo) {
+          throw new Error('Tu cuenta ha sido desactivada')
+        }
+
+        // Verificar contraseña
+        if (!usuario.contrasena) {
+          return null
+        }
+
+        const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena)
+
+        if (!contrasenaValida) {
+          return null
+        }
+
+        // Retornar usuario
+        return {
+          id: usuario.id,
+          email: usuario.correo,
+          name: `${usuario.nombre} ${usuario.apellido}`,
+          rol: usuario.rol,
+          avatar: usuario.avatar,
+          numero_documento: usuario.numero_documento,
+          esta_activo: usuario.esta_activo
+        } as User
+
+      } catch (error) {
+        console.error('Error en authorize:', error)
+
+return null
       }
+    }
+  })
+]
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.push(
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
     })
-  ],
+  )
+}
+
+export const authOptions: NextAuthOptions = {
+  providers,
 
   session: {
     strategy: 'jwt',
@@ -76,6 +95,82 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        const correo = user.email
+
+        if (!correo) return false
+
+        try {
+          // Buscar usuario por correo
+          const usuarioExistente = await prisma.usuario.findUnique({
+            where: { correo }
+          })
+
+          if (usuarioExistente) {
+            // Si ya tiene google_id, dejar pasar
+            if (usuarioExistente.google_id) {
+              user.id = usuarioExistente.id
+              user.rol = usuarioExistente.rol
+              user.numero_documento = usuarioExistente.numero_documento || ''
+              user.esta_activo = usuarioExistente.esta_activo
+              user.avatar = usuarioExistente.avatar
+
+              return true
+            }
+
+            // Si no tiene google_id, vincularlo
+            const usuarioActualizado = await prisma.usuario.update({
+              where: { id: usuarioExistente.id },
+              data: {
+                google_id: user.id,
+                avatar: usuarioExistente.avatar || user.image
+              }
+            })
+
+            user.id = usuarioActualizado.id
+            user.rol = usuarioActualizado.rol
+            user.numero_documento = usuarioActualizado.numero_documento || ''
+            user.esta_activo = usuarioActualizado.esta_activo
+            user.avatar = usuarioActualizado.avatar
+
+            return true
+          }
+
+          // Si no existe, crearlo
+          // Google profile suele traer given_name y family_name
+          const googleProfile = profile as any
+          const nombre = googleProfile.given_name || user.name?.split(' ')[0] || 'Usuario'
+          const apellido = googleProfile.family_name || user.name?.split(' ').slice(1).join(' ') || 'Google'
+
+          const nuevoUsuario = await prisma.usuario.create({
+            data: {
+              correo,
+              nombre,
+              apellido,
+              google_id: user.id,
+              avatar: user.image,
+              rol: 'ESTUDIANTE',
+              esta_activo: true
+            }
+          })
+
+          user.id = nuevoUsuario.id
+          user.rol = nuevoUsuario.rol
+          user.numero_documento = ''
+          user.esta_activo = true
+          user.avatar = nuevoUsuario.avatar
+
+          return true
+        } catch (error) {
+          console.error('Error en signIn callback:', error)
+
+return false
+        }
+      }
+
+      return true
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
@@ -85,7 +180,7 @@ export const authOptions: NextAuthOptions = {
         token.esta_activo = user.esta_activo
 
         // Generar un JWT real firmado (mismo payload que /api/auth/login)
-        token.accessToken = jwt.sign(
+        token.accessToken = sign(
           {
             id: user.id,
             email: user.email,
@@ -96,9 +191,10 @@ export const authOptions: NextAuthOptions = {
           },
           JWT_SECRET,
           { expiresIn: '30d' }
-        )
-      }
-      return token
+          )
+        }
+
+        return token
     },
     async session({ session, token }) {
       if (session.user) {
@@ -109,6 +205,7 @@ export const authOptions: NextAuthOptions = {
         session.user.esta_activo = token.esta_activo as boolean
         session.user.accessToken = token.accessToken as string
       }
+
       return session
     }
   },
