@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import {
     Box,
@@ -24,9 +23,9 @@ interface CourseContentSidebarProps {
     onLessonSelect: (lessonId: string) => void
 }
 
-const CourseContentSidebar: React.FC<CourseContentSidebarProps> = ({
+const CourseContentSidebar = ({
     onLessonSelect
-}) => {
+}: CourseContentSidebarProps) => {
     const { 
         course, 
         currentLessonId, 

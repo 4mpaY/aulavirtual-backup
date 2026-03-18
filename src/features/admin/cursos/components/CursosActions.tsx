@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+
 
 import DeleteCursoModal from './DeleteCursoModal'
 
@@ -15,11 +15,11 @@ interface CursosActionsProps {
     onSuccess?: () => void
 }
 
-export const CursosActions: FC<CursosActionsProps> = ({
+export const CursosActions = ({
     cursoClicked,
     deleteCurso,
     onSuccess
-}) => {
+}: CursosActionsProps) => {
     return (
         <>
             {/* Modal Eliminar Curso */}

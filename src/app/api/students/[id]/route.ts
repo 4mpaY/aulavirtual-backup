@@ -27,9 +27,9 @@ export async function GET(request: Request, { params }: Params) {
 
 export async function PUT(request: Request, { params }: Params) {
   try {
-    const { nombre, apellido, correo } = await request.json()
+    const { firstName, lastName, email } = await request.json()
 
-    const updatedStudent = await prisma.usuario.update({
+    const updatedStudent = await prisma.student.update({
       where: {
         id: params.id,
       },

@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -46,14 +45,14 @@ interface MyCourseCardProps {
   categoria?: string
 }
 
-const MyCourseCard: React.FC<MyCourseCardProps> = ({
+const MyCourseCard = ({
   titulo,
   slug,
   miniatura,
   profesor,
   progreso,
   categoria
-}) => {
+}: MyCourseCardProps) => {
   const router = useRouter()
 
   return (

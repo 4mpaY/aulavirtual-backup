@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import { PayPalButtons } from '@paypal/react-paypal-js'
 
@@ -13,12 +13,12 @@ interface PayPalPaymentButtonProps {
   onError: (error: string) => void
 }
 
-export const PayPalPaymentButton: React.FC<PayPalPaymentButtonProps> = ({
+export const PayPalPaymentButton = ({
   cursoIds,
   codigoCupon,
   onSuccess,
   onError
-}) => {
+}: PayPalPaymentButtonProps) => {
   const [isProcessing, setIsProcessing] = useState(false)
 
   const [pedidoId, setPedidoId] = useState<string | null>(null)

@@ -14,6 +14,9 @@ import '@assets/iconify-icons/generated-icons.css'
 // Component Imports
 import { Providers } from '@/components/Providers'
 
+// Server Imports
+import { getServerSession } from 'next-auth'
+
 import { authOptions } from '@/utils/configs/auth'
 
 export const metadata = {

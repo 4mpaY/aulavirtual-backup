@@ -1,6 +1,6 @@
 'use client'
 
-import { type FC, useState } from 'react'
+import { useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -30,6 +30,8 @@ import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
 
+import { useSession } from 'next-auth/react'
+
 import CustomTextField from '@core/components/mui/TextField'
 
 import { crearCursoSchema, type CrearCursoDto } from '@/schemas/curso.schema'
@@ -42,7 +44,8 @@ interface CourseCreatePageProps {
     profesores: { id: string; nombre: string; apellido: string }[]
 }
 
-export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
+export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
+    const { data: session } = useSession()
     const { enqueueSnackbar } = useSnackbar()
     const router = useRouter()
     const { data: session } = useSession()
@@ -63,6 +66,7 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
         nivel: 'BASICO',
         duracion: '',
         miniatura: null,
+        nivel: 'BASICO',
         video_presentacion: null,
         fecha_inicio: null
     }

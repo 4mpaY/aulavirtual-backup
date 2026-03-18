@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -42,7 +42,7 @@ interface PaymentFormProps {
   finalTotal?: number
 }
 
-const PaymentForm: React.FC<PaymentFormProps> = ({ courses, appliedCouponCode, finalTotal }) => {
+const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProps) => {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { clearCart } = useCart()

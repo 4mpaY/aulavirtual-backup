@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import { Container, Typography, Grid, Box, Stack } from '@mui/material'
 
@@ -10,7 +9,7 @@ interface RutasSectionProps {
   rutas: any[]
 }
 
-const RutasSection: React.FC<RutasSectionProps> = ({ rutas }) => {
+const RutasSection = ({ rutas }: RutasSectionProps) => {
   if (!rutas || rutas.length === 0) return null
 
   return (

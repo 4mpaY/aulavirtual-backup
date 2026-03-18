@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import { Box, Typography, Button, Paper, Stack, alpha } from '@mui/material'
 
@@ -11,12 +11,12 @@ interface LiveLessonPlaceholderProps {
   esEnVivo: boolean
 }
 
-const LiveLessonPlaceholder: React.FC<LiveLessonPlaceholderProps> = ({
+const LiveLessonPlaceholder = ({
   titulo,
   fechaProgramada,
   enlaceReunion,
   esEnVivo
-}) => {
+}: LiveLessonPlaceholderProps) => {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null)
   const [isLive, setIsLive] = useState(false)
 

@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
+import type { ChangeEvent } from 'react'
 
 import {
     Dialog,
@@ -29,12 +30,12 @@ interface MediaLibraryProps {
     title?: string
 }
 
-const MediaLibrary: React.FC<MediaLibraryProps> = ({ open, onClose, onSelect, title = 'Biblioteca de Medios' }) => {
+const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios' }: MediaLibraryProps) => {
     const [search, setSearch] = useState('')
     const { data: media = [], isLoading } = useMedia()
     const uploadMutation = useUploadMedia()
 
-    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
 
         if (!file) return

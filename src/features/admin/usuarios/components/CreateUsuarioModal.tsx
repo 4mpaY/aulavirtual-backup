@@ -1,6 +1,6 @@
 'use client'
 
-import { type FC, useState } from 'react'
+import { useState } from 'react'
 
 import { Box, Button, Grid, MenuItem, styled, Typography, InputAdornment, IconButton } from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
@@ -9,10 +9,11 @@ import { useSnackbar } from 'notistack'
 
 import { Rol } from '@prisma/client'
 
+
+
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { crearUsuarioSchema, type CrearUsuarioDto } from '@/schemas/usuario.schema'
-
 
 import { useCreateUsuario } from '../hooks/useUsuarios'
 
@@ -26,7 +27,7 @@ const FormWrapper = styled(Box)(() => ({
   padding: '16px 0'
 }))
 
-const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, onSuccess }) => {
+const CreateUsuarioModal = ({ open, handleClose, onSuccess }: CreateUsuarioModalProps) => {
   const { enqueueSnackbar } = useSnackbar()
   const createUsuarioMutation = useCreateUsuario()
   const [showPassword, setShowPassword] = useState(false)

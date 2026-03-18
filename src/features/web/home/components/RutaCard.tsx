@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import Link from 'next/link'
 
@@ -46,14 +45,14 @@ const StyledCard = styled(Card)(({ theme }) => ({
   }
 }))
 
-const RutaCard: React.FC<RutaCardProps> = ({
+const RutaCard = ({
   titulo,
   slug,
   descripcion,
   miniatura,
   total_cursos,
   cursos
-}) => {
+}: RutaCardProps) => {
   return (
     <StyledCard>
       <Box sx={{ position: 'relative', pt: '56.25%', overflow: 'hidden', bgcolor: 'primary.50' }}>

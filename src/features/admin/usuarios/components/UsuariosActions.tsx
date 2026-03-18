@@ -1,7 +1,5 @@
 'use client'
 
-import type { FC } from 'react'
-
 import type { Usuario } from '../entity/Usuario'
 
 import CreateUsuarioModal from './CreateUsuarioModal'
@@ -23,14 +21,14 @@ interface UsuariosActionsProps {
   onSuccess?: () => void
 }
 
-export const UsuariosActions: FC<UsuariosActionsProps> = ({
+export const UsuariosActions = ({
   usuarioClicked,
   addUsuario,
   editUsuario,
   deleteUsuario,
   viewUsuario,
   onSuccess
-}) => {
+}: UsuariosActionsProps) => {
   return (
     <>
       {/* Modal Crear Usuario */}

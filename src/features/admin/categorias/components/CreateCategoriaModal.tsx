@@ -22,7 +22,7 @@ const FormWrapper = styled(Box)(() => ({
     padding: '16px 0'
 }))
 
-const CreateCategoriaModal: FC<CreateCategoriaModalProps> = ({ open, handleClose, onSuccess }) => {
+export const CreateCategoriaModal = ({ open, handleClose, onSuccess }: CreateCategoriaModalProps) => {
     const { enqueueSnackbar } = useSnackbar()
     const createCategoriaMutation = useCreateCategoria()
 

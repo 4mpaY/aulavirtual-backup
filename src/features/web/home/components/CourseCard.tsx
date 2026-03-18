@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import type { MouseEvent } from 'react'
 
 import Link from 'next/link'
 
@@ -68,7 +68,7 @@ const StyledCard = styled(Card)(() => ({
   }
 }))
 
-const CourseCard: React.FC<CourseCardProps> = ({
+const CourseCard = ({
   id,
   titulo,
   slug,
@@ -84,13 +84,13 @@ const CourseCard: React.FC<CourseCardProps> = ({
   creado_en,
   es_comprado,
   _count
-}) => {
+}: CourseCardProps) => {
   const router = useRouter()
   const { addToCart, isInCart } = useCart()
 
   const inCart = isInCart(id)
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = (e: MouseEvent) => {
     e.stopPropagation()
     addToCart({ id, titulo, slug, miniatura, precio, moneda })
   }

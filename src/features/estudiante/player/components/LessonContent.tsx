@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
  
 import { Box, Typography, Card, CardContent, Stack, IconButton, Tooltip } from '@mui/material'
  
@@ -17,12 +16,12 @@ interface LessonContentProps {
     recursos?: Resource[]
 }
 
-const LessonContent: React.FC<LessonContentProps> = ({ 
+const LessonContent = ({ 
     id, 
     titulo, 
     descripcion, 
     recursos = []
-}) => {
+}: LessonContentProps) => {
 
     return (
         <Box>

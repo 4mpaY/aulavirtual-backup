@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import { Box, Typography, Stack, Divider, Paper, Avatar } from '@mui/material'
 
@@ -26,7 +25,7 @@ interface OrderSummaryProps {
     onCouponApplied: (data: any) => void
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ courses, appliedCoupon, onCouponApplied }) => {
+const OrderSummary = ({ courses, appliedCoupon, onCouponApplied }: OrderSummaryProps) => {
     const subtotal = courses.reduce((acc, c) => acc + Number(c.precio), 0)
     const total = appliedCoupon ? appliedCoupon.total : subtotal
     const descuento = appliedCoupon ? appliedCoupon.descuento : 0

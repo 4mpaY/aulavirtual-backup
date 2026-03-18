@@ -1,16 +1,18 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import { Box, TextField, Button, Typography, InputAdornment, CircularProgress, Alert } from '@mui/material'
+
 import axios from 'axios'
+
 
 interface CouponInputProps {
   cursoIds: string[]
   onApplied: (data: { codigo: string; descuento: number; total: number } | null) => void
 }
 
-const CouponInput: React.FC<CouponInputProps> = ({ cursoIds, onApplied }) => {
+const CouponInput = ({ cursoIds, onApplied }: CouponInputProps) => {
   const [codigo, setCodigo] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -33,12 +35,14 @@ const CouponInput: React.FC<CouponInputProps> = ({ cursoIds, onApplied }) => {
         const { descuento, total, codigo: appliedCode } = response.data.result
 
         setSuccess(`¡Cupón "${appliedCode}" aplicado correctamente!`)
+
         onApplied({ codigo: appliedCode, descuento, total })
       }
     } catch (err: any) {
       const message = err.response?.data?.message || 'Error al validar el cupón'
 
       setError(message)
+
       onApplied(null)
     } finally {
       setLoading(false)
@@ -57,7 +61,7 @@ const CouponInput: React.FC<CouponInputProps> = ({ cursoIds, onApplied }) => {
       <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
         ¿Tienes un código de descuento?
       </Typography>
-      
+
       {!success ? (
         <Box sx={{ display: 'flex', gap: 1 }}>
           <TextField
@@ -96,10 +100,10 @@ const CouponInput: React.FC<CouponInputProps> = ({ cursoIds, onApplied }) => {
           </Button>
         </Box>
       ) : (
-        <Alert 
-          severity="success" 
+        <Alert
+          severity="success"
           onClose={handleRemove}
-          sx={{ 
+          sx={{
             borderRadius: '12px',
             '& .MuiAlert-message': { fontWeight: 600 }
           }}

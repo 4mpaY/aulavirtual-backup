@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   Card,
@@ -47,25 +47,25 @@ export const CertificadosTable = () => {
   const handleDescargar = async (certificado: Certificado) => {
     try {
       toast.info('Generando PDF...')
-      
+
       const res = await axios.get(`/api/estudiante/certificado/${certificado.id}/pdf`, {
         responseType: 'blob'
       })
 
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const link = document.createElement('a')
-      
+
       link.href = url
       link.setAttribute('download', `certificado-${certificado.codigo_verificacion}.pdf`)
       document.body.appendChild(link)
       link.click()
       link.remove()
       window.URL.revokeObjectURL(url)
-      
+
       toast.success('Certificado descargado')
     } catch (err: any) {
-        // Si falla por 403, es probable que la API necesite ser actualizada para permitir ADMINs
-        toast.error('Error al descargar: Es posible que necesites permisos adicionales.')
+      // Si falla por 403, es probable que la API necesite ser actualizada para permitir ADMINs
+      toast.error('Error al descargar: Es posible que necesites permisos adicionales.')
     }
   }
 
@@ -84,9 +84,9 @@ export const CertificadosTable = () => {
         header: 'Estudiante',
         cell: ({ row }) => (
           <Box className='flex items-center gap-3'>
-            <Avatar 
-                src={row.original.usuario.avatar || undefined} 
-                imgProps={{ referrerPolicy: 'no-referrer' }} 
+            <Avatar
+              src={row.original.usuario.avatar || undefined}
+              imgProps={{ referrerPolicy: 'no-referrer' }}
             />
             <Box className='flex flex-col'>
               <Typography color='text.primary' className='font-medium'>

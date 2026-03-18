@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import { Grid, Typography, Box } from '@mui/material'
 
@@ -23,7 +22,7 @@ interface MyCoursesListProps {
     courses: Course[]
 }
 
-const MyCoursesList: React.FC<MyCoursesListProps> = ({ courses }) => {
+const MyCoursesList = ({ courses }: MyCoursesListProps) => {
     if (courses.length === 0) {
         return (
             <Box sx={{ textAlign: 'center', py: 10 }}>

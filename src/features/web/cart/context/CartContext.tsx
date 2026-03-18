@@ -1,7 +1,7 @@
 'use client'
 
-import type { ReactNode } from 'react';
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
+import type { ReactNode } from 'react'
 
 export interface CartItem {
     id: string
@@ -26,7 +26,7 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [cart, setCart] = useState<CartItem[]>([])
     const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
 

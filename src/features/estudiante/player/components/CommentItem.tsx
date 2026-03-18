@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import {
     Box,
@@ -38,7 +38,7 @@ interface CommentItemProps {
     isReply?: boolean // True si este comentario es respuesta de otro
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, leccionId, onReplySuccess, isReply = false }) => {
+const CommentItem = ({ comment, leccionId, onReplySuccess, isReply = false }: CommentItemProps) => {
     const [isReplying, setIsReplying] = useState(false)
 
     // Formatear la fecha

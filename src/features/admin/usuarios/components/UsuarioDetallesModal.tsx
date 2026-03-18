@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { FC, SyntheticEvent } from 'react'
+import type { SyntheticEvent } from 'react'
 
 import {
   Box,
@@ -35,7 +35,7 @@ const rolLabels: { [key in Rol]: string } = {
   ESTUDIANTE: 'Estudiante'
 }
 
-const UsuarioDetallesModal: FC<UsuarioDetallesModalProps> = ({ open, handleClose, usuarioId }) => {
+const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesModalProps) => {
   const [activeTab, setActiveTab] = useState(0)
   const { data: usuario, isLoading } = useUsuario(usuarioId || '')
 

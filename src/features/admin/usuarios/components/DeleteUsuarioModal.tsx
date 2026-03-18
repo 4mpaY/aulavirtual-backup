@@ -1,14 +1,15 @@
 'use client'
 
-import { type FC, useState } from 'react'
+import { useState } from 'react'
 
 import { Box, Button, Checkbox, FormControlLabel, styled, Typography } from '@mui/material'
 import { useSnackbar } from 'notistack'
 
 import { Icon } from '@iconify/react'
 
-import AppModal from '@/utils/components/AppModal'
 
+
+import AppModal from '@/utils/components/AppModal'
 
 import { useDeleteUsuario } from '../hooks/useUsuarios'
 
@@ -46,7 +47,7 @@ const UserInfoBox = styled(Box)(({ theme }) => ({
   marginBottom: 24
 }))
 
-const DeleteUsuarioModal: FC<DeleteUsuarioModalProps> = ({ open, handleClose, usuario, onSuccess }) => {
+const DeleteUsuarioModal = ({ open, handleClose, usuario, onSuccess }: DeleteUsuarioModalProps) => {
   const { enqueueSnackbar } = useSnackbar()
   const [confirmed, setConfirmed] = useState(false)
   const deleteUsuarioMutation = useDeleteUsuario()

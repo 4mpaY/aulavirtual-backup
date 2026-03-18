@@ -1,6 +1,6 @@
 'use client'
 
-import { type FC, useState } from 'react'
+import { useState } from 'react'
 
 import { Box, Button, Grid, MenuItem, styled, Typography, CircularProgress, InputAdornment, IconButton } from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
@@ -9,10 +9,11 @@ import { useSnackbar } from 'notistack'
 
 import { Rol } from '@prisma/client'
 
+
+
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { actualizarUsuarioSchema, type ActualizarUsuarioDto } from '@/schemas/usuario.schema'
-
 
 import { useUsuario, useEditUsuario } from '../hooks/useUsuarios'
 
@@ -27,7 +28,7 @@ const FormWrapper = styled(Box)(() => ({
   padding: '16px 0'
 }))
 
-const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuarioId, onSuccess }) => {
+const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuarioModalProps) => {
   const { enqueueSnackbar } = useSnackbar()
   const { data: usuario, isLoading } = useUsuario(usuarioId || '')
   const editUsuarioMutation = useEditUsuario()

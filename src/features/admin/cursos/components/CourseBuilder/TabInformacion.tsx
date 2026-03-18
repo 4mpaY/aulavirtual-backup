@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
+import type { ChangeEvent } from 'react'
 
 import {
     Grid,
@@ -46,7 +47,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
         nivel: curso.nivel || 'BASICO'
     })
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
     }
 

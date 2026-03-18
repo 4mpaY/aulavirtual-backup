@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import { Fragment } from 'react'
 
 import Link from 'next/link'
 
@@ -70,7 +70,7 @@ interface CourseDetailProps {
   }
 }
 
-const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
+const CourseDetail = ({ course }: CourseDetailProps) => {
   // Helper para obtener el ID de video y la URL de embebido
   const getEmbedUrl = (url?: string | null) => {
     if (!url) return null
@@ -534,7 +534,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                         <AccordionDetails sx={{ p: 0 }}>
                           <List disablePadding>
                             {modulo.lecciones.map((leccion) => (
-                              <React.Fragment key={leccion.id}>
+                              <Fragment key={leccion.id}>
                                 <Divider />
                                 <ListItem sx={{ py: 2, px: 3 }}>
                                   <ListItemIcon sx={{ minWidth: 40 }}>
@@ -561,7 +561,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                                     </Typography>
                                   )}
                                 </ListItem>
-                              </React.Fragment>
+                              </Fragment>
                             ))}
                           </List>
                         </AccordionDetails>

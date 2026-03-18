@@ -1,4 +1,4 @@
-import React from 'react'
+
 
 import { notFound, redirect } from 'next/navigation'
 
@@ -72,9 +72,9 @@ async function getCoursePlayerData(slug: string, userId: string, userRol: string
           contenido: l.contenido,
           orden: l.orden,
           video_url: l.video_url,
-          es_en_vivo: l.es_en_vivo,
-          fecha_programada: l.fecha_programada,
-          enlace_reunion: l.enlace_reunion,
+          es_en_vivo: (l as any).es_en_vivo,
+          fecha_programada: (l as any).fecha_programada,
+          enlace_reunion: (l as any).enlace_reunion,
           completada: l.progreso[0]?.esta_completado || false,
           recursos: l.recursos as any[] || []
         }))

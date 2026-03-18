@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -19,7 +18,7 @@ interface CommentsSectionProps {
     leccionId: string
 }
 
-const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
+const CommentsSection = ({ leccionId }: CommentsSectionProps) => {
     const { data: comments = [], isLoading, error, refetch } = useQuery<CommentData[]>({
         queryKey: ['comentarios', 'leccion', leccionId],
         queryFn: async () => {

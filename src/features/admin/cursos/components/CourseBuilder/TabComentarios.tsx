@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import { Fragment } from 'react'
 
 import {
     Box,
@@ -44,7 +44,7 @@ export function TabComentarios({ cursoId }: TabComentariosProps) {
     return (
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {comentarios.map((c: any) => (
-                <React.Fragment key={c.id}>
+                <Fragment key={c.id}>
                     <Paper variant='outlined' sx={{ mb: 3, p: 2 }}>
                         <ListItem alignItems='flex-start' disablePadding>
                             <ListItemAvatar>
@@ -105,7 +105,7 @@ export function TabComentarios({ cursoId }: TabComentariosProps) {
                             </Box>
                         )}
                     </Paper>
-                </React.Fragment>
+                </Fragment>
             ))}
         </List>
     )

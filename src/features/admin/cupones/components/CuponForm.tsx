@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 
 import {
   Dialog,
@@ -25,7 +25,7 @@ interface CuponFormProps {
   cuponToEdit?: any
 }
 
-const CuponForm: React.FC<CuponFormProps> = ({ open, handleClose, cuponToEdit }) => {
+const CuponForm = ({ open, handleClose, cuponToEdit }: CuponFormProps) => {
   const { createCupon, updateCupon } = useCuponMutation()
 
   const [formData, setFormData] = useState({
@@ -59,7 +59,7 @@ const CuponForm: React.FC<CuponFormProps> = ({ open, handleClose, cuponToEdit })
     }
   }, [cuponToEdit, open])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
     const payload = {

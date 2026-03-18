@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import Link from 'next/link'
 
@@ -161,7 +160,7 @@ const CourseCard = ({ curso, index, total }: { curso: CursoEnRuta; index: number
   </Box>
 )
 
-const RutaDetail: React.FC<RutaDetailProps> = ({ ruta }) => {
+const RutaDetail = ({ ruta }: RutaDetailProps) => {
   return (
     <Box sx={{ pb: 10, bgcolor: '#f8fafc' }}>
       {/* New Premium Hero Section - Aligned with CourseDetail */}

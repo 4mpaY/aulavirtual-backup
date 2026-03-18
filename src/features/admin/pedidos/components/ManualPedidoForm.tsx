@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState, Fragment } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -96,10 +96,10 @@ export function ManualPedidoForm() {
                                                 InputProps={{
                                                     ...params.InputProps,
                                                     endAdornment: (
-                                                        <React.Fragment>
+                                                        <Fragment>
                                                             {isLoadingUsuarios ? <CircularProgress color="inherit" size={20} /> : null}
                                                             {params.InputProps.endAdornment}
-                                                        </React.Fragment>
+                                                        </Fragment>
                                                     ),
                                                 }}
                                             />
@@ -140,10 +140,10 @@ export function ManualPedidoForm() {
                                                 InputProps={{
                                                     ...params.InputProps,
                                                     endAdornment: (
-                                                        <React.Fragment>
+                                                        <Fragment>
                                                             {isLoadingCursos ? <CircularProgress color="inherit" size={20} /> : null}
                                                             {params.InputProps.endAdornment}
-                                                        </React.Fragment>
+                                                        </Fragment>
                                                     ),
                                                 }}
                                             />

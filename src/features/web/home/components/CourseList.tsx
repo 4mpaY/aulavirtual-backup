@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import { Grid, Typography, Box, CircularProgress, Alert } from '@mui/material'
 
@@ -12,7 +11,7 @@ interface CourseListProps {
     error?: string | null
 }
 
-const CourseList: React.FC<CourseListProps> = ({ courses, loading, error }) => {
+const CourseList = ({ courses, loading, error }: CourseListProps) => {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>

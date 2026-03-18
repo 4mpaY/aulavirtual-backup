@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -21,7 +20,7 @@ import {
 
 import { useCart } from '../context/CartContext'
 
-const CartDrawer: React.FC = () => {
+const CartDrawer = () => {
     const { cart, removeFromCart, cartTotal, itemCount, isCartDrawerOpen, setIsCartDrawerOpen } = useCart()
     const router = useRouter()
 

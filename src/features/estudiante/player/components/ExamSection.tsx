@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -53,7 +53,7 @@ interface ExamSectionProps {
     onExamPassed: () => void
 }
 
-const ExamSection: React.FC<ExamSectionProps> = ({ examenId, onExamPassed }) => {
+const ExamSection = ({ examenId, onExamPassed }: ExamSectionProps) => {
     const [submitting, setSubmitting] = useState(false)
     const [respuestas, setRespuestas] = useState<Record<string, string>>({})
     const [resultado, setResultado] = useState<any>(null)

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -32,7 +32,7 @@ interface AuthDialogProps {
     initialMode?: 'login' | 'register'
 }
 
-const AuthDialog: React.FC<AuthDialogProps> = ({ open, onClose, initialMode = 'login' }) => {
+const AuthDialog = ({ open, onClose, initialMode = 'login' }: AuthDialogProps) => {
     const [mode, setMode] = useState<'login' | 'register'>(initialMode)
     const [error, setError] = useState<string>('')
     const [isLoading, setIsLoading] = useState(false)

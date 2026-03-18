@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -26,7 +26,7 @@ interface CoursePlayerViewProps {
     initialLessonId?: string
 }
 
-const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLessonId }) => {
+const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
     const [sidebarOpen, setSidebarOpen] = useState(!isMobile)

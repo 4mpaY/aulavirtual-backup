@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   Dialog,
@@ -20,7 +20,7 @@ import Swal from 'sweetalert2'
 import CustomTextField from '@core/components/mui/TextField'
 import MediaLibrary from '@/features/admin/cursos/components/MediaLibrary'
 
-import type { Ruta, CreateRutaDto, Benefit } from '../entity/Ruta'
+import type { CreateRutaDto, Benefit, Ruta } from '../entity/Ruta'
 import { useCreateRuta, useUpdateRuta } from '../hooks/useRutas'
 
 const DEFAULT_BENEFITS: Benefit[] = [
@@ -36,7 +36,7 @@ interface RutaDialogProps {
   ruta?: Ruta | null
 }
 
-export const RutaDialog: React.FC<RutaDialogProps> = ({ open, onClose, ruta }) => {
+export const RutaDialog = ({ open, onClose, ruta }: RutaDialogProps) => {
   const createRuta = useCreateRuta()
   const updateRuta = useUpdateRuta()
 
@@ -57,7 +57,6 @@ export const RutaDialog: React.FC<RutaDialogProps> = ({ open, onClose, ruta }) =
     control,
     name: 'beneficios'
   })
-
 
   useEffect(() => {
     if (ruta) {
@@ -84,7 +83,6 @@ export const RutaDialog: React.FC<RutaDialogProps> = ({ open, onClose, ruta }) =
   const onSubmit = async (data: CreateRutaDto) => {
     try {
       if (ruta) {
-
         await updateRuta.mutateAsync({ id: ruta.id, payload: data })
 
         Swal.fire({ title: '¡Éxito!', text: 'Ruta actualizada correctamente', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
@@ -105,7 +103,6 @@ export const RutaDialog: React.FC<RutaDialogProps> = ({ open, onClose, ruta }) =
     setValue('titulo', val)
 
     if (!ruta) {
-      
       const slug = val
         .toLowerCase()
         .trim()
@@ -128,7 +125,6 @@ export const RutaDialog: React.FC<RutaDialogProps> = ({ open, onClose, ruta }) =
                 name='titulo'
                 control={control}
                 rules={{ required: 'El título es requerido' }}
-                
                 render={({ field, fieldState }) => (
                   <CustomTextField
                     {...field}
@@ -263,7 +259,7 @@ export const RutaDialog: React.FC<RutaDialogProps> = ({ open, onClose, ruta }) =
                 Configura los 4 puntos clave que se muestran en el detalle de la ruta.
               </Typography>
               
-            <Grid container spacing={4}>
+              <Grid container spacing={4}>
                 {benefitFields.map((field, index) => (
                   <Grid item xs={12} key={field.id}>
                     <Box sx={{ p: 4, border: '1px solid', borderColor: 'divider', borderRadius: 1, bgcolor: 'action.hover' }}>
@@ -331,7 +327,6 @@ export const RutaDialog: React.FC<RutaDialogProps> = ({ open, onClose, ruta }) =
                 ))}
               </Grid>
             </Grid>
-
           </Grid>
         </DialogContent>
         <DialogActions>

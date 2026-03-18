@@ -2,6 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react'
 
+
 import {
   Button,
   Card,
@@ -36,14 +37,14 @@ import { RutaCursosDialog } from '../components/RutaCursosDialog'
 
 const columnHelper = createColumnHelper<Ruta>()
 
-export function RutasPage() {
+export const RutasPage = () => {
   const { data: rutas = [], isLoading } = useRutas()
   const deleteRuta = useDeleteRuta()
 
   const [openRutaDialog, setOpenRutaDialog] = useState(false)
   const [openCursosDialog, setOpenCursosDialog] = useState(false)
   const [selectedRuta, setSelectedRuta] = useState<Ruta | null>(null)
-  
+
   const [globalFilter, setGlobalFilter] = useState('')
 
   const handleEdit = useCallback((ruta: Ruta) => {
@@ -107,12 +108,12 @@ export function RutasPage() {
           </Box>
         )
       }),
-      columnHelper.accessor('total_cursos', {
+      columnHelper.accessor('total_cursos' as any, {
         header: 'Cursos',
         cell: ({ row }) => (
           <Chip
             variant='tonal'
-            label={`${row.original.total_cursos || 0} Cursos`}
+            label={`${(row.original as any).total_cursos || 0} Cursos`}
             color='primary'
             size='small'
           />
@@ -153,7 +154,7 @@ export function RutasPage() {
         )
       })
     ],
-    [handleManageCursos, handleEdit, handleDelete]
+    [handleDelete]
   )
 
   const table = useReactTable({

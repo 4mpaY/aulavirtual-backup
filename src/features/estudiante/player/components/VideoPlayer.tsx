@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 
 import { Box, Paper } from '@mui/material'
 
@@ -10,7 +9,7 @@ interface VideoPlayerProps {
     onEnded?: () => void
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, tipo = 'VIDEO', onEnded }) => {
+const VideoPlayer = ({ url, tipo = 'VIDEO', onEnded }: VideoPlayerProps) => {
     if (!url) {
         return (
             <Paper

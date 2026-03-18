@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import {
   Dialog,
@@ -124,7 +124,7 @@ interface RutaCursosDialogProps {
   rutaId: string | null
 }
 
-export const RutaCursosDialog: React.FC<RutaCursosDialogProps> = ({ open, onClose, rutaId }) => {
+export const RutaCursosDialog = ({ open, onClose, rutaId }: RutaCursosDialogProps) => {
   const { data: ruta, isLoading: isLoadingRuta } = useRuta(rutaId)
   const { data: cursosData } = useCursos({ limit: '100' })
   const manageCursos = useManageRutaCursos()

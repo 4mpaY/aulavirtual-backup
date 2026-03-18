@@ -1,12 +1,11 @@
 'use client'
 
-import React from 'react'
 
 import { IconButton, Badge, Tooltip } from '@mui/material'
 
 import { useCart } from '../context/CartContext'
 
-const CartIcon: React.FC = () => {
+const CartIcon = () => {
     const { itemCount, setIsCartDrawerOpen } = useCart()
 
     return (

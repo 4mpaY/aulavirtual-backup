@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -28,7 +28,7 @@ interface CertificateSectionProps {
     cursoId: string
 }
 
-const CertificateSection: React.FC<CertificateSectionProps> = ({ cursoId }) => {
+const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
     const [loading, setLoading] = useState(true)
     const [generating, setGenerating] = useState(false)
     const [downloading, setDownloading] = useState(false)

@@ -1,7 +1,6 @@
 'use client'
 
-// React Imports
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 // MUI Imports
 import {

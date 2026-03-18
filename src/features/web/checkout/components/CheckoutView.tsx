@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import Link from 'next/link'
 
@@ -30,7 +30,7 @@ interface CheckoutViewProps {
     }[]
 }
 
-const CheckoutView: React.FC<CheckoutViewProps> = ({ courses }) => {
+const CheckoutView = ({ courses }: CheckoutViewProps) => {
     const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null)
 
     const firstCourseSlug = courses.length > 0 ? courses[0].slug : 'cursos';
