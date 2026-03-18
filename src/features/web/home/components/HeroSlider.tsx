@@ -100,14 +100,27 @@ export default function HeroSlider() {
               transition={{ delay: 0.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
               className="hidden lg:block lg:col-span-5"
             >
-              <div className="relative group overflow-hidden rounded-3xl shadow-2xl ring-1 ring-slate-100 hover:ring-slate-200 transition-all duration-700">
-                <div className="absolute inset-0 bg-[#02115C]/5 mix-blend-multiply z-10 pointer-events-none" />
-                <div className="w-full h-[480px] bg-gradient-to-br from-[#02115C]/10 via-slate-100 to-[#E2231A]/10 flex items-center justify-center">
-                  <div className="text-center p-12">
-                    <div className="text-7xl font-display font-black text-[#02115C]/20 uppercase tracking-tighter leading-none mb-4">
+              <div className="relative group overflow-hidden rounded-3xl shadow-2xl ring-1 ring-slate-100 hover:ring-slate-200 transition-all duration-700 bg-white">
+                {/* Overlay Area with Video Background */}
+                <div className="relative w-full h-[480px] flex items-center justify-center z-10 overflow-hidden">
+                  {/* Hero Video inserted into the Overlay Text block */}
+                  <video
+                    src="/assets/logos/hero.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover z-0"
+                  />
+                  {/* Gradient to darken/tint the video slightly */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#02115C]/30 via-white/40 to-[#E2231A]/30 backdrop-blur-[2px] z-10 pointer-events-none mix-blend-overlay" />
+                  
+                  {/* Original Text content centered over the video */}
+                  <div className="relative z-20 text-center p-12">
+                    <div className="text-7xl font-display font-black text-[#02115C] uppercase tracking-tighter leading-none mb-4 shadow-sm mix-blend-multiply drop-shadow-lg">
                       ARM
                     </div>
-                    <div className="text-xs text-slate-400 font-black uppercase tracking-[0.4em]">
+                    <div className="text-xs text-[#02115C] font-black uppercase tracking-[0.4em] drop-shadow-md">
                       Asset Reliability Management
                     </div>
                   </div>
