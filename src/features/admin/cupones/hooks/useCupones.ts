@@ -1,15 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
+import { getSession } from 'next-auth/react'
 
-export const useCupones = (buscar: string = '') => {
+import { AxiosCupon } from '../http/axiosCupon'
+
+const axiosCuponFactory = () => {
+  const getAuthToken = async () => {
+    const s = await getSession()
+
+    return s?.user?.accessToken ?? null
+  }
+
+  return new AxiosCupon({ getAuthToken })
+}
+
+export const useCupones = (buscar: string = '', initialData?: any[]) => {
   return useQuery({
     queryKey: ['cupones', buscar],
     queryFn: async () => {
-      const response = await axios.get(`/api/cupones?buscar=${buscar}`)
+      const axiosCupon = axiosCuponFactory()
 
-      
-return response.data.result.cupones
-    }
+      return await axiosCupon.getAll(buscar)
+    },
+    initialData
   })
 }
 
@@ -18,10 +30,9 @@ export const useCuponMutation = () => {
 
   const createCupon = useMutation({
     mutationFn: async (data: any) => {
-      const response = await axios.post('/api/cupones', data)
+      const axiosCupon = axiosCuponFactory()
 
-      
-return response.data.result
+      return await axiosCupon.create(data)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cupones'] })
@@ -30,10 +41,9 @@ return response.data.result
 
   const updateCupon = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const response = await axios.patch(`/api/cupones/${id}`, data)
+      const axiosCupon = axiosCuponFactory()
 
-      
-return response.data.result
+      return await axiosCupon.update(id, data)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cupones'] })
@@ -42,10 +52,9 @@ return response.data.result
 
   const deleteCupon = useMutation({
     mutationFn: async (id: string) => {
-      const response = await axios.delete(`/api/cupones/${id}`)
+      const axiosCupon = axiosCuponFactory()
 
-      
-return response.data.result
+      return await axiosCupon.delete(id)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cupones'] })

@@ -1,18 +1,31 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
+import { getSession } from 'next-auth/react'
 
+import { AxiosCertificado } from '../http/axiosCertificado'
 import type { CertificadosResponse } from '../entity/Certificado'
 
-export const useCertificados = (params: { page: number; limit: number; buscar: string }) => {
+const axiosCertificadoFactory = () => {
+  const getAuthToken = async () => {
+    const s = await getSession()
+
+    return s?.user?.accessToken ?? null
+  }
+
+  return new AxiosCertificado({ getAuthToken })
+}
+
+export const useCertificados = (
+  params: { page: number; limit: number; buscar: string },
+  initialData?: CertificadosResponse['result']
+) => {
   return useQuery({
     queryKey: ['admin-certificados', params],
     queryFn: async () => {
-      const { data } = await axios.get<CertificadosResponse>('/api/admin/certificados', {
-        params
-      })
+      const axiosCertificado = axiosCertificadoFactory()
 
-      return data.result
+      return await axiosCertificado.getAll(params)
     },
+    initialData,
     placeholderData: previousData => previousData
   })
 }

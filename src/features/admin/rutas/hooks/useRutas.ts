@@ -1,20 +1,29 @@
-'use client'
-
+import { getSession } from 'next-auth/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 
+import { AxiosRuta } from '../http/axiosRuta'
 import type { Ruta, CreateRutaDto } from '../entity/Ruta'
 
 const QUERY_KEY = { RUTAS: ['rutas'] }
 
-export function useRutas() {
+const axiosRutaFactory = () => {
+  const getAuthToken = async () => {
+    const s = await getSession()
+
+    return s?.user?.accessToken ?? null
+  }
+
+  return new AxiosRuta({ getAuthToken })
+}
+
+export function useRutas(initialData?: Ruta[]) {
+  const axiosRuta = axiosRutaFactory()
+
   return useQuery<Ruta[]>({
     queryKey: QUERY_KEY.RUTAS,
-    queryFn: async () => {
-      const { data } = await axios.get('/api/admin/rutas')
-
-      return data.result
-    }
+    queryFn: async () => await axiosRuta.getAll(),
+    initialData
   })
 }
 
@@ -77,9 +86,9 @@ export function useManageRutaCursos() {
 
   return useMutation({
     mutationFn: async ({ id, cursos, secciones }: { id: string; cursos: { id: string; seccion_id?: string | null }[]; secciones: any[] }) => {
-      const { data } = await axios.post(`/api/admin/rutas/${id}/cursos`, { cursos, secciones })
+      const axiosRuta = axiosRutaFactory()
 
-      return data.result
+      return await axiosRuta.manageCursos(id, { cursos, secciones })
     },
     onSuccess: (_, variables) => {
       qc.invalidateQueries({ queryKey: [...QUERY_KEY.RUTAS, variables.id] })

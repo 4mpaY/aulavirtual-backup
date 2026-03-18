@@ -1,66 +1,67 @@
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosStatic } from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosStatic } from 'axios'
 import axios from 'axios'
 
 type Params = {
-    axiosLib?: AxiosStatic
-    baseURL: string
-    getAuthToken?: () => Promise<string | null> | string | null
+  axiosLib?: AxiosStatic
+  baseURL: string
+  getAuthToken?: () => Promise<string | null> | string | null
 }
 
 export class AxiosInternalHttpClient {
-    protected client: AxiosInstance
-    protected getAuthToken?: () => Promise<string | null> | string | null
+  protected client: AxiosInstance
+  protected getAuthToken?: () => Promise<string | null> | string | null
 
-    constructor({ axiosLib = axios, baseURL, getAuthToken }: Params) {
-        this.client = axiosLib.create({ baseURL })
-        this.getAuthToken = getAuthToken
+  constructor({ axiosLib = axios, baseURL, getAuthToken }: Params) {
+    this.client = axiosLib.create({ baseURL })
+    this.getAuthToken = getAuthToken
 
-        this.client.interceptors.request.use(async (config) => {
-            try {
-                const token = typeof this.getAuthToken === 'function' ? await this.getAuthToken() : this.getAuthToken
+    this.client.interceptors.request.use(async config => {
+      try {
+        const token = typeof this.getAuthToken === 'function' ? await this.getAuthToken() : this.getAuthToken
 
-                if (token && config.headers) config.headers.Authorization = `Bearer ${token}`
-            } catch (e) {
-                // ignore token error
-            }
+        if (token && config.headers) config.headers.Authorization = `Bearer ${token}`
+      } catch (e) {
+        // ignore token error
+      }
 
+      return config
+    })
+  }
 
-            return config
-        })
-    }
+  protected parseResponse<T = any>(res: AxiosResponse): T {
+    // Extraer `result` de la respuesta estandarizada, con fallback a res.data
+    const data = res.data
 
-    protected parseResponse<T = any>(res: AxiosResponse): T {
-        // Extraer `result` de la respuesta estandarizada, con fallback a res.data
-        const data = res.data
+    return data?.result !== undefined ? data.result : data
+  }
 
-        return data?.result !== undefined ? data.result : data
-    }
+  protected async iGet<T = any>(url = '', config?: AxiosRequestConfig) {
+    const res = await this.client.get(url, config)
 
-    protected async iGet<T = any>(url = '', config?: AxiosRequestConfig) {
-        const res = await this.client.get(url, config)
+    return this.parseResponse<T>(res)
+  }
 
+  protected async iPost<T = any, B = any>(url = '', data?: B, config?: AxiosRequestConfig) {
+    const res = await this.client.post(url, data, config)
 
-        return this.parseResponse<T>(res)
-    }
+    return this.parseResponse<T>(res)
+  }
 
-    protected async iPost<T = any, B = any>(url = '', data?: B, config?: AxiosRequestConfig) {
-        const res = await this.client.post(url, data, config)
+  protected async iPatch<T = any, B = any>(url = '', data?: B, config?: AxiosRequestConfig) {
+    const res = await this.client.patch(url, data, config)
 
+    return this.parseResponse<T>(res)
+  }
 
-        return this.parseResponse<T>(res)
-    }
+  protected async iPut<T = any, B = any>(url = '', data?: B, config?: AxiosRequestConfig) {
+    const res = await this.client.put(url, data, config)
 
-    protected async iPatch<T = any, B = any>(url = '', data?: B, config?: AxiosRequestConfig) {
-        const res = await this.client.patch(url, data, config)
+    return this.parseResponse<T>(res)
+  }
 
+  protected async iDelete<T = any>(url = '', config?: AxiosRequestConfig) {
+    const res = await this.client.delete(url, config)
 
-        return this.parseResponse<T>(res)
-    }
-
-    protected async iDelete<T = any>(url = '', config?: AxiosRequestConfig) {
-        const res = await this.client.delete(url, config)
-
-
-        return this.parseResponse<T>(res)
-    }
+    return this.parseResponse<T>(res)
+  }
 }

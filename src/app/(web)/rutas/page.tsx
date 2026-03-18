@@ -1,34 +1,16 @@
-import React from 'react'
-
 import { Container, Typography, Grid, Box, Stack } from '@mui/material'
 
-import prisma from '@/utils/libs/prisma'
+import { AxiosRuta } from '@/features/web/rutas/http/axiosRuta'
 import RutaCard from '@/features/web/home/components/RutaCard'
 
-async function getRutas() {
-  const rutasRaw = await prisma.rutaAprendizaje.findMany({
-    where: { esta_activo: true },
-    include: {
-      cursos: {
-        orderBy: { orden: 'asc' },
-        include: {
-          curso: {
-            select: { titulo: true, miniatura: true }
-          }
-        }
-      },
-      _count: {
-        select: { cursos: true }
-      }
-    },
-    orderBy: { creado_en: 'desc' }
-  })
+const axiosRuta = new AxiosRuta()
 
-  return rutasRaw.map(ruta => ({
-    ...ruta,
-    total_cursos: ruta._count.cursos,
-    cursos: ruta.cursos.map(rc => rc.curso)
-  }))
+async function getRutas() {
+  try {
+    return await axiosRuta.searchAll()
+  } catch {
+    return []
+  }
 }
 
 export default async function RutasIndexPage() {
@@ -75,9 +57,9 @@ export default async function RutasIndexPage() {
 
         {rutas.length > 0 ? (
           <Grid container spacing={6}>
-            {rutas.map((ruta) => (
+            {rutas.map((ruta: any) => (
               <Grid item xs={12} sm={6} lg={4} key={ruta.id}>
-                <RutaCard {...(ruta as any)} />
+                <RutaCard {...ruta} />
               </Grid>
             ))}
           </Grid>

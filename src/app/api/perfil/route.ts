@@ -6,6 +6,39 @@ import bcrypt from 'bcryptjs'
 import prisma from '@/utils/libs/prisma'
 import { authOptions } from '@/utils/configs/auth'
 
+export async function GET() {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session || !session.user || !session.user.email) {
+      return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
+    }
+
+    const user = await prisma.usuario.findUnique({
+      where: { correo: session.user.email },
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        correo: true,
+        numero_documento: true,
+        celular: true,
+        biografia: true,
+        avatar: true,
+        rol: true
+      }
+    })
+
+    if (!user) {
+      return NextResponse.json({ status: false, message: 'Usuario no encontrado' }, { status: 404 })
+    }
+
+    return NextResponse.json({ status: true, result: user })
+  } catch (error: any) {
+    return NextResponse.json({ status: false, message: error.message || 'Error interno' }, { status: 500 })
+  }
+}
+
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions)

@@ -21,6 +21,9 @@ import {
 } from '@mui/material'
 import { toast } from 'react-toastify'
 import axios from 'axios'
+import { getSession } from 'next-auth/react'
+
+import { AxiosPerfil } from '../http/axiosPerfil'
 
 interface UserProfile {
   id: string
@@ -99,20 +102,26 @@ export default function UserProfileForm({ user }: Props) {
         }
       }
 
-      const response = await axios.put('/api/perfil', {
+      const getAuthToken = async () => {
+        const s = await getSession()
+
+        return s?.user?.accessToken ?? null
+      }
+
+      const axiosPerfil = new AxiosPerfil({ getAuthToken })
+
+      const resultData = await axiosPerfil.update({
         ...formData,
         avatar: avatarUrl
       })
 
-      if (response.data.status) {
+      if (resultData) {
         toast.success('Perfil actualizado correctamente')
         router.refresh()
 
         // Limpiamos los campos de contraseña
         setFormData(prev => ({ ...prev, contrasena: '', confirmarContrasena: '' }))
         setSelectedFile(null)
-      } else {
-        toast.error(response.data.message || 'Error al actualizar el perfil')
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error de servidor')

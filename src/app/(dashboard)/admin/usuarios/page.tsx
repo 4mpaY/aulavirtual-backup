@@ -35,7 +35,5 @@ export default async function Page() {
     console.error('Error fetching usuarios:', error)
   }
 
-  console.log("initialData", initialData)
-
   return <UsuariosPage initialDataUsuarios={initialData} />
 }

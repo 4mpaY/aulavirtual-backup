@@ -1,27 +1,36 @@
-import React from 'react'
+import { redirect } from 'next/navigation'
 
-import { Box, Typography } from '@mui/material'
+import { getServerSession } from 'next-auth'
 
 import { CertificadosTable } from '@/features/admin/certificados/components/CertificadosTable'
+import { AxiosCertificado } from '@/features/admin/certificados/http/axiosCertificado'
+import { authOptions } from '@/utils/configs/auth'
+import type { CertificadosResponse } from '@/features/admin/certificados/entity/Certificado'
 
 export const metadata = {
-  title: 'Gestión de Certificados - Admin',
-  description: 'Visualizar y gestionar certificados emitidos a los estudiantes'
+  title: 'Gestión de Certificados | Aula Virtual'
 }
 
-export default function CertificadosAdminPage() {
-  return (
-    <Box>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant='h4' sx={{ fontWeight: 800 }}>
-          Certificados
-        </Typography>
-        <Typography variant='body1' color='text.secondary'>
-          Supervisa todos los certificados de finalización emitidos en la plataforma
-        </Typography>
-      </Box>
+export default async function Page() {
+  const session = await getServerSession(authOptions)
 
-      <CertificadosTable />
-    </Box>
-  )
+  if (!session) {
+    redirect('/login')
+  }
+
+  const token = session.user?.accessToken ?? null
+
+  const axiosCertificado = new AxiosCertificado({
+    getAuthToken: () => token
+  })
+
+  let initialData: CertificadosResponse | null = null
+
+  try {
+    initialData = await axiosCertificado.getAll({ page: 1, limit: 10, buscar: '' })
+  } catch (error) {
+    console.error('Error fetching certificados:', error)
+  }
+
+  return <CertificadosTable initialData={initialData} />
 }

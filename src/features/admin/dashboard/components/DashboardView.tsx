@@ -20,8 +20,12 @@ const StatCard = ({ title, value, icon, color }: { title: string, value: string 
   </Card>
 )
 
-export function DashboardView() {
-  const { data, isLoading } = useAdminDashboard()
+interface DashboardViewProps {
+  initialData?: any
+}
+
+export function DashboardView({ initialData }: DashboardViewProps) {
+  const { data, isLoading } = useAdminDashboard(initialData)
 
   if (isLoading) return <LinearProgress />
   if (!data) return <Typography>Error cargando datos</Typography>

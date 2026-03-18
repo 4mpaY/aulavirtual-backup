@@ -35,12 +35,16 @@ import CuponForm from '../components/CuponForm'
 
 const columnHelper = createColumnHelper<any>()
 
-export function CuponesPage() {
+interface CuponesPageProps {
+  initialData?: any[]
+}
+
+export function CuponesPage({ initialData }: CuponesPageProps) {
   const [buscar, setBuscar] = useState('')
   const [openForm, setOpenForm] = useState(false)
   const [cuponToEdit, setCuponToEdit] = useState<any>(null)
   
-  const { data: cupones = [], isLoading } = useCupones(buscar)
+  const { data: cupones = [], isLoading } = useCupones(buscar, initialData)
   const { deleteCupon } = useCuponMutation()
 
   const handleEdit = (cupon: any) => {

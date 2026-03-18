@@ -51,10 +51,14 @@ const statusObj: StatusType = {
 
 const columnHelper = createColumnHelper<Pedido>()
 
-export function PedidosPage() {
+interface PedidosPageProps {
+  initialData?: Pedido[]
+}
+
+export function PedidosPage({ initialData }: PedidosPageProps) {
   const router = useRouter()
   const [estadoFiltro, setEstadoFiltro] = useState('COMPLETADO')
-  const { data, isLoading } = usePedidos({ estado: estadoFiltro })
+  const { data, isLoading } = usePedidos({ estado: estadoFiltro }, initialData)
   const pedidos = data?.pedidos || []
 
   const columns = useMemo<ColumnDef<Pedido, any>[]>(

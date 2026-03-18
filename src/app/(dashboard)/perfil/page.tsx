@@ -1,13 +1,11 @@
-import React from 'react'
-
 import { redirect } from 'next/navigation'
 
 import { Typography, Container, Box } from '@mui/material'
 import { getServerSession } from 'next-auth'
 
-import prisma from '@/utils/libs/prisma'
 import { authOptions } from '@/utils/configs/auth'
 import UserProfileForm from '@/features/perfil/components/UserProfileForm'
+import { AxiosPerfil } from '@/features/perfil/http/axiosPerfil'
 
 export const metadata = {
   title: 'Mi Perfil | Aula Virtual',
@@ -21,21 +19,19 @@ export default async function PerfilPage() {
     redirect('/login')
   }
 
-  // Buscar el usuario en la base de datos
-  const user = await prisma.usuario.findUnique({
-    where: { correo: session.user.email },
-    select: {
-      id: true,
-      nombre: true,
-      apellido: true,
-      correo: true,
-      numero_documento: true,
-      celular: true,
-      biografia: true,
-      avatar: true,
-      rol: true
-    }
+  const token = session.user?.accessToken ?? null
+
+  const axiosPerfil = new AxiosPerfil({
+    getAuthToken: () => token
   })
+
+  let user = null
+
+  try {
+    user = await axiosPerfil.get()
+  } catch (error) {
+    console.error('Error fetching user profile:', error)
+  }
 
   if (!user) {
     redirect('/login')

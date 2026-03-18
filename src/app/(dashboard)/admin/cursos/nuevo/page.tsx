@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 
 import { CourseCreatePage } from '@/features/admin/cursos/pages/CourseCreatePage'
-import prisma from '@/utils/libs/prisma'
+import { AxiosUsuario } from '@/features/admin/usuarios/http/axiosUsuario'
 import { authOptions } from '@/utils/configs/auth'
 
 export const metadata: Metadata = {
@@ -20,29 +20,29 @@ export default async function Page() {
     redirect('/login')
   }
 
+  const token = session.user?.accessToken ?? null
+
+  const axiosUsuario = new AxiosUsuario({
+    getAuthToken: () => token
+  })
+
   let profesores: { id: string; nombre: string; apellido: string }[] = []
 
   try {
-    const usuariosData = await prisma.usuario.findMany({
-      where: {
-        esta_activo: true,
-        rol: { in: ['PROFESOR', 'ADMIN'] }
-      },
-      select: {
-        id: true,
-        nombre: true,
-        apellido: true,
-        rol: true
-      }
-    })
+    const [profesoresResult, adminsResult] = await Promise.all([
+      axiosUsuario.searchAll({ rol: 'PROFESOR', esta_activo: 'true', limit: '100' }),
+      axiosUsuario.searchAll({ rol: 'ADMIN', esta_activo: 'true', limit: '100' })
+    ])
 
-    profesores = usuariosData.map(u => ({
+    const combinados = [...profesoresResult, ...adminsResult]
+
+    profesores = combinados.map(u => ({
       id: u.id,
       nombre: u.nombre,
       apellido: u.apellido
     }))
   } catch (error) {
-    console.error('Error fetching profesores from DB:', error)
+    console.error('Error fetching profesores from API:', error)
   }
 
   return <CourseCreatePage profesores={profesores} />

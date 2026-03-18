@@ -1,14 +1,44 @@
+import { redirect } from 'next/navigation'
+
+import { getServerSession } from 'next-auth'
+
 import { Typography, Box } from '@mui/material'
 
 import { DashboardView } from '@/features/admin/dashboard'
+import { AxiosDashboard } from '@/features/admin/dashboard/http/axiosDashboard'
+import { authOptions } from '@/utils/configs/auth'
 
-export default function Page() {
+export const metadata = {
+  title: 'Panel de Control | Aula Virtual'
+}
+
+export default async function Page() {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect('/login')
+  }
+
+  const token = session.user?.accessToken ?? null
+
+  const axiosDashboard = new AxiosDashboard({
+    getAuthToken: () => token
+  })
+
+  let initialData: any = null
+
+  try {
+    initialData = await axiosDashboard.getResumen()
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error)
+  }
+
   return (
     <Box>
       <Typography variant='h4' sx={{ mb: 6, fontWeight: 600 }}>
         Panel de Control
       </Typography>
-      <DashboardView />
+      <DashboardView initialData={initialData} />
     </Box>
   )
 }
