@@ -37,6 +37,7 @@
     "@mui/lab": "5.0.0-alpha.167",
     "@mui/material": "5.15.12",
     "@mui/material-nextjs": "5.15.11",
+    "@mui/utils": "^7.3.9",
     "@paypal/react-paypal-js": "^9.0.1",
     "@prisma/client": "^6.19.2",
     "@tanstack/match-sorter-utils": "^8.19.4",

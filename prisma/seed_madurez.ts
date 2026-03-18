@@ -1,4 +1,4 @@
-const { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } = require('@prisma/client')
+import { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -37,9 +37,9 @@ async function main() {
     descripcion: 'Curso avanzado para evaluar el nivel de madurez de una organización en gestión de activos y diseñar estrategias de gobernanza alineadas a ISO 55001.',
     fecha_inicio: new Date(),
     duracion: '24–36 horas',
-    tipo_emision: 'ASINCRONO',
-    nivel: 'AVANZADO',
-    estado: 'PUBLICADO',
+    tipo_emision: TipoEmision.ASINCRONO,
+    nivel: NivelCurso.AVANZADO,
+    estado: EstadoCurso.PUBLICADO,
     precio: 0,
     es_gratis: true,
     profesor_id: profesor.id,

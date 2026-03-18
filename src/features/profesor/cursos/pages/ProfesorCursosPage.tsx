@@ -38,7 +38,7 @@ const ProfesorCursosPage = () => {
     // Usamos el hook de cursos pero filtrando por el ID del profesor actual
     const { data: cursosData, isLoading } = useCursos({
         profesor_id: session?.user?.id as string,
-        limit: 100 // Para el listado de profesor traemos todos (o paginamos si es necesario)
+        limit: '100' // Para el listado de profesor traemos todos (o paginamos si es necesario)
     })
 
     const columns = useMemo(() => {

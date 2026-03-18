@@ -4,7 +4,9 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 
 export async function GET(request: Request) {
   try {
-    const students = await prisma.student.findMany()
+    const students = await prisma.usuario.findMany({
+      where: { rol: 'ESTUDIANTE' }
+    })
 
     return ApiResponse.success(request, students)
   } catch (error) {
@@ -14,13 +16,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { firstName, lastName, email } = await request.json()
+    const { nombre, apellido, correo } = await request.json()
 
-    const newStudent = await prisma.student.create({
+    const newStudent = await prisma.usuario.create({
       data: {
-        firstName,
-        lastName,
-        email,
+        nombre,
+        apellido,
+        correo,
+        rol: 'ESTUDIANTE'
       },
     })
 

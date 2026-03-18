@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client')
+import { EstadoCurso, PrismaClient, EstadoInscripcion } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -7,7 +7,7 @@ async function main() {
 
   // Obtener cursos publicados
   const cursos = await prisma.curso.findMany({
-    where: { estado: 'PUBLICADO' }
+    where: { estado: EstadoCurso.PUBLICADO }
   })
 
   console.log(`Encontrados ${cursos.length} cursos publicados.`)
@@ -23,12 +23,12 @@ async function main() {
           }
         },
         update: {
-          estado: 'ACTIVO'
+          estado: EstadoInscripcion.PENDIENTE
         },
         create: {
           usuario_id: userId,
           curso_id: curso.id,
-          estado: 'ACTIVO'
+          estado: EstadoInscripcion.PENDIENTE
         }
       })
 
@@ -53,14 +53,14 @@ async function main() {
       })
 
       console.log(`Usuario inscrito en: ${curso.titulo} con progreso ${progreso}%`)
-    } catch (e) {
+    } catch (e: any) {
       console.error(`Error procesando curso ${curso.titulo}:`, e.message)
     }
   }
 }
 
 main()
-  .catch(e => {
+  .catch((e: any) => {
     console.error(e)
     process.exit(1)
   })

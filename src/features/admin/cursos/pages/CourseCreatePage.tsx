@@ -4,6 +4,8 @@ import { type FC, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+import { useSession } from 'next-auth/react'
+
 import {
     Box,
     Button,
@@ -43,6 +45,7 @@ interface CourseCreatePageProps {
 export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
     const { enqueueSnackbar } = useSnackbar()
     const router = useRouter()
+    const { data: session } = useSession()
     const createMutation = useCreateCurso()
     const { data: categorias = [] } = useCategorias()
     const [activeTab, setActiveTab] = useState('1')
@@ -57,6 +60,7 @@ export const CourseCreatePage: FC<CourseCreatePageProps> = ({ profesores }) => {
         es_gratis: false,
         precio: 0,
         moneda: 'PEN',
+        nivel: 'BASICO',
         duracion: '',
         miniatura: null,
         video_presentacion: null,

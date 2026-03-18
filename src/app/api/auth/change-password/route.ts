@@ -35,8 +35,8 @@ export async function PATCH(request: Request) {
       where: { id: auth.user.id }
     })
 
-    if (!usuario) {
-      return ApiResponse.error(request, 'Usuario no encontrado', 404)
+    if (!usuario || !usuario.contrasena) {
+      return ApiResponse.error(request, 'Usuario no encontrado o autenticado con proveedor externo', 404)
     }
 
     // Verificar contraseña actual

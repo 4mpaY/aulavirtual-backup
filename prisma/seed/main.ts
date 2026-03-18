@@ -1,4 +1,4 @@
-import { PrismaClient, Rol, EstadoCurso } from '@prisma/client'
+import { PrismaClient, Rol, EstadoCurso, NivelCurso, TipoEmision } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -72,8 +72,8 @@ async function main() {
       categoria_id: catProg?.id,
       profesor_id: profesor.id,
       miniatura: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80',
-      nivel: 'AVANZADO',
-      tipo_emision: 'ASINCRONO'
+      nivel: NivelCurso.AVANZADO,
+      tipo_emision: TipoEmision.ASINCRONO
     },
     {
       titulo: 'Diseño UI/UX Profesional',
@@ -84,8 +84,8 @@ async function main() {
       categoria_id: catDiseno?.id,
       profesor_id: profesor.id,
       miniatura: 'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?w=800&q=80',
-      nivel: 'INTERMEDIO',
-      tipo_emision: 'SINCRONO'
+      nivel: NivelCurso.INTERMEDIO,
+      tipo_emision: TipoEmision.SINCRONO
     },
     {
       titulo: 'Node.js Avanzado y Microservicios',
@@ -96,8 +96,8 @@ async function main() {
       categoria_id: catProg?.id,
       profesor_id: profesor.id,
       miniatura: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&q=80',
-      nivel: 'AVANZADO',
-      tipo_emision: 'MIXTO'
+      nivel: NivelCurso.AVANZADO,
+      tipo_emision: TipoEmision.MIXTO
     },
     {
       titulo: 'Curso de Python para Data Science',
@@ -109,8 +109,8 @@ async function main() {
       categoria_id: catProg?.id,
       profesor_id: profesor.id,
       miniatura: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
-      nivel: 'BASICO',
-      tipo_emision: 'ASINCRONO'
+      nivel: NivelCurso.BASICO,
+      tipo_emision: TipoEmision.ASINCRONO
     }
   ]
 
@@ -188,7 +188,7 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch((e: any) => {
     console.error('❌ Error en seed:', e)
     process.exit(1)
   })

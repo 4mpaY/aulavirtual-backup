@@ -1,4 +1,4 @@
-const { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } = require('@prisma/client')
+import { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } from '@prisma/client'
 
 const prisma = new PrismaClient()
 

@@ -1,4 +1,4 @@
-const { PrismaClient, TipoEmision, StateCurso, NivelCurso } = require('@prisma/client')
+import { PrismaClient, TipoEmision, NivelCurso, EstadoCurso } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -37,9 +37,9 @@ async function main() {
     descripcion: 'Curso especializado en identificar, evaluar y gestionar riesgos asociados al ciclo de vida de los activos, alineado a ISO 31000 e ISO 55001.',
     fecha_inicio: new Date(),
     duracion: '16–24 horas',
-    tipo_emision: 'ASINCRONO',
-    nivel: 'INTERMEDIO',
-    estado: 'PUBLICADO',
+    tipo_emision: TipoEmision.ASINCRONO,
+    nivel: NivelCurso.INTERMEDIO,
+    estado: EstadoCurso.PUBLICADO,
     precio: 0,
     es_gratis: true,
     profesor_id: profesor.id,

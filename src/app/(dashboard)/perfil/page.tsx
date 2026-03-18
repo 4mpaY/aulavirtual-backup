@@ -53,7 +53,7 @@ export default async function PerfilPage() {
       </Box>
 
       {/* Aquí insertamos el componente cliente que maneja el formulario */}
-      <UserProfileForm user={user} />
+      <UserProfileForm user={{ ...user, numero_documento: user.numero_documento || '' }} />
     </Container>
   )
 }

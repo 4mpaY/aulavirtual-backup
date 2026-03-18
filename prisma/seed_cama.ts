@@ -1,4 +1,4 @@
-const { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } = require('@prisma/client')
+import { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -37,9 +37,9 @@ async function main() {
     descripcion: 'Curso avanzado alineado a ISO 55000 e IAM, diseñado para preparar al participante para la certificación CAMA® (Certified Asset Management Assessor).',
     fecha_inicio: new Date(),
     duracion: '40–60 horas',
-    tipo_emision: 'ASINCRONO', // Cambiado a ASINCRONO por defecto del seed, aunque se mencione Online en vivo en la ficha, el seed suele requerir este enum
-    nivel: 'AVANZADO',
-    estado: 'PUBLICADO',
+    tipo_emision: TipoEmision.ASINCRONO, // Cambiado a ASINCRONO por defecto del seed, aunque se mencione Online en vivo en la ficha, el seed suele requerir este enum
+    nivel: NivelCurso.AVANZADO,
+    estado: EstadoCurso.PUBLICADO,
     precio: 0,
     es_gratis: true,
     profesor_id: profesor.id,

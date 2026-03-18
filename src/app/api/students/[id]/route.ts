@@ -8,9 +8,10 @@ interface Params {
 
 export async function GET(request: Request, { params }: Params) {
   try {
-    const student = await prisma.student.findUnique({
+    const student = await prisma.usuario.findUnique({
       where: {
-        id: Number(params.id),
+        id: params.id,
+        rol: 'ESTUDIANTE'
       },
     })
 
@@ -26,16 +27,16 @@ export async function GET(request: Request, { params }: Params) {
 
 export async function PUT(request: Request, { params }: Params) {
   try {
-    const { firstName, lastName, email } = await request.json()
+    const { nombre, apellido, correo } = await request.json()
 
-    const updatedStudent = await prisma.student.update({
+    const updatedStudent = await prisma.usuario.update({
       where: {
-        id: Number(params.id),
+        id: params.id,
       },
       data: {
-        firstName,
-        lastName,
-        email,
+        nombre,
+        apellido,
+        correo,
       },
     })
 
@@ -47,9 +48,9 @@ export async function PUT(request: Request, { params }: Params) {
 
 export async function DELETE(request: Request, { params }: Params) {
   try {
-    const deletedStudent = await prisma.student.delete({
+    const deletedStudent = await prisma.usuario.delete({
       where: {
-        id: Number(params.id),
+        id: params.id,
       },
     })
 

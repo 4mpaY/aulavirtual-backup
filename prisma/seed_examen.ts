@@ -1,11 +1,11 @@
-import { PrismaClient } from '@prisma/client'
+import { EstadoCurso, PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 async function main() {
     // 1. Obtener el primer curso disponible
     const curso = await prisma.curso.findFirst({
-        where: { estado: 'PUBLICADO' },
+        where: { estado: EstadoCurso.PUBLICADO },
         select: { id: true, titulo: true }
     })
 

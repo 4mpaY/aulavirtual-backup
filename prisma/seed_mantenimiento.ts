@@ -1,4 +1,4 @@
-const { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } = require('@prisma/client')
+import { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -36,7 +36,7 @@ async function main() {
       titulo: 'Fundamentos de Mantenimiento Industrial',
       slug: 'fundamentos-mantenimiento-industrial',
       descripcion: 'Curso base para comprender los principios, tipos y estrategias de mantenimiento utilizados en la industria moderna.',
-      nivel: 'BASICO',
+      nivel: NivelCurso.BASICO,
       duracion: '16–24 horas',
       miniatura: 'https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?w=800&q=80',
       objetivos: [
@@ -76,7 +76,7 @@ async function main() {
       titulo: 'Seguridad y Procedimientos en Mantenimiento',
       slug: 'seguridad-procedimientos-mantenimiento',
       descripcion: 'Curso esencial para garantizar intervenciones seguras, controladas y alineadas a estándares industriales.',
-      nivel: 'BASICO',
+      nivel: NivelCurso.BASICO,
       duracion: '16–20 horas',
       miniatura: 'https://images.unsplash.com/photo-1590402444521-4ea2e069151c?w=800&q=80',
       objetivos: [
@@ -116,7 +116,7 @@ async function main() {
       titulo: 'Lubricación Industrial y Análisis de Aceite (Preparación MLA I)',
       slug: 'lubricacion-analisis-aceite-mla1',
       descripcion: 'Formación técnica en tribología, lubricación y análisis de aceite, alineada a estándares ICML.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '24–32 horas',
       miniatura: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&q=80',
       objetivos: [
@@ -155,7 +155,7 @@ async function main() {
       titulo: 'Mantenimiento Predictivo y Técnicas de Diagnóstico',
       slug: 'predictivo-tecnicas-diagnostico',
       descripcion: 'Curso especializado en técnicas predictivas (CBM) para detectar fallas antes de que ocurran.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '32–48 horas',
       miniatura: 'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80',
       objetivos: [
@@ -194,7 +194,7 @@ async function main() {
       titulo: 'Análisis de Criticidad y Estrategias de Mantenimiento',
       slug: 'analisis-criticidad-estrategias',
       descripcion: 'Curso orientado a priorizar activos y definir estrategias de mantenimiento basadas en riesgo.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '16–24 horas',
       miniatura: 'https://images.unsplash.com/photo-1454165833767-027eeef1596b?w=800&q=80',
       objetivos: [
@@ -232,7 +232,7 @@ async function main() {
       titulo: 'Mantenimiento Centrado en Confiabilidad (RCM)',
       slug: 'rcm-especialista-confiabilidad',
       descripcion: 'Formación avanzada basada en el estándar SAE JA1011 para diseñar estrategias de mantenimiento de alto impacto.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '32–40 horas',
       miniatura: 'https://images.unsplash.com/photo-1581093458791-4e78a635678b?w=800&q=80',
       objetivos: [
@@ -271,7 +271,7 @@ async function main() {
       titulo: 'Optimización de Planes de Mantenimiento',
       slug: 'optimizacion-planes-mantenimiento',
       descripcion: 'Curso avanzado para revisar y depurar planes existentes eliminando tareas redundantes e ineficientes.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '20–30 horas',
       miniatura: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80',
       objetivos: [
@@ -310,7 +310,7 @@ async function main() {
       titulo: 'Análisis de Fallas y RCA (Root Cause Analysis)',
       slug: 'analisis-fallas-rca-profesional',
       descripcion: 'Curso avanzado para identificar causas raíz y diseñar acciones correctivas sostenibles.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '16–24 horas',
       miniatura: 'https://images.unsplash.com/photo-1542332213-31f87348057f?w=800&q=80',
       objetivos: [
@@ -349,7 +349,7 @@ async function main() {
       titulo: 'Preparación CMRT – Certified Maintenance & Reliability Technician',
       slug: 'preparacion-cmrt-tecnico-certificado',
       descripcion: 'Programa de preparación para la certificación CMRT de la SMRP, la más importante para técnicos a nivel mundial.',
-      nivel: 'AVANZADO',
+      nivel: NivelCurso.AVANZADO,
       duracion: '30–40 horas',
       miniatura: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80',
       objetivos: [
@@ -387,7 +387,7 @@ async function main() {
       titulo: 'Preparación MLA I / MLA II – Machine Lubrication Analyst (ICML)',
       slug: 'preparacion-mla1-mla2-icml',
       descripcion: 'Programa avanzado para certificarse ante el ICML en lubricación y análisis de aceite.',
-      nivel: 'AVANZADO',
+      nivel: NivelCurso.AVANZADO,
       duracion: '30–40 horas',
       miniatura: 'https://images.unsplash.com/photo-1596753426921-d007440c3451?w=800&q=80',
       objetivos: [
@@ -426,7 +426,7 @@ async function main() {
       titulo: 'Preparación RCT I / RCT II – Reliability Centered Technician (Mobius)',
       slug: 'preparacion-rct1-rct2-mobius-cat',
       descripcion: 'Preparación para certificaciones de técnicos de confiabilidad del Mobius Institute.',
-      nivel: 'AVANZADO',
+      nivel: NivelCurso.AVANZADO,
       duracion: '24–36 horas',
       miniatura: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=800&q=80',
       objetivos: [

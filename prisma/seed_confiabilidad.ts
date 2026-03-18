@@ -1,4 +1,4 @@
-const { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } = require('@prisma/client')
+import { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -36,7 +36,7 @@ async function main() {
       titulo: 'Confiabilidad Básica para Ingenieros Nuevos',
       slug: 'confiabilidad-basica-ingenieros',
       descripcion: 'Curso fundamental para comprender los principios de confiabilidad aplicados a activos industriales. Ideal para ingenieros que inician su carrera.',
-      nivel: 'BASICO',
+      nivel: NivelCurso.BASICO,
       duracion: '16–20 horas',
       miniatura: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80',
       objetivos: [
@@ -74,7 +74,7 @@ async function main() {
       titulo: 'Indicadores de Confiabilidad (MTBF, MTTR, Disponibilidad)',
       slug: 'indicadores-confiabilidad-mtbf-mttr',
       descripcion: 'Curso especializado en el cálculo, interpretación y aplicación de indicadores clave de confiabilidad para la toma de decisiones.',
-      nivel: 'BASICO',
+      nivel: NivelCurso.BASICO,
       duracion: '16–24 horas',
       miniatura: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
       objetivos: [
@@ -112,7 +112,7 @@ async function main() {
       titulo: 'Mantenimiento Predictivo',
       slug: 'mantenimiento-predictivo-especializado',
       descripcion: 'Curso especializado en técnicas predictivas para detectar fallas antes de que ocurran.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '32–48 horas',
       miniatura: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80',
       objetivos: [
@@ -151,7 +151,7 @@ async function main() {
       titulo: 'Lubricación y Tribología',
       slug: 'lubricacion-tribologia-industrial',
       descripcion: 'Curso especializado en lubricación industrial, tribología y control de contaminación.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '20–30 horas',
       miniatura: 'https://images.unsplash.com/photo-1590422204919-610e7b41e20e?w=800&q=80',
       objetivos: [
@@ -190,7 +190,7 @@ async function main() {
       titulo: 'Análisis de Vibraciones Nivel I (VA I)',
       slug: 'analisis-vibraciones-va1',
       descripcion: 'Curso introductorio al análisis de vibraciones, alineado al estándar ISO 18436-2.',
-      nivel: 'INTERMEDIO',
+      nivel: NivelCurso.INTERMEDIO,
       duracion: '24–36 horas',
       miniatura: 'https://images.unsplash.com/photo-1542332213-31f87348057f?w=800&q=80',
       objetivos: [
@@ -229,7 +229,7 @@ async function main() {
       titulo: 'Preparación CMRP – Certified Maintenance & Reliability Professional',
       slug: 'preparacion-cmrp-smrp',
       descripcion: 'Programa de preparación para la certificación CMRP, la credencial más reconocida a nivel mundial en mantenimiento y confiabilidad.',
-      nivel: 'AVANZADO',
+      nivel: NivelCurso.AVANZADO,
       duracion: '40–60 horas',
       miniatura: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80',
       objetivos: [
@@ -267,7 +267,7 @@ async function main() {
       titulo: 'Preparación VA I / VA II – Vibration Analyst (Mobius)',
       slug: 'preparacion-va1-va2-mobius',
       descripcion: 'Programa integral para las certificaciones VA I y VA II bajo ISO 18436-2.',
-      nivel: 'AVANZADO',
+      nivel: NivelCurso.AVANZADO,
       duracion: '30–50 horas',
       miniatura: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=800&q=80',
       objetivos: [
@@ -304,7 +304,7 @@ async function main() {
       titulo: 'Preparación RCT I / RCT II – Reliability Centered Technician',
       slug: 'preparacion-rct1-rct2-mobius',
       descripcion: 'Certificación internacional para técnicos de confiabilidad orientada a inspección y monitoreo.',
-      nivel: 'AVANZADO',
+      nivel: NivelCurso.AVANZADO,
       duracion: '30–40 horas',
       miniatura: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80',
       objetivos: [

@@ -1,4 +1,4 @@
-const { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } = require('@prisma/client')
+import { PrismaClient, TipoEmision, EstadoCurso, NivelCurso } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -37,9 +37,9 @@ async function main() {
     descripcion: 'Certificación internacional para evaluadores de sistemas de gestión de activos. Reconocida por GFMAM e IAM.',
     fecha_inicio: new Date(),
     duracion: '40–60 horas',
-    tipo_emision: 'ASINCRONO',
-    nivel: 'AVANZADO',
-    estado: 'PUBLICADO',
+    tipo_emision: TipoEmision.ASINCRONO,
+    nivel: NivelCurso.AVANZADO,
+    estado: EstadoCurso.PUBLICADO,
     precio: 0,
     es_gratis: true,
     profesor_id: profesor.id,
