@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+
 import { Box, TextField, Button, Typography, InputAdornment, CircularProgress, Alert } from '@mui/material'
 import axios from 'axios'
 
@@ -30,11 +31,13 @@ const CouponInput: React.FC<CouponInputProps> = ({ cursoIds, onApplied }) => {
 
       if (response.data.status) {
         const { descuento, total, codigo: appliedCode } = response.data.result
+
         setSuccess(`¡Cupón "${appliedCode}" aplicado correctamente!`)
         onApplied({ codigo: appliedCode, descuento, total })
       }
     } catch (err: any) {
       const message = err.response?.data?.message || 'Error al validar el cupón'
+
       setError(message)
       onApplied(null)
     } finally {

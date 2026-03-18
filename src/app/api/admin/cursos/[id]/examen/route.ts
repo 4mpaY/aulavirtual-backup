@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import { getServerSession } from 'next-auth'
 
 import prisma from '@/utils/libs/prisma'
@@ -52,7 +53,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     })
   } catch (error: any) {
     console.error('API Examen GET Error:', error)
-    return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
+    
+return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -129,6 +131,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     })
   } catch (error: any) {
     console.error('API Examen POST Error:', error)
-    return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
+    
+return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
   }
 }

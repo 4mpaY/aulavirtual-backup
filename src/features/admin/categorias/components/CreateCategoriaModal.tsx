@@ -1,10 +1,12 @@
 'use client'
 
+import { type FC } from 'react'
+
 import { Box, Button, Grid, styled, Typography, InputAdornment } from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
-import { type FC } from 'react'
+
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { crearCategoriaSchema, type CrearCategoriaDto } from '@/schemas/categoria.schema'
@@ -39,6 +41,7 @@ const CreateCategoriaModal: FC<CreateCategoriaModalProps> = ({ open, handleClose
             onSuccess?.()
         } catch (error: any) {
             const errorMessage = error?.message || error?.error || 'Error al crear categoría'
+
             enqueueSnackbar(errorMessage, { variant: 'error' })
         } finally {
             setSubmitting(false)

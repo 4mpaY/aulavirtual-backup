@@ -15,6 +15,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const { firstName, lastName, email } = await request.json()
+
     const newStudent = await prisma.student.create({
       data: {
         firstName,

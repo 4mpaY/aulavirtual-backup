@@ -1,5 +1,7 @@
 import React from 'react'
+
 import { redirect } from 'next/navigation'
+
 import { Typography, Container, Box } from '@mui/material'
 import { getServerSession } from 'next-auth'
 

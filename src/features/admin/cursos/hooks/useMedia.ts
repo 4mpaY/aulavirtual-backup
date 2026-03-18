@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
+
 import { AxiosMedia } from '../http/axiosMedia'
 
 const QUERY_KEY = { MEDIA: ['media'] }

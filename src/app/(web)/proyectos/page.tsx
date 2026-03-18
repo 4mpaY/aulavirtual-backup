@@ -1,7 +1,9 @@
-import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import { CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+
+import { CheckCircle2 } from 'lucide-react'
+
+import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 
 export const metadata = {
   title: 'Proyectos - ARM',

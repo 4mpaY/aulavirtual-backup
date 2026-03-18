@@ -1,14 +1,19 @@
 'use client'
 
+import { type FC, useState } from 'react'
+
 import { Box, Button, Grid, MenuItem, styled, Typography, InputAdornment, IconButton } from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
-import { type FC, useState } from 'react'
+
+import { Rol } from '@prisma/client'
+
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { crearUsuarioSchema, type CrearUsuarioDto } from '@/schemas/usuario.schema'
-import { Rol } from '@prisma/client'
+
+
 import { useCreateUsuario } from '../hooks/useUsuarios'
 
 type CreateUsuarioModalProps = {
@@ -49,6 +54,7 @@ const CreateUsuarioModal: FC<CreateUsuarioModalProps> = ({ open, handleClose, on
       onSuccess?.()
     } catch (error: any) {
       const errorMessage = error?.message || error?.error || 'Error al crear usuario'
+
       enqueueSnackbar(errorMessage, { variant: 'error' })
     } finally {
       setSubmitting(false)

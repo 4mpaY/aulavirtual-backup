@@ -1,14 +1,19 @@
 'use client'
 
+import { type FC, useState } from 'react'
+
 import { Box, Button, Grid, MenuItem, styled, Typography, CircularProgress, InputAdornment, IconButton } from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
-import { type FC, useState } from 'react'
+
+import { Rol } from '@prisma/client'
+
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { actualizarUsuarioSchema, type ActualizarUsuarioDto } from '@/schemas/usuario.schema'
-import { Rol } from '@prisma/client'
+
+
 import { useUsuario, useEditUsuario } from '../hooks/useUsuarios'
 
 type EditUsuarioModalProps = {
@@ -34,6 +39,7 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
     try {
       // Si la contraseña está vacía, no la enviamos para evitar errores de validación o sobreescritura
       const dataToSend = { ...values }
+
       if (!dataToSend.contrasena) {
         delete dataToSend.contrasena
       }
@@ -45,6 +51,7 @@ const EditUsuarioModal: FC<EditUsuarioModalProps> = ({ open, handleClose, usuari
       onSuccess?.()
     } catch (error: any) {
       const errorMessage = error?.message || error?.error || 'Error al actualizar usuario'
+
       enqueueSnackbar(errorMessage, { variant: 'error' })
     } finally {
       setSubmitting(false)

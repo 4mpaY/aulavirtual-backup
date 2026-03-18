@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
-import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import { sign } from 'jsonwebtoken'
+
+import prisma from '@/utils/libs/prisma'
 import { loginSchema } from '@/schemas/auth.schema'
 import { handleApiError } from '@/utils/libs/validation'
 import { ApiResponse } from '@/utils/libs/apiResponse'
@@ -46,14 +46,14 @@ export async function POST(request: Request) {
     }
 
     // Verificar contraseña
-    const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena)
+    const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena as string)
 
     if (!contrasenaValida) {
       return ApiResponse.error(request, 'Correo o contraseña incorrectos', 401)
     }
 
     // Generar JWT
-    const token = jwt.sign(
+    const token = sign(
       {
         id: usuario.id,
         email: usuario.correo,

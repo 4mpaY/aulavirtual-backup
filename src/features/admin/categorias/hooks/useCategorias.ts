@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
+
 import type { Categoria, CategoriaHijo } from '../entity/Categoria'
 import type { CrearCategoriaDto, ActualizarCategoriaDto, CrearSubcategoriaDto } from '@/schemas/categoria.schema'
 import { AxiosCategoria } from '../http/axiosCategoria'

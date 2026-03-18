@@ -1,5 +1,6 @@
-import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
+
+import prisma from '@/utils/libs/prisma'
 import { crearUsuarioSchema, listarUsuariosQuerySchema } from '@/schemas/usuario.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
@@ -13,6 +14,7 @@ export async function GET(request: Request) {
   try {
     // Verificar que sea admin
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) {
       return auth.error
     }
@@ -99,6 +101,7 @@ export async function POST(request: Request) {
   try {
     // Verificar que sea admin
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) {
       return auth.error
     }

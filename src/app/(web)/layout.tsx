@@ -12,7 +12,9 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
     select: { id: true, nombre: true },
     orderBy: { orden: 'asc' }
   })
-  return (
+
+  
+return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <WebHeader initialCategories={categories} />
       <Box
@@ -21,6 +23,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
           flexGrow: 1,
           display: 'flex',
           flexDirection: 'column',
+
           // Compensar el header fijo (80px mobile, 96px desktop)
           paddingTop: { xs: '80px', lg: '96px' },
         }}

@@ -1,8 +1,10 @@
+import axios from 'axios'
+
+import type { AxiosStatic } from 'axios'
+
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { Usuario } from '../entity/Usuario'
 import type { CrearUsuarioDto, ActualizarUsuarioDto } from '@/schemas/usuario.schema'
-import axios from 'axios'
-import type { AxiosStatic } from 'axios'
 
 type Params = {
   axiosLib?: AxiosStatic

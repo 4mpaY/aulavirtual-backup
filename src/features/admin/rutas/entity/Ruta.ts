@@ -31,6 +31,7 @@ export interface Ruta {
   esta_activo: boolean
   creado_en: string
   actualizado_en: string
+  total_cursos?: number
   cursos: CursoEnRuta[]
 }
 

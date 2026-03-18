@@ -1,8 +1,10 @@
+import Link from 'next/link'
+
+import { ArrowRight, Shield, BarChart3, Users, Award, Cog, Activity } from 'lucide-react'
+
 import HeroSlider from '@/features/web/home/components/HeroSlider'
 import ServiceCard from '@/features/web/home/components/ServiceCard'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import Link from 'next/link'
-import { ArrowRight, Shield, BarChart3, Users, Award, Cog, Activity } from 'lucide-react'
 
 export const metadata = {
   title: 'ARM - Soluciones de Ingeniería Industrial',

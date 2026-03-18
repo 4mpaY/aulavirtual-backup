@@ -1,5 +1,6 @@
-import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
+
+import prisma from '@/utils/libs/prisma'
 import { changePasswordSchema } from '@/schemas/auth.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireAuth } from '@/utils/libs/auth-helpers'
@@ -13,6 +14,7 @@ export async function PATCH(request: Request) {
   try {
     // Verificar autenticación
     const auth = await requireAuth(request)
+
     if (!auth.authorized) {
       return auth.error
     }

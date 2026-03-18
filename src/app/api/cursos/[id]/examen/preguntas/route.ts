@@ -6,6 +6,7 @@ import { handleApiError } from '@/utils/libs/validation'
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireProfesorOrAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id: cursoId } = params
@@ -44,6 +45,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       where: { examen_id: examen.id },
       _max: { orden: true }
     })
+
     const nextOrden = (maxOrden._max.orden || 0) + 1
 
     // Create question and its options in a transaction

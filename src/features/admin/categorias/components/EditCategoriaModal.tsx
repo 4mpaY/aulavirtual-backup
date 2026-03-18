@@ -1,5 +1,7 @@
 'use client'
 
+import { type FC, useState, useCallback } from 'react'
+
 import {
     Box,
     Button,
@@ -16,7 +18,7 @@ import {
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
-import { type FC, useState, useCallback } from 'react'
+
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { actualizarCategoriaSchema, type ActualizarCategoriaDto } from '@/schemas/categoria.schema'
@@ -78,6 +80,7 @@ const EditCategoriaModal: FC<EditCategoriaModalProps> = ({ open, handleClose, ca
             onSuccess?.()
         } catch (error: any) {
             const errorMessage = error?.message || error?.error || 'Error al actualizar'
+
             enqueueSnackbar(errorMessage, { variant: 'error' })
         } finally {
             setSubmitting(false)
@@ -100,6 +103,7 @@ const EditCategoriaModal: FC<EditCategoriaModalProps> = ({ open, handleClose, ca
             onSuccess?.()
         } catch (error: any) {
             const errorMessage = error?.message || error?.error || 'Error al crear subcategoría'
+
             enqueueSnackbar(errorMessage, { variant: 'error' })
         }
     }
@@ -114,6 +118,7 @@ const EditCategoriaModal: FC<EditCategoriaModalProps> = ({ open, handleClose, ca
             onSuccess?.()
         } catch (error: any) {
             const errorMessage = error?.message || error?.error || 'Error al eliminar'
+
             enqueueSnackbar(errorMessage, { variant: 'error' })
         }
     }
@@ -133,7 +138,9 @@ const EditCategoriaModal: FC<EditCategoriaModalProps> = ({ open, handleClose, ca
     // --- Reordenar: mover hacia arriba ---
     const moverArriba = (index: number) => {
         if (index === 0) return
+
         const arr = [...hijosActuales]
+
             ;[arr[index - 1], arr[index]] = [arr[index], arr[index - 1]]
         setLocalHijos(arr)
         setOrdenModificado(true)
@@ -142,7 +149,9 @@ const EditCategoriaModal: FC<EditCategoriaModalProps> = ({ open, handleClose, ca
     // --- Reordenar: mover hacia abajo ---
     const moverAbajo = (index: number) => {
         if (index >= hijosActuales.length - 1) return
+
         const arr = [...hijosActuales]
+
             ;[arr[index], arr[index + 1]] = [arr[index + 1], arr[index]]
         setLocalHijos(arr)
         setOrdenModificado(true)
@@ -154,6 +163,7 @@ const EditCategoriaModal: FC<EditCategoriaModalProps> = ({ open, handleClose, ca
 
         try {
             const items = localHijos.map((h, i) => ({ id: h.id, orden: i }))
+
             await reordenarMutation.mutateAsync({ padreId: categoriaId, items })
             enqueueSnackbar('Orden actualizado', { variant: 'success' })
             resetLocalState()

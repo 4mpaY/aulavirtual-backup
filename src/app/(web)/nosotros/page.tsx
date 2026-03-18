@@ -1,6 +1,8 @@
-import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import { Construction } from 'lucide-react'
 import Link from 'next/link'
+
+import { Construction } from 'lucide-react'
+
+import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 
 export const metadata = {
   title: 'Nosotros - ARM',

@@ -4,6 +4,10 @@
 import classnames from 'classnames'
 
 // Type Imports
+import { MaterialDesignContent, SnackbarProvider } from 'notistack'
+
+import { styled } from '@mui/material'
+
 import type { ChildrenType } from '@core/types'
 
 // Hook Imports
@@ -14,8 +18,6 @@ import { verticalLayoutClasses } from '@layouts/utils/layoutClasses'
 
 // Styled Component Imports
 import StyledMain from '@layouts/styles/shared/StyledMain'
-import { MaterialDesignContent, SnackbarProvider } from 'notistack'
-import { styled } from '@mui/material'
 
 const StyledMaterialDesignContent = styled(MaterialDesignContent)(({ theme }) => ({
   '&.notistack-MuiContent-error': {

@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   try {
     // Verificar autenticación
     const auth = await requireAuth(request)
+
     if (!auth.authorized) {
       return auth.error
     }
@@ -53,6 +54,7 @@ export async function PATCH(request: Request) {
   try {
     // Verificar autenticación
     const auth = await requireAuth(request)
+
     if (!auth.authorized) {
       return auth.error
     }

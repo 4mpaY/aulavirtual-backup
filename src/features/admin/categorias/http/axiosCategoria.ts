@@ -1,8 +1,10 @@
+import axios from 'axios'
+
+import type { AxiosStatic } from 'axios'
+
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { Categoria, CategoriaHijo } from '../entity/Categoria'
 import type { CrearCategoriaDto, ActualizarCategoriaDto, CrearSubcategoriaDto } from '@/schemas/categoria.schema'
-import axios from 'axios'
-import type { AxiosStatic } from 'axios'
 
 type Params = {
   axiosLib?: AxiosStatic

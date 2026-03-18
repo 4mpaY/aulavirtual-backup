@@ -45,9 +45,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
           id: { not: params.id }
         }
       })
+
       if (cuponExistente) {
         return ApiResponse.error(request, 'Ya existe otro cupón con ese código', 400)
       }
+
       data.codigo = data.codigo.toUpperCase()
     }
 

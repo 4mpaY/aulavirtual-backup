@@ -11,6 +11,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireProfesorOrAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { user } = auth
@@ -19,6 +20,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const body = await request.json()
 
     const validation = validateRequest(reordenarModulosSchema, body, request)
+
     if (!validation.success) return validation.error
 
     // Verificar que el curso existe

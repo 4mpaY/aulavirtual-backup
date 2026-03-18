@@ -1,6 +1,8 @@
-import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import { Phone, Mail, MapPin } from 'lucide-react'
 import Link from 'next/link'
+
+import { Phone, Mail, MapPin } from 'lucide-react'
+
+import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 
 export const metadata = {
   title: 'Contacto - ARM',

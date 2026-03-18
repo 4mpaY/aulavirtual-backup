@@ -41,6 +41,7 @@ async function getData(userId?: string) {
         where: { usuario_id: userId, estado: 'ACTIVO' },
         select: { curso_id: true }
       })
+
       userCourseIds = new Set(inscripciones.map((i: any) => i.curso_id))
     }
 
@@ -49,7 +50,9 @@ async function getData(userId?: string) {
         const leccionesCount = await prisma.leccion.count({
           where: { modulo: { curso_id: course.id } }
         })
-        return {
+
+        
+return {
           ...course,
           es_comprado: userId ? userCourseIds.has(course.id) : false,
           _count: { ...course._count, lecciones: leccionesCount }
@@ -63,7 +66,8 @@ async function getData(userId?: string) {
     }
   } catch (error) {
     console.error('Error fetching data in CursosPage:', error)
-    return { courses: [], categories: [] }
+    
+return { courses: [], categories: [] }
   }
 }
 

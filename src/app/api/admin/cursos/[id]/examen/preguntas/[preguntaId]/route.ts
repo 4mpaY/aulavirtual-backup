@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
+
 import { getServerSession } from 'next-auth'
+
 import prisma from '@/utils/libs/prisma'
 import { authOptions } from '@/utils/configs/auth'
 
@@ -37,7 +39,7 @@ export async function PUT(req: Request, { params }: { params: { id: string, preg
     // Update question and its options in a transaction
     const updatedPregunta = await prisma.$transaction(async (tx) => {
       // First, update the question text/points
-      const pregunta = await tx.pregunta.update({
+      await tx.pregunta.update({
         where: { id: preguntaId },
         data: {
           texto,
@@ -75,7 +77,8 @@ export async function PUT(req: Request, { params }: { params: { id: string, preg
     })
   } catch (error: any) {
     console.error('API Pregunta PUT Error:', error)
-    return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
+    
+return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
   }
 }
 
@@ -116,6 +119,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string, p
       })
     } catch (error: any) {
       console.error('API Pregunta DELETE Error:', error)
-      return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
+      
+return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
     }
   }

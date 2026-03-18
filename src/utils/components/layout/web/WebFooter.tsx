@@ -1,6 +1,9 @@
 import React from 'react'
+
 import Link from 'next/link'
-import { Facebook, Instagram, Phone, Mail, MapPin, ArrowRight } from 'lucide-react'
+
+import { Phone, Mail, MapPin, ArrowRight } from 'lucide-react'
+
 import Logo from '@components/layout/shared/Logo'
 
 const WebFooter = () => {

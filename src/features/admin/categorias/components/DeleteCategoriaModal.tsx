@@ -1,10 +1,15 @@
 'use client'
 
+import { type FC, useState } from 'react'
+
 import { Box, Button, Checkbox, FormControlLabel, styled, Typography } from '@mui/material'
 import { useSnackbar } from 'notistack'
-import { type FC, useState } from 'react'
-import AppModal from '@/utils/components/AppModal'
+
 import { Icon } from '@iconify/react'
+
+import AppModal from '@/utils/components/AppModal'
+
+
 import { useDeleteCategoria } from '../hooks/useCategorias'
 
 type DeleteCategoriaModalProps = {
@@ -57,6 +62,7 @@ const DeleteCategoriaModal: FC<DeleteCategoriaModalProps> = ({ open, handleClose
             onSuccess?.()
         } catch (error: any) {
             const errorMessage = error?.message || error?.error || 'Error al eliminar categoría'
+
             enqueueSnackbar(errorMessage, { variant: 'error' })
         }
     }

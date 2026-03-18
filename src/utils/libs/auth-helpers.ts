@@ -3,7 +3,8 @@ import { headers } from 'next/headers'
 import { getServerSession } from 'next-auth'
 
 import { Rol } from '@prisma/client'
-import jwt from 'jsonwebtoken'
+import { verify } from 'jsonwebtoken'
+
 
 import { authOptions } from '@/utils/configs/auth'
 
@@ -34,7 +35,7 @@ async function getUserFromBearerToken(): Promise<AuthUser | null> {
     }
 
     const token = authorization.split(' ')[1]
-    const decoded = jwt.verify(token, JWT_SECRET) as any
+    const decoded = verify(token, JWT_SECRET) as any
 
     return {
       id: decoded.id,

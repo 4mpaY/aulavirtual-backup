@@ -1,5 +1,5 @@
 import type { NextAuthOptions, User } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import Credentials from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import bcrypt from 'bcryptjs'
 import { sign } from 'jsonwebtoken'
@@ -10,7 +10,7 @@ import { loginSchema } from '@/schemas/auth.schema'
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
 const providers: NextAuthOptions['providers'] = [
-  CredentialsProvider({
+  Credentials({
     name: 'Credentials',
     credentials: {
       correo: { label: 'Correo', type: 'email' },
@@ -46,7 +46,7 @@ const providers: NextAuthOptions['providers'] = [
           return null
         }
 
-        const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena)
+        const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena as string)
 
         if (!contrasenaValida) {
           return null
@@ -66,7 +66,7 @@ const providers: NextAuthOptions['providers'] = [
       } catch (error) {
         console.error('Error en authorize:', error)
 
-return null
+        return null
       }
     }
   })

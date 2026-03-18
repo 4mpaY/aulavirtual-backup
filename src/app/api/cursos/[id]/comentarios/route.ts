@@ -9,6 +9,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireProfesorOrAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { user } = auth
@@ -81,6 +82,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return ApiResponse.success(request, { comentarios })
   } catch (error) {
     console.error('[API_CURSO_COMENTARIOS]', error)
-    return ApiResponse.error(request, 'Error al obtener comentarios', 500)
+    
+return ApiResponse.error(request, 'Error al obtener comentarios', 500)
   }
 }

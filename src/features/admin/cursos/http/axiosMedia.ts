@@ -1,6 +1,7 @@
-import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import axios from 'axios'
 import type { AxiosStatic } from 'axios'
+
+import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -30,6 +31,7 @@ export class AxiosMedia extends AxiosInternalHttpClient {
   async upload(file: File): Promise<any> {
     try {
       const formData = new FormData()
+
       formData.append('file', file)
 
       const payload = await this.iPost<any>('', formData, {

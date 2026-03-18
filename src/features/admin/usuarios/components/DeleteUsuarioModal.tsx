@@ -1,10 +1,15 @@
 'use client'
 
+import { type FC, useState } from 'react'
+
 import { Box, Button, Checkbox, FormControlLabel, styled, Typography } from '@mui/material'
 import { useSnackbar } from 'notistack'
-import { type FC, useState } from 'react'
-import AppModal from '@/utils/components/AppModal'
+
 import { Icon } from '@iconify/react'
+
+import AppModal from '@/utils/components/AppModal'
+
+
 import { useDeleteUsuario } from '../hooks/useUsuarios'
 
 type DeleteUsuarioModalProps = {
@@ -58,6 +63,7 @@ const DeleteUsuarioModal: FC<DeleteUsuarioModalProps> = ({ open, handleClose, us
       onSuccess?.()
     } catch (error: any) {
       const errorMessage = error?.message || error?.error || 'Error al eliminar usuario'
+
       enqueueSnackbar(errorMessage, { variant: 'error' })
     }
   }

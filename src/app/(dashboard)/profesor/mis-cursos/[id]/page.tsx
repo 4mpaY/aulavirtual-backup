@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
+
 import { getServerSession } from 'next-auth'
+
 import { CourseBuilderPage } from '@/features/admin/cursos/pages/CourseBuilderPage'
 import { authOptions } from '@/utils/configs/auth'
 

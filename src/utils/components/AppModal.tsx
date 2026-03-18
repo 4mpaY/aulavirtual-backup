@@ -1,7 +1,11 @@
-import { Backdrop, Box, type BoxProps, Fade, IconButton, Modal, styled } from '@mui/material'
 import type { FC } from 'react'
-import { lightTheme } from './constants/constants'
+
+import { Backdrop, Box, type BoxProps, Fade, IconButton, Modal, styled } from '@mui/material'
+
 import { Icon } from '@iconify/react'
+
+import { lightTheme } from './constants/constants'
+
 
 type AppModalProps = {
   open: boolean

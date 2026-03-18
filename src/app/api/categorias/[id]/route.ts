@@ -22,7 +22,7 @@ function generateSlug(text: string): string {
  * Genera un slug único verificando en la base de datos
  */
 async function generateUniqueSlug(nombre: string, excludeId?: string): Promise<string> {
-  let slug = generateSlug(nombre)
+  const slug = generateSlug(nombre)
   let counter = 0
   let candidateSlug = slug
 
@@ -47,6 +47,7 @@ async function generateUniqueSlug(nombre: string, excludeId?: string): Promise<s
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAuth(request)
+
     if (!auth.authorized) return auth.error
 
     const { id } = params
@@ -93,12 +94,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id } = params
     const body = await request.json()
 
     const validation = validateRequest(actualizarCategoriaSchema, body, request)
+
     if (!validation.success) return validation.error
 
     const data = validation.data
@@ -166,6 +169,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id } = params

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useMemo, useEffect } from 'react'
+
 import { useSearchParams } from 'next/navigation'
 
 import {
@@ -47,6 +48,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
     // Sincronizar selectedCategory con la URL
     useEffect(() => {
         const catId = searchParams.get('categoria')
+
         if (catId) {
             setSelectedCategory(catId)
         } else {

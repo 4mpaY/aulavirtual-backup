@@ -1,6 +1,7 @@
 'use client'
 
 import type { FC } from 'react'
+
 import type { Categoria } from '../entity/Categoria'
 import CreateCategoriaModal from './CreateCategoriaModal'
 import EditCategoriaModal from './EditCategoriaModal'

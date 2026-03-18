@@ -36,6 +36,7 @@ export async function GET(
                 id: true,
                 texto: true,
                 orden: true
+
                 // NO incluir es_correcta
               }
             }

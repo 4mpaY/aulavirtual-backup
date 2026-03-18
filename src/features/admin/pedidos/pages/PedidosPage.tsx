@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -53,7 +53,7 @@ const columnHelper = createColumnHelper<Pedido>()
 
 export function PedidosPage() {
     const router = useRouter()
-    const [estadoFiltro, setEstadoFiltro] = React.useState('COMPLETADO')
+    const [estadoFiltro, setEstadoFiltro] = useState('COMPLETADO')
     const { data, isLoading } = usePedidos({ estado: estadoFiltro })
     const pedidos = data?.pedidos || []
 

@@ -112,6 +112,7 @@ export const RutaDialog: React.FC<RutaDialogProps> = ({ open, onClose, ruta }) =
         .replace(/[^\w\s-]/g, '')
         .replace(/[\s_-]+/g, '-')
         .replace(/^-+|-+$/g, '')
+
       setValue('slug', slug)
     }
   }

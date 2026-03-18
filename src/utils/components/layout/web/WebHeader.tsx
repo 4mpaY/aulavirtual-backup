@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom'
+import { useState, useEffect } from 'react'
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+
+import { createPortal } from 'react-dom'
 import { Menu, X, ArrowRight, Phone, Globe } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSession } from 'next-auth/react'
@@ -437,12 +439,18 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
         ]
       }
     }
+
+    
+
     return item
   })
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
+
     window.addEventListener('scroll', onScroll)
+    
+
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
@@ -453,7 +461,11 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
+    
+
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [mobileOpen])
 
   return (

@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
+
 import {
   Button,
   Card,
@@ -25,7 +26,6 @@ import type { ColumnDef } from '@tanstack/react-table'
 import Swal from 'sweetalert2'
 
 import tableStyles from '@core/styles/table.module.css'
-import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 
@@ -37,7 +37,7 @@ import { RutaCursosDialog } from '../components/RutaCursosDialog'
 const columnHelper = createColumnHelper<Ruta>()
 
 export function RutasPage() {
-  const { data: rutas = [], isLoading, refetch } = useRutas()
+  const { data: rutas = [], isLoading } = useRutas()
   const deleteRuta = useDeleteRuta()
 
   const [openRutaDialog, setOpenRutaDialog] = useState(false)
@@ -46,17 +46,17 @@ export function RutasPage() {
   
   const [globalFilter, setGlobalFilter] = useState('')
 
-  const handleEdit = (ruta: Ruta) => {
+  const handleEdit = useCallback((ruta: Ruta) => {
     setSelectedRuta(ruta)
     setOpenRutaDialog(true)
-  }
+  }, [])
 
-  const handleManageCursos = (ruta: Ruta) => {
+  const handleManageCursos = useCallback((ruta: Ruta) => {
     setSelectedRuta(ruta)
     setOpenCursosDialog(true)
-  }
+  }, [])
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     const result = await Swal.fire({
       title: '¿Estás seguro?',
       text: "¡No podrás revertir esto!",
@@ -85,7 +85,7 @@ export function RutasPage() {
         Swal.fire({ title: 'Error', text: 'Error al eliminar la ruta', icon: 'error' })
       }
     }
-  }
+  }, [deleteRuta])
 
   const columns = useMemo<ColumnDef<Ruta, any>[]>(
     () => [
@@ -153,7 +153,7 @@ export function RutasPage() {
         )
       })
     ],
-    []
+    [handleManageCursos, handleEdit, handleDelete]
   )
 
   const table = useReactTable({

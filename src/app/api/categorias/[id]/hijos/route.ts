@@ -22,7 +22,7 @@ function generateSlug(text: string): string {
  * Genera un slug único verificando en la base de datos
  */
 async function generateUniqueSlug(nombre: string): Promise<string> {
-  let slug = generateSlug(nombre)
+  const slug = generateSlug(nombre)
   let counter = 0
   let candidateSlug = slug
 
@@ -47,12 +47,14 @@ async function generateUniqueSlug(nombre: string): Promise<string> {
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id: padreId } = params
     const body = await request.json()
 
     const validation = validateRequest(crearSubcategoriaSchema, body, request)
+
     if (!validation.success) return validation.error
 
     const { nombre, descripcion } = validation.data

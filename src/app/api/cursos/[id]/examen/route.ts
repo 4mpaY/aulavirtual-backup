@@ -6,6 +6,7 @@ import { handleApiError } from '@/utils/libs/validation'
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireProfesorOrAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id: cursoId } = params
@@ -48,6 +49,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireProfesorOrAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id: cursoId } = params

@@ -6,7 +6,9 @@ export const useCupones = (buscar: string = '') => {
     queryKey: ['cupones', buscar],
     queryFn: async () => {
       const response = await axios.get(`/api/cupones?buscar=${buscar}`)
-      return response.data.result.cupones
+
+      
+return response.data.result.cupones
     }
   })
 }
@@ -17,7 +19,9 @@ export const useCuponMutation = () => {
   const createCupon = useMutation({
     mutationFn: async (data: any) => {
       const response = await axios.post('/api/cupones', data)
-      return response.data.result
+
+      
+return response.data.result
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cupones'] })
@@ -27,7 +31,9 @@ export const useCuponMutation = () => {
   const updateCupon = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       const response = await axios.patch(`/api/cupones/${id}`, data)
-      return response.data.result
+
+      
+return response.data.result
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cupones'] })
@@ -37,7 +43,9 @@ export const useCuponMutation = () => {
   const deleteCupon = useMutation({
     mutationFn: async (id: string) => {
       const response = await axios.delete(`/api/cupones/${id}`)
-      return response.data.result
+
+      
+return response.data.result
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cupones'] })

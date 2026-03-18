@@ -397,6 +397,7 @@ const RutaDetail: React.FC<RutaDetailProps> = ({ ruta }) => {
 
             <Stack spacing={0}>
               {(!ruta.secciones || ruta.secciones.length === 0) ? (
+
                 // Flat list if no sections defined
                 ruta.cursos.map((c, index) => (
                   <CourseCard key={c.id} curso={c} index={index} total={ruta.cursos.length} />
@@ -421,6 +422,7 @@ const RutaDetail: React.FC<RutaDetailProps> = ({ ruta }) => {
                             curso={c} 
                             index={index} 
                             total={cursosInSeccion.length}
+
                             // Global index if needed for sequence numbering, but maybe local is better for sections
                           />
                         ))}

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+
 import { Box, TextField, Button, Avatar, Stack, CircularProgress } from '@mui/material'
 import { useSession } from 'next-auth/react'
 
@@ -46,6 +47,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
 
             if (!response.ok) {
                 const data = await response.json()
+
                 throw new Error(data.error || 'Error al enviar el comentario')
             }
 

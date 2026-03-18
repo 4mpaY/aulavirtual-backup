@@ -1,10 +1,15 @@
 'use client'
 
+import { type FC, useState } from 'react'
+
 import { Box, Button, Checkbox, FormControlLabel, styled, Typography } from '@mui/material'
 import { useSnackbar } from 'notistack'
-import { type FC, useState } from 'react'
-import AppModal from '@/utils/components/AppModal'
+
 import { Icon } from '@iconify/react'
+
+import AppModal from '@/utils/components/AppModal'
+
+
 import { useDeleteCurso } from '../hooks/useCursos'
 
 type DeleteCursoModalProps = {
@@ -58,6 +63,7 @@ const DeleteCursoModal: FC<DeleteCursoModalProps> = ({ open, handleClose, curso,
             onSuccess?.()
         } catch (error: any) {
             const errorMessage = error?.message || error?.error || 'Error al eliminar curso'
+
             enqueueSnackbar(errorMessage, { variant: 'error' })
         }
     }

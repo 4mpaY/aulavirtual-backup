@@ -1,0 +1,44 @@
+
+> aula-virtual@2.0.0 lint D:\GitHub\apps-fly\aula-virtual
+> next lint
+
+
+./src/app/api/admin/cursos/[id]/examen/preguntas/[preguntaId]/route.ts
+42:13  Error: 'pregunta' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/api/auth/login/route.ts
+1:10  Error: 'NextResponse' is defined but never used.  @typescript-eslint/no-unused-vars
+58:19  Warning: Caution: `jwt` also has a named export `sign`. Check if you meant to write `import {sign} from 'jsonwebtoken'` instead.  import/no-named-as-default-member
+
+./src/app/layout.tsx
+17:1  Error: `next-auth` import should occur before type import of `@core/types`  import/order
+
+./src/features/admin/pedidos/pages/PedidosPage.tsx
+56:45  Warning: Caution: `React` also has a named export `useState`. Check if you meant to write `import {useState} from 'react'` instead.  import/no-named-as-default-member
+
+./src/features/admin/rutas/pages/RutasPage.tsx
+29:8  Error: 'CustomTextField' is defined but never used.  @typescript-eslint/no-unused-vars
+41:40  Error: 'refetch' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+157:5  Warning: React Hook useMemo has a missing dependency: 'handleDelete'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/utils/components/layout/horizontal/FooterContent.tsx
+24:9  Error: 'isBreakpointReached' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/utils/components/layout/vertical/FooterContent.tsx
+24:9  Error: 'isBreakpointReached' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/utils/components/layout/web/WebFooter.tsx
+5:10  Error: 'Facebook' is defined but never used.  @typescript-eslint/no-unused-vars
+5:20  Error: 'Instagram' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/utils/components/layout/web/WebHeader.tsx
+3:31  Error: 'useRef' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/utils/configs/auth.ts
+2:8  Warning: Using exported name 'CredentialsProvider' as identifier for default export.  import/no-named-as-default
+
+./src/utils/libs/auth-helpers.ts
+37:21  Warning: Caution: `jwt` also has a named export `verify`. Check if you meant to write `import {verify} from 'jsonwebtoken'` instead.  import/no-named-as-default-member
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

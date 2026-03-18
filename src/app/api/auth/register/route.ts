@@ -1,5 +1,6 @@
-import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
+
+import prisma from '@/utils/libs/prisma'
 import { registerSchema } from '@/schemas/auth.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { ApiResponse } from '@/utils/libs/apiResponse'

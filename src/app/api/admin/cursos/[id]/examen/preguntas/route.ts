@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
+
 import { getServerSession } from 'next-auth'
+
 import prisma from '@/utils/libs/prisma'
 import { authOptions } from '@/utils/configs/auth'
 
@@ -48,6 +50,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       where: { examen_id: examen.id },
       _max: { orden: true }
     })
+
     const nextOrden = (maxOrden._max.orden || 0) + 1
 
     // Create question and its options in a transaction
@@ -78,6 +81,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     })
   } catch (error: any) {
     console.error('API Pregunta POST Error:', error)
-    return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
+    
+return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
   }
 }
