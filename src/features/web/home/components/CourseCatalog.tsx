@@ -90,7 +90,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
 
     return (
         <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', pb: 10 }}>
-            <Container maxWidth={false} sx={{ py: { xs: 6, md: 10 }, px: { xs: 4, md: 8, lg: 12 } }}>
+            <Container maxWidth={false} sx={{ py: { xs: 6, md: 10 }, px: { xs: 2, sm: 4, md: 8, lg: 12 } }}>
                 <Stack spacing={5}>
                     <Box sx={{ textAlign: 'center' }}>
                         <Typography variant="h3" sx={{ fontWeight: 900, mb: 1.5, color: '#1e293b', letterSpacing: '-0.03em' }}>
@@ -145,18 +145,30 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
 
                         {/* Filter Bar Premium */}
                         <Box sx={{
-                            width: '100%',
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: 1.5,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            p: 2,
-                            bgcolor: 'white',
-                            borderRadius: '28px',
-                            boxShadow: '0 4px 25px rgba(0,0,0,0.03)',
-                            border: '1px solid #f1f5f9'
+                            position: 'relative',
+                            width: { xs: '100vw', md: '100%' },
+                            ml: { xs: 'calc(50% - 50vw)', md: 0 }
                         }}>
+                            <Box sx={{
+                                width: '100%',
+                                display: 'flex',
+                                flexWrap: { xs: 'nowrap', md: 'wrap' },
+                                overflowX: { xs: 'auto', md: 'visible' },
+                                gap: { xs: 2, md: 1.5 },
+                                justifyContent: { xs: 'flex-start', md: 'center' },
+                                alignItems: 'center',
+                                px: { xs: 2, sm: 4, md: 2 },
+                                py: 2,
+                                bgcolor: 'white',
+                                borderRadius: { xs: 0, md: '28px' },
+                                boxShadow: '0 4px 25px rgba(0,0,0,0.03)',
+                                border: '1px solid #f1f5f9',
+                                borderInline: { xs: 'none', md: '1px solid #f1f5f9' },
+                                scrollPaddingLeft: { xs: '16px', sm: '32px', md: 0 },
+                                MsOverflowStyle: 'none',
+                                scrollbarWidth: 'none',
+                                '&::-webkit-scrollbar': { display: 'none' }
+                            }}>
                             {/* Categoría */}
                             <TextField
                                 select
@@ -171,7 +183,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                                     ),
                                     sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
                                 }}
-                                sx={{ minWidth: 170, flexGrow: { xs: 1, md: 0 } }}
+                                sx={{ minWidth: 170, flexShrink: 0 }}
                             >
                                 <MenuItem value="all">Todas las Categorías</MenuItem>
                                 {categories.map((cat) => (
@@ -193,7 +205,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                                     ),
                                     sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
                                 }}
-                                sx={{ minWidth: 140, flexGrow: { xs: 1, md: 0 } }}
+                                sx={{ minWidth: 140, flexShrink: 0 }}
                             >
                                 <MenuItem value="all">Todos Niveles</MenuItem>
                                 <MenuItem value="BASICO">Básico</MenuItem>
@@ -215,7 +227,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                                     ),
                                     sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
                                 }}
-                                sx={{ minWidth: 130, flexGrow: { xs: 1, md: 0 } }}
+                                sx={{ minWidth: 130, flexShrink: 0 }}
                             >
                                 <MenuItem value="all">Tipo / Precio</MenuItem>
                                 <MenuItem value="free">Gratuito</MenuItem>
@@ -236,7 +248,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                                     ),
                                     sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
                                 }}
-                                sx={{ minWidth: 160, flexGrow: { xs: 1, md: 0 } }}
+                                sx={{ minWidth: 160, flexShrink: 0 }}
                             >
                                 <MenuItem value="all">Cualquier Modalidad</MenuItem>
                                 <MenuItem value="ASINCRONO">Asincrónico</MenuItem>
@@ -260,7 +272,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                                     ),
                                     sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: 'success.50', color: 'success.main', fontWeight: 700 }
                                 }}
-                                sx={{ minWidth: 170, flexGrow: { xs: 1, md: 0 } }}
+                                sx={{ minWidth: 170, flexShrink: 0 }}
                             >
                                 <MenuItem value="recent">Recientes primero</MenuItem>
                                 <MenuItem value="alphabetical">A - Z</MenuItem>
@@ -274,6 +286,7 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                                             bgcolor: 'error.50',
                                             color: 'error.main',
                                             '&:hover': { bgcolor: 'error.100' },
+                                            flexShrink: 0,
                                             width: 40,
                                             height: 40
                                         }}
@@ -282,6 +295,20 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
                                     </IconButton>
                                 </Tooltip>
                             )}
+                            </Box>
+
+                            {/* Fading overlay on the right to indicate scroll */}
+                            <Box sx={{
+                                display: { xs: 'block', md: 'none' },
+                                position: 'absolute',
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                width: 48,
+                                background: 'linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 90%)',
+                                pointerEvents: 'none',
+                                zIndex: 2
+                            }} />
                         </Box>
                     </Stack>
 

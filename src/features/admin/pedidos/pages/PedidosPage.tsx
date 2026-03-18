@@ -53,7 +53,8 @@ const columnHelper = createColumnHelper<Pedido>()
 
 export function PedidosPage() {
     const router = useRouter()
-    const { data, isLoading } = usePedidos()
+    const [estadoFiltro, setEstadoFiltro] = React.useState('COMPLETADO')
+    const { data, isLoading } = usePedidos({ estado: estadoFiltro })
     const pedidos = data?.pedidos || []
 
     const columns = useMemo<ColumnDef<Pedido, any>[]>(
@@ -96,6 +97,24 @@ export function PedidosPage() {
                 cell: ({ row }) => (
                     <Typography color='text.primary' className='font-medium'>
                         {row.original.moneda} {Number(row.original.total).toFixed(2)}
+                    </Typography>
+                )
+            }),
+            columnHelper.accessor('cupon', {
+                header: 'Descuento / Cupón',
+                cell: ({ row }) => (
+                    <Typography variant='body2' color='text.secondary'>
+                        {row.original.cupon?.codigo ? (
+                            <Chip 
+                                label={row.original.cupon.codigo} 
+                                size='small' 
+                                variant='outlined' 
+                                color='primary' 
+                                sx={{ fontWeight: 600 }}
+                            />
+                        ) : (
+                            '-'
+                        )}
                     </Typography>
                 )
             }),
@@ -172,16 +191,31 @@ export function PedidosPage() {
                 }
             />
             <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
-                <CustomTextField
-                    select
-                    value={table.getState().pagination.pageSize}
-                    onChange={e => table.setPageSize(Number(e.target.value))}
-                    className='is-[70px]'
-                >
-                    <MenuItem value='10'>10</MenuItem>
-                    <MenuItem value='25'>25</MenuItem>
-                    <MenuItem value='50'>50</MenuItem>
-                </CustomTextField>
+                <div className='flex items-center gap-4'>
+                    <CustomTextField
+                        select
+                        value={table.getState().pagination.pageSize}
+                        onChange={e => table.setPageSize(Number(e.target.value))}
+                        className='is-[70px]'
+                    >
+                        <MenuItem value='10'>10</MenuItem>
+                        <MenuItem value='25'>25</MenuItem>
+                        <MenuItem value='50'>50</MenuItem>
+                    </CustomTextField>
+
+                    <CustomTextField
+                        select
+                        label='Estado'
+                        value={estadoFiltro}
+                        onChange={e => setEstadoFiltro(e.target.value)}
+                        className='is-[180px]'
+                    >
+                        <MenuItem value='TODOS'>Todos los Pedidos</MenuItem>
+                        <MenuItem value='COMPLETADO'>Pagados (Completados)</MenuItem>
+                        <MenuItem value='PENDIENTE'>Pendientes</MenuItem>
+                        <MenuItem value='CANCELADO'>Cancelados</MenuItem>
+                    </CustomTextField>
+                </div>
             </div>
 
             <div className='overflow-x-auto'>

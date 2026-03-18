@@ -4,6 +4,8 @@ import React from 'react'
 
 import { Box, Typography, Stack, Divider, Paper, Avatar } from '@mui/material'
 
+import CouponInput from './CouponInput'
+
 interface OrderSummaryProps {
     courses: {
         id: string
@@ -16,11 +18,18 @@ interface OrderSummaryProps {
             apellido: string
         }
     }[]
+    appliedCoupon?: {
+        codigo: string
+        descuento: number
+        total: number
+    } | null
+    onCouponApplied: (data: any) => void
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ courses }) => {
+const OrderSummary: React.FC<OrderSummaryProps> = ({ courses, appliedCoupon, onCouponApplied }) => {
     const subtotal = courses.reduce((acc, c) => acc + Number(c.precio), 0)
-    const total = subtotal
+    const total = appliedCoupon ? appliedCoupon.total : subtotal
+    const descuento = appliedCoupon ? appliedCoupon.descuento : 0
     const moneda = courses[0]?.moneda || 'PEN'
 
     return (
@@ -84,9 +93,16 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ courses }) => {
                     </Stack>
                     <Stack direction="row" justifyContent="space-between">
                         <Typography variant="body2" color="text.secondary">Descuento</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>- {moneda} 0.00</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: 'success.main' }}>
+                            - {moneda} {descuento.toFixed(2)}
+                        </Typography>
                     </Stack>
                 </Stack>
+
+                <CouponInput 
+                    cursoIds={courses.map(c => c.id)} 
+                    onApplied={onCouponApplied} 
+                />
 
                 <Divider />
 

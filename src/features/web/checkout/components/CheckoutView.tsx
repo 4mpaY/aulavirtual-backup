@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 
 import Link from 'next/link'
 
@@ -8,6 +8,12 @@ import { Container, Grid, Box, Typography, Breadcrumbs } from '@mui/material'
 
 import OrderSummary from './OrderSummary'
 import PaymentForm from './PaymentForm'
+
+interface CouponData {
+    codigo: string
+    descuento: number
+    total: number
+}
 
 interface CheckoutViewProps {
     courses: {
@@ -25,8 +31,8 @@ interface CheckoutViewProps {
 }
 
 const CheckoutView: React.FC<CheckoutViewProps> = ({ courses }) => {
-    // Assuming for the breadcrumb, we might link to the first course or a general courses page.
-    // For now, let's use the slug of the first course if available, or a placeholder.
+    const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null)
+
     const firstCourseSlug = courses.length > 0 ? courses[0].slug : 'cursos';
 
     return (
@@ -51,14 +57,20 @@ const CheckoutView: React.FC<CheckoutViewProps> = ({ courses }) => {
                 </Box>
 
                 <Grid container spacing={4}>
-                    {/* Formulario de Pago */}
                     <Grid item xs={12} lg={8}>
-                        <PaymentForm courses={courses} />
+                        <PaymentForm 
+                            courses={courses} 
+                            appliedCouponCode={appliedCoupon?.codigo}
+                            finalTotal={appliedCoupon ? appliedCoupon.total : undefined}
+                        />
                     </Grid>
 
-                    {/* Resumen de Pedido */}
                     <Grid item xs={12} lg={4}>
-                        <OrderSummary courses={courses} />
+                        <OrderSummary 
+                            courses={courses} 
+                            appliedCoupon={appliedCoupon}
+                            onCouponApplied={setAppliedCoupon}
+                        />
                     </Grid>
                 </Grid>
             </Container>

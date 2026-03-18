@@ -54,7 +54,6 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url)
     const query = Object.fromEntries(searchParams.entries())
-
     const validation = validateRequest(listarCursosQuerySchema, query, request)
 
     if (!validation.success) return validation.error

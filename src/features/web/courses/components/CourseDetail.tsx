@@ -371,11 +371,11 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                 { title: 'Plataforma virtual', desc: 'Acceso 24/7 durante la duración del programa.', icon: 'tabler-device-laptop' },
                 { title: 'Certificado Opcional', desc: 'Podrás solicitarlo durante o al finalizar el curso.', icon: 'tabler-certificate' }
               ]).map((item, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
+                <Grid item xs={6} sm={6} md={3} key={`benefit-hero-${index}`}>
                   <Paper
                     elevation={0}
                     sx={{
-                      p: 3,
+                      p: { xs: 2, sm: 3 },
                       height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
@@ -405,8 +405,8 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                       <i className={item.icon} style={{ fontSize: '1.5rem' }} />
                     </Box>
                     <Box>
-                      <Typography variant="h6" sx={{ fontWeight: 800, mb: 1, color: 'white' }}>{item.title}</Typography>
-                      <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>{item.desc}</Typography>
+                      <Typography sx={{ fontSize: { xs: '0.9rem', md: '1.25rem' }, fontWeight: 800, mb: { xs: 0.5, md: 1 }, color: 'white', lineHeight: 1.2 }}>{item.title}</Typography>
+                      <Typography sx={{ fontSize: { xs: '0.8rem', md: '1rem' }, color: 'rgba(255,255,255,0.8)', fontWeight: 500, lineHeight: 1.4 }}>{item.desc}</Typography>
                     </Box>
                   </Paper>
                 </Grid>
@@ -448,7 +448,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                     { title: 'Material de clases y adicionales', icon: 'tabler-folder' },
                     { title: 'Discusión y/o solución de casos reales', icon: 'tabler-messages' }
                   ]).map((m, i) => (
-                    <Grid item xs={12} md={4} key={i}>
+                    <Grid item xs={12} md={4} key={`metodologia-${i}`}>
                       <Box sx={{
                         p: 3,
                         bgcolor: 'white',
@@ -482,7 +482,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                     'Aprender flujos de trabajo eficientes desde el inicio hasta el despliegue final.',
                     'Identificar causas raíz y optimizar el rendimiento utilizando herramientas de última generación.'
                   ]).map((text, idx) => (
-                    <Stack key={idx} direction="row" spacing={2} alignItems="flex-start">
+                    <Stack key={`objetivo-${idx}`} direction="row" spacing={2} alignItems="flex-start">
                       <i className="tabler-check" style={{ color: 'var(--mui-palette-primary-main)', marginTop: '4px', fontSize: '1.4rem', fontWeight: 900 }} />
                       <Typography variant="h6" sx={{ color: '#334155', fontWeight: 500, lineHeight: 1.5 }}>{text}</Typography>
                     </Stack>
@@ -600,7 +600,7 @@ const CourseDetail: React.FC<CourseDetailProps> = ({ course }) => {
                     { text: 'Recuperación de evaluación', active: false },
                     { text: 'Certificado por Ecoambiental o CIP', active: false }
                   ]).map((benefit, i) => (
-                    <Stack key={i} direction="row" spacing={1.5} alignItems="center">
+                    <Stack key={`sidebar-benefit-${i}`} direction="row" spacing={1.5} alignItems="center">
                       <i
                         className={benefit.active ? "tabler-circle-check" : "tabler-circle-x"}
                         style={{ color: benefit.active ? 'var(--mui-palette-primary-main)' : '#ef4444', fontSize: '1.2rem' }}

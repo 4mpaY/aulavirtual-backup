@@ -1,4 +1,5 @@
 import { z } from 'zod'
+
 import { ApiResponse } from './apiResponse'
 
 /**
@@ -8,11 +9,7 @@ import { ApiResponse } from './apiResponse'
  * @param request Request de Next.js (para extraer el path)
  * @returns Objeto con success y data/error
  */
-export function validateRequest<T extends z.ZodType>(
-  schema: T,
-  data: unknown,
-  request: Request
-) {
+export function validateRequest<T extends z.ZodType>(schema: T, data: unknown, request: Request) {
   const result = schema.safeParse(data)
 
   if (!result.success) {

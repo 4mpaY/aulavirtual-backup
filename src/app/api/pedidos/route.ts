@@ -28,8 +28,10 @@ export async function GET(request: Request) {
     const { page, limit, estado, buscar } = validation.data
 
     const where: any = {}
-
-    if (estado) {
+    
+    // Si el estado no es 'TODOS', aplicamos el filtro. 
+    // Por defecto ahora es 'COMPLETADO' según el schema.
+    if (estado && estado !== 'TODOS') {
       where.estado = estado
     }
 
@@ -57,6 +59,11 @@ export async function GET(request: Request) {
               nombre: true,
               apellido: true,
               correo: true
+            }
+          },
+          cupon: {
+            select: {
+              codigo: true
             }
           },
           detalles: {

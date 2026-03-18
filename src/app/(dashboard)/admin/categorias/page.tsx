@@ -1,7 +1,11 @@
-import type { Metadata } from 'next'
-import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
-import { Categoria, CategoriasPage } from '@/features/admin/categorias'
+
+import type { Metadata } from 'next'
+
+import { getServerSession } from 'next-auth'
+
+import { CategoriasPage } from '@/features/admin/categorias/pages/CategoriasPage'
+import type { Categoria } from '@/features/admin/categorias/entity/Categoria'
 import { AxiosCategoria } from '@/features/admin/categorias/http/axiosCategoria'
 import { authOptions } from '@/utils/configs/auth'
 

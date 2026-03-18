@@ -1,4 +1,4 @@
-import { EstadoPedido, MetodoPago } from '@prisma/client'
+import type { EstadoPedido, MetodoPago } from '@prisma/client'
 
 export interface Pedido {
   id: string
@@ -18,6 +18,9 @@ export interface Pedido {
     apellido: string
     correo: string
   }
+  cupon?: {
+    codigo: string
+  } | null
   detalles: DetallePedido[]
 }
 

@@ -190,6 +190,8 @@ export function ManualPedidoForm() {
                                         <MenuItem value={MetodoPago.TRANSFERENCIA}>Transferencia Bancaria</MenuItem>
                                         <MenuItem value={MetodoPago.YAPE}>Yape</MenuItem>
                                         <MenuItem value={MetodoPago.PLIN}>Plin</MenuItem>
+                                        <MenuItem value={MetodoPago.IZIPAY}>Izipay</MenuItem>
+                                        <MenuItem value={MetodoPago.PAYPAL}>PayPal</MenuItem>
                                         <MenuItem value={MetodoPago.TARJETA_CREDITO}>Tarjeta de Crédito</MenuItem>
                                         <MenuItem value={MetodoPago.OTRO}>Otro</MenuItem>
                                     </CustomTextField>

@@ -56,17 +56,32 @@ export async function POST(request: Request) {
 
     // 3. Pago exitoso - Crear inscripciones en una transacción
     const result = await prisma.$transaction(async tx => {
+      // Obtener el pedido más reciente dentro de la transacción para asegurar datos frescos
+      const currentPedido = await tx.pedido.findUnique({
+        where: { id: pedido.id }
+      })
+
+      if (!currentPedido) throw new Error('Pedido no encontrado en transacción')
+
       // Actualizar pedido
       const pedidoActualizado = await tx.pedido.update({
         where: { id: pedido.id },
         data: {
           estado: 'COMPLETADO',
           pagado_en: new Date(),
+          metodo_pago: 'IZIPAY',
           transaccion_id: izipayResponse.transactionId || null,
-          respuesta_izipay: izipayResponse,
-          metodo_pago: 'TARJETA_CREDITO'
+          respuesta_izipay: izipayResponse
         }
       })
+
+      // Incrementar usos del cupón si existe
+      if (currentPedido.cupon_id) {
+        await tx.cupon.update({
+          where: { id: currentPedido.cupon_id },
+          data: { usos_actuales: { increment: 1 } }
+        })
+      }
 
       // Obtener los cursos del pedido
       const detalles = await tx.detallePedido.findMany({

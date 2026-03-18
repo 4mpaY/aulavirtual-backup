@@ -1,5 +1,8 @@
 'use client'
 
+// React Imports
+import React, { useMemo, useState } from 'react'
+
 // MUI Imports
 import {
   Button,
@@ -14,9 +17,6 @@ import {
   Avatar
 } from '@mui/material'
 
-// React Imports
-import React, { useMemo, useState } from 'react'
-
 // Table & Utils Imports
 import {
   createColumnHelper,
@@ -30,25 +30,24 @@ import {
   getPaginationRowModel,
   getSortedRowModel
 } from '@tanstack/react-table'
-
-import tableStyles from '@core/styles/table.module.css'
-import classnames from 'classnames'
-
-import CustomTextField from '@/@core/components/mui/TextField'
-
-// Type Imports
 import type { ColumnDef } from '@tanstack/react-table'
-import type { ThemeColor } from '@/@core/types'
 
-// Component Imports
+import classnames from 'classnames'
 import { Icon } from '@iconify/react/dist/iconify.js'
-import type { Usuario } from '../entity/Usuario'
-import { useUsuarios } from '../hooks/useUsuarios'
-import { UsuariosActions } from '../components/UsuariosActions'
 import { Rol } from '@prisma/client'
+
+// Core & Custom Components
+import tableStyles from '@core/styles/table.module.css'
+import CustomTextField from '@/@core/components/mui/TextField'
+import type { ThemeColor } from '@/@core/types'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
+
+// Feature Imports
+import type { Usuario } from '../entity/Usuario'
+import { useUsuarios } from '../hooks/useUsuarios'
+import { UsuariosActions } from '../components/UsuariosActions'
 
 type UsuarioStatusType = {
   [key: string]: ThemeColor
@@ -78,10 +77,10 @@ interface UsuariosPageProps {
 }
 
 export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
-  const [usuarioToDelete, setUsuarioToDelete] = useState<Usuario | null>(null)
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false)
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false)
+  const [openViewModal, setOpenViewModal] = useState<boolean>(false)
   const [usuarioToEdit, setUsuarioToEdit] = useState<Usuario | null>(null)
 
   const [rowSelection, setRowSelection] = useState({})
@@ -97,13 +96,18 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
   }, [usuarios, rolFilter])
 
   const handleDeleteClick = (usuario: Usuario) => {
-    setUsuarioToDelete(usuario)
+    setUsuarioToEdit(usuario)
     setOpenDeleteModal(true)
   }
 
   const handleEditClick = (usuario: Usuario) => {
     setUsuarioToEdit(usuario)
     setOpenUpdateModal(true)
+  }
+
+  const handleViewClick = (usuario: Usuario) => {
+    setUsuarioToEdit(usuario)
+    setOpenViewModal(true)
   }
 
   const columns = useMemo<ColumnDef<Usuario, any>[]>(
@@ -132,11 +136,15 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
                   opacity: 0.8
                 }
               }}
-              onClick={() => handleEditClick(row.original)}
+              imgProps={{ referrerPolicy: 'no-referrer' }}
+              onClick={() => handleViewClick(row.original)}
             >
               {row.original.nombre.charAt(0).toUpperCase()}
             </Avatar>
-            <div className='flex flex-col'>
+            <div
+              className='flex flex-col cursor-pointer hover:opacity-75 transition-opacity'
+              onClick={() => handleViewClick(row.original)}
+            >
               <Typography color='text.primary' className='font-medium'>
                 {row.original.nombre} {row.original.apellido}
               </Typography>
@@ -186,6 +194,9 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
         header: () => <div className='w-full text-right'>Acciones</div>,
         cell: ({ row }) => (
           <div className='flex items-center justify-end w-full gap-1'>
+            <IconButton onClick={() => handleViewClick(row.original)} title='Ver Detalles'>
+              <i className='tabler-eye text-[22px] text-textSecondary' />
+            </IconButton>
             <IconButton onClick={() => handleEditClick(row.original)} title='Editar'>
               <i className='tabler-edit text-[22px] text-textSecondary' />
             </IconButton>
@@ -349,7 +360,7 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
       </Card>
 
       <UsuariosActions
-        usuarioClicked={usuarioToEdit || usuarioToDelete}
+        usuarioClicked={usuarioToEdit}
         addUsuario={{
           isOpen: openCreateModal,
           closeHandler: () => setOpenCreateModal(false)
@@ -365,7 +376,14 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
           isOpen: openDeleteModal,
           closeHandler: () => {
             setOpenDeleteModal(false)
-            setUsuarioToDelete(null)
+            setUsuarioToEdit(null)
+          }
+        }}
+        viewUsuario={{
+          isOpen: openViewModal,
+          closeHandler: () => {
+            setOpenViewModal(false)
+            setUsuarioToEdit(null)
           }
         }}
         onSuccess={() => refetchUsuarios()}

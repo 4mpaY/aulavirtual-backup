@@ -1,17 +1,18 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React from 'react'
 
+import { useQuery } from '@tanstack/react-query'
 import {
     Box,
     Typography,
-    Paper,
     Divider,
     CircularProgress,
     Alert
 } from '@mui/material'
 
-import CommentItem, { CommentData } from './CommentItem'
+import CommentItem from './CommentItem'
+import type { CommentData } from './CommentItem'
 import CommentForm from './CommentForm'
 
 interface CommentsSectionProps {
@@ -19,35 +20,20 @@ interface CommentsSectionProps {
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
-    const [comments, setComments] = useState<CommentData[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-
-    const fetchComments = useCallback(async () => {
-        setIsLoading(true)
-        setError(null)
-
-        try {
+    const { data: comments = [], isLoading, error, refetch } = useQuery<CommentData[]>({
+        queryKey: ['comentarios', 'leccion', leccionId],
+        queryFn: async () => {
             const res = await fetch(`/api/lecciones/${leccionId}/comentarios`)
 
             if (!res.ok) {
                 throw new Error('No se pudieron cargar los comentarios')
             }
 
-            const data = await res.json()
-            setComments(data)
-        } catch (err: any) {
-            setError(err.message)
-        } finally {
-            setIsLoading(false)
-        }
-    }, [leccionId])
-
-    useEffect(() => {
-        if (leccionId) {
-            fetchComments()
-        }
-    }, [leccionId, fetchComments])
+            return res.json()
+        },
+        enabled: !!leccionId,
+        staleTime: 30_000
+    })
 
     // Se calcula el número total de comentarios (padres + hijos)
     const countTotalComments = (items: CommentData[]): number => {
@@ -65,7 +51,15 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
     const totalComments = countTotalComments(comments)
 
     return (
-        <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: '16px', border: '1px solid', borderColor: 'divider', mt: 4 }}>
+        <Box 
+            sx={{ 
+                p: { xs: 0, sm: 3, md: 4 }, 
+                borderRadius: { xs: 0, sm: '16px' }, 
+                border: { xs: 'none', sm: '1px solid' }, 
+                borderColor: 'divider', 
+                mt: { xs: 1, sm: 4 } 
+            }}
+        >
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 2 }}>
                 <i className="tabler-message-circle-2" style={{ fontSize: '2rem', color: 'var(--mui-palette-primary-main)' }} />
                 <Typography variant="h4" sx={{ fontWeight: 800 }}>
@@ -74,13 +68,13 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
             </Box>
 
             {/* Formulario Principal (Para postear un nuevo comentario raíz) */}
-            <Box sx={{ mb: 5, p: 3, bgcolor: 'primary.lighterOpacity', borderRadius: '12px' }}>
+            <Box sx={{ mb: 5, p: { xs: 2, sm: 3 }, border: '1px solid', borderColor: 'divider', borderRadius: '12px' }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: 'primary.main' }}>
                     Deja tu pregunta o aporte
                 </Typography>
                 <CommentForm
                     leccionId={leccionId}
-                    onSuccess={fetchComments}
+                    onSuccess={refetch}
                 />
             </Box>
 
@@ -92,9 +86,9 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
                     <CircularProgress />
                 </Box>
             ) : error ? (
-                <Alert severity="error">{error}</Alert>
+                <Alert severity="error">{(error as Error).message}</Alert>
             ) : comments.length === 0 ? (
-                <Box sx={{ textAlign: 'center', py: 6, bgcolor: 'grey.50', borderRadius: '12px' }}>
+                <Box sx={{ textAlign: 'center', py: 6, borderRadius: '12px' }}>
                     <i className="tabler-messages" style={{ fontSize: '3rem', color: 'var(--mui-palette-text-disabled)', marginBottom: '16px' }} />
                     <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 600 }}>
                         Sé el primero en comentar
@@ -110,12 +104,12 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ leccionId }) => {
                             key={comment.id}
                             comment={comment}
                             leccionId={leccionId}
-                            onReplySuccess={fetchComments}
+                            onReplySuccess={refetch}
                         />
                     ))}
                 </Box>
             )}
-        </Paper>
+        </Box>
     )
 }
 

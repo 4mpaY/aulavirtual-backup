@@ -1,0 +1,288 @@
+'use client'
+
+import React, { useState } from 'react'
+
+import {
+    Grid,
+    InputAdornment,
+    MenuItem,
+    Typography,
+    Box,
+    Button,
+    IconButton
+} from '@mui/material'
+import { useSnackbar } from 'notistack'
+
+import CustomTextField from '@core/components/mui/TextField'
+import MediaLibrary from '../MediaLibrary'
+
+import type { Curso } from '../../entity/Curso'
+import { useEditCurso } from '../../hooks/useCursos'
+import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
+
+interface TabInformacionProps {
+    curso: Curso
+    profesores: { id: string; nombre: string; apellido: string }[]
+    onSuccess: () => void
+}
+
+export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionProps) {
+    const { enqueueSnackbar } = useSnackbar()
+    const editMutation = useEditCurso()
+    const { data: categorias = [] } = useCategorias()
+
+    const [openMedia, setOpenMedia] = useState(false)
+
+    const [form, setForm] = useState({
+        titulo: curso.titulo,
+        descripcion: curso.descripcion || '',
+        categoria_id: curso.categoria_id || '',
+        profesor_id: curso.profesor_id,
+        tipo_emision: curso.tipo_emision,
+        duracion: curso.duracion || '',
+        miniatura: curso.miniatura || '',
+        video_presentacion: curso.video_presentacion || '',
+        fecha_inicio: curso.fecha_inicio ? new Date(curso.fecha_inicio).toISOString().split('T')[0] : '',
+        nivel: curso.nivel || 'BASICO'
+    })
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+    }
+
+    const handleSave = async () => {
+        try {
+            await editMutation.mutateAsync({
+                id: curso.id,
+                data: {
+                    titulo: form.titulo,
+                    descripcion: form.descripcion?.trim() || null,
+                    categoria_id: form.categoria_id || null,
+                    profesor_id: form.profesor_id,
+                    tipo_emision: form.tipo_emision as 'SINCRONO' | 'ASINCRONO' | 'MIXTO',
+                    duracion: form.duracion || null,
+                    miniatura: form.miniatura || null,
+                    video_presentacion: form.video_presentacion || null,
+                    fecha_inicio: form.fecha_inicio ? new Date(form.fecha_inicio).toISOString() : null,
+                    nivel: form.nivel as 'BASICO' | 'INTERMEDIO' | 'AVANZADO'
+                }
+            })
+            enqueueSnackbar('Curso actualizado exitosamente', { variant: 'success' })
+            onSuccess()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al actualizar', { variant: 'error' })
+        }
+    }
+
+    return (
+        <Grid container spacing={5}>
+            <Grid item xs={12}>
+                <CustomTextField
+                    fullWidth
+                    label='Título del Curso'
+                    name='titulo'
+                    value={form.titulo}
+                    onChange={handleChange}
+                    InputProps={{
+                        startAdornment: <InputAdornment position='start'><i className='tabler-book text-xl text-textSecondary' /></InputAdornment>
+                    }}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <CustomTextField
+                    fullWidth
+                    multiline
+                    rows={4}
+                    label='Descripción'
+                    name='descripcion'
+                    value={form.descripcion}
+                    onChange={handleChange}
+                />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <CustomTextField
+                    select
+                    fullWidth
+                    label='Categoría'
+                    name='categoria_id'
+                    value={form.categoria_id}
+                    onChange={handleChange}
+                >
+                    <MenuItem value=''>Sin categoría</MenuItem>
+                    {categorias.map(cat => (
+                        <MenuItem key={cat.id} value={cat.id}>{cat.nombre}</MenuItem>
+                    ))}
+                </CustomTextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <CustomTextField
+                    select
+                    fullWidth
+                    label='Profesor'
+                    name='profesor_id'
+                    value={form.profesor_id}
+                    onChange={handleChange}
+                >
+                    {profesores.map(p => (
+                        <MenuItem key={p.id} value={p.id}>{p.nombre} {p.apellido}</MenuItem>
+                    ))}
+                </CustomTextField>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <CustomTextField
+                    select
+                    fullWidth
+                    label='Nivel del Curso'
+                    name='nivel'
+                    value={form.nivel}
+                    onChange={handleChange}
+                >
+                    <MenuItem value='BASICO'>Básico</MenuItem>
+                    <MenuItem value='INTERMEDIO'>Intermedio</MenuItem>
+                    <MenuItem value='AVANZADO'>Avanzado</MenuItem>
+                </CustomTextField>
+            </Grid>
+            <Grid item xs={12}>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    <Typography variant='body2' color='text.secondary'>Tipo de emisión:</Typography>
+                    <Button
+                        variant={form.tipo_emision === 'ASINCRONO' ? 'contained' : 'outlined'}
+                        size='small'
+                        onClick={() => setForm(prev => ({ ...prev, tipo_emision: 'ASINCRONO' }))}
+                        startIcon={<i className='tabler-player-play' />}
+                    >
+                        Asíncrono
+                    </Button>
+                    <Button
+                        variant={form.tipo_emision === 'SINCRONO' ? 'contained' : 'outlined'}
+                        size='small'
+                        onClick={() => setForm(prev => ({ ...prev, tipo_emision: 'SINCRONO' }))}
+                        startIcon={<i className='tabler-live-photo' />}
+                    >
+                        Síncrono
+                    </Button>
+                    <Button
+                        variant={form.tipo_emision === 'MIXTO' ? 'contained' : 'outlined'}
+                        size='small'
+                        onClick={() => setForm(prev => ({ ...prev, tipo_emision: 'MIXTO' }))}
+                        startIcon={<i className='tabler-arrows-split' />}
+                    >
+                        Mixto
+                    </Button>
+                </Box>
+            </Grid>
+            {(form.tipo_emision === 'SINCRONO' || form.tipo_emision === 'MIXTO') && (
+                <Grid item xs={12} sm={6}>
+                    <CustomTextField
+                        fullWidth
+                        type='date'
+                        label='Fecha de Inicio'
+                        name='fecha_inicio'
+                        value={form.fecha_inicio}
+                        onChange={handleChange}
+                        InputLabelProps={{ shrink: true }}
+                        InputProps={{
+                            startAdornment: <InputAdornment position='start'><i className='tabler-calendar text-xl text-textSecondary' /></InputAdornment>
+                        }}
+                    />
+                </Grid>
+            )}
+            <Grid item xs={12} sm={6}>
+                <CustomTextField
+                    fullWidth
+                    label='Duración'
+                    name='duracion'
+                    placeholder='Ej: 12 horas'
+                    value={form.duracion}
+                    onChange={handleChange}
+                    InputProps={{
+                        startAdornment: <InputAdornment position='start'><i className='tabler-clock text-xl text-textSecondary' /></InputAdornment>
+                    }}
+                />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <Typography variant='subtitle2' sx={{ mb: 1 }}>Imagen de Portada</Typography>
+                {form.miniatura ? (
+                    <Box sx={{ position: 'relative', width: '100%', borderRadius: 2, overflow: 'hidden', mb: 2, bgcolor: '#f4f4f4', border: '1px solid', borderColor: 'divider' }}>
+                        <img
+                            src={form.miniatura}
+                            alt='Vista previa'
+                            style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block', maxHeight: 240 }}
+                        />
+                        <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
+                            <IconButton
+                                size='small'
+                                sx={{ bgcolor: 'background.paper', '&:hover': { bgcolor: 'background.paper' } }}
+                                onClick={() => setForm(prev => ({ ...prev, miniatura: '' }))}
+                            >
+                                <i className='tabler-trash text-error text-sm' />
+                            </IconButton>
+                        </Box>
+                    </Box>
+                ) : (
+                    <Box
+                        onClick={() => setOpenMedia(true)}
+                        sx={{
+                            width: '100%',
+                            height: 120,
+                            borderRadius: 2,
+                            border: '1px dashed',
+                            borderColor: 'divider',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            bgcolor: 'action.hover',
+                            mb: 2,
+                            '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.lightOpacity' }
+                        }}
+                    >
+                        <i className='tabler-photo-plus text-2xl text-textDisabled' />
+                        <Typography variant='caption' color='text.secondary' sx={{ mt: 1 }}>Click para seleccionar</Typography>
+                    </Box>
+                )}
+
+                <Button
+                    variant='outlined'
+                    size='small'
+                    fullWidth
+                    startIcon={<i className='tabler-photo' />}
+                    onClick={() => setOpenMedia(true)}
+                >
+                    {form.miniatura ? 'Cambiar Imagen' : 'Seleccionar Imagen'}
+                </Button>
+
+                <MediaLibrary
+                    open={openMedia}
+                    onClose={() => setOpenMedia(false)}
+                    onSelect={(url) => setForm(prev => ({ ...prev, miniatura: url }))}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <CustomTextField
+                    fullWidth
+                    label='URL Video Presentación (Vimeo)'
+                    name='video_presentacion'
+                    value={form.video_presentacion}
+                    onChange={handleChange}
+                    InputProps={{
+                        startAdornment: <InputAdornment position='start'><i className='tabler-brand-vimeo text-xl text-textSecondary' /></InputAdornment>
+                    }}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button
+                        variant='contained'
+                        onClick={handleSave}
+                        disabled={editMutation.isPending}
+                        startIcon={<i className='tabler-device-floppy' />}
+                    >
+                        {editMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
+                    </Button>
+                </Box>
+            </Grid>
+        </Grid>
+    )
+}

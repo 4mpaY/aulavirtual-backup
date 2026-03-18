@@ -38,7 +38,7 @@ const MyCoursesList: React.FC<MyCoursesListProps> = ({ courses }) => {
     }
 
     return (
-        <Grid container spacing={8}>
+        <Grid container spacing={{ xs: 3, sm: 4, md: 6, lg: 8 }}>
             {courses.map((course) => (
                 <Grid item xs={12} sm={6} md={4} key={course.id}>
                     <MyCourseCard

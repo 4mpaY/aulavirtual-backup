@@ -1,7 +1,7 @@
 'use client'
 
 // React Imports
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Next Imports
 import { useRouter } from 'next/navigation'
@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
+import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 import CircularProgress from '@mui/material/CircularProgress'
 
@@ -67,6 +68,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [error, setError] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
+  const [registerUrl, setRegisterUrl] = useState('/register')
 
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
@@ -82,6 +84,14 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const authBackground = useImageVariant(mode, lightImg, darkImg)
+
+  useEffect(() => {
+    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl')
+
+    if (callbackUrl) {
+      setRegisterUrl(`/register?callbackUrl=${callbackUrl}`)
+    }
+  }, [])
 
   const characterIllustration = useImageVariant(
     mode,
@@ -118,7 +128,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
       // Verificar si hubo error
       if (result?.error) {
-        console.error('❌ Error en login:', result.error);
+        console.error('❌ Error en login:', result.error)
 
         if (result.error === 'CredentialsSignin') {
           setError('Correo o contraseña incorrectos')
@@ -146,6 +156,45 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     } catch (err) {
       console.error('💥 Error en login:', err)
       setError('Ocurrió un error inesperado. Intenta nuevamente.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true)
+      const result = await signIn('google', { redirect: false })
+
+      if (result?.url) {
+        const width = 500
+        const height = 600
+        const left = window.screenX + (window.outerWidth - width) / 2
+        const top = window.screenY + (window.outerHeight - height) / 2
+
+        const popup = window.open(
+          result.url,
+          'google-login',
+          `width=${width},height=${height},left=${left},top=${top}`
+        )
+
+        const checkPopup = setInterval(() => {
+          if (!popup || popup.closed) {
+            clearInterval(checkPopup)
+            router.refresh()
+
+            const urlParams = new URLSearchParams(window.location.search)
+            const callbackUrl = urlParams.get('callbackUrl')
+
+            router.push(callbackUrl || '/dashboard')
+          }
+        }, 1000)
+      } else {
+        setError('No se pudo obtener la URL de autenticación de Google.')
+      }
+    } catch (err) {
+      console.error('Error al iniciar login con Google:', err)
+      setError('Ocurrió un error al conectar con Google.')
     } finally {
       setIsLoading(false)
     }
@@ -249,15 +298,26 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
               <Typography>¿No tienes una cuenta?</Typography>
               <Typography
                 component={Link}
-                href={
-                  typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('callbackUrl')
-                    ? `/register?callbackUrl=${new URLSearchParams(window.location.search).get('callbackUrl')}`
-                    : '/register'
-                }
+                href={registerUrl}
                 color='primary'
               >
                 Regístrate
               </Typography>
+            </div>
+
+            <Divider className='gap-2'>o</Divider>
+
+            <div className='flex justify-center items-center gap-1.5'>
+              <Button
+                fullWidth
+                variant='outlined'
+                color='secondary'
+                startIcon={<i className='tabler-brand-google-filled' />}
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+              >
+                Continuar con Google
+              </Button>
             </div>
           </form>
         </div>

@@ -1,8 +1,12 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/utils/configs/auth'
-import { Rol } from '@prisma/client'
 import { headers } from 'next/headers'
+
+import { getServerSession } from 'next-auth'
+
+import { Rol } from '@prisma/client'
 import jwt from 'jsonwebtoken'
+
+import { authOptions } from '@/utils/configs/auth'
+
 import { ApiResponse } from './apiResponse'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
@@ -43,6 +47,7 @@ async function getUserFromBearerToken(): Promise<AuthUser | null> {
     }
   } catch (error) {
     console.error('[AUTH] Error verifying Bearer token:', error)
+
     return null
   }
 }
