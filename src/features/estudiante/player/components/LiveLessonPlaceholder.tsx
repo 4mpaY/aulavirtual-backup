@@ -120,18 +120,18 @@ const LiveLessonPlaceholder = ({
             bgcolor: isLive ? '#ef4444' : '#3b82f6',
             animation: isLive ? 'pulse 2s infinite' : 'none'
           }} />
-          <Typography variant="caption" sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1 }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, color: 'inherit' }}>
             {isLive ? 'Transmisión en Vivo' : 'Próximamente'}
           </Typography>
         </Box>
 
-        <Typography variant="h3" sx={{ fontWeight: 900, lineHeight: 1.2 }}>
+        <Typography variant="h3" sx={{ fontWeight: 900, lineHeight: 1.2, color: 'common.white' }}>
           {titulo}
         </Typography>
 
         {!isLive && timeLeft && (
           <Box>
-            <Typography variant="body1" sx={{ mb: 2, color: 'slate.400', opacity: 0.8 }}>
+            <Typography variant="body1" sx={{ mb: 2, color: 'rgba(255,255,255,0.7)', opacity: 0.8 }}>
               La clase iniciará en:
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center">
@@ -142,16 +142,16 @@ const LiveLessonPlaceholder = ({
                 { label: 'Seg', value: timeLeft.seconds }
               ].map((item, index) => (
                 <Box key={index} sx={{ minWidth: 70 }}>
-                  <Typography variant="h4" sx={{ fontWeight: 800 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: 'common.white' }}>
                     {String(item.value).padStart(2, '0')}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'slate.500', textTransform: 'uppercase' }}>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>
                     {item.label}
                   </Typography>
                 </Box>
               ))}
             </Stack>
-            <Typography variant="h6" sx={{ mt: 3, fontWeight: 600, color: '#94a3b8' }}>
+            <Typography variant="h6" sx={{ mt: 3, fontWeight: 600, color: '#e2e8f0' }}>
               {formattedDate}
             </Typography>
           </Box>

@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 
 import Link from 'next/link'
 
@@ -22,8 +22,14 @@ import {
   ListItemText,
   Divider,
   Paper,
-  Breadcrumbs
+  Breadcrumbs,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton
 } from '@mui/material'
+
+import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
 
 interface Leccion {
   id: string
@@ -71,6 +77,8 @@ interface CourseDetailProps {
 }
 
 const CourseDetail = ({ course }: CourseDetailProps) => {
+  const [previewLesson, setPreviewLesson] = useState<any>(null)
+
   // Helper para obtener el ID de video y la URL de embebido
   const getEmbedUrl = (url?: string | null) => {
     if (!url) return null
@@ -536,9 +544,22 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                             {modulo.lecciones.map((leccion) => (
                               <Fragment key={leccion.id}>
                                 <Divider />
-                                <ListItem sx={{ py: 2, px: 3 }}>
+                                <ListItem 
+                                  sx={{ 
+                                    py: 2, 
+                                    px: 3,
+                                    cursor: (leccion as any).es_vista_previa ? 'pointer' : 'default',
+                                    transition: 'background-color 0.2s',
+                                    '&:hover': (leccion as any).es_vista_previa ? { bgcolor: 'action.hover' } : {}
+                                  }}
+                                  onClick={() => {
+                                    if ((leccion as any).es_vista_previa) {
+                                      setPreviewLesson(leccion)
+                                    }
+                                  }}
+                                >
                                   <ListItemIcon sx={{ minWidth: 40 }}>
-                                    <i className="tabler-player-play" style={{ color: 'primary.main' }} />
+                                    <i className="tabler-player-play" style={{ color: (leccion as any).es_vista_previa ? 'primary.main' : 'text.disabled' }} />
                                   </ListItemIcon>
                                   <ListItemText
                                     primary={
@@ -634,6 +655,38 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
           </Grid>
         </Grid>
       </Container>
+
+      {/* Dialog para la Vista Previa */}
+      <Dialog
+        open={Boolean(previewLesson)}
+        onClose={() => setPreviewLesson(null)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3, bgcolor: 'background.paper', overflow: 'hidden' }
+        }}
+      >
+        <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" fontWeight={700}>
+            Vista Previa: {previewLesson?.titulo}
+          </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={() => setPreviewLesson(null)}
+            sx={{ color: 'text.secondary' }}
+          >
+            <i className="tabler-x" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 0, bgcolor: 'black' }}>
+          {previewLesson && (
+            <VideoPlayer 
+                url={(previewLesson as any).video_url} 
+                tipo="VIDEO" 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   )
 }
