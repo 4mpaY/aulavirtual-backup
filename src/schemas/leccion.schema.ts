@@ -13,6 +13,8 @@ export const crearLeccionSchema = z.object({
   duracion: z.coerce.number().int().min(0).optional().nullable(),
   enlace_reunion: z.string().optional().nullable(),
   video_url: z.string().optional().nullable(),
+  es_en_vivo: z.boolean().optional().default(false),
+  fecha_programada: z.string().datetime().optional().nullable(),
   recursos: z.array(z.any()).optional(),
   es_vista_previa: z.boolean().optional()
 })
@@ -33,6 +35,8 @@ export const actualizarLeccionSchema = z.object({
   duracion: z.coerce.number().int().min(0).optional().nullable(),
   enlace_reunion: z.string().optional().nullable(),
   video_url: z.string().optional().nullable(),
+  es_en_vivo: z.boolean().optional(),
+  fecha_programada: z.string().datetime().optional().nullable(),
   recursos: z.array(z.any()).optional(),
   estado: z.enum(['BORRADOR', 'PUBLICADO']).optional(),
   es_vista_previa: z.boolean().optional()

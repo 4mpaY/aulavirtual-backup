@@ -16,6 +16,9 @@ export interface CursoLeccionResumen {
   orden: number
   duracion: number | null
   video_url: string | null
+  enlace_reunion: string | null
+  es_en_vivo: boolean
+  fecha_programada: string | Date | null
   recursos: any[]
   estado: 'BORRADOR' | 'PUBLICADO'
   es_vista_previa: boolean

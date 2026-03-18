@@ -12,6 +12,7 @@ import LessonContent from './LessonContent'
 import CommentsSection from './CommentsSection'
 import ExamSection from './ExamSection'
 import CertificateSection from './CertificateSection'
+import LiveLessonPlaceholder from './LiveLessonPlaceholder'
 
 import { useCourseStore } from '../store/useCourseStore'
 
@@ -190,7 +191,7 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
 
         return (
             <>
-                {/* Video fijo en la parte superior en móvil */}
+                {/* Video fijo en la parte superior en móvil o Placeholder de Clase en Vivo */}
                 <Grid item xs={12} key={`video-container-${currentLesson?.id || 'no-lesson'}`} sx={{ 
                     p: 0, 
                     position: { xs: 'sticky', md: 'relative' }, 
@@ -198,7 +199,16 @@ const CoursePlayerView: React.FC<CoursePlayerViewProps> = ({ course, initialLess
                     zIndex: 6,
                     bgcolor: 'black'
                 }}>
-                    <VideoPlayer url={currentLesson?.video_url || undefined} tipo="VIDEO" onEnded={handleVideoEnded} />
+                    {currentLesson?.es_en_vivo ? (
+                        <LiveLessonPlaceholder 
+                            titulo={currentLesson.titulo}
+                            esEnVivo={true}
+                            fechaProgramada={currentLesson.fecha_programada}
+                            enlaceReunion={currentLesson.enlace_reunion}
+                        />
+                    ) : (
+                        <VideoPlayer url={currentLesson?.video_url || undefined} tipo="VIDEO" onEnded={handleVideoEnded} />
+                    )}
                 </Grid>
 
                 {/* Tabs fijos debajo del video en móvil */}

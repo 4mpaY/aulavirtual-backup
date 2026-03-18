@@ -6,6 +6,9 @@ export interface Lesson {
     contenido?: string
     orden: number
     video_url?: string
+    enlace_reunion?: string
+    es_en_vivo?: boolean
+    fecha_programada?: string | Date | null
     completada: boolean
     recursos?: any[]
 }

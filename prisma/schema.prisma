@@ -123,11 +123,13 @@ model Leccion {
   modulo_id       String
   recursos        Json?              @default("[]")
   video_url       String?
-  es_vista_previa Boolean            @default(false)
-  contenidos      ContenidoLeccion[]
-  modulo          Modulo             @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
-  progreso        ProgresoLeccion[]
-  comentarios     Comentario[]
+  es_en_vivo       Boolean            @default(false)
+  fecha_programada DateTime?
+  es_vista_previa  Boolean            @default(false)
+  contenidos       ContenidoLeccion[]
+  modulo           Modulo             @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
+  progreso         ProgresoLeccion[]
+  comentarios      Comentario[]
 
   @@unique([modulo_id, orden])
   @@index([modulo_id])
