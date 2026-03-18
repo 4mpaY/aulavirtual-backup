@@ -1,15 +1,12 @@
 // Next Imports
 import React from 'react'
 
-import { Container, Stack, Button, Box, Typography, Divider } from '@mui/material'
+import { Box } from '@mui/material'
 
 // Component Imports
 import { getServerSession } from 'next-auth'
 
 import CourseCatalog from '@/features/web/home/components/CourseCatalog'
-import Logo from '@components/layout/shared/Logo'
-import UserDropdown from '@components/layout/shared/UserDropdown'
-import CartIcon from '@/features/web/cart/components/CartIcon'
 
 // Auth Imports
 import { authOptions } from '@/utils/configs/auth'
@@ -100,49 +97,12 @@ export default async function HomePage() {
   const { courses, categories } = await getData(session?.user?.id)
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {/* Header / Nav */}
-      <Box sx={{ py: 3, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-        <Container maxWidth="lg">
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Logo />
-            <Stack direction="row" spacing={2} alignItems="center">
-              <CartIcon />
-              {session ? (
-                <UserDropdown />
-              ) : (
-                <>
-                  <Button href="/login" color="inherit" sx={{ fontWeight: 600 }}>Iniciar Sesión</Button>
-                  <Button href="/register" variant="contained" sx={{ fontWeight: 600, borderRadius: '10px' }}>Registrarse</Button>
-                </>
-              )}
-            </Stack>
-          </Stack>
-        </Container>
-      </Box>
-
+    <>
       {/* Catalog Section (Main content) */}
       <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
         <CourseCatalog courses={courses} categories={categories} />
       </Box>
-
-      {/* Footer básico */}
-      <Box sx={{ bgcolor: 'background.paper', py: 6, borderTop: 1, borderColor: 'divider' }}>
-        <Container maxWidth="lg">
-          <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={4}>
-            <Logo />
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Typography variant="body2" color="text.secondary">
-                © 2026 ELITE EdTech
-              </Typography>
-              <Divider orientation="vertical" flexItem sx={{ height: 16 }} />
-              <Typography variant="body2" component="a" href="#" sx={{ color: 'text.secondary', textDecoration: 'none' }}>Privacidad</Typography>
-              <Typography variant="body2" component="a" href="#" sx={{ color: 'text.secondary', textDecoration: 'none' }}>Términos</Typography>
-            </Stack>
-          </Stack>
-        </Container>
-      </Box>
-    </Box>
+    </>
   )
 }
 

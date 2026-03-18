@@ -120,7 +120,6 @@ export async function POST(request: Request) {
     const orderNumber = String(pedido.numero_pedido).padStart(10, '0')
 
     // 5. Obtener Session Token de Izipay
-    // 5. Obtener Session Token de Izipay
     const merchantCode = process.env.IZIPAY_MERCHANT_CODE
     const apiKey = process.env.IZIPAY_API_KEY
     const endpoint = process.env.IZIPAY_ENDPOINT

@@ -1,6 +1,6 @@
-import prisma from '@/utils/libs/prisma'
-
 import { NextResponse } from 'next/server'
+
+import prisma from '@/utils/libs/prisma'
 
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
@@ -32,7 +32,7 @@ export async function GET(
       return NextResponse.json({ error: 'Certificado no encontrado' }, { status: 404 })
     }
 
-    if (certificado.usuario_id !== auth.user.id) {
+    if (certificado.usuario_id !== auth.user.id && auth.user.rol !== 'ADMIN') {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
@@ -133,15 +133,15 @@ export async function GET(
       { align: 'center' }
     )
 
-    // Generar buffer
-    const pdfBuffer = Buffer.from(doc.output('arraybuffer'))
+    // Generar ArrayBuffer directamente para compatibilidad con NextResponse
+    const pdfArrayBuffer = doc.output('arraybuffer')
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(pdfArrayBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
-        'Content-Length': pdfBuffer.length.toString()
+        'Content-Length': pdfArrayBuffer.byteLength.toString()
       }
     })
   } catch (error) {

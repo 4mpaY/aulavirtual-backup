@@ -14,7 +14,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
 
-    const { nombre, apellido, celular, numero_documento, biografia, contrasena } = await req.json()
+    const { nombre, apellido, celular, numero_documento, biografia, contrasena, avatar } = await req.json()
 
     if (!nombre || !apellido || !numero_documento) {
       return NextResponse.json({ status: false, message: 'Faltan campos obligatorios' }, { status: 400 })
@@ -33,7 +33,8 @@ export async function PUT(req: Request) {
       apellido,
       celular,
       numero_documento,
-      biografia
+      biografia,
+      avatar
     }
 
     // Verify document uniqueness if changed

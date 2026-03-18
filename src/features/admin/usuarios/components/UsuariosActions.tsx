@@ -1,10 +1,13 @@
 'use client'
 
 import type { FC } from 'react'
+
 import type { Usuario } from '../entity/Usuario'
+
 import CreateUsuarioModal from './CreateUsuarioModal'
 import EditUsuarioModal from './EditUsuarioModal'
 import DeleteUsuarioModal from './DeleteUsuarioModal'
+import UsuarioDetallesModal from './UsuarioDetallesModal'
 
 type ModalConfig = {
   isOpen: boolean
@@ -16,6 +19,7 @@ interface UsuariosActionsProps {
   addUsuario: ModalConfig
   editUsuario: ModalConfig
   deleteUsuario: ModalConfig
+  viewUsuario: ModalConfig
   onSuccess?: () => void
 }
 
@@ -24,6 +28,7 @@ export const UsuariosActions: FC<UsuariosActionsProps> = ({
   addUsuario,
   editUsuario,
   deleteUsuario,
+  viewUsuario,
   onSuccess
 }) => {
   return (
@@ -41,6 +46,13 @@ export const UsuariosActions: FC<UsuariosActionsProps> = ({
         handleClose={editUsuario.closeHandler}
         usuarioId={usuarioClicked?.id || null}
         onSuccess={onSuccess}
+      />
+
+      {/* Modal Ver Detalles Usuario */}
+      <UsuarioDetallesModal
+        open={viewUsuario.isOpen}
+        handleClose={viewUsuario.closeHandler}
+        usuarioId={usuarioClicked?.id || null}
       />
 
       {/* Modal Eliminar Usuario */}

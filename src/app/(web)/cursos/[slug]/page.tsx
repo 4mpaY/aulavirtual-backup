@@ -3,14 +3,12 @@ import React from 'react'
 
 import { notFound } from 'next/navigation'
 
-import { Container, Stack, Button, Box, Typography, Divider } from '@mui/material'
+import { Box } from '@mui/material'
 
 // Component Imports
 import { getServerSession } from 'next-auth'
 
 import CourseDetail from '@/features/web/courses/components/CourseDetail'
-import Logo from '@components/layout/shared/Logo'
-import UserDropdown from '@components/layout/shared/UserDropdown'
 
 // Auth Imports
 import { authOptions } from '@/utils/configs/auth'
@@ -79,45 +77,8 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
     }
 
     return (
-        <Box component="main" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            {/* Header / Nav */}
-            <Box sx={{ py: 3, borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-                <Container maxWidth={false} sx={{ px: { xs: 4, md: 8, lg: 12 } }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Logo />
-                        <Stack direction="row" spacing={2} alignItems="center">
-                            <Button href="/" color="inherit" sx={{ fontWeight: 600 }}>Volver al Catálogo</Button>
-                            {session ? (
-                                <UserDropdown />
-                            ) : (
-                                <Button href="/login" variant="contained" sx={{ fontWeight: 600, borderRadius: '10px' }}>Iniciar Sesión</Button>
-                            )}
-                        </Stack>
-                    </Stack>
-                </Container>
-            </Box>
-
-            {/* Course Detail Content */}
-            <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
-                <CourseDetail course={course} />
-            </Box>
-
-            {/* Footer básico */}
-            <Box sx={{ bgcolor: 'background.paper', py: 6, borderTop: 1, borderColor: 'divider' }}>
-                <Container maxWidth={false} sx={{ px: { xs: 4, md: 8, lg: 12 } }}>
-                    <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={4}>
-                        <Logo />
-                        <Stack direction="row" spacing={3} alignItems="center">
-                            <Typography variant="body2" color="text.secondary">
-                                © 2026 Aula Virtual EdTech
-                            </Typography>
-                            <Divider orientation="vertical" flexItem sx={{ height: 16 }} />
-                            <Typography variant="body2" component="a" href="#" sx={{ color: 'text.secondary', textDecoration: 'none' }}>Privacidad</Typography>
-                            <Typography variant="body2" component="a" href="#" sx={{ color: 'text.secondary', textDecoration: 'none' }}>Términos</Typography>
-                        </Stack>
-                    </Stack>
-                </Container>
-            </Box>
+        <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
+            <CourseDetail course={course} />
         </Box>
     )
 }

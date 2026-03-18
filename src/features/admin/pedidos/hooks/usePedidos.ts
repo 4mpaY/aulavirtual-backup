@@ -22,12 +22,12 @@ const axiosPedidoFactory = () => {
 /**
  * Hook para obtener todos los pedidos
  */
-export function usePedidos(initialData?: Pedido[]) {
+export function usePedidos(query?: Record<string, string>, initialData?: Pedido[]) {
   const axiosPedido = axiosPedidoFactory()
 
   return useQuery<{ pedidos: Pedido[]; paginacion: any }, any>({
-    queryKey: QUERY_KEY.PEDIDOS,
-    queryFn: async () => await axiosPedido.getAll(),
+    queryKey: [...QUERY_KEY.PEDIDOS, query],
+    queryFn: async () => await axiosPedido.getAll(query),
     initialData: initialData ? { pedidos: initialData, paginacion: {} } : undefined,
     staleTime: 60_000,
     retry: 1

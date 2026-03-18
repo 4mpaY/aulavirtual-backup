@@ -66,6 +66,7 @@ model Curso {
   estado             EstadoCurso     @default(BORRADOR)
   es_gratis          Boolean         @default(false)
   precio             Decimal         @default(0) @db.Decimal(10, 2)
+  precio_oferta      Decimal?        @db.Decimal(10, 2)
   moneda             String          @default("PEN")
   creado_en          DateTime        @default(now())
   actualizado_en     DateTime        @updatedAt
@@ -85,6 +86,7 @@ model Curso {
   inscripciones      Inscripcion[]
   modulos            Modulo[]
   progreso           ProgresoCurso[]
+  rutas              CursoEnRuta[]
 
   @@index([profesor_id])
   @@index([categoria_id])
@@ -456,6 +458,8 @@ enum MetodoPago {
   YAPE
   PLIN
   TRANSFERENCIA
+  PAYPAL
+  IZIPAY
   OTRO
 }
 
@@ -494,4 +498,47 @@ enum NivelCurso {
 enum TipoDescuento {
   PORCENTAJE
   MONTO_FIJO
+}
+
+model Configuracion {
+  id             String   @id @default(uuid())
+  clave          String   @unique
+  valor          String
+  descripcion    String?
+  actualizado_en DateTime @updatedAt
+
+  @@map("configuraciones")
+}
+
+model RutaAprendizaje {
+  id             String         @id @default(uuid())
+  titulo         String
+  slug           String         @unique
+  descripcion    String?
+  miniatura      String?
+  beneficios     Json?          @default("[]")
+  secciones      Json?          @default("[]")
+  esta_activo    Boolean        @default(true)
+  creado_en      DateTime       @default(now())
+  actualizado_en DateTime       @updatedAt
+  cursos         CursoEnRuta[]
+
+  @@map("rutas_aprendizaje")
+}
+
+model CursoEnRuta {
+  id                String          @id @default(uuid())
+  orden             Int
+  seccion_id        String?
+  creado_en         DateTime        @default(now())
+  actualizado_en    DateTime        @updatedAt
+  ruta_id           String
+  curso_id          String
+  ruta              RutaAprendizaje @relation(fields: [ruta_id], references: [id], onDelete: Cascade)
+  curso             Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  @@unique([ruta_id, curso_id])
+  @@index([ruta_id])
+  @@index([curso_id])
+  @@map("cursos_en_ruta")
 }

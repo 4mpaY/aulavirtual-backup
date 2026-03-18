@@ -75,7 +75,7 @@ export const listarCursosQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(10),
   buscar: z.string().optional(),
-  estado: z.enum(['BORRADOR', 'PUBLICADO', 'ARCHIVADO']).optional(),
+  estado: z.enum(['BORRADOR', 'PUBLICADO', 'ARCHIVADO', '']).optional(),
   categoria_id: z.string().uuid().optional(),
   profesor_id: z.string().uuid().optional()
 })

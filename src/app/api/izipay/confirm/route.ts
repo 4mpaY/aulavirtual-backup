@@ -69,8 +69,9 @@ export async function POST(request: Request) {
         data: {
           estado: 'COMPLETADO',
           pagado_en: new Date(),
+          metodo_pago: 'IZIPAY',
           transaccion_id: izipayResponse.transactionId || null,
-          respuesta_izipay: izipayResponse,
+          respuesta_izipay: izipayResponse
         }
       })
 

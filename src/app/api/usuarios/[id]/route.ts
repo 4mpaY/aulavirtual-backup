@@ -1,9 +1,10 @@
-import prisma from '@/utils/libs/prisma'
 import bcrypt from 'bcryptjs'
+import { Rol } from '@prisma/client'
+
+import prisma from '@/utils/libs/prisma'
 import { actualizarUsuarioSchema } from '@/schemas/usuario.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireAdmin, requireAuth } from '@/utils/libs/auth-helpers'
-import { Rol } from '@prisma/client'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 
 /**
@@ -12,8 +13,10 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
+
     // Verificar autenticación
     const auth = await requireAuth(request)
+
     if (!auth.authorized) {
       return auth.error
     }
@@ -40,7 +43,30 @@ export async function GET(request: Request, { params }: { params: { id: string }
         rol: true,
         esta_activo: true,
         creado_en: true,
-        actualizado_en: true
+        actualizado_en: true,
+        inscripciones: {
+          select: {
+            id: true,
+            inscrito_en: true,
+            estado: true,
+            curso: {
+              select: {
+                id: true,
+                titulo: true,
+                slug: true
+              }
+            }
+          }
+        },
+        cursos_dictados: {
+          select: {
+            id: true,
+            titulo: true,
+            slug: true,
+            estado: true,
+            creado_en: true
+          }
+        }
       }
     })
 
@@ -62,6 +88,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   try {
     // Verificar que sea admin
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) {
       return auth.error
     }
@@ -147,6 +174,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   try {
     // Verificar que sea admin
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) {
       return auth.error
     }

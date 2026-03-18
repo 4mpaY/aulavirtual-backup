@@ -12,10 +12,9 @@ import { handleApiError } from '@/utils/libs/validation'
  */
 export async function GET(request: Request) {
   try {
-    const media = await prisma.$queryRaw`
-      SELECT * FROM "media"
-      ORDER BY "creado_en" DESC
-    `
+    const media = await prisma.media.findMany({
+      orderBy: { creado_en: 'desc' }
+    })
 
     return ApiResponse.success(request, media)
   } catch (error) {
@@ -53,23 +52,23 @@ export async function POST(request: Request) {
     // Guardar en el sistema de archivos
     await writeFile(absolutePath, buffer as any)
 
-    // Registrar en la base de datos usando SQL crudo
+    // Registrar en la base de datos usando Prisma Client
     const tipo = file.type.startsWith('image/') ? 'IMAGEN' : 'OTRO'
     const peso = file.size
     const mimetype = file.type
-    const ahora = new Date()
 
-    await prisma.$executeRaw`
-      INSERT INTO "media" ("id", "nombre", "url", "tipo", "mimetype", "peso", "creado_en", "actualizado_en")
-      VALUES (${id}, ${nombreOriginal}, ${relativePath}, ${tipo}, ${mimetype}, ${peso}, ${ahora}, ${ahora})
-    `
+    const mediaResult = await prisma.media.create({
+      data: {
+        id,
+        nombre: nombreOriginal,
+        url: relativePath,
+        tipo,
+        mimetype,
+        peso: Number(peso)
+      }
+    })
 
-    // Recuperar el objeto creado para devolverlo
-    const mediaResult = await prisma.$queryRaw<any[]>`
-      SELECT * FROM "media" WHERE "id" = ${id} LIMIT 1
-    `
-
-    return ApiResponse.success(request, mediaResult[0], 201)
+    return ApiResponse.success(request, mediaResult, 201)
   } catch (error) {
     return handleApiError(error, request)
   }

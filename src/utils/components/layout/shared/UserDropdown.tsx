@@ -86,6 +86,7 @@ const UserDropdown = () => {
           src={data?.user?.avatar || '/images/avatars/1.png'}
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
+          imgProps={{ referrerPolicy: 'no-referrer' }}
         />
       </Badge>
       <Popper
@@ -107,7 +108,11 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
-                    <Avatar alt={data?.user?.name || ''} src={data?.user?.avatar || '/images/avatars/1.png'} />
+                    <Avatar
+                      alt={data?.user?.name || ''}
+                      src={data?.user?.avatar || '/images/avatars/1.png'}
+                      imgProps={{ referrerPolicy: 'no-referrer' }}
+                    />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
                         {`${data?.user.name}`}

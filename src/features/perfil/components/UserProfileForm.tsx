@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -14,7 +14,10 @@ import {
   Avatar,
   Stack,
   Divider,
-  CircularProgress
+  CircularProgress,
+  IconButton,
+  Tooltip,
+  Badge
 } from '@mui/material'
 import { toast } from 'react-toastify'
 import axios from 'axios'
@@ -38,6 +41,8 @@ interface Props {
 export default function UserProfileForm({ user }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null)
 
   const [formData, setFormData] = useState({
     nombre: user.nombre || '',
@@ -56,6 +61,15 @@ export default function UserProfileForm({ user }: Props) {
     })
   }
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+
+      setSelectedFile(file)
+      setAvatarPreview(URL.createObjectURL(file))
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -68,7 +82,27 @@ export default function UserProfileForm({ user }: Props) {
     setLoading(true)
 
     try {
-      const response = await axios.put('/api/perfil', formData)
+      let avatarUrl = user.avatar
+
+      // Si hay un archivo seleccionado, lo subimos primero
+      if (selectedFile) {
+        const mediaData = new FormData()
+
+        mediaData.append('file', selectedFile)
+
+        const uploadResponse = await axios.post('/api/media', mediaData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+
+        if (uploadResponse.data.status) {
+          avatarUrl = uploadResponse.data.result.url
+        }
+      }
+
+      const response = await axios.put('/api/perfil', {
+        ...formData,
+        avatar: avatarUrl
+      })
 
       if (response.data.status) {
         toast.success('Perfil actualizado correctamente')
@@ -76,6 +110,7 @@ export default function UserProfileForm({ user }: Props) {
 
         // Limpiamos los campos de contraseña
         setFormData(prev => ({ ...prev, contrasena: '', confirmarContrasena: '' }))
+        setSelectedFile(null)
       } else {
         toast.error(response.data.message || 'Error al actualizar el perfil')
       }
@@ -86,17 +121,49 @@ export default function UserProfileForm({ user }: Props) {
     }
   }
 
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   return (
     <Grid container spacing={4}>
       <Grid item xs={12} md={4}>
         <Paper sx={{ p: 4, borderRadius: '24px', textAlign: 'center', boxShadow: '0 4px 25px rgba(0,0,0,0.05)' }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-            <Avatar
-              src={user.avatar || undefined}
-              sx={{ width: 120, height: 120, fontSize: '3rem', bgcolor: 'primary.main' }}
+            <input
+              type="file"
+              ref={fileInputRef}
+              hidden
+              accept="image/*"
+              onChange={handleAvatarChange}
+            />
+            <Badge
+              overlap='circular'
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              badgeContent={
+                <Tooltip title='Cambiar foto de perfil'>
+                  <IconButton
+                    size='small'
+                    sx={{
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      '&:hover': { bgcolor: 'primary.dark' },
+                      border: '2px solid white'
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <i className='tabler-camera text-sm' />
+                  </IconButton>
+                </Tooltip>
+              }
             >
-              {user.nombre.charAt(0)}{user.apellido.charAt(0)}
-            </Avatar>
+              <Avatar
+                src={avatarPreview || undefined}
+                sx={{ width: 120, height: 120, fontSize: '3rem', bgcolor: 'primary.main', cursor: 'pointer' }}
+                imgProps={{ referrerPolicy: 'no-referrer' }}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {user.nombre.charAt(0)}{user.apellido.charAt(0)}
+              </Avatar>
+            </Badge>
           </Box>
           <Typography variant="h5" sx={{ fontWeight: 800 }}>
             {user.nombre} {user.apellido}

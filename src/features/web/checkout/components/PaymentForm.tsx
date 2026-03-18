@@ -17,9 +17,11 @@ import {
   CircularProgress
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
+import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 
 import AuthDialog from './AuthDialog'
 import IzipayScript from './IzipayScript'
+import { PayPalPaymentButton } from './PayPalPaymentButton'
 
 import { useCart } from '../../cart/context/CartContext'
 
@@ -48,6 +50,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses, appliedCouponCode, f
   const [isLoading, setIsLoading] = useState(false)
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'izipay' | 'paypal'>('izipay')
 
   // Form state
   const [formData, setFormData] = useState({
@@ -72,39 +75,44 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses, appliedCouponCode, f
     }
   }, [session])
 
+  const handlePaymentSuccess = useCallback(() => {
+    setPaymentSuccess(true)
+    clearCart()
+    setTimeout(() => {
+      router.push('/estudiante/mis-cursos')
+    }, 2000)
+  }, [router, clearCart])
+
   // Callback para procesar la respuesta de Izipay
   const handlePaymentResponse = useCallback(async (response: any, pedidoId: string) => {
     try {
-      if (response.code === '00') {
-        // Pago exitoso - confirmar en el backend
-        const confirmRes = await fetch('/api/izipay/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            pedidoId,
-            response
-          })
+      // Siempre confirmamos con el backend, sea éxito o fallo
+      const confirmRes = await fetch('/api/izipay/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pedidoId,
+          response
         })
+      })
 
-        const confirmData = await confirmRes.json()
+      const confirmData = await confirmRes.json()
 
+      if (response.code === '00') {
         if (confirmRes.ok) {
-          setPaymentSuccess(true)
-          clearCart() // Limpiar el carrito tras compra exitosa
-          setTimeout(() => {
-            router.push('/estudiante/mis-cursos')
-          }, 2000)
+          handlePaymentSuccess()
         } else {
           setPaymentError(confirmData.message || 'Error al confirmar el pago')
         }
       } else {
+        // En caso de error de Izipay (no es '00'), el pedido ya se marcó como CANCELADO en el backend
         setPaymentError(response.messageUser || 'El pago no fue completado')
       }
     } catch (error: any) {
       console.error('Error confirmando pago:', error)
       setPaymentError('Error inesperado al confirmar el pago')
     }
-  }, [router, clearCart])
+  }, [handlePaymentSuccess])
 
   const handleCheckout = async () => {
     if (!session) {
@@ -278,37 +286,81 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ courses, appliedCouponCode, f
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>Método de Pago</Typography>
 
-          <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-              <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--mui-palette-primary-main)' }} />
-              <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                Pago seguro procesado por Izipay
-              </Typography>
-            </Box>
-
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
-              Se abrirá una ventana segura para completar tu pago con tarjeta de crédito, débito u otros medios.
-            </Typography>
-
+          <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
             <Button
-              variant="contained"
+              variant={paymentMethod === 'izipay' ? 'contained' : 'outlined'}
               fullWidth
-              size="large"
-              onClick={handleCheckout}
-              disabled={isLoading}
-              startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />}
-              sx={{
-                py: 2,
-                borderRadius: '16px',
-                fontWeight: 800,
-                fontSize: '1.1rem',
-                boxShadow: '0 10px 25px rgba(var(--mui-palette-primary-mainChannel), 0.2)',
-                textTransform: 'none'
-              }}
+              onClick={() => setPaymentMethod('izipay')}
+              sx={{ borderRadius: '12px', textTransform: 'none', py: 1.5 }}
             >
-              {isLoading ? 'Preparando pasarela...' : (isGuest ? 'Identificarse para Comprar' : `Pagar S/ ${displayTotal.toFixed(2)}`)}
+              Izipay (Tarjeta)
             </Button>
-          </Box>
+            <Button
+              variant={paymentMethod === 'paypal' ? 'contained' : 'outlined'}
+              fullWidth
+              onClick={() => setPaymentMethod('paypal')}
+              sx={{ borderRadius: '12px', textTransform: 'none', py: 1.5 }}
+            >
+              PayPal
+            </Button>
+          </Stack>
+
+          {paymentMethod === 'izipay' ? (
+            <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+                <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--mui-palette-primary-main)' }} />
+                <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                  Pago seguro procesado por Izipay
+                </Typography>
+              </Box>
+
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
+                Se abrirá una ventana segura para completar tu pago con tarjeta de crédito, débito u otros medios.
+              </Typography>
+
+              <Button
+                variant="contained"
+                fullWidth
+                size="large"
+                onClick={handleCheckout}
+                disabled={isLoading}
+                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />}
+                sx={{
+                  py: 2,
+                  borderRadius: '16px',
+                  fontWeight: 800,
+                  fontSize: '1.1rem',
+                  boxShadow: '0 10px 25px rgba(var(--mui-palette-primary-mainChannel), 0.2)',
+                  textTransform: 'none'
+                }}
+              >
+                {isLoading ? 'Preparando pasarela...' : (isGuest ? 'Identificarse para Comprar' : `Pagar S/ ${displayTotal.toFixed(2)}`)}
+              </Button>
+            </Box>
+          ) : (
+            <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
+              {isGuest ? (
+                <Button
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                  onClick={() => setIsAuthDialogOpen(true)}
+                  sx={{ py: 2, borderRadius: '16px', fontWeight: 800, textTransform: 'none' }}
+                >
+                  Identificarse para Comprar
+                </Button>
+              ) : (
+                <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || 'test', currency: 'USD' }}>
+                  <PayPalPaymentButton
+                    cursoIds={courses.map(c => c.id)}
+                    codigoCupon={appliedCouponCode}
+                    onSuccess={handlePaymentSuccess}
+                    onError={(err) => setPaymentError(err)}
+                  />
+                </PayPalScriptProvider>
+              )}
+            </Box>
+          )}
         </Box>
       </Stack>
 

@@ -13,6 +13,23 @@ export interface Usuario {
   esta_activo: boolean
   creado_en: string
   actualizado_en: string
+  inscripciones?: {
+    id: string
+    inscrito_en: string
+    estado: string
+    curso: {
+      id: string
+      titulo: string
+      slug: string
+    }
+  }[]
+  cursos_dictados?: {
+    id: string
+    titulo: string
+    slug: string
+    estado: string
+    creado_en: string
+  }[]
 }
 
 export interface UsuarioListItem {

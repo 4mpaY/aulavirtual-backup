@@ -98,6 +98,8 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google') {
         const correo = user.email
+        const googleProfile = profile as any
+        const picture = googleProfile.picture || user.image
 
         if (!correo) return false
 
@@ -108,23 +110,12 @@ export const authOptions: NextAuthOptions = {
           })
 
           if (usuarioExistente) {
-            // Si ya tiene google_id, dejar pasar
-            if (usuarioExistente.google_id) {
-              user.id = usuarioExistente.id
-              user.rol = usuarioExistente.rol
-              user.numero_documento = usuarioExistente.numero_documento || ''
-              user.esta_activo = usuarioExistente.esta_activo
-              user.avatar = usuarioExistente.avatar
-
-              return true
-            }
-
-            // Si no tiene google_id, vincularlo
+            // Sincronizar google_id y avatar (asegurar que tenga la foto más reciente de Google)
             const usuarioActualizado = await prisma.usuario.update({
               where: { id: usuarioExistente.id },
               data: {
-                google_id: user.id,
-                avatar: usuarioExistente.avatar || user.image
+                google_id: usuarioExistente.google_id || user.id,
+                avatar: picture || usuarioExistente.avatar
               }
             })
 
@@ -133,13 +124,12 @@ export const authOptions: NextAuthOptions = {
             user.numero_documento = usuarioActualizado.numero_documento || ''
             user.esta_activo = usuarioActualizado.esta_activo
             user.avatar = usuarioActualizado.avatar
+            user.image = usuarioActualizado.avatar
 
             return true
           }
 
           // Si no existe, crearlo
-          // Google profile suele traer given_name y family_name
-          const googleProfile = profile as any
           const nombre = googleProfile.given_name || user.name?.split(' ')[0] || 'Usuario'
           const apellido = googleProfile.family_name || user.name?.split(' ').slice(1).join(' ') || 'Google'
 
@@ -149,7 +139,7 @@ export const authOptions: NextAuthOptions = {
               nombre,
               apellido,
               google_id: user.id,
-              avatar: user.image,
+              avatar: picture,
               rol: 'ESTUDIANTE',
               esta_activo: true
             }
@@ -160,12 +150,13 @@ export const authOptions: NextAuthOptions = {
           user.numero_documento = ''
           user.esta_activo = true
           user.avatar = nuevoUsuario.avatar
+          user.image = nuevoUsuario.avatar
 
           return true
         } catch (error) {
           console.error('Error en signIn callback:', error)
 
-return false
+          return false
         }
       }
 
@@ -175,7 +166,9 @@ return false
       if (user) {
         token.id = user.id
         token.rol = user.rol
-        token.avatar = user.avatar
+        token.avatar = user.avatar || (user as any).image || (user as any).picture
+        token.image = token.avatar
+        token.picture = token.avatar
         token.numero_documento = user.numero_documento
         token.esta_activo = user.esta_activo
 
@@ -186,21 +179,24 @@ return false
             email: user.email,
             name: user.name,
             rol: user.rol,
+            avatar: token.avatar,
+            image: token.avatar,
             numero_documento: user.numero_documento,
             esta_activo: user.esta_activo
           },
           JWT_SECRET,
           { expiresIn: '30d' }
-          )
-        }
+        )
+      }
 
-        return token
+      return token
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string
         session.user.rol = token.rol as string
         session.user.avatar = token.avatar as string | null
+        session.user.image = token.avatar as string | null
         session.user.numero_documento = token.numero_documento as string
         session.user.esta_activo = token.esta_activo as boolean
         session.user.accessToken = token.accessToken as string
