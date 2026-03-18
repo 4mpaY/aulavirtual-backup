@@ -3,6 +3,7 @@ import axios from 'axios'
 import type { AxiosStatic } from 'axios'
 
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
+import type { DashboardData } from '../entity/Dashboard'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -19,7 +20,7 @@ export class AxiosDashboard extends AxiosInternalHttpClient {
     })
   }
 
-  async getResumen(): Promise<any> {
+  async getResumen(): Promise<DashboardData> {
     try {
       return await this.iGet<any>('')
     } catch (err: any) {

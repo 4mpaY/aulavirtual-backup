@@ -18,15 +18,16 @@ import { toast } from 'react-toastify'
 import { getSession } from 'next-auth/react'
 
 import { AxiosConfiguracion } from '../http/axiosConfiguracion'
+import type { Configuracion } from '../entity/Configuracion'
 
 interface ConfiguracionViewProps {
-  initialData?: any[]
+  initialData?: Configuracion[]
 }
 
-export const ConfiguracionView = ({ initialData }: ConfiguracionViewProps) => {
+export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const [saving, setSaving] = useState(false)
 
-  const initialMapped = (initialData || []).reduce((acc: any, curr: any) => {
+  const initialMapped = (initialData || []).reduce((acc: { [key: string]: string }, curr: Configuracion) => {
     acc[curr.clave] = curr.valor
 
     return acc

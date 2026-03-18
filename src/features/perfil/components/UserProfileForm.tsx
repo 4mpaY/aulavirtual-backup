@@ -24,21 +24,10 @@ import axios from 'axios'
 import { getSession } from 'next-auth/react'
 
 import { AxiosPerfil } from '../http/axiosPerfil'
-
-interface UserProfile {
-  id: string
-  nombre: string
-  apellido: string
-  correo: string
-  numero_documento: string
-  celular?: string | null
-  biografia?: string | null
-  avatar?: string | null
-  rol: string
-}
+import type { Perfil } from '../entity/Perfil'
 
 interface Props {
-  user: UserProfile
+  user: Perfil
 }
 
 export default function UserProfileForm({ user }: Props) {

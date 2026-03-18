@@ -37,8 +37,12 @@ import { RutaCursosDialog } from '../components/RutaCursosDialog'
 
 const columnHelper = createColumnHelper<Ruta>()
 
-export const RutasPage = () => {
-  const { data: rutas = [], isLoading } = useRutas()
+interface RutasPageProps {
+  initialData?: Ruta[]
+}
+
+export const RutasPage = ({ initialData }: RutasPageProps) => {
+  const { data: rutas = [], isLoading } = useRutas(initialData)
   const deleteRuta = useDeleteRuta()
 
   const [openRutaDialog, setOpenRutaDialog] = useState(false)

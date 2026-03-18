@@ -3,6 +3,7 @@ import axios from 'axios'
 import type { AxiosStatic } from 'axios'
 
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
+import type { Cupon } from '../entity/Cupon'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -19,7 +20,7 @@ export class AxiosCupon extends AxiosInternalHttpClient {
     })
   }
 
-  async getAll(buscar: string = ''): Promise<any[]> {
+  async getAll(buscar: string = ''): Promise<Cupon[]> {
     try {
       const query = buscar ? `?buscar=${buscar}` : ''
       const res = await this.iGet<any>(query)

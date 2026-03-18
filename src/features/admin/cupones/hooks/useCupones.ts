@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
 
 import { AxiosCupon } from '../http/axiosCupon'
+import type { Cupon } from '../entity/Cupon'
 
 const axiosCuponFactory = () => {
   const getAuthToken = async () => {
@@ -13,7 +14,7 @@ const axiosCuponFactory = () => {
   return new AxiosCupon({ getAuthToken })
 }
 
-export const useCupones = (buscar: string = '', initialData?: any[]) => {
+export const useCupones = (buscar: string = '', initialData?: Cupon[]) => {
   return useQuery({
     queryKey: ['cupones', buscar],
     queryFn: async () => {

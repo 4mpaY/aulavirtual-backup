@@ -32,17 +32,18 @@ import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import { useCupones, useCuponMutation } from '../hooks/useCupones'
 import CuponForm from '../components/CuponForm'
+import type { Cupon } from '../entity/Cupon'
 
-const columnHelper = createColumnHelper<any>()
+const columnHelper = createColumnHelper<Cupon>()
 
 interface CuponesPageProps {
-  initialData?: any[]
+  initialData?: Cupon[]
 }
 
 export function CuponesPage({ initialData }: CuponesPageProps) {
   const [buscar, setBuscar] = useState('')
   const [openForm, setOpenForm] = useState(false)
-  const [cuponToEdit, setCuponToEdit] = useState<any>(null)
+  const [cuponToEdit, setCuponToEdit] = useState<Cupon | null>(null)
   
   const { data: cupones = [], isLoading } = useCupones(buscar, initialData)
   const { deleteCupon } = useCuponMutation()
@@ -220,7 +221,7 @@ export function CuponesPage({ initialData }: CuponesPageProps) {
             </table>
           </div>
           <TablePagination
-            component={() => <TablePaginationComponent table={table} />}
+            component={() => <TablePaginationComponent table={table as any} />}
             count={cupones.length}
             rowsPerPage={table.getState().pagination.pageSize}
             page={table.getState().pagination.pageIndex}

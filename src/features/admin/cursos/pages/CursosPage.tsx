@@ -403,7 +403,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
           </table>
         </div>
         <TablePagination
-          component={() => <TablePaginationComponent table={table} />}
+          component={() => <TablePaginationComponent table={table as any} />}
           count={totalCursos}
           rowsPerPage={pagination.pageSize}
           page={pagination.pageIndex}

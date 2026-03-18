@@ -3,6 +3,7 @@ import axios from 'axios'
 import type { AxiosStatic } from 'axios'
 
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
+import type { Configuracion } from '../entity/Configuracion'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -19,7 +20,7 @@ export class AxiosConfiguracion extends AxiosInternalHttpClient {
     })
   }
 
-  async getAll(): Promise<any[]> {
+  async getAll(): Promise<Configuracion[]> {
     try {
       return await this.iGet<any[]>('')
     } catch (err: any) {

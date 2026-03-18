@@ -24,7 +24,7 @@ export default async function Page() {
     getAuthToken: () => token
   })
 
-  let initialData: CertificadosResponse | null = null
+  let initialData: CertificadosResponse['result'] | null = null
 
   try {
     initialData = await axiosCertificado.getAll({ page: 1, limit: 10, buscar: '' })

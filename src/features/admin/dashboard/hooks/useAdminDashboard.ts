@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
 
 import { AxiosDashboard } from '../http/axiosDashboard'
+import type { DashboardData } from '../entity/Dashboard'
 
 const axiosDashboardFactory = () => {
   const getAuthToken = async () => {
@@ -13,7 +14,7 @@ const axiosDashboardFactory = () => {
   return new AxiosDashboard({ getAuthToken })
 }
 
-export function useAdminDashboard(initialData?: any) {
+export function useAdminDashboard(initialData?: DashboardData) {
   return useQuery({
     queryKey: ['admin-dashboard'],
     queryFn: async () => {
