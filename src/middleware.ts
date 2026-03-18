@@ -78,6 +78,13 @@ export default withAuth(
           path.startsWith('/login') ||
           path.startsWith('/register') ||
           path.startsWith('/cursos') ||
+          path.startsWith('/rutas') ||
+          path.startsWith('/proyectos') ||
+          path.startsWith('/mantenimiento') ||
+          path.startsWith('/consultoria') ||
+          path.startsWith('/capacitacion') ||
+          path.startsWith('/contacto') ||
+          path.startsWith('/nosotros') ||
           path.startsWith('/verificar-certificado') ||
           path.startsWith('/unauthorized') ||
           path === '/'

@@ -9,12 +9,14 @@ const WebLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <WebHeader />
-      <Box 
-        component="main" 
-        sx={{ 
+      <Box
+        component="main"
+        sx={{
           flexGrow: 1,
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          // Compensar el header fijo (80px mobile, 96px desktop)
+          paddingTop: { xs: '80px', lg: '96px' },
         }}
       >
         {children}
@@ -25,3 +27,4 @@ const WebLayout = ({ children }: { children: React.ReactNode }) => {
 }
 
 export default WebLayout
+
