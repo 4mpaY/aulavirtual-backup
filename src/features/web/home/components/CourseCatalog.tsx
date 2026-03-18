@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 import {
     Box,
@@ -40,6 +41,18 @@ const CourseCatalog: React.FC<CourseCatalogProps> = ({ courses, categories }) =>
     const [selectedModality, setSelectedModality] = useState('all')
     const [sortBy, setSortBy] = useState('recent')
     const { itemCount, setIsCartDrawerOpen } = useCart()
+
+    const searchParams = useSearchParams()
+    
+    // Sincronizar selectedCategory con la URL
+    useEffect(() => {
+        const catId = searchParams.get('categoria')
+        if (catId) {
+            setSelectedCategory(catId)
+        } else {
+            setSelectedCategory('all')
+        }
+    }, [searchParams])
 
     const filteredAndSortedCourses = useMemo(() => {
         const filtered = courses.filter(course => {

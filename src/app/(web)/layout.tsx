@@ -4,11 +4,17 @@ import { Box } from '@mui/material'
 
 import WebHeader from '@/utils/components/layout/web/WebHeader'
 import WebFooter from '@/utils/components/layout/web/WebFooter'
+import prisma from '@/utils/libs/prisma'
 
-const WebLayout = ({ children }: { children: React.ReactNode }) => {
+const WebLayout = async ({ children }: { children: React.ReactNode }) => {
+  const categories = await prisma.categoria.findMany({
+    where: { esta_activo: true },
+    select: { id: true, nombre: true },
+    orderBy: { orden: 'asc' }
+  })
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <WebHeader />
+      <WebHeader initialCategories={categories} />
       <Box
         component="main"
         sx={{

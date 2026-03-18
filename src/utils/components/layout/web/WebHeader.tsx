@@ -13,8 +13,19 @@ import Logo from '@components/layout/shared/Logo'
 import UserDropdown from '@components/layout/shared/UserDropdown'
 import CartIcon from '@/features/web/cart/components/CartIcon'
 
+export interface Category {
+  id: string
+  nombre: string
+}
+
+export interface NavItem {
+  label: string
+  href: string
+  children?: NavItem[]
+}
+
 // ─── Navegación ARM ───────────────────────────────────────────────────────────
-const navItems = [
+const navItems: NavItem[] = [
   {
     label: 'Proyectos',
     href: '/proyectos',
@@ -52,7 +63,20 @@ const navItems = [
       { label: 'Rutas de aprendizaje', href: '/rutas' },
     ],
   },
+  {
+    label: 'Rutas',
+    href: '/rutas',
+    children: [],
+  },
 ]
+
+interface NavDrawerProps {
+  open: boolean
+  onClose: () => void
+  openDropdown: string | null
+  setOpenDropdown: (v: string | null) => void
+  navItems: NavItem[]
+}
 
 // ─── Drawer (via Portal para evitar restricciones del header) ────────────────
 function NavDrawer({
@@ -60,12 +84,8 @@ function NavDrawer({
   onClose,
   openDropdown,
   setOpenDropdown,
-}: {
-  open: boolean
-  onClose: () => void
-  openDropdown: string | null
-  setOpenDropdown: (v: string | null) => void
-}) {
+  navItems,
+}: NavDrawerProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -155,6 +175,7 @@ function NavDrawer({
               style={{
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 padding: '32px',
                 borderBottom: '1px solid #f8fafc',
                 backgroundColor: '#ffffff',
@@ -162,7 +183,9 @@ function NavDrawer({
                 flexShrink: 0,
               }}
             >
-              <Logo />
+              <div style={{ transform: 'scale(1.6)', transformOrigin: 'center' }}>
+                <Logo />
+              </div>
             </div>
 
             {/* Navegación — scrollable */}
@@ -246,7 +269,7 @@ function NavDrawer({
                             overflow: 'hidden',
                           }}
                         >
-                          {item.children.map((child) => (
+                          {item.children.map((child: NavItem) => (
                             <li key={child.label} style={{ marginBottom: '8px' }}>
                               <Link
                                 href={child.href}
@@ -387,13 +410,35 @@ function NavDrawer({
   return createPortal(drawer, document.body)
 }
 
+interface WebHeaderProps {
+  initialCategories?: Category[]
+}
+
 // ─── WebHeader ────────────────────────────────────────────────────────────────
-export default function WebHeader() {
+export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
   const { data: session } = useSession()
+
+  // Generar navItems dinámicamente con las categorías apuntando a /cursos
+  const dynamicNavItems = navItems.map(item => {
+    if (item.label === 'Capacitación') {
+      return {
+        ...item,
+        children: [
+          { label: 'Catálogo de Cursos', href: '/cursos' },
+          ...initialCategories.map(cat => ({
+            label: cat.nombre,
+            href: `/cursos`
+          })),
+          { label: 'Rutas de aprendizaje', href: '/rutas' },
+        ]
+      }
+    }
+    return item
+  })
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -414,11 +459,10 @@ export default function WebHeader() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 transition-all duration-300 h-20 lg:h-24 px-4 lg:px-8 flex items-center justify-between ${
-          scrolled
-            ? 'bg-white shadow-lg border-b border-slate-100'
-            : 'bg-white/95 backdrop-blur-sm'
-        }`}
+        className={`fixed top-0 left-0 right-0 transition-all duration-300 h-20 lg:h-24 px-4 lg:px-8 flex items-center justify-between ${scrolled
+          ? 'bg-white shadow-lg border-b border-slate-100'
+          : 'bg-white/95 backdrop-blur-sm'
+          }`}
         style={{ zIndex: 1100 }}
       >
         {/* ── LEFT: Hamburger + Desktop Nav ─────── */}
@@ -432,15 +476,14 @@ export default function WebHeader() {
           </button>
 
           <nav className="hidden lg:flex items-center gap-6 ml-2">
-            {navItems.map((item) => (
+            {dynamicNavItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className={`text-[10px] font-black uppercase tracking-[0.25em] transition-colors ${
-                  pathname.startsWith(item.href)
-                    ? 'text-[#E2231A]'
-                    : 'text-[#02115C] hover:text-[#E2231A]'
-                }`}
+                className={`text-[10px] font-black uppercase tracking-[0.25em] transition-colors ${pathname.startsWith(item.href)
+                  ? 'text-[#E2231A]'
+                  : 'text-[#02115C] hover:text-[#E2231A]'
+                  }`}
               >
                 {item.label}
               </Link>
@@ -449,20 +492,12 @@ export default function WebHeader() {
         </div>
 
         {/* ── CENTER: Logo ─────────────────────── */}
-        <div className="flex-shrink-0 px-2">
-          <Link href="/">
-            <Logo />
-          </Link>
+        <div className="flex-shrink-0 px-2 flex items-center justify-center transform scale-125 origin-center">
+          <Logo />
         </div>
 
         {/* ── RIGHT: Rutas + Cart + User ────────── */}
         <div className="flex items-center justify-end gap-2 lg:gap-4 flex-1">
-          <Link
-            href="/rutas"
-            className="hidden md:block text-[10px] font-black uppercase tracking-[0.2em] text-[#02115C] hover:text-[#E2231A] transition-colors"
-          >
-            Rutas
-          </Link>
           <CartIcon />
           {session ? (
             <UserDropdown />
@@ -503,6 +538,7 @@ export default function WebHeader() {
         onClose={() => { setMobileOpen(false); setOpenDropdown(null) }}
         openDropdown={openDropdown}
         setOpenDropdown={setOpenDropdown}
+        navItems={dynamicNavItems}
       />
     </>
   )
