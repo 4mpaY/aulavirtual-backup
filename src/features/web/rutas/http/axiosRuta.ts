@@ -22,7 +22,7 @@ export class AxiosRuta extends AxiosInternalHttpClient {
     try {
       const payload = await this.iGet<any>('/rutas')
 
-      return payload?.result ?? []
+      return payload ?? []
     } catch (err: any) {
       throw err?.response?.data ?? err
     }
@@ -30,9 +30,9 @@ export class AxiosRuta extends AxiosInternalHttpClient {
 
   async getBySlug(slug: string): Promise<any> {
     try {
-      const payload = await this.iGet<{ result: any }>(`/rutas/${slug}`)
+      const payload = await this.iGet<any>(`/rutas/${slug}`)
 
-      return payload?.result ?? null
+      return payload ?? null
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

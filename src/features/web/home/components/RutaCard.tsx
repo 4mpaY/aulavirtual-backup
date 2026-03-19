@@ -115,7 +115,8 @@ const RutaCard = ({
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            textAlign: 'center'
           }}
         >
           {titulo}
@@ -130,7 +131,8 @@ const RutaCard = ({
             WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            flexGrow: 1
+            flexGrow: 1,
+            textAlign: 'center'
           }}
         >
           {descripcion || 'Sigue esta ruta estructurada para dominar esta especialidad desde cero hasta un nivel avanzado.'}

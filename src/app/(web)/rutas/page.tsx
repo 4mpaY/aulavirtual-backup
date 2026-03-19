@@ -1,14 +1,16 @@
-import { Container, Typography, Grid, Box, Stack } from '@mui/material'
+import { Container, Typography, Box, Stack } from '@mui/material'
 
 import { AxiosRuta } from '@/features/web/rutas/http/axiosRuta'
-import RutaCard from '@/features/web/home/components/RutaCard'
-
-const axiosRuta = new AxiosRuta()
+import RutasCatalog from '@/features/web/rutas/components/RutasCatalog'
 
 async function getRutas() {
+  const axiosRuta = new AxiosRuta()
+
   try {
     return await axiosRuta.searchAll()
-  } catch {
+  } catch (err) {
+    console.error('Error fetching routes:', err)
+
     return []
   }
 }
@@ -19,14 +21,15 @@ export default async function RutasIndexPage() {
   return (
     <Box sx={{ py: { xs: 8, md: 12 }, bgcolor: 'background.default', flexGrow: 1 }}>
       <Container maxWidth="lg">
-        <Stack spacing={2} sx={{ mb: 8, textAlign: 'center' }}>
+        <Stack spacing={2} sx={{ mb: 8, textAlign: 'center', alignItems: 'center' }}>
           <Typography
             variant="overline"
             sx={{
               color: 'primary.main',
               fontWeight: 800,
               letterSpacing: 3,
-              display: 'block'
+              display: 'block',
+              width: '100%'
             }}
           >
             CATÁLOGO COMPLETO
@@ -36,7 +39,9 @@ export default async function RutasIndexPage() {
             sx={{
               fontWeight: 900,
               color: 'text.primary',
-              fontSize: { xs: '2.5rem', md: '3.5rem' }
+              fontSize: { xs: '2.5rem', md: '3.5rem' },
+              textAlign: 'center',
+              width: '100%'
             }}
           >
             Nuestras <span style={{ color: 'var(--mui-palette-primary-main)' }}>Rutas</span> de Aprendizaje
@@ -46,30 +51,17 @@ export default async function RutasIndexPage() {
             sx={{
               color: 'text.secondary',
               maxWidth: 700,
-              mx: 'auto',
               fontWeight: 400,
-              lineHeight: 1.6
+              lineHeight: 1.6,
+              textAlign: 'center',
+              width: '100%'
             }}
           >
             Explora nuestros caminos de aprendizaje especializados, diseñados para llevarte paso a paso hacia el dominio de nuevas habilidades y tecnologías.
           </Typography>
         </Stack>
 
-        {rutas.length > 0 ? (
-          <Grid container spacing={6}>
-            {rutas.map((ruta: any) => (
-              <Grid item xs={12} sm={6} lg={4} key={ruta.id}>
-                <RutaCard {...ruta} />
-              </Grid>
-            ))}
-          </Grid>
-        ) : (
-          <Box sx={{ textAlign: 'center', py: 10 }}>
-            <Typography variant="h5" color="text.secondary">
-              Próximamente tendremos nuevas rutas para ti.
-            </Typography>
-          </Box>
-        )}
+        <RutasCatalog initialRutas={rutas} />
       </Container>
     </Box>
   )

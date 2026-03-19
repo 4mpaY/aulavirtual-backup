@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { verify } from 'jsonwebtoken'
 import { getServerSession } from 'next-auth'
 
 import prisma from '@/utils/libs/prisma'
@@ -7,15 +8,41 @@ import { authOptions } from '@/utils/configs/auth'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { handleApiError } from '@/utils/libs/validation'
 
+const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
+
 export async function GET(request: Request, { params }: { params: { slug: string } }) {
   try {
+    let user: any = null
+
+    // 1. Intentar obtener sesión por cookies (NextAuth estándar)
     const session = await getServerSession(authOptions)
 
-    if (!session) {
+    if (session) {
+      user = session.user
+    } else {
+      // 2. Si no hay sesión, intentar obtener token del header Authorization (Bearer)
+      // Esto es necesario para llamadas servidor-servidor desde Server Components
+      const authHeader = request.headers.get('Authorization')
+
+      if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.split(' ')[1]
+
+        try {
+          const decoded = verify(token, JWT_SECRET) as any
+
+          if (decoded) {
+            user = decoded
+          }
+        } catch (err) {
+          console.error('Error al verificar token Bearer:', err)
+        }
+      }
+    }
+
+    if (!user) {
       return ApiResponse.error(request, 'No autorizado', 401)
     }
 
-    const { user } = session
     const { slug } = params
 
     const course = await prisma.curso.findUnique({

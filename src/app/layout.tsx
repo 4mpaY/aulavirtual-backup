@@ -1,6 +1,8 @@
 // Third-party Imports
 import 'react-perfect-scrollbar/dist/css/styles.css'
+
 import { getServerSession } from 'next-auth'
+
 
 // Type Imports
 import type { ChildrenType } from '@core/types'
@@ -15,7 +17,7 @@ import '@assets/iconify-icons/generated-icons.css'
 import { Providers } from '@/components/Providers'
 
 // Server Imports
-import { getServerSession } from 'next-auth'
+
 
 import { authOptions } from '@/utils/configs/auth'
 
