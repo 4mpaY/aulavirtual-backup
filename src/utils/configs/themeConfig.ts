@@ -59,9 +59,9 @@ const themeConfig: Config = {
   templateSlogan:
     process.env.NEXT_PUBLIC_TEMPLATE_SLOGAN !== undefined
       ? process.env.NEXT_PUBLIC_TEMPLATE_SLOGAN
-      : 'Valomos a tu corazon',
-  templateLogo: process.env.NEXT_PUBLIC_TEMPLATE_LOGO || '/images/logoterra.png',
-  settingsCookieName: process.env.NEXT_PUBLIC_SETTINGS_COOKIE_NAME || 'terravirtual',
+      : '',
+  templateLogo: process.env.NEXT_PUBLIC_TEMPLATE_LOGO || '/images/logo-arm.png',
+  settingsCookieName: process.env.NEXT_PUBLIC_SETTINGS_COOKIE_NAME || 'arm',
   mode: 'light', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'
   semiDark: false, // true, false
