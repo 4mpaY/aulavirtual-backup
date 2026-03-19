@@ -1,3 +1,5 @@
+'use client'
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
 
@@ -22,7 +24,7 @@ export const useCupones = (buscar: string = '', initialData?: Cupon[]) => {
 
       return await axiosCupon.getAll(buscar)
     },
-    initialData
+    initialData: buscar === '' ? initialData : undefined
   })
 }
 

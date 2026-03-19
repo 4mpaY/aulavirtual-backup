@@ -15,7 +15,7 @@ export class AxiosCupon extends AxiosInternalHttpClient {
   constructor(params: Params = {}) {
     super({
       axiosLib: params.axiosLib ?? axios,
-      baseURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/cupones`,
+      baseURL: params.baseURL ?? '/api/cupones',
       getAuthToken: params.getAuthToken
     })
   }
@@ -25,7 +25,7 @@ export class AxiosCupon extends AxiosInternalHttpClient {
       const query = buscar ? `?buscar=${buscar}` : ''
       const res = await this.iGet<any>(query)
       
-      return res.cupones || []
+      return res?.cupones || []
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

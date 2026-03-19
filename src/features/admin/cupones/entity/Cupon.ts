@@ -2,7 +2,7 @@ export interface Cupon {
   id: string
   codigo: string
   valor: number
-  tipo: 'PORCENTAJE' | 'FIJO'
+  tipo: 'PORCENTAJE' | 'MONTO_FIJO'
   usos_actuales: number
   limite_uso: number | null
   fecha_expiracion: string | null

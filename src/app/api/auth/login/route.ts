@@ -1,7 +1,5 @@
-import { NextResponse } from 'next/server'
-
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import { sign } from 'jsonwebtoken'
 
 import prisma from '@/utils/libs/prisma'
 import { loginSchema } from '@/schemas/auth.schema'
