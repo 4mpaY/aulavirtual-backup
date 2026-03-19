@@ -439,4 +439,3 @@ export const EditCategoriaModal = ({ open, handleClose, categoriaId, onSuccess }
   )
 }
 
-export default EditCategoriaModal

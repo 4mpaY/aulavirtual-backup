@@ -148,4 +148,3 @@ export const CreateCategoriaModal = ({ open, handleClose, onSuccess }: CreateCat
   )
 }
 
-export default CreateCategoriaModal

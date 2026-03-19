@@ -1,9 +1,9 @@
 'use client'
 
 import type { Categoria } from '../entity/Categoria'
-import CreateCategoriaModal from './CreateCategoriaModal'
-import EditCategoriaModal from './EditCategoriaModal'
-import DeleteCategoriaModal from './DeleteCategoriaModal'
+import { CreateCategoriaModal } from './CreateCategoriaModal'
+import { EditCategoriaModal } from './EditCategoriaModal'
+import { DeleteCategoriaModal } from './DeleteCategoriaModal'
 
 type ModalConfig = {
   isOpen: boolean

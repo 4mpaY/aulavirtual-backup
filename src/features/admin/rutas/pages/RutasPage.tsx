@@ -158,7 +158,7 @@ export const RutasPage = ({ initialData }: RutasPageProps) => {
         )
       })
     ],
-    [handleDelete]
+    [handleDelete, handleManageCursos, handleEdit]
   )
 
   const table = useReactTable({

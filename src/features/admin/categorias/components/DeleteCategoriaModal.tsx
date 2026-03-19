@@ -143,4 +143,3 @@ export const DeleteCategoriaModal = ({ open, handleClose, categoria, onSuccess }
   )
 }
 
-export default DeleteCategoriaModal
