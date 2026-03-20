@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import type { AxiosStatic } from 'axios'
 
+import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { Usuario } from '../entity/Usuario'
 import type { CrearUsuarioDto, ActualizarUsuarioDto } from '@/schemas/usuario.schema'
@@ -14,11 +15,13 @@ type Params = {
 
 export class AxiosUsuario extends AxiosInternalHttpClient {
   constructor(params: Params = {}) {
+    const baseURL = getBaseURL()
+
     super({
       axiosLib: params.axiosLib ?? axios,
-      baseURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/usuarios`,
+      baseURL: `${baseURL}/api/usuarios`,
       getAuthToken: params.getAuthToken
-    })  
+    })
   }
 
   async searchAll(query?: Record<string, string>): Promise<Usuario[]> {

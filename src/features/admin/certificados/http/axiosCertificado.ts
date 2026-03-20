@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import type { AxiosStatic } from 'axios'
 
+import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { CertificadosResponse } from '../entity/Certificado'
 
@@ -13,9 +14,11 @@ type Params = {
 
 export class AxiosCertificado extends AxiosInternalHttpClient {
   constructor(params: Params = {}) {
+    const baseURL = getBaseURL()
+
     super({
       axiosLib: params.axiosLib ?? axios,
-      baseURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/certificados`,
+      baseURL: `${baseURL}/api/admin/certificados`,
       getAuthToken: params.getAuthToken
     })
   }

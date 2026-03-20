@@ -1,6 +1,7 @@
 import axios from 'axios'
 import type { AxiosStatic } from 'axios'
 
+import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { Curso } from '../entity/Curso'
 import type { CrearCursoDto, ActualizarCursoDto, CambiarEstadoCursoDto } from '@/schemas/curso.schema'
@@ -13,9 +14,11 @@ type Params = {
 
 export class AxiosCurso extends AxiosInternalHttpClient {
   constructor(params: Params = {}) {
+    const baseURL = getBaseURL()
+
     super({
       axiosLib: params.axiosLib ?? axios,
-      baseURL: `${process.env.NEXT_PUBLIC_APP_URL}/api/cursos`,
+      baseURL: `${baseURL}/api/cursos`,
       getAuthToken: params.getAuthToken
     })
   }
