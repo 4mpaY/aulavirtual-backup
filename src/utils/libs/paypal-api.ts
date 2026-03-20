@@ -1,13 +1,14 @@
-/**
- * PayPal API Helper
- */
-
-const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, PAYPAL_API_URL } = process.env
+import { getConfigs } from '@/utils/libs/config'
 
 /**
  * Genera el Access Token de PayPal
  */
 async function generateAccessToken() {
+  const configs = await getConfigs()
+  const PAYPAL_CLIENT_ID = configs.PAYPAL_CLIENT_ID
+  const PAYPAL_CLIENT_SECRET = configs.PAYPAL_CLIENT_SECRET
+  const PAYPAL_API_URL = configs.PAYPAL_API_URL
+
   if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
     throw new Error('MISSING_PAYPAL_CREDENTIALS')
   }
@@ -31,6 +32,8 @@ async function generateAccessToken() {
  * Crea una orden en PayPal
  */
 export async function createPaypalOrder(amount: number, currency: string = 'USD') {
+  const configs = await getConfigs()
+  const PAYPAL_API_URL = configs.PAYPAL_API_URL
   const accessToken = await generateAccessToken()
   const url = `${PAYPAL_API_URL}/v2/checkout/orders`
 
@@ -60,6 +63,8 @@ export async function createPaypalOrder(amount: number, currency: string = 'USD'
  * Captura una orden aprobada por el usuario
  */
 export async function capturePaypalOrder(orderId: string) {
+  const configs = await getConfigs()
+  const PAYPAL_API_URL = configs.PAYPAL_API_URL
   const accessToken = await generateAccessToken()
   const url = `${PAYPAL_API_URL}/v2/checkout/orders/${orderId}/capture`
 

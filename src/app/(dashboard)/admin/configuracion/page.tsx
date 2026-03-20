@@ -1,18 +1,18 @@
 import { redirect } from 'next/navigation'
 
-import { getServerSession } from 'next-auth'
 import { Box, Typography } from '@mui/material'
 
-import { ConfiguracionView } from '@/features/admin/configuracion'
+import { ConfiguracionView } from '@/features/admin/configuracion/components/ConfiguracionView'
+
 import { AxiosConfiguracion } from '@/features/admin/configuracion/http/axiosConfiguracion'
-import { authOptions } from '@/utils/configs/auth'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 export const metadata = {
   title: 'Configuración del Sistema | Aula Virtual'
 }
 
 export default async function Page() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session) {
     redirect('/login')

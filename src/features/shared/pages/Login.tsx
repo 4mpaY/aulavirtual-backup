@@ -4,8 +4,6 @@
 import { useState, useEffect } from 'react'
 
 // Next Imports
-import { useRouter } from 'next/navigation'
-
 import { signIn } from 'next-auth/react'
 
 // MUI Imports
@@ -79,7 +77,6 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const borderedLightIllustration = '/images/illustrations/auth/v2-login-light-border.png'
 
   // Hooks
-  const router = useRouter()
   const { settings } = useSettings()
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -149,10 +146,15 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
 
       // Redirigir a la URL solicitada o al dashboard genérico
       const urlParams = new URLSearchParams(window.location.search)
-      const callbackUrl = urlParams.get('callbackUrl')
+      let callbackUrl = urlParams.get('callbackUrl')
 
-      router.push(callbackUrl || '/dashboard')
-      router.refresh()
+      // Prevenir redirecciones a dominios externos por seguridad
+      if (callbackUrl && !callbackUrl.startsWith(window.location.origin) && callbackUrl.startsWith('http')) {
+        callbackUrl = '/dashboard'
+      }
+
+      // Usar href para forzar la recarga y asegurar que el middleware recoja la cookie fresca de NextAuth
+      window.location.href = callbackUrl || '/dashboard'
     } catch (err) {
       console.error('💥 Error en login:', err)
       setError('Ocurrió un error inesperado. Intenta nuevamente.')
@@ -181,12 +183,15 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         const checkPopup = setInterval(() => {
           if (!popup || popup.closed) {
             clearInterval(checkPopup)
-            router.refresh()
 
             const urlParams = new URLSearchParams(window.location.search)
-            const callbackUrl = urlParams.get('callbackUrl')
+            let callbackUrl = urlParams.get('callbackUrl')
 
-            router.push(callbackUrl || '/dashboard')
+            if (callbackUrl && !callbackUrl.startsWith(window.location.origin) && callbackUrl.startsWith('http')) {
+              callbackUrl = '/dashboard'
+            }
+
+            window.location.href = callbackUrl || '/dashboard'
           }
         }, 1000)
       } else {
@@ -201,10 +206,10 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   }
 
   return (
-    <div className='flex bs-full justify-center'>
+    <div className='flex justify-center min-bs-[100dvh]'>
       <div
         className={classnames(
-          'flex bs-full items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
+          'flex items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
           {
             'border-ie': settings.skin === 'bordered'
           }
@@ -219,7 +224,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           />
         )}
       </div>
-      <div className='flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[480px]'>
+      <div className='flex justify-center items-center bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[480px]'>
         <div className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
           <Logo />
         </div>

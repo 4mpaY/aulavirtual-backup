@@ -5,8 +5,7 @@ import { getServerSession } from 'next-auth'
 import { Rol } from '@prisma/client'
 import { verify } from 'jsonwebtoken'
 
-
-import { authOptions } from '@/utils/configs/auth'
+import { getAuthOptions } from '@/utils/configs/auth'
 
 import { ApiResponse } from './apiResponse'
 
@@ -60,7 +59,7 @@ async function getUserFromBearerToken(): Promise<AuthUser | null> {
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   // 1. Intentar con NextAuth (sesión del navegador)
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (session?.user) {
     return session.user as AuthUser
@@ -68,6 +67,15 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
   // 2. Intentar con Bearer token (Postman/API)
   return getUserFromBearerToken()
+}
+
+/**
+ * Obtiene la sesión de NextAuth con las opciones dinámicas
+ */
+export async function getAuthSession() {
+  const options = await getAuthOptions()
+
+  return await getServerSession(options)
 }
 
 /**

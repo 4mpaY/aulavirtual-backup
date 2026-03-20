@@ -1,0 +1,40 @@
+import prisma from './prisma'
+
+/**
+ * Utilidad para obtener configuraciones desde la base de datos.
+ * Incluye un pequeño caché en memoria para optimizar lecturas frecuentes.
+ */
+
+let configCache: Record<string, string> | null = null
+let lastFetch = 0
+const CACHE_TTL = 1000 * 60 * 5 // 5 minutos
+
+export async function getConfigs() {
+  const now = Date.now()
+
+  if (configCache && now - lastFetch < CACHE_TTL) {
+    return configCache
+  }
+
+  const dbConfigs = await prisma.configuracion.findMany()
+  const map: Record<string, string> = {}
+
+  dbConfigs.forEach(c => {
+    map[c.clave] = c.valor
+  })
+
+  configCache = map
+  lastFetch = now
+
+  return map
+}
+
+export async function getConfig(clave: string, defaultValue: string = ''): Promise<string> {
+  const configs = await getConfigs()
+
+  return configs[clave] ?? defaultValue
+}
+
+export function clearConfigCache() {
+  configCache = null
+}

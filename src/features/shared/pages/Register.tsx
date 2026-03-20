@@ -196,10 +196,10 @@ const Register = ({ mode }: { mode: SystemMode }) => {
   }
 
   return (
-    <div className='flex bs-full justify-center'>
+    <div className='flex justify-center min-bs-[100dvh]'>
       <div
         className={classnames(
-          'flex bs-full items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
+          'flex items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
           {
             'border-ie': settings.skin === 'bordered'
           }
@@ -214,7 +214,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
           />
         )}
       </div>
-      <div className='flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[600px]'>
+      <div className='flex justify-center items-center bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[600px]'>
         <div className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
           <Logo />
         </div>

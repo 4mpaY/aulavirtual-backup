@@ -31,6 +31,7 @@ import themeConfig from '@/utils/configs/themeConfig'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
+import { useConfig } from '@/contexts/ConfigContext'
 
 // Core Theme Imports
 import defaultCoreTheme from '@core/theme'
@@ -46,6 +47,7 @@ const ThemeProvider = (props: Props) => {
 
   // Hooks
   const { settings } = useSettings()
+  const configs = useConfig()
   const isDark = useMedia('(prefers-color-scheme: dark)', false)
 
   // Vars
@@ -64,7 +66,9 @@ const ThemeProvider = (props: Props) => {
 
   // Merge the primary color scheme override with the core theme
   const theme = useMemo(() => {
-    const primaryColor = settings.primaryColor || '#1178ac'
+    const primaryColor = configs.PRIMARY_COLOR_MAIN || settings.primaryColor || '#1178ac'
+    const primaryLight = configs.PRIMARY_COLOR_LIGHT || lighten(primaryColor, 0.2)
+    const primaryDark = configs.PRIMARY_COLOR_DARK || darken(primaryColor, 0.1)
 
     const newColorScheme = {
       colorSchemes: {
@@ -72,8 +76,8 @@ const ThemeProvider = (props: Props) => {
           palette: {
             primary: {
               main: primaryColor,
-              light: lighten(primaryColor, 0.2),
-              dark: darken(primaryColor, 0.1)
+              light: primaryLight,
+              dark: primaryDark
             }
           }
         },
@@ -81,8 +85,8 @@ const ThemeProvider = (props: Props) => {
           palette: {
             primary: {
               main: primaryColor,
-              light: lighten(primaryColor, 0.2),
-              dark: darken(primaryColor, 0.1)
+              light: primaryLight,
+              dark: primaryDark
             }
           }
         }
@@ -94,7 +98,7 @@ const ThemeProvider = (props: Props) => {
     return extendTheme(coreTheme)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.primaryColor, settings.skin, currentMode])
+  }, [settings.primaryColor, settings.skin, currentMode, configs.PRIMARY_COLOR_MAIN, configs.PRIMARY_COLOR_LIGHT, configs.PRIMARY_COLOR_DARK])
 
   return (
     <AppRouterCacheProvider

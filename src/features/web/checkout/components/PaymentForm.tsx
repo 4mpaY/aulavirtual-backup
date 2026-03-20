@@ -19,6 +19,7 @@ import {
 import { useSession } from 'next-auth/react'
 import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 
+import { useConfig } from '@/contexts/ConfigContext'
 import AuthDialog from './AuthDialog'
 import IzipayScript from './IzipayScript'
 import { PayPalPaymentButton } from './PayPalPaymentButton'
@@ -191,7 +192,10 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
     }
   }
 
+  const configs = useConfig()
   const isGuest = status === 'unauthenticated'
+  // 2. Renderizar componentes de pago dinámicamente según la configuración
+  const paypalClientId = configs.PAYPAL_CLIENT_ID || 'test'
 
   if (paymentSuccess) {
     return (
@@ -350,7 +354,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                   Identificarse para Comprar
                 </Button>
               ) : (
-                <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || 'test', currency: 'USD' }}>
+                <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'USD' }}>
                   <PayPalPaymentButton
                     cursoIds={courses.map(c => c.id)}
                     codigoCupon={appliedCouponCode}

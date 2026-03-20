@@ -6,16 +6,20 @@ import { Typography, Box } from '@mui/material'
 
 import { DashboardView } from '@/features/admin/dashboard'
 import { AxiosDashboard } from '@/features/admin/dashboard/http/axiosDashboard'
-import { authOptions } from '@/utils/configs/auth'
+import { getAuthOptions } from '@/utils/configs/auth'
 
 export const metadata = {
   title: 'Panel de Control | Aula Virtual'
 }
 
 export default async function Page() {
-  const session = await getServerSession(authOptions)
+  const options = await getAuthOptions()
+  const session = await getServerSession(options)
+
+  console.log('[Dashboard Page] Server Session:', session ? 'Encontrada' : 'Nula')
 
   if (!session) {
+    console.log('[Dashboard Page] Redirigiendo a /login (Sesión Nula)')
     redirect('/login')
   }
 

@@ -24,6 +24,7 @@ import themeConfig from '@/utils/configs/themeConfig'
 // Hook Imports
 import useVerticalNav from '@menu/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
+import { useConfig } from '@/contexts/ConfigContext'
 
 const montserrat = Montserrat({ subsets: ['latin'], weight: ['400', '700'] })
 
@@ -38,7 +39,7 @@ const LogoText = styled.span<LogoTextProps>`
   line-height: 1;
   font-weight: 700;
   letter-spacing: 0.2px;
-  color: ${process.env.NEXT_PUBLIC_PRIMARY_COLOR_MAIN || '#1178ac'};
+  color: var(--mui-palette-primary-main);
   display: flex;
   justify-content: space-between;
   inline-size: 100%;
@@ -53,7 +54,7 @@ const SloganText = styled.span<LogoTextProps>`
   font-size: 0.55rem;
   line-height: 1.5;
   font-weight: 400;
-  color: ${process.env.NEXT_PUBLIC_PRIMARY_COLOR_MAIN || '#1178ac'};
+  color: var(--mui-palette-primary-main);
   text-transform: uppercase;
   white-space: nowrap;
   transition: ${({ transitionDuration }) =>
@@ -70,9 +71,14 @@ const Logo = () => {
   // Hooks
   const { isHovered, transitionDuration } = useVerticalNav()
   const { settings } = useSettings()
+  const configs = useConfig()
 
   // Vars
   const { layout } = settings
+  
+  const templateLogo = configs.TEMPLATE_LOGO || themeConfig.templateLogo
+  const templateName = configs.TEMPLATE_NAME || themeConfig.templateName
+  const templateSlogan = configs.TEMPLATE_SLOGAN || themeConfig.templateSlogan
 
   useEffect(() => {
     if (layout !== 'collapsed') {
@@ -91,7 +97,7 @@ const Logo = () => {
 
   return (
     <Link href='/' className='flex items-center'>
-      <img src={themeConfig.templateLogo} alt='TERRAMETT Logo' className='bs-[34px]' />
+      <img src={templateLogo} alt={`${templateName} Logo`} className='bs-[34px]' />
       <div
         className={`flex flex-col ${montserrat.className}`}
         ref={logoTextRef}
@@ -101,17 +107,17 @@ const Logo = () => {
           isCollapsed={layout === 'collapsed'}
           transitionDuration={transitionDuration}
         >
-          {themeConfig.templateName.split('').map((char, index) => (
+          {templateName.split('').map((char: string, index: number) => (
             <span key={index}>{char}</span>
           ))}
         </LogoText>
-        {themeConfig.templateSlogan && (
+        {templateSlogan && (
           <SloganText
             isHovered={isHovered}
             isCollapsed={layout === 'collapsed'}
             transitionDuration={transitionDuration}
           >
-            {themeConfig.templateSlogan}
+            {templateSlogan}
           </SloganText>
         )}
       </div>

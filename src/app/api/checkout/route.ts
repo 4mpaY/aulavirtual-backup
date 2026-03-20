@@ -1,3 +1,4 @@
+import { getConfigs } from '@/utils/libs/config'
 import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
@@ -120,9 +121,11 @@ export async function POST(request: Request) {
     const orderNumber = String(pedido.numero_pedido).padStart(10, '0')
 
     // 5. Obtener Session Token de Izipay
-    const merchantCode = process.env.IZIPAY_MERCHANT_CODE
-    const apiKey = process.env.IZIPAY_API_KEY
-    const endpoint = process.env.IZIPAY_ENDPOINT
+    const configs = await getConfigs()
+    const merchantCode = configs.IZIPAY_MERCHANT_CODE
+    const apiKey = configs.IZIPAY_API_KEY
+    const endpoint = configs.IZIPAY_ENDPOINT
+    const rsaKey = configs.IZIPAY_RSA_KEY
 
     const tokenResponse = await fetch(`${endpoint}/security/v1/Token/Generate`, {
       method: 'POST',
@@ -209,7 +212,7 @@ export async function POST(request: Request) {
 
         // Se envía el token extraído validado arriba
         token: String(actualToken),
-        keyRSA: process.env.IZIPAY_RSA_KEY,
+        keyRSA: rsaKey,
         pedidoId: pedido.id,
         _debugTokenData: tokenData // temporal para debug
       },

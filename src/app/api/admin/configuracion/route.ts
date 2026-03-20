@@ -59,6 +59,11 @@ export async function POST(request: Request) {
       })
     }
 
+    // Limpiar caché después de actualizar
+    const { clearConfigCache } = await import('@/utils/libs/config')
+
+    clearConfigCache()
+
     return ApiResponse.success(request, { message: 'Configuraciones actualizadas' })
   } catch (error) {
     return handleApiError(error, request)
