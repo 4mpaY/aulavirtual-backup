@@ -1,5 +1,6 @@
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
+
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 
 import { RutasPage } from '@/features/admin/rutas'

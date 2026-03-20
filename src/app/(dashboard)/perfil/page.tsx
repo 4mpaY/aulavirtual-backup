@@ -1,7 +1,8 @@
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
 
 import { Typography, Container, Box } from '@mui/material'
+
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 
 import { AxiosPerfil } from '@/features/perfil/http/axiosPerfil'

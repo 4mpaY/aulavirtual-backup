@@ -1,6 +1,7 @@
+import { notFound, redirect } from 'next/navigation'
+
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 
-import { notFound, redirect } from 'next/navigation'
 
 
 

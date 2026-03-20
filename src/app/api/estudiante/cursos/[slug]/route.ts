@@ -1,7 +1,8 @@
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { NextResponse } from 'next/server'
 
 import { verify } from 'jsonwebtoken'
+
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import prisma from '@/utils/libs/prisma'
 

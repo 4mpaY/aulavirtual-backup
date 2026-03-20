@@ -1,14 +1,13 @@
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { NextResponse } from 'next/server'
 
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import prisma from '@/utils/libs/prisma'
-
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
     const session = await getAuthSession()
-    
+
     if (!session || !session.user) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
@@ -17,7 +16,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     const { texto, tipo, puntos, opciones } = await req.json()
 
     if (!texto || !tipo || !opciones || !Array.isArray(opciones) || opciones.length === 0) {
-      return NextResponse.json({ status: false, message: 'Faltan datos requeridos o las opciones son inválidas' }, { status: 400 })
+      return NextResponse.json(
+        { status: false, message: 'Faltan datos requeridos o las opciones son inválidas' },
+        { status: 400 }
+      )
     }
 
     // Verify course exists and ownership
@@ -42,7 +44,10 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     })
 
     if (!examen) {
-       return NextResponse.json({ status: false, message: 'Primero debe crear la configuración inicial del examen' }, { status: 404 })
+      return NextResponse.json(
+        { status: false, message: 'Primero debe crear la configuración inicial del examen' },
+        { status: 404 }
+      )
     }
 
     // Determine the next order number
@@ -74,14 +79,14 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       }
     })
 
-    return NextResponse.json({ 
-      status: true, 
+    return NextResponse.json({
+      status: true,
       message: 'Pregunta agregada exitosamente',
-      pregunta: nuevaPregunta 
+      pregunta: nuevaPregunta
     })
   } catch (error: any) {
     console.error('API Pregunta POST Error:', error)
-    
-return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
+
+    return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
   }
 }

@@ -1,11 +1,8 @@
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { NextResponse } from 'next/server'
 
-
-
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import prisma from '@/utils/libs/prisma'
-
 
 export async function PUT(req: Request, { params }: { params: { id: string; preguntaId: string } }) {
   try {

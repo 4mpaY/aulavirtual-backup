@@ -1,14 +1,13 @@
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { NextResponse } from 'next/server'
 
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import prisma from '@/utils/libs/prisma'
-
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     const session = await getAuthSession()
-    
+
     if (!session || !session.user) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
@@ -47,27 +46,36 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
       }
     })
 
-    return NextResponse.json({ 
-      status: true, 
-      examen: examen || null 
+    return NextResponse.json({
+      status: true,
+      examen: examen || null
     })
   } catch (error: any) {
     console.error('API Examen GET Error:', error)
-    
-return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
+
+    return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
   }
 }
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
     const session = await getAuthSession()
-    
+
     if (!session || !session.user) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
 
     const { id: cursoId } = params
-    const { titulo, descripcion, limite_tiempo, puntaje_aprobacion, intentos_maximos, esta_publicado, mezclar_preguntas } = await req.json()
+
+    const {
+      titulo,
+      descripcion,
+      limite_tiempo,
+      puntaje_aprobacion,
+      intentos_maximos,
+      esta_publicado,
+      mezclar_preguntas
+    } = await req.json()
 
     // Verify course existence and ownership
     const curso = await prisma.curso.findUnique({
@@ -107,9 +115,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     } else {
       // Create new exam
       if (!titulo) {
-         return NextResponse.json({ status: false, message: 'El título del examen es requerido' }, { status: 400 })
+        return NextResponse.json({ status: false, message: 'El título del examen es requerido' }, { status: 400 })
       }
-      
+
       examen = await prisma.examen.create({
         data: {
           titulo,
@@ -124,14 +132,14 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       })
     }
 
-    return NextResponse.json({ 
-      status: true, 
+    return NextResponse.json({
+      status: true,
       message: 'Examen guardado exitosamente',
-      examen 
+      examen
     })
   } catch (error: any) {
     console.error('API Examen POST Error:', error)
-    
-return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
+
+    return NextResponse.json({ status: false, message: error.message || 'Error interno del servidor' }, { status: 500 })
   }
 }
