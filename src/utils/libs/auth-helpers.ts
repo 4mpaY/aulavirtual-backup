@@ -9,12 +9,8 @@ import { getAuthOptions } from '@/utils/configs/auth'
 
 import { ApiResponse } from './apiResponse'
 
-// 🔐 SEGURIDAD: No usar un fallback inseguro. Si la variable no está definida, lanzar error en startup.
+// 🔐 SEGURIDAD: No usar un fallback inseguro.
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET
-
-if (!JWT_SECRET) {
-  throw new Error('🔐 SEGURIDAD: JWT_SECRET o NEXTAUTH_SECRET deben estar definidos en las variables de entorno.')
-}
 
 type AuthUser = {
   id: string

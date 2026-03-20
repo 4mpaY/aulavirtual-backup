@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'

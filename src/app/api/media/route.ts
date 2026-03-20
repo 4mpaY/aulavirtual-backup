@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { join } from 'path'
 import { writeFile } from 'fs/promises'
 import { randomUUID } from 'crypto'

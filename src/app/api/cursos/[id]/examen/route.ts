@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import prisma from '@/utils/libs/prisma'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireAdmin } from '@/utils/libs/auth-helpers'

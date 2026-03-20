@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'

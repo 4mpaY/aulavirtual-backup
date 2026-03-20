@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import prisma from '@/utils/libs/prisma'
 import { crearCursoSchema, listarCursosQuerySchema } from '@/schemas/curso.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'

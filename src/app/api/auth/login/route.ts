@@ -7,12 +7,8 @@ import { handleApiError } from '@/utils/libs/validation'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { authLimiter } from '@/utils/libs/rate-limit'
 
-// 🔐 SEGURIDAD: Fallar en startup si el secreto no está configurado
+// 🔐 SEGURIDAD: Fallar en runtime si el secreto no está configurado
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET
-
-if (!JWT_SECRET) {
-  throw new Error('🔐 SEGURIDAD: JWT_SECRET o NEXTAUTH_SECRET deben estar definidos en las variables de entorno.')
-}
 
 /**
  * POST /api/auth/login
@@ -26,6 +22,10 @@ if (!JWT_SECRET) {
  */
 export async function POST(request: Request) {
   try {
+    if (!JWT_SECRET) {
+      throw new Error('🔐 SEGURIDAD: JWT_SECRET o NEXTAUTH_SECRET deben estar definidos en las variables de entorno.')
+    }
+
     // 🔐 SEGURIDAD: Rate limiting — máximo 10 intentos por minuto por IP
     const rateLimit = authLimiter(request)
 

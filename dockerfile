@@ -4,8 +4,8 @@ FROM node:20-alpine AS base
 # Dependencias necesarias para Prisma y Alpine
 RUN apk add --no-cache libc6-compat openssl
 
-# Habilitar pnpm
-RUN corepack enable pnpm
+# Habilitar pnpm de forma estricta instalándolo de manera global
+RUN npm install -g pnpm@9.0.0
 
 # Fase 2: Dependencias
 FROM base AS deps

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import bcrypt from 'bcryptjs'
 import { Rol } from '@prisma/client'
 
