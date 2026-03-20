@@ -7,7 +7,7 @@ import { sign } from 'jsonwebtoken'
 import prisma from '@/utils/libs/prisma'
 import { loginSchema } from '@/schemas/auth.schema'
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
+export const JWT_SECRET = (process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret').replace(/['"]/g, '').trim()
 
 const providers: NextAuthOptions['providers'] = [
   Credentials({

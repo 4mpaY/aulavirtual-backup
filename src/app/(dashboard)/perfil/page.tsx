@@ -4,8 +4,8 @@ import { Typography, Container, Box } from '@mui/material'
 import { getServerSession } from 'next-auth'
 
 import { authOptions } from '@/utils/configs/auth'
-import UserProfileForm from '@/features/perfil/components/UserProfileForm'
 import { AxiosPerfil } from '@/features/perfil/http/axiosPerfil'
+import UserProfileForm from '@/features/perfil/components/UserProfileForm'
 
 export const metadata = {
   title: 'Mi Perfil | Aula Virtual',
@@ -28,7 +28,7 @@ export default async function PerfilPage() {
   let user = null
 
   try {
-    user = await axiosPerfil.get()
+    user = await axiosPerfil.get(token)
   } catch (error) {
     console.error('Error fetching user profile:', error)
   }

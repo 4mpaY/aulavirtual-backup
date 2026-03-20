@@ -1,21 +1,48 @@
 import { NextResponse } from 'next/server'
 
 import { getServerSession } from 'next-auth'
+import { verify } from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
 import prisma from '@/utils/libs/prisma'
-import { authOptions } from '@/utils/configs/auth'
+import { authOptions, JWT_SECRET } from '@/utils/configs/auth'
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    let userEmail: string | undefined | null
+
+    // 1. Intentar por session (Cookies - Navegador)
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user || !session.user.email) {
+    if (session?.user?.email) {
+      userEmail = session.user.email
+    }
+
+    // 2. Intentar por Bearer Token (Authorization Header - Servidor)
+    if (!userEmail) {
+      const authHeader = req.headers.get('Authorization')
+
+      console.log('DEBUG: Auth Header found:', authHeader ? 'YES' : 'NO')
+
+      if (authHeader?.startsWith('Bearer ')) {
+        const tokenString = authHeader.substring(7)
+
+        try {
+          const decoded = verify(tokenString, JWT_SECRET) as any
+
+          userEmail = decoded.email
+        } catch (err: any) {
+          console.error('DEBUG: JWT Verification Error:', err.message)
+        }
+      }
+    }
+
+    if (!userEmail) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
 
     const user = await prisma.usuario.findUnique({
-      where: { correo: session.user.email },
+      where: { correo: userEmail },
       select: {
         id: true,
         nombre: true,
@@ -41,9 +68,33 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
+    let userEmail: string | undefined | null
+
+    // 1. Intentar por session (Cookies)
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user || !session.user.email) {
+    if (session?.user?.email) {
+      userEmail = session.user.email
+    }
+
+    // 2. Intentar por Bearer Token (Authorization Header)
+    if (!userEmail) {
+      const authHeader = req.headers.get('Authorization')
+
+      if (authHeader?.startsWith('Bearer ')) {
+        const tokenString = authHeader.substring(7)
+
+        try {
+          const decoded = verify(tokenString, JWT_SECRET) as any
+
+          userEmail = decoded.email
+        } catch (err) {
+          console.error('JWT Verification Error in API Perfil PUT:', err)
+        }
+      }
+    }
+
+    if (!userEmail) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
 
@@ -54,7 +105,7 @@ export async function PUT(req: Request) {
     }
 
     const currentUser = await prisma.usuario.findUnique({
-      where: { correo: session.user.email }
+      where: { correo: userEmail }
     })
 
     if (!currentUser) {
@@ -90,7 +141,7 @@ export async function PUT(req: Request) {
     }
 
     const updatedUser = await prisma.usuario.update({
-      where: { correo: session.user.email },
+      where: { correo: userEmail },
       data: updateData
     })
 
