@@ -1,10 +1,10 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
 
-import { getServerSession } from 'next-auth'
 
 import { PedidosPage } from '@/features/admin/pedidos/pages/PedidosPage'
 import { AxiosPedido } from '@/features/admin/pedidos/http/axiosPedido'
-import { authOptions } from '@/utils/configs/auth'
+
 import type { Pedido } from '@/features/admin/pedidos/entity/Pedido'
 
 export const metadata = {
@@ -12,7 +12,7 @@ export const metadata = {
 }
 
 export default async function Page() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session) {
     redirect('/login')

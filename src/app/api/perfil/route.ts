@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server'
 
-import { getServerSession } from 'next-auth'
 import { verify } from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
+import { getAuthSession } from '@/utils/libs/auth-helpers'
+
 import prisma from '@/utils/libs/prisma'
-import { authOptions, JWT_SECRET } from '@/utils/configs/auth'
+import { JWT_SECRET } from '@/utils/configs/auth'
 
 export async function GET(req: Request) {
   try {
     let userEmail: string | undefined | null
 
     // 1. Intentar por session (Cookies - Navegador)
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (session?.user?.email) {
       userEmail = session.user.email
@@ -21,8 +22,6 @@ export async function GET(req: Request) {
     // 2. Intentar por Bearer Token (Authorization Header - Servidor)
     if (!userEmail) {
       const authHeader = req.headers.get('Authorization')
-
-      console.log('DEBUG: Auth Header found:', authHeader ? 'YES' : 'NO')
 
       if (authHeader?.startsWith('Bearer ')) {
         const tokenString = authHeader.substring(7)
@@ -71,7 +70,7 @@ export async function PUT(req: Request) {
     let userEmail: string | undefined | null
 
     // 1. Intentar por session (Cookies)
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (session?.user?.email) {
       userEmail = session.user.email
@@ -142,7 +141,22 @@ export async function PUT(req: Request) {
 
     const updatedUser = await prisma.usuario.update({
       where: { correo: userEmail },
-      data: updateData
+      data: updateData,
+
+      // 🔐 SEGURIDAD: select explícito — nunca devolver contrasena_hash al cliente
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        correo: true,
+        numero_documento: true,
+        celular: true,
+        biografia: true,
+        avatar: true,
+        rol: true,
+        esta_activo: true,
+        actualizado_en: true
+      }
     })
 
     return NextResponse.json({ status: true, message: 'Perfil actualizado exitosamente', result: updatedUser })

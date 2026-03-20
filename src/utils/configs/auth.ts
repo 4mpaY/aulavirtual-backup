@@ -8,9 +8,7 @@ import prisma from '@/utils/libs/prisma'
 import { loginSchema } from '@/schemas/auth.schema'
 import { getConfigs } from '@/utils/libs/config'
 
-export const JWT_SECRET = (process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret')
-  .replace(/['"]/g, '')
-  .trim()
+export const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
 export const getAuthOptions = async (): Promise<NextAuthOptions> => {
   const configs = await getConfigs()

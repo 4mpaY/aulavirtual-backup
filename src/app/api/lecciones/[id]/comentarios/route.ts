@@ -1,8 +1,8 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { NextResponse } from 'next/server'
 
-import { getServerSession } from 'next-auth'
 
-import { authOptions } from '@/utils/configs/auth'
+
 import prisma from '@/utils/libs/prisma'
 
 // GET: Obtener comentarios de una lección particular
@@ -59,7 +59,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 // POST: Crear un nuevo comentario o responder
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })

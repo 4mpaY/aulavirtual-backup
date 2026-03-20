@@ -1,15 +1,15 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 // Next Imports
 import React from 'react'
 
 import { Box } from '@mui/material'
 
 // Component Imports
-import { getServerSession } from 'next-auth'
 
 import CourseCatalog from '@/features/web/home/components/CourseCatalog'
 
 // Auth Imports
-import { authOptions } from '@/utils/configs/auth'
+
 
 // Lib Imports
 import prisma from '@/utils/libs/prisma'
@@ -77,7 +77,7 @@ export const metadata = {
 }
 
 export default async function CursosPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
   const { courses, categories } = await getData(session?.user?.id)
 
   return (

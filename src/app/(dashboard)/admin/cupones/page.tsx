@@ -1,17 +1,17 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
 
-import { getServerSession } from 'next-auth'
 
 import { CuponesPage } from '@/features/admin/cupones/pages/CuponesPage'
 import { AxiosCupon } from '@/features/admin/cupones/http/axiosCupon'
-import { authOptions } from '@/utils/configs/auth'
+
 
 export const metadata = {
   title: 'Gestión de Cupones | Aula Virtual'
 }
 
 export default async function Page() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session) {
     redirect('/login')

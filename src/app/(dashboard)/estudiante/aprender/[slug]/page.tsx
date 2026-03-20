@@ -1,14 +1,14 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import { notFound, redirect } from 'next/navigation'
 
-import { getServerSession } from 'next-auth'
 
-import { authOptions } from '@/utils/configs/auth'
+
 import { AxiosPlayer } from '@/features/estudiante/player/http/axiosPlayer'
 import CoursePlayerView from '@/features/estudiante/player/components/CoursePlayerView'
 
 export default async function LearningPage({ params }: { params: { slug: string } }) {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session) {
     redirect('/login')

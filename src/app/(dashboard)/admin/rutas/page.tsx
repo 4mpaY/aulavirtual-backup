@@ -1,10 +1,10 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
 
-import { getServerSession } from 'next-auth'
 
 import { RutasPage } from '@/features/admin/rutas'
 import { AxiosRuta } from '@/features/admin/rutas/http/axiosRuta'
-import { authOptions } from '@/utils/configs/auth'
+
 import type { Ruta } from '@/features/admin/rutas/entity/Ruta'
 
 export const metadata = {
@@ -12,7 +12,7 @@ export const metadata = {
 }
 
 export default async function Page() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session) {
     redirect('/login')

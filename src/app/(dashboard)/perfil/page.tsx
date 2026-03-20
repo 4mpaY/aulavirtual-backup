@@ -1,9 +1,9 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
 
 import { Typography, Container, Box } from '@mui/material'
-import { getServerSession } from 'next-auth'
 
-import { authOptions } from '@/utils/configs/auth'
+
 import { AxiosPerfil } from '@/features/perfil/http/axiosPerfil'
 import UserProfileForm from '@/features/perfil/components/UserProfileForm'
 
@@ -13,7 +13,7 @@ export const metadata = {
 }
 
 export default async function PerfilPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session?.user?.email) {
     redirect('/login')

@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import type { AxiosStatic } from 'axios'
 
+import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { Cupon } from '../entity/Cupon'
 
@@ -13,9 +14,11 @@ type Params = {
 
 export class AxiosCupon extends AxiosInternalHttpClient {
   constructor(params: Params = {}) {
+    const baseURL = getBaseURL()
+
     super({
       axiosLib: params.axiosLib ?? axios,
-      baseURL: params.baseURL ?? '/api/cupones',
+      baseURL: params.baseURL ?? `${baseURL}/api/cupones`,
       getAuthToken: params.getAuthToken
     })
   }

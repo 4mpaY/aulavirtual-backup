@@ -9,7 +9,12 @@ import { getAuthOptions } from '@/utils/configs/auth'
 
 import { ApiResponse } from './apiResponse'
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
+// 🔐 SEGURIDAD: No usar un fallback inseguro. Si la variable no está definida, lanzar error en startup.
+const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET
+
+if (!JWT_SECRET) {
+  throw new Error('🔐 SEGURIDAD: JWT_SECRET o NEXTAUTH_SECRET deben estar definidos en las variables de entorno.')
+}
 
 type AuthUser = {
   id: string
@@ -30,11 +35,20 @@ async function getUserFromBearerToken(): Promise<AuthUser | null> {
     const authorization = headersList.get('authorization')
 
     if (!authorization?.startsWith('Bearer ')) {
+      console.log('[AUTH DEBUG] No Bearer token found in headers')
+
       return null
     }
 
     const token = authorization.split(' ')[1]
-    const decoded = verify(token, JWT_SECRET) as any
+
+    if (!token || token === 'null' || token === 'undefined') {
+      console.log('[AUTH DEBUG] Token is string "null" or empty')
+
+      return null
+    }
+
+    const decoded = verify(token, JWT_SECRET!) as any
 
     return {
       id: decoded.id,
@@ -46,7 +60,7 @@ async function getUserFromBearerToken(): Promise<AuthUser | null> {
       esta_activo: decoded.esta_activo
     }
   } catch (error) {
-    console.error('[AUTH] Error verifying Bearer token:', error)
+    console.error('[AUTH DEBUG] Error verifying Bearer token:', error)
 
     return null
   }

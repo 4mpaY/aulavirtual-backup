@@ -1,9 +1,9 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
 
-import { getServerSession } from 'next-auth'
 
 import { CourseCreatePage } from '@/features/admin/cursos/pages/CourseCreatePage'
-import { authOptions } from '@/utils/configs/auth'
+
 
 export const metadata = {
     title: 'Crear Nuevo Curso',
@@ -11,7 +11,7 @@ export const metadata = {
 }
 
 export default async function Page() {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (!session) {
         redirect('/login')

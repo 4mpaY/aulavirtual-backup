@@ -79,6 +79,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+# URL interna para que los Server Components puedan hacer HTTP al propio servidor
+ENV INTERNAL_API_URL="http://web:3000"
+
 # Crear un usuario y grupo sin privilegios de root por seguridad
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs

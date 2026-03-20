@@ -2,11 +2,9 @@ import { redirect } from 'next/navigation'
 
 import type { Metadata } from 'next'
 
-import { getServerSession } from 'next-auth'
-
 import { CourseCreatePage } from '@/features/admin/cursos/pages/CourseCreatePage'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { AxiosUsuario } from '@/features/admin/usuarios/http/axiosUsuario'
-import { authOptions } from '@/utils/configs/auth'
 
 export const metadata: Metadata = {
   title: 'Crear Nuevo Curso',
@@ -14,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session) {
     redirect('/login')
@@ -29,20 +27,19 @@ export default async function Page() {
   let profesores: { id: string; nombre: string; apellido: string }[] = []
 
   try {
-    const [profesoresResult, adminsResult] = await Promise.all([
-      axiosUsuario.searchAll({ rol: 'PROFESOR', esta_activo: 'true', limit: '100' }),
-      axiosUsuario.searchAll({ rol: 'ADMIN', esta_activo: 'true', limit: '100' })
+    // La API actual filtra por un rol a la vez, pedimos PROFESOR y ADMIN por separado
+    const [profesoresRes, adminsRes] = await Promise.all([
+      axiosUsuario.searchAll({ rol: 'PROFESOR', esta_activo: 'true' }),
+      axiosUsuario.searchAll({ rol: 'ADMIN', esta_activo: 'true' })
     ])
 
-    const combinados = [...profesoresResult, ...adminsResult]
-
-    profesores = combinados.map(u => ({
-      id: u.id,
-      nombre: u.nombre,
-      apellido: u.apellido
+    profesores = [...profesoresRes, ...adminsRes].map(p => ({
+      id: p.id,
+      nombre: p.nombre,
+      apellido: p.apellido
     }))
   } catch (error) {
-    console.error('Error fetching profesores from API:', error)
+    console.error('Error fetching profesores from DB:', error)
   }
 
   return <CourseCreatePage profesores={profesores} />

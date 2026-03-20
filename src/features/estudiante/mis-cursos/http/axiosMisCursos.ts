@@ -4,7 +4,6 @@ import type { AxiosStatic } from 'axios'
 
 import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
-import type { Configuracion } from '../entity/Configuracion'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -12,28 +11,22 @@ type Params = {
   getAuthToken?: () => Promise<string | null> | string | null
 }
 
-export class AxiosConfiguracion extends AxiosInternalHttpClient {
+export class AxiosMisCursos extends AxiosInternalHttpClient {
   constructor(params: Params = {}) {
     const baseURL = getBaseURL()
 
     super({
       axiosLib: params.axiosLib ?? axios,
-      baseURL: `${baseURL}/api/admin/configuracion`,
+      baseURL: `${baseURL}/api/estudiante/mis-cursos`,
       getAuthToken: params.getAuthToken
     })
   }
 
-  async getAll(): Promise<Configuracion[]> {
+  async getAll(): Promise<any[]> {
     try {
-      return await this.iGet<any[]>('')
-    } catch (err: any) {
-      throw err?.response?.data ?? err
-    }
-  }
+      const payload = await this.iGet<{ courses: any[] }>('')
 
-  async save(configuraciones: any[]): Promise<any> {
-    try {
-      return await this.iPost<any>('', { configuraciones })
+      return payload?.courses || []
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

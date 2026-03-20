@@ -4,60 +4,30 @@ import { redirect } from 'next/navigation'
 
 import { Container, Typography, Box, Stack } from '@mui/material'
 
-import { getServerSession } from 'next-auth'
-
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import MyCoursesList from '@/features/estudiante/mis-cursos/components/MyCoursesList'
-import prisma from '@/utils/libs/prisma'
-import { authOptions } from '@/utils/configs/auth'
-
-async function getInscribedCourses(userId: string) {
-    try {
-        const inscriptions = await prisma.inscripcion.findMany({
-            where: {
-                usuario_id: userId,
-                estado: 'ACTIVO'
-            },
-            include: {
-                curso: {
-                    include: {
-                        profesor: {
-                            select: { nombre: true, apellido: true }
-                        },
-                        categoria: {
-                            select: { nombre: true }
-                        },
-                        progreso: {
-                            where: { usuario_id: userId }
-                        }
-                    }
-                }
-            }
-        })
-
-        return inscriptions.map(ins => ({
-            id: ins.curso.id,
-            titulo: ins.curso.titulo,
-            slug: ins.curso.slug,
-            miniatura: ins.curso.miniatura ?? undefined,
-            profesor: ins.curso.profesor,
-            categoria: ins.curso.categoria?.nombre,
-            progreso: ins.curso.progreso[0]?.porcentaje_progreso || 0
-        }))
-    } catch (error) {
-        console.error('Error fetching inscribed courses:', error)
-
-        return []
-    }
-}
+import { AxiosMisCursos } from '@/features/estudiante/mis-cursos/http/axiosMisCursos'
 
 export default async function MyCoursesPage() {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (!session) {
         redirect('/login')
     }
 
-    const courses = await getInscribedCourses(session.user.id)
+    const token = session.user?.accessToken ?? null
+
+    const axiosMisCursos = new AxiosMisCursos({
+        getAuthToken: () => token
+    })
+
+    let courses: any[] = []
+
+    try {
+        courses = await axiosMisCursos.getAll()
+    } catch (error) {
+        console.error('Error fetching inscribed courses via API:', error)
+    }
 
     return (
         <Box sx={{ py: { xs: 4, md: 6 } }}>

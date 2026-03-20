@@ -2,12 +2,10 @@ import { redirect } from 'next/navigation'
 
 import type { Metadata } from 'next'
 
-import { getServerSession } from 'next-auth'
-
 import { UsuariosPage } from '@/features/admin/usuarios/pages/UsuariosPage'
 import type { Usuario } from '@/features/admin/usuarios/entity/Usuario'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { AxiosUsuario } from '@/features/admin/usuarios/http/axiosUsuario'
-import { authOptions } from '@/utils/configs/auth'
 
 export const metadata: Metadata = {
   title: 'Gestión de Usuarios',
@@ -15,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session) {
     redirect('/login')

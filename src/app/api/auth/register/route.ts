@@ -4,6 +4,7 @@ import prisma from '@/utils/libs/prisma'
 import { registerSchema } from '@/schemas/auth.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { ApiResponse } from '@/utils/libs/apiResponse'
+import { authLimiter } from '@/utils/libs/rate-limit'
 
 /**
  * POST /api/auth/register
@@ -11,6 +12,13 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  */
 export async function POST(request: Request) {
   try {
+    // 🔐 SEGURIDAD: Rate limiting — máximo 10 intentos por minuto por IP
+    const rateLimit = authLimiter(request)
+
+    if (!rateLimit.success) {
+      return ApiResponse.error(request, 'Demasiados intentos. Por favor espera un momento e inténtalo de nuevo.', 429)
+    }
+
     const body = await request.json()
 
     // Validar datos

@@ -1,9 +1,9 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
 
-import { getServerSession } from 'next-auth'
 
 import { CourseBuilderPage } from '@/features/admin/cursos/pages/CourseBuilderPage'
-import { authOptions } from '@/utils/configs/auth'
+
 
 export const metadata = {
     title: 'Editor de Curso | Profesor',
@@ -11,7 +11,7 @@ export const metadata = {
 }
 
 export default async function Page({ params }: { params: { id: string } }) {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (!session) {
         redirect('/login')

@@ -1,10 +1,10 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { redirect } from 'next/navigation'
 
-import { getServerSession } from 'next-auth'
 
 import { CertificadosTable } from '@/features/admin/certificados/components/CertificadosTable'
 import { AxiosCertificado } from '@/features/admin/certificados/http/axiosCertificado'
-import { authOptions } from '@/utils/configs/auth'
+
 import type { CertificadosResponse } from '@/features/admin/certificados/entity/Certificado'
 
 export const metadata = {
@@ -12,7 +12,7 @@ export const metadata = {
 }
 
 export default async function Page() {
-  const session = await getServerSession(authOptions)
+  const session = await getAuthSession()
 
   if (!session) {
     redirect('/login')

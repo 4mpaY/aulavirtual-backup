@@ -1,7 +1,58 @@
 /** @type {import('next').NextConfig} */
+
+// 🔐 SEGURIDAD: Headers HTTP de seguridad para todas las rutas
+const securityHeaders = [
+  {
+    key: 'X-Frame-Options',
+    value: 'DENY' // Previene Clickjacking
+  },
+  {
+    key: 'X-Content-Type-Options',
+    value: 'nosniff' // Previene MIME type sniffing
+  },
+  {
+    key: 'Referrer-Policy',
+    value: 'strict-origin-when-cross-origin'
+  },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=()'
+  },
+  {
+    key: 'X-DNS-Prefetch-Control',
+    value: 'on'
+  },
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload' // Fuerza HTTPS por 2 años
+  },
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://sandbox-checkout.izipay.pe https://checkout.izipay.pe https://www.paypal.com https://www.sandbox.paypal.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https://*.googleusercontent.com https://*.amazonaws.com",
+      "connect-src 'self' https://sandbox-api-pw.izipay.pe https://api-pw.izipay.pe https://api-m.paypal.com https://api-m.sandbox.paypal.com",
+      "frame-src https://www.sandbox.paypal.com https://www.paypal.com https://sandbox-checkout.izipay.pe https://checkout.izipay.pe",
+      "object-src 'none'",
+      "base-uri 'self'"
+    ].join('; ')
+  }
+]
+
 const nextConfig = {
-  reactStrictMode: false,
+  reactStrictMode: true, // 🔐 SEGURIDAD: Habilitado para detectar problemas en desarrollo
   output: 'standalone',
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: securityHeaders
+      }
+    ]
+  },
   images: {
     remotePatterns: [
       {
@@ -9,6 +60,9 @@ const nextConfig = {
         hostname: '*.googleusercontent.com',
         port: ''
       },
+
+      // 🔐 SEGURIDAD: Reemplazar wildcards excesivos por patrones más restrictivos.
+      // IMPORTANTE: Cambiar 'tu-bucket' por el nombre real de tu bucket S3 para máxima seguridad.
       {
         protocol: 'https',
         hostname: '*.s3.amazonaws.com',
@@ -21,6 +75,6 @@ const nextConfig = {
       }
     ]
   }
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

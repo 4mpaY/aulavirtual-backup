@@ -1,10 +1,10 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { NextResponse } from 'next/server'
 
 import { verify } from 'jsonwebtoken'
-import { getServerSession } from 'next-auth'
 
 import prisma from '@/utils/libs/prisma'
-import { authOptions } from '@/utils/configs/auth'
+
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { handleApiError } from '@/utils/libs/validation'
 
@@ -15,7 +15,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
     let user: any = null
 
     // 1. Intentar obtener sesión por cookies (NextAuth estándar)
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (session) {
       user = session.user

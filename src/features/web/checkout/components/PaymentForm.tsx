@@ -131,7 +131,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
           codigoCupon: appliedCouponCode
         })
@@ -194,6 +194,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
   const configs = useConfig()
   const isGuest = status === 'unauthenticated'
+
   // 2. Renderizar componentes de pago dinámicamente según la configuración
   const paypalClientId = configs.PAYPAL_CLIENT_ID || 'test'
 

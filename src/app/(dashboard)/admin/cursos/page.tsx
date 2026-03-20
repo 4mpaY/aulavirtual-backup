@@ -2,11 +2,9 @@ import { redirect } from 'next/navigation'
 
 import type { Metadata } from 'next'
 
-import { getServerSession } from 'next-auth'
-
 import { CursosPage } from '@/features/admin/cursos/pages/CursosPage'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { AxiosCurso } from '@/features/admin/cursos/http/axiosCurso'
-import { authOptions } from '@/utils/configs/auth'
 import type { Curso } from '@/features/admin/cursos/entity/Curso'
 
 export const metadata: Metadata = {
@@ -15,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (!session) {
         redirect('/login')
@@ -30,9 +28,9 @@ export default async function Page() {
     let initialDataCursos: Curso[] = []
 
     try {
-        const result = await axiosCurso.searchAll()
+        const response = await axiosCurso.searchAll()
 
-        initialDataCursos = result.cursos ?? []
+        initialDataCursos = response.cursos || []
     } catch (error) {
         console.error('Error fetching cursos:', error)
     }

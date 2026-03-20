@@ -1,3 +1,4 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 // Next Imports
 import React from 'react'
 
@@ -6,12 +7,11 @@ import { notFound } from 'next/navigation'
 import { Box } from '@mui/material'
 
 // Component Imports
-import { getServerSession } from 'next-auth'
 
 import CourseDetail from '@/features/web/courses/components/CourseDetail'
 
 // Auth Imports
-import { authOptions } from '@/utils/configs/auth'
+
 
 // Lib Imports
 import prisma from '@/utils/libs/prisma'
@@ -69,7 +69,7 @@ async function getCourseData(slug: string, userId?: string) {
 }
 
 export default async function CourseDetailPage({ params }: { params: { slug: string } }) {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
     const course = await getCourseData(params.slug, session?.user?.id)
 
     if (!course) {

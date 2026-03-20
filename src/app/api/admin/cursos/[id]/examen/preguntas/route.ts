@@ -1,13 +1,13 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { NextResponse } from 'next/server'
 
-import { getServerSession } from 'next-auth'
 
 import prisma from '@/utils/libs/prisma'
-import { authOptions } from '@/utils/configs/auth'
+
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
     
     if (!session || !session.user) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })

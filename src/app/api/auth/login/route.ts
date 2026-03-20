@@ -5,12 +5,18 @@ import prisma from '@/utils/libs/prisma'
 import { loginSchema } from '@/schemas/auth.schema'
 import { handleApiError } from '@/utils/libs/validation'
 import { ApiResponse } from '@/utils/libs/apiResponse'
+import { authLimiter } from '@/utils/libs/rate-limit'
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
+// 🔐 SEGURIDAD: Fallar en startup si el secreto no está configurado
+const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET
+
+if (!JWT_SECRET) {
+  throw new Error('🔐 SEGURIDAD: JWT_SECRET o NEXTAUTH_SECRET deben estar definidos en las variables de entorno.')
+}
 
 /**
  * POST /api/auth/login
- * Login para obtener JWT token (útil para Postman)
+ * Login para obtener JWT token (útil para Postman/API externa)
  *
  * Body: { correo, contrasena }
  * Response: { token, usuario }
@@ -20,6 +26,13 @@ const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev
  */
 export async function POST(request: Request) {
   try {
+    // 🔐 SEGURIDAD: Rate limiting — máximo 10 intentos por minuto por IP
+    const rateLimit = authLimiter(request)
+
+    if (!rateLimit.success) {
+      return ApiResponse.error(request, 'Demasiados intentos. Por favor espera un momento e inténtalo de nuevo.', 429)
+    }
+
     const body = await request.json()
 
     // Validar credenciales
@@ -36,6 +49,7 @@ export async function POST(request: Request) {
       where: { correo }
     })
 
+    // 🔐 SEGURIDAD: Mensaje genérico para no revelar si el correo existe
     if (!usuario) {
       return ApiResponse.error(request, 'Correo o contraseña incorrectos', 401)
     }
@@ -52,7 +66,7 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'Correo o contraseña incorrectos', 401)
     }
 
-    // Generar JWT
+    // Generar JWT con expiración corta (8h en lugar de 7d)
     const token = sign(
       {
         id: usuario.id,
@@ -62,8 +76,8 @@ export async function POST(request: Request) {
         numero_documento: usuario.numero_documento,
         esta_activo: usuario.esta_activo
       },
-      JWT_SECRET,
-      { expiresIn: '7d' }
+      JWT_SECRET!,
+      { expiresIn: '8h' }
     )
 
     return ApiResponse.success(request, {

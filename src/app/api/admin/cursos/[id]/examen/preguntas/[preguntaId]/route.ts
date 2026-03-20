@@ -1,15 +1,15 @@
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { NextResponse } from 'next/server'
 
 
-import { getServerSession } from 'next-auth'
 
 
 import prisma from '@/utils/libs/prisma'
-import { authOptions } from '@/utils/configs/auth'
+
 
 export async function PUT(req: Request, { params }: { params: { id: string; preguntaId: string } }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (!session || !session.user) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
@@ -89,7 +89,7 @@ export async function PUT(req: Request, { params }: { params: { id: string; preg
 
 export async function DELETE(req: Request, { params }: { params: { id: string; preguntaId: string } }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAuthSession()
 
     if (!session || !session.user) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
