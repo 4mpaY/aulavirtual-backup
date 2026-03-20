@@ -3,32 +3,23 @@ import React from 'react'
 
 import { notFound } from 'next/navigation'
 
+// Auth & Libs
+import { AxiosWebCursos } from '@/features/web/cursos/http/axiosWebCursos'
+
 // Component Imports
 import CheckoutView from '@/features/web/checkout/components/CheckoutView'
-
-// Lib Imports
-import prisma from '@/utils/libs/prisma'
 
 // Server Action / Data Fetching
 async function getCourseData(slug: string) {
     try {
-        const course = await prisma.curso.findUnique({
-            where: {
-                slug,
-                estado: 'PUBLICADO'
-            },
-            include: {
-                profesor: {
-                    select: { nombre: true, apellido: true }
-                }
-            }
-        })
+        const axiosWebCursos = new AxiosWebCursos()
+        const course = await axiosWebCursos.getCourseBySlug(slug)
 
         if (!course) return null
 
-        return JSON.parse(JSON.stringify(course))
+        return course
     } catch (error) {
-        console.error('Error fetching course data for checkout:', error)
+        console.error('Error fetching course data for checkout via API:', error)
 
         return null
     }

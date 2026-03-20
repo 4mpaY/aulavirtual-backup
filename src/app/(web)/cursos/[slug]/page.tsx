@@ -1,4 +1,3 @@
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 // Next Imports
 import React from 'react'
 
@@ -6,63 +5,24 @@ import { notFound } from 'next/navigation'
 
 import { Box } from '@mui/material'
 
-// Component Imports
+import { getAuthSession } from '@/utils/libs/auth-helpers'
+import { AxiosWebCursos } from '@/features/web/cursos/http/axiosWebCursos'
 
+// Component Imports
 import CourseDetail from '@/features/web/courses/components/CourseDetail'
 
-// Auth Imports
-
-
-// Lib Imports
-import prisma from '@/utils/libs/prisma'
-
 // Server Action / Data Fetching
-async function getCourseData(slug: string, userId?: string) {
+async function getCourseData(slug: string, token: string | null) {
     try {
-        const course = await prisma.curso.findUnique({
-            where: {
-                slug,
-                estado: 'PUBLICADO'
-            },
-            include: {
-                profesor: {
-                    select: { nombre: true, apellido: true, avatar: true }
-                },
-                categoria: {
-                    select: { id: true, nombre: true }
-                },
-                modulos: {
-                    include: {
-                        lecciones: {
-                            orderBy: { orden: 'asc' }
-                        }
-                    },
-                    orderBy: { orden: 'asc' }
-                }
-            }
+        const axiosWebCursos = new AxiosWebCursos({
+            getAuthToken: () => token
         })
 
-        if (!course) return null
+        const data = await axiosWebCursos.getCourseBySlug(slug)
 
-        let es_comprado = false
-
-        if (userId) {
-            const inscripcion = await prisma.inscripcion.findFirst({
-                where: {
-                    usuario_id: userId,
-                    curso_id: course.id,
-                    estado: 'ACTIVO'
-                }
-            })
-
-            if (inscripcion) {
-                es_comprado = true
-            }
-        }
-
-        return JSON.parse(JSON.stringify({ ...course, es_comprado }))
+        return data
     } catch (error) {
-        console.error('Error fetching course data:', error)
+        console.error('Error fetching course data via API:', error)
 
         return null
     }
@@ -70,7 +30,9 @@ async function getCourseData(slug: string, userId?: string) {
 
 export default async function CourseDetailPage({ params }: { params: { slug: string } }) {
     const session = await getAuthSession()
-    const course = await getCourseData(params.slug, session?.user?.id)
+    const token = session?.user?.accessToken ?? null
+    
+    const course = await getCourseData(params.slug, token)
 
     if (!course) {
         notFound()
@@ -84,7 +46,7 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-    const course = await getCourseData(params.slug)
+    const course = await getCourseData(params.slug, null)
 
     if (!course) return { title: 'Curso no encontrado' }
 

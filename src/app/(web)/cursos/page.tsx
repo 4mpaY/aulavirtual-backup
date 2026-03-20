@@ -1,73 +1,29 @@
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 // Next Imports
 import React from 'react'
 
 import { Box } from '@mui/material'
 
 // Component Imports
-
 import CourseCatalog from '@/features/web/home/components/CourseCatalog'
 
-// Auth Imports
-
-
-// Lib Imports
-import prisma from '@/utils/libs/prisma'
+// Http Client
+import { AxiosWebCursos } from '@/features/web/cursos/http/axiosWebCursos'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 // Server Action / Data Fetching
-async function getData(userId?: string) {
+async function getData(token: string | null) {
   try {
-    const [courses, categories] = await Promise.all([
-      prisma.curso.findMany({
-        where: { estado: 'PUBLICADO' },
-        include: {
-          profesor: { select: { nombre: true, apellido: true, avatar: true } },
-          categoria: { select: { id: true, nombre: true } },
-          _count: { select: { modulos: true } }
-        },
-        orderBy: { creado_en: 'desc' }
-      }),
-      prisma.categoria.findMany({
-        where: { esta_activo: true },
-        select: { id: true, nombre: true },
-        orderBy: { orden: 'asc' }
-      })
-    ])
+    const axiosWebCursos = new AxiosWebCursos({
+      getAuthToken: () => token
+    })
 
-    let userCourseIds = new Set<string>()
+    const data = await axiosWebCursos.getCatalog()
 
-    if (userId) {
-      const inscripciones = await prisma.inscripcion.findMany({
-        where: { usuario_id: userId, estado: 'ACTIVO' },
-        select: { curso_id: true }
-      })
-
-      userCourseIds = new Set(inscripciones.map((i: any) => i.curso_id))
-    }
-
-    const coursesWithLecciones = await Promise.all(
-      courses.map(async (course) => {
-        const leccionesCount = await prisma.leccion.count({
-          where: { modulo: { curso_id: course.id } }
-        })
-
-        
-return {
-          ...course,
-          es_comprado: userId ? userCourseIds.has(course.id) : false,
-          _count: { ...course._count, lecciones: leccionesCount }
-        }
-      })
-    )
-
-    return {
-      courses: JSON.parse(JSON.stringify(coursesWithLecciones)),
-      categories: JSON.parse(JSON.stringify(categories))
-    }
+    return data
   } catch (error) {
-    console.error('Error fetching data in CursosPage:', error)
+    console.error('Error fetching data in CursosPage via API:', error)
     
-return { courses: [], categories: [] }
+    return { courses: [], categories: [] }
   }
 }
 
@@ -78,7 +34,9 @@ export const metadata = {
 
 export default async function CursosPage() {
   const session = await getAuthSession()
-  const { courses, categories } = await getData(session?.user?.id)
+  const token = session?.user?.accessToken ?? null
+  
+  const { courses, categories } = await getData(token)
 
   return (
     <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
