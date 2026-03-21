@@ -50,14 +50,14 @@ export async function GET(request: Request) {
         where: { estado: 'PUBLICADO' },
         include: {
           profesor: { select: { nombre: true, apellido: true, avatar: true } },
-          categoria: { select: { id: true, nombre: true } },
+          categoria: { select: { id: true, nombre: true, slug: true } },
           _count: { select: { modulos: true } }
         },
         orderBy: { creado_en: 'desc' }
       }),
       prisma.categoria.findMany({
         where: { esta_activo: true },
-        select: { id: true, nombre: true },
+        select: { id: true, nombre: true, slug: true },
         orderBy: { orden: 'asc' }
       })
     ])

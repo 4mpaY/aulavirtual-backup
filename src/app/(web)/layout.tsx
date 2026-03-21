@@ -9,7 +9,7 @@ import prisma from '@/utils/libs/prisma'
 const WebLayout = async ({ children }: { children: React.ReactNode }) => {
   const categories = await prisma.categoria.findMany({
     where: { esta_activo: true },
-    select: { id: true, nombre: true },
+    select: { id: true, nombre: true, slug: true },
     orderBy: { orden: 'asc' }
   })
 

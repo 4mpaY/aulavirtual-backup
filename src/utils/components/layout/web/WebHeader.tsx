@@ -18,6 +18,7 @@ import CartIcon from '@/features/web/cart/components/CartIcon'
 export interface Category {
   id: string
   nombre: string
+  slug: string
 }
 
 export interface NavItem {
@@ -62,14 +63,8 @@ const navItems: NavItem[] = [
     href: '/cursos',
     children: [
       { label: 'Catálogo de Cursos', href: '/cursos' },
-      { label: 'Rutas de aprendizaje', href: '/rutas' },
     ],
-  },
-  {
-    label: 'Rutas',
-    href: '/rutas',
-    children: [],
-  },
+  }
 ]
 
 interface NavDrawerProps {
@@ -433,14 +428,12 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
           { label: 'Catálogo de Cursos', href: '/cursos' },
           ...initialCategories.map(cat => ({
             label: cat.nombre,
-            href: `/cursos`
+            href: `/cursos?categoria=${cat.slug}`
           })),
           { label: 'Rutas de aprendizaje', href: '/rutas' },
         ]
       }
     }
-
-    
 
     return item
   })
@@ -449,7 +442,6 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
     const onScroll = () => setScrolled(window.scrollY > 20)
 
     window.addEventListener('scroll', onScroll)
-    
 
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -461,7 +453,6 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : ''
-    
 
     return () => {
       document.body.style.overflow = ''
@@ -489,16 +480,19 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
 
           <nav className="hidden lg:flex items-center gap-6 ml-2">
             {dynamicNavItems.map((item) => (
+
               <Link
                 key={item.label}
                 href={item.href}
-                className={`text-[10px] font-black uppercase tracking-[0.25em] transition-colors ${pathname.startsWith(item.href)
+                className={`text-[10px] font-black uppercase tracking-[0.25em] py-4 transition-colors ${pathname.startsWith(item.href)
                   ? 'text-[#E2231A]'
                   : 'text-[#02115C] hover:text-[#E2231A]'
                   }`}
               >
                 {item.label}
               </Link>
+
+
             ))}
           </nav>
         </div>

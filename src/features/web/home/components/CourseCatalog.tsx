@@ -27,6 +27,7 @@ import { useCart } from '../../cart/context/CartContext'
 interface Category {
   id: string
   nombre: string
+  slug: string
 }
 
 interface CourseCatalogProps {
@@ -61,7 +62,7 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
       const matchesSearch = course.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (course.descripcion && course.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
 
-      const matchesCategory = selectedCategory === 'all' || course.categoria_id === selectedCategory
+      const matchesCategory = selectedCategory === 'all' || course.categoria?.slug === selectedCategory
 
       const matchesLevel = selectedLevel === 'all' || course.nivel === selectedLevel
 
@@ -193,16 +194,25 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <i className="tabler-category" style={{ color: '#64748b' }} />
+                        <i className="tabler-category" style={{ color: selectedCategory !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
                       </InputAdornment>
                     ),
-                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
+                    sx: {
+                      borderRadius: '16px',
+                      border: '1.5px solid',
+                      borderColor: selectedCategory !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
+                      '& fieldset': { border: 'none' },
+                      bgcolor: selectedCategory !== 'all' ? 'primary.50' : '#f8fafc',
+                      color: selectedCategory !== 'all' ? 'primary.main' : 'inherit',
+                      fontWeight: 700,
+                      transition: 'all 0.2s ease'
+                    }
                   }}
                   sx={{ minWidth: 170, flexShrink: 0 }}
                 >
                   <MenuItem value="all">Todas las Categorías</MenuItem>
                   {categories.map((cat) => (
-                    <MenuItem key={cat.id} value={cat.id}>{cat.nombre}</MenuItem>
+                    <MenuItem key={cat.id} value={cat.slug}>{cat.nombre}</MenuItem>
                   ))}
                 </TextField>
 
@@ -215,10 +225,19 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <i className="tabler-chart-bar" style={{ color: '#64748b' }} />
+                        <i className="tabler-chart-bar" style={{ color: selectedLevel !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
                       </InputAdornment>
                     ),
-                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
+                    sx: {
+                      borderRadius: '16px',
+                      border: '1.5px solid',
+                      borderColor: selectedLevel !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
+                      '& fieldset': { border: 'none' },
+                      bgcolor: selectedLevel !== 'all' ? 'primary.50' : '#f8fafc',
+                      color: selectedLevel !== 'all' ? 'primary.main' : 'inherit',
+                      fontWeight: 700,
+                      transition: 'all 0.2s ease'
+                    }
                   }}
                   sx={{ minWidth: 140, flexShrink: 0 }}
                 >
@@ -237,10 +256,19 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <i className="tabler-coin" style={{ color: '#64748b' }} />
+                        <i className="tabler-coin" style={{ color: selectedPrice !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
                       </InputAdornment>
                     ),
-                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
+                    sx: {
+                      borderRadius: '16px',
+                      border: '1.5px solid',
+                      borderColor: selectedPrice !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
+                      '& fieldset': { border: 'none' },
+                      bgcolor: selectedPrice !== 'all' ? 'primary.50' : '#f8fafc',
+                      color: selectedPrice !== 'all' ? 'primary.main' : 'inherit',
+                      fontWeight: 700,
+                      transition: 'all 0.2s ease'
+                    }
                   }}
                   sx={{ minWidth: 130, flexShrink: 0 }}
                 >
@@ -258,10 +286,19 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <i className="tabler-device-laptop" style={{ color: '#64748b' }} />
+                        <i className="tabler-device-laptop" style={{ color: selectedModality !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
                       </InputAdornment>
                     ),
-                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: '#f8fafc', fontWeight: 600 }
+                    sx: {
+                      borderRadius: '16px',
+                      border: '1.5px solid',
+                      borderColor: selectedModality !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
+                      '& fieldset': { border: 'none' },
+                      bgcolor: selectedModality !== 'all' ? 'primary.50' : '#f8fafc',
+                      color: selectedModality !== 'all' ? 'primary.main' : 'inherit',
+                      fontWeight: 700,
+                      transition: 'all 0.2s ease'
+                    }
                   }}
                   sx={{ minWidth: 160, flexShrink: 0 }}
                 >
@@ -285,7 +322,18 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
                         <i className="tabler-sort-ascending" style={{ color: 'var(--mui-palette-primary-main)' }} />
                       </InputAdornment>
                     ),
-                    sx: { borderRadius: '16px', border: 'none', '& fieldset': { border: 'none' }, bgcolor: 'success.50', color: 'success.main', fontWeight: 700 }
+                    sx: {
+                      borderRadius: '16px',
+                      border: '1px solid #e2e8f0',
+                      '& fieldset': { border: 'none' },
+                      bgcolor: '#ffffff',
+                      color: 'var(--mui-palette-primary-main)',
+                      fontWeight: 700,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                      '&:hover': {
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                      }
+                    }
                   }}
                   sx={{ minWidth: 170, flexShrink: 0 }}
                 >
