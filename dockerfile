@@ -61,10 +61,6 @@ ENV NEXT_PUBLIC_IZIPAY_SDK_URL=$NEXT_PUBLIC_IZIPAY_SDK_URL
 ARG NEXT_PUBLIC_PAYPAL_CLIENT_ID
 ENV NEXT_PUBLIC_PAYPAL_CLIENT_ID=$NEXT_PUBLIC_PAYPAL_CLIENT_ID
 
-# Clave de cifrado para Server Actions (Requerida en build y runtime)
-ARG NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
-ENV NEXT_SERVER_ACTIONS_ENCRYPTION_KEY=$NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
-
 # Generar el cliente de Prisma para producción
 RUN pnpm run db:client:generate
 
@@ -96,8 +92,9 @@ RUN adduser --system --uid 1001 nextjs
 # Copiar carpeta public entera (para que Coolify la mantenga a salvo)
 COPY --from=builder /app/public ./public
 
-# Crear el directorio uploads y asignar permisos para subir imgs y pdfs
-RUN mkdir -p /app/public/uploads && chown nextjs:nodejs /app/public/uploads
+# Crear el directorio uploads y subcarpetas necesarias para cursos y perfiles
+RUN mkdir -p /app/public/uploads/cursos /app/public/uploads/perfil && \
+    chown -R nextjs:nodejs /app/public/uploads
 
 # Configurar permisos para la caché de pre-renderizado de Next.js
 RUN mkdir .next
