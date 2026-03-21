@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from 'crypto'
 import { NextResponse } from 'next/server'
 
 import prisma from '@/utils/libs/prisma'
+import { completeOrder } from '@/utils/libs/order-service'
 
 /**
  * Verifica la firma HMAC-SHA256 del webhook de Izipay.
@@ -70,59 +71,13 @@ export async function POST(request: Request) {
       const transaccion = transactions?.[0]
       const transaccionId = transaccion?.uuid
 
-      await prisma.$transaction(async tx => {
-        // Obtener pedido más reciente
-        const currentPedido = await tx.pedido.findUnique({
-          where: { id: pedido.id }
-        })
-
-        if (!currentPedido) throw new Error('Pedido no encontrado en webhook')
-
-        await tx.pedido.update({
-          where: { id: pedido.id },
-          data: {
-            estado: 'COMPLETADO',
-            pagado_en: new Date(),
-            transaccion_id: transaccionId,
-            respuesta_izipay: body
-          }
-        })
-
-        // Incrementar usos del cupón si existe
-        if (currentPedido.cupon_id) {
-          await tx.cupon.update({
-            where: { id: currentPedido.cupon_id },
-            data: { usos_actuales: { increment: 1 } }
-          })
-        }
-
-        const detalles = await tx.detallePedido.findMany({
-          where: { pedido_id: pedido.id }
-        })
-
-        for (const detalle of detalles) {
-          await tx.inscripcion.upsert({
-            where: {
-              usuario_id_curso_id: {
-                usuario_id: pedido.usuario_id,
-                curso_id: detalle.curso_id
-              }
-            },
-            update: {
-              estado: 'ACTIVO',
-              pedido_id: pedido.id
-            },
-            create: {
-              usuario_id: pedido.usuario_id,
-              curso_id: detalle.curso_id,
-              pedido_id: pedido.id,
-              estado: 'ACTIVO'
-            }
-          })
-        }
+      await completeOrder(pedido.id, {
+        metodo_pago: 'IZIPAY',
+        respuesta_pago: body,
+        transaccion_id: transaccionId
       })
 
-      console.log(`[WEBHOOK IZIPAY] Pedido ${pedido.id} completado con éxito.`)
+      console.log(`[WEBHOOK IZIPAY] Pedido ${pedido.id} completado con éxito vía servicio.`)
     } else {
       console.warn(`[WEBHOOK IZIPAY] Pago no exitoso para pedido ${pedido.id}: ${orderStatus}`)
     }

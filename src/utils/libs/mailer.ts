@@ -4,6 +4,11 @@ interface SendMailOptions {
   to: string
   subject: string
   html: string
+  attachments?: {
+    filename: string
+    content: Buffer | string
+    contentType?: string
+  }[]
 }
 
 const transporter = createTransport({
@@ -19,7 +24,7 @@ const transporter = createTransport({
 /**
  * Función centralizada para enviar correos electrónicos usando Nodemailer.
  */
-export const sendMail = async ({ to, subject, html }: SendMailOptions) => {
+export const sendMail = async ({ to, subject, html, attachments }: SendMailOptions) => {
   try {
     if (!process.env.SMTP_USER) {
       console.warn(
@@ -33,7 +38,8 @@ export const sendMail = async ({ to, subject, html }: SendMailOptions) => {
       from: process.env.SMTP_FROM || `"Aula Virtual" <${process.env.SMTP_USER}>`,
       to,
       subject,
-      html
+      html,
+      attachments
     }
 
     const info = await transporter.sendMail(mailOptions)

@@ -295,6 +295,17 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
               )}
             />
 
+            <div className='flex justify-end'>
+              <Typography
+                component={Link}
+                href='/forgot-password'
+                color='primary'
+                variant='body2'
+              >
+                ¿Olvidaste tu contraseña?
+              </Typography>
+            </div>
+
             <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
               {isLoading ? <CircularProgress size={24} /> : 'Iniciar Sesión'}
             </Button>

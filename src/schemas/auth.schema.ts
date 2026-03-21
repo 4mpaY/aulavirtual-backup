@@ -110,14 +110,38 @@ export const forgotPasswordSchema = z.object({
 export type ForgotPasswordDto = z.infer<typeof forgotPasswordSchema>
 
 /**
- * Schema para resetear contraseña
+ * Schema para verificar OTP
+ */
+export const otpSchema = z.object({
+  correo: z
+    .string()
+    .trim()
+    .min(1, 'El correo es requerido')
+    .email('Correo electrónico inválido'),
+  codigo: z
+    .string()
+    .trim()
+    .min(6, 'El código debe tener 6 dígitos')
+    .max(6, 'El código debe tener 6 dígitos')
+})
+
+export type OtpDto = z.infer<typeof otpSchema>
+
+/**
+ * Schema para resetear contraseña con OTP
  */
 export const resetPasswordSchema = z
   .object({
-    token: z
+    correo: z
       .string()
       .trim()
-      .min(1, 'Token inválido'),
+      .min(1, 'El correo es requerido')
+      .email('Correo electrónico inválido'),
+    codigo: z
+      .string()
+      .trim()
+      .min(6, 'El código debe tener 6 dígitos')
+      .max(6, 'El código debe tener 6 dígitos'),
     nuevaContrasena: z
       .string()
       .trim()

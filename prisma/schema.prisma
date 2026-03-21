@@ -36,6 +36,19 @@ model Usuario {
   @@map("usuarios")
 }
 
+model PasswordReset {
+  id         String   @id @default(uuid())
+  correo     String
+  codigo     String
+  expira_en  DateTime
+  usado      Boolean  @default(false)
+  creado_en  DateTime @default(now())
+
+  @@index([correo])
+  @@index([codigo])
+  @@map("password_resets")
+}
+
 model Categoria {
   id                 String      @id @default(uuid())
   nombre             String      @unique

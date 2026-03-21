@@ -2,6 +2,7 @@ import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import { completeOrder } from '@/utils/libs/order-service'
 
 /**
  * POST /api/izipay/confirm
@@ -54,93 +55,19 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, izipayResponse.messageUser || 'El pago no fue exitoso', 400)
     }
 
-    // 3. Pago exitoso - Crear inscripciones en una transacción
-    const result = await prisma.$transaction(async tx => {
-      // Obtener el pedido más reciente dentro de la transacción para asegurar datos frescos
-      const currentPedido = await tx.pedido.findUnique({
-        where: { id: pedido.id }
-      })
-
-      if (!currentPedido) throw new Error('Pedido no encontrado en transacción')
-
-      // Actualizar pedido
-      const pedidoActualizado = await tx.pedido.update({
-        where: { id: pedido.id },
-        data: {
-          estado: 'COMPLETADO',
-          pagado_en: new Date(),
-          metodo_pago: 'IZIPAY',
-          transaccion_id: izipayResponse.transactionId || null,
-          respuesta_izipay: izipayResponse
-        }
-      })
-
-      // Incrementar usos del cupón si existe
-      if (currentPedido.cupon_id) {
-        await tx.cupon.update({
-          where: { id: currentPedido.cupon_id },
-          data: { usos_actuales: { increment: 1 } }
-        })
-      }
-
-      // Obtener los cursos del pedido
-      const detalles = await tx.detallePedido.findMany({
-        where: { pedido_id: pedido.id }
-      })
-
-      // Crear inscripciones para cada curso
-      const inscripciones = []
-
-      for (const detalle of detalles) {
-        const inscripcion = await tx.inscripcion.upsert({
-          where: {
-            usuario_id_curso_id: {
-              usuario_id: pedido.usuario_id,
-              curso_id: detalle.curso_id
-            }
-          },
-          update: {
-            estado: 'ACTIVO',
-            pedido_id: pedido.id
-          },
-          create: {
-            usuario_id: pedido.usuario_id,
-            curso_id: detalle.curso_id,
-            pedido_id: pedido.id,
-            estado: 'ACTIVO'
-          }
-        })
-
-        inscripciones.push(inscripcion)
-      }
-
-      // Notificar a los administradores
-      const admins = await tx.usuario.findMany({
-        where: { rol: 'ADMIN' },
-        select: { id: true }
-      })
-
-      for (const admin of admins) {
-        await tx.notificacion.create({
-          data: {
-            titulo: 'Nuevo Pedido Completado',
-            mensaje: `El usuario ${auth.user.name} ha realizado un pedido por S/ ${pedido.total}.`,
-            tipo: 'PEDIDO_NUEVO',
-            usuario_id: admin.id,
-            enlace: `/admin/pedidos`
-          }
-        })
-      }
-
-      return { pedido: pedidoActualizado, inscripciones }
+    // 3. Pago exitoso - Completar Pedido usando el servicio centralizado
+    const { pedido: pedidoActualizado, inscripciones } = await completeOrder(pedidoId, {
+      metodo_pago: 'IZIPAY',
+      respuesta_pago: izipayResponse,
+      transaccion_id: izipayResponse.transactionId || null
     })
 
     return ApiResponse.success(
       request,
       {
         message: '¡Pago completado! Ya tienes acceso al curso.',
-        pedido: result.pedido,
-        inscripciones: result.inscripciones
+        pedido: pedidoActualizado,
+        inscripciones: inscripciones
       },
       200
     )

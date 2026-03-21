@@ -87,6 +87,8 @@ export default withAuth(
           path.startsWith('/nosotros') ||
           path.startsWith('/libro-de-reclamaciones') ||
           path.startsWith('/terminos-y-condiciones') ||
+          path.startsWith('/forgot-password') ||
+          path.startsWith('/reset-password') ||
           path.startsWith('/verificar-certificado') ||
           path.startsWith('/unauthorized') ||
           path.startsWith('/assets') ||
