@@ -61,8 +61,15 @@ ENV NEXT_PUBLIC_IZIPAY_SDK_URL=$NEXT_PUBLIC_IZIPAY_SDK_URL
 ARG NEXT_PUBLIC_PAYPAL_CLIENT_ID
 ENV NEXT_PUBLIC_PAYPAL_CLIENT_ID=$NEXT_PUBLIC_PAYPAL_CLIENT_ID
 
+# Clave de cifrado para Server Actions (Requerida en build y runtime)
+ARG NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+ENV NEXT_SERVER_ACTIONS_ENCRYPTION_KEY=$NEXT_SERVER_ACTIONS_ENCRYPTION_KEY
+
 # Generar el cliente de Prisma para producción
 RUN pnpm run db:client:generate
+
+# Limpiar artefactos previos para evitar errores de caché corrupta
+RUN rm -rf .next
 
 # Compilar Next.js (esto generará .next/standalone si next.config.js está bien configurado)
 RUN pnpm run build
