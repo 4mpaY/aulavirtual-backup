@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 import {
   Box,
@@ -14,7 +15,9 @@ import {
   Paper,
   InputAdornment,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material'
 import { useSession } from 'next-auth/react'
 import { PayPalScriptProvider } from '@paypal/react-paypal-js'
@@ -52,6 +55,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'izipay' | 'paypal'>('izipay')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -319,16 +323,29 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                 </Typography>
               </Box>
 
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
-                Se abrirá una ventana segura para completar tu pago con tarjeta de crédito, débito u otros medios.
-              </Typography>
+              <Box sx={{ mb: 3, textAlign: 'left' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={acceptedTerms}
+                      onChange={e => setAcceptedTerms(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2" color="text.secondary">
+                      He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--mui-palette-primary-main)', fontWeight: 600 }}>Términos y Condiciones</Link>
+                    </Typography>
+                  }
+                />
+              </Box>
 
               <Button
                 variant="contained"
                 fullWidth
                 size="large"
                 onClick={handleCheckout}
-                disabled={isLoading}
+                disabled={isLoading || (!acceptedTerms && !isGuest)}
                 startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />}
                 sx={{
                   py: 2,
@@ -355,14 +372,38 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                   Identificarse para Comprar
                 </Button>
               ) : (
-                <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'USD' }}>
-                  <PayPalPaymentButton
-                    cursoIds={courses.map(c => c.id)}
-                    codigoCupon={appliedCouponCode}
-                    onSuccess={handlePaymentSuccess}
-                    onError={(err) => setPaymentError(err)}
-                  />
-                </PayPalScriptProvider>
+                <>
+                  <Box sx={{ mb: 3 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={acceptedTerms}
+                          onChange={e => setAcceptedTerms(e.target.checked)}
+                          color="primary"
+                        />
+                      }
+                      label={
+                        <Typography variant="body2" color="text.secondary">
+                          He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--mui-palette-primary-main)', fontWeight: 600 }}>Términos y Condiciones</Link>
+                        </Typography>
+                      }
+                    />
+                  </Box>
+                  {acceptedTerms ? (
+                    <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'USD' }}>
+                      <PayPalPaymentButton
+                        cursoIds={courses.map(c => c.id)}
+                        codigoCupon={appliedCouponCode}
+                        onSuccess={handlePaymentSuccess}
+                        onError={(err) => setPaymentError(err)}
+                      />
+                    </PayPalScriptProvider>
+                  ) : (
+                    <Alert severity="info" sx={{ borderRadius: '12px' }}>
+                      Acepta los términos y condiciones para habilitar el pago con PayPal.
+                    </Alert>
+                  )}
+                </>
               )}
             </Box>
           )}

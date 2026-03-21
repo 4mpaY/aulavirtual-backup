@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer'
+import { createTransport } from 'nodemailer'
 
 interface SendMailOptions {
   to: string
@@ -6,7 +6,7 @@ interface SendMailOptions {
   html: string
 }
 
-const transporter = nodemailer.createTransport({
+const transporter = createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: Number(process.env.SMTP_PORT) || 465,
   secure: true, // true para 465, false para otros puertos
