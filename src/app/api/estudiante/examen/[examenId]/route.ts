@@ -52,6 +52,8 @@ export async function GET(
     }
 
     if (!examen.esta_publicado) {
+      console.log(`[EXAMEN DEBUG] Examen ${examenId} no está publicado`)
+
       return ApiResponse.error(request, 'Este examen no está disponible', 403)
     }
 
@@ -66,6 +68,8 @@ export async function GET(
     })
 
     if (!inscripcion || inscripcion.estado !== 'ACTIVO') {
+      console.log(`[EXAMEN DEBUG] Usuario ${auth.user.id} no está inscrito o activo en curso ${examen.curso.id}. Estado: ${inscripcion?.estado}`)
+
       return ApiResponse.error(request, 'No estás inscrito en este curso', 403)
     }
 
@@ -80,6 +84,8 @@ export async function GET(
     })
 
     if (!progresoCurso || progresoCurso.porcentaje_progreso < 100) {
+      console.log(`[EXAMEN DEBUG] Usuario ${auth.user.id} tiene progreso insuficiente: ${progresoCurso?.porcentaje_progreso ?? 0}%`)
+
       return ApiResponse.error(
         request,
         'Debes completar todas las lecciones antes de acceder al examen',

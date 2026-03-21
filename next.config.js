@@ -3,6 +3,10 @@
 // 🔐 SEGURIDAD: Headers HTTP de seguridad para todas las rutas
 const securityHeaders = [
   {
+    key: 'X-Frame-Options',
+    value: 'DENY' // Previene Clickjacking
+  },
+  {
     key: 'X-Content-Type-Options',
     value: 'nosniff' // Previene MIME type sniffing
   },
@@ -26,12 +30,12 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://sandbox-checkout.izipay.pe https://checkout.izipay.pe https://www.paypal.com https://www.sandbox.paypal.com",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.izipay.pe https://*.paypal.com https://*.paypalobjects.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://*.googleusercontent.com https://*.amazonaws.com",
-      "connect-src 'self' https://sandbox-api-pw.izipay.pe https://api-pw.izipay.pe https://api-m.paypal.com https://api-m.sandbox.paypal.com",
-      'frame-src https://www.sandbox.paypal.com https://www.paypal.com https://sandbox-checkout.izipay.pe https://checkout.izipay.pe',
+      "img-src 'self' data: blob: https: *", // 🖼️ FLEXIBLE: Permite imágenes de cualquier sitio seguro
+      "connect-src 'self' https://*.izipay.pe https://*.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com",
+      "frame-src 'self' https: *", // 📺 FLEXIBLE: Permite videos/iframes de cualquier sitio seguro (YouTube, Vimeo, Wistia, etc.)
       "object-src 'none'",
       "base-uri 'self'"
     ].join('; ')
