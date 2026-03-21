@@ -36,6 +36,7 @@ import type { ThemeColor } from '@/@core/types'
 import type { Pedido } from '../entity/Pedido'
 import { usePedidos } from '../hooks/usePedidos'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
+import HydratedDate from '@/utils/components/HydratedDate'
 
 type StatusType = {
   [key: string]: ThemeColor
@@ -146,11 +147,15 @@ export function PedidosPage({ initialData }: PedidosPageProps) {
         header: 'Fecha',
         cell: ({ row }) => (
           <Typography variant='body2'>
-            {new Date(row.original.creado_en).toLocaleDateString('es-PE', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric'
-            })}
+            <HydratedDate 
+              date={row.original.creado_en} 
+              format="date"
+              options={{
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+              }} 
+            />
           </Typography>
         )
       })

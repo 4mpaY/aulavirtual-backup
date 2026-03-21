@@ -30,6 +30,7 @@ import {
 } from '@mui/material'
 
 import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
+import HydratedDate from '@/utils/components/HydratedDate'
 
 interface Leccion {
   id: string
@@ -108,15 +109,19 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
 
     if (!dateToUse) return { label: isSincrono ? 'Inicio' : 'Publicado', value: 'Próximamente' }
 
-    const date = new Date(dateToUse)
-
     return {
       label: isSincrono ? 'Inicio' : 'Publicado',
-      value: date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      })
+      value: (
+        <HydratedDate
+          date={dateToUse}
+          format="date"
+          options={{
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+          }}
+        />
+      )
     }
   }
 

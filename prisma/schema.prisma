@@ -111,18 +111,18 @@ model Modulo {
 }
 
 model Leccion {
-  id              String             @id @default(uuid())
-  titulo          String
-  contenido       String?
-  orden           Int
-  duracion        Int?
-  enlace_reunion  String?
-  estado          EstadoLeccion      @default(PUBLICADO)
-  creado_en       DateTime           @default(now())
-  actualizado_en  DateTime           @updatedAt
-  modulo_id       String
-  recursos        Json?              @default("[]")
-  video_url       String?
+  id               String             @id @default(uuid())
+  titulo           String
+  contenido        String?
+  orden            Int
+  duracion         Int?
+  enlace_reunion   String?
+  estado           EstadoLeccion      @default(PUBLICADO)
+  creado_en        DateTime           @default(now())
+  actualizado_en   DateTime           @updatedAt
+  modulo_id        String
+  recursos         Json?              @default("[]")
+  video_url        String?
   es_en_vivo       Boolean            @default(false)
   fecha_programada DateTime?
   es_vista_previa  Boolean            @default(false)
@@ -412,16 +412,16 @@ model Comentario {
 }
 
 model Cupon {
-  id               String         @id @default(uuid())
-  codigo           String         @unique
-  valor            Decimal        @db.Decimal(10, 2)
-  tipo             TipoDescuento  @default(PORCENTAJE)
+  id               String        @id @default(uuid())
+  codigo           String        @unique
+  valor            Decimal       @db.Decimal(10, 2)
+  tipo             TipoDescuento @default(PORCENTAJE)
   limite_uso       Int?
-  usos_actuales    Int            @default(0)
+  usos_actuales    Int           @default(0)
   fecha_expiracion DateTime?
-  esta_activo      Boolean        @default(true)
-  creado_en        DateTime       @default(now())
-  actualizado_en   DateTime       @updatedAt
+  esta_activo      Boolean       @default(true)
+  creado_en        DateTime      @default(now())
+  actualizado_en   DateTime      @updatedAt
   pedidos          Pedido[]
 
   @@map("cupones")
@@ -513,34 +513,82 @@ model Configuracion {
 }
 
 model RutaAprendizaje {
-  id             String         @id @default(uuid())
+  id             String        @id @default(uuid())
   titulo         String
-  slug           String         @unique
+  slug           String        @unique
   descripcion    String?
   miniatura      String?
-  beneficios     Json?          @default("[]")
-  secciones      Json?          @default("[]")
-  esta_activo    Boolean        @default(true)
-  creado_en      DateTime       @default(now())
-  actualizado_en DateTime       @updatedAt
+  beneficios     Json?         @default("[]")
+  secciones      Json?         @default("[]")
+  esta_activo    Boolean       @default(true)
+  creado_en      DateTime      @default(now())
+  actualizado_en DateTime      @updatedAt
   cursos         CursoEnRuta[]
 
   @@map("rutas_aprendizaje")
 }
 
 model CursoEnRuta {
-  id                String          @id @default(uuid())
-  orden             Int
-  seccion_id        String?
-  creado_en         DateTime        @default(now())
-  actualizado_en    DateTime        @updatedAt
-  ruta_id           String
-  curso_id          String
-  ruta              RutaAprendizaje @relation(fields: [ruta_id], references: [id], onDelete: Cascade)
-  curso             Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  id             String          @id @default(uuid())
+  orden          Int
+  seccion_id     String?
+  creado_en      DateTime        @default(now())
+  actualizado_en DateTime        @updatedAt
+  ruta_id        String
+  curso_id       String
+  ruta           RutaAprendizaje @relation(fields: [ruta_id], references: [id], onDelete: Cascade)
+  curso          Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
 
   @@unique([ruta_id, curso_id])
   @@index([ruta_id])
   @@index([curso_id])
   @@map("cursos_en_ruta")
+}
+
+model Reclamacion {
+  id                   String               @id @default(uuid())
+  numero_correlativo   Int                  @unique @default(autoincrement())
+  tipo_documento       TipoDocumentoReclamo @default(DNI)
+  numero_documento     String
+  nombre               String
+  domicilio            String
+  telefono             String
+  email                String
+  nombre_apoderado     String?
+  bien_contratado_tipo TipoBien
+  moneda               String               @default("PEN")
+  monto_reclamado      Decimal              @db.Decimal(10, 2)
+  descripcion_bien     String
+  tipo_reclamacion     TipoReclamacion
+  detalle              String
+  pedido               String
+  estado               EstadoReclamacion    @default(PENDIENTE)
+  respuesta_proveedor  String?
+  fecha_respuesta      DateTime?
+  creado_en            DateTime             @default(now())
+  actualizado_en       DateTime             @updatedAt
+
+  @@map("reclamaciones")
+}
+
+enum TipoDocumentoReclamo {
+  DNI
+  CE
+  PASAPORTE
+  OTRO
+}
+
+enum TipoBien {
+  PRODUCTO
+  SERVICIO
+}
+
+enum TipoReclamacion {
+  RECLAMO
+  QUEJA
+}
+
+enum EstadoReclamacion {
+  PENDIENTE
+  ATENDIDO
 }

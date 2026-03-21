@@ -16,6 +16,8 @@ import {
     Chip
 } from '@mui/material'
 
+import HydratedDate from '@/utils/components/HydratedDate'
+
 interface CertificateData {
     id: string
     codigoVerificacion: string
@@ -118,11 +120,16 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
 
     // Si ya tiene certificado
     if (certificado) {
-        const fechaEmision = new Date(certificado.emitidoEn).toLocaleDateString('es-PE', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })
+        const fechaEmision = (
+            <HydratedDate 
+                date={certificado.emitidoEn} 
+                options={{
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }} 
+            />
+        )
 
         return (
             <Card

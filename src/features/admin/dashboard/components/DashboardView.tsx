@@ -5,6 +5,7 @@
 import { Grid, Card, CardContent, Typography, Box, Avatar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, LinearProgress } from '@mui/material'
 
 import { useAdminDashboard } from '../hooks/useAdminDashboard'
+import HydratedDate from '@/utils/components/HydratedDate'
 
 const StatCard = ({ title, value, icon, color }: { title: string, value: string | number, icon: string, color: string }) => (
   <Card sx={{ height: '100%' }}>
@@ -138,7 +139,7 @@ export function DashboardView({ initialData }: DashboardViewProps) {
                     Se inscribió en: <strong>{ins.curso.titulo}</strong>
                   </Typography>
                   <Typography variant='caption' sx={{ fontSize: '10px' }} color='text.disabled'>
-                    {new Date(ins.inscrito_en).toLocaleString()}
+                    <HydratedDate date={ins.inscrito_en} />
                   </Typography>
                 </Card>
               ))}

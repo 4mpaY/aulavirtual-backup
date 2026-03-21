@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 
 import { Box, Typography, Button, Paper, Stack, alpha } from '@mui/material'
 
+import HydratedDate from '@/utils/components/HydratedDate'
+
 interface LiveLessonPlaceholderProps {
   titulo: string
   fechaProgramada?: string | Date | null
@@ -46,15 +48,20 @@ const LiveLessonPlaceholder = ({
     return () => clearInterval(timer)
   }, [fechaProgramada, esEnVivo])
 
-  const formattedDate = fechaProgramada
-    ? new Date(fechaProgramada).toLocaleString('es-ES', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-    : ''
+  const formattedDate = fechaProgramada ? (
+    <HydratedDate
+      date={fechaProgramada}
+      options={{
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        hour: '2-digit',
+        minute: '2-digit'
+      }}
+    />
+  ) : (
+    ''
+  )
 
   return (
     <Paper

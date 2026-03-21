@@ -2,7 +2,9 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { Phone, Mail, MapPin, ArrowRight } from 'lucide-react'
+import { Phone, Mail, MapPin, ArrowRight, BookOpenCheck } from 'lucide-react'
+
+import HydratedDate from '@/utils/components/HydratedDate'
 
 import Logo from '@components/layout/shared/Logo'
 
@@ -93,10 +95,19 @@ const WebFooter = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-8 mt-16 pt-12 border-t border-gray-100">
-          <p className="text-slate-400 text-[9px] uppercase font-bold tracking-[0.2em]">
-            ARM Asset Reliability Management © {new Date().getFullYear()}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-16 pt-8 border-t border-gray-100">
+          <p className="text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
+            ARM Asset Reliability Management © <HydratedDate date={new Date()} format="year" />
           </p>
+          <div className="flex items-center gap-6 text-xs text-gray-500 font-medium">
+            <Link href="/libro-de-reclamaciones" className="flex items-center gap-2 hover:text-[#02115C] transition-colors">
+              <BookOpenCheck size={14} />
+              Libro de Reclamaciones
+            </Link>
+            <Link href="/terminos-y-condiciones" className="hover:text-[#02115C] transition-colors">
+              Términos y Condiciones
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

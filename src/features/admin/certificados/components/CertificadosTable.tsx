@@ -32,6 +32,7 @@ import TablePaginationComponent from '@/utils/components/others/TablePaginationC
 import type { Certificado } from '../entity/Certificado'
 import { useCertificados } from '../hooks/useCertificados'
 import { AxiosCertificado } from '../http/axiosCertificado'
+import HydratedDate from '@/utils/components/HydratedDate'
 
 const columnHelper = createColumnHelper<Certificado>()
 
@@ -122,7 +123,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         header: 'Fecha Emisión',
         cell: ({ row }) => (
           <Typography variant='body2'>
-            {new Date(row.original.emitido_en).toLocaleDateString()}
+            <HydratedDate date={row.original.emitido_en} format="date" />
           </Typography>
         )
       }),

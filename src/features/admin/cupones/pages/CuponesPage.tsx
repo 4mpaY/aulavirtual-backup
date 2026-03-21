@@ -32,6 +32,7 @@ import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import { useCupones, useCuponMutation } from '../hooks/useCupones'
 import CuponForm from '../components/CuponForm'
+import HydratedDate from '@/utils/components/HydratedDate'
 import type { Cupon } from '../entity/Cupon'
 
 const columnHelper = createColumnHelper<Cupon>()
@@ -109,7 +110,7 @@ export function CuponesPage({ initialData }: CuponesPageProps) {
       header: 'Expiración',
       cell: ({ row }) => (
         <Typography color='text.secondary'>
-          {row.original.fecha_expiracion ? new Date(row.original.fecha_expiracion).toLocaleDateString() : 'Nunca'}
+          {row.original.fecha_expiracion ? <HydratedDate date={row.original.fecha_expiracion} format="date" /> : 'Nunca'}
         </Typography>
       )
     }),

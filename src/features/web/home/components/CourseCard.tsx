@@ -22,6 +22,7 @@ import {
 import { styled } from '@mui/material/styles'
 
 import { useCart } from '../../cart/context/CartContext'
+import HydratedDate from '@/utils/components/HydratedDate'
 
 interface CourseCardProps {
   id: string
@@ -121,11 +122,17 @@ const CourseCard = ({
 
     const date = new Date(dateToUse)
 
-    return date.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
+    return (
+      <HydratedDate
+        date={date}
+        format="date"
+        options={{
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        }}
+      />
+    )
   }
 
   return (

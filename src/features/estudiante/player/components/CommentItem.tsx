@@ -12,6 +12,8 @@ import {
     Divider
 } from '@mui/material'
 
+import HydratedDate from '@/utils/components/HydratedDate'
+
 import CommentForm from './CommentForm'
 
 export interface CommentUser {
@@ -42,13 +44,18 @@ const CommentItem = ({ comment, leccionId, onReplySuccess, isReply = false }: Co
     const [isReplying, setIsReplying] = useState(false)
 
     // Formatear la fecha
-    const formattedDate = new Date(comment.creado_en).toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    })
+    const formattedDate = (
+        <HydratedDate 
+            date={comment.creado_en} 
+            options={{
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }} 
+        />
+    )
 
     const handleReplySuccess = () => {
         setIsReplying(false)

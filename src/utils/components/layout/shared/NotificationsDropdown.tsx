@@ -22,6 +22,7 @@ import Button from '@mui/material/Button'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
+import HydratedDate from '@/utils/components/HydratedDate'
 
 interface Notification {
     id: string
@@ -128,7 +129,7 @@ const NotificationsDropdown = () => {
                                                             {n.titulo}
                                                         </Typography>
                                                         <Typography variant='caption' color='text.disabled'>
-                                                            {new Date(n.creado_en).toLocaleDateString()}
+                                                            <HydratedDate date={n.creado_en} format="date" />
                                                         </Typography>
                                                     </div>
                                                     <Typography variant='caption' color='text.secondary' className='line-clamp-2'>

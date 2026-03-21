@@ -6,6 +6,8 @@ import Link from 'next/link'
 // Third-party Imports
 import classnames from 'classnames'
 
+import HydratedDate from '@/utils/components/HydratedDate'
+
 // Hook Imports
 
 
@@ -21,7 +23,7 @@ const FooterContent = () => {
       className={classnames(verticalLayoutClasses.footerContent, 'flex items-center justify-between flex-wrap gap-4')}
     >
       <p>
-        <span className='text-textSecondary'>{`© ${new Date().getFullYear()}, Desarrollado con`}</span>
+        <span className='text-textSecondary'>{`© `}<HydratedDate date={new Date()} format="year" />{`, Desarrollado con`}</span>
         <span>{`❤️`}</span>
         <span className='text-textSecondary'>{` por `}</span>
         <Link href='https://fly-software.lovable.app/' target='_blank' className='text-primary'>

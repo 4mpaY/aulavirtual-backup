@@ -16,6 +16,7 @@ import {
 } from '@mui/material'
 
 import { useComentariosCurso } from '../../hooks/useCursos'
+import HydratedDate from '@/utils/components/HydratedDate'
 
 interface TabComentariosProps {
     cursoId: string
@@ -64,7 +65,7 @@ export function TabComentarios({ cursoId }: TabComentariosProps) {
                                             />
                                         </Typography>
                                         <Typography variant='caption' color='text.secondary'>
-                                            {new Date(c.creado_en).toLocaleString()}
+                                            <HydratedDate date={c.creado_en} />
                                         </Typography>
                                     </Box>
                                 }
@@ -96,7 +97,7 @@ export function TabComentarios({ cursoId }: TabComentariosProps) {
                                                 {r.usuario.nombre} {r.usuario.apellido}
                                             </Typography>
                                             <Typography variant='caption' color='text.secondary'>
-                                                {new Date(r.creado_en).toLocaleString()}
+                                                <HydratedDate date={r.creado_en} />
                                             </Typography>
                                         </Box>
                                         <Typography variant='body2'>{r.contenido}</Typography>

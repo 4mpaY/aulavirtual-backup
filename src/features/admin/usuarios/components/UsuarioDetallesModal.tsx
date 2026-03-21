@@ -35,6 +35,8 @@ const rolLabels: { [key in Rol]: string } = {
   ESTUDIANTE: 'Estudiante'
 }
 
+import HydratedDate from '@/utils/components/HydratedDate'
+
 const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesModalProps) => {
   const [activeTab, setActiveTab] = useState(0)
   const { data: usuario, isLoading } = useUsuario(usuarioId || '')
@@ -106,7 +108,7 @@ const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesM
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant='caption' color='text.disabled' sx={{ fontWeight: 600 }}>FECHA DE REGISTRO</Typography>
-              <Typography variant='body1'>{new Date(usuario.creado_en).toLocaleDateString()}</Typography>
+              <Typography variant='body1'><HydratedDate date={usuario.creado_en} format="date" /></Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography variant='caption' color='text.disabled' sx={{ fontWeight: 600 }}>BIOGRAFÍA</Typography>
@@ -136,7 +138,7 @@ const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesM
                             <Typography component='span' variant='body2' color='text.primary'>
                               Estado: {insc.estado}
                             </Typography>
-                            {` — Inscrito el ${new Date(insc.inscrito_en).toLocaleDateString()}`}
+                            {` — Inscrito el `} <HydratedDate date={insc.inscrito_en} format="date" />
                           </>
                         }
                       />
@@ -172,7 +174,7 @@ const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesM
                             <Typography component='span' variant='body2' color='text.primary'>
                               Estado: {curso.estado}
                             </Typography>
-                            {` — Creado el ${new Date(curso.creado_en).toLocaleDateString()}`}
+                            {` — Creado el `} <HydratedDate date={curso.creado_en} format="date" />
                           </>
                         }
                       />
