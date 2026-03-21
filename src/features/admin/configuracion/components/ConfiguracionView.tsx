@@ -17,7 +17,7 @@ import {
   Tab,
   Divider
 } from '@mui/material'
-import { toast } from 'react-toastify'
+import { useSnackbar } from 'notistack'
 import { getSession } from 'next-auth/react'
 
 import { AxiosConfiguracion } from '../http/axiosConfiguracion'
@@ -55,6 +55,7 @@ function CustomTabPanel(props: TabPanelProps) {
 }
 
 export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
+  const { enqueueSnackbar } = useSnackbar()
   const [tabValue, setTabValue] = useState(0)
   const [saving, setSaving] = useState(false)
   const [openMedia, setOpenMedia] = useState(false)
@@ -119,10 +120,10 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       const axiosConfig = new AxiosConfiguracion({ getAuthToken })
 
       await axiosConfig.save(payload)
-      toast.success('Configuración actualizada. Los cambios estéticos pueden requerir recargar la página.')
+      enqueueSnackbar('Configuración actualizada. Los cambios estéticos pueden requerir recargar la página.', { variant: 'success' })
     } catch (err) {
       console.error(err)
-      toast.error('Error al guardar la configuración')
+      enqueueSnackbar('Error al guardar la configuración', { variant: 'error' })
     } finally {
       setSaving(false)
     }
@@ -200,7 +201,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                       onClose={() => setOpenMedia(false)}
                       onSelect={(url) => {
                         handleInputChange('TEMPLATE_LOGO', url)
-                        toast.success('Logo actualizado en el formulario, recuerda Guardar Todo')
+                        enqueueSnackbar('Logo actualizado en el formulario, recuerda Guardar Todo', { variant: 'success' })
                       }}
                       title="Seleccionar Logo"
                   />

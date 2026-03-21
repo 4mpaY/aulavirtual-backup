@@ -2,6 +2,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
+import { getConfigs } from '@/utils/libs/config'
 import { createPaypalOrder } from '@/utils/libs/paypal-api'
 
 /**
@@ -72,25 +73,19 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Conversión de Moneda para PayPal (Dinámica desde BD)
-    let exchangeRate = Number(process.env.PAYPAL_EXCHANGE_RATE) || 3.8
-
-    try {
-      const config = await prisma.configuracion.findUnique({
-        where: { clave: 'PAYPAL_EXCHANGE_RATE' }
-      })
-
-      if (config) {
-        exchangeRate = Number(config.valor)
-      }
-    } catch (e) {
-      console.warn('Error al obtener tipo de cambio de la BD, usando fallback', e)
-    }
-
-    const totalUSD = Number((total / exchangeRate).toFixed(2))
-
-    const monedaOriginal = 'PEN'
+    // 3. Lógica de Moneda para PayPal
+    const monedaOriginal = cursos[0]?.moneda || 'PEN'
     const monedaPaypal = 'USD'
+    let totalUSD = total
+    let exchangeRate = 1
+
+    if (monedaOriginal === 'PEN') {
+      // Conversión de Moneda para PayPal (Dinámica desde BD)
+      const configs = await getConfigs()
+
+      exchangeRate = Number(configs['PAYPAL_EXCHANGE_RATE']) || 3.8
+      totalUSD = Number((total / exchangeRate).toFixed(2))
+    }
 
     const pedido = await prisma.pedido.create({
       data: {
@@ -100,7 +95,10 @@ export async function POST(request: Request) {
         moneda: monedaOriginal,
         estado: 'PENDIENTE',
         metodo_pago: 'PAYPAL',
-        mensaje: `Monto convertido a PayPal: $${totalUSD} (TC: ${exchangeRate})`,
+        mensaje:
+          monedaOriginal === 'PEN'
+            ? `Monto convertido a PayPal: $${totalUSD} (TC: ${exchangeRate})`
+            : `Pago procesado en USD directamente`,
         detalles: {
           create: cursos.map(c => {
             const precioCurso = Number(c.precio)

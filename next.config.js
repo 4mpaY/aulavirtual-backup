@@ -3,10 +3,6 @@
 // 🔐 SEGURIDAD: Headers HTTP de seguridad para todas las rutas
 const securityHeaders = [
   {
-    key: 'X-Frame-Options',
-    value: 'DENY' // Previene Clickjacking
-  },
-  {
     key: 'X-Content-Type-Options',
     value: 'nosniff' // Previene MIME type sniffing
   },
@@ -35,7 +31,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://*.googleusercontent.com https://*.amazonaws.com",
       "connect-src 'self' https://sandbox-api-pw.izipay.pe https://api-pw.izipay.pe https://api-m.paypal.com https://api-m.sandbox.paypal.com",
-      "frame-src https://www.sandbox.paypal.com https://www.paypal.com https://sandbox-checkout.izipay.pe https://checkout.izipay.pe",
+      'frame-src https://www.sandbox.paypal.com https://www.paypal.com https://sandbox-checkout.izipay.pe https://checkout.izipay.pe',
       "object-src 'none'",
       "base-uri 'self'"
     ].join('; ')
