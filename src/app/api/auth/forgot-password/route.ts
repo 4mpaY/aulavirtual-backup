@@ -48,6 +48,8 @@ export async function POST(request: Request) {
       }
     })
 
+    console.log(`[Forgot-Password] Registro PasswordReset creado para: ${correo}. Código: ${codigo}`)
+
     // 4. Enviar correo con OTP
     const configs = await getConfigs()
     const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
@@ -71,16 +73,22 @@ export async function POST(request: Request) {
       </div>
     `
 
-    await sendMail({
+    const mailSent = await sendMail({
       to: correo,
       subject: `Código de recuperación: ${codigo} - ${platformName}`,
       html: emailHtml
     })
 
-    console.log(`[Forgot-Password] OTP enviado a ${correo}`)
+    if (mailSent) {
+      console.log(`[Forgot-Password] ✅ OTP enviado con éxito a ${correo}`)
+    } else {
+      console.error(`[Forgot-Password] ❌ No se pudo enviar el correo a ${correo}. Revisa los logs del Mailer.`)
+    }
 
     return ApiResponse.success(request, { message: 'Si el correo está registrado, recibirás un código de recuperación.' })
   } catch (error) {
+    console.error('[Forgot-Password] Error inesperado en el flujo:', error)
+    
     return handleApiError(error, request)
   }
 }

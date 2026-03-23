@@ -14,7 +14,7 @@ interface SendMailOptions {
 const transporter = createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: Number(process.env.SMTP_PORT) || 465,
-  secure: true, // true para 465, false para otros puertos
+  secure: Number(process.env.SMTP_PORT) === 465, // true para 465, false para otros puertos (como 587)
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS
@@ -42,13 +42,26 @@ export const sendMail = async ({ to, subject, html, attachments }: SendMailOptio
       attachments
     }
 
+    console.log(`📡 [Mailer] Intentando enviar correo a: ${to} (Remitente: ${mailOptions.from})`)
+
     const info = await transporter.sendMail(mailOptions)
 
     console.log(`✅ [Mailer] Correo enviado a ${to}: ${info.messageId}`)
 
     return true
-  } catch (error) {
-    console.error('❌ [Mailer] Error al enviar el correo:', error)
+  } catch (error: any) {
+    console.error('❌ [Mailer] Error crítico al enviar el correo:')
+    console.error(`   - Mensaje: ${error.message}`)
+    console.error(`   - Código: ${error.code}`)
+    console.error(`   - Comando: ${error.command}`)
+
+    if (error.code === 'EENVELOPE') {
+      console.error('   - Posible causa: El formato del correo remitente (SMTP_FROM) o destinatario es inválido.')
+    } else if (error.code === 'ESOCKET' || error.code === 'ETIMEDOUT') {
+      console.error('   - Posible causa: Problema de red o puerto 465 bloqueado en el servidor.')
+    } else if (error.code === 'EAUTH') {
+      console.error('   - Posible causa: Credenciales SMTP_USER / SMTP_PASS incorrectas (¿App Password de Google?).')
+    }
 
     return false
   }
