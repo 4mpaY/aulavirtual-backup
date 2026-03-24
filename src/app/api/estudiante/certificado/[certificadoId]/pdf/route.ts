@@ -7,7 +7,8 @@ import { readFile } from 'fs/promises'
 import { join } from 'path'
 
 import { NextResponse } from 'next/server'
-import QRCode from 'qrcode'
+
+import * as QRCode from 'qrcode'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
@@ -355,6 +356,7 @@ export async function GET(
 
     if (certificado.curso.nivel) info.push(`Nivel: ${certificado.curso.nivel}`)
     if (certificado.curso.duracion) info.push(`Duración: ${certificado.curso.duracion}`)
+
     if (info.length > 0) {
       doc.setFontSize(10)
       doc.setTextColor(120, 120, 120)
@@ -413,7 +415,7 @@ export async function GET(
 
     doc.text(cursoTituloLines, pageWidth / 2, 30, { align: 'center' })
 
-    let yPos = 42
+    const yPos = 42
     const modulos = certificado.curso.modulos ?? []
 
     if (modulos.length === 0) {
