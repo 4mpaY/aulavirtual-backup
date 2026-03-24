@@ -208,6 +208,7 @@ export async function POST(request: Request) {
         duracion: data.duracion || null,
         miniatura: data.miniatura || null,
         video_presentacion: data.video_presentacion || null,
+        brochure: data.brochure || null,
         fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
         estado: 'BORRADOR'
       },

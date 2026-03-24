@@ -17,7 +17,13 @@ const ALLOWED_MIMES: Record<string, string> = {
   'image/gif': 'gif',
   'application/pdf': 'pdf',
   'video/mp4': 'mp4',
-  'video/webm': 'webm'
+  'video/webm': 'webm',
+
+  // Documentos de Office
+  'application/msword': 'doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'application/vnd.ms-excel': 'xls',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx'
 }
 
 /** Tamaño máximo: 50 MB */
@@ -34,8 +40,15 @@ function verifyMagicBytes(buffer: Buffer, mimeType: string): boolean {
     'image/gif': [[0x47, 0x49, 0x46, 0x38]],
     'image/webp': [[0x52, 0x49, 0x46, 0x46]], // RIFF
     'application/pdf': [[0x25, 0x50, 0x44, 0x46]], // %PDF
-    'video/mp4': [[0x00, 0x00, 0x00], [0x66, 0x74, 0x79, 0x70]], // ftyp a offset 4 es más complejo, usamos permisivo para video
-    'video/webm': [[0x1a, 0x45, 0xdf, 0xa3]]
+    'video/mp4': [[0x00, 0x00, 0x00], [0x66, 0x74, 0x79, 0x70]],
+    'video/webm': [[0x1a, 0x45, 0xdf, 0xa3]],
+
+    // Office antiguo (OLE2 / CFBF)
+    'application/msword': [[0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]],
+    'application/vnd.ms-excel': [[0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]],
+    // Office moderno (OpenXML / ZIP based)
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [[0x50, 0x4b, 0x03, 0x04]], // PK..
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [[0x50, 0x4b, 0x03, 0x04]] // PK..
   }
 
   const mimeSignatures = signatures[mimeType]

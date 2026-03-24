@@ -19,6 +19,7 @@ import {
 } from '@mui/material'
 
 import CustomTextField from '@core/components/mui/TextField'
+import MediaLibrary from '../MediaLibrary'
 
 interface LessonEditDialogProps {
   open: boolean
@@ -39,6 +40,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
   const [recursos, setRecursos] = useState<any[]>([])
   const [contenido, setContenido] = useState('')
   const [newRecurso, setNewRecurso] = useState({ nombre: '', url: '' })
+  const [openMediaResources, setOpenMediaResources] = useState(false)
 
   // Usar useEffect para actualizar cuando cambie lessonData
   useEffect(() => {
@@ -232,15 +234,46 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                 <CustomTextField
                   fullWidth
                   size='small'
-                  label='URL del documento'
+                  label='URL del documento o selecciona archivo'
                   value={newRecurso.url}
                   onChange={e => setNewRecurso({ ...newRecurso, url: e.target.value })}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          size='small'
+                          onClick={() => setOpenMediaResources(true)}
+                          color='primary'
+                          title='Subir o seleccionar archivo'
+                        >
+                          <i className='tabler-upload text-lg' />
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
                 <Button variant='tonal' size='small' onClick={handleAddRecurso} disabled={!newRecurso.nombre || !newRecurso.url}>
                   Añadir
                 </Button>
               </Box>
             </Stack>
+
+            <MediaLibrary
+              open={openMediaResources}
+              onClose={() => setOpenMediaResources(false)}
+              onSelect={(url: string, nombre?: string) => {
+                const parts = url.split('/')
+                const fileName = parts[parts.length - 1] || 'Recurso'
+
+                setNewRecurso({
+                  nombre: nombre || fileName.split('.')[0] || 'Recurso',
+                  url
+                })
+                setOpenMediaResources(false)
+              }}
+              title="Seleccionar Recurso"
+              acceptType="OTRO"
+            />
           </Box>
         </Stack>
       </DialogContent>

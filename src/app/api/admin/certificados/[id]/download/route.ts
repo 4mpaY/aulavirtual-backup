@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server'
 import QRCode from 'qrcode'
 
 import prisma from '@/utils/libs/prisma'
-import { requireAuth } from '@/utils/libs/auth-helpers'
+import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import { getConfigs } from '@/utils/libs/config'
 
@@ -21,7 +21,7 @@ function hexToRgb(hex: string): [number, number, number] {
 
     return [isNaN(r) ? 30 : r, isNaN(g) ? 120 : g, isNaN(b) ? 70 : b]
   } catch {
-    return [30, 120, 70] // Fallback verde si el hex es inválido
+    return [30, 120, 70]
   }
 }
 
@@ -30,8 +30,6 @@ async function loadLocalImage(url: string): Promise<Buffer | null> {
   try {
     if (!url) return null
 
-    // Si es una URL completa (http...), jsPDF puede manejarla a veces but here we want buffer for security/stability
-    // For now we only handle relative public paths
     if (url.startsWith('/')) {
       const cleanUrl = url.replace(/\/+/g, '/')
       const filePath = join(process.cwd(), 'public', cleanUrl)
@@ -47,24 +45,22 @@ async function loadLocalImage(url: string): Promise<Buffer | null> {
 }
 
 /**
- * GET /api/estudiante/certificado/[certificadoId]/pdf
- * Genera y descarga el PDF del certificado
+ * GET /api/admin/certificados/[id]/download
+ * Genera y descarga el PDF del certificado (solo ADMIN)
  */
 export async function GET(
   request: Request,
-  { params }: { params: { certificadoId: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const auth = await requireAuth(request)
+    const auth = await requireAdmin(request)
 
     if (!auth.authorized) return auth.error
 
-    const { certificadoId } = params
-
-    // Cargar datos en paralelo
+    // Cargar en paralelo
     const [certificado, configs] = await Promise.all([
       prisma.certificado.findUnique({
-        where: { id: certificadoId },
+        where: { id: params.id },
         include: {
           curso: {
             select: {
@@ -95,30 +91,23 @@ export async function GET(
       return NextResponse.json({ error: 'Certificado no encontrado' }, { status: 404 })
     }
 
-    if (certificado.usuario_id !== auth.user.id && auth.user.rol !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-    }
-
-    // ── Branding desde la Configuración ──
-    const colorPrimario = configs.PRIMARY_COLOR_MAIN || '#131FF2'
-    const colorSecundario = configs.PRIMARY_COLOR_LIGHT || '#242CBF'
+    // Branding
+    const colorPrimario = configs.PRIMARY_COLOR_MAIN ?? '#131FF2'
+    const colorSecundario = configs.PRIMARY_COLOR_LIGHT ?? '#242CBF'
     const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
-    const nombreInstitucion = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const nombreInstitucion = configs.TEMPLATE_NAME ?? 'Aula Virtual'
     const [pr, pg, pb] = hexToRgb(colorPrimario)
     const [sr, sg, sb] = hexToRgb(colorSecundario)
 
-    // URL de verificación
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
 
-    // Generar QR
     const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
       width: 120,
       margin: 1,
       color: { dark: colorPrimario, light: '#ffffff' }
     })
 
-    // Logo
     const logoBuffer = logoUrl ? await loadLocalImage(logoUrl) : null
 
     // ================================================================
@@ -128,10 +117,7 @@ export async function GET(
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
 
-    // ============================================================
-    // PÁGINA 1 – CERTIFICADO
-    // ============================================================
-
+    // ── PÁGINA 1 ──
     doc.setFillColor(248, 250, 252)
     doc.rect(0, 0, pageWidth, pageHeight, 'F')
 
@@ -145,11 +131,9 @@ export async function GET(
     doc.setLineWidth(0.3)
     doc.rect(15, 15, pageWidth - 30, pageHeight - 30)
 
-    // Banda superior
     doc.setFillColor(pr, pg, pb)
     doc.rect(8, 8, pageWidth - 16, 22, 'F')
 
-    // Logo en la banda
     if (logoBuffer) {
       try {
         const ext = logoUrl.split('.').pop()?.toUpperCase() ?? 'PNG'
@@ -157,18 +141,14 @@ export async function GET(
         const base64Logo = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
 
         doc.addImage(base64Logo, mimeExt, 14, 10, 40, 16)
-      } catch {
-        // fail silent
-      }
+      } catch { /* skip */ }
     }
 
-    // Nombre institución en la banda
     doc.setFontSize(11)
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'bold')
     doc.text(nombreInstitucion.toUpperCase(), pageWidth - 20, 21, { align: 'right' })
 
-    // Títulos
     doc.setFontSize(30)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
@@ -228,7 +208,6 @@ export async function GET(
     doc.setFont('helvetica', 'normal')
     doc.text(`Fecha de emisión: ${fecha}`, pageWidth / 2, 153, { align: 'center' })
 
-    // QR
     const qrSize = 32
     const qrX = pageWidth - qrSize - 22
     const qrY = pageHeight - qrSize - 22
@@ -239,29 +218,22 @@ export async function GET(
     doc.text('Verificar', qrX + qrSize / 2, qrY + qrSize + 4, { align: 'center' })
     doc.text('certificado', qrX + qrSize / 2, qrY + qrSize + 8, { align: 'center' })
 
-    // Pie
     doc.setFontSize(8)
     doc.setTextColor(160, 160, 160)
     doc.text(`Código: ${certificado.codigo_verificacion}`, pageWidth / 2, pageHeight - 14, { align: 'center' })
     doc.setFontSize(7)
     doc.text(verifyUrl, pageWidth / 2, pageHeight - 9, { align: 'center' })
 
-    // ============================================================
-    // PÁGINA 2 – CONTENIDO
-    // ============================================================
+    // ── PÁGINA 2 ──
     doc.addPage()
-
     doc.setFillColor(248, 250, 252)
     doc.rect(0, 0, pageWidth, pageHeight, 'F')
-
     doc.setFillColor(pr, pg, pb)
     doc.rect(0, 0, pageWidth, 22, 'F')
-
     doc.setFontSize(14)
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'bold')
     doc.text('CONTENIDO DEL PROGRAMA', pageWidth / 2, 14, { align: 'center' })
-
     doc.setFontSize(10)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
@@ -290,7 +262,6 @@ export async function GET(
         const currentY = col === 0 ? yLeft : yRight
         const currentX = col === 0 ? leftX : rightX
 
-        // Módulo
         doc.setFillColor(pr, pg, pb)
         doc.roundedRect(currentX, currentY, colWidth - 5, 8, 2, 2, 'F')
         doc.setFontSize(9)
