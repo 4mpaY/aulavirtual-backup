@@ -7,12 +7,47 @@ import { readFile } from 'fs/promises'
 import { join } from 'path'
 
 import { NextResponse } from 'next/server'
-
-import * as QRCode from 'qrcode'
+import QRCode from 'qrcode'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import { getConfigs } from '@/utils/libs/config'
+
+/** Convierte un color hex (#RRGGBB) a rgb [r, g, b] */
+function hexToRgb(hex: string): [number, number, number] {
+  try {
+    const clean = hex.replace('#', '')
+    const r = parseInt(clean.substring(0, 2), 16)
+    const g = parseInt(clean.substring(2, 4), 16)
+    const b = parseInt(clean.substring(4, 6), 16)
+
+    return [isNaN(r) ? 30 : r, isNaN(g) ? 120 : g, isNaN(b) ? 70 : b]
+  } catch {
+    return [30, 120, 70] // Fallback verde si el hex es inválido
+  }
+}
+
+/** Intenta cargar una imagen local desde /public */
+async function loadLocalImage(url: string): Promise<Buffer | null> {
+  try {
+    if (!url) return null
+
+    // Si es una URL completa (http...), jsPDF puede manejarla a veces but here we want buffer for security/stability
+    // For now we only handle relative public paths
+    if (url.startsWith('/')) {
+      const cleanUrl = url.replace(/\/+/g, '/')
+      const filePath = join(process.cwd(), 'public', cleanUrl)
+      const buffer = await readFile(filePath)
+
+      return buffer
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
 import { getConfigs } from '@/utils/libs/config'
 
 /** Convierte un color hex (#RRGGBB) a rgb [r, g, b] */
@@ -62,6 +97,35 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     const { certificadoId } = params
 
+    // Cargar datos en paralelo
+    const [certificado, configs] = await Promise.all([
+      prisma.certificado.findUnique({
+        where: { id: certificadoId },
+        include: {
+          curso: {
+            select: {
+              titulo: true,
+              duracion: true,
+              nivel: true,
+              modulos: {
+                orderBy: { orden: 'asc' },
+                select: {
+                  id: true,
+                  titulo: true,
+                  orden: true,
+                  lecciones: {
+                    orderBy: { orden: 'asc' },
+                    select: { id: true, titulo: true, orden: true, duracion: true }
+                  }
+                }
+              }
+            }
+          },
+          usuario: { select: { nombre: true, apellido: true } }
+        }
+      }),
+      getConfigs()
+    ])
     // Cargar datos en paralelo
     const [certificado, configs] = await Promise.all([
       prisma.certificado.findUnique({
@@ -147,6 +211,29 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 =======
     const logoBuffer = logoUrl ? await loadLocalImage(logoUrl) : null
 >>>>>>> 10c84d9 (cambios)
+
+    // ================================================================
+    // ── Branding desde la Configuración ──
+    const colorPrimario = configs.PRIMARY_COLOR_MAIN || '#131FF2'
+    const colorSecundario = configs.PRIMARY_COLOR_LIGHT || '#242CBF'
+    const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
+    const nombreInstitucion = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const [pr, pg, pb] = hexToRgb(colorPrimario)
+    const [sr, sg, sb] = hexToRgb(colorSecundario)
+
+    // URL de verificación
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
+
+    // Generar QR
+    const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
+      width: 120,
+      margin: 1,
+      color: { dark: colorPrimario, light: '#ffffff' }
+    })
+
+    // Logo
+    const logoBuffer = logoUrl ? await loadLocalImage(logoUrl) : null
 
     // ================================================================
     const { jsPDF } = await import('jspdf')
@@ -238,8 +325,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFontSize(30)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
-    doc.text('CERTIFICADO DE FINALIZACIÓN', pageWidth / 2, 52, { align: 'center' })
-    doc.text('CERTIFICADO DE FINALIZACIÓN', pageWidth / 2, 52, { align: 'center' })
+    doc.text('CERTIFICADO DE FINALIZACIÓN', pageWidth / 2, 60, { align: 'center' })
 
     doc.setDrawColor(pr, pg, pb)
     doc.setLineWidth(1.2)
@@ -292,13 +378,16 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFont('helvetica', 'bold')
     const tituloLineas = doc.splitTextToSize(certificado.curso.titulo, 180)
 
+    // Manejar títulos largos
+    const tituloLineas = doc.splitTextToSize(certificado.curso.titulo, 200)
+
+    doc.text(tituloLineas, pageWidth / 2, 122, { align: 'center' })
     doc.text(tituloLineas, pageWidth / 2, 122, { align: 'center' })
 
     const info: string[] = []
 
     if (certificado.curso.nivel) info.push(`Nivel: ${certificado.curso.nivel}`)
     if (certificado.curso.duracion) info.push(`Duración: ${certificado.curso.duracion}`)
-
     if (info.length > 0) {
       doc.setFontSize(10)
       doc.setTextColor(120, 120, 120)
@@ -416,7 +505,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     doc.text(cursoTituloLines, pageWidth / 2, 30, { align: 'center' })
 
-    const yPos = 42
+    let yPos = 42
     const modulos = certificado.curso.modulos ?? []
 
     if (modulos.length === 0) {

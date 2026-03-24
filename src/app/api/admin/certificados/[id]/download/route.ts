@@ -5,7 +5,7 @@ import { join } from 'path'
 
 import { NextResponse } from 'next/server'
 
-import * as QRCode from 'qrcode'
+import QRCode from 'qrcode'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
