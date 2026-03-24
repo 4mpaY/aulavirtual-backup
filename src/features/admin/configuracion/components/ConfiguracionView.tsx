@@ -59,7 +59,7 @@ function CustomTabPanel(props: TabPanelProps) {
 
 function CertificadosSettings({ config, onInputChange }: { config: any, onInputChange: (clave: string, valor: string) => void }) {
   const { data: usuarios, isLoading } = useUsuarios()
-  
+
   // Filtrar solo Admins y Profesores para que puedan ser Gerentes
   const candidatos = (usuarios || []).filter(u => u.rol === Rol.ADMIN || u.rol === Rol.PROFESOR)
 
@@ -68,10 +68,10 @@ function CertificadosSettings({ config, onInputChange }: { config: any, onInputC
       <Box>
         <Typography variant='h6' gutterBottom>Configuración de Firmas</Typography>
         <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-          Selecciona al usuario que actuará como <strong>Gerente General</strong> en los certificados. 
+          Selecciona al usuario que actuará como <strong>Gerente General</strong> en los certificados.
           Asegúrate de que este usuario tenga su <strong>Cargo</strong> y <strong>Firma</strong> configurados en su perfil.
         </Typography>
-        
+
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -273,13 +273,13 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                     </Box>
                   )}
                   <MediaLibrary
-                      open={openMedia}
-                      onClose={() => setOpenMedia(false)}
-                      onSelect={(url) => {
-                        handleInputChange('TEMPLATE_LOGO', url)
-                        enqueueSnackbar('Logo actualizado en el formulario, recuerda Guardar Todo', { variant: 'success' })
-                      }}
-                      title="Seleccionar Logo"
+                    open={openMedia}
+                    onClose={() => setOpenMedia(false)}
+                    onSelect={(url) => {
+                      handleInputChange('TEMPLATE_LOGO', url)
+                      enqueueSnackbar('Logo actualizado en el formulario, recuerda Guardar Todo', { variant: 'success' })
+                    }}
+                    title="Seleccionar Logo"
                   />
                 </Stack>
               </Grid>
@@ -440,9 +440,9 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
 
           {/* TAB 6: CERTIFICADOS */}
           <CustomTabPanel value={tabValue} index={6}>
-            <CertificadosSettings 
-              config={config} 
-              onInputChange={handleInputChange} 
+            <CertificadosSettings
+              config={config}
+              onInputChange={handleInputChange}
             />
           </CustomTabPanel>
 

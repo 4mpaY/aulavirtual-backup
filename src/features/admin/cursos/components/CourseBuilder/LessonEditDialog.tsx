@@ -233,17 +233,22 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                 <CustomTextField
                   fullWidth
                   size='small'
-                  label='URL del documento o selecciona archivo'
-                  value={newRecurso.url}
+                  placeholder='Archivo no seleccionado'
+                  value={newRecurso.url ? (newRecurso.url.startsWith('/') ? '✓ Archivo cargado' : newRecurso.url) : ''}
                   onChange={e => setNewRecurso({ ...newRecurso, url: e.target.value })}
                   InputProps={{
+                    readOnly: newRecurso.url.startsWith('/'),
                     endAdornment: (
                       <InputAdornment position='end'>
+                        {newRecurso.url.startsWith('/') && (
+                          <IconButton size='small' color='error' onClick={() => setNewRecurso({ ...newRecurso, url: '' })}>
+                            <i className='tabler-x text-lg' />
+                          </IconButton>
+                        )}
                         <IconButton
                           size='small'
                           onClick={() => setOpenMediaResources(true)}
                           color='primary'
-                          title='Subir o seleccionar archivo'
                         >
                           <i className='tabler-upload text-lg' />
                         </IconButton>
@@ -251,7 +256,13 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                     )
                   }}
                 />
-                <Button variant='tonal' size='small' onClick={handleAddRecurso} disabled={!newRecurso.nombre || !newRecurso.url}>
+                <Button 
+                  variant='tonal' 
+                  size='small' 
+                  onClick={handleAddRecurso} 
+                  disabled={!newRecurso.nombre || !newRecurso.url}
+                  sx={{ height: 38, minWidth: 100 }}
+                >
                   Añadir
                 </Button>
               </Box>
@@ -263,11 +274,9 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
               onSelect={(url: string, nombre?: string) => {
                 const parts = url.split('/')
                 const fileName = parts[parts.length - 1] || 'Recurso'
+                const resourceName = nombre || fileName.split('.')[0] || 'Recurso'
 
-                setNewRecurso({
-                  nombre: nombre || fileName.split('.')[0] || 'Recurso',
-                  url
-                })
+                setNewRecurso({ nombre: resourceName, url })
                 setOpenMediaResources(false)
               }}
               title="Seleccionar Recurso"
