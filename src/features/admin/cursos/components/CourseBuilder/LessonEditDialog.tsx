@@ -237,10 +237,10 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                   value={newRecurso.url ? (newRecurso.url.startsWith('/') ? '✓ Archivo cargado' : newRecurso.url) : ''}
                   onChange={e => setNewRecurso({ ...newRecurso, url: e.target.value })}
                   InputProps={{
-                    readOnly: newRecurso.url.startsWith('/'),
+                    readOnly: newRecurso.url ? newRecurso.url.startsWith('/') : false,
                     endAdornment: (
                       <InputAdornment position='end'>
-                        {newRecurso.url.startsWith('/') && (
+                        {newRecurso.url && newRecurso.url.startsWith('/') && (
                           <IconButton size='small' color='error' onClick={() => setNewRecurso({ ...newRecurso, url: '' })}>
                             <i className='tabler-x text-lg' />
                           </IconButton>
@@ -249,6 +249,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                           size='small'
                           onClick={() => setOpenMediaResources(true)}
                           color='primary'
+                          title='Subir o seleccionar archivo'
                         >
                           <i className='tabler-upload text-lg' />
                         </IconButton>

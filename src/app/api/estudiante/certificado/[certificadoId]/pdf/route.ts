@@ -244,9 +244,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     }
 
     const fecha = new Date(certificado.emitido_en).toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      year: 'numeric', month: 'long', day: 'numeric'
     })
 
     doc.setFontSize(11)
