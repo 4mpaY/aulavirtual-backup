@@ -5,7 +5,7 @@ import { join } from 'path'
 
 import { NextResponse } from 'next/server'
 
-import * as QRCode from 'qrcode'
+import QRCode from 'qrcode'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
@@ -49,10 +49,7 @@ async function loadLocalImage(url: string): Promise<Buffer | null> {
  * GET /api/admin/certificados/[id]/download
  * Genera y descarga el PDF del certificado (solo ADMIN)
  */
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
 
@@ -138,11 +135,13 @@ export async function GET(
     if (logoBuffer) {
       try {
         const ext = logoUrl.split('.').pop()?.toUpperCase() ?? 'PNG'
-        const mimeExt = ext === 'JPG' ? 'JPEG' : (ext === 'SVG' ? 'PNG' : ext)
+        const mimeExt = ext === 'JPG' ? 'JPEG' : ext === 'SVG' ? 'PNG' : ext
         const base64Logo = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
 
         doc.addImage(base64Logo, mimeExt, 14, 10, 40, 16)
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
 
     doc.setFontSize(11)
@@ -202,7 +201,9 @@ export async function GET(
     }
 
     const fecha = new Date(certificado.emitido_en).toLocaleDateString('es-PE', {
-      year: 'numeric', month: 'long', day: 'numeric'
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     })
 
     doc.setFontSize(11)

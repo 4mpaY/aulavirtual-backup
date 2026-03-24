@@ -3,13 +3,51 @@ export const dynamic = 'force-dynamic'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 
-import { NextResponse } from 'next/server'
+import { readFile } from 'fs/promises'
+import { join } from 'path'
 
-import * as QRCode from 'qrcode'
+import { NextResponse } from 'next/server'
+import QRCode from 'qrcode'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import { getConfigs } from '@/utils/libs/config'
+
+/** Convierte un color hex (#RRGGBB) a rgb [r, g, b] */
+function hexToRgb(hex: string): [number, number, number] {
+  try {
+    const clean = hex.replace('#', '')
+    const r = parseInt(clean.substring(0, 2), 16)
+    const g = parseInt(clean.substring(2, 4), 16)
+    const b = parseInt(clean.substring(4, 6), 16)
+
+    return [isNaN(r) ? 30 : r, isNaN(g) ? 120 : g, isNaN(b) ? 70 : b]
+  } catch {
+    return [30, 120, 70] // Fallback verde si el hex es inválido
+  }
+}
+
+/** Intenta cargar una imagen local desde /public */
+async function loadLocalImage(url: string): Promise<Buffer | null> {
+  try {
+    if (!url) return null
+
+    // Si es una URL completa (http...), jsPDF puede manejarla a veces but here we want buffer for security/stability
+    // For now we only handle relative public paths
+    if (url.startsWith('/')) {
+      const cleanUrl = url.replace(/\/+/g, '/')
+      const filePath = join(process.cwd(), 'public', cleanUrl)
+      const buffer = await readFile(filePath)
+
+      return buffer
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
 import { getConfigs } from '@/utils/libs/config'
 
 /** Convierte un color hex (#RRGGBB) a rgb [r, g, b] */
@@ -91,6 +129,35 @@ export async function GET(
       }),
       getConfigs()
     ])
+    // Cargar datos en paralelo
+    const [certificado, configs] = await Promise.all([
+      prisma.certificado.findUnique({
+        where: { id: certificadoId },
+        include: {
+          curso: {
+            select: {
+              titulo: true,
+              duracion: true,
+              nivel: true,
+              modulos: {
+                orderBy: { orden: 'asc' },
+                select: {
+                  id: true,
+                  titulo: true,
+                  orden: true,
+                  lecciones: {
+                    orderBy: { orden: 'asc' },
+                    select: { id: true, titulo: true, orden: true, duracion: true }
+                  }
+                }
+              }
+            }
+          },
+          usuario: { select: { nombre: true, apellido: true } }
+        }
+      }),
+      getConfigs()
+    ])
 
     if (!certificado) {
       return NextResponse.json({ error: 'Certificado no encontrado' }, { status: 404 })
@@ -123,12 +190,41 @@ export async function GET(
     const logoBuffer = logoUrl ? await loadLocalImage(logoUrl) : null
 
     // ================================================================
+    // ── Branding desde la Configuración ──
+    const colorPrimario = configs.PRIMARY_COLOR_MAIN || '#131FF2'
+    const colorSecundario = configs.PRIMARY_COLOR_LIGHT || '#242CBF'
+    const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
+    const nombreInstitucion = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const [pr, pg, pb] = hexToRgb(colorPrimario)
+    const [sr, sg, sb] = hexToRgb(colorSecundario)
+
+    // URL de verificación
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
+
+    // Generar QR
+    const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
+      width: 120,
+      margin: 1,
+      color: { dark: colorPrimario, light: '#ffffff' }
+    })
+
+    // Logo
+    const logoBuffer = logoUrl ? await loadLocalImage(logoUrl) : null
+
+    // ================================================================
     const { jsPDF } = await import('jspdf')
 
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
 
+    // ============================================================
+    // PÁGINA 1 – CERTIFICADO
+    // ============================================================
+
+    doc.setFillColor(248, 250, 252)
     // ============================================================
     // PÁGINA 1 – CERTIFICADO
     // ============================================================
@@ -139,7 +235,15 @@ export async function GET(
     doc.setDrawColor(pr, pg, pb)
     doc.setLineWidth(3)
     doc.rect(8, 8, pageWidth - 16, pageHeight - 16)
+    doc.setDrawColor(pr, pg, pb)
+    doc.setLineWidth(3)
+    doc.rect(8, 8, pageWidth - 16, pageHeight - 16)
 
+    doc.setDrawColor(sr, sg, sb)
+    doc.setLineWidth(0.8)
+    doc.rect(13, 13, pageWidth - 26, pageHeight - 26)
+    doc.setLineWidth(0.3)
+    doc.rect(15, 15, pageWidth - 30, pageHeight - 30)
     doc.setDrawColor(sr, sg, sb)
     doc.setLineWidth(0.8)
     doc.rect(13, 13, pageWidth - 26, pageHeight - 26)
@@ -168,12 +272,37 @@ export async function GET(
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'bold')
     doc.text(nombreInstitucion.toUpperCase(), pageWidth - 20, 21, { align: 'right' })
+    // Banda superior
+    doc.setFillColor(pr, pg, pb)
+    doc.rect(8, 8, pageWidth - 16, 22, 'F')
+
+    // Logo en la banda
+    if (logoBuffer) {
+      try {
+        const ext = logoUrl.split('.').pop()?.toUpperCase() ?? 'PNG'
+        const mimeExt = ext === 'JPG' ? 'JPEG' : (ext === 'SVG' ? 'PNG' : ext)
+        const base64Logo = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
+
+        doc.addImage(base64Logo, mimeExt, 14, 10, 40, 16)
+      } catch {
+        // fail silent
+      }
+    }
+
+    // Nombre institución en la banda
+    doc.setFontSize(11)
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.text(nombreInstitucion.toUpperCase(), pageWidth - 20, 21, { align: 'right' })
 
     // Títulos
     doc.setFontSize(30)
     doc.setTextColor(pr, pg, pb)
+    // Títulos
+    doc.setFontSize(30)
+    doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
-    doc.text('CERTIFICADO DE FINALIZACIÓN', pageWidth / 2, 52, { align: 'center' })
+    doc.text('CERTIFICADO DE FINALIZACIÓN', pageWidth / 2, 60, { align: 'center' })
 
     doc.setDrawColor(pr, pg, pb)
     doc.setLineWidth(1.2)
@@ -190,30 +319,42 @@ export async function GET(
 
     doc.setFontSize(32)
     doc.setTextColor(30, 40, 50)
+    doc.setFontSize(32)
+    doc.setTextColor(30, 40, 50)
     doc.setFont('helvetica', 'bold')
+    doc.text(nombreCompleto.toUpperCase(), pageWidth / 2, 91, { align: 'center' })
     doc.text(nombreCompleto.toUpperCase(), pageWidth / 2, 91, { align: 'center' })
 
     doc.setDrawColor(180, 180, 180)
+    doc.setDrawColor(180, 180, 180)
     doc.setLineWidth(0.5)
+    doc.line(pageWidth / 2 - 90, 97, pageWidth / 2 + 90, 97)
     doc.line(pageWidth / 2 - 90, 97, pageWidth / 2 + 90, 97)
 
     doc.setFontSize(12)
     doc.setTextColor(90, 90, 90)
+    doc.setFontSize(12)
+    doc.setTextColor(90, 90, 90)
     doc.setFont('helvetica', 'normal')
+    doc.text('Por haber completado satisfactoriamente el curso:', pageWidth / 2, 109, { align: 'center' })
     doc.text('Por haber completado satisfactoriamente el curso:', pageWidth / 2, 109, { align: 'center' })
 
     doc.setFontSize(20)
     doc.setTextColor(sr, sg, sb)
+    doc.setTextColor(sr, sg, sb)
     doc.setFont('helvetica', 'bold')
     const tituloLineas = doc.splitTextToSize(certificado.curso.titulo, 180)
 
+    // Manejar títulos largos
+    const tituloLineas = doc.splitTextToSize(certificado.curso.titulo, 200)
+
+    doc.text(tituloLineas, pageWidth / 2, 122, { align: 'center' })
     doc.text(tituloLineas, pageWidth / 2, 122, { align: 'center' })
 
     const info: string[] = []
 
     if (certificado.curso.nivel) info.push(`Nivel: ${certificado.curso.nivel}`)
     if (certificado.curso.duracion) info.push(`Duración: ${certificado.curso.duracion}`)
-
     if (info.length > 0) {
       doc.setFontSize(10)
       doc.setTextColor(120, 120, 120)
@@ -222,6 +363,7 @@ export async function GET(
     }
 
     const fecha = new Date(certificado.emitido_en).toLocaleDateString('es-PE', {
+      year: 'numeric', month: 'long', day: 'numeric'
       year: 'numeric', month: 'long', day: 'numeric'
     })
 
@@ -271,7 +413,7 @@ export async function GET(
 
     doc.text(cursoTituloLines, pageWidth / 2, 30, { align: 'center' })
 
-    const yPos = 42
+    let yPos = 42
     const modulos = certificado.curso.modulos ?? []
 
     if (modulos.length === 0) {
@@ -357,7 +499,9 @@ export async function GET(
     doc.setTextColor(160, 160, 160)
     doc.text(
       `Certificado emitido a: ${nombreCompleto}  •  Código: ${certificado.codigo_verificacion}`,
+      `Certificado emitido a: ${nombreCompleto}  •  Código: ${certificado.codigo_verificacion}`,
       pageWidth / 2,
+      pageHeight - 8,
       pageHeight - 8,
       { align: 'center' }
     )

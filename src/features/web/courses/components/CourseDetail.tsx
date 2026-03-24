@@ -675,6 +675,29 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                   ))}
                 </Stack>
 
+                {course.brochure && (
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    fullWidth
+                    size="large"
+                    component="a"
+                    href={course.brochure}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    startIcon={<i className="tabler-file-download" />}
+                    sx={{
+                      mb: 2,
+                      py: 1.5,
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      textTransform: 'none'
+                    }}
+                  >
+                    Descargar Brochure
+                  </Button>
+                )}
+
                 <Button
                   variant="contained"
                   color={course.es_comprado ? "success" : "primary"}

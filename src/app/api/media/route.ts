@@ -40,7 +40,10 @@ function verifyMagicBytes(buffer: Buffer, mimeType: string): boolean {
     'image/gif': [[0x47, 0x49, 0x46, 0x38]],
     'image/webp': [[0x52, 0x49, 0x46, 0x46]], // RIFF
     'application/pdf': [[0x25, 0x50, 0x44, 0x46]], // %PDF
-    'video/mp4': [[0x00, 0x00, 0x00], [0x66, 0x74, 0x79, 0x70]],
+    'video/mp4': [
+      [0x00, 0x00, 0x00],
+      [0x66, 0x74, 0x79, 0x70]
+    ],
     'video/webm': [[0x1a, 0x45, 0xdf, 0xa3]],
 
     // Office antiguo (OLE2 / CFBF)
@@ -96,7 +99,11 @@ export async function POST(request: Request) {
     const contentLength = parseInt(request.headers.get('content-length') || '0', 10)
 
     if (contentLength > MAX_FILE_SIZE) {
-      return ApiResponse.error(request, `El archivo supera el tamaño máximo permitido (${MAX_FILE_SIZE / 1024 / 1024}MB)`, 413)
+      return ApiResponse.error(
+        request,
+        `El archivo supera el tamaño máximo permitido (${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+        413
+      )
     }
 
     const formData = await request.formData()
@@ -108,7 +115,11 @@ export async function POST(request: Request) {
 
     // 🔐 SEGURIDAD: Verificar tamaño real del archivo
     if (file.size > MAX_FILE_SIZE) {
-      return ApiResponse.error(request, `El archivo supera el tamaño máximo permitido (${MAX_FILE_SIZE / 1024 / 1024}MB)`, 413)
+      return ApiResponse.error(
+        request,
+        `El archivo supera el tamaño máximo permitido (${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+        413
+      )
     }
 
     // 🔐 SEGURIDAD: Validar MIME type contra lista blanca
