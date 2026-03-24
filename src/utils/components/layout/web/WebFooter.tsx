@@ -37,8 +37,7 @@ const WebFooter = () => {
                 { label: 'Proyectos', href: '/proyectos' },
                 { label: 'Mantenimiento', href: '/mantenimiento' },
                 { label: 'Consultoría', href: '/consultoria' },
-                { label: 'Capacitación', href: '/cursos' },
-                // { label: 'Rutas de Aprendizaje', href: '/rutas' },
+                { label: 'Capacitación', href: '/cursos' }
               ].map((link) => (
                 <li key={link.label}>
                   <Link

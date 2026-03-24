@@ -426,8 +426,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
           ...initialCategories.map(cat => ({
             label: cat.nombre,
             href: `/cursos?categoria=${cat.slug}`
-          })),
-          // { label: 'Rutas de aprendizaje', href: '/rutas' },
+          }))
         ]
       }
     }
