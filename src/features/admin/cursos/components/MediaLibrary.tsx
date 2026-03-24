@@ -26,11 +26,12 @@ import { useMedia, useUploadMedia } from '../hooks/useMedia'
 interface MediaLibraryProps {
     open: boolean
     onClose: () => void
-    onSelect: (url: string) => void
+    onSelect: (url: string, nombre?: string) => void
     title?: string
+    acceptType?: 'IMAGEN' | 'VIDEO' | 'OTRO'
 }
 
-const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios' }: MediaLibraryProps) => {
+const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios', acceptType = 'IMAGEN' }: MediaLibraryProps) => {
     const [search, setSearch] = useState('')
     const { data: media = [], isLoading } = useMedia()
     const uploadMutation = useUploadMedia()
@@ -43,7 +44,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios' 
         try {
             const result = await uploadMutation.mutateAsync(file)
 
-            onSelect(result.url)
+            onSelect(result.url, result.nombre)
             onClose()
         } catch (error) {
             console.error('Error al subir archivo', error)
@@ -52,7 +53,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios' 
 
     const filteredMedia = media.filter(m =>
         m.nombre.toLowerCase().includes(search.toLowerCase()) &&
-        m.tipo === 'IMAGEN'
+        (acceptType ? m.tipo === acceptType : true)
     )
 
     return (
@@ -97,7 +98,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios' 
                         <input
                             type="file"
                             hidden
-                            accept="image/*"
+                            accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
                             onChange={handleFileUpload}
                         />
                     </Button>
@@ -143,7 +144,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios' 
                                         <input
                                             type="file"
                                             hidden
-                                            accept="image/*"
+                                            accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
                                             onChange={handleFileUpload}
                                         />
                                     </CardActionArea>
@@ -171,7 +172,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios' 
                                         }}
                                     >
                                         <CardActionArea onClick={() => {
-                                            onSelect(item.url)
+                                            onSelect(item.url, item.nombre)
                                             onClose()
                                         }}>
                                             <CardMedia

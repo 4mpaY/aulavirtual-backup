@@ -50,6 +50,7 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
   const { data: categorias = [] } = useCategorias()
   const [activeTab, setActiveTab] = useState('1')
   const [openMedia, setOpenMedia] = useState(false)
+  const [openBrochure, setOpenBrochure] = useState(false)
 
   const initialValues: CrearCursoDto = {
     titulo: '',
@@ -64,6 +65,7 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
     duracion: '',
     miniatura: null,
     video_presentacion: null,
+    brochure: null,
     fecha_inicio: null
   }
 
@@ -331,7 +333,7 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
 
                   <TabPanel value='3' sx={{ p: 0 }}>
                     <Grid container spacing={5}>
-                      <Grid item xs={12}>
+                      <Grid item xs={12} sm={6}>
                         <Typography variant='subtitle2' sx={{ mb: 2 }}>Imagen de Portada</Typography>
                         {values.miniatura ? (
                           <Box sx={{ position: 'relative', width: '100%', maxWidth: 400, borderRadius: 2, overflow: 'hidden', mb: 3, bgcolor: '#f4f4f4', border: '1px solid', borderColor: 'divider' }}>
@@ -388,6 +390,67 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                           open={openMedia}
                           onClose={() => setOpenMedia(false)}
                           onSelect={(url) => setFieldValue('miniatura', url)}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant='subtitle2' sx={{ mb: 2 }}>Brochure del Curso (PDF)</Typography>
+                        {values.brochure ? (
+                          <Box sx={{ p: 4, borderRadius: 2, bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                              <i className='tabler-file-type-pdf text-4xl text-error' />
+                              <Box>
+                                <Typography variant='body2' fontWeight={600}>Archivo PDF adjunto</Typography>
+                                <Typography variant='caption' color='text.secondary'>El brochure ha sido seleccionado correctamente</Typography>
+                              </Box>
+                            </Box>
+                            <IconButton
+                              size='small'
+                              sx={{ bgcolor: 'action.hover' }}
+                              onClick={() => setFieldValue('brochure', null)}
+                            >
+                              <i className='tabler-trash text-error' />
+                            </IconButton>
+                          </Box>
+                        ) : (
+                          <Box
+                            onClick={() => setOpenBrochure(true)}
+                            sx={{
+                              width: '100%',
+                              height: 200,
+                              borderRadius: 2,
+                              border: '2px dashed',
+                              borderColor: 'divider',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              bgcolor: 'action.hover',
+                              mb: 3,
+                              '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.lightOpacity' }
+                            }}
+                          >
+                            <i className='tabler-file-plus text-3xl text-textDisabled' />
+                            <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>Click para seleccionar brochure (PDF)</Typography>
+                          </Box>
+                        )}
+
+                        <Button
+                          variant='outlined'
+                          size='small'
+                          startIcon={<i className='tabler-file-text' />}
+                          onClick={() => setOpenBrochure(true)}
+                        >
+                          {values.brochure ? 'Cambiar Brochure' : 'Seleccionar Brochure'}
+                        </Button>
+
+                        <MediaLibrary
+                          open={openBrochure}
+                          onClose={() => setOpenBrochure(false)}
+                          onSelect={(url) => setFieldValue('brochure', url)}
+                          title="Seleccionar Brochure PDF"
+                          acceptType="OTRO"
                         />
                       </Grid>
 

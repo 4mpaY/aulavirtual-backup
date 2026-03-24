@@ -57,6 +57,7 @@ export interface Curso {
   categoria_id: string | null
   categoria: CursoCategoria | null
   modulos: CursoModulo[]
+  brochure: string | null
   objetivos: string[]
   metodologia: any[]
   beneficios: any[]
