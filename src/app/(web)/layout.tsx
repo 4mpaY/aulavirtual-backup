@@ -4,6 +4,7 @@ import { Box } from '@mui/material'
 
 import WebHeader from '@/utils/components/layout/web/WebHeader'
 import WebFooter from '@/utils/components/layout/web/WebFooter'
+import FloatingContactButtons from '@/utils/components/layout/web/FloatingContactButtons'
 import prisma from '@/utils/libs/prisma'
 
 const WebLayout = async ({ children }: { children: React.ReactNode }) => {
@@ -31,6 +32,7 @@ return (
         {children}
       </Box>
       <WebFooter />
+      <FloatingContactButtons />
     </Box>
   )
 }

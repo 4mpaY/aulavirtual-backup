@@ -207,9 +207,9 @@ function NavDrawer({
                       <Link
                         href={item.href}
                         onClick={() => !item.children && onClose()}
+                        className="font-display"
                         style={{
                           fontSize: '1.25rem',
-                          fontFamily: 'Montserrat, sans-serif',
                           fontWeight: 900,
                           color: '#0f172a',
                           textDecoration: 'none',
@@ -335,8 +335,7 @@ function NavDrawer({
                       fontWeight: 900,
                       textTransform: 'uppercase',
                       letterSpacing: '0.15em',
-                      fontFamily: 'Inter, sans-serif',
-                    }}
+                      }}
                   >
                     Contactos
                   </span>
@@ -373,8 +372,7 @@ function NavDrawer({
                       fontWeight: 900,
                       textTransform: 'uppercase',
                       letterSpacing: '0.15em',
-                      fontFamily: 'Inter, sans-serif',
-                    }}
+                      }}
                   >
                     Sitio web internacional
                   </span>
@@ -430,7 +428,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
             label: cat.nombre,
             href: `/cursos?categoria=${cat.slug}`
           })),
-          { label: 'Rutas de aprendizaje', href: '/rutas' },
+          // { label: 'Rutas de aprendizaje', href: '/rutas' },
         ]
       }
     }
@@ -513,7 +511,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
                 component={Link}
                 href="/login"
                 size="small"
-                sx={{ fontWeight: 700, fontSize: '0.7rem', color: '#02115C' }}
+                sx={{ fontWeight: 700, fontSize: '0.7rem', color: '#02115C', fontFamily: 'Inter, sans-serif' }}
               >
                 Iniciar Sesión
               </Button>
@@ -523,6 +521,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
                 variant="contained"
                 size="small"
                 sx={{
+                  fontFamily: 'Inter, sans-serif',
                   fontWeight: 700,
                   fontSize: '0.7rem',
                   borderRadius: '8px',
