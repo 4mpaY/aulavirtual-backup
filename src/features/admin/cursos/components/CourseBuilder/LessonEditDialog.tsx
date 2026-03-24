@@ -249,7 +249,6 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                           size='small'
                           onClick={() => setOpenMediaResources(true)}
                           color='primary'
-                          title='Subir o seleccionar archivo'
                         >
                           <i className='tabler-upload text-lg' />
                         </IconButton>
