@@ -46,6 +46,7 @@ function verifyMagicBytes(buffer: Buffer, mimeType: string): boolean {
     // Office antiguo (OLE2 / CFBF)
     'application/msword': [[0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]],
     'application/vnd.ms-excel': [[0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]],
+
     // Office moderno (OpenXML / ZIP based)
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [[0x50, 0x4b, 0x03, 0x04]], // PK..
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [[0x50, 0x4b, 0x03, 0x04]] // PK..

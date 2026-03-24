@@ -58,6 +58,7 @@ export async function POST(request: Request, { params }: { params: { id: string;
         enlace_reunion: validation.data.enlace_reunion || null,
         video_url: validation.data.video_url || null,
         es_vista_previa: validation.data.es_vista_previa || false,
+        recursos: validation.data.recursos || [],
         orden,
         estado: 'PUBLICADO',
         modulo_id: moduloId

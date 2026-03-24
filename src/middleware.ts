@@ -31,8 +31,6 @@ export default withAuth(
       return NextResponse.redirect(new URL('/estudiante/dashboard', req.url))
     }
 
-
-
     // Redirigir /dashboard genérico según rol
     if (path === '/dashboard') {
       const rol = token?.rol as Rol
@@ -92,6 +90,7 @@ export default withAuth(
           path.startsWith('/verificar-certificado') ||
           path.startsWith('/unauthorized') ||
           path.startsWith('/assets') ||
+          path.startsWith('/verificar-certificado') ||
           path === '/'
         ) {
           return true

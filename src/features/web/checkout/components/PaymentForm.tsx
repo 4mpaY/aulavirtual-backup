@@ -25,6 +25,7 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 import { useConfig } from '@/contexts/ConfigContext'
 import AuthDialog from './AuthDialog'
 import IzipayScript from './IzipayScript'
+import CulqiScript from './CulqiScript'
 import { PayPalPaymentButton } from './PayPalPaymentButton'
 
 import { useCart } from '../../cart/context/CartContext'
@@ -54,7 +55,8 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const [isLoading, setIsLoading] = useState(false)
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<'izipay' | 'paypal'>('izipay')
+  const [paymentMethod, setPaymentMethod] = useState<'izipay' | 'paypal' | 'culqi'>('culqi')
+  const [isCulqiLoaded, setIsCulqiLoaded] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
 
   // Form state
@@ -119,6 +121,36 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
     }
   }, [handlePaymentSuccess])
 
+  // Callback para procesar la respuesta de Culqi
+  const handleCulqiToken = useCallback(async (token: string, email: string, pedidoId: string) => {
+    try {
+      setIsLoading(true)
+
+      const res = await fetch('/api/culqi/charge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pedidoId,
+          tokenId: token,
+          email
+        })
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        handlePaymentSuccess()
+      } else {
+        setPaymentError(data.message || 'Error al procesar el cargo con Culqi')
+      }
+    } catch (error) {
+      console.error('Error procesando cargo Culqi:', error)
+      setPaymentError('Error inesperado al procesar el pago')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [handlePaymentSuccess])
+
   const handleCheckout = async () => {
     if (!session) {
       setIsAuthDialogOpen(true)
@@ -137,7 +169,8 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
-          codigoCupon: appliedCouponCode
+          codigoCupon: appliedCouponCode,
+          gateway: 'IZIPAY'
         })
       })
 
@@ -185,11 +218,77 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       }
     } catch (error: any) {
       console.error('Error in checkout:', error)
+      setPaymentError(error.message || 'Ocurrió un error inesperado')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-      if (error.Errors) {
-        console.error('Izipay SDK Errors:', error.Errors)
+  const handleCulqiCheckout = async () => {
+    if (!session) {
+      setIsAuthDialogOpen(true)
+
+      return
+    }
+
+    setPaymentError(null)
+
+    try {
+      setIsLoading(true)
+
+      // 1. Crear el pedido en el backend
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cursoIds: courses.map(c => c.id),
+          codigoCupon: appliedCouponCode,
+          gateway: 'CULQI'
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al iniciar el pedido')
       }
 
+      const { pedidoId } = data.result
+
+      // 2. Configurar Culqi
+      if (!(window as any).Culqi) {
+        throw new Error('El SDK de Culqi no está cargado.')
+      }
+
+      const culqi = (window as any).Culqi
+
+      culqi.settings({
+        title: configs.TEMPLATE_NAME || 'Aula Virtual',
+        currency: courses[0]?.moneda || 'PEN',
+        description: `Compra de ${courses.length} curso(s)`,
+        amount: Math.round(displayTotal * 100)
+      })
+
+      if (culqi.options) {
+        culqi.options({
+          lang: 'auto',
+          installments: true,
+          modal: true,
+          style: {
+            logo: configs.TEMPLATE_LOGO || '',
+            mainColor: configs.PRIMARY_COLOR_MAIN || '#131FF2',
+          }
+        })
+      }
+
+      // Guardar el pedidoId en una referencia o estado para usarlo en el callback culqi()
+      // Como el callback culqi() se define globalmente, necesitamos una forma de pasarle el pedidoId
+      // Lo más fácil es guardarlo en una propiedad global temporal
+      (window as any)._currentPedidoId = pedidoId
+
+      culqi.open()
+    } catch (error: any) {
+      console.error('Error in Culqi checkout:', error)
       setPaymentError(error.message || 'Ocurrió un error inesperado')
     } finally {
       setIsLoading(false)
@@ -225,6 +324,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
           <Typography variant="body1" color="text.secondary" textAlign="center">
             Tu inscripción al curso ha sido confirmada. Serás redirigido a tus cursos en unos segundos...
           </Typography>
+
           <CircularProgress size={24} color="success" />
         </Stack>
       </Paper>
@@ -234,6 +334,16 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   return (
     <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '24px', bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}>
       <IzipayScript />
+      <CulqiScript
+        publicKey={configs.CULQI_PUBLIC_KEY || ''}
+        onLoad={() => setIsCulqiLoaded(true)}
+        onTokenReceived={(token, email) => {
+          const pedidoId = (window as any)._currentPedidoId
+
+          if (pedidoId) handleCulqiToken(token, email, pedidoId)
+        }}
+        onError={(err) => setPaymentError(err)}
+      />
 
       <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: 'text.primary' }}>
         Información de <span style={{ color: 'var(--mui-palette-primary-main)' }}>Pago</span>
@@ -291,18 +401,25 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
             </Grid>
           </Grid>
         </Box>
-
         <Box>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>Método de Pago</Typography>
 
           <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+            <Button
+              variant={paymentMethod === 'culqi' ? 'contained' : 'outlined'}
+              fullWidth
+              onClick={() => setPaymentMethod('culqi')}
+              sx={{ borderRadius: '12px', textTransform: 'none', py: 1.5 }}
+            >
+              Culqi (Tarjeta)
+            </Button>
             <Button
               variant={paymentMethod === 'izipay' ? 'contained' : 'outlined'}
               fullWidth
               onClick={() => setPaymentMethod('izipay')}
               sx={{ borderRadius: '12px', textTransform: 'none', py: 1.5 }}
             >
-              Izipay (Tarjeta)
+              Izipay
             </Button>
             <Button
               variant={paymentMethod === 'paypal' ? 'contained' : 'outlined'}
@@ -314,7 +431,52 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
             </Button>
           </Stack>
 
-          {paymentMethod === 'izipay' ? (
+          {paymentMethod === 'culqi' ? (
+            <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
+                <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--mui-palette-primary-main)' }} />
+                <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                  Pago seguro procesado por Culqi
+                </Typography>
+              </Box>
+
+              <Box sx={{ mb: 3, textAlign: 'left' }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={acceptedTerms}
+                      onChange={e => setAcceptedTerms(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2" color="text.secondary">
+                      He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--mui-palette-primary-main)', fontWeight: 600 }}>Términos y Condiciones</Link>
+                    </Typography>
+                  }
+                />
+              </Box>
+
+              <Button
+                variant="contained"
+                fullWidth
+                size="large"
+                onClick={handleCulqiCheckout}
+                disabled={isLoading || !isCulqiLoaded || (!acceptedTerms && !isGuest)}
+                startIcon={isLoading || !isCulqiLoaded ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />}
+                sx={{
+                  py: 2,
+                  borderRadius: '16px',
+                  fontWeight: 800,
+                  fontSize: '1.1rem',
+                  boxShadow: '0 10px 25px rgba(var(--mui-palette-primary-mainChannel), 0.2)',
+                  textTransform: 'none'
+                }}
+              >
+                {isLoading ? 'Procesando pago...' : (!isCulqiLoaded ? 'Cargando pasarela...' : (isGuest ? 'Identificarse para Comprar' : `Pagar S/ ${displayTotal.toFixed(2)}`))}
+              </Button>
+            </Box>
+          ) : paymentMethod === 'izipay' ? (
             <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
                 <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--mui-palette-primary-main)' }} />
@@ -359,7 +521,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                 {isLoading ? 'Preparando pasarela...' : (isGuest ? 'Identificarse para Comprar' : `Pagar S/ ${displayTotal.toFixed(2)}`)}
               </Button>
             </Box>
-          ) : (
+          ) : paymentMethod === 'paypal' && (
             <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
               {isGuest ? (
                 <Button
@@ -414,7 +576,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         open={isAuthDialogOpen}
         onClose={() => setIsAuthDialogOpen(false)}
       />
-    </Paper>
+    </Paper >
   )
 }
 

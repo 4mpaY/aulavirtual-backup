@@ -55,7 +55,14 @@ export async function POST(request: Request) {
 
       if (cupon) {
         const ahora = new Date()
-        const expirado = cupon.fecha_expiracion && cupon.fecha_expiracion < ahora
+
+        ahora.setHours(0, 0, 0, 0)
+
+        const fechaExpiracion = cupon.fecha_expiracion ? new Date(cupon.fecha_expiracion) : null
+
+        if (fechaExpiracion) fechaExpiracion.setHours(0, 0, 0, 0)
+
+        const expirado = fechaExpiracion && fechaExpiracion < ahora
         const limiteAlcanzado = cupon.limite_uso !== null && cupon.usos_actuales >= cupon.limite_uso
 
         if (!expirado && !limiteAlcanzado) {

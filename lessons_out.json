@@ -1,0 +1,1559 @@
+All Lessons and their resources: [
+  {
+    "id": "94f5a270-41a9-439b-952c-9529e55c7b30",
+    "titulo": "Introducción básica",
+    "recursos": []
+  },
+  {
+    "id": "26d12941-8182-456c-a8f1-14e01a109414",
+    "titulo": "Historia y evolución",
+    "recursos": []
+  },
+  {
+    "id": "bc066ec8-d0ce-4e59-8459-478f13efdcb4",
+    "titulo": "Primeros pasos prácticos",
+    "recursos": []
+  },
+  {
+    "id": "075e6294-ffcf-4c23-8086-d696f39b0603",
+    "titulo": "Herramientas esenciales",
+    "recursos": []
+  },
+  {
+    "id": "cb38cc0d-e874-4b35-8701-241094f231e1",
+    "titulo": "Profundizando en el lenguaje",
+    "recursos": []
+  },
+  {
+    "id": "82295c2d-770e-4762-aa7b-4135260d8ad0",
+    "titulo": "Gestión de estados y datos",
+    "recursos": []
+  },
+  {
+    "id": "a9683b0a-4f9d-4882-b735-5365249cc984",
+    "titulo": "Integración con APIs externas",
+    "recursos": []
+  },
+  {
+    "id": "09ba8523-bf14-4a64-a3da-45e60b30c007",
+    "titulo": "Arquitectura escalable",
+    "recursos": []
+  },
+  {
+    "id": "9a046844-1509-4921-b59e-36c0dc81a9b1",
+    "titulo": "Testing y Garantía de Calidad",
+    "recursos": []
+  },
+  {
+    "id": "7ff5fe3c-f7c3-4202-bf31-43dc480c8ac9",
+    "titulo": "Publicación en el mundo real",
+    "recursos": []
+  },
+  {
+    "id": "270b0f01-597d-41d5-87b0-6704a90c7d6c",
+    "titulo": "Introducción básica",
+    "recursos": []
+  },
+  {
+    "id": "995232f9-fefb-4bc0-ae27-ec6d137cc20d",
+    "titulo": "Historia y evolución",
+    "recursos": []
+  },
+  {
+    "id": "10def27d-9e54-4626-9558-fca5857b329a",
+    "titulo": "Primeros pasos prácticos",
+    "recursos": []
+  },
+  {
+    "id": "5c2e36ec-d00c-4d95-91e3-a573044f4aba",
+    "titulo": "Herramientas esenciales",
+    "recursos": []
+  },
+  {
+    "id": "5b92715c-0879-4653-969f-4c782e0681c7",
+    "titulo": "Profundizando en el lenguaje",
+    "recursos": []
+  },
+  {
+    "id": "7307240f-8950-4776-8f2b-213cfaa8a5ff",
+    "titulo": "Gestión de estados y datos",
+    "recursos": []
+  },
+  {
+    "id": "05c013ec-8437-471b-ba3d-9abb0a2b64ab",
+    "titulo": "Integración con APIs externas",
+    "recursos": []
+  },
+  {
+    "id": "e89a1ce9-d5b3-4e55-81af-6e41e8dd220a",
+    "titulo": "Arquitectura escalable",
+    "recursos": []
+  },
+  {
+    "id": "7081378d-a882-4fd3-8c18-ee68dccb1c64",
+    "titulo": "Testing y Garantía de Calidad",
+    "recursos": []
+  },
+  {
+    "id": "917da95a-5049-406a-b30a-0fd73499e782",
+    "titulo": "Publicación en el mundo real",
+    "recursos": []
+  },
+  {
+    "id": "57a717ad-dfb5-444b-8a63-96f45ab8c311",
+    "titulo": "Introducción básica",
+    "recursos": []
+  },
+  {
+    "id": "d2517274-5bce-4c4f-b04b-ebbb8279e54e",
+    "titulo": "Historia y evolución",
+    "recursos": []
+  },
+  {
+    "id": "82d04aa0-ccac-4cfc-9bc9-550a243b3416",
+    "titulo": "Primeros pasos prácticos",
+    "recursos": []
+  },
+  {
+    "id": "eeaae724-2499-4e49-bab1-529b1b2687c3",
+    "titulo": "Herramientas esenciales",
+    "recursos": []
+  },
+  {
+    "id": "5ae46a37-8a11-4fd6-bad5-6a407e14cd1f",
+    "titulo": "Profundizando en el lenguaje",
+    "recursos": []
+  },
+  {
+    "id": "ca60881b-6ab9-471f-8517-72237d3214e0",
+    "titulo": "Gestión de estados y datos",
+    "recursos": []
+  },
+  {
+    "id": "3fbbb068-3d47-4fe7-8c60-cd27917ad3cf",
+    "titulo": "Integración con APIs externas",
+    "recursos": []
+  },
+  {
+    "id": "e41da626-0f69-49f3-9b6f-78a2c6885b8f",
+    "titulo": "Arquitectura escalable",
+    "recursos": []
+  },
+  {
+    "id": "dd45a5ed-9e75-4206-85fb-afe836966472",
+    "titulo": "Testing y Garantía de Calidad",
+    "recursos": []
+  },
+  {
+    "id": "d6c6a471-32aa-411b-8c56-3ec3b4b36c52",
+    "titulo": "Publicación en el mundo real",
+    "recursos": []
+  },
+  {
+    "id": "938618ba-aeb1-44a6-aff4-1d9f08e1852c",
+    "titulo": "Introducción básica",
+    "recursos": []
+  },
+  {
+    "id": "6737c64a-947c-4e12-ab59-313356e3ed42",
+    "titulo": "Historia y evolución",
+    "recursos": []
+  },
+  {
+    "id": "5fb4b65e-48d0-45d8-b65d-60dbf2f9ab3f",
+    "titulo": "Primeros pasos prácticos",
+    "recursos": []
+  },
+  {
+    "id": "04ba93c6-477a-4156-bb9d-3a888f4af4c5",
+    "titulo": "Herramientas esenciales",
+    "recursos": []
+  },
+  {
+    "id": "a7542ce0-55b2-4dee-92e7-461f31dda206",
+    "titulo": "Profundizando en el lenguaje",
+    "recursos": []
+  },
+  {
+    "id": "b61ab4ad-a95d-4bf6-939f-c2e668b96e9c",
+    "titulo": "Gestión de estados y datos",
+    "recursos": []
+  },
+  {
+    "id": "5ade0a49-3d43-4e19-b802-b0e943a7706e",
+    "titulo": "Integración con APIs externas",
+    "recursos": []
+  },
+  {
+    "id": "06c37291-8c72-4f3c-bf9e-1d06b752e674",
+    "titulo": "Arquitectura escalable",
+    "recursos": []
+  },
+  {
+    "id": "403a8c2d-2674-4f2b-a115-a328bf40d19e",
+    "titulo": "Testing y Garantía de Calidad",
+    "recursos": []
+  },
+  {
+    "id": "bda54c2d-c247-4c35-a796-b15036fbc396",
+    "titulo": "Publicación en el mundo real",
+    "recursos": []
+  },
+  {
+    "id": "2b095137-d3c0-4ac8-81a3-226d7b2ef5e3",
+    "titulo": "Principios de ISO 55000.",
+    "recursos": []
+  },
+  {
+    "id": "a30e2423-860a-4888-9305-30dcbfdb1dc1",
+    "titulo": "Requisitos de ISO 55001.",
+    "recursos": []
+  },
+  {
+    "id": "71f00792-8030-4a1a-adf1-8440cfb542b5",
+    "titulo": "Gestión del ciclo de vida del activo.",
+    "recursos": []
+  },
+  {
+    "id": "4ac195aa-a217-4cda-a10a-1d81c59699c4",
+    "titulo": "Valor, riesgo y costo.",
+    "recursos": []
+  },
+  {
+    "id": "e0ebaa90-2f38-436a-b6db-21d674f3792b",
+    "titulo": "¿Qué es la gestión de activos?",
+    "recursos": []
+  },
+  {
+    "id": "e5527f46-8366-4635-999b-5037953e7116",
+    "titulo": "Rol del liderazgo y la gobernanza.",
+    "recursos": []
+  },
+  {
+    "id": "52542cd6-3ade-4254-8a60-fcd577640c9a",
+    "titulo": "Integración con mantenimiento y confiabilidad.",
+    "recursos": []
+  },
+  {
+    "id": "24440ce6-2c47-4f19-af21-8a7ff641c017",
+    "titulo": "Casos reales de implementación.",
+    "recursos": []
+  },
+  {
+    "id": "72f6c274-bdb8-422f-8480-a4ec17e76d66",
+    "titulo": "Ciclo de vida del activo: diseño, adquisición, operación, mantenimiento, retiro.",
+    "recursos": []
+  },
+  {
+    "id": "d172e366-49fc-4512-84cf-2a1f5c3d6576",
+    "titulo": "Indicadores clave: disponibilidad, confiabilidad, costo del ciclo de vida.",
+    "recursos": []
+  },
+  {
+    "id": "3c0501ba-a979-4738-8312-9d78e3e7529f",
+    "titulo": "LCC y TCO: conceptos y aplicaciones.",
+    "recursos": []
+  },
+  {
+    "id": "82e54f1d-c676-4fde-afdd-58e2d6b9e0d8",
+    "titulo": "Evaluación de desempeño del activo.",
+    "recursos": []
+  },
+  {
+    "id": "6f210b56-8a3b-48e3-b68b-18d5d3faf9ee",
+    "titulo": "Integración con ISO 55001.",
+    "recursos": []
+  },
+  {
+    "id": "1f98fb8b-06c4-4150-94f8-2c039c634526",
+    "titulo": "Taller con datos reales.",
+    "recursos": []
+  },
+  {
+    "id": "d8366b12-087b-4c90-85ac-092c508ef42a",
+    "titulo": "Rol del PEGA en ISO 55001.",
+    "recursos": []
+  },
+  {
+    "id": "a108d6b1-e865-463e-8f96-bdb009cfec2f",
+    "titulo": "Alineación estratégica y objetivos corporativos.",
+    "recursos": []
+  },
+  {
+    "id": "db78c5cf-ae94-429c-8571-5d0a05bbee81",
+    "titulo": "Políticas y estrategias de gestión de activos.",
+    "recursos": []
+  },
+  {
+    "id": "a5f43f7b-d202-4398-afb6-7efdbab1e543",
+    "titulo": "Evaluación de riesgos y priorización.",
+    "recursos": []
+  },
+  {
+    "id": "b8dfb419-87bc-4f5d-bf30-643af6e1ce2c",
+    "titulo": "Planes de acción y recursos.",
+    "recursos": []
+  },
+  {
+    "id": "d220a85b-6a16-44af-9e3b-55cd808c95f6",
+    "titulo": "Indicadores estratégicos.",
+    "recursos": []
+  },
+  {
+    "id": "c1590fb2-d6d2-4136-a32f-a65013bd8a24",
+    "titulo": "Taller de elaboración de PEGA.",
+    "recursos": []
+  },
+  {
+    "id": "5e6eaab7-bd86-4d8e-b7e3-7a0756a39a4a",
+    "titulo": "Conceptos de riesgo en gestión de activos.",
+    "recursos": []
+  },
+  {
+    "id": "afdc1ff4-fbf8-45fc-b6d5-45ac7e3e3fe9",
+    "titulo": "ISO 31000 e ISO 55001.",
+    "recursos": []
+  },
+  {
+    "id": "4bd233ff-3969-45de-8ddb-d1091cd938bb",
+    "titulo": "Identificación de riesgos: técnicos, operativos, financieros.",
+    "recursos": []
+  },
+  {
+    "id": "81e28025-ea1d-4380-9ee1-4f49fd5a5e56",
+    "titulo": "Evaluación cualitativa y cuantitativa.",
+    "recursos": []
+  },
+  {
+    "id": "89b372ed-9e00-4813-99c0-ff146fa299d9",
+    "titulo": "Matrices de riesgo.",
+    "recursos": []
+  },
+  {
+    "id": "1176ff6b-2833-4260-8a66-ea09e5254b20",
+    "titulo": "Integración con PEGA y planes de mantenimiento.",
+    "recursos": []
+  },
+  {
+    "id": "98de9ed8-9540-4c8a-bb87-3fb49295e937",
+    "titulo": "Taller de análisis de riesgo.",
+    "recursos": []
+  },
+  {
+    "id": "2b7d120e-d80c-4400-a3df-4838045c4d91",
+    "titulo": "ISO 55000, 55001 y 55002 en profundidad.",
+    "recursos": []
+  },
+  {
+    "id": "e38bc004-bfad-402f-8c00-1524a740f2bb",
+    "titulo": "Auditoría y evaluación de sistemas.",
+    "recursos": []
+  },
+  {
+    "id": "3f025f03-ced5-4d83-887d-2721fd003394",
+    "titulo": "Modelos de madurez.",
+    "recursos": []
+  },
+  {
+    "id": "0d3b39ee-281b-4437-b4f4-1745b154f3db",
+    "titulo": "Gobernanza y liderazgo.",
+    "recursos": []
+  },
+  {
+    "id": "d88e3491-7a27-4081-9e2f-df3e2e43169a",
+    "titulo": "Riesgo, valor y ciclo de vida.",
+    "recursos": []
+  },
+  {
+    "id": "26a94940-afab-4a38-a9b4-05f65769ddfc",
+    "titulo": "Preparación para examen CAMA®.",
+    "recursos": []
+  },
+  {
+    "id": "12449be8-8c40-4955-8c87-005f8c01b779",
+    "titulo": "Simulacros y preguntas tipo.",
+    "recursos": []
+  },
+  {
+    "id": "18e329fb-88a3-4792-b9fa-07d693fffc47",
+    "titulo": "Modelos de madurez: IAM, GFMAM, AMAF.",
+    "recursos": []
+  },
+  {
+    "id": "16a39963-5891-4cd3-a6f4-3502cbbb1698",
+    "titulo": "Evaluación de brechas.",
+    "recursos": []
+  },
+  {
+    "id": "243f24a5-5005-4a1f-bb02-d9696472bb6d",
+    "titulo": "Gobernanza y liderazgo.",
+    "recursos": []
+  },
+  {
+    "id": "57f4371b-932f-434d-9d05-cc69bccb21c3",
+    "titulo": "Integración con ISO 55001.",
+    "recursos": []
+  },
+  {
+    "id": "d4833c9b-67e5-4bc2-b863-2f82674940e0",
+    "titulo": "Planes de mejora.",
+    "recursos": []
+  },
+  {
+    "id": "e0619c44-7d86-4188-bdec-181601a5ee44",
+    "titulo": "Taller de evaluación de madurez.",
+    "recursos": []
+  },
+  {
+    "id": "1da85468-ab8e-477c-9992-093d7d7dc152",
+    "titulo": "Módulo 1: Principios de gestión de activos.",
+    "recursos": []
+  },
+  {
+    "id": "ddb3e7ed-d60c-48e1-a999-84dcadd7dfcb",
+    "titulo": "Módulo 2: Política, estrategia y planificación.",
+    "recursos": []
+  },
+  {
+    "id": "3d00fe3a-b512-489e-8520-937d7db286b6",
+    "titulo": "Módulo 3: Gestión del ciclo de vida.",
+    "recursos": []
+  },
+  {
+    "id": "fde1ec12-f744-46dc-9497-fef5402418af",
+    "titulo": "Módulo 4: Información y toma de decisiones.",
+    "recursos": []
+  },
+  {
+    "id": "1e8ed1ea-8961-41ef-bcb2-b072ee567432",
+    "titulo": "Módulo 5: Organización y personas.",
+    "recursos": []
+  },
+  {
+    "id": "4aa17cf1-bd09-4434-9c6b-209696142209",
+    "titulo": "Simulacros y preguntas tipo examen.",
+    "recursos": []
+  },
+  {
+    "id": "dbf24644-0a99-44c9-bd83-72ca061e3709",
+    "titulo": "ISO 55000, 55001 y 55002 en profundidad.",
+    "recursos": []
+  },
+  {
+    "id": "86192eaf-9bcc-4ba1-a273-9de4059c1944",
+    "titulo": "Auditoría y evaluación de sistemas.",
+    "recursos": []
+  },
+  {
+    "id": "fe1eff93-67cf-4cfe-b2b9-e1f46374a81e",
+    "titulo": "Modelos de madurez.",
+    "recursos": []
+  },
+  {
+    "id": "192db701-84be-4c07-8234-fc549cb90e01",
+    "titulo": "Gobernanza y liderazgo.",
+    "recursos": []
+  },
+  {
+    "id": "4d315584-1b06-474e-91ba-7c2873da7acc",
+    "titulo": "Riesgo, valor y ciclo de vida.",
+    "recursos": []
+  },
+  {
+    "id": "7f5d4cbd-635e-40a0-97a9-0febb8795f6b",
+    "titulo": "Simulacros y preguntas tipo examen.",
+    "recursos": []
+  },
+  {
+    "id": "0dd5dcfb-12a4-408f-b865-27d496277b49",
+    "titulo": "Conceptos básicos: confiabilidad, disponibilidad, mantenibilidad.",
+    "recursos": []
+  },
+  {
+    "id": "97eb19be-e0a0-4180-bce2-0f0751c7cd49",
+    "titulo": "Fallas: tipos, patrones, modos.",
+    "recursos": []
+  },
+  {
+    "id": "a2e98aa1-c5b3-478a-8b1f-237c42338ca2",
+    "titulo": "Indicadores clave: MTBF, MTTR, disponibilidad.",
+    "recursos": []
+  },
+  {
+    "id": "944193d1-0361-414e-9e43-e847a08d98e9",
+    "titulo": "Introducción al ciclo de vida del activo.",
+    "recursos": []
+  },
+  {
+    "id": "3839a3c2-890a-4eba-801e-7710367e38db",
+    "titulo": "Relación entre mantenimiento y confiabilidad.",
+    "recursos": []
+  },
+  {
+    "id": "2f5c4f94-73d5-4fdb-ab71-f26ff32e1172",
+    "titulo": "Introducción a análisis de fallas.",
+    "recursos": []
+  },
+  {
+    "id": "57a5dbb7-5430-4fac-855e-a1f59522dba7",
+    "titulo": "Casos prácticos industriales.",
+    "recursos": []
+  },
+  {
+    "id": "608b1104-9f5e-4953-9f90-adc2483bdf13",
+    "titulo": "Indicadores fundamentales: MTBF, MTTR, disponibilidad.",
+    "recursos": []
+  },
+  {
+    "id": "8a053d55-cc77-4cb5-8c96-823392f7f81d",
+    "titulo": "Indicadores avanzados: confiabilidad, mantenibilidad, OEE.",
+    "recursos": []
+  },
+  {
+    "id": "63730903-39d2-480f-bbe0-2b11fad78880",
+    "titulo": "Análisis de tendencias y patrones.",
+    "recursos": []
+  },
+  {
+    "id": "a0a421ab-7e2e-4087-98f5-43c3e5efdb1e",
+    "titulo": "Uso de datos históricos y CMMS.",
+    "recursos": []
+  },
+  {
+    "id": "bf50da00-3fa6-45c0-b803-c7efbc9fb692",
+    "titulo": "Reportes ejecutivos y toma de decisiones.",
+    "recursos": []
+  },
+  {
+    "id": "af740982-0903-4624-a054-3263db2a8047",
+    "titulo": "Taller con datos reales.",
+    "recursos": []
+  },
+  {
+    "id": "f228a049-af3d-4b09-bc88-aca3047c8979",
+    "titulo": "Fundamentos del mantenimiento predictivo.",
+    "recursos": []
+  },
+  {
+    "id": "8dd7990c-e7dd-4493-821d-473e715bca31",
+    "titulo": "Vibraciones: espectros, severidad, modos de falla.",
+    "recursos": []
+  },
+  {
+    "id": "f6eed333-6543-40f0-9038-18b03481206c",
+    "titulo": "Termografía infrarroja: puntos calientes, conexiones.",
+    "recursos": []
+  },
+  {
+    "id": "dd790b67-b85c-422e-8c56-cf8d28aefe69",
+    "titulo": "Ultrasonido: fugas, rodamientos, inspecciones.",
+    "recursos": []
+  },
+  {
+    "id": "65962d91-3c5f-4947-b5c6-4f48298173a3",
+    "titulo": "Análisis eléctrico: motores, aislamiento.",
+    "recursos": []
+  },
+  {
+    "id": "a4a40625-9216-426e-bc9c-9e1b927e4591",
+    "titulo": "Integración CBM con planes de mantenimiento.",
+    "recursos": []
+  },
+  {
+    "id": "13509000-33fd-4ed5-a0e2-ab0b08d04629",
+    "titulo": "Casos reales de diagnóstico.",
+    "recursos": []
+  },
+  {
+    "id": "2201398e-089d-4344-a888-8e591d5056ab",
+    "titulo": "Fundamentos de tribología.",
+    "recursos": []
+  },
+  {
+    "id": "cdf7f953-39a6-4fb0-b975-e5fa90cb41c6",
+    "titulo": "Tipos de lubricantes y propiedades.",
+    "recursos": []
+  },
+  {
+    "id": "b9513f73-8d16-413b-9220-9bc548a13e87",
+    "titulo": "Selección por aplicación.",
+    "recursos": []
+  },
+  {
+    "id": "2d6d2d28-4d63-42fb-a9f4-78e0d7a9f606",
+    "titulo": "Contaminación: causas, efectos y control.",
+    "recursos": []
+  },
+  {
+    "id": "9ee267c9-bdf9-4b5a-9ddb-5bea8ee1b827",
+    "titulo": "Técnicas de muestreo y análisis.",
+    "recursos": []
+  },
+  {
+    "id": "a5877068-f2b0-4eb9-8aa3-bd77b30d4c63",
+    "titulo": "Diseño de programas de lubricación.",
+    "recursos": []
+  },
+  {
+    "id": "f23846f9-6a44-46fd-8219-214fbc4617fc",
+    "titulo": "Casos reales.",
+    "recursos": []
+  },
+  {
+    "id": "73069feb-bc12-46b8-88c5-aeb2137a413a",
+    "titulo": "Fundamentos de vibraciones.",
+    "recursos": []
+  },
+  {
+    "id": "12088900-e5cd-470f-b98a-7f3008846f60",
+    "titulo": "Frecuencia, amplitud, fase.",
+    "recursos": []
+  },
+  {
+    "id": "ad125512-d726-4021-9c1d-44f8f771fc11",
+    "titulo": "Modos de falla: desbalance, desalineación.",
+    "recursos": []
+  },
+  {
+    "id": "8edfd64b-d894-4bdf-b249-cdfed275ed94",
+    "titulo": "Espectros básicos.",
+    "recursos": []
+  },
+  {
+    "id": "4252af89-a516-4426-87f6-27c5bb043097",
+    "titulo": "Técnicas de medición.",
+    "recursos": []
+  },
+  {
+    "id": "6c5daeb7-4c10-46f0-a8cb-89fd583ef0bb",
+    "titulo": "Interpretación inicial.",
+    "recursos": []
+  },
+  {
+    "id": "298e209f-8e01-4224-9f2a-7a619a51dca1",
+    "titulo": "Preparación para VA I.",
+    "recursos": []
+  },
+  {
+    "id": "b6559b10-30b1-4807-b998-0b6b36f16fd9",
+    "titulo": "Pilar 1: Business & Management — KPIs, costos.",
+    "recursos": []
+  },
+  {
+    "id": "23e1ddc0-1f22-4a55-af15-45262dce77db",
+    "titulo": "Pilar 2: Manufacturing Process Reliability — procesos, flujo.",
+    "recursos": []
+  },
+  {
+    "id": "8feba985-88c3-468c-80a9-6c27486ad0a8",
+    "titulo": "Pilar 3: Equipment Reliability — RCM, FMEA.",
+    "recursos": []
+  },
+  {
+    "id": "5043e61f-0bd8-4b84-9537-157e5b8a080e",
+    "titulo": "Pilar 4: Organization & Leadership — liderazgo técnico.",
+    "recursos": []
+  },
+  {
+    "id": "f4148a8f-77e5-4ee1-bdb0-047b24a21b09",
+    "titulo": "Pilar 5: Work Management — planificación, CMMS.",
+    "recursos": []
+  },
+  {
+    "id": "eeed84c7-0b88-449e-b556-fe54aaeaa360",
+    "titulo": "Preguntas situacionales y simulacros.",
+    "recursos": []
+  },
+  {
+    "id": "2280b7c8-801d-4c6f-a9a3-bbd7d0c8f114",
+    "titulo": "Análisis avanzado: fase, órbitas, envolventes.",
+    "recursos": []
+  },
+  {
+    "id": "17644ad3-c144-4246-9012-e87aacf0d73b",
+    "titulo": "Fallas complejas: resonancia, problemas estructurales.",
+    "recursos": []
+  },
+  {
+    "id": "46744edb-6084-4ac5-8789-a294132af5d9",
+    "titulo": "Técnicas de severidad y trending.",
+    "recursos": []
+  },
+  {
+    "id": "9a9e838e-71ab-45ce-8ef7-22af2593148a",
+    "titulo": "Diagnóstico profundo de rodamientos y engranes.",
+    "recursos": []
+  },
+  {
+    "id": "715d6686-b2f5-445a-9b18-8e4e87260a83",
+    "titulo": "Simulacros Mobius VA II.",
+    "recursos": []
+  },
+  {
+    "id": "a8eef188-46d7-4518-b4a7-fa40c289ce2c",
+    "titulo": "Fundamentos de confiabilidad para técnicos.",
+    "recursos": []
+  },
+  {
+    "id": "be8e7110-0bba-48bc-9839-f0e64327c3ca",
+    "titulo": "Inspecciones avanzadas basadas en condición.",
+    "recursos": []
+  },
+  {
+    "id": "83b72564-5d17-4390-a2ab-729f5fbbc540",
+    "titulo": "Integración de vibraciones, ultrasonido y termografía.",
+    "recursos": []
+  },
+  {
+    "id": "f792306f-2907-4c49-99e1-974881634350",
+    "titulo": "Diagnóstico avanzado en campo.",
+    "recursos": []
+  },
+  {
+    "id": "29544161-d5c5-4a9d-ab96-d8ebc16f9354",
+    "titulo": "Simulacros Mobius RCT.",
+    "recursos": []
+  },
+  {
+    "id": "5d4690ca-19c8-487d-9f19-6ea391855d17",
+    "titulo": "Conceptos fundamentales del mantenimiento.",
+    "recursos": []
+  },
+  {
+    "id": "b9930b7f-c708-4881-b431-b590a32049bf",
+    "titulo": "Tipos de mantenimiento: correctivo, preventivo, predictivo.",
+    "recursos": []
+  },
+  {
+    "id": "c8c7f771-ac5f-4eee-a891-80c3a386a962",
+    "titulo": "Indicadores clave: MTBF, MTTR, disponibilidad.",
+    "recursos": []
+  },
+  {
+    "id": "73bf8063-176b-4c03-81ac-77b147b0b1c5",
+    "titulo": "Gestión de órdenes de trabajo.",
+    "recursos": []
+  },
+  {
+    "id": "ec0f1d9a-b33a-4733-9aac-5712e587451b",
+    "titulo": "Planificación y programación básica.",
+    "recursos": []
+  },
+  {
+    "id": "7ea2cdc0-12c4-475c-a3ef-e8f556429d7c",
+    "titulo": "Introducción a sistemas CMMS.",
+    "recursos": []
+  },
+  {
+    "id": "c679bb9e-4ef5-4c5f-a0a8-6b37024bf0a3",
+    "titulo": "Seguridad y procedimientos básicos.",
+    "recursos": []
+  },
+  {
+    "id": "68ceeae2-d6f9-4ece-a033-edb560c2f196",
+    "titulo": "Casos prácticos industriales.",
+    "recursos": []
+  },
+  {
+    "id": "d85ef2be-012c-430b-b0b1-cd102496ff35",
+    "titulo": "Principios de seguridad industrial.",
+    "recursos": []
+  },
+  {
+    "id": "188b8814-a00d-4364-9755-cba83e43f6c9",
+    "titulo": "Permisos de trabajo: caliente, altura, espacios confinados.",
+    "recursos": []
+  },
+  {
+    "id": "fd306440-ecd1-4ef2-b296-45730cc7da34",
+    "titulo": "Procedimiento LOTO: pasos y verificación.",
+    "recursos": []
+  },
+  {
+    "id": "cd35b4d6-ae29-4536-9497-deaf58b5b429",
+    "titulo": "Análisis de riesgos: IPERC, ATS, JSA.",
+    "recursos": []
+  },
+  {
+    "id": "771c9b59-53ee-4742-9b2b-2500ef91d661",
+    "titulo": "Equipos de protección personal (EPP).",
+    "recursos": []
+  },
+  {
+    "id": "43c38944-c7a2-4827-b31a-50d3572d43ac",
+    "titulo": "Procedimientos estándar de trabajo (SOP).",
+    "recursos": []
+  },
+  {
+    "id": "1f6ed144-dd5d-484c-b98a-49102ac2a049",
+    "titulo": "Respuesta ante emergencias.",
+    "recursos": []
+  },
+  {
+    "id": "436079e5-ad0b-4809-be1a-211165efff91",
+    "titulo": "Casos reales y lecciones aprendidas.",
+    "recursos": []
+  },
+  {
+    "id": "bec0fe3b-e2db-4c6c-a31d-42c0cedf162e",
+    "titulo": "Fundamentos de tribología.",
+    "recursos": []
+  },
+  {
+    "id": "8a37a246-bdc2-49eb-8b31-4cafa084a585",
+    "titulo": "Tipos de lubricantes y seleción.",
+    "recursos": []
+  },
+  {
+    "id": "7fbe51cf-0807-45e9-ba8d-235742b22935",
+    "titulo": "Contaminación: causas y control.",
+    "recursos": []
+  },
+  {
+    "id": "6164af9a-66ce-44b1-bb57-40fc336e3304",
+    "titulo": "Técnicas de muestreo profesional.",
+    "recursos": []
+  },
+  {
+    "id": "3cf72278-6692-4acd-9574-f4b5cb61f015",
+    "titulo": "Interpretación de reportes de laboratorio.",
+    "recursos": []
+  },
+  {
+    "id": "b860c201-c76f-4ae1-8e72-b92e75506bab",
+    "titulo": "Diseño de programas de lubricación.",
+    "recursos": []
+  },
+  {
+    "id": "b72af618-52b3-43ab-a2fe-1059fcd498f3",
+    "titulo": "Preparación para examen MLA I.",
+    "recursos": []
+  },
+  {
+    "id": "9ef3a2a0-7c3f-41f9-bfa4-a5079a252966",
+    "titulo": "Fundamentos del predictivo.",
+    "recursos": []
+  },
+  {
+    "id": "c37b44d0-eaeb-47dd-b1e7-f0d1ac2f7550",
+    "titulo": "Vibraciones: espectros y severidad.",
+    "recursos": []
+  },
+  {
+    "id": "b51ff58e-eb44-41cc-a8e6-4e7ec26a58ee",
+    "titulo": "Termografía: puntos calientes y eléctrica.",
+    "recursos": []
+  },
+  {
+    "id": "55eaa6ce-3233-4b89-a398-330c96434a3c",
+    "titulo": "Ultrasonido: fugas e inspección.",
+    "recursos": []
+  },
+  {
+    "id": "e6ffad54-19a2-4c26-bf72-34a316c2407b",
+    "titulo": "Análisis eléctrico y motores.",
+    "recursos": []
+  },
+  {
+    "id": "b8be14be-753d-4b24-bc55-3a55a9544dff",
+    "titulo": "Integración CBM con planes.",
+    "recursos": []
+  },
+  {
+    "id": "ae884866-9dfc-4ca0-a4d9-954b65a38cf6",
+    "titulo": "Casos reales de diagnóstico exitoso.",
+    "recursos": []
+  },
+  {
+    "id": "353193ab-8d43-4788-b740-ebe6fa658f60",
+    "titulo": "Conceptos de criticidad y riesgo.",
+    "recursos": []
+  },
+  {
+    "id": "7e306b82-faaf-4e1d-8448-5073ec6a7f7b",
+    "titulo": "Matrices de probabilidad e impacto.",
+    "recursos": []
+  },
+  {
+    "id": "63f2c867-1d12-4cdb-b170-242182319bf0",
+    "titulo": "Priorización de activos.",
+    "recursos": []
+  },
+  {
+    "id": "a5d0ec78-04ef-4082-94ca-1907038b07db",
+    "titulo": "Selección de estrategias (PM, CBM, RCM).",
+    "recursos": []
+  },
+  {
+    "id": "005fda7f-7d72-431b-8336-a7ac7820382f",
+    "titulo": "Integración con planes maestros.",
+    "recursos": []
+  },
+  {
+    "id": "73ad2bca-3515-46b6-9a69-77f3726aae10",
+    "titulo": "Casos reales de priorización empresarial.",
+    "recursos": []
+  },
+  {
+    "id": "4a1d8c59-3b23-4971-9414-e1a5bd296dcf",
+    "titulo": "Fundamentos RCM y SAE JA1011.",
+    "recursos": []
+  },
+  {
+    "id": "77e6f909-086b-4214-b5c9-ed27b349fcea",
+    "titulo": "Funciones y fallas funcionales.",
+    "recursos": []
+  },
+  {
+    "id": "53cf6147-e5e8-4224-8935-c1646fbeb750",
+    "titulo": "Modos de falla y causas.",
+    "recursos": []
+  },
+  {
+    "id": "2e500d24-47f5-4429-96d5-8248be5a2c8b",
+    "titulo": "Consecuencias: seguridad y entorno.",
+    "recursos": []
+  },
+  {
+    "id": "769f2340-1f34-44a6-bfab-ae555fceef4e",
+    "titulo": "Selección de tareas preventivas/predictivas.",
+    "recursos": []
+  },
+  {
+    "id": "d48ae565-83fc-4405-9bc8-789c32402583",
+    "titulo": "Taller de aplicación práctica.",
+    "recursos": []
+  },
+  {
+    "id": "ba8047c8-0dd4-439e-913a-62205246d61c",
+    "titulo": "Indicadores de efectividad RCM.",
+    "recursos": []
+  },
+  {
+    "id": "347f3dae-e4c1-4a0e-89bb-8befb71bd014",
+    "titulo": "Diagnóstico de planes actuales.",
+    "recursos": []
+  },
+  {
+    "id": "861894dc-9b66-4ecb-aecc-b298e9f7608d",
+    "titulo": "Evaluación de valor y frecuencia.",
+    "recursos": []
+  },
+  {
+    "id": "cbe65721-4a62-45d9-8b04-2af013087aef",
+    "titulo": "Integración de criticidad y RCM.",
+    "recursos": []
+  },
+  {
+    "id": "8550dbbc-dce1-48b1-a5e4-ce5cf77ce39d",
+    "titulo": "Optimización basada en riesgo real.",
+    "recursos": []
+  },
+  {
+    "id": "6e8aa0a7-edd5-40df-aa60-ea71de4381fd",
+    "titulo": "Ajuste de ventanas de intervención.",
+    "recursos": []
+  },
+  {
+    "id": "9d6cf0a6-1043-4f61-aea2-bb63209c84d3",
+    "titulo": "Integración con CMMS.",
+    "recursos": []
+  },
+  {
+    "id": "d7fdd1a2-bd43-4a57-8fc7-f162619d740d",
+    "titulo": "Caso práctico de optimización.",
+    "recursos": []
+  },
+  {
+    "id": "453a9705-3200-404d-a150-8d1ad0e10b7a",
+    "titulo": "Introducción al análisis de fallas.",
+    "recursos": []
+  },
+  {
+    "id": "f4c58df7-0fa0-4822-b3bc-3ee8ba517ae1",
+    "titulo": "Metodologías: 5 Porqués, Ishikawa, RCA.",
+    "recursos": []
+  },
+  {
+    "id": "fa24c370-b8fa-4fa1-9837-895294be8a53",
+    "titulo": "Evidencia y reconstrucción de eventos.",
+    "recursos": []
+  },
+  {
+    "id": "33584949-bdf0-4dc5-a775-89bcf7ded4cc",
+    "titulo": "Causas técnicas vs. organizacionales.",
+    "recursos": []
+  },
+  {
+    "id": "a07c3744-eac8-4851-8603-e433fd760e77",
+    "titulo": "Acciones correctivas vs. preventivas.",
+    "recursos": []
+  },
+  {
+    "id": "638f5a3c-93ef-4f2e-8a70-e80d4c3f8137",
+    "titulo": "Verificación de efectividad.",
+    "recursos": []
+  },
+  {
+    "id": "a72386ac-f69e-4623-bd0c-2a8fa11f47d1",
+    "titulo": "Casos industriales reales.",
+    "recursos": []
+  },
+  {
+    "id": "57404b1e-bfba-4429-9a9f-ac26c53ec15a",
+    "titulo": "Dominio 1: Preventivo y Predictivo.",
+    "recursos": []
+  },
+  {
+    "id": "3f4c0559-912c-4c58-b33b-2087d35805f0",
+    "titulo": "Dominio 2: Mantenimiento Correctivo.",
+    "recursos": []
+  },
+  {
+    "id": "abd667a3-0c1e-4437-80e1-4920887dc2b2",
+    "titulo": "Dominio 3: Confiabilidad para técnicos.",
+    "recursos": []
+  },
+  {
+    "id": "83ef9280-7b7d-4d32-9857-50d7540ae050",
+    "titulo": "Dominio 4: Seguridad y Medio Ambiente.",
+    "recursos": []
+  },
+  {
+    "id": "e813f86b-269b-4a4b-8a2e-a634cd55ca91",
+    "titulo": "Técnicas de diagnóstico por monitoreo.",
+    "recursos": []
+  },
+  {
+    "id": "2d111a53-6623-461c-aed9-03434661a116",
+    "titulo": "Práctica y simulacros oficiales.",
+    "recursos": []
+  },
+  {
+    "id": "1369102d-b2ce-4496-b076-70f6bfa9f734",
+    "titulo": "Propiedades y mezclas de lubricantes.",
+    "recursos": []
+  },
+  {
+    "id": "35aa0660-8199-4a3b-88c3-ab9a1c313a7f",
+    "titulo": "Control total de contaminación.",
+    "recursos": []
+  },
+  {
+    "id": "e8d1768c-77c8-4956-a058-d355069b0cf6",
+    "titulo": "Metodologías de muestreo ICML.",
+    "recursos": []
+  },
+  {
+    "id": "20ae03d3-51e2-4332-87ff-d2728817dcf8",
+    "titulo": "Análisis de tendencias MLA II.",
+    "recursos": []
+  },
+  {
+    "id": "892a62e3-ec5b-40fb-8505-da74b077602a",
+    "titulo": "Gobernanza de programas de lubricación.",
+    "recursos": []
+  },
+  {
+    "id": "17217c48-3777-4fca-a02c-53b08a5f550a",
+    "titulo": "Simulacros finales MLA.",
+    "recursos": []
+  },
+  {
+    "id": "fe6ac5f1-7e6d-4451-8874-a4217e88c556",
+    "titulo": "Inspecciones de campo efectivas.",
+    "recursos": []
+  },
+  {
+    "id": "42a8964d-5b14-4b64-a162-e4109c946b1e",
+    "titulo": "Lubricación y monitoreo básico.",
+    "recursos": []
+  },
+  {
+    "id": "ec6c6ae0-bd82-4e30-ac6d-64de07f1ab0e",
+    "titulo": "Vibraciones y ultrasonido para técnicos.",
+    "recursos": []
+  },
+  {
+    "id": "877c6b16-2fa1-44bd-bd6d-64e8bd33b00e",
+    "titulo": "Toma de datos y diagnóstico inicial.",
+    "recursos": []
+  },
+  {
+    "id": "878c5727-41d5-409d-8be2-7b0379c625dd",
+    "titulo": "Simulacros oficiales Mobius RCT.",
+    "recursos": []
+  },
+  {
+    "id": "9a3a9287-45b7-40d7-a418-9ea7533698d8",
+    "titulo": "Fundamentos de confiabilidad operacional.",
+    "recursos": []
+  },
+  {
+    "id": "fd6f0fd9-7936-41ea-99ec-21bd5c01aa44",
+    "titulo": "Principios de tribología avanzada.",
+    "recursos": [
+      {
+        "url": "https://www.youtube.com/watch?v=D_KdKdxalrE",
+        "nombre": "GUIA PDF"
+      }
+    ]
+  },
+  {
+    "id": "bfe4047e-5d1e-4873-af54-436db24f0c6a",
+    "titulo": "asdasdasd",
+    "recursos": []
+  },
+  {
+    "id": "9b6d669d-b755-4ddd-afdf-f431c4d0d71c",
+    "titulo": "Lección 1.1: Conceptos básicos y evolución del mantenimiento",
+    "recursos": []
+  },
+  {
+    "id": "83d9a6c6-35cb-4c5c-82d8-5534f0cb7588",
+    "titulo": "Lección 1.2: Proceso de la función de mantenimiento",
+    "recursos": []
+  },
+  {
+    "id": "026c7334-537e-40f5-ae29-24e6652dc9d5",
+    "titulo": "Lección 1.3: Mantenimiento Basado en la Condición (Parte 1)",
+    "recursos": []
+  },
+  {
+    "id": "713638fb-29d6-4369-888a-cddb121e661b",
+    "titulo": "Lección 1.4: Mantenimiento Basado en la Condición (Parte 2)",
+    "recursos": []
+  },
+  {
+    "id": "43e5acff-41e1-43ad-8933-2f27c37c7774",
+    "titulo": "Lección 2.1: Proceso de planificación del mantenimiento",
+    "recursos": []
+  },
+  {
+    "id": "92fb51fb-f429-4754-ad02-2adb847b5cca",
+    "titulo": "Lección 2.2: Proceso de programación del mantenimiento",
+    "recursos": []
+  },
+  {
+    "id": "1b5c58b5-e616-411a-8317-012f815a3a47",
+    "titulo": "Lección 2.3: Gestión de parada de planta (Parte 1)",
+    "recursos": []
+  },
+  {
+    "id": "cbbc75fb-e4b0-40b6-84d3-cc4851133cd6",
+    "titulo": "Lección 2.4: Gestión de parada de planta (Parte 2)",
+    "recursos": []
+  },
+  {
+    "id": "1fb53c02-a351-4958-818c-f948c56640be",
+    "titulo": "Lección 3.1: Conceptos básicos de confiabilidad",
+    "recursos": []
+  },
+  {
+    "id": "0e4691b3-3b3b-49c4-b875-b111d2a89138",
+    "titulo": "Lección 3.2: Sistemas reparables",
+    "recursos": []
+  },
+  {
+    "id": "0c9f942a-6331-4b0f-845d-4bebe6d75e93",
+    "titulo": "Lección 3.3: Teoría de confiabilidad estadística",
+    "recursos": []
+  },
+  {
+    "id": "b0a692e9-840d-4590-b063-657ac817ee1b",
+    "titulo": "Lección 3.4: Modelos estadísticos",
+    "recursos": []
+  },
+  {
+    "id": "d892a60c-9f1c-46c0-a90b-5025c5cfa488",
+    "titulo": "Lección 4.1: Fundamentos del RCM",
+    "recursos": []
+  },
+  {
+    "id": "a9a965b3-c47f-4647-87b4-d3b7e622c0ee",
+    "titulo": "Lección 4.2: Análisis funcional",
+    "recursos": []
+  },
+  {
+    "id": "7f6db155-e441-4653-a0e5-14f9d4f9bd82",
+    "titulo": "Lección 4.3: Modos de falla y efectos",
+    "recursos": []
+  },
+  {
+    "id": "d1de5eda-5f22-48bf-a19e-c58dc6a527a4",
+    "titulo": "Lección 4.4: Estrategias de mantenimiento",
+    "recursos": []
+  },
+  {
+    "id": "b1ef44c0-7dee-4e95-aa22-2e5b9fb6ab9a",
+    "titulo": "Lección 5.1: Metodologías de confiabilidad (Parte 1)",
+    "recursos": []
+  },
+  {
+    "id": "2cbed512-4995-4696-8b68-bbc60306cbcf",
+    "titulo": "Lección 5.2: Metodologías de confiabilidad (Parte 2)",
+    "recursos": []
+  },
+  {
+    "id": "9fc5b855-7d28-4dfd-827a-9641cff022fc",
+    "titulo": "Lección 5.3: Indicadores de desempeño (Parte 1)",
+    "recursos": []
+  },
+  {
+    "id": "4fc9e9e5-9a4e-458f-94f1-d3f1df5534b8",
+    "titulo": "Lección 5.4: Indicadores de desempeño (Parte 2)",
+    "recursos": []
+  },
+  {
+    "id": "e95e4626-1e4e-4b7f-90a6-988a387d82e4",
+    "titulo": "Lección 6.1: TPM (Parte 1)",
+    "recursos": []
+  },
+  {
+    "id": "c299bdef-b440-40d2-8936-1cd72b03b753",
+    "titulo": "Lección 6.2: TPM (Parte 2)",
+    "recursos": []
+  },
+  {
+    "id": "5002d6fc-6d81-4c8f-a808-3b119761b535",
+    "titulo": "Lección 6.3: Introducción al LCCA",
+    "recursos": []
+  },
+  {
+    "id": "26154f43-4393-4e2e-9e33-91a4ffc499f3",
+    "titulo": "Lección 6.4: Modelo de Woodward",
+    "recursos": []
+  },
+  {
+    "id": "b64b20f0-4c71-4054-b00e-5a3f9f631021",
+    "titulo": "Dirección estratégica y planificación de mantenimiento y confiabilidad",
+    "recursos": []
+  },
+  {
+    "id": "c8fea662-cb43-4be1-b3ff-0ddb4c5b62b3",
+    "titulo": "Administración del plan estratégico",
+    "recursos": []
+  },
+  {
+    "id": "16fc87eb-983a-4f4f-89f7-c8f1b9bb940e",
+    "titulo": "Medición del desempeño y KPIs",
+    "recursos": []
+  },
+  {
+    "id": "9def7ffe-14d0-4bb6-9c85-4bdf61fe986e",
+    "titulo": "Gestión del cambio organizacional",
+    "recursos": []
+  },
+  {
+    "id": "effe90eb-9737-48a4-a736-418db2395c86",
+    "titulo": "Comunicación con stakeholders",
+    "recursos": []
+  },
+  {
+    "id": "2a9342ba-7b08-4688-9c84-4cf6956ed5be",
+    "titulo": "Procedimientos operativos y estándares",
+    "recursos": []
+  },
+  {
+    "id": "8e7cc619-d595-43db-b337-3a83b455ac93",
+    "titulo": "Técnicas de mejora de procesos",
+    "recursos": []
+  },
+  {
+    "id": "b48a2aa6-fcfa-48c4-8538-bdb293b5cc27",
+    "titulo": "Gestión del cambio en procesos",
+    "recursos": []
+  },
+  {
+    "id": "8e627afd-1464-469f-bdd9-de80bad29d76",
+    "titulo": "Control de variabilidad",
+    "recursos": []
+  },
+  {
+    "id": "fc3a8bc3-e61f-4ef8-a547-01c818264e72",
+    "titulo": "Expectativas de confiabilidad",
+    "recursos": []
+  },
+  {
+    "id": "2afeea85-db56-4498-a50f-e39d1e461374",
+    "titulo": "Evaluación de desempeño",
+    "recursos": []
+  },
+  {
+    "id": "dbf5ea1b-a85f-4b8b-a3e0-5e51a19319de",
+    "titulo": "Estrategias para equipos existentes",
+    "recursos": []
+  },
+  {
+    "id": "fbf5ba37-5dc9-42e4-906c-ef460399e2f4",
+    "titulo": "Estrategias para nuevos equipos",
+    "recursos": []
+  },
+  {
+    "id": "580be2cf-2b35-40af-8abf-c26e97456134",
+    "titulo": "Justificación económica",
+    "recursos": []
+  },
+  {
+    "id": "a97ae5f2-e1f1-4cc6-bd54-219e17461a08",
+    "titulo": "Implementación de estrategias",
+    "recursos": []
+  },
+  {
+    "id": "cb3ee728-1f0e-4bd7-8b76-f132e015b3db",
+    "titulo": "Revisión y ajuste",
+    "recursos": []
+  },
+  {
+    "id": "1a73b82b-bda0-48d1-919e-a631d8e829e1",
+    "titulo": "Requisitos organizacionales",
+    "recursos": []
+  },
+  {
+    "id": "d96b4cd0-6b7c-49d8-88e4-6b0d69ee6039",
+    "titulo": "Análisis de capacidades",
+    "recursos": []
+  },
+  {
+    "id": "532b3898-f0ce-4fce-a008-6c65fedb1f22",
+    "titulo": "Diseño organizacional",
+    "recursos": []
+  },
+  {
+    "id": "1b278023-9cef-4bec-8ef1-40d2619a94b1",
+    "titulo": "Desarrollo del personal",
+    "recursos": []
+  },
+  {
+    "id": "75b8d553-a5b6-4732-b99f-05e878a9be9b",
+    "titulo": "Gestión de equipos",
+    "recursos": []
+  },
+  {
+    "id": "930268ff-bdb6-48a5-b8ab-93c636146e86",
+    "titulo": "Identificación y aprobación del trabajo",
+    "recursos": []
+  },
+  {
+    "id": "799c22e7-a026-49f6-afbd-3325f63a63cf",
+    "titulo": "Priorización",
+    "recursos": []
+  },
+  {
+    "id": "d4934a2f-8164-475e-8921-bd645c2d74d0",
+    "titulo": "Planificación detallada",
+    "recursos": []
+  },
+  {
+    "id": "a23d96b6-0057-4f90-8b36-468b7cf2f1ac",
+    "titulo": "Programación y backlog",
+    "recursos": []
+  },
+  {
+    "id": "1204d4da-f87f-4720-8232-ca05cf5ebef6",
+    "titulo": "Ejecución y calidad",
+    "recursos": []
+  },
+  {
+    "id": "995ef1d1-5b7e-441c-a812-9d348b08e519",
+    "titulo": "Análisis y retroalimentación",
+    "recursos": []
+  },
+  {
+    "id": "b162a33a-9375-4fa2-b4be-882f996b0f55",
+    "titulo": "Medición del desempeño",
+    "recursos": []
+  },
+  {
+    "id": "74d4ee4e-06b3-454b-9efa-6be00a5f4d9d",
+    "titulo": "Gestión de proyectos",
+    "recursos": []
+  },
+  {
+    "id": "68a0a214-412e-454d-93c6-7afb0c3e3249",
+    "titulo": "Uso de CMMS/EAM",
+    "recursos": []
+  },
+  {
+    "id": "e416b89b-9089-43ee-a9e9-907e51998155",
+    "titulo": "Gestión de recursos",
+    "recursos": []
+  },
+  {
+    "id": "b9305a75-c164-4035-8dbf-2651452dcc73",
+    "titulo": "Simulacros por pilar",
+    "recursos": []
+  },
+  {
+    "id": "a774274d-6552-45fb-b75c-581357b1a3d2",
+    "titulo": "Gestión del tiempo",
+    "recursos": []
+  },
+  {
+    "id": "2aeb6229-1f0c-4871-81e0-b6ca7b20cb63",
+    "titulo": "Análisis de preguntas",
+    "recursos": []
+  },
+  {
+    "id": "c79bfa3a-557a-452a-af01-1857913bd731",
+    "titulo": "Cierre de brechas",
+    "recursos": []
+  },
+  {
+    "id": "000e80dd-f8cd-4f41-b3f4-37669a1a6db4",
+    "titulo": "Preparación mental",
+    "recursos": []
+  },
+  {
+    "id": "f457f530-24f3-40ec-8683-d3c18ac4698d",
+    "titulo": "Inscripción al examen",
+    "recursos": []
+  },
+  {
+    "id": "6991f7ff-ffa0-4a31-aae1-4cc7b98c0434",
+    "titulo": "Recomendaciones clave",
+    "recursos": []
+  },
+  {
+    "id": "beb52402-a925-4c25-9b58-acfbb2a89d3b",
+    "titulo": "Plan de estudio personalizado",
+    "recursos": []
+  },
+  {
+    "id": "bc1c0291-8f06-4947-a047-c6b3c557e91a",
+    "titulo": "Acompañamiento post-curso",
+    "recursos": []
+  },
+  {
+    "id": "dfa14691-2e2c-4de4-9614-74d3a9bef42d",
+    "titulo": "Estrategias de posicionamiento profesional",
+    "recursos": []
+  },
+  {
+    "id": "bd0c2aec-261d-469f-b809-836a80bf74a1",
+    "titulo": "Contexto operacional y funciones",
+    "recursos": []
+  },
+  {
+    "id": "1da9b25e-99b7-4c81-bdb8-da8f8e4893fc",
+    "titulo": "Análisis de fallas (AMEF)",
+    "recursos": []
+  },
+  {
+    "id": "5adea7ec-41ba-411f-943a-3314bfaa4193",
+    "titulo": "Sistemas reparables y no reparables",
+    "recursos": []
+  },
+  {
+    "id": "3b145908-4a08-424c-88f5-5094ec3066b0",
+    "titulo": "Herramientas de análisis (Nelson-Allen)",
+    "recursos": []
+  },
+  {
+    "id": "b1400ec3-5bf7-4b3f-912a-eb5829608df0",
+    "titulo": "Fundamentos de Python y ciencia de datos",
+    "recursos": []
+  },
+  {
+    "id": "c13d8c32-a092-4f7f-ba36-64760fdfa78e",
+    "titulo": "Modelo de Weibull y probabilidad de fallas",
+    "recursos": []
+  },
+  {
+    "id": "5c7ef274-d8d0-4153-8ecb-b0bfc8e8bf11",
+    "titulo": "Análisis avanzado de datos",
+    "recursos": []
+  },
+  {
+    "id": "ce01215b-ea21-43e4-a570-681fe6aba506",
+    "titulo": "Modelos predictivos aplicados",
+    "recursos": []
+  },
+  {
+    "id": "f5673251-a87a-4e23-bf7a-6f499907e678",
+    "titulo": "Fundamentos de PMO",
+    "recursos": []
+  },
+  {
+    "id": "e602e387-fe5f-4220-81bd-328f49847514",
+    "titulo": "Aplicación práctica y elaboración de informes",
+    "recursos": []
+  },
+  {
+    "id": "6aee6df1-7f27-4122-b63f-f2fb66c42e4b",
+    "titulo": "Fundamentos (Power Query, DAX, Power View)",
+    "recursos": []
+  },
+  {
+    "id": "92dcd73f-0f6d-4a68-a35f-e183ac36b585",
+    "titulo": "Visualización de datos",
+    "recursos": []
+  },
+  {
+    "id": "fdc3d3bc-03f0-46d0-a58e-2356519c7c97",
+    "titulo": "Informes dinámicos",
+    "recursos": []
+  },
+  {
+    "id": "7db8f931-9dcc-4297-a887-ca47ba384023",
+    "titulo": "Informes avanzados",
+    "recursos": []
+  },
+  {
+    "id": "f13e60d9-34f0-4ddd-a1a0-81e543916eba",
+    "titulo": "Exportación y difusión",
+    "recursos": []
+  },
+  {
+    "id": "451d2fc1-8b2d-4c5d-817e-8224648f939a",
+    "titulo": "Fundamentos, EDT y ruta crítica",
+    "recursos": []
+  },
+  {
+    "id": "3b404cbb-c719-4c6f-9440-9272e22a794f",
+    "titulo": "Configuración de tareas y fechas",
+    "recursos": []
+  },
+  {
+    "id": "380c1b5a-92a4-41b0-a7dc-5e0146e5b782",
+    "titulo": "Gestión de recursos y dependencias",
+    "recursos": []
+  },
+  {
+    "id": "88d5c087-2282-4f4d-b917-e0489415c41c",
+    "titulo": "Proyecto final integrador",
+    "recursos": []
+  },
+  {
+    "id": "6f72061a-3aa0-4804-a7a8-4027543dbaf1",
+    "titulo": "Introducción al RCM y selección de activos críticos",
+    "recursos": []
+  }
+]
+Sample lessons (all): [
+  {
+    "id": "000e80dd-f8cd-4f41-b3f4-37669a1a6db4",
+    "titulo": "Preparación mental",
+    "recursos": []
+  },
+  {
+    "id": "005fda7f-7d72-431b-8336-a7ac7820382f",
+    "titulo": "Integración con planes maestros.",
+    "recursos": []
+  },
+  {
+    "id": "026c7334-537e-40f5-ae29-24e6652dc9d5",
+    "titulo": "Lección 1.3: Mantenimiento Basado en la Condición (Parte 1)",
+    "recursos": []
+  },
+  {
+    "id": "04ba93c6-477a-4156-bb9d-3a888f4af4c5",
+    "titulo": "Herramientas esenciales",
+    "recursos": []
+  },
+  {
+    "id": "05c013ec-8437-471b-ba3d-9abb0a2b64ab",
+    "titulo": "Integración con APIs externas",
+    "recursos": []
+  }
+]

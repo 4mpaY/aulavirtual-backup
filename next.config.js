@@ -30,11 +30,11 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.izipay.pe https://*.paypal.com https://*.paypalobjects.com",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.izipay.pe https://*.paypal.com https://*.paypalobjects.com https://*.culqi.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https: *", // 🖼️ FLEXIBLE: Permite imágenes de cualquier sitio seguro
-      "connect-src 'self' https://*.izipay.pe https://*.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com",
+      "connect-src 'self' https://*.izipay.pe https://*.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com https://*.culqi.com",
       "frame-src 'self' https: *", // 📺 FLEXIBLE: Permite videos/iframes de cualquier sitio seguro (YouTube, Vimeo, Wistia, etc.)
       "object-src 'none'",
       "base-uri 'self'"

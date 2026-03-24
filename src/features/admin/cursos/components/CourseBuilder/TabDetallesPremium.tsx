@@ -12,7 +12,8 @@ import {
     Divider,
     Stack,
     FormControlLabel,
-    Switch
+    Switch,
+    Avatar
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 
@@ -103,14 +104,31 @@ export function TabDetallesPremium({ curso, onSuccess }: TabDetallesPremiumProps
                     Define los pilares de tu enseñanza. Aparecerán como tarjetas en la página de detalle.
                 </Typography>
 
-                <Button
-                    variant='outlined'
-                    startIcon={<i className='tabler-plus' />}
-                    onClick={() => setMetodologia([...metodologia, { title: '', desc: '', icon: 'tabler-star' }])}
-                    sx={{ mb: 3 }}
-                >
-                    Añadir Pilar Metodológico
-                </Button>
+                <Stack direction='row' alignItems='center' spacing={2} sx={{ mb: 3 }}>
+                    <Button
+                        variant='outlined'
+                        startIcon={<i className='tabler-plus' />}
+                        onClick={() => setMetodologia([...metodologia, { title: '', desc: '', icon: 'star' }])}
+                    >
+                        Añadir Pilar Metodológico
+                    </Button>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: 1.5, 
+                        p: 3, 
+                        borderRadius: '12px', 
+                        bgcolor: 'info.lighterOpacity', 
+                        border: '1px dashed',
+                        borderColor: 'info.main',
+                        flex: 1
+                    }}>
+                        <i className='tabler-info-circle' style={{ fontSize: '1.5rem', color: 'var(--mui-palette-info-main)' }} />
+                        <Typography variant='body2' sx={{ color: 'info.main', fontWeight: 500 }}>
+                            Personaliza tus iconos buscando en: <a href="https://tabler-icons.io/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', fontWeight: 800, textDecoration: 'underline' }}>tabler-icons.io</a>. ¡Solo pega el nombre (ej. &quot;star&quot;)!
+                        </Typography>
+                    </Box>
+                </Stack>
 
                 <Grid container spacing={3}>
                     {metodologia.map((m, i) => (
@@ -119,24 +137,32 @@ export function TabDetallesPremium({ curso, onSuccess }: TabDetallesPremiumProps
                                 <IconButton
                                     size='small'
                                     color='error'
-                                    sx={{ position: 'absolute', top: 8, right: 8 }}
-                                    onClick={() => setMetodologia(metodologia.filter((_, idx) => idx !== i))}
+                                    sx={{ position: 'absolute', top: 8, right: 8, zIndex: 10 }}
+                                    onClick={() => setMetodologia(prev => prev.filter((_, idx) => idx !== i))}
                                 >
                                     <i className='tabler-x' />
                                 </IconButton>
                                 <Stack spacing={3}>
-                                    <CustomTextField
-                                        label='Icono (Tabler)'
-                                        fullWidth
-                                        size='small'
-                                        value={m.icon}
-                                        onChange={e => {
-                                            const newM = [...metodologia]
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <Avatar sx={{ bgcolor: 'primary.lighterOpacity', color: 'primary.main', width: 40, height: 40 }}>
+                                            <i className={m.icon?.startsWith('tabler-') ? m.icon : `tabler-${m.icon}`} />
+                                        </Avatar>
+                                        <CustomTextField
+                                            label='Icono (solo nombre)'
+                                            fullWidth
+                                            size='small'
+                                            placeholder='Ej: star, award, book...'
+                                            value={m.icon?.replace('tabler-', '')}
+                                            onChange={e => {
+                                                const newM = [...metodologia]
 
-                                            newM[i].icon = e.target.value
-                                            setMetodologia(newM)
-                                        }}
-                                    />
+                                                const iconName = e.target.value.replace('tabler-', '')
+
+                                                newM[i] = { ...newM[i], icon: iconName }
+                                                setMetodologia(newM)
+                                            }}
+                                        />
+                                    </Box>
                                     <CustomTextField
                                         label='Título'
                                         fullWidth
@@ -145,7 +171,7 @@ export function TabDetallesPremium({ curso, onSuccess }: TabDetallesPremiumProps
                                         onChange={e => {
                                             const newM = [...metodologia]
 
-                                            newM[i].title = e.target.value
+                                            newM[i] = { ...newM[i], title: e.target.value }
                                             setMetodologia(newM)
                                         }}
                                     />
@@ -159,7 +185,7 @@ export function TabDetallesPremium({ curso, onSuccess }: TabDetallesPremiumProps
                                         onChange={e => {
                                             const newM = [...metodologia]
 
-                                            newM[i].desc = e.target.value
+                                            newM[i] = { ...newM[i], desc: e.target.value }
                                             setMetodologia(newM)
                                         }}
                                     />
@@ -202,17 +228,26 @@ export function TabDetallesPremium({ curso, onSuccess }: TabDetallesPremiumProps
                                     <i className='tabler-x' />
                                 </IconButton>
                                 <Stack spacing={3}>
-                                    <CustomTextField
-                                        label='Icono'
-                                        size='small'
-                                        value={b.icon}
-                                        onChange={e => {
-                                            const newB = [...beneficios]
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <Avatar sx={{ bgcolor: 'secondary.lighterOpacity', color: 'secondary.main', width: 40, height: 40 }}>
+                                            <i className={b.icon?.startsWith('tabler-') ? b.icon : `tabler-${b.icon}`} />
+                                        </Avatar>
+                                        <CustomTextField
+                                            label='Icono'
+                                            fullWidth
+                                            size='small'
+                                            placeholder='Ej: bolt, cup, tool...'
+                                            value={b.icon?.replace('tabler-', '')}
+                                            onChange={e => {
+                                                const newB = [...beneficios]
 
-                                            newB[i].icon = e.target.value
-                                            setBeneficios(newB)
-                                        }}
-                                    />
+                                                const iconName = e.target.value.replace('tabler-', '')
+
+                                                newB[i] = { ...newB[i], icon: iconName }
+                                                setBeneficios(newB)
+                                            }}
+                                        />
+                                    </Box>
                                     <CustomTextField
                                         label='Título'
                                         size='small'
@@ -220,7 +255,7 @@ export function TabDetallesPremium({ curso, onSuccess }: TabDetallesPremiumProps
                                         onChange={e => {
                                             const newB = [...beneficios]
 
-                                            newB[i].title = e.target.value
+                                            newB[i] = { ...newB[i], title: e.target.value }
                                             setBeneficios(newB)
                                         }}
                                     />
@@ -233,7 +268,7 @@ export function TabDetallesPremium({ curso, onSuccess }: TabDetallesPremiumProps
                                         onChange={e => {
                                             const newB = [...beneficios]
 
-                                            newB[i].desc = e.target.value
+                                            newB[i] = { ...newB[i], desc: e.target.value }
                                             setBeneficios(newB)
                                         }}
                                     />
@@ -289,7 +324,7 @@ export function TabDetallesPremium({ curso, onSuccess }: TabDetallesPremiumProps
                                     onChange={e => {
                                         const newI = [...incluye]
 
-                                        newI[i].text = e.target.value
+                                        newI[i] = { ...newI[i], text: e.target.value }
                                         setIncluye(newI)
                                     }}
                                 />

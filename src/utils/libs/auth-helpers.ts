@@ -15,6 +15,8 @@ const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET
 type AuthUser = {
   id: string
   name?: string | null
+  nombre?: string | null
+  apellido?: string | null
   email?: string | null
   rol: string
   avatar?: string | null

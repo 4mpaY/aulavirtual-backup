@@ -416,7 +416,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                         mb: 2
                       }}
                     >
-                      <i className={item.icon} style={{ fontSize: '1.5rem' }} />
+                      <i className={item.icon.startsWith('tabler-') ? item.icon : `tabler-${item.icon}`} style={{ fontSize: '1.5rem' }} />
                     </Box>
                     <Box>
                       <Typography sx={{ fontSize: { xs: '0.9rem', md: '1.25rem' }, fontWeight: 800, mb: { xs: 0.5, md: 1 }, color: 'white', lineHeight: 1.2 }}>{item.title}</Typography>
@@ -475,11 +475,16 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                         gap: 2
                       }}>
                         <Avatar sx={{ bgcolor: 'primary.lighterOpacity', color: 'primary.main', width: 70, height: 70 }}>
-                          <i className={m.icon} style={{ fontSize: '2.5rem' }} />
+                          <i className={m.icon.startsWith('tabler-') ? m.icon : `tabler-${m.icon}`} style={{ fontSize: '2.5rem' }} />
                         </Avatar>
                         <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
                           {m.title}
                         </Typography>
+                        {m.desc && (
+                          <Typography variant="body2" color="text.secondary">
+                            {m.desc}
+                          </Typography>
+                        )}
                       </Box>
                     </Grid>
                   ))}
@@ -505,101 +510,132 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
               </Box>
 
               <Box>
-                <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
-                  Contenido del curso
-                </Typography>
-                {course.modulos.length > 0 ? (
-                  <Stack spacing={1}>
-                    {course.modulos.map((modulo, index) => (
-                      <Accordion
-                        key={modulo.id}
-                        defaultExpanded={index === 0}
-                        sx={{
-                          borderRadius: '16px !important',
-                          boxShadow: 'none',
-                          border: '1px solid',
-                          borderColor: '#e2e8f0',
-                          bgcolor: 'white',
-                          '&:before': { display: 'none' }
-                        }}
-                      >
-                        <AccordionSummary
-                          expandIcon={<i className="tabler-chevron-down" />}
-                          sx={{ px: 3, py: 1 }}
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4, flexWrap: 'wrap', gap: 2 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    Contenido del <span style={{ color: 'primary.main' }}>curso</span>
+                  </Typography>
+
+                  {course.brochure && (
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="medium"
+                      component="a"
+                      href={course.brochure}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      startIcon={<i className="tabler-file-download" />}
+                      sx={{
+                        borderRadius: '12px',
+                        fontWeight: 700,
+                        textTransform: 'none',
+                        px: 3,
+                        borderColor: 'rgba(var(--mui-palette-primary-mainChannel), 0.3)',
+                        '&:hover': {
+                          borderColor: 'primary.main',
+                          bgcolor: 'primary.lighterOpacity'
+                        }
+                      }}
+                    >
+                      Descargar Brochure
+                    </Button>
+                  )}
+                </Stack>
+
+                <Box>
+                  {course.modulos.length > 0 ? (
+                    <Stack spacing={1}>
+                      {course.modulos.map((modulo, index) => (
+                        <Accordion
+                          key={modulo.id}
+                          defaultExpanded={index === 0}
+                          sx={{
+                            borderRadius: '16px !important',
+                            boxShadow: 'none',
+                            border: '1px solid',
+                            borderColor: '#e2e8f0',
+                            bgcolor: 'white',
+                            '&:before': { display: 'none' }
+                          }}
                         >
-                          <Stack direction="row" spacing={2} alignItems="center">
-                            <Box sx={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: '8px',
-                              bgcolor: 'primary.lighterOpacity',
-                              color: 'primary.main',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontWeight: 700,
-                              fontSize: '0.875rem'
-                            }}>
-                              {index + 1}
-                            </Box>
-                            <Typography variant="h6" sx={{ fontWeight: 700 }}>{modulo.titulo}</Typography>
-                          </Stack>
-                        </AccordionSummary>
-                        <AccordionDetails sx={{ p: 0 }}>
-                          <List disablePadding>
-                            {modulo.lecciones.map((leccion) => (
-                              <Fragment key={leccion.id}>
-                                <Divider />
-                                <ListItem 
-                                  sx={{ 
-                                    py: 2, 
-                                    px: 3,
-                                    cursor: (leccion as any).es_vista_previa ? 'pointer' : 'default',
-                                    transition: 'background-color 0.2s',
-                                    '&:hover': (leccion as any).es_vista_previa ? { bgcolor: 'action.hover' } : {}
-                                  }}
-                                  onClick={() => {
-                                    if ((leccion as any).es_vista_previa) {
-                                      setPreviewLesson(leccion)
-                                    }
-                                  }}
-                                >
-                                  <ListItemIcon sx={{ minWidth: 40 }}>
-                                    <i className="tabler-player-play" style={{ color: (leccion as any).es_vista_previa ? 'primary.main' : 'text.disabled' }} />
-                                  </ListItemIcon>
-                                  <ListItemText
-                                    primary={
-                                      <Stack direction="row" spacing={1} alignItems="center">
-                                        <Typography variant='body1' fontWeight={600}>{leccion.titulo}</Typography>
-                                        {(leccion as any).es_vista_previa && (
-                                          <Chip
-                                            size='small'
-                                            label='VISTA PREVIA'
-                                            color='primary'
-                                            sx={{ height: 20, fontSize: '0.625rem', fontWeight: 800 }}
-                                          />
-                                        )}
-                                      </Stack>
-                                    }
-                                  />
-                                  {leccion.duracion && (
-                                    <Typography variant="caption" color="text.disabled">
-                                      {leccion.duracion} min
-                                    </Typography>
-                                  )}
-                                </ListItem>
-                              </Fragment>
-                            ))}
-                          </List>
-                        </AccordionDetails>
-                      </Accordion>
-                    ))}
-                  </Stack>
-                ) : (
-                  <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'white', borderRadius: '16px' }}>
-                    <Typography color="text.secondary">Aún no hay módulos publicados para este curso.</Typography>
-                  </Paper>
-                )}
+                          <AccordionSummary
+                            expandIcon={<i className="tabler-chevron-down" />}
+                            sx={{ px: 3, py: 1 }}
+                          >
+                            <Stack direction="row" spacing={2} alignItems="center">
+                              <Box sx={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: '8px',
+                                bgcolor: 'primary.lighterOpacity',
+                                color: 'primary.main',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 700,
+                                fontSize: '0.875rem'
+                              }}>
+                                {index + 1}
+                              </Box>
+                              <Typography variant="h6" sx={{ fontWeight: 700 }}>{modulo.titulo}</Typography>
+                            </Stack>
+                          </AccordionSummary>
+                          <AccordionDetails sx={{ p: 0 }}>
+                            <List disablePadding>
+                              {modulo.lecciones.map((leccion) => (
+                                <Fragment key={leccion.id}>
+                                  <Divider />
+                                  <ListItem
+                                    sx={{
+                                      py: 2,
+                                      px: 3,
+                                      cursor: (leccion as any).es_vista_previa ? 'pointer' : 'default',
+                                      transition: 'background-color 0.2s',
+                                      '&:hover': (leccion as any).es_vista_previa ? { bgcolor: 'action.hover' } : {}
+                                    }}
+                                    onClick={() => {
+                                      if ((leccion as any).es_vista_previa) {
+                                        setPreviewLesson(leccion)
+                                      }
+                                    }}
+                                  >
+                                    <ListItemIcon sx={{ minWidth: 40 }}>
+                                      <i className="tabler-player-play" style={{ color: (leccion as any).es_vista_previa ? 'primary.main' : 'text.disabled' }} />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                      primary={
+                                        <Stack direction="row" spacing={1} alignItems="center">
+                                          <Typography variant='body1' fontWeight={600}>{leccion.titulo}</Typography>
+                                          {(leccion as any).es_vista_previa && (
+                                            <Chip
+                                              size='small'
+                                              label='VISTA PREVIA'
+                                              color='primary'
+                                              sx={{ height: 20, fontSize: '0.625rem', fontWeight: 800 }}
+                                            />
+                                          )}
+                                        </Stack>
+                                      }
+                                    />
+                                    {leccion.duracion && (
+                                      <Typography variant="caption" color="text.disabled">
+                                        {leccion.duracion} min
+                                      </Typography>
+                                    )}
+                                  </ListItem>
+                                </Fragment>
+                              ))}
+                            </List>
+                          </AccordionDetails>
+                        </Accordion>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'white', borderRadius: '16px' }}>
+                      <Typography color="text.secondary">Aún no hay módulos publicados para este curso.</Typography>
+                    </Paper>
+                  )}
+                </Box>
               </Box>
             </Stack>
           </Grid>
@@ -638,29 +674,6 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                     </Stack>
                   ))}
                 </Stack>
-
-                {course.brochure && (
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    fullWidth
-                    size="large"
-                    component="a"
-                    href={course.brochure}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    startIcon={<i className="tabler-file-download" />}
-                    sx={{
-                      mb: 2,
-                      py: 1.5,
-                      borderRadius: '12px',
-                      fontWeight: 700,
-                      textTransform: 'none'
-                    }}
-                  >
-                    Descargar Brochure
-                  </Button>
-                )}
 
                 <Button
                   variant="contained"
@@ -709,9 +722,9 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
         </DialogTitle>
         <DialogContent dividers sx={{ p: 0, bgcolor: 'black' }}>
           {previewLesson && (
-            <VideoPlayer 
-                url={(previewLesson as any).video_url} 
-                tipo="VIDEO" 
+            <VideoPlayer
+              url={(previewLesson as any).video_url}
+              tipo="VIDEO"
             />
           )}
         </DialogContent>

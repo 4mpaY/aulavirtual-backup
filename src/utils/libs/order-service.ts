@@ -2,7 +2,7 @@ import prisma from '@/utils/libs/prisma'
 import { sendOrderConfirmationEmail } from './order-notifications'
 
 interface OrderCompletionData {
-  metodo_pago: 'PAYPAL' | 'IZIPAY'
+  metodo_pago: 'PAYPAL' | 'IZIPAY' | 'CULQI'
   transaccion_id?: string
   respuesta_pago?: any
 }
@@ -40,7 +40,7 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
         data: {
           estado: 'COMPLETADO',
           pagado_en: new Date(),
-          metodo_pago: data.metodo_pago,
+          metodo_pago: data.metodo_pago as any,
           transaccion_id: data.transaccion_id || null,
           respuesta_izipay: data.respuesta_pago || null // Se usa este campo para el log de respuesta
         }

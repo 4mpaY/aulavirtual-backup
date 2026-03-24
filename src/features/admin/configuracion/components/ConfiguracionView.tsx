@@ -86,6 +86,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     IZIPAY_RSA_KEY: '',
     IZIPAY_ENDPOINT: 'https://sandbox-api-pw.izipay.pe',
     IZIPAY_SDK_URL: 'https://sandbox-checkout.izipay.pe/payments/v1/js/index.js',
+    CULQI_PUBLIC_KEY: '',
+    CULQI_PRIVATE_KEY: '',
     ...initialMapped
   })
 
@@ -146,6 +148,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
           <Tab label='Integración PayPal' />
           <Tab label='Integración Google' />
           <Tab label='Integración Izipay' />
+          <Tab label='Integración Culqi' />
           <Tab label='Finanzas' />
         </Tabs>
 
@@ -341,8 +344,29 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
             </Grid>
           </CustomTabPanel>
 
-          {/* TAB 5: FINANZAS */}
+          {/* TAB 5: CULQI */}
           <CustomTabPanel value={tabValue} index={5}>
+            <Stack spacing={3}>
+              <TextField
+                label='Culqi Public Key (pk_test_... o pk_live_...)'
+                fullWidth
+                value={config.CULQI_PUBLIC_KEY}
+                onChange={(e) => handleInputChange('CULQI_PUBLIC_KEY', e.target.value)}
+                helperText='Key utilizada en el frontend para tokenizar la tarjeta.'
+              />
+              <TextField
+                label='Culqi Private Key (sk_test_... o sk_live_...)'
+                fullWidth
+                type='password'
+                value={config.CULQI_PRIVATE_KEY}
+                onChange={(e) => handleInputChange('CULQI_PRIVATE_KEY', e.target.value)}
+                helperText='Key utilizada en el backend para realizar el cargo.'
+              />
+            </Stack>
+          </CustomTabPanel>
+
+          {/* TAB 6: FINANZAS */}
+          <CustomTabPanel value={tabValue} index={6}>
             <Box>
               <Typography variant='subtitle2' sx={{ mb: 1 }}>
                 Tipo de Cambio PayPal (PEN → USD)

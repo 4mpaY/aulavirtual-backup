@@ -32,8 +32,17 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'El cupón no está activo', 400)
     }
 
-    if (cupon.fecha_expiracion && cupon.fecha_expiracion < new Date()) {
-      return ApiResponse.error(request, 'El cupón ha expirado', 400)
+    if (cupon.fecha_expiracion) {
+      const hoy = new Date()
+      const fechaExpiracion = new Date(cupon.fecha_expiracion)
+
+      // Normalizar ambas fechas a medianoche (00:00:00) para comparar solo el día
+      hoy.setHours(0, 0, 0, 0)
+      fechaExpiracion.setHours(0, 0, 0, 0)
+
+      if (fechaExpiracion < hoy) {
+        return ApiResponse.error(request, 'El cupón ha expirado', 400)
+      }
     }
 
     if (cupon.limite_uso !== null && cupon.usos_actuales >= cupon.limite_uso) {

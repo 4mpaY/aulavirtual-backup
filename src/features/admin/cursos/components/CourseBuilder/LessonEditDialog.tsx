@@ -208,9 +208,9 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
             <Stack spacing={2}>
               {recursos.map((r, i) => (
                 <Box key={i} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                  <Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <i className='tabler-file-download text-xl text-primary' />
                     <Typography variant='body2' fontWeight={600}>{r.nombre}</Typography>
-                    <Typography variant='caption' color='text.disabled'>{r.url}</Typography>
                   </Box>
                   <IconButton size='small' color='error' onClick={() => handleRemoveRecurso(i)}>
                     <i className='tabler-x text-lg' />
@@ -220,31 +220,35 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
             </Stack>
           )}
 
-          <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 1 }}>
-            <Typography variant='caption' sx={{ mb: 1, display: 'block' }}>Añadir nuevo recurso:</Typography>
+          <Box sx={{ p: 2, bgcolor: 'action.hover', borderRadius: 1, border: '1px dashed', borderColor: 'divider' }}>
             <Stack spacing={2}>
               <CustomTextField
                 fullWidth
                 size='small'
-                label='Nombre del recurso (ej: Guía PDF)'
+                placeholder='Nombre del recurso (ej: Guía PDF)'
                 value={newRecurso.nombre}
                 onChange={e => setNewRecurso({ ...newRecurso, nombre: e.target.value })}
               />
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                 <CustomTextField
                   fullWidth
                   size='small'
-                  label='URL del documento o selecciona archivo'
-                  value={newRecurso.url}
+                  placeholder='Archivo no seleccionado'
+                  value={newRecurso.url ? (newRecurso.url.startsWith('/') ? '✓ Archivo cargado' : newRecurso.url) : ''}
                   onChange={e => setNewRecurso({ ...newRecurso, url: e.target.value })}
                   InputProps={{
+                    readOnly: newRecurso.url.startsWith('/'),
                     endAdornment: (
                       <InputAdornment position='end'>
+                        {newRecurso.url.startsWith('/') && (
+                          <IconButton size='small' color='error' onClick={() => setNewRecurso({ ...newRecurso, url: '' })}>
+                            <i className='tabler-x text-lg' />
+                          </IconButton>
+                        )}
                         <IconButton
                           size='small'
                           onClick={() => setOpenMediaResources(true)}
                           color='primary'
-                          title='Subir o seleccionar archivo'
                         >
                           <i className='tabler-upload text-lg' />
                         </IconButton>
@@ -252,7 +256,13 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                     )
                   }}
                 />
-                <Button variant='tonal' size='small' onClick={handleAddRecurso} disabled={!newRecurso.nombre || !newRecurso.url}>
+                <Button 
+                  variant='tonal' 
+                  size='small' 
+                  onClick={handleAddRecurso} 
+                  disabled={!newRecurso.nombre || !newRecurso.url}
+                  sx={{ height: 38, minWidth: 100 }}
+                >
                   Añadir
                 </Button>
               </Box>
@@ -264,11 +274,9 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
               onSelect={(url: string, nombre?: string) => {
                 const parts = url.split('/')
                 const fileName = parts[parts.length - 1] || 'Recurso'
+                const resourceName = nombre || fileName.split('.')[0] || 'Recurso'
 
-                setNewRecurso({
-                  nombre: nombre || fileName.split('.')[0] || 'Recurso',
-                  url
-                })
+                setNewRecurso({ nombre: resourceName, url })
                 setOpenMediaResources(false)
               }}
               title="Seleccionar Recurso"

@@ -476,6 +476,7 @@ enum MetodoPago {
   TRANSFERENCIA
   PAYPAL
   IZIPAY
+  CULQI
   OTRO
 }
 
