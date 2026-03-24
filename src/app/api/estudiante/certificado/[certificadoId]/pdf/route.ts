@@ -3,9 +3,11 @@ export const dynamic = 'force-dynamic'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 
-import { NextResponse } from 'next/server'
+import { readFile } from 'fs/promises'
+import { join } from 'path'
 
-import * as QRCode from 'qrcode'
+import { NextResponse } from 'next/server'
+import QRCode from 'qrcode'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
@@ -26,25 +28,22 @@ function hexToRgb(hex: string): [number, number, number] {
   }
 }
 
-/** Intenta cargar una imagen (local o remota) y devuelve Buffer */
-async function fetchImageBuffer(url: string | null): Promise<Buffer | null> {
+/** Intenta cargar una imagen local desde /public */
+async function loadLocalImage(url: string): Promise<Buffer | null> {
   try {
     if (!url) return null
 
-    // Si es ruta local /public
+    // Si es una URL completa (http...), jsPDF puede manejarla a veces but here we want buffer for security/stability
+    // For now we only handle relative public paths
     if (url.startsWith('/')) {
       const cleanUrl = url.replace(/\/+/g, '/')
       const filePath = join(process.cwd(), 'public', cleanUrl)
+      const buffer = await readFile(filePath)
 
-      return await readFile(filePath)
+      return buffer
     }
 
-    // Si es URL remota
-    const response = await fetch(url)
-
-    if (!response.ok) return null
-
-    return Buffer.from(await response.arrayBuffer())
+    return null
   } catch {
     return null
   }
@@ -72,14 +71,6 @@ export async function GET(request: Request, { params }: { params: { certificadoI
               titulo: true,
               duracion: true,
               nivel: true,
-              profesor: {
-                select: {
-                  nombre: true,
-                  apellido: true,
-                  cargo: true,
-                  firma: true
-                }
-              },
               modulos: {
                 orderBy: { orden: 'asc' },
                 select: {
@@ -128,6 +119,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     })
 
     // Logo
+<<<<<<< HEAD
     const logoBuffer = logoUrl ? await fetchImageBuffer(logoUrl) : null
 
     // Gerente General
@@ -151,14 +143,23 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     }) : null
 >>>>>>> 7646ef3 (cambios)
     console.log('PDF: Gerente General Data:', !!gerenteGeneral, gerenteGeneral?.nombre)
+=======
+    const logoBuffer = logoUrl ? await loadLocalImage(logoUrl) : null
+>>>>>>> 10c84d9 (cambios)
 
     // ================================================================
     const { jsPDF } = await import('jspdf')
 
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
 
+    // ============================================================
+    // PÁGINA 1 – CERTIFICADO
+    // ============================================================
+
+    doc.setFillColor(248, 250, 252)
     // ============================================================
     // PÁGINA 1 – CERTIFICADO
     // ============================================================
@@ -169,7 +170,15 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setDrawColor(pr, pg, pb)
     doc.setLineWidth(3)
     doc.rect(8, 8, pageWidth - 16, pageHeight - 16)
+    doc.setDrawColor(pr, pg, pb)
+    doc.setLineWidth(3)
+    doc.rect(8, 8, pageWidth - 16, pageHeight - 16)
 
+    doc.setDrawColor(sr, sg, sb)
+    doc.setLineWidth(0.8)
+    doc.rect(13, 13, pageWidth - 26, pageHeight - 26)
+    doc.setLineWidth(0.3)
+    doc.rect(15, 15, pageWidth - 30, pageHeight - 30)
     doc.setDrawColor(sr, sg, sb)
     doc.setLineWidth(0.8)
     doc.rect(13, 13, pageWidth - 26, pageHeight - 26)
@@ -198,13 +207,49 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'bold')
     doc.text(nombreInstitucion.toUpperCase(), pageWidth - 20, 21, { align: 'right' })
+    // Banda superior
+    doc.setFillColor(pr, pg, pb)
+    doc.rect(8, 8, pageWidth - 16, 22, 'F')
 
+    // Logo en la banda
+    if (logoBuffer) {
+      try {
+        const ext = logoUrl.split('.').pop()?.toUpperCase() ?? 'PNG'
+        const mimeExt = ext === 'JPG' ? 'JPEG' : (ext === 'SVG' ? 'PNG' : ext)
+        const base64Logo = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
+
+        doc.addImage(base64Logo, mimeExt, 14, 10, 40, 16)
+      } catch {
+        // fail silent
+      }
+    }
+
+    // Nombre institución en la banda
+    doc.setFontSize(11)
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.text(nombreInstitucion.toUpperCase(), pageWidth - 20, 21, { align: 'right' })
+
+    // Títulos
+    doc.setFontSize(30)
+    doc.setTextColor(pr, pg, pb)
     // Títulos
     doc.setFontSize(30)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
     doc.text('CERTIFICADO DE FINALIZACIÓN', pageWidth / 2, 52, { align: 'center' })
+    doc.text('CERTIFICADO DE FINALIZACIÓN', pageWidth / 2, 52, { align: 'center' })
 
+    doc.setDrawColor(pr, pg, pb)
+    doc.setLineWidth(1.2)
+    doc.line(pageWidth / 2 - 70, 57, pageWidth / 2 + 70, 57)
+    doc.setLineWidth(0.3)
+    doc.line(pageWidth / 2 - 55, 59.5, pageWidth / 2 + 55, 59.5)
+
+    doc.setFontSize(13)
+    doc.setTextColor(90, 90, 90)
+    doc.setFont('helvetica', 'italic')
+    doc.text('Se otorga el presente certificado a:', pageWidth / 2, 74, { align: 'center' })
     doc.setDrawColor(pr, pg, pb)
     doc.setLineWidth(1.2)
     doc.line(pageWidth / 2 - 70, 57, pageWidth / 2 + 70, 57)
@@ -220,19 +265,28 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     doc.setFontSize(32)
     doc.setTextColor(30, 40, 50)
+    doc.setFontSize(32)
+    doc.setTextColor(30, 40, 50)
     doc.setFont('helvetica', 'bold')
+    doc.text(nombreCompleto.toUpperCase(), pageWidth / 2, 91, { align: 'center' })
     doc.text(nombreCompleto.toUpperCase(), pageWidth / 2, 91, { align: 'center' })
 
     doc.setDrawColor(180, 180, 180)
+    doc.setDrawColor(180, 180, 180)
     doc.setLineWidth(0.5)
+    doc.line(pageWidth / 2 - 90, 97, pageWidth / 2 + 90, 97)
     doc.line(pageWidth / 2 - 90, 97, pageWidth / 2 + 90, 97)
 
     doc.setFontSize(12)
     doc.setTextColor(90, 90, 90)
+    doc.setFontSize(12)
+    doc.setTextColor(90, 90, 90)
     doc.setFont('helvetica', 'normal')
+    doc.text('Por haber completado satisfactoriamente el curso:', pageWidth / 2, 109, { align: 'center' })
     doc.text('Por haber completado satisfactoriamente el curso:', pageWidth / 2, 109, { align: 'center' })
 
     doc.setFontSize(20)
+    doc.setTextColor(sr, sg, sb)
     doc.setTextColor(sr, sg, sb)
     doc.setFont('helvetica', 'bold')
     const tituloLineas = doc.splitTextToSize(certificado.curso.titulo, 180)
@@ -243,7 +297,6 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     if (certificado.curso.nivel) info.push(`Nivel: ${certificado.curso.nivel}`)
     if (certificado.curso.duracion) info.push(`Duración: ${certificado.curso.duracion}`)
-
     if (info.length > 0) {
       doc.setFontSize(10)
       doc.setTextColor(120, 120, 120)
@@ -253,6 +306,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     const fecha = new Date(certificado.emitido_en).toLocaleDateString('es-PE', {
       year: 'numeric', month: 'long', day: 'numeric'
+      year: 'numeric', month: 'long', day: 'numeric'
     })
 
     doc.setFontSize(11)
@@ -260,6 +314,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFont('helvetica', 'normal')
     doc.text(`Fecha de emisión: ${fecha}`, pageWidth / 2, 153, { align: 'center' })
 
+<<<<<<< HEAD
     // ── FIRMAS ──
     const addSignatureBlock = async (x: number, y: number, user: any) => {
       if (!user) return
@@ -316,6 +371,8 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     await addSignatureBlock(pageWidth / 2 - 60, 178, certificado.curso.profesor)
     await addSignatureBlock(pageWidth / 2 + 60, 178, gerenteGeneral)
 
+=======
+>>>>>>> 10c84d9 (cambios)
     // QR
     const qrSize = 32
     const qrX = pageWidth - qrSize - 22
@@ -357,7 +414,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     doc.text(cursoTituloLines, pageWidth / 2, 30, { align: 'center' })
 
-    const yPos = 42
+    let yPos = 42
     const modulos = certificado.curso.modulos ?? []
 
     if (modulos.length === 0) {
@@ -443,7 +500,9 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setTextColor(160, 160, 160)
     doc.text(
       `Certificado emitido a: ${nombreCompleto}  •  Código: ${certificado.codigo_verificacion}`,
+      `Certificado emitido a: ${nombreCompleto}  •  Código: ${certificado.codigo_verificacion}`,
       pageWidth / 2,
+      pageHeight - 8,
       pageHeight - 8,
       { align: 'center' }
     )
