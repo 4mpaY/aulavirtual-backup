@@ -13,25 +13,25 @@ export const metadata = {
 
 const services = [
   {
-    image: '/assets/service-1.jpg',
+    image: '/assets/services/proyectos/supervisión-construccion-sistema-rebombeo.png',
     title: 'Proyectos',
     description: 'Gerencia y supervisión de proyectos industriales con enfoque técnico, metodológico y orientado a resultados.',
     href: '/proyectos',
   },
   {
-    image: '/assets/service-2.jpg',
+    image: '/assets/services/mantenimiento/1.jpeg',
     title: 'Mantenimiento',
     description: 'Soluciones avanzadas de mantenimiento predictivo y proactivo para maximizar disponibilidad y reducir fallas.',
     href: '/mantenimiento',
   },
   {
-    image: '/assets/service-3.jpg',
+    image: '/assets/services/consultoria/3.jpeg',
     title: 'Consultoría',
     description: 'Implementación de estrategias de gestión de activos y mantenimiento alineadas con ISO 55000.',
     href: '/consultoria',
   },
   {
-    image: '/assets/service-4.jpg',
+    image: '/images/cursos.jpg',
     title: 'Capacitación',
     description: 'Programas de formación técnica con metodología ARM Active Mastery™ — teoría, práctica y casos reales.',
     href: '/cursos',

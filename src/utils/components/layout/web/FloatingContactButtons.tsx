@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 const WHATSAPP_NUMBER = '51959436827'
 const PHONE_NUMBER = '+51959436827'
 
@@ -15,7 +17,26 @@ const PhoneIcon = () => (
   </svg>
 )
 
+const tooltipStyle: React.CSSProperties = {
+  position: 'absolute',
+  left: '64px',
+  top: '50%',
+  transform: 'translateY(-50%)',
+  backgroundColor: 'rgba(15, 23, 42, 0.85)',
+  color: '#ffffff',
+  fontSize: '0.72rem',
+  fontWeight: 600,
+  whiteSpace: 'nowrap',
+  padding: '5px 10px',
+  borderRadius: '6px',
+  pointerEvents: 'none',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+}
+
 export default function FloatingContactButtons() {
+  const [hoveredWa, setHoveredWa] = useState(false)
+  const [hoveredPhone, setHoveredPhone] = useState(false)
+
   return (
     <div
       style={{
@@ -29,68 +50,60 @@ export default function FloatingContactButtons() {
       }}
     >
       {/* WhatsApp */}
-      <a
-        href={`https://wa.me/${WHATSAPP_NUMBER}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Contactar por WhatsApp"
-        style={{
-          width: '52px',
-          height: '52px',
-          borderRadius: '50%',
-          backgroundColor: '#25D366',
-          color: '#ffffff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 16px rgba(37, 211, 102, 0.45)',
-          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-          textDecoration: 'none',
-        }}
-        onMouseEnter={e => {
-          const el = e.currentTarget as HTMLAnchorElement
-          el.style.transform = 'scale(1.1)'
-          el.style.boxShadow = '0 6px 20px rgba(37, 211, 102, 0.6)'
-        }}
-        onMouseLeave={e => {
-          const el = e.currentTarget as HTMLAnchorElement
-          el.style.transform = 'scale(1)'
-          el.style.boxShadow = '0 4px 16px rgba(37, 211, 102, 0.45)'
-        }}
-      >
-        <WhatsAppIcon />
-      </a>
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <a
+          href={`https://wa.me/${WHATSAPP_NUMBER}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Contactar por WhatsApp"
+          style={{
+            width: '52px',
+            height: '52px',
+            borderRadius: '50%',
+            backgroundColor: '#25D366',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: hoveredWa ? '0 6px 20px rgba(37, 211, 102, 0.6)' : '0 4px 16px rgba(37, 211, 102, 0.45)',
+            transform: hoveredWa ? 'scale(1.1)' : 'scale(1)',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={() => setHoveredWa(true)}
+          onMouseLeave={() => setHoveredWa(false)}
+        >
+          <WhatsAppIcon />
+        </a>
+        {hoveredWa && <span style={tooltipStyle}>Escríbenos al WhatsApp</span>}
+      </div>
 
       {/* Llamada */}
-      <a
-        href={`tel:${PHONE_NUMBER}`}
-        aria-label="Llamar al negocio"
-        style={{
-          width: '52px',
-          height: '52px',
-          borderRadius: '50%',
-          backgroundColor: '#02115C',
-          color: '#ffffff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 16px rgba(2, 17, 92, 0.4)',
-          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-          textDecoration: 'none',
-        }}
-        onMouseEnter={e => {
-          const el = e.currentTarget as HTMLAnchorElement
-          el.style.transform = 'scale(1.1)'
-          el.style.boxShadow = '0 6px 20px rgba(2, 17, 92, 0.55)'
-        }}
-        onMouseLeave={e => {
-          const el = e.currentTarget as HTMLAnchorElement
-          el.style.transform = 'scale(1)'
-          el.style.boxShadow = '0 4px 16px rgba(2, 17, 92, 0.4)'
-        }}
-      >
-        <PhoneIcon />
-      </a>
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <a
+          href={`tel:${PHONE_NUMBER}`}
+          aria-label="Llamar al negocio"
+          style={{
+            width: '52px',
+            height: '52px',
+            borderRadius: '50%',
+            backgroundColor: '#02115C',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: hoveredPhone ? '0 6px 20px rgba(2, 17, 92, 0.55)' : '0 4px 16px rgba(2, 17, 92, 0.4)',
+            transform: hoveredPhone ? 'scale(1.1)' : 'scale(1)',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={() => setHoveredPhone(true)}
+          onMouseLeave={() => setHoveredPhone(false)}
+        >
+          <PhoneIcon />
+        </a>
+        {hoveredPhone && <span style={tooltipStyle}>Llámanos</span>}
+      </div>
     </div>
   )
 }

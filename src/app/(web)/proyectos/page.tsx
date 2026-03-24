@@ -14,8 +14,9 @@ export default function ProyectosPage() {
   const sections = [
     {
       title: 'Gerencia de Proyectos',
-      image: '/assets/services/gerencia-supervision-proyectos/supervision-de-construccion-de-planta-azucarera-mas-moderna-del-peru.png',
-      fallback: '/assets/service-1.jpg',
+      images: [
+        '/assets/services/proyectos/supervision-de-construccion-de-planta-azucarera-mas-moderna-del-peru.png',
+      ],
       items: [
         'Planificación integral',
         'Control de alcance, costo y cronograma',
@@ -25,8 +26,10 @@ export default function ProyectosPage() {
     },
     {
       title: 'Supervisión Técnica',
-      image: '/assets/services/gerencia-supervision-proyectos/supervision-de-mantenimiento-mayor.png',
-      fallback: '/assets/service-2.jpg',
+      images: [
+        '/assets/services/proyectos/supervision-de-mantenimiento-mayor.png',
+        '/assets/services/proyectos/supervision-de-mantenimiento-mayor-3.png',
+      ],
       items: [
         'Inspección en campo',
         'Verificación de estándares y especificaciones',
@@ -36,8 +39,9 @@ export default function ProyectosPage() {
     },
     {
       title: 'Interventoría y Control',
-      image: '/assets/services/gerencia-supervision-proyectos/supervision-de-mantenimiento-mayor-2.png',
-      fallback: '/assets/service-3.jpg',
+      images: [
+        '/assets/services/proyectos/supervision-de-mantenimiento-mayor-2.png',
+      ],
       items: [
         'Auditoría técnica',
         'Seguimiento de hitos',
@@ -47,8 +51,9 @@ export default function ProyectosPage() {
     },
     {
       title: 'Puesta en Marcha y Comisionamiento',
-      image: '/assets/services/gerencia-supervision-proyectos/supervisión-construccion-sistema-rebombeo.png',
-      fallback: '/assets/service-4.jpg',
+      images: [
+        '/assets/services/proyectos/supervisión-construccion-sistema-rebombeo.png',
+      ],
       items: [
         'Protocolos de arranque',
         'Pruebas funcionales',
@@ -61,14 +66,28 @@ export default function ProyectosPage() {
   return (
     <>
       {/* Hero */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-32 bg-white pt-32 pb-16">
-        <div className="max-w-5xl mx-auto">
+      <section className="relative pt-32 pb-24 lg:pb-36 overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="/assets/services/proyectos/supervisión-construccion-sistema-rebombeo.png"
+            alt="Proyectos ARM"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-[#02115C]/88" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#02115C] via-[#02115C]/70 to-transparent" />
+        </div>
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal>
-            <h1 className="text-5xl lg:text-7xl font-display font-black text-slate-900 mb-8 uppercase leading-[1.1] tracking-tighter">
+            <span className="inline-block text-[#E2231A] text-[10px] font-display font-black uppercase tracking-[0.35em] mb-6 border border-[#E2231A]/50 px-4 py-2 rounded-sm">
+              Servicio ARM
+            </span>
+            <h1 className="text-5xl lg:text-7xl font-display font-black text-white mb-8 uppercase leading-[1.1] tracking-tighter">
               Gerencia y Supervisión de{' '}
               <span className="text-[#E2231A]">Proyectos Industriales</span>
             </h1>
-            <p className="text-lg text-slate-600 leading-relaxed max-w-3xl mb-12 font-sans font-medium">
+            <p className="text-lg text-white/70 leading-relaxed max-w-3xl font-sans font-medium">
               En ARM Ingeniería de Confiabilidad gestionamos y supervisamos proyectos industriales con un enfoque técnico, metodológico y orientado a resultados.
             </p>
           </ScrollReveal>
@@ -83,13 +102,24 @@ export default function ProyectosPage() {
               <div className="mb-20 last:mb-0">
                 <div className={`grid grid-cols-1 md:grid-cols-2 gap-12 items-stretch`}>
                   <div className={idx % 2 === 1 ? 'md:order-2' : ''}>
-                    <div className="relative overflow-hidden rounded-2xl shadow-lg h-full min-h-[400px]">
-                      <Image src={section.fallback} alt={section.title} fill className="object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />
+                    <div className="flex flex-col gap-3 h-full min-h-[400px]">
+                      <div className="relative overflow-hidden rounded-2xl shadow-lg flex-1">
+                        <Image src={section.images[0]} alt={section.title} fill className="object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />
+                      </div>
+                      {section.images[1] && (
+                        <div className="relative overflow-hidden rounded-2xl shadow-lg h-[150px] shrink-0">
+                          <Image src={section.images[1]} alt={section.title} fill className="object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className={idx % 2 === 1 ? 'md:order-1' : ''}>
                     <div className="bg-white rounded-2xl p-8 shadow-sm h-full flex flex-col justify-center">
+                      <span className="text-[10px] font-display font-black text-[#E2231A] uppercase tracking-[0.35em] mb-3 block">
+                        {String(idx + 1).padStart(2, '0')} — Proyectos
+                      </span>
                       <h3 className="text-3xl font-display font-black text-slate-900 mb-8 uppercase">{section.title}</h3>
                       <ul className="space-y-4">
                         {section.items.map((item, i) => (
@@ -119,9 +149,14 @@ export default function ProyectosPage() {
               Contacta con nosotros para conocer cómo podemos ayudarte en la gestión y supervisión de tus proyectos industriales.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/contacto" className="inline-flex items-center justify-center px-8 py-4 bg-[#02115C] text-white font-sans font-bold uppercase tracking-wider hover:bg-[#0A50A1] transition-all duration-300 text-sm">
+              <a
+                href="https://wa.me/51959436827?text=Estoy%20interesado%20en%20el%20servicio%20de%20Gerencia%20y%20Supervisi%C3%B3n%20de%20Proyectos%20Industriales%20de%20ARM"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-8 py-4 bg-[#02115C] text-white font-sans font-bold uppercase tracking-wider hover:bg-[#0A50A1] transition-all duration-300 text-sm"
+              >
                 Solicitar Asesoría
-              </Link>
+              </a>
               <Link href="/" className="inline-flex items-center justify-center px-8 py-4 border-2 border-[#02115C] text-[#02115C] font-sans font-bold uppercase tracking-wider hover:bg-[#02115C] hover:text-white transition-all duration-300 text-sm">
                 Volver al inicio
               </Link>

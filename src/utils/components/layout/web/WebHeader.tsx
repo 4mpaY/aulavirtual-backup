@@ -335,14 +335,13 @@ function NavDrawer({
                       fontWeight: 900,
                       textTransform: 'uppercase',
                       letterSpacing: '0.15em',
-                      }}
+                    }}
                   >
                     Contactos
                   </span>
                 </Link>
-
                 <a
-                  href="https://armingenieria.com"
+                  href="https://armconfiabilidad.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -372,7 +371,7 @@ function NavDrawer({
                       fontWeight: 900,
                       textTransform: 'uppercase',
                       letterSpacing: '0.15em',
-                      }}
+                    }}
                   >
                     Sitio web internacional
                   </span>
@@ -470,7 +469,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
         <div className="flex items-center gap-3 lg:gap-8 flex-1">
           <button
             onClick={() => setMobileOpen(true)}
-            className="flex items-center justify-center w-10 h-10 lg:w-11 lg:h-11 rounded-full transition-all duration-300 bg-[#02115C]/5 text-[#02115C] hover:bg-[#02115C]/10"
+            className="flex items-center justify-center w-10 h-10 lg:w-11 lg:h-11 rounded-full transition-all duration-300 bg-[#02115C]/5 text-[#02115C] hover:bg-[#02115C]/10 cursor-pointer"
             aria-label="Abrir menú"
           >
             <Menu className="w-5 h-5" />

@@ -14,7 +14,10 @@ export default function ConsultoriaPage() {
   const sections = [
     {
       title: 'Gestión de Activos (ISO 55000)',
-      image: '/assets/service-1.jpg',
+      images: [
+        '/assets/services/consultoria/1.jpeg',
+        '/assets/services/consultoria/2.jpeg',
+      ],
       items: [
         'Diagnóstico de madurez',
         'Diseño de sistemas de gestión',
@@ -23,7 +26,10 @@ export default function ConsultoriaPage() {
     },
     {
       title: 'Optimización de Mantenimiento',
-      image: '/assets/service-2.jpg',
+      images: [
+        '/assets/services/consultoria/3.jpeg',
+        '/assets/services/consultoria/4.jpeg',
+      ],
       items: [
         'Estrategias basadas en riesgo',
         'Optimización de planes',
@@ -35,7 +41,10 @@ export default function ConsultoriaPage() {
     },
     {
       title: 'RCM / FMEA',
-      image: '/assets/service-3.jpg',
+      images: [
+        '/assets/services/consultoria/5.jpeg',
+        '/assets/services/consultoria/6.jpeg',
+      ],
       items: [
         'Análisis funcional',
         'Modos de falla',
@@ -44,7 +53,9 @@ export default function ConsultoriaPage() {
     },
     {
       title: 'Auditorías y Diagnósticos',
-      image: '/assets/service-4.jpg',
+      images: [
+        '/assets/services/consultoria/7.jpeg',
+      ],
       items: [
         'Evaluación de desempeño',
         'Benchmarking',
@@ -53,7 +64,9 @@ export default function ConsultoriaPage() {
     },
     {
       title: 'Planes de Mantenimiento',
-      image: '/assets/service-1.jpg',
+      images: [
+        '/assets/services/consultoria/8.jpeg',
+      ],
       items: [
         'Estructuración técnica',
         'Estándares y procedimientos',
@@ -65,14 +78,28 @@ export default function ConsultoriaPage() {
   return (
     <>
       {/* Hero */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-32 bg-white pt-32 pb-16">
-        <div className="max-w-5xl mx-auto">
+      <section className="relative pt-32 pb-24 lg:pb-36 overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="/assets/services/consultoria/4.jpeg"
+            alt="Consultoría ARM"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-[#02115C]/88" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#02115C] via-[#02115C]/70 to-transparent" />
+        </div>
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal>
-            <h1 className="text-5xl lg:text-7xl font-display font-black text-slate-900 mb-8 uppercase leading-[1.1] tracking-tighter">
+            <span className="inline-block text-[#E2231A] text-[10px] font-display font-black uppercase tracking-[0.35em] mb-6 border border-[#E2231A]/50 px-4 py-2 rounded-sm">
+              Servicio ARM
+            </span>
+            <h1 className="text-5xl lg:text-7xl font-display font-black text-white mb-8 uppercase leading-[1.1] tracking-tighter">
               Consultoría en Gestión de Activos y{' '}
               <span className="text-[#E2231A]">Mantenimiento</span>
             </h1>
-            <p className="text-lg text-slate-600 leading-relaxed max-w-3xl mb-12 font-sans font-medium">
+            <p className="text-lg text-white/70 leading-relaxed max-w-3xl font-sans font-medium">
               Acompañamos a las organizaciones en la implementación de estrategias de gestión de activos y mantenimiento alineadas con ISO 55000 y mejores prácticas internacionales.
             </p>
           </ScrollReveal>
@@ -87,13 +114,24 @@ export default function ConsultoriaPage() {
               <div className="mb-20 last:mb-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-stretch">
                   <div className={idx % 2 === 1 ? 'md:order-2' : ''}>
-                    <div className="relative overflow-hidden rounded-2xl shadow-lg h-full min-h-[350px]">
-                      <Image src={section.image} alt={section.title} fill className="object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />
+                    <div className="flex flex-col gap-3 h-full min-h-[380px]">
+                      <div className="relative overflow-hidden rounded-2xl shadow-lg flex-1">
+                        <Image src={section.images[0]} alt={section.title} fill className="object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />
+                      </div>
+                      {section.images[1] && (
+                        <div className="relative overflow-hidden rounded-2xl shadow-lg h-[150px] shrink-0">
+                          <Image src={section.images[1]} alt={section.title} fill className="object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent" />
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className={idx % 2 === 1 ? 'md:order-1' : ''}>
                     <div className="bg-white rounded-2xl p-8 shadow-sm h-full flex flex-col justify-center">
+                      <span className="text-[10px] font-display font-black text-[#E2231A] uppercase tracking-[0.35em] mb-3 block">
+                        {String(idx + 1).padStart(2, '0')} — Consultoría
+                      </span>
                       <h3 className="text-3xl font-display font-black text-slate-900 mb-8 uppercase">{section.title}</h3>
                       <ul className="space-y-4">
                         {section.items.map((item, i) => (
@@ -123,9 +161,14 @@ export default function ConsultoriaPage() {
               Alinéate con ISO 55000 e implementa las mejores prácticas internacionales en gestión de mantenimiento y activos.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link href="/contacto" className="inline-flex items-center justify-center px-8 py-4 bg-[#02115C] text-white font-sans font-bold uppercase tracking-wider hover:bg-[#0A50A1] transition-all duration-300 text-sm">
+              <a
+                href="https://wa.me/51959436827?text=Estoy%20interesado%20en%20el%20servicio%20de%20Consultor%C3%ADa%20en%20Gesti%C3%B3n%20de%20Activos%20y%20Mantenimiento%20de%20ARM"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-8 py-4 bg-[#02115C] text-white font-sans font-bold uppercase tracking-wider hover:bg-[#0A50A1] transition-all duration-300 text-sm"
+              >
                 Solicitar Asesoría
-              </Link>
+              </a>
               <Link href="/" className="inline-flex items-center justify-center px-8 py-4 border-2 border-[#02115C] text-[#02115C] font-sans font-bold uppercase tracking-wider hover:bg-[#02115C] hover:text-white transition-all duration-300 text-sm">
                 Volver al inicio
               </Link>

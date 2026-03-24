@@ -43,7 +43,7 @@ const WebFooter = () => {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="flex items-center gap-2 text-gray-600 hover:text-[#02115C] transition-colors duration-300 group font-bold"
+                    className="flex items-center gap-2 text-gray-600 hover:text-[#02115C] transition-colors duration-300 group"
                   >
                     <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                     <span className="group-hover:translate-x-1 transition-transform duration-300">{link.label}</span>
@@ -113,7 +113,7 @@ const WebFooter = () => {
                   href="https://wa.me/51959436827"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-[#02115C] transition-colors font-bold"
+                  className="text-gray-500 hover:text-[#02115C] transition-colors"
                 >
                   +51 959 436 827
                 </a>
@@ -124,7 +124,7 @@ const WebFooter = () => {
                 </div>
                 <a
                   href="mailto:arm.confiabilidad@gmail.com"
-                  className="text-gray-500 hover:text-[#02115C] transition-colors font-bold truncate"
+                  className="text-gray-500 hover:text-[#02115C] transition-colors truncate"
                 >
                   arm.confiabilidad@gmail.com
                 </a>
@@ -144,6 +144,9 @@ const WebFooter = () => {
             </Link>
             <Link href="/terminos-y-condiciones" className="hover:text-[#02115C] transition-colors">
               Términos y Condiciones
+            </Link>
+            <Link href="/politica-de-cambios-y-devoluciones" className="hover:text-[#02115C] transition-colors">
+              Política de Devoluciones
             </Link>
           </div>
         </div>
