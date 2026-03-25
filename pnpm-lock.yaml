@@ -74,9 +74,6 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      '@types/qrcode':
-        specifier: ^1.5.6
-        version: 1.5.6
       axios:
         specifier: ^1.13.5
         version: 1.13.6
@@ -204,6 +201,9 @@ importers:
       '@types/nodemailer':
         specifier: ^7.0.11
         version: 7.0.11
+      '@types/qrcode':
+        specifier: ^1.5.6
+        version: 1.5.6
       '@types/react':
         specifier: ^18.2.64
         version: 18.3.28
@@ -799,7 +799,7 @@ packages:
   '@mui/base@5.0.0-beta.38':
     resolution: {integrity: sha512-AsjD6Y1X5A1qndxz8xCcR8LDqv31aiwlgWMPxFAX/kCKiIGKlK65yMeVZ62iQr/6LBz+9hSKLiD1i4TZdAHKcQ==}
     engines: {node: '>=12.0.0'}
-    deprecated: This package has been replaced by @base-ui/react
+    deprecated: This package has been replaced by @base-ui-components/react
     peerDependencies:
       '@types/react': ^17.0.0 || ^18.0.0
       react: ^17.0.0 || ^18.0.0

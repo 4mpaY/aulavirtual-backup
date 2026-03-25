@@ -42,6 +42,7 @@ interface PaymentFormProps {
     titulo: string
     slug: string
     precio: number
+    moneda: string
   }[]
   appliedCouponCode?: string
   finalTotal?: number
