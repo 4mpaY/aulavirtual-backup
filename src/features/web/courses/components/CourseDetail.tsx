@@ -322,17 +322,6 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                   <Grid item xs={6}>
                     <Stack direction="row" spacing={1.5} alignItems="center">
                       <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
-                        <i className="tabler-users" style={{ fontSize: '1.4rem' }} />
-                      </Avatar>
-                      <Box>
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Inscritos</Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>70 alumnos</Typography>
-                      </Box>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
                         <i className="tabler-clock" style={{ fontSize: '1.4rem' }} />
                       </Avatar>
                       <Box>

@@ -52,6 +52,17 @@ export const crearUsuarioSchema = z.object({
     .boolean()
     .optional()
     .default(true),
+  cargo: z
+    .string()
+    .trim()
+    .max(100, 'El cargo no puede exceder 100 caracteres')
+    .optional()
+    .or(z.literal('')),
+  firma: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal('')),
 })
 
 export type CrearUsuarioDto = z.infer<typeof crearUsuarioSchema>
@@ -108,7 +119,18 @@ export const actualizarUsuarioSchema = z.object({
     .string()
     .trim()
     .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .optional(),
+  cargo: z
+    .string()
+    .trim()
+    .max(100, 'El cargo no puede exceder 100 caracteres')
     .optional()
+    .or(z.literal('')),
+  firma: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal('')),
 })
 
 export type ActualizarUsuarioDto = z.infer<typeof actualizarUsuarioSchema>
@@ -144,7 +166,18 @@ export const actualizarPerfilSchema = z.object({
     .string()
     .trim()
     .url('URL de avatar inválida')
+    .optional(),
+  cargo: z
+    .string()
+    .trim()
+    .max(100, 'El cargo no puede exceder 100 caracteres')
     .optional()
+    .or(z.literal('')),
+  firma: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal('')),
 })
 
 export type ActualizarPerfilDto = z.infer<typeof actualizarPerfilSchema>

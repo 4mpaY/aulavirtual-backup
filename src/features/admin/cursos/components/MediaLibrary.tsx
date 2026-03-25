@@ -76,7 +76,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                     <TextField
                         fullWidth
                         size="small"
-                        placeholder="Buscar imágenes..."
+                        placeholder={acceptType === 'IMAGEN' ? "Buscar imágenes..." : "Buscar recursos..."}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         InputProps={{
@@ -94,7 +94,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                         disabled={uploadMutation.isPending}
                         sx={{ whiteSpace: 'nowrap' }}
                     >
-                        {uploadMutation.isPending ? 'Subiendo...' : 'Subir Imagen'}
+                        {uploadMutation.isPending ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : 'Subir Recurso')}
                         <input
                             type="file"
                             hidden
@@ -140,7 +140,9 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                                         }}
                                     >
                                         <i className="tabler-plus text-3xl text-primary" />
-                                        <Typography variant="body2" color="primary" sx={{ mt: 1, fontWeight: 600 }}>Nueva Imagen</Typography>
+                                        <Typography variant="body2" color="primary" sx={{ mt: 1, fontWeight: 600 }}>
+                                            {acceptType === 'IMAGEN' ? 'Nueva Imagen' : 'Nuevo Recurso'}
+                                        </Typography>
                                         <input
                                             type="file"
                                             hidden
@@ -156,7 +158,9 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                             <Grid item xs={12}>
                                 <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'action.hover', borderRadius: 4 }}>
                                     <i className="tabler-photo-off text-5xl text-textDisabled" />
-                                    <Typography sx={{ mt: 2 }} color="text.secondary">No se encontraron imágenes</Typography>
+                                    <Typography sx={{ mt: 2 }} color="text.secondary">
+                                        {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : 'No se encontraron recursos'}
+                                    </Typography>
                                 </Box>
                             </Grid>
                         ) : (
@@ -175,18 +179,65 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                                             onSelect(item.url, item.nombre)
                                             onClose()
                                         }}>
-                                            <CardMedia
-                                                component="img"
-                                                height="120"
-                                                image={item.url}
-                                                alt={item.nombre}
-                                                sx={{ objectFit: 'cover' }}
-                                            />
-                                            <Box sx={{ p: 1.5, bgcolor: 'background.paper' }}>
+                                            {item.tipo === 'IMAGEN' ? (
+                                                <Box sx={{ position: 'relative', height: 120 }}>
+                                                    <CardMedia
+                                                        component="img"
+                                                        height="120"
+                                                        image={item.url}
+                                                        alt={item.nombre}
+                                                        sx={{ objectFit: 'cover' }}
+                                                        onError={(e: any) => {
+                                                            e.target.style.display = 'none'
+                                                            e.target.nextSibling.style.display = 'flex'
+                                                        }}
+                                                    />
+                                                    <Box sx={{ 
+                                                        display: 'none',
+                                                        position: 'absolute',
+                                                        top: 0, left: 0, right: 0, bottom: 0,
+                                                        alignItems: 'center', 
+                                                        justifyContent: 'center', 
+                                                        bgcolor: 'action.hover',
+                                                        color: 'text.secondary'
+                                                    }}>
+                                                        <i className="tabler-photo-off text-5xl" />
+                                                    </Box>
+                                                </Box>
+                                            ) : (
+                                                <Box sx={{ 
+                                                    height: 120, 
+                                                    display: 'flex', 
+                                                    alignItems: 'center', 
+                                                    justifyContent: 'center', 
+                                                    bgcolor: 'action.hover',
+                                                    color: 'text.secondary'
+                                                }}>
+                                                    {item.tipo === 'VIDEO' ? (
+                                                        <i className="tabler-video text-5xl" />
+                                                    ) : item.mimetype?.includes('pdf') ? (
+                                                        <i className="tabler-file-type-pdf text-5xl text-error" />
+                                                    ) : item.mimetype?.includes('word') || item.mimetype?.includes('doc') ? (
+                                                        <i className="tabler-file-description text-5xl text-info" />
+                                                    ) : item.mimetype?.includes('sheet') || item.mimetype?.includes('excel') || item.mimetype?.includes('xls') ? (
+                                                        <i className="tabler-file-spreadsheet text-5xl text-success" />
+                                                    ) : (
+                                                        <i className="tabler-file text-5xl" />
+                                                    )}
+                                                </Box>
+                                            )}
+                                            <Box sx={{ p: 1.5, bgcolor: 'background.paper', height: 60, display: 'flex', alignItems: 'center' }}>
                                                 <Typography
                                                     variant="caption"
-                                                    noWrap
-                                                    sx={{ display: 'block', fontWeight: 600 }}
+                                                    sx={{ 
+                                                        fontWeight: 600,
+                                                        display: '-webkit-box',
+                                                        WebkitLineClamp: 2,
+                                                        WebkitBoxOrient: 'vertical',
+                                                        overflow: 'hidden',
+                                                        lineHeight: 1.2,
+                                                        width: '100%'
+                                                    }}
                                                 >
                                                     {item.nombre}
                                                 </Typography>

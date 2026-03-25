@@ -25,6 +25,7 @@ import { getSession } from 'next-auth/react'
 
 import { AxiosPerfil } from '../http/axiosPerfil'
 import type { Perfil } from '../entity/Perfil'
+import SignatureUpload from '../../admin/usuarios/components/SignatureUpload'
 
 interface Props {
   user: Perfil
@@ -42,6 +43,8 @@ export default function UserProfileForm({ user }: Props) {
     celular: user.celular || '',
     numero_documento: user.numero_documento || '',
     biografia: user.biografia || '',
+    cargo: user.cargo || '',
+    firma: user.firma || '',
     contrasena: '',
     confirmarContrasena: ''
   })
@@ -246,6 +249,34 @@ export default function UserProfileForm({ user }: Props) {
                   placeholder="Cuéntanos un poco sobre ti..."
                 />
               </Grid>
+
+              {(user.rol === 'ADMIN' || user.rol === 'PROFESOR') && (
+                <>
+                  <Grid item xs={12}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, mt: 2, mb: 1 }}>Información de Firma</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      Utilizada para firmar los certificados de los cursos que dictas.
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Cargo / Título"
+                      name="cargo"
+                      value={formData.cargo}
+                      onChange={handleChange}
+                      placeholder="Ej: Instructor de Desarrollo Web"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="subtitle2" sx={{ mb: 2 }}>Imagen de Firma</Typography>
+                    <SignatureUpload
+                      value={formData.firma || ''}
+                      onChange={(url) => setFormData(prev => ({ ...prev, firma: url }))}
+                    />
+                  </Grid>
+                </>
+              )}
 
               <Grid item xs={12}>
                 <Typography variant="h6" sx={{ fontWeight: 700, mt: 2, mb: 1 }}>Cambio de Contraseña</Typography>

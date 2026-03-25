@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { join } from 'path'
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import { randomUUID } from 'crypto'
 
 import prisma from '@/utils/libs/prisma'
@@ -17,6 +17,13 @@ const ALLOWED_MIMES: Record<string, string> = {
   'image/gif': 'gif',
   'application/pdf': 'pdf',
   'video/mp4': 'mp4',
+  'video/webm': 'webm',
+
+  // Documentos de Office
+  'application/msword': 'doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'application/vnd.ms-excel': 'xls',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx'
   'video/webm': 'webm',
 
   // Documentos de Office
@@ -40,7 +47,10 @@ function verifyMagicBytes(buffer: Buffer, mimeType: string): boolean {
     'image/gif': [[0x47, 0x49, 0x46, 0x38]],
     'image/webp': [[0x52, 0x49, 0x46, 0x46]], // RIFF
     'application/pdf': [[0x25, 0x50, 0x44, 0x46]], // %PDF
-    'video/mp4': [[0x00, 0x00, 0x00], [0x66, 0x74, 0x79, 0x70]],
+    'video/mp4': [
+      [0x00, 0x00, 0x00],
+      [0x66, 0x74, 0x79, 0x70]
+    ],
     'video/webm': [[0x1a, 0x45, 0xdf, 0xa3]],
 
     // Office antiguo (OLE2 / CFBF)
@@ -96,7 +106,11 @@ export async function POST(request: Request) {
     const contentLength = parseInt(request.headers.get('content-length') || '0', 10)
 
     if (contentLength > MAX_FILE_SIZE) {
-      return ApiResponse.error(request, `El archivo supera el tamaño máximo permitido (${MAX_FILE_SIZE / 1024 / 1024}MB)`, 413)
+      return ApiResponse.error(
+        request,
+        `El archivo supera el tamaño máximo permitido (${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+        413
+      )
     }
 
     const formData = await request.formData()
@@ -108,7 +122,11 @@ export async function POST(request: Request) {
 
     // 🔐 SEGURIDAD: Verificar tamaño real del archivo
     if (file.size > MAX_FILE_SIZE) {
-      return ApiResponse.error(request, `El archivo supera el tamaño máximo permitido (${MAX_FILE_SIZE / 1024 / 1024}MB)`, 413)
+      return ApiResponse.error(
+        request,
+        `El archivo supera el tamaño máximo permitido (${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+        413
+      )
     }
 
     // 🔐 SEGURIDAD: Validar MIME type contra lista blanca
@@ -128,6 +146,9 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'El contenido del archivo no coincide con su tipo declarado', 400)
     }
 
+    const { searchParams } = new URL(request.url)
+    const isSignature = searchParams.get('isSignature') === 'true'
+
     // 🔐 SEGURIDAD: Extensión determinada por MIME type (no por nombre del usuario)
     const safeExtension = ALLOWED_MIMES[file.type]
     const id = randomUUID()
@@ -135,10 +156,19 @@ export async function POST(request: Request) {
     const nombreOriginal = file.name.replace(/[^a-zA-Z0-9._-]/g, '_') // Sanitizar nombre original
 
     // Ruta relativa para la URL y ruta absoluta para guardar
-    const relativePath = `/uploads/cursos/${nombreArchivo}`
-    const absolutePath = join(process.cwd(), 'public', 'uploads', 'cursos', nombreArchivo)
+    const folder = isSignature ? 'firmas' : 'cursos'
+    const relativePath = `/uploads/${folder}/${nombreArchivo}`
+    const absolutePath = join(process.cwd(), 'public', 'uploads', folder, nombreArchivo)
+
+    // Asegurar que el directorio existe
+    await mkdir(join(process.cwd(), 'public', 'uploads', folder), { recursive: true })
 
     await writeFile(absolutePath, buffer)
+
+    // Si es firma, no guardamos en la tabla Media para que no aparezca en la galería general
+    if (isSignature) {
+      return ApiResponse.success(request, { url: relativePath }, 201)
+    }
 
     const tipo = file.type.startsWith('image/') ? 'IMAGEN' : file.type.startsWith('video/') ? 'VIDEO' : 'OTRO'
 

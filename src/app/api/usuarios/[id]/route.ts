@@ -42,6 +42,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
         celular: true,
         avatar: true,
         biografia: true,
+        cargo: true,
+        firma: true,
         rol: true,
         esta_activo: true,
         creado_en: true,
@@ -156,6 +158,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         celular: true,
         avatar: true,
         biografia: true,
+        cargo: true,
+        firma: true,
         rol: true,
         esta_activo: true,
         actualizado_en: true

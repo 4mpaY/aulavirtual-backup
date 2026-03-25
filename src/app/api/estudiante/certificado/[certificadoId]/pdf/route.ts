@@ -5,7 +5,7 @@ import { join } from 'path'
 
 import { NextResponse } from 'next/server'
 
-import * as QRCode from 'qrcode'
+import QRCode from 'qrcode'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
@@ -26,22 +26,25 @@ function hexToRgb(hex: string): [number, number, number] {
   }
 }
 
-/** Intenta cargar una imagen local desde /public */
-async function loadLocalImage(url: string): Promise<Buffer | null> {
+/** Intenta cargar una imagen (local o remota) y devuelve Buffer */
+async function fetchImageBuffer(url: string | null): Promise<Buffer | null> {
   try {
     if (!url) return null
 
-    // Si es una URL completa (http...), jsPDF puede manejarla a veces but here we want buffer for security/stability
-    // For now we only handle relative public paths
+    // Si es ruta local /public
     if (url.startsWith('/')) {
       const cleanUrl = url.replace(/\/+/g, '/')
       const filePath = join(process.cwd(), 'public', cleanUrl)
-      const buffer = await readFile(filePath)
 
-      return buffer
+      return await readFile(filePath)
     }
 
-    return null
+    // Si es URL remota
+    const response = await fetch(url)
+
+    if (!response.ok) return null
+
+    return Buffer.from(await response.arrayBuffer())
   } catch {
     return null
   }
@@ -51,10 +54,7 @@ async function loadLocalImage(url: string): Promise<Buffer | null> {
  * GET /api/estudiante/certificado/[certificadoId]/pdf
  * Genera y descarga el PDF del certificado
  */
-export async function GET(
-  request: Request,
-  { params }: { params: { certificadoId: string } }
-) {
+export async function GET(request: Request, { params }: { params: { certificadoId: string } }) {
   try {
     const auth = await requireAuth(request)
 
@@ -72,6 +72,14 @@ export async function GET(
               titulo: true,
               duracion: true,
               nivel: true,
+              profesor: {
+                select: {
+                  nombre: true,
+                  apellido: true,
+                  cargo: true,
+                  firma: true
+                }
+              },
               modulos: {
                 orderBy: { orden: 'asc' },
                 select: {
@@ -120,7 +128,16 @@ export async function GET(
     })
 
     // Logo
-    const logoBuffer = logoUrl ? await loadLocalImage(logoUrl) : null
+    const logoBuffer = logoUrl ? await fetchImageBuffer(logoUrl) : null
+
+    // Gerente General
+    const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID
+    console.log('PDF: Gerente General ID:', gerenteGeneralId)
+    const gerenteGeneral = gerenteGeneralId ? await prisma.usuario.findUnique({
+      where: { id: gerenteGeneralId },
+      select: { nombre: true, apellido: true, cargo: true, firma: true }
+    }) : null
+    console.log('PDF: Gerente General Data:', !!gerenteGeneral, gerenteGeneral?.nombre)
 
     // ================================================================
     const { jsPDF } = await import('jspdf')
@@ -154,7 +171,7 @@ export async function GET(
     if (logoBuffer) {
       try {
         const ext = logoUrl.split('.').pop()?.toUpperCase() ?? 'PNG'
-        const mimeExt = ext === 'JPG' ? 'JPEG' : (ext === 'SVG' ? 'PNG' : ext)
+        const mimeExt = ext === 'JPG' ? 'JPEG' : ext === 'SVG' ? 'PNG' : ext
         const base64Logo = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
 
         doc.addImage(base64Logo, mimeExt, 14, 10, 40, 16)
@@ -222,13 +239,59 @@ export async function GET(
     }
 
     const fecha = new Date(certificado.emitido_en).toLocaleDateString('es-PE', {
-      year: 'numeric', month: 'long', day: 'numeric'
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     })
 
     doc.setFontSize(11)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text(`Fecha de emisión: ${fecha}`, pageWidth / 2, 153, { align: 'center' })
+
+    // ── FIRMAS ──
+    const addSignatureBlock = async (x: number, y: number, user: any) => {
+      if (!user) return
+
+      // Línea
+      doc.setDrawColor(180, 180, 180)
+      doc.setLineWidth(0.5)
+      doc.line(x - 30, y, x + 30, y)
+
+      // Imagen firma
+      if (user.firma) {
+        try {
+          console.log(`PDF: Cargando firma para ${user.nombre}: ${user.firma}`)
+          const signatureBuffer = await fetchImageBuffer(user.firma)
+          if (signatureBuffer) {
+            console.log(`PDF: Firma cargada exitosamente (${signatureBuffer.length} bytes)`)
+            const ext = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+            const mime = ext === 'jpg' ? 'JPEG' : ext.toUpperCase()
+            doc.addImage(signatureBuffer, mime, x - 25, y - 22, 50, 20)
+          } else {
+            console.log(`PDF: Falló la carga de la firma del buffer para ${user.nombre}`)
+          }
+        } catch (e) {
+          console.error("Error al cargar firma:", e)
+        }
+      }
+
+      // Nombre
+      doc.setFontSize(10)
+      doc.setTextColor(30, 40, 50)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`${user.nombre} ${user.apellido}`.toUpperCase(), x, y + 6, { align: 'center' })
+
+      // Cargo
+      doc.setFontSize(8)
+      doc.setTextColor(100, 100, 100)
+      doc.setFont('helvetica', 'normal')
+      doc.text(user.cargo || 'Funcionario', x, y + 10, { align: 'center' })
+    }
+
+    // Renderizar bloques de firmas (Instructor a la izquierda, Gerente a la derecha)
+    await addSignatureBlock(pageWidth / 2 - 60, 178, certificado.curso.profesor)
+    await addSignatureBlock(pageWidth / 2 + 60, 178, gerenteGeneral)
 
     // QR
     const qrSize = 32
