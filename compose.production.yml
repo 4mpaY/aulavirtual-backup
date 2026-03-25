@@ -1,0 +1,96 @@
+services:
+  database:
+    image: postgres:16-alpine
+    restart: always
+    hostname: ${DB_HOST}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    environment:
+      DATABASE_HOST: ${DB_HOST}
+      POSTGRES_PORT: ${DB_PORT}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      BASEPATH: ${BASEPATH}
+    networks:
+      - aula-network
+    volumes:
+      - ./docker/database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./logs/database:/var/log/postgresql
+      - ./data/database:/var/lib/postgresql/data
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf -p ${DB_PORT}
+  web:
+    image: peves/aula-virtual:v1.0.3
+    restart: always
+    container_name: aula-virtual-web
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    networks:
+      - aula-network
+    volumes:
+      - ./public/uploads:/app/public/uploads
+    depends_on:
+      - database
+ # Nginx temporal SOLO puerto 80 (para obtener certificado SSL)
+  nginx80:
+    image: nginx:latest
+    container_name: aula-virtual-nginx80
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx-http-only.conf:/etc/nginx/nginx.conf:ro
+      - ./letsencrypt/webroot:/var/www/letsencrypt
+    depends_on:
+      - database
+      - web
+    networks:
+      - aula-network
+  nginx:
+    image: nginx:latest
+    container_name: aula-virtual-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./letsencrypt/webroot:/var/www/letsencrypt
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - database
+      - web
+    networks:
+      - aula-network
+  letsencrypt:
+    image: certbot/certbot
+    container_name: certbot
+    entrypoint: ["certbot"]
+    command:
+      - certonly
+      - --webroot
+      - -w
+      - /var/www/letsencrypt
+      - -d
+      - armconfiabilidad.com
+      - --non-interactive
+      - --agree-tos
+      - --email
+      - arm.confiabilidad@gmail.com
+      - --rsa-key-size
+      - "4096"
+      - --keep-until-expiring
+      - --verbose
+      - --preferred-challenges
+      - http
+    networks:
+      - aula-network
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - ./letsencrypt/webroot:/var/www/letsencrypt
+    environment:
+      - TERM=xterm
+
+networks:
+  aula-network:
+    driver: bridge
