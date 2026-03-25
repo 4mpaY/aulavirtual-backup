@@ -132,6 +132,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     // Gerente General
     const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID
+<<<<<<< HEAD
 
     console.log('PDF: Gerente General ID:', gerenteGeneralId)
 
@@ -142,6 +143,13 @@ export async function GET(request: Request, { params }: { params: { certificadoI
         })
       : null
 
+=======
+    console.log('PDF: Gerente General ID:', gerenteGeneralId)
+    const gerenteGeneral = gerenteGeneralId ? await prisma.usuario.findUnique({
+      where: { id: gerenteGeneralId },
+      select: { nombre: true, apellido: true, cargo: true, firma: true }
+    }) : null
+>>>>>>> 7646ef3 (cambios)
     console.log('PDF: Gerente General Data:', !!gerenteGeneral, gerenteGeneral?.nombre)
 
     // ================================================================
@@ -266,18 +274,28 @@ export async function GET(request: Request, { params }: { params: { certificadoI
         try {
           console.log(`PDF: Cargando firma para ${user.nombre}: ${user.firma}`)
           const signatureBuffer = await fetchImageBuffer(user.firma)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7646ef3 (cambios)
           if (signatureBuffer) {
             console.log(`PDF: Firma cargada exitosamente (${signatureBuffer.length} bytes)`)
             const ext = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
             const mime = ext === 'jpg' ? 'JPEG' : ext.toUpperCase()
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7646ef3 (cambios)
             doc.addImage(signatureBuffer, mime, x - 25, y - 22, 50, 20)
           } else {
             console.log(`PDF: Falló la carga de la firma del buffer para ${user.nombre}`)
           }
         } catch (e) {
+<<<<<<< HEAD
           console.error('Error al cargar firma:', e)
+=======
+          console.error("Error al cargar firma:", e)
+>>>>>>> 7646ef3 (cambios)
         }
       }
 
