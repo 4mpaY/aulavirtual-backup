@@ -8,4 +8,6 @@ export interface Perfil {
   biografia?: string | null
   avatar?: string | null
   rol: string
+  cargo?: string | null
+  firma?: string | null
 }

@@ -16,6 +16,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import { crearUsuarioSchema, type CrearUsuarioDto } from '@/schemas/usuario.schema'
 
 import { useCreateUsuario } from '../hooks/useUsuarios'
+import SignatureUpload from './SignatureUpload'
 
 type CreateUsuarioModalProps = {
   open: boolean
@@ -41,7 +42,9 @@ const CreateUsuarioModal = ({ open, handleClose, onSuccess }: CreateUsuarioModal
     celular: '',
     biografia: '',
     rol: Rol.ESTUDIANTE,
-    esta_activo: true
+    esta_activo: true,
+    cargo: '',
+    firma: ''
   }
 
   const handleSubmit = async (values: CrearUsuarioDto, { setSubmitting, resetForm }: FormikHelpers<CrearUsuarioDto>) => {
@@ -78,7 +81,7 @@ const CreateUsuarioModal = ({ open, handleClose, onSuccess }: CreateUsuarioModal
         validationSchema={toFormikValidationSchema(crearUsuarioSchema)}
         onSubmit={handleSubmit}
       >
-        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting }) => (
+        {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting, setFieldValue }) => (
           <form onSubmit={handleSubmit}>
             <FormWrapper>
               <Grid container spacing={3}>
@@ -176,6 +179,41 @@ const CreateUsuarioModal = ({ open, handleClose, onSuccess }: CreateUsuarioModal
                     }}
                   />
                 </Grid>
+
+                {(values.rol === Rol.ADMIN || values.rol === Rol.PROFESOR) && (
+                  <>
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField
+                        fullWidth
+                        label='Cargo'
+                        name='cargo'
+                        placeholder='Ej: Gerente General / Instructor'
+                        value={values.cargo}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.cargo && Boolean(errors.cargo)}
+                        helperText={touched.cargo && errors.cargo}
+                        disabled={isSubmitting}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <i className='tabler-user-cog text-xl text-textSecondary' />
+                            </InputAdornment>
+                          )
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant='subtitle2' sx={{ mb: 2 }}>Firma Digital (Imagen)</Typography>
+                      <SignatureUpload
+                        value={values.firma || ''}
+                        onChange={(url) => setFieldValue('firma', url)}
+                        disabled={isSubmitting}
+                      />
+                    </Grid>
+                  </>
+                )}
 
                 {/* Sección: Contacto y Cuenta */}
                 <Grid item xs={12} sx={{ mt: 2 }}>

@@ -53,7 +53,9 @@ export async function GET(req: Request) {
         celular: true,
         biografia: true,
         avatar: true,
-        rol: true
+        rol: true,
+        cargo: true,
+        firma: true
       }
     })
 
@@ -99,7 +101,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
 
-    const { nombre, apellido, celular, numero_documento, biografia, contrasena, avatar } = await req.json()
+    const { nombre, apellido, celular, numero_documento, biografia, contrasena, avatar, cargo, firma } = await req.json()
 
     if (!nombre || !apellido || !numero_documento) {
       return NextResponse.json({ status: false, message: 'Faltan campos obligatorios' }, { status: 400 })
@@ -119,7 +121,9 @@ export async function PUT(req: Request) {
       celular,
       numero_documento,
       biografia,
-      avatar
+      avatar,
+      cargo,
+      firma
     }
 
     // Verify document uniqueness if changed
@@ -156,6 +160,8 @@ export async function PUT(req: Request) {
         biografia: true,
         avatar: true,
         rol: true,
+        cargo: true,
+        firma: true,
         esta_activo: true,
         actualizado_en: true
       }

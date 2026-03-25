@@ -9,6 +9,8 @@ export interface Usuario {
   avatar: string | null
   biografia: string | null
   celular: string | null
+  cargo: string | null
+  firma: string | null
   rol: Rol
   esta_activo: boolean
   creado_en: string

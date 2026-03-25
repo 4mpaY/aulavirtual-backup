@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { join } from 'path'
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import { randomUUID } from 'crypto'
 
 import prisma from '@/utils/libs/prisma'
@@ -139,6 +139,9 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'El contenido del archivo no coincide con su tipo declarado', 400)
     }
 
+    const { searchParams } = new URL(request.url)
+    const isSignature = searchParams.get('isSignature') === 'true'
+
     // 🔐 SEGURIDAD: Extensión determinada por MIME type (no por nombre del usuario)
     const safeExtension = ALLOWED_MIMES[file.type]
     const id = randomUUID()
@@ -146,10 +149,19 @@ export async function POST(request: Request) {
     const nombreOriginal = file.name.replace(/[^a-zA-Z0-9._-]/g, '_') // Sanitizar nombre original
 
     // Ruta relativa para la URL y ruta absoluta para guardar
-    const relativePath = `/uploads/cursos/${nombreArchivo}`
-    const absolutePath = join(process.cwd(), 'public', 'uploads', 'cursos', nombreArchivo)
+    const folder = isSignature ? 'firmas' : 'cursos'
+    const relativePath = `/uploads/${folder}/${nombreArchivo}`
+    const absolutePath = join(process.cwd(), 'public', 'uploads', folder, nombreArchivo)
+
+    // Asegurar que el directorio existe
+    await mkdir(join(process.cwd(), 'public', 'uploads', folder), { recursive: true })
 
     await writeFile(absolutePath, buffer)
+
+    // Si es firma, no guardamos en la tabla Media para que no aparezca en la galería general
+    if (isSignature) {
+      return ApiResponse.success(request, { url: relativePath }, 201)
+    }
 
     const tipo = file.type.startsWith('image/') ? 'IMAGEN' : file.type.startsWith('video/') ? 'VIDEO' : 'OTRO'
 

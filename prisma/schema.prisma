@@ -18,6 +18,8 @@ model Usuario {
   google_id          String?           @unique
   biografia          String?
   celular            String?
+  cargo              String?
+  firma              String?
   rol                Rol               @default(ESTUDIANTE)
   esta_activo        Boolean           @default(true)
   creado_en          DateTime          @default(now())

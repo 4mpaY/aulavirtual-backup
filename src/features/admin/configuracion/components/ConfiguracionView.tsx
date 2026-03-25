@@ -15,14 +15,17 @@ import {
   InputAdornment,
   Tabs,
   Tab,
-  Divider
+  Divider,
+  MenuItem
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { getSession } from 'next-auth/react'
+import { Rol } from '@prisma/client'
 
 import { AxiosConfiguracion } from '../http/axiosConfiguracion'
 import type { Configuracion } from '../entity/Configuracion'
 import MediaLibrary from '../../cursos/components/MediaLibrary'
+import { useUsuarios } from '../../usuarios/hooks/useUsuarios'
 
 interface ConfiguracionViewProps {
   initialData?: Configuracion[]
@@ -51,6 +54,75 @@ function CustomTabPanel(props: TabPanelProps) {
         </Box>
       )}
     </div>
+  )
+}
+
+function CertificadosSettings({ config, onInputChange }: { config: any, onInputChange: (clave: string, valor: string) => void }) {
+  const { data: usuarios, isLoading } = useUsuarios()
+  
+  // Filtrar solo Admins y Profesores para que puedan ser Gerentes
+  const candidatos = (usuarios || []).filter(u => u.rol === Rol.ADMIN || u.rol === Rol.PROFESOR)
+
+  return (
+    <Stack spacing={4}>
+      <Box>
+        <Typography variant='h6' gutterBottom>Configuración de Firmas</Typography>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+          Selecciona al usuario que actuará como <strong>Gerente General</strong> en los certificados. 
+          Asegúrate de que este usuario tenga su <strong>Cargo</strong> y <strong>Firma</strong> configurados en su perfil.
+        </Typography>
+        
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label='Designar Gerente General'
+              value={config.CERTIFICADO_GERENTE_GENERAL_ID || ''}
+              onChange={(e) => onInputChange('CERTIFICADO_GERENTE_GENERAL_ID', e.target.value)}
+              disabled={isLoading}
+              helperText='Este usuario aparecerá como la segunda firma en todos los certificados.'
+            >
+              <MenuItem value=''>
+                <em>Ninguno seleccionado</em>
+              </MenuItem>
+              {candidatos.map((u) => (
+                <MenuItem key={u.id} value={u.id}>
+                  {u.nombre} {u.apellido} ({u.rol})
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
+      </Box>
+
+      {config.CERTIFICADO_GERENTE_GENERAL_ID && candidatos.find(u => u.id === config.CERTIFICADO_GERENTE_GENERAL_ID) && (
+        <Paper variant='outlined' sx={{ p: 3, bgcolor: 'action.hover' }}>
+          <Typography variant='subtitle2' gutterBottom>Vista Previa de Datos del Gerente:</Typography>
+          {(() => {
+            const gerente = candidatos.find(u => u.id === config.CERTIFICADO_GERENTE_GENERAL_ID)
+
+            return (
+              <Grid container spacing={2} alignItems='center'>
+                <Grid item>
+                  {gerente?.firma ? (
+                    <Box sx={{ width: 120, height: 60, bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider', p: 0.5 }}>
+                      <img src={gerente.firma} alt="Firma" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </Box>
+                  ) : (
+                    <Typography variant='caption' color='error'>Sin firma configurada</Typography>
+                  )}
+                </Grid>
+                <Grid item xs>
+                  <Typography variant='body2' sx={{ fontWeight: 600 }}>{gerente?.nombre} {gerente?.apellido}</Typography>
+                  <Typography variant='caption' display='block'>{gerente?.cargo || <span style={{ color: 'red' }}>Sin cargo configurado</span>}</Typography>
+                </Grid>
+              </Grid>
+            )
+          })()}
+        </Paper>
+      )}
+    </Stack>
   )
 }
 
@@ -88,6 +160,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     IZIPAY_SDK_URL: 'https://sandbox-checkout.izipay.pe/payments/v1/js/index.js',
     CULQI_PUBLIC_KEY: '',
     CULQI_PRIVATE_KEY: '',
+    CERTIFICADO_GERENTE_GENERAL_ID: '',
     ...initialMapped
   })
 
@@ -131,7 +204,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     }
   }
 
-
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 3 }}>
@@ -149,6 +221,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
           <Tab label='Integración Google' />
           <Tab label='Integración Izipay' />
           <Tab label='Integración Culqi' />
+          <Tab label='Certificados' />
           <Tab label='Finanzas' />
         </Tabs>
 
@@ -365,8 +438,16 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
             </Stack>
           </CustomTabPanel>
 
-          {/* TAB 6: FINANZAS */}
+          {/* TAB 6: CERTIFICADOS */}
           <CustomTabPanel value={tabValue} index={6}>
+            <CertificadosSettings 
+              config={config} 
+              onInputChange={handleInputChange} 
+            />
+          </CustomTabPanel>
+
+          {/* TAB 7: FINANZAS */}
+          <CustomTabPanel value={tabValue} index={7}>
             <Box>
               <Typography variant='subtitle2' sx={{ mb: 1 }}>
                 Tipo de Cambio PayPal (PEN → USD)
@@ -404,3 +485,5 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     </Box>
   )
 }
+
+export default ConfiguracionView
