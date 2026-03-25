@@ -27,6 +27,7 @@ import type { Configuracion } from '../entity/Configuracion'
 import MediaLibrary from '../../cursos/components/MediaLibrary'
 import { useUsuarios } from '../../usuarios/hooks/useUsuarios'
 
+
 interface ConfiguracionViewProps {
   initialData?: Configuracion[]
 }
@@ -160,6 +161,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     IZIPAY_SDK_URL: 'https://sandbox-checkout.izipay.pe/payments/v1/js/index.js',
     CULQI_PUBLIC_KEY: '',
     CULQI_PRIVATE_KEY: '',
+    CERTIFICADO_GERENTE_GENERAL_ID: '',
     CERTIFICADO_GERENTE_GENERAL_ID: '',
     ...initialMapped
   })
