@@ -15,7 +15,7 @@ export default function ProyectosPage() {
     {
       title: 'Gerencia de Proyectos',
       images: [
-        '/assets/services/proyectos/supervision-de-construccion-de-planta-azucarera-mas-moderna-del-peru.png',
+        '/assets/services/proyectos/gerencia-de-proyectos.png',
       ],
       items: [
         'Planificación integral',
@@ -27,8 +27,7 @@ export default function ProyectosPage() {
     {
       title: 'Supervisión Técnica',
       images: [
-        '/assets/services/proyectos/supervision-de-mantenimiento-mayor.png',
-        '/assets/services/proyectos/supervision-de-mantenimiento-mayor-3.png',
+        '/assets/services/proyectos/supervision-tecnica.png',
       ],
       items: [
         'Inspección en campo',
@@ -40,7 +39,7 @@ export default function ProyectosPage() {
     {
       title: 'Interventoría y Control',
       images: [
-        '/assets/services/proyectos/supervision-de-mantenimiento-mayor-2.png',
+        '/assets/services/proyectos/interventoria-y-control.jpeg',
       ],
       items: [
         'Auditoría técnica',
@@ -52,7 +51,7 @@ export default function ProyectosPage() {
     {
       title: 'Puesta en Marcha y Comisionamiento',
       images: [
-        '/assets/services/proyectos/supervisión-construccion-sistema-rebombeo.png',
+        '/assets/services/proyectos/puesta-en-marcha.jpeg',
       ],
       items: [
         'Protocolos de arranque',
@@ -69,7 +68,7 @@ export default function ProyectosPage() {
       <section className="relative pt-32 pb-24 lg:pb-36 overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/assets/services/proyectos/supervisión-construccion-sistema-rebombeo.png"
+            src="/assets/services/proyectos/gerencia-de-proyectos.png"
             alt="Proyectos ARM"
             fill
             className="object-cover"

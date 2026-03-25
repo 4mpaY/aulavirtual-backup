@@ -32,7 +32,7 @@ const WebFooter = () => {
             <h4 className="text-[#02115C] font-display font-black mb-8 text-xs uppercase tracking-[0.2em] border-l-4 border-[#02115C] pl-4">
               Soluciones
             </h4>
-            <ul className="space-y-4 text-sm">
+            <ul className="space-y-4 text-sm pl-4 sm:pl-0">
               {[
                 { label: 'Proyectos', href: '/proyectos' },
                 { label: 'Mantenimiento', href: '/mantenimiento' },

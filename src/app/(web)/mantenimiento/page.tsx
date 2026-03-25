@@ -15,8 +15,7 @@ export default function MantenimientoPage() {
     {
       title: 'Mantenimiento Predictivo',
       images: [
-        '/assets/services/mantenimiento/1.jpeg',
-        '/assets/services/mantenimiento/2.jpeg',
+        '/assets/services/mantenimiento/mantenimiento-predictivo.jpg',
       ],
       items: [
         'Programas integrales PdM',
@@ -27,7 +26,7 @@ export default function MantenimientoPage() {
     {
       title: 'Mantenimiento Proactivo',
       images: [
-        '/assets/services/mantenimiento/3.jpeg',
+        '/assets/services/mantenimiento/mantenimiento-proactivo.jpg',
       ],
       items: [
         'Alineamiento Laser de ejes',
@@ -38,7 +37,7 @@ export default function MantenimientoPage() {
     {
       title: 'Gestión de Mantenimiento',
       images: [
-        '/assets/services/mantenimiento/4.jpeg',
+        '/assets/services/mantenimiento/gestion-de-mantenimiento.jpeg',
       ],
       items: [
         'Gestión de la lubricación',
@@ -53,7 +52,7 @@ export default function MantenimientoPage() {
       <section className="relative pt-32 pb-24 lg:pb-36 overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/assets/services/mantenimiento/1.jpeg"
+            src="/assets/services/mantenimiento/mantenimiento-predictivo.jpg"
             alt="Mantenimiento ARM"
             fill
             className="object-cover"

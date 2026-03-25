@@ -15,8 +15,7 @@ export default function ConsultoriaPage() {
     {
       title: 'Gestión de Activos (ISO 55000)',
       images: [
-        '/assets/services/consultoria/1.jpeg',
-        '/assets/services/consultoria/2.jpeg',
+        '/assets/services/consultoria/gestion-iso-5500.jpeg',
       ],
       items: [
         'Diagnóstico de madurez',
@@ -27,8 +26,7 @@ export default function ConsultoriaPage() {
     {
       title: 'Optimización de Mantenimiento',
       images: [
-        '/assets/services/consultoria/3.jpeg',
-        '/assets/services/consultoria/4.jpeg',
+        '/assets/services/consultoria/optimizacion-de-mantenimiento.jpeg',
       ],
       items: [
         'Estrategias basadas en riesgo',
@@ -42,8 +40,7 @@ export default function ConsultoriaPage() {
     {
       title: 'RCM / FMEA',
       images: [
-        '/assets/services/consultoria/5.jpeg',
-        '/assets/services/consultoria/6.jpeg',
+        '/assets/services/consultoria/RCM.jpeg',
       ],
       items: [
         'Análisis funcional',
@@ -54,7 +51,7 @@ export default function ConsultoriaPage() {
     {
       title: 'Auditorías y Diagnósticos',
       images: [
-        '/assets/services/consultoria/7.jpeg',
+        '/assets/services/consultoria/auditoria-y-diagnostico.jpeg',
       ],
       items: [
         'Evaluación de desempeño',
@@ -65,7 +62,7 @@ export default function ConsultoriaPage() {
     {
       title: 'Planes de Mantenimiento',
       images: [
-        '/assets/services/consultoria/8.jpeg',
+        '/assets/services/consultoria/planes-de-mantenimiento.jpeg',
       ],
       items: [
         'Estructuración técnica',
@@ -81,7 +78,7 @@ export default function ConsultoriaPage() {
       <section className="relative pt-32 pb-24 lg:pb-36 overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/assets/services/consultoria/4.jpeg"
+            src="/assets/services/consultoria/auditoria-y-diagnostico.jpeg"
             alt="Consultoría ARM"
             fill
             className="object-cover"

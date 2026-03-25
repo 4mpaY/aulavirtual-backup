@@ -13,19 +13,19 @@ export const metadata = {
 
 const services = [
   {
-    image: '/assets/services/proyectos/supervisión-construccion-sistema-rebombeo.png',
+    image: '/assets/services/proyectos/gerencia-de-proyectos.png',
     title: 'Proyectos',
     description: 'Gerencia y supervisión de proyectos industriales con enfoque técnico, metodológico y orientado a resultados.',
     href: '/proyectos',
   },
   {
-    image: '/assets/services/mantenimiento/1.jpeg',
+    image: '/assets/services/mantenimiento/mantenimiento-predictivo.jpg',
     title: 'Mantenimiento',
     description: 'Soluciones avanzadas de mantenimiento predictivo y proactivo para maximizar disponibilidad y reducir fallas.',
     href: '/mantenimiento',
   },
   {
-    image: '/assets/services/consultoria/3.jpeg',
+    image: '/assets/services/consultoria/gestion-iso-5500.jpeg',
     title: 'Consultoría',
     description: 'Implementación de estrategias de gestión de activos y mantenimiento alineadas con ISO 55000.',
     href: '/consultoria',
