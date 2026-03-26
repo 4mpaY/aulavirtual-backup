@@ -16,8 +16,7 @@
     "db:migration:dev": "prisma migrate dev --schema ./prisma/schema.prisma",
     "db:client:push": "prisma db push --schema ./prisma/schema.prisma & prisma generate --schema ./prisma/schema.prisma",
     "db:migration:deploy": "prisma migrate deploy --schema ./prisma/schema.prisma",
-    "db:main:seed": "dotenv -- tsx ./prisma/seed/main",
-    "db:aula:seed": "dotenv -- tsx ./prisma/seed/restaurante"
+    "db:main:seed": "dotenv -- tsx ./prisma/seed/main"
   },
   "prisma": {
     "seed": "tsx prisma/seed_student.ts"
@@ -95,6 +94,7 @@
     "@typescript-eslint/parser": "7.1.1",
     "autoprefixer": "10.4.18",
     "dotenv": "^17.3.1",
+    "dotenv-cli": "^11.0.0",
     "eslint": "8.57.0",
     "eslint-config-next": "14.1.3",
     "eslint-config-prettier": "9.1.0",
