@@ -21,14 +21,14 @@ export default withAuth(
       const rol = token.rol as Rol
 
       if (rol === Rol.ADMIN) {
-        return NextResponse.redirect(new URL('/admin/dashboard', req.url))
+        return NextResponse.redirect(new URL('/admin/dashboard', req.url), { status: 302 })
       }
 
       if (rol === Rol.PROFESOR) {
-        return NextResponse.redirect(new URL('/profesor/dashboard', req.url))
+        return NextResponse.redirect(new URL('/profesor/dashboard', req.url), { status: 302 })
       }
 
-      return NextResponse.redirect(new URL('/estudiante/dashboard', req.url))
+      return NextResponse.redirect(new URL('/estudiante/dashboard', req.url), { status: 302 })
     }
 
     // Redirigir /dashboard genérico según rol
@@ -36,14 +36,14 @@ export default withAuth(
       const rol = token?.rol as Rol
 
       if (rol === Rol.ADMIN) {
-        return NextResponse.redirect(new URL('/admin/dashboard', req.url))
+        return NextResponse.redirect(new URL('/admin/dashboard', req.url), { status: 302 })
       }
 
       if (rol === Rol.PROFESOR) {
-        return NextResponse.redirect(new URL('/profesor/dashboard', req.url))
+        return NextResponse.redirect(new URL('/profesor/dashboard', req.url), { status: 302 })
       }
 
-      return NextResponse.redirect(new URL('/estudiante/dashboard', req.url))
+      return NextResponse.redirect(new URL('/estudiante/dashboard', req.url), { status: 302 })
     }
 
     // Verificar acceso a rutas según rol
@@ -51,17 +51,17 @@ export default withAuth(
 
     // Rutas de admin - solo ADMIN
     if (path.startsWith('/admin') && rol !== Rol.ADMIN) {
-      return NextResponse.redirect(new URL('/unauthorized', req.url))
+      return NextResponse.redirect(new URL('/unauthorized', req.url), { status: 302 })
     }
 
     // Rutas de profesor - solo PROFESOR o ADMIN
     if (path.startsWith('/profesor') && rol !== Rol.ADMIN && rol !== Rol.PROFESOR) {
-      return NextResponse.redirect(new URL('/unauthorized', req.url))
+      return NextResponse.redirect(new URL('/unauthorized', req.url), { status: 302 })
     }
 
     // Rutas de estudiante - solo ESTUDIANTE o ADMIN
     if (path.startsWith('/estudiante') && rol !== Rol.ADMIN && rol !== Rol.ESTUDIANTE) {
-      return NextResponse.redirect(new URL('/unauthorized', req.url))
+      return NextResponse.redirect(new URL('/unauthorized', req.url), { status: 302 })
     }
 
     return NextResponse.next()
