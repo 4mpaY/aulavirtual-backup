@@ -162,7 +162,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     CULQI_PUBLIC_KEY: '',
     CULQI_PRIVATE_KEY: '',
     CERTIFICADO_GERENTE_GENERAL_ID: '',
-    CERTIFICADO_GERENTE_GENERAL_ID: '',
     ...initialMapped
   })
 
