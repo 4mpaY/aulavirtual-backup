@@ -270,13 +270,16 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         amount: Math.round(displayTotal * 100)
       })
 
+      const logoUrl = configs.TEMPLATE_LOGO || ''
+      const fullLogoUrl = logoUrl.startsWith('/') ? `${window.location.origin}${logoUrl}` : logoUrl
+
       if (culqi.options) {
         culqi.options({
           lang: 'auto',
           installments: true,
           modal: true,
           style: {
-            logo: configs.TEMPLATE_LOGO || '',
+            logo: fullLogoUrl,
             mainColor: configs.PRIMARY_COLOR_MAIN || '#131FF2',
           }
         })

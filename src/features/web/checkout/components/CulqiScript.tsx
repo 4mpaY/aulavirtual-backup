@@ -31,6 +31,11 @@ const CulqiScript = ({ publicKey, onTokenReceived, onError, onLoad }: CulqiScrip
         console.error('Error de Culqi:', error)
         onError(error.user_message || error.merchant_message || 'Error al procesar la tarjeta')
       }
+
+      // Cerrar el modal de Culqi manualmente al recibir respuesta (token o error)
+      if ((window as any).Culqi) {
+        (window as any).Culqi.close()
+      }
     }
   }, [publicKey, onTokenReceived, onError])
 
