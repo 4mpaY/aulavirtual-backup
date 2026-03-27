@@ -16,7 +16,9 @@ import {
   Tabs,
   Tab,
   Divider,
-  MenuItem
+  MenuItem,
+  Switch,
+  FormControlLabel
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { getSession } from 'next-auth/react'
@@ -26,7 +28,6 @@ import { AxiosConfiguracion } from '../http/axiosConfiguracion'
 import type { Configuracion } from '../entity/Configuracion'
 import MediaLibrary from '../../cursos/components/MediaLibrary'
 import { useUsuarios } from '../../usuarios/hooks/useUsuarios'
-
 
 interface ConfiguracionViewProps {
   initialData?: Configuracion[]
@@ -147,6 +148,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     PRIMARY_COLOR_MAIN: '#131FF2',
     PRIMARY_COLOR_LIGHT: '#242CBF',
     PRIMARY_COLOR_DARK: '#9196F2',
+    PAYPAL_ENABLED: 'true',
     PAYPAL_CLIENT_ID: '',
     PAYPAL_CLIENT_SECRET: '',
     PAYPAL_API_URL: 'https://api-m.sandbox.paypal.com',
@@ -154,13 +156,17 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     PAYPAL_EXCHANGE_RATE: '3.80',
     GOOGLE_CLIENT_ID: '',
     GOOGLE_CLIENT_SECRET: '',
+    IZIPAY_ENABLED: 'true',
     IZIPAY_MERCHANT_CODE: '',
     IZIPAY_API_KEY: '',
     IZIPAY_RSA_KEY: '',
     IZIPAY_ENDPOINT: 'https://sandbox-api-pw.izipay.pe',
     IZIPAY_SDK_URL: 'https://sandbox-checkout.izipay.pe/payments/v1/js/index.js',
+    CULQI_ENABLED: 'true',
     CULQI_PUBLIC_KEY: '',
     CULQI_PRIVATE_KEY: '',
+    CULQI_RSA_ID: '',
+    CULQI_RSA_PUBLIC_KEY: '',
     CERTIFICADO_GERENTE_GENERAL_ID: '',
     ...initialMapped
   })
@@ -205,268 +211,163 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     }
   }
 
+  // Definición de pestañas dinámicas
+  const tabs = [
+    {
+      label: 'General (Branding)',
+      content: (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Typography variant='h6' gutterBottom>Información General</Typography>
+            <Stack spacing={3} sx={{ mb: 4 }}>
+              <TextField label='Nombre de la Plataforma' fullWidth value={config.TEMPLATE_NAME} onChange={(e) => handleInputChange('TEMPLATE_NAME', e.target.value)} />
+              <TextField label='Slogan de la Plataforma' fullWidth value={config.TEMPLATE_SLOGAN} onChange={(e) => handleInputChange('TEMPLATE_SLOGAN', e.target.value)} />
+              <TextField label='Nombre de Cookie de Configuración' fullWidth value={config.SETTINGS_COOKIE_NAME} onChange={(e) => handleInputChange('SETTINGS_COOKIE_NAME', e.target.value)} />
+            </Stack>
+
+            <Typography variant='h6' gutterBottom>Pasarelas de Pago</Typography>
+            <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
+              <Stack spacing={1}>
+                <FormControlLabel control={<Switch checked={config.CULQI_ENABLED === 'true'} onChange={(e) => handleInputChange('CULQI_ENABLED', e.target.checked ? 'true' : 'false')} />} label="Habilitar Culqi (Tarjetas)" />
+                <FormControlLabel control={<Switch checked={config.IZIPAY_ENABLED === 'true'} onChange={(e) => handleInputChange('IZIPAY_ENABLED', e.target.checked ? 'true' : 'false')} />} label="Habilitar Izipay" />
+                <FormControlLabel control={<Switch checked={config.PAYPAL_ENABLED === 'true'} onChange={(e) => handleInputChange('PAYPAL_ENABLED', e.target.checked ? 'true' : 'false')} />} label="Habilitar PayPal" />
+              </Stack>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant='h6' gutterBottom>Logo y Assets</Typography>
+            <Stack spacing={3}>
+              <TextField label='URL del Logo' fullWidth value={config.TEMPLATE_LOGO} onChange={(e) => handleInputChange('TEMPLATE_LOGO', e.target.value)} />
+              {config.TEMPLATE_LOGO && (
+                <Box sx={{ mt: 2, p: 2, border: '1px dashed grey', textAlign: 'center', position: 'relative' }}>
+                  <Typography variant='caption' display='block' gutterBottom>Vista Previa Logo</Typography>
+                  <img src={config.TEMPLATE_LOGO} alt='Preview' style={{ maxHeight: 80, maxWidth: '100%' }} />
+                  <Box sx={{ mt: 2 }}>
+                    <Button variant="outlined" size="small" disabled={saving} startIcon={<i className='tabler-photo' />} onClick={() => setOpenMedia(true)}>Cambiar Logo</Button>
+                  </Box>
+                </Box>
+              )}
+              <MediaLibrary open={openMedia} onClose={() => setOpenMedia(false)} onSelect={(url) => { handleInputChange('TEMPLATE_LOGO', url); enqueueSnackbar('Logo actualizado en el formulario, recuerda Guardar Todo', { variant: 'success' }); }} title="Seleccionar Logo" />
+            </Stack>
+          </Grid>
+        </Grid>
+      )
+    },
+    {
+      label: 'Apariencia (Colores)',
+      content: (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Typography variant='subtitle2' gutterBottom>Color Primario Principal</Typography>
+            <Stack direction='row' spacing={2} alignItems='center'>
+              <TextField fullWidth value={config.PRIMARY_COLOR_MAIN} onChange={(e) => handleInputChange('PRIMARY_COLOR_MAIN', e.target.value)} />
+              <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_MAIN, border: '1px solid grey' }} />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant='subtitle2' gutterBottom>Color Primario Claro (Light)</Typography>
+            <Stack direction='row' spacing={2} alignItems='center'>
+              <TextField fullWidth value={config.PRIMARY_COLOR_LIGHT} onChange={(e) => handleInputChange('PRIMARY_COLOR_LIGHT', e.target.value)} />
+              <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_LIGHT, border: '1px solid grey' }} />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Typography variant='subtitle2' gutterBottom>Color Primario Oscuro (Dark)</Typography>
+            <Stack direction='row' spacing={2} alignItems='center'>
+              <TextField fullWidth value={config.PRIMARY_COLOR_DARK} onChange={(e) => handleInputChange('PRIMARY_COLOR_DARK', e.target.value)} />
+              <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_DARK, border: '1px solid grey' }} />
+            </Stack>
+          </Grid>
+        </Grid>
+      )
+    },
+    config.PAYPAL_ENABLED === 'true' && {
+      label: 'Integración PayPal',
+      content: (
+        <Stack spacing={3}>
+          <TextField label='PayPal Client ID' fullWidth value={config.PAYPAL_CLIENT_ID} onChange={(e) => handleInputChange('PAYPAL_CLIENT_ID', e.target.value)} />
+          <TextField label='PayPal Client Secret' fullWidth type='password' value={config.PAYPAL_CLIENT_SECRET} onChange={(e) => handleInputChange('PAYPAL_CLIENT_SECRET', e.target.value)} />
+          <TextField label='PayPal API URL' fullWidth value={config.PAYPAL_API_URL} onChange={(e) => handleInputChange('PAYPAL_API_URL', e.target.value)} helperText='Ejemplo: https://api-m.paypal.com o https://api-m.sandbox.paypal.com' />
+        </Stack>
+      )
+    },
+    {
+      label: 'Integración Google',
+      content: (
+        <Stack spacing={3}>
+          <TextField label='Google Client ID' fullWidth value={config.GOOGLE_CLIENT_ID} onChange={(e) => handleInputChange('GOOGLE_CLIENT_ID', e.target.value)} />
+          <TextField label='Google Client Secret' fullWidth type='password' value={config.GOOGLE_CLIENT_SECRET} onChange={(e) => handleInputChange('GOOGLE_CLIENT_SECRET', e.target.value)} />
+        </Stack>
+      )
+    },
+    config.IZIPAY_ENABLED === 'true' && {
+      label: 'Integración Izipay',
+      content: (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Stack spacing={3}>
+              <TextField label='Merchant Code' fullWidth value={config.IZIPAY_MERCHANT_CODE} onChange={(e) => handleInputChange('IZIPAY_MERCHANT_CODE', e.target.value)} />
+              <TextField label='API Key' fullWidth type='password' value={config.IZIPAY_API_KEY} onChange={(e) => handleInputChange('IZIPAY_API_KEY', e.target.value)} />
+              <TextField label='RSA Key' fullWidth multiline rows={2} value={config.IZIPAY_RSA_KEY} onChange={(e) => handleInputChange('IZIPAY_RSA_KEY', e.target.value)} />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Stack spacing={3}>
+              <TextField label='Endpoint API' fullWidth value={config.IZIPAY_ENDPOINT} onChange={(e) => handleInputChange('IZIPAY_ENDPOINT', e.target.value)} />
+              <TextField label='SDK JS URL' fullWidth value={config.IZIPAY_SDK_URL} onChange={(e) => handleInputChange('IZIPAY_SDK_URL', e.target.value)} />
+            </Stack>
+          </Grid>
+        </Grid>
+      )
+    },
+    config.CULQI_ENABLED === 'true' && {
+      label: 'Integración Culqi',
+      content: (
+        <Stack spacing={3}>
+          <TextField label='Culqi Public Key (pk_test_... o pk_live_...)' fullWidth value={config.CULQI_PUBLIC_KEY} onChange={(e) => handleInputChange('CULQI_PUBLIC_KEY', e.target.value)} helperText='Key utilizada en el frontend para tokenizar la tarjeta.' />
+          <TextField label='Culqi Private Key (sk_test_... o sk_live_...)' fullWidth type='password' value={config.CULQI_PRIVATE_KEY} onChange={(e) => handleInputChange('CULQI_PRIVATE_KEY', e.target.value)} helperText='Key utilizada en el backend para realizar el cargo.' />
+          <TextField label='Culqi RSA ID (Cualquier ID o el asignado en CulqiPanel)' fullWidth value={config.CULQI_RSA_ID} onChange={(e) => handleInputChange('CULQI_RSA_ID', e.target.value)} helperText='ID identificador para el cifrado RSA (requerido para v4).' />
+          <TextField label='Culqi RSA Public Key' fullWidth multiline rows={3} value={config.CULQI_RSA_PUBLIC_KEY} onChange={(e) => handleInputChange('CULQI_RSA_PUBLIC_KEY', e.target.value)} helperText='Clave pública RSA para cifrado de datos sensibles (requerido para v4).' />
+        </Stack>
+      )
+    },
+    {
+      label: 'Certificados',
+      content: <CertificadosSettings config={config} onInputChange={handleInputChange} />
+    },
+    {
+      label: 'Finanzas',
+      content: (
+        <Box>
+          <Typography variant='subtitle2' sx={{ mb: 1 }}>Tipo de Cambio PayPal (PEN → USD)</Typography>
+          <TextField fullWidth type='number' placeholder='3.80' value={config.PAYPAL_EXCHANGE_RATE} onChange={(e) => handleInputChange('PAYPAL_EXCHANGE_RATE', e.target.value)} InputProps={{ startAdornment: <InputAdornment position='start'>S/</InputAdornment>, endAdornment: <InputAdornment position='end'>por $1.00</InputAdornment> }} helperText='Define cuántos Soles equivale 1 Dólar para el cobro en PayPal.' />
+        </Box>
+      )
+    }
+  ].filter(Boolean) as { label: string, content: React.ReactNode }[]
+
   return (
     <Box sx={{ width: '100%' }}>
       <Paper sx={{ width: '100%', mb: 3 }}>
         <Tabs
-          value={tabValue}
+          value={tabValue >= tabs.length ? 0 : tabValue}
           onChange={handleChangeTab}
           aria-label='configuracion tabs'
           sx={{ borderBottom: 1, borderColor: 'divider' }}
           variant='scrollable'
           scrollButtons='auto'
         >
-          <Tab label='General (Branding)' />
-          <Tab label='Apariencia (Colores)' />
-          <Tab label='Integración PayPal' />
-          <Tab label='Integración Google' />
-          <Tab label='Integración Izipay' />
-          <Tab label='Integración Culqi' />
-          <Tab label='Certificados' />
-          <Tab label='Finanzas' />
+          {tabs.map((tab, i) => (
+            <Tab key={i} label={tab.label} />
+          ))}
         </Tabs>
 
         <Box sx={{ p: 2 }}>
-          {/* TAB 0: GENERAL */}
-          <CustomTabPanel value={tabValue} index={0}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Typography variant='h6' gutterBottom>Información General</Typography>
-                <Stack spacing={3}>
-                  <TextField
-                    label='Nombre de la Plataforma'
-                    fullWidth
-                    value={config.TEMPLATE_NAME}
-                    onChange={(e) => handleInputChange('TEMPLATE_NAME', e.target.value)}
-                  />
-                  <TextField
-                    label='Slogan de la Plataforma'
-                    fullWidth
-                    value={config.TEMPLATE_SLOGAN}
-                    onChange={(e) => handleInputChange('TEMPLATE_SLOGAN', e.target.value)}
-                  />
-                  <TextField
-                    label='Nombre de Cookie de Configuración'
-                    fullWidth
-                    value={config.SETTINGS_COOKIE_NAME}
-                    onChange={(e) => handleInputChange('SETTINGS_COOKIE_NAME', e.target.value)}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Typography variant='h6' gutterBottom>Logo y Assets</Typography>
-                <Stack spacing={3}>
-                  <TextField
-                    label='URL del Logo'
-                    fullWidth
-                    value={config.TEMPLATE_LOGO}
-                    onChange={(e) => handleInputChange('TEMPLATE_LOGO', e.target.value)}
-                  />
-                  {config.TEMPLATE_LOGO && (
-                    <Box sx={{ mt: 2, p: 2, border: '1px dashed grey', textAlign: 'center', position: 'relative' }}>
-                      <Typography variant='caption' display='block' gutterBottom>Vista Previa Logo</Typography>
-                      <img src={config.TEMPLATE_LOGO} alt='Preview' style={{ maxHeight: 80, maxWidth: '100%' }} />
-                      <Box sx={{ mt: 2 }}>
-                        <Button variant="outlined" size="small" disabled={saving} startIcon={<i className='tabler-photo' />} onClick={() => setOpenMedia(true)}>
-                          Cambiar Logo
-                        </Button>
-                      </Box>
-                    </Box>
-                  )}
-                  <MediaLibrary
-                    open={openMedia}
-                    onClose={() => setOpenMedia(false)}
-                    onSelect={(url) => {
-                      handleInputChange('TEMPLATE_LOGO', url)
-                      enqueueSnackbar('Logo actualizado en el formulario, recuerda Guardar Todo', { variant: 'success' })
-                    }}
-                    title="Seleccionar Logo"
-                  />
-                </Stack>
-              </Grid>
-            </Grid>
-          </CustomTabPanel>
-
-          {/* TAB 1: APARIENCIA */}
-          <CustomTabPanel value={tabValue} index={1}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4}>
-                <Typography variant='subtitle2' gutterBottom>Color Primario Principal</Typography>
-                <Stack direction='row' spacing={2} alignItems='center'>
-                  <TextField
-                    fullWidth
-                    value={config.PRIMARY_COLOR_MAIN}
-                    onChange={(e) => handleInputChange('PRIMARY_COLOR_MAIN', e.target.value)}
-                  />
-                  <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_MAIN, border: '1px solid grey' }} />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Typography variant='subtitle2' gutterBottom>Color Primario Claro (Light)</Typography>
-                <Stack direction='row' spacing={2} alignItems='center'>
-                  <TextField
-                    fullWidth
-                    value={config.PRIMARY_COLOR_LIGHT}
-                    onChange={(e) => handleInputChange('PRIMARY_COLOR_LIGHT', e.target.value)}
-                  />
-                  <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_LIGHT, border: '1px solid grey' }} />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Typography variant='subtitle2' gutterBottom>Color Primario Oscuro (Dark)</Typography>
-                <Stack direction='row' spacing={2} alignItems='center'>
-                  <TextField
-                    fullWidth
-                    value={config.PRIMARY_COLOR_DARK}
-                    onChange={(e) => handleInputChange('PRIMARY_COLOR_DARK', e.target.value)}
-                  />
-                  <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_DARK, border: '1px solid grey' }} />
-                </Stack>
-              </Grid>
-            </Grid>
-          </CustomTabPanel>
-
-          {/* TAB 2: PAYPAL */}
-          <CustomTabPanel value={tabValue} index={2}>
-            <Stack spacing={3}>
-              <TextField
-                label='PayPal Client ID'
-                fullWidth
-                value={config.PAYPAL_CLIENT_ID}
-                onChange={(e) => handleInputChange('PAYPAL_CLIENT_ID', e.target.value)}
-              />
-              <TextField
-                label='PayPal Client Secret'
-                fullWidth
-                type='password'
-                value={config.PAYPAL_CLIENT_SECRET}
-                onChange={(e) => handleInputChange('PAYPAL_CLIENT_SECRET', e.target.value)}
-              />
-              <TextField
-                label='PayPal API URL'
-                fullWidth
-                value={config.PAYPAL_API_URL}
-                onChange={(e) => handleInputChange('PAYPAL_API_URL', e.target.value)}
-                helperText='Ejemplo: https://api-m.paypal.com o https://api-m.sandbox.paypal.com'
-              />
-            </Stack>
-          </CustomTabPanel>
-
-          {/* TAB 3: GOOGLE */}
-          <CustomTabPanel value={tabValue} index={3}>
-            <Stack spacing={3}>
-              <TextField
-                label='Google Client ID'
-                fullWidth
-                value={config.GOOGLE_CLIENT_ID}
-                onChange={(e) => handleInputChange('GOOGLE_CLIENT_ID', e.target.value)}
-              />
-              <TextField
-                label='Google Client Secret'
-                fullWidth
-                type='password'
-                value={config.GOOGLE_CLIENT_SECRET}
-                onChange={(e) => handleInputChange('GOOGLE_CLIENT_SECRET', e.target.value)}
-              />
-            </Stack>
-          </CustomTabPanel>
-
-          {/* TAB 4: IZIPAY */}
-          <CustomTabPanel value={tabValue} index={4}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Stack spacing={3}>
-                  <TextField
-                    label='Merchant Code'
-                    fullWidth
-                    value={config.IZIPAY_MERCHANT_CODE}
-                    onChange={(e) => handleInputChange('IZIPAY_MERCHANT_CODE', e.target.value)}
-                  />
-                  <TextField
-                    label='API Key'
-                    fullWidth
-                    type='password'
-                    value={config.IZIPAY_API_KEY}
-                    onChange={(e) => handleInputChange('IZIPAY_API_KEY', e.target.value)}
-                  />
-                  <TextField
-                    label='RSA Key'
-                    fullWidth
-                    multiline
-                    rows={2}
-                    value={config.IZIPAY_RSA_KEY}
-                    onChange={(e) => handleInputChange('IZIPAY_RSA_KEY', e.target.value)}
-                  />
-                </Stack>
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <Stack spacing={3}>
-                  <TextField
-                    label='Endpoint API'
-                    fullWidth
-                    value={config.IZIPAY_ENDPOINT}
-                    onChange={(e) => handleInputChange('IZIPAY_ENDPOINT', e.target.value)}
-                  />
-                  <TextField
-                    label='SDK JS URL'
-                    fullWidth
-                    value={config.IZIPAY_SDK_URL}
-                    onChange={(e) => handleInputChange('IZIPAY_SDK_URL', e.target.value)}
-                  />
-                </Stack>
-              </Grid>
-            </Grid>
-          </CustomTabPanel>
-
-          {/* TAB 5: CULQI */}
-          <CustomTabPanel value={tabValue} index={5}>
-            <Stack spacing={3}>
-              <TextField
-                label='Culqi Public Key (pk_test_... o pk_live_...)'
-                fullWidth
-                value={config.CULQI_PUBLIC_KEY}
-                onChange={(e) => handleInputChange('CULQI_PUBLIC_KEY', e.target.value)}
-                helperText='Key utilizada en el frontend para tokenizar la tarjeta.'
-              />
-              <TextField
-                label='Culqi Private Key (sk_test_... o sk_live_...)'
-                fullWidth
-                type='password'
-                value={config.CULQI_PRIVATE_KEY}
-                onChange={(e) => handleInputChange('CULQI_PRIVATE_KEY', e.target.value)}
-                helperText='Key utilizada en el backend para realizar el cargo.'
-              />
-            </Stack>
-          </CustomTabPanel>
-
-          {/* TAB 6: CERTIFICADOS */}
-          <CustomTabPanel value={tabValue} index={6}>
-            <CertificadosSettings
-              config={config}
-              onInputChange={handleInputChange}
-            />
-          </CustomTabPanel>
-
-          {/* TAB 7: FINANZAS */}
-          <CustomTabPanel value={tabValue} index={7}>
-            <Box>
-              <Typography variant='subtitle2' sx={{ mb: 1 }}>
-                Tipo de Cambio PayPal (PEN → USD)
-              </Typography>
-              <TextField
-                fullWidth
-                type='number'
-                placeholder='3.80'
-                value={config.PAYPAL_EXCHANGE_RATE}
-                onChange={(e) => handleInputChange('PAYPAL_EXCHANGE_RATE', e.target.value)}
-                InputProps={{
-                  startAdornment: <InputAdornment position='start'>S/</InputAdornment>,
-                  endAdornment: <InputAdornment position='end'>por $1.00</InputAdornment>
-                }}
-                helperText='Define cuántos Soles equivale 1 Dólar para el cobro en PayPal.'
-              />
-            </Box>
-          </CustomTabPanel>
+          {tabs.map((tab, i) => (
+            <CustomTabPanel key={i} value={tabValue} index={i}>
+              {tab.content}
+            </CustomTabPanel>
+          ))}
         </Box>
 
         <Divider />

@@ -43,3 +43,16 @@ export function useUploadMedia() {
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.MEDIA })
   })
 }
+
+/**
+ * Hook para eliminar un medio
+ */
+export function useDeleteMedia() {
+  const qc = useQueryClient()
+  const axiosMedia = axiosMediaFactory()
+
+  return useMutation<any, any, string>({
+    mutationFn: async id => await axiosMedia.delete(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.MEDIA })
+  })
+}

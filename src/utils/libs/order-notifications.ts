@@ -1,6 +1,7 @@
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
 import { sendMail } from '@/utils/libs/mailer'
+import { getBaseURL } from '@/utils/env'
 import { generateOrderPDF } from './pdf-generator'
 
 /**
@@ -32,7 +33,14 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
     // 2. Obtener configuraciones básicas (Logo, Nombre sitio)
     const configs = await getConfigs()
     const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
-    const platformLogo = configs.TEMPLATE_LOGO || ''
+    let platformLogo = configs.TEMPLATE_LOGO || ''
+
+    // 🔐 SEGURIDAD: Convertir ruta relativa a absoluta para correos
+    if (platformLogo && platformLogo.startsWith('/')) {
+      const baseURL = getBaseURL().replace(/\/$/, '') // Quita slash final si existe
+
+      platformLogo = `${baseURL}${platformLogo}`
+    }
 
     // 3. Generar PDF adjunto
     const pdfBuffer = await generateOrderPDF(pedido)

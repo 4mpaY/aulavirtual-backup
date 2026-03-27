@@ -46,10 +46,6 @@ interface CourseCardProps {
   fecha_inicio?: string | Date | null
   creado_en?: string | Date
   es_comprado?: boolean
-  _count?: {
-    lecciones: number
-    inscripciones: number
-  }
 }
 
 const StyledCard = styled(Card)(() => ({
@@ -83,8 +79,7 @@ const CourseCard = ({
   tipo_emision,
   fecha_inicio,
   creado_en,
-  es_comprado,
-  _count
+  es_comprado
 }: CourseCardProps) => {
   const router = useRouter()
   const { addToCart, isInCart } = useCart()
@@ -203,26 +198,6 @@ const CourseCard = ({
           )}
         </Box>
 
-        {/* Alumnos en base de imagen */}
-        <Box sx={{
-          position: 'absolute',
-          bottom: 12,
-          right: 12,
-          zIndex: 2,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 0.5,
-          color: 'white',
-          backgroundColor: 'rgba(0,0,0,0.3)',
-          px: 1,
-          py: 0.5,
-          borderRadius: '8px'
-        }}>
-          <i className="tabler-users" style={{ fontSize: '1rem' }} />
-          <Typography variant="caption" sx={{ fontWeight: 700 }}>
-            {_count?.inscripciones || 0}
-          </Typography>
-        </Box>
       </Box>
 
       <CardContent sx={{ flexGrow: 1, p: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -13,7 +13,9 @@ import {
     Tooltip,
     IconButton,
     Chip,
-    Avatar
+    Avatar,
+    TextField,
+    InputAdornment
 } from '@mui/material'
 
 import {
@@ -34,6 +36,7 @@ import TablePaginationComponent from '@/utils/components/others/TablePaginationC
 const ProfesorCursosPage = () => {
     const { data: session } = useSession()
     const router = useRouter()
+    const [globalFilter, setGlobalFilter] = useState('')
 
     // Usamos el hook de cursos pero filtrando por el ID del profesor actual
     const { data: cursosData, isLoading } = useCursos({
@@ -139,7 +142,11 @@ const ProfesorCursosPage = () => {
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel()
+        getFilteredRowModel: getFilteredRowModel(),
+        state: {
+            globalFilter
+        },
+        onGlobalFilterChange: setGlobalFilter
     })
 
     return (
@@ -165,6 +172,22 @@ const ProfesorCursosPage = () => {
 
             <Card sx={{ borderRadius: '12px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
                 <CardContent sx={{ p: 0 }}>
+                    <Box sx={{ p: 4, borderBottom: '1px solid', borderColor: 'divider' }}>
+                        <TextField
+                            size='small'
+                            value={globalFilter ?? ''}
+                            onChange={e => setGlobalFilter(e.target.value)}
+                            placeholder='Buscar cursos...'
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position='start'>
+                                        <i className='tabler-search text-textSecondary' />
+                                    </InputAdornment>
+                                )
+                            }}
+                            sx={{ maxWidth: 350 }}
+                        />
+                    </Box>
                     <Box sx={{ overflowX: 'auto' }}>
                         <table className='w-full border-collapse'>
                             <thead className='bg-grey-50 border-b border-divider'>

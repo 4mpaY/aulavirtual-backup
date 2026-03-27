@@ -21,7 +21,10 @@ import {
     IconButton
 } from '@mui/material'
 
-import { useMedia, useUploadMedia } from '../hooks/useMedia'
+import { useSnackbar } from 'notistack'
+
+import { useMedia, useUploadMedia, useDeleteMedia } from '../hooks/useMedia'
+import CustomAlertDialog from '../../../../components/CustomAlertDialog'
 
 interface MediaLibraryProps {
     open: boolean
@@ -35,6 +38,9 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
     const [search, setSearch] = useState('')
     const { data: media = [], isLoading } = useMedia()
     const uploadMutation = useUploadMedia()
+    const deleteMutation = useDeleteMedia()
+    const { enqueueSnackbar } = useSnackbar()
+    const [deleteId, setDeleteId] = useState<string | null>(null)
 
     const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -176,9 +182,28 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                                         }}
                                     >
                                         <CardActionArea onClick={() => {
+                                            if (deleteMutation.isPending) return
                                             onSelect(item.url, item.nombre)
                                             onClose()
                                         }}>
+                                            <IconButton
+                                                size="small"
+                                                color="error"
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    setDeleteId(item.id)
+                                                }}
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 8,
+                                                    right: 8,
+                                                    zIndex: 2,
+                                                    bgcolor: 'rgba(255,255,255,0.8)',
+                                                    '&:hover': { bgcolor: 'error.main', color: 'common.white' }
+                                                }}
+                                            >
+                                                <i className="tabler-trash" style={{ fontSize: '1.2rem' }} />
+                                            </IconButton>
                                             {item.tipo === 'IMAGEN' ? (
                                                 <Box sx={{ position: 'relative', height: 120 }}>
                                                     <CardMedia
@@ -254,6 +279,25 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
             <DialogActions sx={{ p: 3 }}>
                 <Button onClick={onClose} color="inherit">Cancelar</Button>
             </DialogActions>
+
+            <CustomAlertDialog
+                open={!!deleteId}
+                title="¿Eliminar Recurso?"
+                description="Esta acción eliminará permanentemente el archivo del servidor y no aparecerá en ningún curso donde se esté usando. ¿Estás seguro?"
+                onClose={() => setDeleteId(null)}
+                onConfirm={async () => {
+                    if (!deleteId) return
+                    try {
+                        await deleteMutation.mutateAsync(deleteId)
+                        enqueueSnackbar('Recurso eliminado correctamente', { variant: 'success' })
+                    } catch (error) {
+                        enqueueSnackbar('Error al eliminar recurso', { variant: 'error' })
+                    } finally {
+                        setDeleteId(null)
+                    }
+                }}
+                loading={deleteMutation.isPending}
+            />
         </Dialog>
     )
 }

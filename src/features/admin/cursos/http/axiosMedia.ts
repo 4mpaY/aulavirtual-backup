@@ -48,4 +48,14 @@ export class AxiosMedia extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  async delete(id: string): Promise<any> {
+    try {
+      const payload = await this.iDelete<any>(`/${id}`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

@@ -65,11 +65,11 @@ export async function POST(request: Request) {
       if (cupon) {
         // Verificar expiración y límite
         const ahora = new Date()
-        
+
         ahora.setHours(0, 0, 0, 0)
 
         const fechaExpiracion = cupon.fecha_expiracion ? new Date(cupon.fecha_expiracion) : null
-        
+
         if (fechaExpiracion) fechaExpiracion.setHours(0, 0, 0, 0)
 
         const expirado = fechaExpiracion && fechaExpiracion < ahora
@@ -158,17 +158,12 @@ export async function POST(request: Request) {
 
       const tokenData = await tokenResponse.json()
 
-      console.log('--- IZIPAY TOKEN GENERATE RESPONSE ---')
-      console.dir(tokenData, { depth: null })
-      console.log('------------------------------------')
-
       if (!tokenResponse.ok || tokenData.code !== '00') {
         console.error('Izipay Token Error:', tokenData)
 
         return ApiResponse.error(request, 'Error al obtener el token de sesión de Izipay', 500)
       }
 
-      // 6. Extraer el token real y guardarlo en el pedido
       const actualToken = tokenData.response?.token || tokenData.response
 
       await prisma.pedido.update({
@@ -176,12 +171,9 @@ export async function POST(request: Request) {
         data: { token_pago: String(actualToken) }
       })
 
-      // 7. Preparar el iziConfig para el frontend
-      const userName = auth.user.name || 'Cliente'
+      const userName = auth.user.nombre || auth.user.name || 'Cliente'
       const firstName = userName.split(' ')[0]
       const lastName = userName.split(' ').slice(1).join(' ') || 'Cliente'
-
-      // Documento debe ser generalmente de 8 chars para DNI
       const documentStr = auth.user.numero_documento || '12345678'
       const validDocument = documentStr.length >= 8 ? documentStr.substring(0, 15) : '12345678'
 
@@ -221,18 +213,73 @@ export async function POST(request: Request) {
         {
           message: 'Pasarela preparada correctamente',
           iziConfig,
-
-          // Se envía el token extraído validado arriba
           token: String(actualToken),
           keyRSA: rsaKey,
-          pedidoId: pedido.id,
-          _debugTokenData: tokenData // temporal para debug
+          pedidoId: pedido.id
         },
         201
       )
     }
 
-    // Si no es Izipay (ej: Culqi), solo retornamos el pedidoId
+    // 8. Crear Orden de Culqi si el gateway es CULQI
+    if (gateway === 'CULQI') {
+      const configs = await getConfigs()
+      const privateKey = configs.CULQI_PRIVATE_KEY
+
+      if (!privateKey || privateKey.includes('placeholder')) {
+        return ApiResponse.error(request, 'La pasarela Culqi no está configurada correctamente', 500)
+      }
+
+      const expirationDate = Math.floor(Date.now() / 1000) + 24 * 60 * 60 // 24 horas
+
+      const culqiOrderResponse = await fetch('https://api.culqi.com/v2/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${privateKey}`
+        },
+        body: JSON.stringify({
+          amount: Math.round(Number(total) * 100),
+          currency_code: moneda,
+          description: `Pedido #${pedido.numero_pedido} - Aula Virtual`,
+          order_number: `ORD-${pedido.numero_pedido}-${Date.now()}`,
+          client_details: {
+            first_name: auth.user.nombre?.split(' ')[0] || auth.user.name?.split(' ')[0] || 'User',
+            last_name:
+              auth.user.nombre?.split(' ').slice(1).join(' ') ||
+              auth.user.apellido ||
+              auth.user.name?.split(' ').slice(1).join(' ') ||
+              'User',
+            email: auth.user.email || '',
+            phone_number: '999999999'
+          },
+          expiration_date: expirationDate
+        })
+      })
+
+      const culqiOrderData = await culqiOrderResponse.json()
+
+      if (!culqiOrderResponse.ok) {
+        console.error('[CULQI_ORDER_ERROR]', culqiOrderData)
+
+        return ApiResponse.error(request, culqiOrderData.user_message || 'Error al crear la orden en Culqi', 500)
+      }
+
+      return ApiResponse.success(
+        request,
+        {
+          message: 'Orden de Culqi creada',
+          pedidoId: pedido.id,
+          culqiOrderId: culqiOrderData.id,
+          publicKey: configs.CULQI_PUBLIC_KEY,
+          rsaId: configs.CULQI_RSA_ID,
+          rsaPublicKey: configs.CULQI_RSA_PUBLIC_KEY
+        },
+        201
+      )
+    }
+
+    // Si no es ninguno de los anteriores
     return ApiResponse.success(
       request,
       {

@@ -11,27 +11,27 @@ model Usuario {
   id                 String            @id @default(uuid())
   correo             String            @unique
   contrasena         String?
-  numero_documento   String?           @unique
   nombre             String
+  numero_documento   String?           @unique
   apellido           String
   avatar             String?
-  google_id          String?           @unique
   biografia          String?
   celular            String?
-  cargo              String?
-  firma              String?
   rol                Rol               @default(ESTUDIANTE)
   esta_activo        Boolean           @default(true)
   creado_en          DateTime          @default(now())
   actualizado_en     DateTime          @updatedAt
+  google_id          String?           @unique
+  cargo              String?
+  firma              String?
   certificados       Certificado[]
   comentarios        Comentario[]
   cursos_dictados    Curso[]           @relation("ProfesorCursos")
   inscripciones      Inscripcion[]
   intentos_examen    IntentoExamen[]
+  notificaciones     Notificacion[]
   pedidos            Pedido[]
   progreso_cursos    ProgresoCurso[]
-  notificaciones     Notificacion[]
   progreso_lecciones ProgresoLeccion[]
 
   @@index([rol])
@@ -39,12 +39,12 @@ model Usuario {
 }
 
 model PasswordReset {
-  id         String   @id @default(uuid())
-  correo     String
-  codigo     String
-  expira_en  DateTime
-  usado      Boolean  @default(false)
-  creado_en  DateTime @default(now())
+  id        String   @id @default(uuid())
+  correo    String
+  codigo    String
+  expira_en DateTime
+  usado     Boolean  @default(false)
+  creado_en DateTime @default(now())
 
   @@index([correo])
   @@index([codigo])
@@ -81,7 +81,6 @@ model Curso {
   estado             EstadoCurso     @default(BORRADOR)
   es_gratis          Boolean         @default(false)
   precio             Decimal         @default(0) @db.Decimal(10, 2)
-  precio_oferta      Decimal?        @db.Decimal(10, 2)
   moneda             String          @default("PEN")
   creado_en          DateTime        @default(now())
   actualizado_en     DateTime        @updatedAt
@@ -93,16 +92,17 @@ model Curso {
   metodologia        Json?           @default("[]")
   objetivos          Json?           @default("[]")
   fecha_inicio       DateTime?
+  precio_oferta      Decimal?        @db.Decimal(10, 2)
+  brochure           String?
   certificados       Certificado[]
   categoria          Categoria?      @relation(fields: [categoria_id], references: [id])
   profesor           Usuario         @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
+  rutas              CursoEnRuta[]
   detalles_pedido    DetallePedido[]
   examenes           Examen[]
   inscripciones      Inscripcion[]
   modulos            Modulo[]
   progreso           ProgresoCurso[]
-  rutas              CursoEnRuta[]
-  brochure           String?
 
   @@index([profesor_id])
   @@index([categoria_id])
@@ -139,13 +139,13 @@ model Leccion {
   modulo_id        String
   recursos         Json?              @default("[]")
   video_url        String?
+  es_vista_previa  Boolean            @default(false)
   es_en_vivo       Boolean            @default(false)
   fecha_programada DateTime?
-  es_vista_previa  Boolean            @default(false)
+  comentarios      Comentario[]
   contenidos       ContenidoLeccion[]
   modulo           Modulo             @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
   progreso         ProgresoLeccion[]
-  comentarios      Comentario[]
 
   @@unique([modulo_id, orden])
   @@index([modulo_id])
@@ -188,8 +188,8 @@ model Pedido {
   cupon_id         String?
   detalles         DetallePedido[]
   inscripciones    Inscripcion[]
-  usuario          Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   cupon            Cupon?          @relation(fields: [cupon_id], references: [id])
+  usuario          Usuario         @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@index([usuario_id])
   @@index([cupon_id])
@@ -398,10 +398,10 @@ model Notificacion {
   titulo     String
   mensaje    String
   leida      Boolean  @default(false)
-  enlace     String?
-  tipo       String?
   usuario_id String
   creado_en  DateTime @default(now())
+  enlace     String?
+  tipo       String?
   usuario    Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@index([usuario_id])
@@ -416,10 +416,10 @@ model Comentario {
   usuario_id     String
   leccion_id     String
   respuesta_a_id String?
-  usuario        Usuario      @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   leccion        Leccion      @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
   padre          Comentario?  @relation("Respuestas", fields: [respuesta_a_id], references: [id], onDelete: Cascade)
   respuestas     Comentario[] @relation("Respuestas")
+  usuario        Usuario      @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@index([usuario_id])
   @@index([leccion_id])
@@ -441,6 +441,75 @@ model Cupon {
   pedidos          Pedido[]
 
   @@map("cupones")
+}
+
+model Configuracion {
+  id             String   @id @default(uuid())
+  clave          String   @unique
+  valor          String
+  descripcion    String?
+  actualizado_en DateTime @updatedAt
+
+  @@map("configuraciones")
+}
+
+model RutaAprendizaje {
+  id             String        @id @default(uuid())
+  titulo         String
+  slug           String        @unique
+  descripcion    String?
+  miniatura      String?
+  esta_activo    Boolean       @default(true)
+  creado_en      DateTime      @default(now())
+  actualizado_en DateTime      @updatedAt
+  beneficios     Json?         @default("[]")
+  secciones      Json?         @default("[]")
+  cursos         CursoEnRuta[]
+
+  @@map("rutas_aprendizaje")
+}
+
+model CursoEnRuta {
+  id             String          @id @default(uuid())
+  orden          Int
+  creado_en      DateTime        @default(now())
+  actualizado_en DateTime        @updatedAt
+  ruta_id        String
+  curso_id       String
+  seccion_id     String?
+  curso          Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  ruta           RutaAprendizaje @relation(fields: [ruta_id], references: [id], onDelete: Cascade)
+
+  @@unique([ruta_id, curso_id])
+  @@index([ruta_id])
+  @@index([curso_id])
+  @@map("cursos_en_ruta")
+}
+
+model Reclamacion {
+  id                   String               @id @default(uuid())
+  numero_correlativo   Int                  @unique @default(autoincrement())
+  tipo_documento       TipoDocumentoReclamo @default(DNI)
+  numero_documento     String
+  nombre               String
+  domicilio            String
+  telefono             String
+  email                String
+  nombre_apoderado     String?
+  bien_contratado_tipo TipoBien
+  monto_reclamado      Decimal              @db.Decimal(10, 2)
+  descripcion_bien     String
+  tipo_reclamacion     TipoReclamacion
+  detalle              String
+  pedido               String
+  estado               EstadoReclamacion    @default(PENDIENTE)
+  respuesta_proveedor  String?
+  fecha_respuesta      DateTime?
+  creado_en            DateTime             @default(now())
+  actualizado_en       DateTime             @updatedAt
+  moneda               String               @default("PEN")
+
+  @@map("reclamaciones")
 }
 
 enum Rol {
@@ -476,10 +545,10 @@ enum MetodoPago {
   YAPE
   PLIN
   TRANSFERENCIA
+  OTRO
   PAYPAL
   IZIPAY
   CULQI
-  OTRO
 }
 
 enum TipoPregunta {
@@ -517,75 +586,6 @@ enum NivelCurso {
 enum TipoDescuento {
   PORCENTAJE
   MONTO_FIJO
-}
-
-model Configuracion {
-  id             String   @id @default(uuid())
-  clave          String   @unique
-  valor          String
-  descripcion    String?
-  actualizado_en DateTime @updatedAt
-
-  @@map("configuraciones")
-}
-
-model RutaAprendizaje {
-  id             String        @id @default(uuid())
-  titulo         String
-  slug           String        @unique
-  descripcion    String?
-  miniatura      String?
-  beneficios     Json?         @default("[]")
-  secciones      Json?         @default("[]")
-  esta_activo    Boolean       @default(true)
-  creado_en      DateTime      @default(now())
-  actualizado_en DateTime      @updatedAt
-  cursos         CursoEnRuta[]
-
-  @@map("rutas_aprendizaje")
-}
-
-model CursoEnRuta {
-  id             String          @id @default(uuid())
-  orden          Int
-  seccion_id     String?
-  creado_en      DateTime        @default(now())
-  actualizado_en DateTime        @updatedAt
-  ruta_id        String
-  curso_id       String
-  ruta           RutaAprendizaje @relation(fields: [ruta_id], references: [id], onDelete: Cascade)
-  curso          Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
-
-  @@unique([ruta_id, curso_id])
-  @@index([ruta_id])
-  @@index([curso_id])
-  @@map("cursos_en_ruta")
-}
-
-model Reclamacion {
-  id                   String               @id @default(uuid())
-  numero_correlativo   Int                  @unique @default(autoincrement())
-  tipo_documento       TipoDocumentoReclamo @default(DNI)
-  numero_documento     String
-  nombre               String
-  domicilio            String
-  telefono             String
-  email                String
-  nombre_apoderado     String?
-  bien_contratado_tipo TipoBien
-  moneda               String               @default("PEN")
-  monto_reclamado      Decimal              @db.Decimal(10, 2)
-  descripcion_bien     String
-  tipo_reclamacion     TipoReclamacion
-  detalle              String
-  pedido               String
-  estado               EstadoReclamacion    @default(PENDIENTE)
-  respuesta_proveedor  String?
-  fecha_respuesta      DateTime?
-  creado_en            DateTime             @default(now())
-  actualizado_en       DateTime             @updatedAt
-
-  @@map("reclamaciones")
 }
 
 enum TipoDocumentoReclamo {
