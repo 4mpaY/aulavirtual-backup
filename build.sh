@@ -9,7 +9,7 @@ if [ -z "$VERSION" ]; then
     exit 1
 fi
 
-IMAGE_NAME="peves/aula-virtual:v${VERSION}"
+IMAGE_NAME="peves/legalizaya:v${VERSION}"
 
 echo ""
 echo "🏷️  Versión: $VERSION"
