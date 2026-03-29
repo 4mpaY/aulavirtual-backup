@@ -81,18 +81,57 @@ const ProfesorDashboardPage = () => {
 
                 {/* Info Section */}
                 <Grid item xs={12}>
-                    <Card sx={{ borderRadius: '16px', bgcolor: 'primary.main', color: 'white', p: 4 }}>
-                        <Grid container alignItems="center" spacing={4}>
+                    <Card
+                        sx={{
+                            borderRadius: '24px',
+                            background: 'linear-gradient(135deg, var(--mui-palette-primary-main) 0%, #3e52ff 100%)',
+                            color: 'common.white',
+                            p: { xs: 6, md: 8 },
+                            position: 'relative',
+                            overflow: 'hidden',
+                            boxShadow: '0 12px 40px -12px rgba(var(--mui-palette-primary-mainChannel) / 0.4)',
+                            border: 'none',
+                        }}
+                    >
+                        {/* Decoración sutil de fondo */}
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: -60,
+                                right: -60,
+                                width: 240,
+                                height: 240,
+                                borderRadius: '50%',
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                pointerEvents: 'none'
+                            }}
+                        />
+                        
+                        <Grid container alignItems="center" spacing={6} sx={{ position: 'relative', zIndex: 1 }}>
                             <Grid item xs={12} md={8}>
-                                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: 'white' }}>
+                                <Typography variant="h4" sx={{ fontWeight: 800, mb: 3, color: 'common.white', letterSpacing: '-0.02em' }}>
                                     ¿Listo para compartir más conocimiento?
                                 </Typography>
-                                <Typography variant="body1" sx={{ opacity: 0.9, mb: 4 }}>
+                                <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '1.1rem', lineHeight: 1.6, maxWidth: '600px' }}>
                                     Sigue creando contenido de calidad para tus alumnos. Recuerda que puedes responder sus dudas directamente desde el reproductor de cada lección.
                                 </Typography>
                             </Grid>
-                            <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
-                                <i className="tabler-certificate" style={{ fontSize: '5rem', opacity: 0.3 }} />
+                            <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-end' } }}>
+                                <Box
+                                    sx={{
+                                        width: 100,
+                                        height: 100,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        borderRadius: '24px',
+                                        background: 'rgba(255, 255, 255, 0.12)',
+                                        backdropFilter: 'blur(10px)',
+                                        border: '1px solid rgba(255, 255, 255, 0.2)'
+                                    }}
+                                >
+                                    <i className="tabler-certificate" style={{ fontSize: '3.5rem', color: 'white' }} />
+                                </Box>
                             </Grid>
                         </Grid>
                     </Card>

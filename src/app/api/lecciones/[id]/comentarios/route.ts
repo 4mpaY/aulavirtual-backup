@@ -135,44 +135,43 @@ export async function POST(request: Request, { params }: { params: { id: string 
       const curso = nuevoComentario.leccion.modulo.curso
       const profesorId = curso.profesor_id
 
-      if (!respuesta_a_id) {
-        // Es un comentario nuevo -> Notificar al profesor (si el que comenta no es el mismo profesor)
-        if (session.user.id !== profesorId) {
-          await prisma.notificacion.create({
-            data: {
-              titulo: 'Nuevo comentario en tu curso',
-              mensaje: `${session.user.name} comentó en "${nuevoComentario.leccion.titulo}" de tu curso "${curso.titulo}"`,
-              tipo: 'COMENTARIO_NUEVO',
-              usuario_id: profesorId,
-              enlace: `/profesor/cursos/${curso.id}` // Ajustar según ruta real
-            }
-          })
-        }
-      } else {
-        // Es una respuesta
-        const comentarioOriginal = await prisma.comentario.findUnique({
-          where: { id: respuesta_a_id },
-          include: { usuario: true }
-        })
-
-        if (comentarioOriginal && comentarioOriginal.usuario_id !== session.user.id) {
-          const replierRol = session.user.rol
-          const originalOwnerRol = comentarioOriginal.usuario.rol
-
-          // Estudiante recibe notificación si el profesor le responde
-          if (replierRol === 'PROFESOR' && originalOwnerRol === 'ESTUDIANTE') {
+        if (!respuesta_a_id) {
+          // Es un comentario nuevo -> Notificar al profesor (si el que comenta no es el mismo profesor)
+          if (session.user.id !== profesorId) {
             await prisma.notificacion.create({
               data: {
-                titulo: 'Respuesta del profesor',
-                mensaje: `El profesor respondió a tu comentario en "${nuevoComentario.leccion.titulo}"`,
-                tipo: 'RESPUESTA_COMENTARIO',
-                usuario_id: comentarioOriginal.usuario_id,
-                enlace: `/estudiante/aprender/${curso.slug}`
+                titulo: 'Nuevo comentario en tu curso',
+                mensaje: `${session.user.name} comentó en "${nuevoComentario.leccion.titulo}" de tu curso "${curso.titulo}"`,
+                tipo: 'COMENTARIO_NUEVO',
+                usuario_id: profesorId,
+                enlace: `/profesor/cursos/${curso.id}`
               }
             })
           }
+        } else {
+          // Es una respuesta
+          const comentarioOriginal = await prisma.comentario.findUnique({
+            where: { id: respuesta_a_id },
+            include: { usuario: true }
+          })
+
+          if (comentarioOriginal && comentarioOriginal.usuario_id !== session.user.id) {
+            const originalOwnerRol = comentarioOriginal.usuario.rol
+
+            // El Alumno recibe notificación si le responden (desde profesor o admin)
+            if (originalOwnerRol === 'ESTUDIANTE') {
+              await prisma.notificacion.create({
+                data: {
+                  titulo: 'Respuesta en el curso',
+                  mensaje: `Han respondido a tu comentario en "${nuevoComentario.leccion.titulo}"`,
+                  tipo: 'RESPUESTA_COMENTARIO',
+                  usuario_id: comentarioOriginal.usuario_id,
+                  enlace: `/estudiante/aprender/${curso.slug}?lessonId=${leccionId}`
+                }
+              })
+            }
+          }
         }
-      }
     } catch (notifError) {
       console.error('Error al crear notificación:', notifError)
 

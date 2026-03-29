@@ -112,18 +112,20 @@ export async function GET(request: Request, { params }: { params: { slug: string
         id: m.id,
         titulo: m.titulo,
         orden: m.orden,
-        lecciones: m.lecciones.map(l => ({
-          id: l.id,
-          titulo: l.titulo,
-          contenido: l.contenido,
-          orden: l.orden,
-          video_url: l.video_url,
-          es_en_vivo: (l as any).es_en_vivo,
-          fecha_programada: (l as any).fecha_programada,
-          enlace_reunion: (l as any).enlace_reunion,
-          completada: l.progreso[0]?.esta_completado || false,
-          recursos: Array.isArray(l.recursos) ? l.recursos : []
-        }))
+        lecciones: m.lecciones
+          .filter(l => l.estado === 'PUBLICADO')
+          .map(l => ({
+            id: l.id,
+            titulo: l.titulo,
+            contenido: l.contenido,
+            orden: l.orden,
+            video_url: l.video_url,
+            es_en_vivo: (l as any).es_en_vivo,
+            fecha_programada: (l as any).fecha_programada,
+            enlace_reunion: (l as any).enlace_reunion,
+            completada: l.progreso[0]?.esta_completado || false,
+            recursos: Array.isArray(l.recursos) ? l.recursos : []
+          }))
       })),
       examenes: course.examenes
     }

@@ -5,6 +5,7 @@ import { ArrowRight, Shield, BarChart3, Users, Award, Cog, Activity } from 'luci
 import HeroSlider from '@/features/web/home/components/HeroSlider'
 import ServiceCard from '@/features/web/home/components/ServiceCard'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
+import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
 
 export const metadata = {
   title: 'ARM - Soluciones de Ingeniería Industrial',
@@ -133,6 +134,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Verificación de Certificados */}
+      <SearchCertificateSection />
 
       {/* News */}
       <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-32 bg-white">

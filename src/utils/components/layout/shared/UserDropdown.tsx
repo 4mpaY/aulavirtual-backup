@@ -10,7 +10,6 @@ import { useRouter } from 'next/navigation'
 // MUI Imports
 import { styled } from '@mui/material/styles'
 import Badge from '@mui/material/Badge'
-import Avatar from '@mui/material/Avatar'
 import Popper from '@mui/material/Popper'
 import Fade from '@mui/material/Fade'
 import Paper from '@mui/material/Paper'
@@ -23,6 +22,8 @@ import Button from '@mui/material/Button'
 
 // Hook Imports
 import { signOut, useSession } from 'next-auth/react'
+
+import UserAvatar from '@/utils/components/UserAvatar'
 
 import { useSettings } from '@core/hooks/useSettings'
 
@@ -80,13 +81,12 @@ const UserDropdown = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         className='mis-2'
       >
-        <Avatar
-          ref={anchorRef}
-          alt={data?.user?.name || 'User'}
-          src={data?.user?.avatar || '/images/avatars/1.png'}
+        <UserAvatar
+          src={data?.user?.avatar}
+          name={data?.user?.name || 'User'}
+          size={38}
           onClick={handleDropdownOpen}
-          className='cursor-pointer bs-[38px] is-[38px]'
-          imgProps={{ referrerPolicy: 'no-referrer' }}
+          className='cursor-pointer'
         />
       </Badge>
       <Popper
@@ -108,10 +108,10 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
-                    <Avatar
-                      alt={data?.user?.name || ''}
-                      src={data?.user?.avatar || '/images/avatars/1.png'}
-                      imgProps={{ referrerPolicy: 'no-referrer' }}
+                    <UserAvatar
+                      src={data?.user?.avatar}
+                      name={data?.user?.name || ''}
+                      size={40}
                     />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>

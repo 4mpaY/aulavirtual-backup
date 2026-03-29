@@ -30,7 +30,9 @@ import {
 } from '@mui/material'
 
 import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
+import UserAvatar from '@/utils/components/UserAvatar'
 import HydratedDate from '@/utils/components/HydratedDate'
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 interface Leccion {
   id: string
@@ -58,10 +60,13 @@ interface CourseDetailProps {
     nivel: string
     tipo_emision: string
     profesor: {
+      id: string
+      slug: string
       nombre: string
       apellido: string
       avatar?: string
-      profesion?: string
+      cargo?: string
+      biografia?: string
     }
     categoria?: {
       nombre: string
@@ -85,8 +90,8 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const getEmbedUrl = (url?: string | null) => {
     if (!url) return null
 
-    // YouTube
-    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
+    // YouTube (incluye shorts, embed, watch, etc.)
+    const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
 
     if (ytMatch) {
       return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&rel=0`
@@ -152,12 +157,13 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: `url(${course.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'})`,
+            backgroundImage: course.miniatura ? `url(${course.miniatura})` : 'none',
+            bgcolor: '#0f172a',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            filter: 'blur(40px)', // Reduced blur for more definition
-            opacity: 0.4, // Increased opacity
-            transform: 'scale(1.1)',
+            filter: 'blur(60px)',
+            opacity: 0.3,
+            transform: 'scale(1.2)',
             zIndex: 0
           }}
         />
@@ -254,11 +260,11 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                     title={course.titulo}
                   />
                 ) : (
-                  <Box
-                    component="img"
-                    src={course.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
+                <CourseThumbnail
+                  src={course.miniatura}
+                  title={course.titulo}
+                  aspectRatio="16/9"
+                />
                 )}
                 {course.es_gratis && (
                   <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
@@ -299,12 +305,31 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
                     <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
-                        <i className="tabler-user" style={{ fontSize: '1.4rem' }} />
-                      </Avatar>
+                      <UserAvatar
+                        src={course.profesor.avatar}
+                        name={course.profesor.nombre}
+                        apellido={course.profesor.apellido}
+                        size={44}
+                        sx={{
+                          bgcolor: 'rgba(255,255,255,0.1)',
+                          border: '2px solid rgba(16, 185, 129, 0.3)'
+                        }}
+                      />
                       <Box>
                         <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Docente</Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>{course.profesor.nombre} {course.profesor.apellido}</Typography>
+                        <Link
+                          href={`/docentes/${course.profesor.slug}`}
+                          style={{
+                            color: '#10b981',
+                            textDecoration: 'none',
+                            fontWeight: 800,
+                            fontSize: '1.1rem',
+                            display: 'block',
+                            marginTop: -2
+                          }}
+                        >
+                          {course.profesor.nombre} {course.profesor.apellido}
+                        </Link>
                       </Box>
                     </Stack>
                   </Grid>
@@ -534,89 +559,93 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                 <Box>
                   {course.modulos.length > 0 ? (
                     <Stack spacing={1}>
-                      {course.modulos.map((modulo, index) => (
-                        <Accordion
-                          key={modulo.id}
-                          defaultExpanded={index === 0}
-                          sx={{
-                            borderRadius: '16px !important',
-                            boxShadow: 'none',
-                            border: '1px solid',
-                            borderColor: '#e2e8f0',
-                            bgcolor: 'white',
-                            '&:before': { display: 'none' }
-                          }}
-                        >
-                          <AccordionSummary
-                            expandIcon={<i className="tabler-chevron-down" />}
-                            sx={{ px: 3, py: 1 }}
+                      {course.modulos
+                        .filter(modulo => modulo.lecciones.some(l => (l as any).estado !== 'BORRADOR'))
+                        .map((modulo, index) => (
+                          <Accordion
+                            key={modulo.id}
+                            defaultExpanded={index === 0}
+                            sx={{
+                              borderRadius: '16px !important',
+                              boxShadow: 'none',
+                              border: '1px solid',
+                              borderColor: '#e2e8f0',
+                              bgcolor: 'white',
+                              '&:before': { display: 'none' }
+                            }}
                           >
-                            <Stack direction="row" spacing={2} alignItems="center">
-                              <Box sx={{
-                                width: 32,
-                                height: 32,
-                                borderRadius: '8px',
-                                bgcolor: 'primary.lighterOpacity',
-                                color: 'primary.main',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontWeight: 700,
-                                fontSize: '0.875rem'
-                              }}>
-                                {index + 1}
-                              </Box>
-                              <Typography variant="h6" sx={{ fontWeight: 700 }}>{modulo.titulo}</Typography>
-                            </Stack>
-                          </AccordionSummary>
-                          <AccordionDetails sx={{ p: 0 }}>
-                            <List disablePadding>
-                              {modulo.lecciones.map((leccion) => (
-                                <Fragment key={leccion.id}>
-                                  <Divider />
-                                  <ListItem
-                                    sx={{
-                                      py: 2,
-                                      px: 3,
-                                      cursor: (leccion as any).es_vista_previa ? 'pointer' : 'default',
-                                      transition: 'background-color 0.2s',
-                                      '&:hover': (leccion as any).es_vista_previa ? { bgcolor: 'action.hover' } : {}
-                                    }}
-                                    onClick={() => {
-                                      if ((leccion as any).es_vista_previa) {
-                                        setPreviewLesson(leccion)
-                                      }
-                                    }}
-                                  >
-                                    <ListItemIcon sx={{ minWidth: 40 }}>
-                                      <i className="tabler-player-play" style={{ color: (leccion as any).es_vista_previa ? 'primary.main' : 'text.disabled' }} />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                      primary={
-                                        <Stack direction="row" spacing={1} alignItems="center">
-                                          <Typography variant='body1' fontWeight={600}>{leccion.titulo}</Typography>
-                                          {(leccion as any).es_vista_previa && (
-                                            <Chip
-                                              size='small'
-                                              label='VISTA PREVIA'
-                                              color='primary'
-                                              sx={{ height: 20, fontSize: '0.625rem', fontWeight: 800 }}
-                                            />
-                                          )}
-                                        </Stack>
-                                      }
-                                    />
-                                    {leccion.duracion && (
-                                      <Typography variant="caption" color="text.disabled">
-                                        {leccion.duracion} min
-                                      </Typography>
-                                    )}
-                                  </ListItem>
-                                </Fragment>
-                              ))}
-                            </List>
-                          </AccordionDetails>
-                        </Accordion>
+                            <AccordionSummary
+                              expandIcon={<i className="tabler-chevron-down" />}
+                              sx={{ px: 3, py: 1 }}
+                            >
+                              <Stack direction="row" spacing={2} alignItems="center">
+                                <Box sx={{
+                                  width: 32,
+                                  height: 32,
+                                  borderRadius: '8px',
+                                  bgcolor: 'primary.lighterOpacity',
+                                  color: 'primary.main',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontWeight: 700,
+                                  fontSize: '0.875rem'
+                                }}>
+                                  {index + 1}
+                                </Box>
+                                <Typography variant="h6" sx={{ fontWeight: 700 }}>{modulo.titulo}</Typography>
+                              </Stack>
+                            </AccordionSummary>
+                            <AccordionDetails sx={{ p: 0 }}>
+                              <List disablePadding>
+                                {modulo.lecciones
+                                  .filter(leccion => (leccion as any).estado !== 'BORRADOR')
+                                  .map((leccion) => (
+                                    <Fragment key={leccion.id}>
+                                      <Divider />
+                                      <ListItem
+                                        sx={{
+                                          py: 2,
+                                          px: 3,
+                                          cursor: (leccion as any).es_vista_previa ? 'pointer' : 'default',
+                                          transition: 'background-color 0.2s',
+                                          '&:hover': (leccion as any).es_vista_previa ? { bgcolor: 'action.hover' } : {}
+                                        }}
+                                        onClick={() => {
+                                          if ((leccion as any).es_vista_previa) {
+                                            setPreviewLesson(leccion)
+                                          }
+                                        }}
+                                      >
+                                        <ListItemIcon sx={{ minWidth: 40 }}>
+                                          <i className="tabler-player-play" style={{ color: (leccion as any).es_vista_previa ? 'primary.main' : 'text.disabled' }} />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                              <Typography variant='body1' fontWeight={600}>{leccion.titulo}</Typography>
+                                              {(leccion as any).es_vista_previa && (
+                                                <Chip
+                                                  size='small'
+                                                  label='VISTA PREVIA'
+                                                  color='primary'
+                                                  sx={{ height: 20, fontSize: '0.625rem', fontWeight: 800 }}
+                                                />
+                                              )}
+                                            </Stack>
+                                          }
+                                        />
+                                        {leccion.duracion && (
+                                          <Typography variant="caption" color="text.disabled">
+                                            {leccion.duracion} min
+                                          </Typography>
+                                        )}
+                                      </ListItem>
+                                    </Fragment>
+                                  ))}
+                              </List>
+                            </AccordionDetails>
+                          </Accordion>
                       ))}
                     </Stack>
                   ) : (
@@ -718,6 +747,8 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de biografía eliminado — ahora se navega a /docentes/[id] */}
     </Box>
   )
 }

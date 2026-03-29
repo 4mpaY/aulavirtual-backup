@@ -1,12 +1,10 @@
 'use client'
 
-
 import { useRouter } from 'next/navigation'
 
 import {
   Card,
   CardContent,
-  CardMedia,
   Typography,
   Button,
   Stack,
@@ -15,6 +13,9 @@ import {
   LinearProgress
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
+
+import UserAvatar from '@/utils/components/UserAvatar'
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 const StyledCard = styled(Card)(() => ({
   height: '100%',
@@ -40,6 +41,7 @@ interface MyCourseCardProps {
   profesor: {
     nombre: string
     apellido: string
+    avatar?: string
   }
   progreso: number
   categoria?: string
@@ -57,45 +59,43 @@ const MyCourseCard = ({
 
   return (
     <StyledCard onClick={() => router.push(`/estudiante/aprender/${slug}`)}>
-      <Box sx={{ position: 'relative', pt: '56.25%', overflow: 'hidden' }}>
-        <CardMedia
-          component="img"
-          image={miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
-          alt={titulo}
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover'
-          }}
+      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+        <CourseThumbnail
+          src={miniatura}
+          title={titulo}
+          aspectRatio="16/9"
+          sx={{ display: 'block' }}
         />
+        {categoria && (
+          <Chip
+            label={categoria}
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 12,
+              left: 12,
+              bgcolor: 'rgba(255, 255, 255, 0.9)',
+              color: 'primary.main',
+              fontWeight: 800,
+              borderRadius: '8px',
+              fontSize: '0.6rem',
+              textTransform: 'uppercase',
+              backdropFilter: 'blur(4px)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              zIndex: 1
+            }}
+          />
+        )}
       </Box>
 
       <CardContent sx={{ flexGrow: 1, p: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <Box>
-          {categoria && (
-            <Chip
-              label={categoria}
-              size="small"
-              sx={{
-                bgcolor: 'primary.50',
-                color: 'primary.main',
-                fontWeight: 700,
-                mb: 1,
-                borderRadius: '6px',
-                fontSize: '0.65rem',
-                textTransform: 'uppercase'
-              }}
-            />
-          )}
           <Typography
             variant="h6"
             sx={{
               fontWeight: 800,
               lineHeight: 1.2,
-              mb: 0.5,
+              mb: 1.5,
               color: '#1e293b',
               fontSize: '1.1rem',
               display: '-webkit-box',
@@ -108,14 +108,23 @@ const MyCourseCard = ({
             {titulo}
           </Typography>
 
-          <Typography variant="body2" sx={{ color: '#334155', fontWeight: 600, mb: 2 }}>
-            Por {profesor.nombre} {profesor.apellido}
-          </Typography>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2.5 }}>
+            <UserAvatar
+              src={profesor.avatar}
+              name={profesor.nombre}
+              apellido={profesor.apellido}
+              size={24}
+              sx={{ border: '1px solid #e2e8f0' }}
+            />
+            <Typography variant="body2" sx={{ color: '#334155', fontWeight: 600 }}>
+              Por {profesor.nombre} {profesor.apellido}
+            </Typography>
+          </Stack>
 
           <Box sx={{ mb: 2 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569' }}>
-                Progreso
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.8 }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Tu Progreso
               </Typography>
               <Typography variant="caption" sx={{ fontWeight: 800, color: 'primary.main' }}>
                 {Math.round(progreso)}%
@@ -127,9 +136,10 @@ const MyCourseCard = ({
               sx={{
                 height: 8,
                 borderRadius: 4,
-                bgcolor: 'primary.50',
+                bgcolor: '#f1f5f9',
                 '& .MuiLinearProgress-bar': {
-                  borderRadius: 4
+                  borderRadius: 4,
+                  background: 'linear-gradient(90deg, #10b981 0%, #3b82f6 100%)'
                 }
               }}
             />
@@ -141,12 +151,16 @@ const MyCourseCard = ({
             fullWidth
             variant="contained"
             sx={{
-              borderRadius: '10px',
+              borderRadius: '12px',
               textTransform: 'none',
               fontWeight: 700,
-              py: 1.2,
+              py: 1.5,
               bgcolor: 'primary.main',
-              '&:hover': { bgcolor: 'primary.dark' }
+              boxShadow: '0 4px 12px rgba(var(--mui-palette-primary-mainChannel) / 0.2)',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+                boxShadow: '0 6px 16px rgba(var(--mui-palette-primary-mainChannel) / 0.3)'
+              }
             }}
           >
             Continuar aprendiendo

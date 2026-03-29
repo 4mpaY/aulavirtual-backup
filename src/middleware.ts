@@ -59,9 +59,14 @@ export default withAuth(
       return NextResponse.redirect(new URL('/unauthorized', req.url), { status: 302 })
     }
 
-    // Rutas de estudiante - solo ESTUDIANTE o ADMIN
+    // Rutas de estudiante - solo ESTUDIANTE o ADMIN (y PROFESOR para ver el reproductor)
     if (path.startsWith('/estudiante') && rol !== Rol.ADMIN && rol !== Rol.ESTUDIANTE) {
-      return NextResponse.redirect(new URL('/unauthorized', req.url), { status: 302 })
+      // Excepción: Los profesores pueden acceder al reproductor para ver su curso
+      if (rol === Rol.PROFESOR && path.startsWith('/estudiante/aprender')) {
+        // Permitido
+      } else {
+        return NextResponse.redirect(new URL('/unauthorized', req.url), { status: 302 })
+      }
     }
 
     return NextResponse.next()
@@ -83,14 +88,15 @@ export default withAuth(
           path.startsWith('/capacitacion') ||
           path.startsWith('/contacto') ||
           path.startsWith('/nosotros') ||
+          path.startsWith('/docentes') ||
           path.startsWith('/libro-de-reclamaciones') ||
           path.startsWith('/terminos-y-condiciones') ||
+          path.startsWith('/politica-de-cambios-y-devoluciones') ||
           path.startsWith('/forgot-password') ||
           path.startsWith('/reset-password') ||
           path.startsWith('/verificar-certificado') ||
           path.startsWith('/unauthorized') ||
           path.startsWith('/assets') ||
-          path.startsWith('/verificar-certificado') ||
           path === '/'
         ) {
           return true

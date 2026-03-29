@@ -85,9 +85,14 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         </MenuItem>
 
         {rol === 'ESTUDIANTE' && (
-          <MenuItem href='/estudiante/mis-cursos' icon={<i className='tabler-book' />}>
-            Mis Cursos
-          </MenuItem>
+          <>
+            <MenuItem href='/estudiante/mis-cursos' icon={<i className='tabler-book' />}>
+              Mis Cursos
+            </MenuItem>
+            <MenuItem href='/estudiante/pedidos' icon={<i className='tabler-shopping-cart' />}>
+              Mis Pedidos
+            </MenuItem>
+          </>
         )}
 
         {rol === 'ADMIN' && (

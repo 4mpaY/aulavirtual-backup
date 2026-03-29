@@ -3,26 +3,25 @@
 import type { MouseEvent } from 'react'
 
 import Link from 'next/link'
-
 import { useRouter } from 'next/navigation'
 
 import {
   Card,
   CardContent,
-  CardMedia,
   Typography,
   Button,
   Stack,
   Box,
   IconButton,
   Chip,
-  Avatar,
   Tooltip
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 import { useCart } from '../../cart/context/CartContext'
 import HydratedDate from '@/utils/components/HydratedDate'
+import UserAvatar from '@/utils/components/UserAvatar'
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 interface CourseCardProps {
   id: string
@@ -34,6 +33,8 @@ interface CourseCardProps {
   moneda: string
   es_gratis: boolean
   profesor: {
+    id?: string
+    slug?: string
     nombre: string
     apellido: string
     avatar?: string
@@ -46,6 +47,7 @@ interface CourseCardProps {
   fecha_inicio?: string | Date | null
   creado_en?: string | Date
   es_comprado?: boolean
+  video_presentacion?: string | null
 }
 
 const StyledCard = styled(Card)(() => ({
@@ -79,7 +81,8 @@ const CourseCard = ({
   tipo_emision,
   fecha_inicio,
   creado_en,
-  es_comprado
+  es_comprado,
+  video_presentacion
 }: CourseCardProps) => {
   const router = useRouter()
   const { addToCart, isInCart } = useCart()
@@ -135,20 +138,13 @@ const CourseCard = ({
       sx={{ border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}
       onClick={() => router.push(`/cursos/${slug}`)}
     >
-      <Box sx={{ position: 'relative', pt: '65%', overflow: 'hidden' }}>
-        <CardMedia
-          component="img"
-          image={miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
-          alt={titulo}
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transition: 'transform 0.5s ease'
-          }}
+      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+        <CourseThumbnail
+          src={miniatura}
+          title={titulo}
+          videoUrl={video_presentacion}
+          aspectRatio="16/10.5"
+          sx={{ display: 'block' }}
         />
 
         {/* Badges superiores */}
@@ -240,14 +236,43 @@ const CourseCard = ({
             {titulo}
           </Typography>
 
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-            <Avatar
-              src={profesor.avatar || ''}
-              sx={{ width: 24, height: 24, border: '1px solid #e2e8f0', fontSize: '0.75rem' }}
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            sx={{
+              mb: 2,
+              zIndex: 10,
+              '&:hover': {
+                '& .profesor-name': { color: 'primary.main' },
+                '& .profesor-avatar': { transform: 'scale(1.1)' }
+              }
+            }}
+            onClick={(e) => {
+              e.stopPropagation()
+              if (profesor.slug) router.push(`/docentes/${profesor.slug}`)
+            }}
+          >
+            <UserAvatar
+              src={profesor.avatar}
+              name={profesor.nombre}
+              apellido={profesor.apellido}
+              size={24}
+              className="profesor-avatar"
+              sx={{
+                border: '1px solid #e2e8f0',
+                transition: 'transform 0.2s'
+              }}
+            />
+            <Typography
+              variant="body2"
+              className="profesor-name"
+              sx={{
+                color: '#334155',
+                fontWeight: 700,
+                transition: 'color 0.2s'
+              }}
             >
-              {profesor.nombre[0]}
-            </Avatar>
-            <Typography variant="body2" sx={{ color: '#334155', fontWeight: 700 }}>
               Por {profesor.nombre} {profesor.apellido}
             </Typography>
           </Stack>

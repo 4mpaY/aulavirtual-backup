@@ -1,6 +1,5 @@
 'use client'
 
-
 import Link from 'next/link'
 
 import {
@@ -9,15 +8,17 @@ import {
   Typography,
   Box,
   Stack,
-  Button,
   Paper,
   Breadcrumbs,
+  Avatar,
   Card,
-  CardContent,
   Chip,
-  Avatar
+  Button
 } from '@mui/material'
+
 import { styled } from '@mui/material/styles'
+
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 interface CursoEnRuta {
   id: string
@@ -88,77 +89,76 @@ const ConnectorLine = styled(Box)(({ theme }) => ({
   zIndex: 1
 }))
 
-const CourseCard = ({ curso, index, total }: { curso: CursoEnRuta; index: number; total: number }) => (
-  <Box key={curso.id} sx={{ position: 'relative', pb: 8 }}>
-    {index < total - 1 && <ConnectorLine />}
+const CourseCard = ({ curso, index, total }: { curso: CursoEnRuta; index: number; total: number }) => {
+  return (
+    <Box key={curso.id} sx={{ position: 'relative', pb: 8 }}>
+      {index < total - 1 && <ConnectorLine />}
 
-    <Stack direction="row" spacing={4} alignItems="flex-start">
-      <StepCircle><span>{index + 1}</span></StepCircle>
+      <Stack direction="row" spacing={4} alignItems="flex-start">
+        <StepCircle><span>{index + 1}</span></StepCircle>
 
-      <Card sx={{
-        flexGrow: 1,
-        borderRadius: '24px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'transform 0.3s ease, border-color 0.3s ease',
-        '&:hover': {
-          transform: 'translateX(10px)',
-          borderColor: 'primary.main'
-        }
-      }}>
-        <CardContent sx={{ p: 0 }}>
-          <Grid container>
-            <Grid item xs={12} sm={4} md={3}>
-              <Box sx={{
-                height: '100%',
-                minHeight: { xs: '150px', sm: '100%' },
-                position: 'relative'
-              }}>
-                <Box
-                  component="img"
-                  src={curso.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
-                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        <Card sx={{
+          flexGrow: 1,
+          borderRadius: '24px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+          border: '1px solid',
+          borderColor: 'divider',
+          transition: 'transform 0.3s ease, border-color 0.3s ease',
+          '&:hover': {
+            transform: 'translateX(10px)',
+            borderColor: 'primary.main'
+          }
+        }}>
+            <Grid container alignItems="stretch">
+              <Grid item xs={12} sm={4} md={3} sx={{ display: 'flex' }}>
+                <CourseThumbnail
+                  src={curso.miniatura}
+                  title={curso.titulo}
+                  aspectRatio="auto"
+                  sx={{
+                    height: '100%',
+                    width: '100%',
+                    borderRadius: 0 // Se apoya en el overflow:hidden del Card
+                  }}
                 />
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={8} md={9}>
-              <Box sx={{ p: 4 }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>{curso.titulo}</Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, lineClamp: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {curso.descripcion || 'Aprende los fundamentos y aplicaciones prácticas en este curso integral.'}
-                </Typography>
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
-                  <Box>
-                    <Stack direction="row" spacing={2} alignItems="baseline">
-                      <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
-                        S/. {curso.precio_oferta ? curso.precio_oferta : curso.precio}
-                      </Typography>
-                      {curso.precio_oferta && (
-                        <Typography variant="caption" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
-                          S/. {curso.precio}
+              </Grid>
+              <Grid item xs={12} sm={8} md={9}>
+                <Box sx={{ p: 4 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>{curso.titulo}</Typography>
+                  <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, lineClamp: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {curso.descripcion || 'Aprende los fundamentos y aplicaciones prácticas en este curso integral.'}
+                  </Typography>
+                  <Stack spacing={2} alignItems="flex-start">
+                    <Box>
+                      <Stack direction="row" spacing={2} alignItems="baseline">
+                        <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
+                          S/. {curso.precio_oferta ? curso.precio_oferta : curso.precio}
                         </Typography>
-                      )}
-                    </Stack>
-                  </Box>
-                  <Button
-                    component={Link}
-                    href={`/cursos/${curso.slug}`}
-                    variant="contained"
-                    size="small"
-                    sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 700 }}
-                  >
-                    Ver detalles del curso
-                  </Button>
-                </Stack>
-              </Box>
+                        {curso.precio_oferta && (
+                          <Typography variant="caption" sx={{ textDecoration: 'line-through', color: 'text.secondary' }}>
+                            S/. {curso.precio}
+                          </Typography>
+                        )}
+                      </Stack>
+                    </Box>
+                    <Button
+                      component={Link}
+                      href={`/cursos/${curso.slug}`}
+                      variant="contained"
+                      size="small"
+                      sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 700, px: 3 }}
+                    >
+                      Ver detalles del curso
+                    </Button>
+                  </Stack>
+                </Box>
+              </Grid>
             </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-    </Stack>
-  </Box>
-)
+        </Card>
+      </Stack>
+    </Box>
+  )
+}
 
 const RutaDetail = ({ ruta }: RutaDetailProps) => {
   return (
@@ -185,7 +185,7 @@ const RutaDetail = ({ ruta }: RutaDetailProps) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundImage: `url(${ruta.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'})`,
+            backgroundImage: ruta.miniatura ? `url(${ruta.miniatura})` : 'none',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             filter: 'blur(40px)',
@@ -261,10 +261,11 @@ const RutaDetail = ({ ruta }: RutaDetailProps) => {
                   aspectRatio: '16/9'
                 }}
               >
-                <Box
-                  component="img"
-                  src={ruta.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
-                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                <CourseThumbnail
+                  src={ruta.miniatura}
+                  title={ruta.titulo}
+                  icon="tabler-map-2"
+                  aspectRatio="16/9"
                 />
                 <Box sx={{ position: 'absolute', top: 20, right: 20 }}>
                   <Chip label="RUTA DE APRENDIZAJE" color="primary" sx={{ fontWeight: 800, px: 1 }} />
@@ -404,7 +405,7 @@ const RutaDetail = ({ ruta }: RutaDetailProps) => {
               ) : (
                 ruta.secciones.sort((a, b) => a.orden - b.orden).map((seccion) => {
                   const cursosInSeccion = ruta.cursos.filter(c => c.seccion_id === seccion.id)
-                  
+
                   if (cursosInSeccion.length === 0) return null
 
                   return (
@@ -416,35 +417,35 @@ const RutaDetail = ({ ruta }: RutaDetailProps) => {
                       </Box>
                       <Stack spacing={0}>
                         {cursosInSeccion.map((c, index) => (
-                          <CourseCard 
-                            key={c.id} 
-                            curso={c} 
-                            index={index} 
+                          <CourseCard
+                            key={c.id}
+                            curso={c}
+                            index={index}
                             total={cursosInSeccion.length}
 
-                            // Global index if needed for sequence numbering, but maybe local is better for sections
+                          // Global index if needed for sequence numbering, but maybe local is better for sections
                           />
                         ))}
                       </Stack>
-                  </Box>
+                    </Box>
                   )
                 })
               )}
 
               {/* Courses without section (if any) */}
               {ruta.secciones && ruta.secciones.length > 0 && ruta.cursos.filter(c => !c.seccion_id).length > 0 && (
-                 <Box sx={{ mb: 10 }}>
-                    <Box sx={{ mb: 6 }}>
-                      <Typography variant='h5' sx={{ fontWeight: 900, color: 'primary.main', mb: 1 }}>
-                        Otros cursos
-                      </Typography>
-                    </Box>
-                    <Stack spacing={0}>
-                      {ruta.cursos.filter(c => !c.seccion_id).map((c, index, arr) => (
-                        <CourseCard key={c.id} curso={c} index={index} total={arr.length} />
-                      ))}
-                    </Stack>
-                 </Box>
+                <Box sx={{ mb: 10 }}>
+                  <Box sx={{ mb: 6 }}>
+                    <Typography variant='h5' sx={{ fontWeight: 900, color: 'primary.main', mb: 1 }}>
+                      Otros cursos
+                    </Typography>
+                  </Box>
+                  <Stack spacing={0}>
+                    {ruta.cursos.filter(c => !c.seccion_id).map((c, index, arr) => (
+                      <CourseCard key={c.id} curso={c} index={index} total={arr.length} />
+                    ))}
+                  </Stack>
+                </Box>
               )}
             </Stack>
           </Grid>

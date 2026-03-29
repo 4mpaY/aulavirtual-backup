@@ -92,8 +92,8 @@ RUN adduser --system --uid 1001 nextjs
 # Copiar carpeta public entera (para que Coolify la mantenga a salvo)
 COPY --from=builder /app/public ./public
 
-# Crear el directorio uploads y subcarpetas necesarias para cursos y perfiles
-RUN mkdir -p /app/public/uploads/cursos /app/public/uploads/perfil && \
+# Crear el directorio uploads y subcarpetas necesarias para cursos, perfiles y firmas
+RUN mkdir -p /app/public/uploads/cursos /app/public/uploads/perfil /app/public/uploads/firmas && \
     chown -R nextjs:nodejs /app/public/uploads
 
 # Configurar permisos para la caché de pre-renderizado de Next.js

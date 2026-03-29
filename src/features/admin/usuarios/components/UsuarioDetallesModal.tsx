@@ -6,7 +6,6 @@ import {
   Typography,
   Tab,
   Tabs,
-  Avatar,
   Grid,
   Chip,
   List,
@@ -20,8 +19,10 @@ import {
 import type { Rol } from '@prisma/client'
 
 import AppModal from '@/utils/components/AppModal'
+import UserAvatar from '@/utils/components/UserAvatar'
 
 import { useUsuario } from '../hooks/useUsuarios'
+import HydratedDate from '@/utils/components/HydratedDate'
 
 interface UsuarioDetallesModalProps {
   open: boolean
@@ -34,8 +35,6 @@ const rolLabels: { [key in Rol]: string } = {
   PROFESOR: 'Profesor',
   ESTUDIANTE: 'Estudiante'
 }
-
-import HydratedDate from '@/utils/components/HydratedDate'
 
 const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesModalProps) => {
   const [activeTab, setActiveTab] = useState(0)
@@ -61,13 +60,12 @@ const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesM
   return (
     <AppModal open={open} handleClose={handleClose}>
       <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: 3 }}>
-        <Avatar
-          src={usuario.avatar || undefined}
-          sx={{ width: 80, height: 80, fontSize: '2rem', bgcolor: 'primary.main' }}
-          imgProps={{ referrerPolicy: 'no-referrer' }}
-        >
-          {usuario.nombre.charAt(0).toUpperCase()}
-        </Avatar>
+        <UserAvatar
+          src={usuario.avatar}
+          name={usuario.nombre}
+          apellido={usuario.apellido}
+          size={80}
+        />
         <Box>
           <Typography variant='h4' sx={{ fontWeight: 600 }}>
             {usuario.nombre} {usuario.apellido}

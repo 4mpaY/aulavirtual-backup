@@ -46,8 +46,8 @@ export function ManualPedidoForm() {
     } = useForm<CrearPedidoManualDto>({
         resolver: zodResolver(crearPedidoManualSchema) as any,
         defaultValues: {
-            usuario_id: '',
-            curso_id: '',
+            usuarios_ids: [],
+            cursos_ids: [],
             metodo_pago: MetodoPago.TRANSFERENCIA,
             precio: 0,
             mensaje: ''
@@ -76,23 +76,24 @@ export function ManualPedidoForm() {
                     <Grid container spacing={6}>
                         <Grid item xs={12} md={6}>
                             <Controller
-                                name='usuario_id'
+                                name='usuarios_ids'
                                 control={control}
                                 render={({ field: { value, onChange } }) => (
                                     <Autocomplete
                                         fullWidth
+                                        multiple
                                         options={usuarios}
                                         getOptionLabel={(option) => `${option.nombre} ${option.apellido} (${option.correo})`}
                                         loading={isLoadingUsuarios}
-                                        value={usuarios.find((u) => u.id === value) || null}
-                                        onChange={(_, newValue) => onChange(newValue?.id || '')}
+                                        value={usuarios.filter((u) => value.includes(u.id))}
+                                        onChange={(_, newValue) => onChange(newValue.map(u => u.id))}
                                         renderInput={(params) => (
                                             <CustomTextField
                                                 {...params}
-                                                label='Seleccionar Estudiante'
+                                                label='Seleccionar Estudiantes'
                                                 placeholder='Busca por nombre o correo'
-                                                error={!!errors.usuario_id}
-                                                helperText={errors.usuario_id?.message}
+                                                error={!!errors.usuarios_ids}
+                                                helperText={(errors.usuarios_ids as any)?.message}
                                                 InputProps={{
                                                     ...params.InputProps,
                                                     endAdornment: (
@@ -111,32 +112,31 @@ export function ManualPedidoForm() {
 
                         <Grid item xs={12} md={6}>
                             <Controller
-                                name='curso_id'
+                                name='cursos_ids'
                                 control={control}
                                 render={({ field: { value, onChange } }) => (
                                     <Autocomplete
                                         fullWidth
+                                        multiple
                                         options={cursos}
                                         getOptionLabel={(option) => option.titulo}
                                         loading={isLoadingCursos}
-                                        value={cursos.find((c) => c.id === value) || null}
+                                        value={cursos.filter((c) => value.includes(c.id))}
                                         onChange={(_, newValue) => {
-                                            onChange(newValue?.id || '')
+                                            onChange(newValue.map(c => c.id))
 
-                                            if (newValue) {
-                                                const price = Number(newValue.precio)
+                                            const totalPrice = newValue.reduce((acc, curr) => acc + Number(curr.precio), 0)
 
-                                                setValue('precio', price)
-                                                setSelectedCoursePrice(price)
-                                            }
+                                            setValue('precio', totalPrice)
+                                            setSelectedCoursePrice(totalPrice)
                                         }}
                                         renderInput={(params) => (
                                             <CustomTextField
                                                 {...params}
-                                                label='Seleccionar Curso'
-                                                placeholder='Busca un curso activo'
-                                                error={!!errors.curso_id}
-                                                helperText={errors.curso_id?.message}
+                                                label='Seleccionar Cursos'
+                                                placeholder='Busca cursos activos'
+                                                error={!!errors.cursos_ids}
+                                                helperText={(errors.cursos_ids as any)?.message}
                                                 InputProps={{
                                                     ...params.InputProps,
                                                     endAdornment: (
@@ -165,7 +165,7 @@ export function ManualPedidoForm() {
                                         label='Precio del Pedido'
                                         placeholder='0.00'
                                         error={!!errors.precio}
-                                        helperText={errors.precio ? errors.precio.message : `Precio base del curso: ${selectedCoursePrice}`}
+                                        helperText={errors.precio ? errors.precio.message : `Precio total sugerido: ${selectedCoursePrice}`}
                                         InputProps={{
                                             startAdornment: <Typography sx={{ mr: 2, color: 'text.secondary' }}>PEN</Typography>
                                         }}

@@ -9,6 +9,7 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import prisma from '@/utils/libs/prisma'
 import { JWT_SECRET } from '@/utils/configs/auth'
+import { generateUniqueSlug } from '@/utils/libs/slug'
 
 export async function GET(req: Request) {
   try {
@@ -101,7 +102,8 @@ export async function PUT(req: Request) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
 
-    const { nombre, apellido, celular, numero_documento, biografia, contrasena, avatar, cargo, firma } = await req.json()
+    const { nombre, apellido, celular, numero_documento, biografia, contrasena, avatar, cargo, firma } =
+      await req.json()
 
     if (!nombre || !apellido || !numero_documento) {
       return NextResponse.json({ status: false, message: 'Faltan campos obligatorios' }, { status: 400 })
@@ -138,6 +140,13 @@ export async function PUT(req: Request) {
       }
     }
 
+    // Regenerar slug si cambia el nombre o apellido
+    if (nombre !== currentUser.nombre || apellido !== currentUser.apellido || !currentUser.slug) {
+      const nombreBase = `${nombre} ${apellido}`.trim()
+
+      updateData.slug = await generateUniqueSlug(nombreBase, prisma.usuario, currentUser.id)
+    }
+
     // Change password logic if provided
     if (contrasena && contrasena.trim() !== '') {
       const hashedPassword = await bcrypt.hash(contrasena, 10)
@@ -161,6 +170,7 @@ export async function PUT(req: Request) {
         avatar: true,
         rol: true,
         cargo: true,
+        slug: true,
         firma: true,
         esta_activo: true,
         actualizado_en: true

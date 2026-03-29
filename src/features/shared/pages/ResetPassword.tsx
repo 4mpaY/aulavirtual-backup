@@ -73,8 +73,8 @@ const ResetPassword = ({ mode }: { mode: SystemMode }) => {
 
   const darkImg = '/images/pages/auth-mask-dark.png'
   const lightImg = '/images/pages/auth-mask-light.png'
-  const darkIllustration = '/images/illustrations/auth/v2-reset-password-dark.png'
-  const lightIllustration = '/images/illustrations/auth/v2-reset-password-light.png'
+  const darkIllustration = '/images/illustrations/auth/v2-login-dark.png'
+  const lightIllustration = '/images/illustrations/auth/v2-login-light.png'
 
   // Hooks
   const { settings } = useSettings()

@@ -1,12 +1,10 @@
 'use client'
 
-
 import Link from 'next/link'
 
 import {
   Card,
   CardContent,
-  CardMedia,
   Typography,
   Button,
   Box,
@@ -15,6 +13,8 @@ import {
   Chip
 } from '@mui/material'
 import { styled } from '@mui/material/styles'
+
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 interface RutaCardProps {
   titulo: string
@@ -55,21 +55,13 @@ const RutaCard = ({
 }: RutaCardProps) => {
   return (
     <StyledCard>
-      <Box sx={{ position: 'relative', pt: '56.25%', overflow: 'hidden', bgcolor: 'primary.50' }}>
-        <CardMedia
-          component="img"
-          className="ruta-image"
-          image={miniatura || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80'}
-          alt={titulo}
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            transition: 'transform 0.6s ease'
-          }}
+      <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+        <CourseThumbnail
+          src={miniatura}
+          title={titulo}
+          icon="tabler-map-2"
+          aspectRatio="16/9"
+          sx={{ display: 'block' }}
         />
         <Box sx={{
           position: 'absolute',
@@ -121,7 +113,7 @@ const RutaCard = ({
         >
           {titulo}
         </Typography>
-        
+
         <Typography
           variant="body2"
           sx={{

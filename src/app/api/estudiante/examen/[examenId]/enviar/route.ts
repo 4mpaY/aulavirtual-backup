@@ -115,6 +115,7 @@ export async function POST(
       return {
         pregunta_id: resp.preguntaId,
         opcion_seleccionada_id: resp.opcionId,
+        opcion_correcta_id: opcionCorrecta?.id,
         es_correcta: esCorrecta,
         puntos_obtenidos: puntos
       }
@@ -134,7 +135,12 @@ export async function POST(
           esta_aprobado: aprobado,
           enviado_en: new Date(),
           respuestas: {
-            create: respuestasCalificadas as any[]
+            create: respuestasCalificadas.map((r: any) => ({
+              pregunta_id: r.pregunta_id,
+              opcion_seleccionada_id: r.opcion_seleccionada_id,
+              es_correcta: r.es_correcta,
+              puntos_obtenidos: r.puntos_obtenidos
+            }))
           }
         }
       })
@@ -149,7 +155,13 @@ export async function POST(
       puntajeAprobacion: examen.puntaje_aprobacion,
       respuestasCorrectas: respuestasCalificadas.filter((r: any) => r.es_correcta).length,
       totalPreguntas: examen.preguntas.length,
-      intentosRestantes: examen.intentos_maximos - intentosRealizados - 1
+      intentosRestantes: examen.intentos_maximos - intentosRealizados - 1,
+      detallesRespuestas: respuestasCalificadas.map((r: any) => ({
+        preguntaId: r.pregunta_id,
+        opcionSeleccionadaId: r.opcion_seleccionada_id,
+        opcionCorrectaId: r.opcion_correcta_id,
+        esCorrecta: r.es_correcta
+      }))
     })
   } catch (error) {
     return handleApiError(error, request)

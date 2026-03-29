@@ -5,42 +5,8 @@ import { crearCursoSchema, listarCursosQuerySchema } from '@/schemas/curso.schem
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
+import { generateUniqueSlug } from '@/utils/libs/slug'
 
-/**
- * Genera un slug a partir de un texto
- */
-function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-}
-
-/**
- * Genera un slug único para cursos
- */
-async function generateUniqueSlug(titulo: string, excludeId?: string): Promise<string> {
-  const slug = generateSlug(titulo)
-  let counter = 0
-  let candidateSlug = slug
-
-  while (true) {
-    const existing = await prisma.curso.findUnique({
-      where: { slug: candidateSlug }
-    })
-
-    if (!existing || existing.id === excludeId) {
-      return candidateSlug
-    }
-
-    counter++
-    candidateSlug = `${slug}-${counter}`
-  }
-}
 
 /**
  * GET /api/cursos
@@ -191,33 +157,21 @@ export async function POST(request: Request) {
       }
     }
 
-    // Generar slug único
-    const slug = await generateUniqueSlug(data.titulo)
+    const slug = await generateUniqueSlug(validation.data.titulo, prisma.curso)
 
     const nuevoCurso = await prisma.curso.create({
       data: {
-        titulo: data.titulo,
+        ...validation.data,
         slug,
-        descripcion: data.descripcion || null,
-        categoria_id: data.categoria_id || null,
-        profesor_id: data.profesor_id,
-        tipo_emision: data.tipo_emision,
-        es_gratis: data.es_gratis,
-        precio: data.precio,
-        moneda: data.moneda,
-        duracion: data.duracion || null,
-        miniatura: data.miniatura || null,
-        video_presentacion: data.video_presentacion || null,
-        brochure: data.brochure || null,
-        fecha_inicio: data.fecha_inicio ? new Date(data.fecha_inicio) : null,
+        fecha_inicio: validation.data.fecha_inicio ? new Date(validation.data.fecha_inicio) : null,
         estado: 'BORRADOR'
       },
       include: {
         profesor: {
-          select: { id: true, nombre: true, apellido: true, avatar: true }
+          select: { id: true, slug: true, nombre: true, apellido: true, avatar: true }
         },
         categoria: {
-          select: { id: true, nombre: true }
+          select: { id: true, nombre: true, slug: true }
         },
         _count: {
           select: { modulos: true, inscripciones: true }
