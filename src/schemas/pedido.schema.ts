@@ -5,8 +5,8 @@ import { MetodoPago } from '@prisma/client'
  * Schema para crear un pedido manual (Admin)
  */
 export const crearPedidoManualSchema = z.object({
-  usuario_id: z.string().uuid('ID de usuario inválido'),
-  curso_id: z.string().uuid('ID de curso inválido'),
+  usuarios_ids: z.array(z.string().uuid('ID de usuario inválido')).min(1, 'Selecciona al menos un estudiante'),
+  cursos_ids: z.array(z.string().uuid('ID de curso inválido')).min(1, 'Selecciona al menos un curso'),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').max(1000000, 'El precio es demasiado alto'),
   metodo_pago: z.nativeEnum(MetodoPago).default(MetodoPago.TRANSFERENCIA),
   mensaje: z.string().trim().max(500, 'El mensaje no puede exceder 500 caracteres').optional()

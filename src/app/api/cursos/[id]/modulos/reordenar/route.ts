@@ -37,15 +37,24 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       return ApiResponse.error(request, 'No tienes permiso para gestionar este curso', 403)
     }
 
-    // Actualizar el orden de cada módulo en una transacción
-    await prisma.$transaction(
-      validation.data.items.map(item =>
+    // Actualizar el orden en dos pasos dentro de una transacción para evitar conflictos con la restricción UNIQUE(curso_id, orden)
+    await prisma.$transaction([
+      // Paso 1: Mover a posiciones temporales fuera de rango para liberar los números
+      ...validation.data.items.map((item, index) =>
+        prisma.modulo.update({
+          where: { id: item.id },
+          data: { orden: 10000 + index }
+        })
+      ),
+
+      // Paso 2: Asignar las posiciones reales finales
+      ...validation.data.items.map(item =>
         prisma.modulo.update({
           where: { id: item.id },
           data: { orden: item.orden }
         })
       )
-    )
+    ])
 
     // Retornar los módulos actualizados
     const modulos = await prisma.modulo.findMany({

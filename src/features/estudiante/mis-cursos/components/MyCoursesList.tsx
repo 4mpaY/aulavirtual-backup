@@ -13,6 +13,7 @@ interface Course {
     profesor: {
         nombre: string
         apellido: string
+        avatar?: string
     }
     progreso: number
     categoria?: string

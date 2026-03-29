@@ -14,6 +14,7 @@ model Usuario {
   nombre             String
   numero_documento   String?           @unique
   apellido           String
+  slug               String?           @unique
   avatar             String?
   biografia          String?
   celular            String?

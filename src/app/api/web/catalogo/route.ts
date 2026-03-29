@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       prisma.curso.findMany({
         where: { estado: 'PUBLICADO' },
         include: {
-          profesor: { select: { nombre: true, apellido: true, avatar: true } },
+          profesor: { select: { id: true, slug: true, nombre: true, apellido: true, avatar: true } },
           categoria: { select: { id: true, nombre: true, slug: true } },
           _count: { select: { modulos: true } }
         },

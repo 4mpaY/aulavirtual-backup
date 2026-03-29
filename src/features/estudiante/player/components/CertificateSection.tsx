@@ -163,11 +163,11 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
                 <CardContent sx={{ p: 4 }}>
                     <Stack spacing={2} alignItems="center">
                         <Stack direction="row" spacing={2}>
-                            <Chip
-                                icon={<i className="tabler-calendar" />}
-                                label={`Emitido: ${fechaEmision}`}
-                                variant="outlined"
-                            />
+                                <Chip
+                                    icon={<i className="tabler-calendar" />}
+                                    label={<Typography variant="body2" component="span">Emitido: {fechaEmision}</Typography>}
+                                    variant="outlined"
+                                />
                             <Chip
                                 icon={<i className="tabler-fingerprint" />}
                                 label={certificado.codigoVerificacion}

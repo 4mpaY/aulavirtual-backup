@@ -2,7 +2,7 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { Phone, Mail, MapPin, ArrowRight, BookOpenCheck } from 'lucide-react'
+import { Phone, Mail, MapPin, ArrowRight, BookOpenCheck, Award } from 'lucide-react'
 
 import HydratedDate from '@/utils/components/HydratedDate'
 
@@ -50,6 +50,14 @@ const WebFooter = () => {
                 </li>
               ))}
             </ul>
+
+            <Link
+              href="/verificar-certificado"
+              className="inline-flex items-center gap-2 mt-8 px-5 py-3 bg-white text-[#02115C] font-sans font-bold text-xs tracking-wider uppercase border-2 border-[#02115C] border-dashed hover:bg-[#02115C] hover:text-white hover:border-solid transition-all duration-300 rounded"
+            >
+              <Award className="w-4 h-4" />
+              Validar Certificado
+            </Link>
           </div>
 
           {/* Contact */}

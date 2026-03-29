@@ -27,82 +27,112 @@ export async function POST(request: Request) {
       return validation.error
     }
 
-    const { usuario_id, curso_id, precio, metodo_pago, mensaje } = validation.data
+    const { usuarios_ids, cursos_ids, precio, metodo_pago, mensaje } = validation.data
 
-    // 3. Verificar que el curso existe y obtener su moneda
-    const curso = await prisma.curso.findUnique({
-      where: { id: curso_id }
+    // 3. Obtener información de los cursos
+    const cursos = await prisma.curso.findMany({
+      where: { id: { in: cursos_ids } }
     })
 
-    if (!curso) {
-      return ApiResponse.error(request, 'El curso no existe', 404)
+    if (cursos.length === 0) {
+      return ApiResponse.error(request, 'No se encontraron los cursos seleccionados', 404)
     }
 
-    // 4. Verificar que el estudiante existe
-    const estudiante = await prisma.usuario.findUnique({
-      where: { id: usuario_id }
-    })
+    const firstCourseMoneda = cursos[0].moneda || 'PEN'
 
-    if (!estudiante) {
-      return ApiResponse.error(request, 'El estudiante no existe', 404)
-    }
+    // 4. Procesar cada estudiante
+    const resultados = []
 
-    // 5. Verificar si ya está inscrito
-    const inscripcionExistente = await prisma.inscripcion.findUnique({
-      where: {
-        usuario_id_curso_id: {
-          usuario_id,
-          curso_id
-        }
+    for (const usuario_id of usuarios_ids) {
+      const estudiante = await prisma.usuario.findUnique({
+        where: { id: usuario_id },
+        include: { inscripciones: true }
+      })
+
+      if (!estudiante) {
+        resultados.push({ usuario_id, status: 'error', message: 'El estudiante no existe' })
+        continue
       }
-    })
 
-    if (inscripcionExistente) {
-      return ApiResponse.error(request, 'El estudiante ya está inscrito en este curso', 400)
+      // Filtrar cursos en los que NO está inscrito
+      const cursosParaInscribir = cursos.filter(c => 
+        !estudiante.inscripciones.some(ins => ins.curso_id === c.id)
+      )
+
+      if (cursosParaInscribir.length === 0) {
+        resultados.push({ 
+          usuario_id, 
+          nombre: `${estudiante.nombre} ${estudiante.apellido}`,
+          status: 'skipped', 
+          message: 'El estudiante ya está inscrito en todos los cursos seleccionados' 
+        })
+        continue
+      }
+
+      try {
+        // Crear Pedido e Inscripciones en una transacción por estudiante
+        await prisma.$transaction(async tx => {
+          const pedido = await tx.pedido.create({
+            data: {
+              usuario_id: usuario_id,
+              total: precio,
+              moneda: firstCourseMoneda,
+              estado: 'COMPLETADO',
+              metodo_pago: metodo_pago,
+              mensaje: mensaje || `Pedido masivo generado por administrador`,
+              pagado_en: new Date(),
+              detalles: {
+                create: cursosParaInscribir.map(c => ({
+                  curso_id: c.id,
+                  precio_unitario: precio / cursosParaInscribir.length, // Prorratear el precio total entre los cursos
+                  subtotal: precio / cursosParaInscribir.length,
+                  total: precio / cursosParaInscribir.length,
+                  cantidad: 1
+                }))
+              }
+            }
+          })
+
+          // Crear las inscripciones
+          await Promise.all(
+            cursosParaInscribir.map(c => 
+              tx.inscripcion.create({
+                data: {
+                  usuario_id: usuario_id,
+                  curso_id: c.id,
+                  pedido_id: pedido.id,
+                  estado: 'ACTIVO',
+                  inscrito_en: new Date()
+                }
+              })
+            )
+          )
+        })
+
+        resultados.push({ 
+          usuario_id, 
+          nombre: `${estudiante.nombre} ${estudiante.apellido}`,
+          status: 'success', 
+          cursos: cursosParaInscribir.map(c => c.titulo) 
+        })
+      } catch (error: any) {
+        console.error(`Error procesando estudiante ${usuario_id}:`, error)
+        resultados.push({ 
+          usuario_id, 
+          nombre: `${estudiante.nombre} ${estudiante.apellido}`,
+          status: 'error', 
+          message: error.message || 'Error interno' 
+        })
+      }
     }
 
-    // 6. Crear Pedido, Detalle e Inscripción en una transacción
-    const result = await prisma.$transaction(async tx => {
-      // Crear el pedido
-      const pedido = await tx.pedido.create({
-        data: {
-          usuario_id: usuario_id,
-          total: precio,
-          moneda: curso.moneda || 'PEN',
-          estado: 'COMPLETADO',
-          metodo_pago: metodo_pago,
-          mensaje: mensaje || `Pedido manual generado por administrador`,
-          pagado_en: new Date(),
-          detalles: {
-            create: {
-              curso_id: curso_id,
-              precio_unitario: precio,
-              subtotal: precio,
-              total: precio
-            }
-          }
-        }
-      })
-
-      // Crear la inscripción
-      const inscripcion = await tx.inscripcion.create({
-        data: {
-          usuario_id: usuario_id,
-          curso_id: curso_id,
-          pedido_id: pedido.id,
-          estado: 'ACTIVO',
-          inscrito_en: new Date()
-        }
-      })
-
-      return { pedido, inscripcion }
-    })
+    const exitosos = resultados.filter(r => r.status === 'success').length
 
     return ApiResponse.success(
       request,
       {
-        message: 'Pedido manual creado con éxito y acceso concedido al curso',
-        data: result
+        message: `Proceso completado. ${exitosos} estudiantes inscritos exitosamente.`,
+        detalles: resultados
       },
       201
     )

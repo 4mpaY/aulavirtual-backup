@@ -48,7 +48,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
       },
       include: {
         profesor: {
-          select: { nombre: true, apellido: true, avatar: true }
+          select: { id: true, slug: true, nombre: true, apellido: true, avatar: true, biografia: true, cargo: true }
         },
         categoria: {
           select: { id: true, nombre: true }
@@ -56,6 +56,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
         modulos: {
           include: {
             lecciones: {
+              where: { estado: 'PUBLICADO' },
               orderBy: { orden: 'asc' }
             }
           },

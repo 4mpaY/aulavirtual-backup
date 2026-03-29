@@ -11,21 +11,24 @@ import {
   Grid,
   TextField,
   Button,
-  Avatar,
   Stack,
   Divider,
   CircularProgress,
   IconButton,
   Tooltip,
-  Badge
+  Badge,
+  InputAdornment
 } from '@mui/material'
 import { toast } from 'react-toastify'
 import axios from 'axios'
-import { getSession } from 'next-auth/react'
+import { getSession, useSession } from 'next-auth/react'
+
+import UserAvatar from '@/utils/components/UserAvatar'
 
 import { AxiosPerfil } from '../http/axiosPerfil'
 import type { Perfil } from '../entity/Perfil'
 import SignatureUpload from '../../admin/usuarios/components/SignatureUpload'
+import ProfesorBioEditor from './ProfesorBioEditor'
 
 interface Props {
   user: Perfil
@@ -33,9 +36,11 @@ interface Props {
 
 export default function UserProfileForm({ user }: Props) {
   const router = useRouter()
+  const { update: updateSession } = useSession()
   const [loading, setLoading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const [formData, setFormData] = useState({
     nombre: user.nombre || '',
@@ -109,6 +114,10 @@ export default function UserProfileForm({ user }: Props) {
 
       if (resultData) {
         toast.success('Perfil actualizado correctamente')
+
+        // Refrescar la sesión de NextAuth para que el header muestre el nuevo avatar
+        await updateSession()
+
         router.refresh()
 
         // Limpiamos los campos de contraseña
@@ -156,14 +165,14 @@ export default function UserProfileForm({ user }: Props) {
                 </Tooltip>
               }
             >
-              <Avatar
-                src={avatarPreview || undefined}
-                sx={{ width: 120, height: 120, fontSize: '3rem', bgcolor: 'primary.main', cursor: 'pointer' }}
-                imgProps={{ referrerPolicy: 'no-referrer' }}
+              <UserAvatar
+                src={avatarPreview}
+                name={user.nombre}
+                apellido={user.apellido}
+                size={120}
+                sx={{ cursor: 'pointer' }}
                 onClick={() => fileInputRef.current?.click()}
-              >
-                {user.nombre.charAt(0)}{user.apellido.charAt(0)}
-              </Avatar>
+              />
             </Badge>
           </Box>
           <Typography variant="h5" sx={{ fontWeight: 800 }}>
@@ -237,18 +246,29 @@ export default function UserProfileForm({ user }: Props) {
                 />
               </Grid>
 
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Acerca de mí"
-                  name="biografia"
-                  value={formData.biografia}
-                  onChange={handleChange}
-                  multiline
-                  rows={3}
-                  placeholder="Cuéntanos un poco sobre ti..."
-                />
-              </Grid>
+              {/* Editor de biografía: estructurado para profesores, libre para estudiantes */}
+              {(user.rol === 'PROFESOR' || user.rol === 'ADMIN') ? (
+                <Grid item xs={12}>
+                  <ProfesorBioEditor
+                    value={formData.biografia}
+                    onChange={(html) => setFormData(prev => ({ ...prev, biografia: html }))}
+                    rol={user.rol}
+                  />
+                </Grid>
+              ) : (
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Acerca de mí"
+                    name="biografia"
+                    value={formData.biografia}
+                    onChange={handleChange}
+                    multiline
+                    rows={3}
+                    placeholder="Cuéntanos un poco sobre ti..."
+                  />
+                </Grid>
+              )}
 
               {(user.rol === 'ADMIN' || user.rol === 'PROFESOR') && (
                 <>
@@ -290,9 +310,21 @@ export default function UserProfileForm({ user }: Props) {
                   fullWidth
                   label="Nueva Contraseña"
                   name="contrasena"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={formData.contrasena}
                   onChange={handleChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          <i className={showPassword ? 'tabler-eye-off' : 'tabler-eye'} style={{ fontSize: '1.25rem' }} />
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -300,9 +332,21 @@ export default function UserProfileForm({ user }: Props) {
                   fullWidth
                   label="Confirmar Nueva Contraseña"
                   name="confirmarContrasena"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={formData.confirmarContrasena}
                   onChange={handleChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          <i className={showPassword ? 'tabler-eye-off' : 'tabler-eye'} style={{ fontSize: '1.25rem' }} />
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
               </Grid>
 

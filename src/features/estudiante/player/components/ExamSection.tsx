@@ -272,6 +272,78 @@ const ExamSection = ({ examenId, onExamPassed }: ExamSectionProps) => {
                         </>
                     )}
                 </CardContent>
+
+                {/* Resumen del examen post-envío */}
+                {resultado.detallesRespuestas && examen && (
+                    <>
+                        <Divider />
+                        <Box sx={{ p: 4, bgcolor: 'background.paper' }}>
+                            <Typography variant="h6" fontWeight={800} mb={3}>
+                                Resumen de tus respuestas
+                            </Typography>
+                            <Stack spacing={3}>
+                                {examen.preguntas.map((pregunta, index) => {
+                                    const detalle = resultado.detallesRespuestas.find((d: any) => d.preguntaId === pregunta.id)
+                                    
+                                    if (!detalle) return null
+
+                                    const opcionSeleccionada = pregunta.opciones.find(o => o.id === detalle.opcionSeleccionadaId)
+                                    const opcionCorrecta = pregunta.opciones.find(o => o.id === detalle.opcionCorrectaId)
+
+                                    return (
+                                        <Card key={pregunta.id} variant="outlined" sx={{ 
+                                            borderRadius: '12px', 
+                                            borderColor: detalle.esCorrecta ? 'success.main' : 'error.main',
+                                            bgcolor: detalle.esCorrecta ? 'success.50' : 'error.50'
+                                        }}>
+                                            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+                                                <Stack direction="row" spacing={1.5} mb={2}>
+                                                    <i 
+                                                        className={detalle.esCorrecta ? 'tabler-circle-check-filled' : 'tabler-circle-x-filled'} 
+                                                        style={{ 
+                                                            fontSize: '1.25rem',
+                                                            color: detalle.esCorrecta ? 'var(--mui-palette-success-main)' : 'var(--mui-palette-error-main)',
+                                                            marginTop: '2px'
+                                                        }} 
+                                                    />
+                                                    <Typography fontWeight={700} sx={{ flex: 1, color: 'text.primary' }}>
+                                                        {index + 1}. {pregunta.texto}
+                                                    </Typography>
+                                                </Stack>
+
+                                                <Stack spacing={1.5} sx={{ pl: 4 }}>
+                                                    <Box>
+                                                        <Typography variant="caption" display="block" color="text.secondary" fontWeight={700} sx={{ mb: 0.5 }}>
+                                                            TU RESPUESTA:
+                                                        </Typography>
+                                                        <Typography 
+                                                            variant="body2" 
+                                                            color={detalle.esCorrecta ? 'success.main' : 'error.main'}
+                                                            fontWeight={600}
+                                                        >
+                                                            {opcionSeleccionada?.texto || 'No respondida'}
+                                                        </Typography>
+                                                    </Box>
+
+                                                    {!detalle.esCorrecta && (
+                                                        <Box>
+                                                            <Typography variant="caption" display="block" color="text.secondary" fontWeight={700} sx={{ mb: 0.5 }}>
+                                                                RESPUESTA CORRECTA:
+                                                            </Typography>
+                                                            <Typography variant="body2" color="success.main" fontWeight={600}>
+                                                                {opcionCorrecta?.texto || 'No disponible'}
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
+                                                </Stack>
+                                            </CardContent>
+                                        </Card>
+                                    )
+                                })}
+                            </Stack>
+                        </Box>
+                    </>
+                )}
             </Card>
         )
     }

@@ -108,7 +108,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const [pr, pg, pb] = hexToRgb(colorPrimario)
     const [sr, sg, sb] = hexToRgb(colorSecundario)
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const reqUrl = new URL(request.url)
+    const appUrl = `${reqUrl.protocol}//${reqUrl.host}`
     const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
 
     const qrDataUrl = await QRCode.toDataURL(verifyUrl, {

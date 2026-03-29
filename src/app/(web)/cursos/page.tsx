@@ -19,6 +19,15 @@ async function getData(token: string | null) {
 
     const data = await axiosWebCursos.getCatalog()
 
+    // Serialización manual de Decimal a Number para evitar errores en Client Components
+    if (data.courses) {
+      data.courses = data.courses.map((c: any) => ({
+        ...c,
+        precio: c.precio ? Number(c.precio) : 0,
+        precio_oferta: c.precio_oferta ? Number(c.precio_oferta) : null
+      }))
+    }
+
     return data
   } catch (error) {
     console.error('Error fetching data in CursosPage via API:', error)

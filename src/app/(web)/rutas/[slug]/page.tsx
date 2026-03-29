@@ -13,9 +13,19 @@ export default async function RutaDetailPage({ params }: { params: { slug: strin
 
     if (!ruta) notFound()
 
+    // Serializar Decimal a Number para Client Components
+    const serializedRuta = {
+      ...ruta,
+      cursos: ruta.cursos.map((c: any) => ({
+        ...c,
+        precio: c.precio ? Number(c.precio) : 0,
+        precio_oferta: c.precio_oferta ? Number(c.precio_oferta) : null
+      }))
+    }
+
     return (
       <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
-        <RutaDetail ruta={ruta} />
+        <RutaDetail ruta={serializedRuta} />
       </Box>
     )
   } catch {

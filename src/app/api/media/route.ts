@@ -151,12 +151,32 @@ export async function POST(request: Request) {
     // Ruta relativa para la URL y ruta absoluta para guardar
     const folder = isSignature ? 'firmas' : 'cursos'
     const relativePath = `/uploads/${folder}/${nombreArchivo}`
-    const absolutePath = join(process.cwd(), 'public', 'uploads', folder, nombreArchivo)
+    const uploadDir = join(process.cwd(), 'public', 'uploads', folder)
+    const absolutePath = join(uploadDir, nombreArchivo)
 
-    // Asegurar que el directorio existe
-    await mkdir(join(process.cwd(), 'public', 'uploads', folder), { recursive: true })
+    try {
+      // Asegurar que el directorio existe
+      await mkdir(uploadDir, { recursive: true })
 
-    await writeFile(absolutePath, buffer)
+      // Escribir el archivo
+      await writeFile(absolutePath, buffer)
+    } catch (fsError: any) {
+      console.error('❌ Error de sistema de archivos en subida:', {
+        code: fsError.code,
+        path: fsError.path,
+        absolutePath: absolutePath
+      })
+
+      if (fsError.code === 'EACCES') {
+        return ApiResponse.error(
+          request,
+          `Error de permisos en el servidor (EACCES). No se pudo crear/escribir en ${fsError.path}. Ejecute 'sudo chown -R $USER:$USER public/uploads' en su servidor para solucionar este problema.`,
+          500
+        )
+      }
+
+      throw fsError // Re-lanzar otros errores para ser capturados por el catch general
+    }
 
     // Si es firma, no guardamos en la tabla Media para que no aparezca en la galería general
     if (isSignature) {

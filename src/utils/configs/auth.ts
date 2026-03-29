@@ -168,7 +168,7 @@ export const getAuthOptions = async (): Promise<NextAuthOptions> => {
 
         return true
       },
-      async jwt({ token, user }) {
+      async jwt({ token, user, trigger }) {
         if (user) {
           token.id = user.id
           token.rol = user.rol
@@ -193,6 +193,47 @@ export const getAuthOptions = async (): Promise<NextAuthOptions> => {
             JWT_SECRET,
             { expiresIn: '30d' }
           )
+        }
+
+        // Cuando el cliente llama update(), refrescar datos desde la BD
+        if (trigger === 'update' && token.id) {
+          try {
+            const usuarioActualizado = await prisma.usuario.findUnique({
+              where: { id: token.id as string },
+              select: { nombre: true, apellido: true, avatar: true, rol: true, numero_documento: true, esta_activo: true }
+            })
+
+            if (usuarioActualizado) {
+              const nuevoAvatar = usuarioActualizado.avatar
+              const nuevoNombre = `${usuarioActualizado.nombre} ${usuarioActualizado.apellido}`
+
+              token.avatar = nuevoAvatar
+              token.image = nuevoAvatar
+              token.picture = nuevoAvatar
+              token.name = nuevoNombre
+              token.rol = usuarioActualizado.rol
+              token.numero_documento = usuarioActualizado.numero_documento || ''
+              token.esta_activo = usuarioActualizado.esta_activo
+
+              // Regenerar el accessToken con los datos frescos
+              token.accessToken = sign(
+                {
+                  id: token.id,
+                  email: token.email,
+                  name: nuevoNombre,
+                  rol: usuarioActualizado.rol,
+                  avatar: nuevoAvatar,
+                  image: nuevoAvatar,
+                  numero_documento: usuarioActualizado.numero_documento,
+                  esta_activo: usuarioActualizado.esta_activo
+                },
+                JWT_SECRET,
+                { expiresIn: '30d' }
+              )
+            }
+          } catch (e) {
+            console.error('Error actualizando token desde BD:', e)
+          }
         }
 
         return token

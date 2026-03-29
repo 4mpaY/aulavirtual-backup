@@ -457,12 +457,19 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                       <Grid item xs={12}>
                         <CustomTextField
                           fullWidth
-                          label='Enlace de Video Introductorio'
+                          label='Enlace de Video Introductorio (YouTube o Vimeo)'
                           name='video_presentacion'
-                          placeholder='https://vimeo.com/...'
+                          placeholder='Ej: https://youtube.com/watch?v=... o https://vimeo.com/...'
                           value={values.video_presentacion || ''}
                           onChange={handleChange}
                           disabled={isSubmitting}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position='start'>
+                                <i className='tabler-video text-xl text-textSecondary' />
+                              </InputAdornment>
+                            )
+                          }}
                         />
                       </Grid>
 
