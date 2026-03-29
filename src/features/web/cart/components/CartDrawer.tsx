@@ -12,11 +12,12 @@ import {
     ListItem,
     ListItemText,
     ListItemAvatar,
-    Avatar,
     Button,
     Divider,
     Stack
 } from '@mui/material'
+
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 import { useCart } from '../context/CartContext'
 
@@ -72,10 +73,11 @@ const CartDrawer = () => {
                                     sx={{ mb: 2, bgcolor: 'background.paper', borderRadius: '12px', border: '1px solid', borderColor: 'divider' }}
                                 >
                                     <ListItemAvatar>
-                                        <Avatar
-                                            variant="rounded"
+                                        <CourseThumbnail
                                             src={item.miniatura}
-                                            sx={{ width: 60, height: 40, mr: 1 }}
+                                            title={item.titulo}
+                                            variant='simple'
+                                            sx={{ width: 60, height: 40, mr: 1, borderRadius: '8px' }}
                                         />
                                     </ListItemAvatar>
                                     <ListItemText

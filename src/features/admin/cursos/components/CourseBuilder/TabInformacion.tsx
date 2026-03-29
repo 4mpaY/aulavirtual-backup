@@ -20,6 +20,7 @@ import MediaLibrary from '../MediaLibrary'
 import type { Curso } from '../../entity/Curso'
 import { useEditCurso } from '../../hooks/useCursos'
 import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 interface TabInformacionProps {
   curso: Curso
@@ -207,11 +208,11 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
       <Grid item xs={12} sm={6}>
         <Typography variant='subtitle2' sx={{ mb: 1 }}>Imagen de Portada</Typography>
         {form.miniatura ? (
-          <Box sx={{ position: 'relative', width: '100%', borderRadius: 2, overflow: 'hidden', mb: 2, bgcolor: '#f4f4f4', border: '1px solid', borderColor: 'divider' }}>
-            <img
+          <Box sx={{ position: 'relative', width: '100%', borderRadius: 2, overflow: 'hidden', mb: 2, bgcolor: '#f4f4f4', border: '1px solid', borderColor: 'divider', aspectRatio: '16/9' }}>
+            <CourseThumbnail
               src={form.miniatura}
-              alt='Vista previa'
-              style={{ width: '100%', height: 'auto', objectFit: 'contain', display: 'block', maxHeight: 240 }}
+              title='Vista previa'
+              variant='simple'
             />
             <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
               <IconButton

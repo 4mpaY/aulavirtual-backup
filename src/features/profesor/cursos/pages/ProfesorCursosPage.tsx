@@ -13,7 +13,6 @@ import {
     Tooltip,
     IconButton,
     Chip,
-    Avatar,
     TextField,
     InputAdornment
 } from '@mui/material'
@@ -32,6 +31,7 @@ import { useSession } from 'next-auth/react'
 
 import { useCursos } from '@/features/admin/cursos/hooks/useCursos'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 const ProfesorCursosPage = () => {
     const { data: session } = useSession()
@@ -52,13 +52,12 @@ const ProfesorCursosPage = () => {
                 header: 'Curso',
                 cell: ({ row }) => (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <Avatar
-                            variant='rounded'
+                        <CourseThumbnail
                             src={row.original.miniatura}
-                            sx={{ width: 45, height: 45 }}
-                        >
-                            <i className='tabler-book' />
-                        </Avatar>
+                            title={row.original.titulo}
+                            variant='simple'
+                            sx={{ width: 45, height: 45, borderRadius: '8px' }}
+                        />
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                             <Typography sx={{ fontWeight: 600, color: 'text.primary' }}>
                                 {row.original.titulo}

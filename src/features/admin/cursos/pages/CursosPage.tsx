@@ -42,6 +42,7 @@ import TablePaginationComponent from '@/utils/components/others/TablePaginationC
 import type { Curso } from '../entity/Curso'
 import { useCursos } from '../hooks/useCursos'
 import { CursosActions } from '../components/CursosActions'
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 type EstadoColorMap = {
   [key: string]: ThemeColor
@@ -109,20 +110,12 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
         header: 'Curso',
         cell: ({ row }) => (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, maxWidth: 300 }}>
-            {row.original.miniatura ? (
-              <Avatar
-                variant='rounded'
+              <CourseThumbnail
                 src={row.original.miniatura}
-                sx={{ width: 44, height: 32, flexShrink: 0 }}
+                title={row.original.titulo}
+                variant='simple'
+                sx={{ width: 44, height: 32, flexShrink: 0, borderRadius: '8px' }}
               />
-            ) : (
-              <Avatar
-                variant='rounded'
-                sx={{ width: 44, height: 32, bgcolor: 'action.hover', flexShrink: 0 }}
-              >
-                <i className='tabler-photo text-lg text-textDisabled' />
-              </Avatar>
-            )}
             <Box sx={{ minWidth: 0 }}>
               <Typography
                 variant='body2'

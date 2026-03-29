@@ -16,7 +16,6 @@ import {
   Typography,
   Box,
   Divider,
-  Avatar,
   Autocomplete,
   TextField,
   Tooltip,
@@ -48,6 +47,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useManageRutaCursos, useRuta } from '../hooks/useRutas'
 import { useCursos } from '@/features/admin/cursos/hooks/useCursos'
 import type { Curso } from '@/features/admin/cursos/entity/Curso'
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 interface SortableCourseItemProps {
   curso: any
@@ -92,10 +92,11 @@ const SortableCourseItem = ({ curso, index, onRemove }: SortableCourseItemProps)
           <Typography variant='h6' color='primary' sx={{ fontWeight: 'bold' }}>{index + 1}</Typography>
         </Box>
 
-        <Avatar 
-          src={curso.miniatura || ''} 
-          variant='rounded' 
-          sx={{ mr: 3, width: 44, height: 32, border: '1px solid var(--mui-palette-divider)' }} 
+        <CourseThumbnail
+          src={curso.miniatura}
+          title={curso.titulo}
+          variant='simple'
+          sx={{ mr: 3, width: 44, height: 32, border: '1px solid var(--mui-palette-divider)', borderRadius: '4px' }}
         />
         
         <ListItemText 
@@ -316,7 +317,23 @@ export const RutaCursosDialog = ({ open, onClose, rutaId }: RutaCursosDialogProp
                         renderOption={(props, option) => (
                           <li {...props}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                              <Avatar src={option.miniatura || ''} variant='rounded' sx={{ width: 36, height: 24 }} />
+                              <Box
+                                    sx={{
+                                        width: 80,
+                                        height: 50,
+                                        borderRadius: '10px',
+                                        overflow: 'hidden',
+                                        flexShrink: 0,
+                                        border: '1px solid',
+                                        borderColor: 'divider'
+                                    }}
+                                >
+                                    <CourseThumbnail
+                                        src={option.miniatura}
+                                        title={option.titulo}
+                                        variant='simple'
+                                    />
+                                </Box>
                               <Typography variant='body2'>{option.titulo}</Typography>
                             </Box>
                           </li>

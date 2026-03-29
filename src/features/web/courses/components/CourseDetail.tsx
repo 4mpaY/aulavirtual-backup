@@ -317,19 +317,25 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                       />
                       <Box>
                         <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Docente</Typography>
-                        <Link
-                          href={`/docentes/${course.profesor.slug}`}
-                          style={{
-                            color: '#10b981',
-                            textDecoration: 'none',
-                            fontWeight: 800,
-                            fontSize: '1.1rem',
-                            display: 'block',
-                            marginTop: -2
-                          }}
-                        >
-                          {course.profesor.nombre} {course.profesor.apellido}
-                        </Link>
+                        {course.profesor.slug ? (
+                          <Link
+                            href={`/docentes/${course.profesor.slug}`}
+                            style={{
+                              color: '#10b981',
+                              textDecoration: 'none',
+                              fontWeight: 800,
+                              fontSize: '1.1rem',
+                              display: 'block',
+                              marginTop: -2
+                            }}
+                          >
+                            {course.profesor.nombre} {course.profesor.apellido}
+                          </Link>
+                        ) : (
+                          <Typography sx={{ color: '#10b981', fontWeight: 800, fontSize: '1.1rem', mt: -0.25 }}>
+                            {course.profesor.nombre} {course.profesor.apellido}
+                          </Typography>
+                        )}
                       </Box>
                     </Stack>
                   </Grid>

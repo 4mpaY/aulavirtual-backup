@@ -3,6 +3,7 @@
 
 import { Box, Typography, Stack, Divider, Paper, Avatar } from '@mui/material'
 
+import CourseThumbnail from '@/utils/components/CourseThumbnail'
 import CouponInput from './CouponInput'
 
 interface OrderSummaryProps {
@@ -64,10 +65,10 @@ const OrderSummary = ({ courses, appliedCoupon, onCouponApplied }: OrderSummaryP
                                         borderColor: 'divider'
                                     }}
                                 >
-                                    <Box
-                                        component="img"
-                                        src={course.miniatura || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}
-                                        sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    <CourseThumbnail
+                                        src={course.miniatura}
+                                        title={course.titulo}
+                                        variant='simple'
                                     />
                                 </Box>
                                 <Box sx={{ minWidth: 0 }}>
