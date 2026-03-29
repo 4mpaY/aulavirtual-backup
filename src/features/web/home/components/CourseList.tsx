@@ -20,39 +20,10 @@ const CourseList = ({ courses, loading, error }: CourseListProps) => {
     )
   }
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
-
   if (error) {
     return (
       <Box sx={{ py: 5 }}>
         <Alert severity="error">{error}</Alert>
-      </Box>
-    )
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ py: 5 }}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
-    )
-  }
-
-  if (courses.length === 0) {
-    return (
-      <Box sx={{ py: 10, textAlign: 'center' }}>
-        <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 500 }}>
-          No encontramos cursos que coincidan con tu búsqueda.
-        </Typography>
-        <Typography variant="body1" color="text.disabled" sx={{ mt: 1 }}>
-          Prueba con otras palabras clave o categorías.
-        </Typography>
       </Box>
     )
   }
