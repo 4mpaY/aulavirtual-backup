@@ -23,7 +23,13 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
     })
   }
 
-  async getAll(params: { page: number; limit: number; buscar: string }): Promise<CertificadosResponse['result']> {
+  async getAll(params: {
+    page: number
+    limit: number
+    buscar?: string
+    codigo?: string
+    nombre?: string
+  }): Promise<CertificadosResponse['result']> {
     try {
       return await this.iGet<CertificadosResponse['result']>('', { params })
     } catch (err: any) {
@@ -31,9 +37,10 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
     }
   }
 
-  async downloadPdf(id: string): Promise<Blob> {
+  async downloadPdf(id: string, preview = false): Promise<Blob> {
     try {
       const res = await this.client.get(`/${id}/download`, {
+        params: { preview },
         responseType: 'blob'
       })
 

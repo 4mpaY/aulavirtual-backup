@@ -28,7 +28,7 @@ export default async function Page() {
   let initialData: CertificadosResponse['result'] | null = null
 
   try {
-    initialData = await axiosCertificado.getAll({ page: 1, limit: 10, buscar: '' })
+    initialData = await axiosCertificado.getAll({ page: 1, limit: 10 })
   } catch (error) {
     console.error('Error fetching certificados:', error)
   }

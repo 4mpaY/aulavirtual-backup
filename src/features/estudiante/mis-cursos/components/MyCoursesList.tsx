@@ -1,8 +1,10 @@
 'use client'
 
+import { useState, useMemo } from 'react'
 
-import { Grid, Typography, Box } from '@mui/material'
+import { Grid, Typography, Box, InputAdornment } from '@mui/material'
 
+import CustomTextField from '@core/components/mui/TextField'
 import MyCourseCard from './MyCourseCard'
 
 interface Course {
@@ -24,6 +26,20 @@ interface MyCoursesListProps {
 }
 
 const MyCoursesList = ({ courses }: MyCoursesListProps) => {
+    const [searchQuery, setSearchQuery] = useState('')
+
+    const filteredCourses = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return courses
+        }
+
+        const lowerQuery = searchQuery.toLowerCase()
+
+        return courses.filter(course =>
+            course.titulo.toLowerCase().includes(lowerQuery)
+        )
+    }, [courses, searchQuery])
+
     if (courses.length === 0) {
         return (
             <Box sx={{ textAlign: 'center', py: 10 }}>
@@ -38,20 +54,57 @@ const MyCoursesList = ({ courses }: MyCoursesListProps) => {
     }
 
     return (
-        <Grid container spacing={{ xs: 3, sm: 4, md: 6, lg: 8 }}>
-            {courses.map((course) => (
-                <Grid item xs={12} sm={6} md={4} key={course.id}>
-                    <MyCourseCard
-                        titulo={course.titulo}
-                        slug={course.slug}
-                        miniatura={course.miniatura}
-                        profesor={course.profesor}
-                        progreso={course.progreso}
-                        categoria={course.categoria}
-                    />
+        <Box>
+            <Box sx={{ mb: 6, maxWidth: { xs: '100%', sm: 400 } }}>
+                <CustomTextField
+                    fullWidth
+                    placeholder="Buscar curso por nombre..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <i className="tabler-search text-[22px]" />
+                            </InputAdornment>
+                        ),
+                        endAdornment: searchQuery ? (
+                            <InputAdornment position="end">
+                                <i 
+                                    className="tabler-x text-[22px] cursor-pointer" 
+                                    onClick={() => setSearchQuery('')}
+                                />
+                            </InputAdornment>
+                        ) : null
+                    }}
+                />
+            </Box>
+
+            {filteredCourses.length === 0 ? (
+                <Box sx={{ textAlign: 'center', py: 10 }}>
+                    <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 700 }}>
+                        No se encontraron cursos con &quot;{searchQuery}&quot;
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Prueba con otros términos de búsqueda.
+                    </Typography>
+                </Box>
+            ) : (
+                <Grid container spacing={{ xs: 3, sm: 4, md: 6, lg: 8 }}>
+                    {filteredCourses.map((course) => (
+                        <Grid item xs={12} sm={6} md={4} key={course.id}>
+                            <MyCourseCard
+                                titulo={course.titulo}
+                                slug={course.slug}
+                                miniatura={course.miniatura}
+                                profesor={course.profesor}
+                                progreso={course.progreso}
+                                categoria={course.categoria}
+                            />
+                        </Grid>
+                    ))}
                 </Grid>
-            ))}
-        </Grid>
+            )}
+        </Box>
     )
 }
 

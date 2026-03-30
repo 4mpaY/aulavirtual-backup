@@ -44,4 +44,34 @@ export class AxiosPedido extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  async getById(id: string): Promise<{ data: Pedido }> {
+    try {
+      const payload = await this.iGet<{ data: Pedido }>(`/${id}`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async updatePedido(id: string, data: Partial<Pedido>): Promise<{ message: string; data: Pedido }> {
+    try {
+      const payload = await this.iPatch<{ message: string; data: Pedido }>(`/${id}`, data)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async drop(id: string): Promise<{ message: string }> {
+    try {
+      const payload = await this.iDelete<{ message: string }>(`/${id}`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

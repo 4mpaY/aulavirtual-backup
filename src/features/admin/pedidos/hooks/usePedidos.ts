@@ -46,3 +46,48 @@ export function useCreatePedidoManual() {
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.PEDIDOS })
   })
 }
+
+/**
+ * Hook para obtener el detalle de un pedido
+ */
+export function usePedido(id: string) {
+  const axiosPedido = axiosPedidoFactory()
+
+  return useQuery<{ data: Pedido }, any>({
+    queryKey: [...QUERY_KEY.PEDIDOS, id],
+    queryFn: async () => await axiosPedido.getById(id),
+    staleTime: 60_000,
+    retry: 1
+  })
+}
+
+/**
+ * Hook para actualizar un pedido
+ */
+export function useUpdatePedido() {
+  const qc = useQueryClient()
+  const axiosPedido = axiosPedidoFactory()
+
+  return useMutation<{ message: string; data: Pedido }, any, { id: string; data: Partial<Pedido> }>({
+    mutationFn: async ({ id, data }) => await axiosPedido.updatePedido(id, data),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: QUERY_KEY.PEDIDOS })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.PEDIDOS, variables.id] })
+    }
+  })
+}
+
+/**
+ * Hook para eliminar un pedido
+ */
+export function useDeletePedido() {
+  const qc = useQueryClient()
+  const axiosPedido = axiosPedidoFactory()
+
+  return useMutation<{ message: string }, any, string>({
+    mutationFn: async (id: string) => await axiosPedido.drop(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QUERY_KEY.PEDIDOS })
+    }
+  })
+}

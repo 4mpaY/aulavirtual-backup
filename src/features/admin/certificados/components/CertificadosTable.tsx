@@ -41,7 +41,7 @@ interface CertificadosTableProps {
 }
 
 export function CertificadosTable({ initialData }: CertificadosTableProps) {
-  const [params, setParams] = useState({ page: 1, limit: 10, buscar: '' })
+  const [params, setParams] = useState({ page: 1, limit: 10, codigo: '', nombre: '' })
 
   const { data, isLoading } = useCertificados(params, initialData || undefined)
 
@@ -74,6 +74,25 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     } catch (err: any) {
       console.error('Error downloading certificate:', err)
       toast.error('Error al descargar el certificado')
+    }
+  }
+
+  const handlePreview = async (certificado: Certificado) => {
+    try {
+      const getAuthToken = async () => {
+        const s = await getSession()
+
+        return s?.user?.accessToken ?? null
+      }
+
+      const axiosCertificado = new AxiosCertificado({ getAuthToken })
+      const blob = await axiosCertificado.downloadPdf(certificado.id, true)
+      const url = window.URL.createObjectURL(blob)
+
+      window.open(url, '_blank')
+    } catch (err: any) {
+      console.error('Error previewing certificate:', err)
+      toast.error('Error al visualizar el certificado')
     }
   }
 
@@ -132,6 +151,11 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         header: () => <Box className='w-full text-right'>Acciones</Box>,
         cell: ({ row }) => (
           <Box className='flex items-center justify-end w-full gap-1'>
+            <Tooltip title='Vista previa'>
+              <IconButton onClick={() => handlePreview(row.original)} color='secondary' size='small'>
+                <i className='tabler-eye text-[22px]' />
+              </IconButton>
+            </Tooltip>
             <Tooltip title='Descargar PDF'>
               <IconButton onClick={() => handleDownload(row.original)} color='primary' size='small'>
                 <i className='tabler-download text-[22px]' />
@@ -147,15 +171,21 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
   const table = useReactTable({
     data: certificados,
     columns,
+    state: {
+      pagination: {
+        pageIndex: params.page - 1,
+        pageSize: params.limit
+      }
+    },
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
-    pageCount: data?.paginacion?.totalPages || 0
+    rowCount: total
   })
 
   return (
     <Card>
       <CardHeader title='Certificados Emitidos' />
-      <Box className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
+      <Box className='flex justify-between flex-col items-start lg:flex-row lg:items-center p-6 border-bs gap-4'>
         <CustomTextField
           select
           value={params.limit}
@@ -168,14 +198,24 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
           <MenuItem value={25}>25</MenuItem>
           <MenuItem value={50}>50</MenuItem>
         </CustomTextField>
-        <DebouncedInput
-          value={params.buscar}
-          onChange={value => {
-            setParams(prev => ({ ...prev, buscar: String(value), page: 1 }))
-          }}
-          placeholder='Buscar por estudiante, curso o código'
-          className='is-full sm:is-auto'
-        />
+        <Box className='flex flex-col sm:flex-row items-center gap-4 is-full sm:is-auto'>
+          <DebouncedInput
+            value={params.codigo}
+            onChange={value => {
+              setParams(prev => ({ ...prev, codigo: String(value), page: 1 }))
+            }}
+            placeholder='Filtrar por código'
+            className='is-full sm:is-auto'
+          />
+          <DebouncedInput
+            value={params.nombre}
+            onChange={value => {
+              setParams(prev => ({ ...prev, nombre: String(value), page: 1 }))
+            }}
+            placeholder='Filtrar por estudiante'
+            className='is-full sm:is-auto'
+          />
+        </Box>
       </Box>
 
       <Box className='overflow-x-auto'>

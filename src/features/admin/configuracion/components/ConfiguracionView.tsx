@@ -13,6 +13,7 @@ import {
   CircularProgress,
   Grid,
   InputAdornment,
+  IconButton,
   Tabs,
   Tab,
   Divider,
@@ -78,6 +79,36 @@ function CertificadosSettings({ config, onInputChange }: { config: any, onInputC
 
   return (
     <Stack spacing={4}>
+      <Box>
+        <Typography variant='h6' gutterBottom>Información de la Institución en el Certificado</Typography>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+          Estos datos se imprimirán en la cabecera del certificado. Si se dejan en blanco, se usarán los datos generales de branding de la plataforma.
+        </Typography>
+
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label='Nombre de la Institución'
+              value={config.CERTIFICADO_INSTITUTION_NAME || ''}
+              onChange={(e) => onInputChange('CERTIFICADO_INSTITUTION_NAME', e.target.value)}
+              placeholder='Ej: Instituto Tecnológico ARM'
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label='Eslogan o Lema'
+              value={config.CERTIFICADO_SLOGAN || ''}
+              onChange={(e) => onInputChange('CERTIFICADO_SLOGAN', e.target.value)}
+              placeholder='Ej: Capacitación de Élite'
+            />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Divider />
+
       <Box>
         <Typography variant='h6' gutterBottom>Configuración de Firmas</Typography>
         <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
@@ -145,6 +176,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const [saving, setSaving] = useState(false)
   const [openMedia, setOpenMedia] = useState(false)
 
+  const [showSecret, setShowSecret] = useState<{ [key: string]: boolean }>({})
+
   const initialMapped = (initialData || []).reduce((acc: { [key: string]: string }, curr: Configuracion) => {
     acc[curr.clave] = curr.valor
 
@@ -154,6 +187,9 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const [config, setConfig] = useState<{ [key: string]: string }>({
     TEMPLATE_NAME: 'Aula Virtual',
     TEMPLATE_SLOGAN: '',
+    CERTIFICADO_INSTITUTION_NAME: '',
+    CERTIFICADO_SLOGAN: '',
+    CERTIFICADO_INSTITUTION_URL: '',
     TEMPLATE_LOGO: '/images/logo-arm.png',
     SETTINGS_COOKIE_NAME: 'arm',
     PRIMARY_COLOR_MAIN: '#131FF2',
@@ -188,6 +224,10 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
 
   const handleInputChange = (clave: string, valor: string) => {
     setConfig(prev => ({ ...prev, [clave]: valor }))
+  }
+
+  const toggleSecret = (key: string) => {
+    setShowSecret(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
   const handleSave = async () => {
@@ -371,7 +411,22 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       content: (
         <Stack spacing={3}>
           <TextField label='PayPal Client ID' fullWidth value={config.PAYPAL_CLIENT_ID} onChange={(e) => handleInputChange('PAYPAL_CLIENT_ID', e.target.value)} />
-          <TextField label='PayPal Client Secret' fullWidth type='password' value={config.PAYPAL_CLIENT_SECRET} onChange={(e) => handleInputChange('PAYPAL_CLIENT_SECRET', e.target.value)} />
+          <TextField
+            label='PayPal Client Secret'
+            fullWidth
+            type={showSecret.PAYPAL_CLIENT_SECRET ? 'text' : 'password'}
+            value={config.PAYPAL_CLIENT_SECRET}
+            onChange={(e) => handleInputChange('PAYPAL_CLIENT_SECRET', e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <IconButton onClick={() => toggleSecret('PAYPAL_CLIENT_SECRET')} edge='end'>
+                    <i className={showSecret.PAYPAL_CLIENT_SECRET ? 'tabler-eye-off' : 'tabler-eye'} />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
           <TextField label='PayPal API URL' fullWidth value={config.PAYPAL_API_URL} onChange={(e) => handleInputChange('PAYPAL_API_URL', e.target.value)} helperText='Ejemplo: https://api-m.paypal.com o https://api-m.sandbox.paypal.com' />
         </Stack>
       )
@@ -381,7 +436,22 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       content: (
         <Stack spacing={3}>
           <TextField label='Google Client ID' fullWidth value={config.GOOGLE_CLIENT_ID} onChange={(e) => handleInputChange('GOOGLE_CLIENT_ID', e.target.value)} />
-          <TextField label='Google Client Secret' fullWidth type='password' value={config.GOOGLE_CLIENT_SECRET} onChange={(e) => handleInputChange('GOOGLE_CLIENT_SECRET', e.target.value)} />
+          <TextField
+            label='Google Client Secret'
+            fullWidth
+            type={showSecret.GOOGLE_CLIENT_SECRET ? 'text' : 'password'}
+            value={config.GOOGLE_CLIENT_SECRET}
+            onChange={(e) => handleInputChange('GOOGLE_CLIENT_SECRET', e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <IconButton onClick={() => toggleSecret('GOOGLE_CLIENT_SECRET')} edge='end'>
+                    <i className={showSecret.GOOGLE_CLIENT_SECRET ? 'tabler-eye-off' : 'tabler-eye'} />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
         </Stack>
       )
     },
@@ -392,7 +462,22 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
           <Grid item xs={12} md={6}>
             <Stack spacing={3}>
               <TextField label='Merchant Code' fullWidth value={config.IZIPAY_MERCHANT_CODE} onChange={(e) => handleInputChange('IZIPAY_MERCHANT_CODE', e.target.value)} />
-              <TextField label='API Key' fullWidth type='password' value={config.IZIPAY_API_KEY} onChange={(e) => handleInputChange('IZIPAY_API_KEY', e.target.value)} />
+              <TextField
+                label='API Key'
+                fullWidth
+                type={showSecret.IZIPAY_API_KEY ? 'text' : 'password'}
+                value={config.IZIPAY_API_KEY}
+                onChange={(e) => handleInputChange('IZIPAY_API_KEY', e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton onClick={() => toggleSecret('IZIPAY_API_KEY')} edge='end'>
+                        <i className={showSecret.IZIPAY_API_KEY ? 'tabler-eye-off' : 'tabler-eye'} />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
               <TextField label='RSA Key' fullWidth multiline rows={2} value={config.IZIPAY_RSA_KEY} onChange={(e) => handleInputChange('IZIPAY_RSA_KEY', e.target.value)} />
             </Stack>
           </Grid>
@@ -410,7 +495,23 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       content: (
         <Stack spacing={3}>
           <TextField label='Culqi Public Key (pk_test_... o pk_live_...)' fullWidth value={config.CULQI_PUBLIC_KEY} onChange={(e) => handleInputChange('CULQI_PUBLIC_KEY', e.target.value)} helperText='Key utilizada en el frontend para tokenizar la tarjeta.' />
-          <TextField label='Culqi Private Key (sk_test_... o sk_live_...)' fullWidth type='password' value={config.CULQI_PRIVATE_KEY} onChange={(e) => handleInputChange('CULQI_PRIVATE_KEY', e.target.value)} helperText='Key utilizada en el backend para realizar el cargo.' />
+          <TextField
+            label='Culqi Private Key (sk_test_... o sk_live_...)'
+            fullWidth
+            type={showSecret.CULQI_PRIVATE_KEY ? 'text' : 'password'}
+            value={config.CULQI_PRIVATE_KEY}
+            onChange={(e) => handleInputChange('CULQI_PRIVATE_KEY', e.target.value)}
+            helperText='Key utilizada en el backend para realizar el cargo.'
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <IconButton onClick={() => toggleSecret('CULQI_PRIVATE_KEY')} edge='end'>
+                    <i className={showSecret.CULQI_PRIVATE_KEY ? 'tabler-eye-off' : 'tabler-eye'} />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
           <TextField label='Culqi RSA ID (Cualquier ID o el asignado en CulqiPanel)' fullWidth value={config.CULQI_RSA_ID} onChange={(e) => handleInputChange('CULQI_RSA_ID', e.target.value)} helperText='ID identificador para el cifrado RSA (requerido para v4).' />
           <TextField label='Culqi RSA Public Key' fullWidth multiline rows={3} value={config.CULQI_RSA_PUBLIC_KEY} onChange={(e) => handleInputChange('CULQI_RSA_PUBLIC_KEY', e.target.value)} helperText='Clave pública RSA para cifrado de datos sensibles (requerido para v4).' />
         </Stack>

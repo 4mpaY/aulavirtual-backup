@@ -138,12 +138,54 @@ export async function POST(request: Request) {
     // 5. Generar código de verificación único
     const codigoVerificacion = `CERT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
 
-    // 6. Crear certificado
+    // 6. Capturar datos para el certificado (Snapshot)
+    const cursoData = await prisma.curso.findUnique({
+      where: { id: cursoId },
+      include: {
+        profesor: {
+          select: { nombre: true, apellido: true, cargo: true, firma: true }
+        }
+      }
+    })
+
+    if (!cursoData) {
+      return ApiResponse.error(request, 'Curso no encontrado', 404)
+    }
+
+    const datosSnapshot = {
+      curso: {
+        titulo: cursoData.titulo,
+        duracion: cursoData.duracion,
+        nivel: cursoData.nivel,
+        tipo_emision: cursoData.tipo_emision,
+        fecha_inicio: cursoData.fecha_inicio,
+      },
+      usuario: {
+        nombre: auth.user.nombre,
+        apellido: auth.user.apellido,
+      },
+      profesor: {
+        nombre: cursoData.profesor.nombre,
+        apellido: cursoData.profesor.apellido,
+        cargo: cursoData.profesor.cargo,
+        firma: cursoData.profesor.firma,
+      },
+      fechas: {
+        inicio_curso: cursoData.tipo_emision === 'SINCRONO' 
+          ? cursoData.fecha_inicio 
+          : inscripcion.inscrito_en,
+        culminacion: inscripcion.completado_en || new Date(),
+        emision: new Date()
+      }
+    }
+
+    // 7. Crear certificado
     const certificado = await prisma.certificado.create({
       data: {
         usuario_id: auth.user.id,
         curso_id: cursoId,
-        codigo_verificacion: codigoVerificacion
+        codigo_verificacion: codigoVerificacion,
+        datos: datosSnapshot as any
       },
       include: {
         curso: { select: { titulo: true } },

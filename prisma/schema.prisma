@@ -357,6 +357,7 @@ model Certificado {
   emitido_en          DateTime @default(now())
   usuario_id          String
   curso_id            String
+  datos               Json?
   curso               Curso    @relation(fields: [curso_id], references: [id], onDelete: Cascade)
   usuario             Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
