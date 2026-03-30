@@ -304,6 +304,11 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
           installments: true,
           paymentMethods: {
             tarjeta: true,
+            yape: true,
+            billetera: true,
+            bancaMovil: true,
+            agente: true,
+            cuotealo: true,
           }
         }}
         onLoad={() => setIsCulqiLoaded(true)}
