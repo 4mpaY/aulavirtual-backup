@@ -77,11 +77,11 @@ export default function LibroReclamacionesForm() {
         throw new Error(result.message || 'Error al procesar el reclamo')
       }
 
-      setSuccessCode(result.data.codigo)
+      setSuccessCode(result.result.codigo)
       Swal.fire({
         icon: 'success',
         title: '¡Reclamo Registrado!',
-        text: `Tu código de seguimiento es: ${result.data.codigo}. Hemos enviado una copia de respaldo a tu correo electrónico.`,
+        text: `Tu código de seguimiento es: ${result.result.codigo}. Hemos enviado una copia de respaldo a tu correo electrónico.`,
         confirmButtonColor: '#02115C'
       })
       reset()

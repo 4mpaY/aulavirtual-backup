@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useMemo } from 'react'
 
 import {
     Box,
@@ -14,9 +15,11 @@ import {
     ListItemText,
     LinearProgress,
     Divider,
-    Button
+    Button,
+    InputAdornment
 } from '@mui/material'
 
+import CustomTextField from '@core/components/mui/TextField'
 import { useCourseStore } from '../store/useCourseStore'
 
 interface CourseContentSidebarProps {
@@ -36,14 +39,40 @@ const CourseContentSidebar = ({
         setCurrentView
     } = useCourseStore()
 
-    const modules = course?.modulos || []
+    const [searchQuery, setSearchQuery] = useState('')
+
+    const filteredModules = useMemo(() => {
+        const modules = course?.modulos || []
+
+        if (!searchQuery.trim()) {
+            return modules
+        }
+
+        const lowerQuery = searchQuery.toLowerCase()
+
+        return modules
+            .map(module => {
+                const moduleMatches = module.titulo.toLowerCase().includes(lowerQuery)
+
+                const matchedLessons = moduleMatches
+                    ? module.lecciones
+                    : module.lecciones.filter((l: any) => l.titulo.toLowerCase().includes(lowerQuery))
+
+                if (matchedLessons.length > 0) {
+                    return { ...module, lecciones: matchedLessons }
+                }
+
+                return null
+            })
+            .filter(Boolean) as any[]
+    }, [course?.modulos, searchQuery])
 
     return (
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ p: 4, borderBottom: '1px solid', borderColor: 'divider' }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Contenido del curso</Typography>
                 
-                <Box sx={{ mt: 2 }}>
+                <Box sx={{ mt: 2, mb: 4 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                         <Typography variant="body2" color="text.secondary" fontWeight={600}>
                             Tu progreso
@@ -65,12 +94,42 @@ const CourseContentSidebar = ({
                         }} 
                     />
                 </Box>
+
+                <CustomTextField
+                    fullWidth
+                    size="small"
+                    placeholder="Buscar video o clase..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <i className="tabler-search text-xl" />
+                            </InputAdornment>
+                        ),
+                        endAdornment: searchQuery ? (
+                            <InputAdornment position="end">
+                                <i 
+                                  className="tabler-x text-xl cursor-pointer" 
+                                  onClick={() => setSearchQuery('')}
+                                />
+                            </InputAdornment>
+                        ) : null
+                    }}
+                />
             </Box>
 
             <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-                {modules.map((module) => (
-                    <Accordion
-                        key={module.id}
+                {filteredModules.length === 0 ? (
+                    <Box sx={{ p: 4, textAlign: 'center' }}>
+                        <Typography variant="body2" color="text.secondary">
+                            No se encontraron lecciones con &quot;{searchQuery}&quot;
+                        </Typography>
+                    </Box>
+                ) : (
+                    filteredModules.map((module) => (
+                        <Accordion
+                            key={module.id}
                         defaultExpanded
                         disableGutters
                         elevation={0}
@@ -90,7 +149,7 @@ const CourseContentSidebar = ({
                         </AccordionSummary>
                         <AccordionDetails sx={{ p: 0 }}>
                             <List sx={{ p: 0 }}>
-                                {module.lecciones.map((lesson) => (
+                                {module.lecciones.map((lesson: any) => (
                                     <ListItem key={lesson.id} disablePadding>
                                         <ListItemButton
                                             selected={currentLessonId === lesson.id && currentView === 'lesson'}
@@ -134,7 +193,7 @@ const CourseContentSidebar = ({
                             </List>
                         </AccordionDetails>
                     </Accordion>
-                ))}
+                )))}
 
                 {/* Sección de Examen y Certificado */}
                 {examenId && (

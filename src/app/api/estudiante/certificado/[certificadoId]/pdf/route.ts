@@ -60,6 +60,9 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     const { certificadoId } = params
 
+    const reqUrl = new URL(request.url)
+    const currentHost = reqUrl.host
+
     // Cargar en paralelo
     const [certificado, configs] = await Promise.all([
       prisma.certificado.findUnique({
@@ -70,6 +73,8 @@ export async function GET(request: Request, { params }: { params: { certificadoI
               titulo: true,
               duracion: true,
               nivel: true,
+              fecha_inicio: true,
+              tipo_emision: true,
               profesor: {
                 select: {
                   nombre: true,
@@ -92,7 +97,8 @@ export async function GET(request: Request, { params }: { params: { certificadoI
               }
             }
           },
-          usuario: { select: { nombre: true, apellido: true } }
+          usuario: { select: { nombre: true, apellido: true } },
+          datos: true
         }
       }),
       getConfigs()
@@ -102,20 +108,34 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       return NextResponse.json({ error: 'Certificado no encontrado' }, { status: 404 })
     }
 
-    // Seguridad: El estudiante solo puede bajar su propio certificado
+    const inscripcion = await prisma.inscripcion.findUnique({
+      where: {
+        usuario_id_curso_id: {
+          usuario_id: certificado.usuario_id,
+          curso_id: certificado.curso_id
+        }
+      },
+      select: { completado_en: true, inscrito_en: true }
+    })
+
     if (certificado.usuario_id !== auth.user.id && auth.user.rol !== 'ADMIN') {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
-    // Branding
+    // Branding (Priorizar llaves específicas de certificado)
     const colorPrimario = configs.PRIMARY_COLOR_MAIN ?? '#131FF2'
     const colorSecundario = configs.PRIMARY_COLOR_LIGHT ?? '#242CBF'
     const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
-    const nombreInstitucion = configs.TEMPLATE_NAME ?? 'Aula Virtual'
+    const nombreInstitucion = configs.CERTIFICADO_INSTITUTION_NAME || configs.TEMPLATE_NAME || 'Aula Virtual'
+    const slogan = configs.CERTIFICADO_SLOGAN || configs.TEMPLATE_SLOGAN || 'Capacitación Especializada'
+    
+    // OBTENCIÓN AUTOMÁTICA DEL DOMINIO: Priorizamos config manual, luego host actual
+    const linkInstitucion = configs.CERTIFICADO_INSTITUTION_URL || configs.SETTINGS_INSTITUTION_URL || currentHost
+
     const [pr, pg, pb] = hexToRgb(colorPrimario)
     const [sr, sg, sb] = hexToRgb(colorSecundario)
+    const goldColor: [number, number, number] = [184, 134, 11]
 
-    const reqUrl = new URL(request.url)
     const appUrl = `${reqUrl.protocol}//${reqUrl.host}`
     const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
 
@@ -130,16 +150,12 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     // Gerente General
     const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID
 
-    console.log('STUDENT PDF: Gerente General ID:', gerenteGeneralId)
-
     const gerenteGeneral = gerenteGeneralId
       ? await prisma.usuario.findUnique({
           where: { id: gerenteGeneralId },
           select: { nombre: true, apellido: true, cargo: true, firma: true }
         })
       : null
-
-    console.log('STUDENT PDF: Gerente General Data:', !!gerenteGeneral, gerenteGeneral?.nombre)
 
     // ================================================================
     const { jsPDF } = await import('jspdf')
@@ -148,270 +164,318 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const pageWidth = doc.internal.pageSize.getWidth()
     const pageHeight = doc.internal.pageSize.getHeight()
 
-    // ── PÁGINA 1 ──
-    doc.setFillColor(248, 250, 252)
+    // ── PÁGINA 1: DISEÑO PRINCIPAL ──
+    doc.setFillColor(255, 255, 255)
     doc.rect(0, 0, pageWidth, pageHeight, 'F')
 
-    doc.setDrawColor(pr, pg, pb)
-    doc.setLineWidth(3)
-    doc.rect(8, 8, pageWidth - 16, pageHeight - 16)
-
-    doc.setDrawColor(sr, sg, sb)
-    doc.setLineWidth(0.8)
-    doc.rect(13, 13, pageWidth - 26, pageHeight - 26)
-    doc.setLineWidth(0.3)
-    doc.rect(15, 15, pageWidth - 30, pageHeight - 30)
-
-    doc.setFillColor(pr, pg, pb)
-    doc.rect(8, 8, pageWidth - 16, 22, 'F')
+    doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
+    doc.setLineWidth(0.5)
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
 
     if (logoBuffer) {
       try {
-        const ext = logoUrl.split('.').pop()?.toUpperCase() ?? 'PNG'
-        const mimeExt = ext === 'JPG' ? 'JPEG' : ext === 'SVG' ? 'PNG' : ext
+        const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
         const base64Logo = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
+        
+        doc.setFillColor(252, 252, 252)
+        doc.roundedRect(14, 12, 19, 17, 1, 1, 'F')
+        
+        doc.setDrawColor(240, 240, 240)
+        doc.setLineWidth(0.1)
+        doc.roundedRect(14, 12, 19, 17, 1, 1, 'S')
 
-        doc.addImage(base64Logo, mimeExt, 14, 10, 40, 16)
-      } catch {
-        /* skip */
-      }
+        doc.addImage(base64Logo, 'PNG', 15.5, 13, 16, 15)
+      } catch (err) { console.error('Logo Error:', err) }
     }
-
-    doc.setFontSize(11)
-    doc.setTextColor(255, 255, 255)
-    doc.setFont('helvetica', 'bold')
-    doc.text(nombreInstitucion.toUpperCase(), pageWidth - 20, 21, { align: 'right' })
-
-    doc.setFontSize(30)
-    doc.setTextColor(pr, pg, pb)
-    doc.setFont('helvetica', 'bold')
-    doc.text('CERTIFICADO DE FINALIZACIÓN', pageWidth / 2, 52, { align: 'center' })
-
-    doc.setDrawColor(pr, pg, pb)
-    doc.setLineWidth(1.2)
-    doc.line(pageWidth / 2 - 70, 57, pageWidth / 2 + 70, 57)
-    doc.setLineWidth(0.3)
-    doc.line(pageWidth / 2 - 55, 59.5, pageWidth / 2 + 55, 59.5)
 
     doc.setFontSize(13)
-    doc.setTextColor(90, 90, 90)
-    doc.setFont('helvetica', 'italic')
-    doc.text('Se otorga el presente certificado a:', pageWidth / 2, 74, { align: 'center' })
-
-    const nombreCompleto = `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
-
-    doc.setFontSize(32)
-    doc.setTextColor(30, 40, 50)
+    doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
-    doc.text(nombreCompleto.toUpperCase(), pageWidth / 2, 91, { align: 'center' })
-
-    doc.setDrawColor(180, 180, 180)
-    doc.setLineWidth(0.5)
-    doc.line(pageWidth / 2 - 90, 97, pageWidth / 2 + 90, 97)
-
-    doc.setFontSize(12)
-    doc.setTextColor(90, 90, 90)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Por haber completado satisfactoriamente el curso:', pageWidth / 2, 109, { align: 'center' })
-
-    doc.setFontSize(20)
-    doc.setTextColor(sr, sg, sb)
-    doc.setFont('helvetica', 'bold')
-    const tituloLineas = doc.splitTextToSize(certificado.curso.titulo, 180)
-
-    doc.text(tituloLineas, pageWidth / 2, 122, { align: 'center' })
-
-    const info: string[] = []
-
-    if (certificado.curso.nivel) info.push(`Nivel: ${certificado.curso.nivel}`)
-    if (certificado.curso.duracion) info.push(`Duración: ${certificado.curso.duracion}`)
-
-    if (info.length > 0) {
-      doc.setFontSize(10)
-      doc.setTextColor(120, 120, 120)
-      doc.setFont('helvetica', 'normal')
-      doc.text(info.join('  •  '), pageWidth / 2, 138, { align: 'center' })
-    }
-
-    const fecha = new Date(certificado.emitido_en).toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-
-    doc.setFontSize(11)
-    doc.setTextColor(100, 100, 100)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Fecha de emisión: ${fecha}`, pageWidth / 2, 153, { align: 'center' })
-
-    // ── FIRMAS ──
-    const addSignatureBlock = async (x: number, y: number, user: any) => {
-      if (!user) return
-
-      // Línea
-      doc.setDrawColor(180, 180, 180)
-      doc.setLineWidth(0.5)
-      doc.line(x - 30, y, x + 30, y)
-
-      // Imagen firma
-      if (user.firma) {
-        try {
-          console.log(`STUDENT PDF: Cargando firma para ${user.nombre}: ${user.firma}`)
-          const signatureBuffer = await fetchImageBuffer(user.firma)
-
-          if (signatureBuffer) {
-            console.log(`STUDENT PDF: Firma cargada exitosamente (${signatureBuffer.length} bytes)`)
-            const ext = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
-            const mime = ext === 'jpg' ? 'JPEG' : ext.toUpperCase()
-
-            doc.addImage(signatureBuffer, mime, x - 25, y - 22, 50, 20)
-          } else {
-            console.log(`STUDENT PDF: Falló la carga del buffer para ${user.nombre}`)
-          }
-        } catch (e) {
-          console.error('Error al cargar firma:', e)
-        }
-      }
-
-      // Nombre
-      doc.setFontSize(10)
-      doc.setTextColor(30, 40, 50)
-      doc.setFont('helvetica', 'bold')
-      doc.text(`${user.nombre} ${user.apellido}`.toUpperCase(), x, y + 6, { align: 'center' })
-
-      // Cargo
-      doc.setFontSize(8)
-      doc.setTextColor(100, 100, 100)
-      doc.setFont('helvetica', 'normal')
-      doc.text(user.cargo || 'Funcionario', x, y + 10, { align: 'center' })
-    }
-
-    // Renderizar bloques de firmas (Instructor a la izquierda, Gerente a la derecha)
-    await addSignatureBlock(pageWidth / 2 - 60, 178, certificado.curso.profesor)
-    await addSignatureBlock(pageWidth / 2 + 60, 178, gerenteGeneral)
-
-    const qrSize = 32
-    const qrX = pageWidth - qrSize - 22
-    const qrY = pageHeight - qrSize - 22
-
-    doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize)
-    doc.setFontSize(7)
-    doc.setTextColor(140, 140, 140)
-    doc.text('Verificar', qrX + qrSize / 2, qrY + qrSize + 4, { align: 'center' })
-    doc.text('certificado', qrX + qrSize / 2, qrY + qrSize + 8, { align: 'center' })
+    doc.text(nombreInstitucion.toUpperCase(), 37, 18)
 
     doc.setFontSize(8)
-    doc.setTextColor(160, 160, 160)
-    doc.text(`Código: ${certificado.codigo_verificacion}`, pageWidth / 2, pageHeight - 14, { align: 'center' })
-    doc.setFontSize(7)
-    doc.text(verifyUrl, pageWidth / 2, pageHeight - 9, { align: 'center' })
+    doc.setTextColor(100, 100, 100)
+    doc.setFont('helvetica', 'italic')
+    doc.text(slogan, 37, 22)
 
-    // ── PÁGINA 2 ──
-    doc.addPage()
-    doc.setFillColor(248, 250, 252)
-    doc.rect(0, 0, pageWidth, pageHeight, 'F')
-    doc.setFillColor(pr, pg, pb)
-    doc.rect(0, 0, pageWidth, 22, 'F')
-    doc.setFontSize(14)
-    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(9)
+    doc.setTextColor(120, 120, 120)
+    doc.setFont('helvetica', 'normal')
+    doc.text('LINK DE PLATAFORMA', pageWidth - 14, 18, { align: 'right' })
+    doc.setTextColor(pr, pg, pb)
+    doc.text(linkInstitucion, pageWidth - 14, 23, { align: 'right' })
+
+    doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
+    doc.setLineWidth(0.3)
+    doc.line(14, 32, pageWidth - 14, 32)
+
+    doc.setFontSize(11)
+    doc.setTextColor(goldColor[0], goldColor[1], goldColor[2])
+    doc.setFont('helvetica', 'normal')
+    doc.text('CERTIFICADO DE', pageWidth / 2, 42, { align: 'center' })
+
+    doc.setFontSize(36)
+    doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
-    doc.text('CONTENIDO DEL PROGRAMA', pageWidth / 2, 14, { align: 'center' })
+    doc.text('FINALIZACIÓN', pageWidth / 2, 53, { align: 'center' })
+
+    doc.setFontSize(14)
+    doc.setTextColor(120, 120, 130)
+    doc.setFont('helvetica', 'italic')
+    doc.text('Otorgado con distinción académica', pageWidth / 2, 63, { align: 'center' })
+
+    doc.setFontSize(13)
+    doc.setTextColor(60, 60, 60)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Se otorga el presente certificado a:', pageWidth / 2, 75, { align: 'center' })
+
+    const snapshot = certificado.datos as any
+    const nombreCompleto = snapshot?.usuario 
+      ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
+      : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+
+    const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
+    const cursoNivel = snapshot?.curso?.nivel || certificado.curso.nivel
+    const cursoModalidad = snapshot?.curso?.tipo_emision || certificado.curso.tipo_emision
+    const cursoDuracion = snapshot?.curso?.duracion || certificado.curso.duracion
+
+    const modalidad = cursoModalidad === 'ASINCRONO' ? 'VIRTUAL ASÍNCRONO' : 'PRESENCIAL/VIRTUAL'
+    doc.setFontSize(10)
+    doc.setTextColor(100, 100, 100)
+    doc.setFont('helvetica', 'bold')
+    doc.text(`NIVEL: ${cursoNivel}    •    MODALIDAD: ${modalidad}`, pageWidth / 2, 124, { align: 'center' })
+
+    const boxWidth = 220
+    const boxX = (pageWidth - boxWidth) / 2
+    const boxY = 132
+    const boxHeight = 18
+    doc.setFillColor(252, 251, 243)
+    doc.roundedRect(boxX, boxY, boxWidth, boxHeight, 2, 2, 'F')
+    doc.setDrawColor(230, 220, 180)
+    doc.setLineWidth(0.2)
+    doc.rect(boxX, boxY, boxWidth, boxHeight)
+
+    const colWidth = boxWidth / 4
+    const formatDate = (date: Date | string | null | undefined) => {
+      if (!date) return '---'
+      return new Date(date).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    }
+
+    const fechaInicioVal = snapshot?.fechas?.inicio_curso || (certificado.curso.tipo_emision === 'SINCRONO' 
+      ? certificado.curso.fecha_inicio 
+      : (inscripcion?.inscrito_en || certificado.emitido_en))
+
+    const fechaFinVal = snapshot?.fechas?.culminacion || (inscripcion?.completado_en || certificado.emitido_en)
+    const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
+
+    const fechaInicioStr = formatDate(fechaInicioVal)
+    const fechaFinStr = formatDate(fechaFinVal)
+    const fechaEmisionStr = formatDate(fechaEmisionVal)
+
+    const renderColumn = (idx: number, label: string, value: string) => {
+      const cx = boxX + (colWidth * idx) + (colWidth / 2)
+      doc.setFontSize(9)
+      doc.setTextColor(goldColor[0], goldColor[1], goldColor[2])
+      doc.setFont('helvetica', 'bold')
+      doc.text(label.toUpperCase(), cx, boxY + 6, { align: 'center' })
+      doc.setFontSize(11)
+      doc.setTextColor(60, 60, 60)
+      doc.setFont('helvetica', 'bold')
+      doc.text(value, cx, boxY + 14, { align: 'center' })
+      if (idx < 3) {
+        doc.setDrawColor(230, 220, 180)
+        doc.line(boxX + colWidth * (idx + 1), boxY + 4, boxX + colWidth * (idx + 1), boxY + boxHeight - 4)
+      }
+    }
+
+    renderColumn(0, 'Inicio del curso', fechaInicioStr)
+    renderColumn(1, 'Culminación', fechaFinStr)
+    renderColumn(2, 'Horas Lectivas', cursoDuracion || '---')
+    renderColumn(3, 'Fecha de Emisión', fechaEmisionStr)
+
+    // FOOTER (ALINEACIÓN DE CUADRÍCULA PERFECTA)
+    const addSignatureBlock = async (x: number, y: number, user: any) => {
+      if (!user) return
+      doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
+      doc.setLineWidth(0.4)
+      doc.line(x - 22, y, x + 22, y)
+      if (user.firma) {
+        try {
+          const signatureBuffer = await fetchImageBuffer(user.firma)
+          if (signatureBuffer) {
+            const ext = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+            doc.addImage(signatureBuffer, ext.toUpperCase(), x - 18, y - 18, 36, 15)
+          }
+        } catch { /* skip */ }
+      }
+      doc.setFontSize(8)
+      doc.setTextColor(pr, pg, pb)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`${user.nombre} ${user.apellido}`.toUpperCase(), x, y + 5, { align: 'center' })
+      doc.setFontSize(7)
+      doc.setTextColor(120, 120, 120)
+      doc.setFont('helvetica', 'normal')
+      doc.text(user.cargo || 'Funcionario', x, y + 9, { align: 'center' })
+    }
+
+    const footerY = 188
+    const col1CenterX = boxX + colWidth / 2
+    const col2CenterX = boxX + colWidth * 1.5
+    const col3CenterX = boxX + colWidth * 2.5
+    const col4CenterX = boxX + colWidth * 3.5
+
+    const profesorSnapshot = snapshot?.profesor || certificado.curso.profesor
+    await addSignatureBlock(col1CenterX, footerY, profesorSnapshot)
+
+    const sealY = 182
+    doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
+    doc.setLineWidth(0.4)
+    doc.circle(col2CenterX, sealY, 11)
+    doc.circle(col2CenterX, sealY, 10)
+    doc.setFontSize(5)
+    doc.text('CERTIFICADO', col2CenterX, sealY - 1, { align: 'center' })
+    doc.text('OFICIAL', col2CenterX, sealY + 2, { align: 'center' })
+
+    await addSignatureBlock(col3CenterX, footerY, gerenteGeneral)
+
+    const qrSize = 18
+    const qrX = col4CenterX - (qrSize / 2)
+    const qrY = 170
+    doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
+    doc.setLineWidth(0.3)
+    doc.rect(qrX - 1, qrY - 1, qrSize + 2, qrSize + 2)
+    doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize)
+
+    doc.setFontSize(6)
+    doc.setTextColor(130, 130, 130)
+    doc.text('VERIFICAR', col4CenterX, qrY + qrSize + 4, { align: 'center' })
+    doc.setFontSize(7)
+    doc.setTextColor(pr, pg, pb)
+    doc.setFont('helvetica', 'bold')
+    doc.text(certificado.codigo_verificacion, col4CenterX, qrY + qrSize + 8, { align: 'center' })
+
+    const previewFlag = reqUrl.searchParams.get('preview') === 'true'
+
+    // ── PÁGINA 2: CONTENIDO ACADÉMICO ──
+    doc.addPage()
+    doc.setFillColor(255, 255, 255)
+    doc.rect(0, 0, pageWidth, pageHeight, 'F')
+
+    // Borde Dorado (Igual que Pág 1)
+    doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
+    doc.setLineWidth(0.5)
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
+
+    // Cabecera de Página 2 (Minimizada pero Premium)
+    if (logoBuffer) {
+      try {
+        const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+        const base64Logo = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
+        doc.setFillColor(252, 252, 252)
+        doc.roundedRect(14, 12, 12, 10, 1, 1, 'F')
+        doc.addImage(base64Logo, 'PNG', 15, 12.5, 10, 9)
+      } catch (err) { console.error('Logo Error P2:', err) }
+    }
+
     doc.setFontSize(10)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
-    const cursoTituloLines = doc.splitTextToSize(certificado.curso.titulo, pageWidth - 40)
+    doc.text(nombreInstitucion.toUpperCase(), 28, 16)
+    doc.setFontSize(7)
+    doc.setTextColor(150, 150, 150)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Link de Plataforma:', pageWidth - 14, 16, { align: 'right' })
+    doc.setTextColor(pr, pg, pb)
+    doc.text(linkInstitucion, pageWidth - 14, 20, { align: 'right' })
 
-    doc.text(cursoTituloLines, pageWidth / 2, 30, { align: 'center' })
+    // Título de la Sección
+    doc.setFillColor(pr, pg, pb)
+    doc.rect(14, 26, pageWidth - 28, 12, 'F')
+    doc.setFontSize(16)
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO', pageWidth / 2, 34, { align: 'center' })
 
-    const yPos = 42
+    doc.setFontSize(12)
+    doc.setTextColor(pr, pg, pb)
+    doc.setFont('helvetica', 'bold')
+    const cursoTituloLines = doc.splitTextToSize(cursoTitulo, pageWidth - 40)
+    doc.text(cursoTituloLines, pageWidth / 2, 45, { align: 'center' })
+
+    // Listado de Módulos (Grid Mejorado)
+    const yPos = 55
     const modulos = certificado.curso.modulos ?? []
-
-    if (modulos.length === 0) {
-      doc.setFontSize(11)
-      doc.setTextColor(120, 120, 120)
-      doc.setFont('helvetica', 'italic')
-      doc.text('Este curso no tiene módulos registrados.', pageWidth / 2, yPos + 10, { align: 'center' })
-    } else {
+    if (modulos.length > 0) {
       const colWidth = (pageWidth - 40) / 2
-      const leftX = 20
-      const rightX = 20 + colWidth + 5
       let col = 0
       let yLeft = yPos
       let yRight = yPos
-
+      
       for (let mi = 0; mi < modulos.length; mi++) {
         const modulo = modulos[mi]
         const currentY = col === 0 ? yLeft : yRight
-        const currentX = col === 0 ? leftX : rightX
+        const currentX = col === 0 ? 18 : 22 + colWidth
 
+        // Salto de página preventivo si el módulo es muy largo
+        if (currentY > 175) {
+          doc.addPage()
+          doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
+          doc.setLineWidth(0.5)
+          doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
+          yLeft = 20
+          yRight = 20
+          col = 0
+        }
+
+        // Header del Módulo
         doc.setFillColor(pr, pg, pb)
-        doc.roundedRect(currentX, currentY, colWidth - 5, 8, 2, 2, 'F')
+        doc.roundedRect(currentX, currentY, colWidth - 4, 8, 1, 1, 'F')
         doc.setFontSize(9)
         doc.setTextColor(255, 255, 255)
         doc.setFont('helvetica', 'bold')
-        const moduloTitulo = doc.splitTextToSize(`${modulo.orden}. ${modulo.titulo}`, colWidth - 12)
-
+        const moduloTituloStr = `${modulo.orden}. ${modulo.titulo}`.toUpperCase()
+        const moduloTitulo = doc.splitTextToSize(moduloTituloStr, colWidth - 12)
         doc.text(moduloTitulo, currentX + 4, currentY + 5.5)
 
-        let yLeccion = currentY + 11
-
+        let yLeccion = currentY + 13
         for (const leccion of modulo.lecciones) {
-          if (yLeccion > pageHeight - 20) {
-            if (col === 0) {
-              col = 1
-              yLeft = yLeccion
-              yLeccion = yRight
-            } else {
-              doc.addPage()
-              doc.setFillColor(248, 250, 252)
-              doc.rect(0, 0, pageWidth, pageHeight, 'F')
-              doc.setFillColor(pr, pg, pb)
-              doc.rect(0, 0, pageWidth, 22, 'F')
-              doc.text('CONTENIDO DEL PROGRAMA (Cont.)', pageWidth / 2, 14, { align: 'center' })
-              col = 0
-              yLeft = 30
-              yRight = 30
-              yLeccion = 30
-            }
-          }
-
-          const xLeccion = col === 0 ? leftX : rightX
-
+          if (yLeccion > 190) break
+          
           doc.setFontSize(8)
           doc.setTextColor(60, 60, 60)
           doc.setFont('helvetica', 'normal')
-
-          const leccionTitulo = doc.splitTextToSize(
-            `  ${modulo.orden}.${leccion.orden} ${leccion.titulo}`,
-            colWidth - 16
-          )
-
-          doc.setFillColor(sr, sg, sb)
-          doc.circle(xLeccion + 3.5, yLeccion + 1.5, 1, 'F')
-          doc.text(leccionTitulo, xLeccion + 6, yLeccion + 2.5)
-          yLeccion += leccionTitulo.length * 4.5 + 1.5
+          
+          const leccionTxt = `${modulo.orden}.${leccion.orden} ${leccion.titulo}`
+          const leccionLines = doc.splitTextToSize(leccionTxt, colWidth - 16)
+          
+          // Bullet point
+          doc.setFillColor(goldColor[0], goldColor[1], goldColor[2])
+          doc.circle(currentX + 4.5, yLeccion + 1, 0.8, 'F')
+          
+          doc.text(leccionLines, currentX + 7, yLeccion + 2)
+          yLeccion += leccionLines.length * 4.5
         }
-
+        
         yLeccion += 4
-
-        if (col === 0) {
-          yLeft = yLeccion
-        } else {
-          yRight = yLeccion
-        }
-
-        col = mi % 2 === 0 ? 0 : 1
+        
+        if (col === 0) yLeft = yLeccion
+        else yRight = yLeccion
+        
+        // Alternar columnas
+        col = (col === 0) ? 1 : 0
       }
     }
 
-    doc.setFontSize(8)
-    doc.setTextColor(160, 160, 160)
-    doc.text(
-      `Certificado emitido a: ${nombreCompleto}  •  Código: ${certificado.codigo_verificacion}`,
-      pageWidth / 2,
-      pageHeight - 8,
-      { align: 'center' }
-    )
+    // Pie de Página 2
+    doc.setDrawColor(230, 230, 230)
+    doc.setLineWidth(0.2)
+    doc.line(14, pageHeight - 15, pageWidth - 14, pageHeight - 15)
+
+    doc.setFontSize(7)
+    doc.setTextColor(150, 150, 150)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Certificado de Finalización: ${nombreCompleto}`, 14, pageHeight - 10)
+    doc.text(`Código de Verificación: ${certificado.codigo_verificacion}`, pageWidth - 14, pageHeight - 10, { align: 'right' })
 
     const pdfArrayBuffer = doc.output('arraybuffer')
 
@@ -419,7 +483,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
+        'Content-Disposition': `${previewFlag ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
         'Content-Length': pdfArrayBuffer.byteLength.toString()
       }
     })

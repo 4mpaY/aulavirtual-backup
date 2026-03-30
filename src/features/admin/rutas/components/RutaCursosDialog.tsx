@@ -396,7 +396,7 @@ export const RutaCursosDialog = ({ open, onClose, rutaId }: RutaCursosDialogProp
           </Box>
       </DialogContent>
       
-      <DialogActions sx={{ p: 6 }}>
+      <DialogActions sx={{ p: 6, pt: '24px !important' }}>
         <Button onClick={onClose} color='secondary'>Cancelar</Button>
         <Button variant='contained' onClick={handleSave} disabled={manageCursos.isPending || isLoadingRuta} startIcon={<i className='tabler-device-floppy' />}>
           Guardar Secuencia

@@ -159,9 +159,25 @@ export function CuponesPage({ initialData }: CuponesPageProps) {
   return (
     <>
       <Card>
-        <CardHeader 
-          title='Gestión de Cupones' 
-          action={
+        <CardHeader title='Gestión de Cupones' className='pbe-4' />
+        <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
+          <CustomTextField
+            select
+            value={table.getState().pagination.pageSize}
+            onChange={e => table.setPageSize(Number(e.target.value))}
+            className='is-[70px]'
+          >
+            <MenuItem value='10'>10</MenuItem>
+            <MenuItem value='25'>25</MenuItem>
+            <MenuItem value='50'>50</MenuItem>
+          </CustomTextField>
+          <div className='flex flex-col sm:flex-row is-full sm:is-auto items-start sm:items-center gap-4'>
+            <DebouncedInput
+              value={buscar}
+              onChange={value => setBuscar(String(value))}
+              placeholder='Buscar código'
+              className='is-full sm:is-auto'
+            />
             <Button
               variant='contained'
               startIcon={<i className='tabler-plus' />}
@@ -169,75 +185,56 @@ export function CuponesPage({ initialData }: CuponesPageProps) {
                 setCuponToEdit(null)
                 setOpenForm(true)
               }}
+              className='is-full sm:is-auto'
             >
               Nuevo Cupón
             </Button>
-          }
-        />
-        <Box p={6} pt={0}>
-          <Box display='flex' justifyContent='space-between' alignItems='center' mb={4} gap={4}>
-            <CustomTextField
-              select
-              value={table.getState().pagination.pageSize}
-              onChange={e => table.setPageSize(Number(e.target.value))}
-              sx={{ width: 80 }}
-            >
-              <MenuItem value='10'>10</MenuItem>
-              <MenuItem value='25'>25</MenuItem>
-              <MenuItem value='50'>50</MenuItem>
-            </CustomTextField>
-            <DebouncedInput
-              value={buscar}
-              onChange={value => setBuscar(String(value))}
-              placeholder='Buscar código...'
-            />
-          </Box>
-          <div className='overflow-x-auto'>
-            <table className={tableStyles.table}>
-              <thead>
-                {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map(header => (
-                      <th key={header.id}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map(row => (
-                  <tr key={row.id}>
-                    {row.getVisibleCells().map(cell => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-                    ))}
-                  </tr>
-                ))}
-                {cupones.length === 0 && (
-                  <tr>
-                    <td colSpan={columns.length} style={{ textAlign: 'center' }}>No se encontraron cupones</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
           </div>
-          <TablePagination
-            component={() => <TablePaginationComponent table={table as any} />}
-            count={cupones.length}
-            rowsPerPage={table.getState().pagination.pageSize}
-            page={table.getState().pagination.pageIndex}
-            onPageChange={(_, page) => table.setPageIndex(page)}
-            rowsPerPageOptions={[10, 25, 50]}
-            onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
-          />
-        </Box>
+        </div>
+
+        <div className='overflow-x-auto'>
+          <table className={tableStyles.table}>
+            <thead>
+              {table.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <th key={header.id}>
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.map(row => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                  ))}
+                </tr>
+              ))}
+              {cupones.length === 0 && (
+                <tr>
+                  <td colSpan={columns.length} style={{ textAlign: 'center' }}>
+                    No se encontraron cupones
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <TablePagination
+          component={() => <TablePaginationComponent table={table as any} />}
+          count={cupones.length}
+          rowsPerPage={table.getState().pagination.pageSize}
+          page={table.getState().pagination.pageIndex}
+          onPageChange={(_, page) => table.setPageIndex(page)}
+          rowsPerPageOptions={[10, 25, 50]}
+          onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
+        />
       </Card>
 
-      <CuponForm 
-        open={openForm} 
-        handleClose={() => setOpenForm(false)} 
-        cuponToEdit={cuponToEdit} 
-      />
+      <CuponForm open={openForm} handleClose={() => setOpenForm(false)} cuponToEdit={cuponToEdit} />
     </>
   )
 }

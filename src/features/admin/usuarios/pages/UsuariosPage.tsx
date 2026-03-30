@@ -333,7 +333,7 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
               <tbody>
                 {table
                   .getRowModel()
-                  .rows.slice(0, table.getState().pagination.pageSize)
+                  .rows
                   .map(row => {
                     return (
                       <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>

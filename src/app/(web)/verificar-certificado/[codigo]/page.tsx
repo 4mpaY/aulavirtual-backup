@@ -59,16 +59,12 @@ export default async function VerificarCertificadoPage({ params }: Props) {
             nombre: true,
             apellido: true
           }
-        }
+        },
+        datos: true
       }
     }),
     getConfigs()
   ])
-
-  // Configuración de branding
-  const primaryColor = configs.PRIMARY_COLOR_MAIN || '#131FF2'
-  const templateName = configs.TEMPLATE_NAME || 'Aula Virtual'
-  const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
 
   // Caso: No encontrado
   if (!certificado) {
@@ -111,13 +107,24 @@ export default async function VerificarCertificadoPage({ params }: Props) {
     )
   }
 
-  const nombreCompleto = `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+  const snapshot = certificado.datos as any
+  const nombreCompleto = snapshot?.usuario 
+    ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
+    : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
 
-  const fechaEmision = new Date(certificado.emitido_en).toLocaleDateString('es-PE', {
+  const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
+  const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
+
+  const fechaEmision = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   })
+
+  // Configuración de branding
+  const primaryColor = configs.PRIMARY_COLOR_MAIN || '#131FF2'
+  const templateName = configs.TEMPLATE_NAME || 'Aula Virtual'
+  const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
 
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>
@@ -236,7 +243,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
                   Curso Completado
                 </Typography>
                 <Typography variant="h6" fontWeight="bold" sx={{ mt: 1, mb: 2, lineHeight: 1.3 }}>
-                  {certificado.curso.titulo}
+                  {cursoTitulo}
                 </Typography>
                 <Button 
                   variant="text" 

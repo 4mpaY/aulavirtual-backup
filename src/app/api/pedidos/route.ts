@@ -27,23 +27,41 @@ export async function GET(request: Request) {
       return validation.error
     }
 
-    const { page, limit, estado, buscar } = validation.data
+    const { page, limit, estado, buscar, nro_pedido, nombre } = validation.data
 
     const where: any = {}
     
     // Si el estado no es 'TODOS', aplicamos el filtro. 
-    // Por defecto ahora es 'COMPLETADO' según el schema.
     if (estado && estado !== 'TODOS') {
       where.estado = estado
     }
 
-    if (buscar) {
+    if (nro_pedido) {
+      const nro = parseInt(nro_pedido)
+
+      if (!isNaN(nro)) {
+        where.numero_pedido = nro
+      }
+    }
+
+    if (nombre) {
       where.OR = [
-        { usuario: { nombre: { contains: buscar, mode: 'insensitive' } } },
-        { usuario: { apellido: { contains: buscar, mode: 'insensitive' } } },
-        { usuario: { correo: { contains: buscar, mode: 'insensitive' } } },
-        { transaccion_id: { contains: buscar } }
+        { usuario: { nombre: { contains: nombre, mode: 'insensitive' } } },
+        { usuario: { apellido: { contains: nombre, mode: 'insensitive' } } },
+        { usuario: { correo: { contains: nombre, mode: 'insensitive' } } }
       ]
+    }
+
+    if (buscar) {
+      // Búsqueda general por transaccion_id o términos varios si no se especificaron filtros fijos
+      if (!where.OR) {
+        where.OR = [
+          { usuario: { nombre: { contains: buscar, mode: 'insensitive' } } },
+          { usuario: { apellido: { contains: buscar, mode: 'insensitive' } } },
+          { usuario: { correo: { contains: buscar, mode: 'insensitive' } } },
+          { transaccion_id: { contains: buscar } }
+        ]
+      }
     }
 
     const skip = (page - 1) * limit

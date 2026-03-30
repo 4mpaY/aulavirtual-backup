@@ -15,9 +15,12 @@ const axiosCertificadoFactory = () => {
 }
 
 export const useCertificados = (
-  params: { page: number; limit: number; buscar: string },
+  params: { page: number; limit: number; buscar?: string; codigo?: string; nombre?: string },
   initialData?: CertificadosResponse['result']
 ) => {
+  const isDefault =
+    params.page === 1 && params.limit === 10 && !params.buscar && !params.codigo && !params.nombre
+
   return useQuery({
     queryKey: ['admin-certificados', params],
     queryFn: async () => {
@@ -25,7 +28,6 @@ export const useCertificados = (
 
       return await axiosCertificado.getAll(params)
     },
-    initialData,
-    placeholderData: previousData => previousData
+    initialData: isDefault ? initialData : undefined
   })
 }

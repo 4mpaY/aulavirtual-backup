@@ -24,10 +24,6 @@ export async function GET(request: Request, { params }: { params: { path: string
 
     const filePath = join(process.cwd(), 'public', 'uploads', ...pathSegments)
 
-    // DEBUG: Ver qué ruta física se intenta leer en el servidor
-    console.log(`[DEBUG UPLOAD] Solicitud: ${pathSegments.join('/')}`)
-    console.log(`[DEBUG UPLOAD] Ruta física: ${filePath}`)
-
     // Obtener la extensión para el Content-Type
     const ext = pathSegments[pathSegments.length - 1]?.split('.').pop()?.toLowerCase() || ''
     const contentType = CONTENT_TYPES[ext] || 'application/octet-stream'
@@ -43,8 +39,6 @@ export async function GET(request: Request, { params }: { params: { path: string
       })
     } catch (error: any) {
       if (error.code === 'ENOENT') {
-        console.warn(`[DEBUG UPLOAD] 404 - Archivo no encontrado: ${filePath}`)
-        
         return new NextResponse('Archivo no encontrado', { status: 404 })
       }
 

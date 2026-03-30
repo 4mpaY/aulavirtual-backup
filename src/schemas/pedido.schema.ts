@@ -21,7 +21,20 @@ export const listarPedidosQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(10),
   estado: z.string().default('COMPLETADO'),
-  buscar: z.string().trim().optional()
+  buscar: z.string().trim().optional(),
+  nro_pedido: z.string().trim().optional(),
+  nombre: z.string().trim().optional()
 })
 
 export type ListarPedidosQuery = z.infer<typeof listarPedidosQuerySchema>
+
+/**
+ * Schema para actualizar un pedido (Admin)
+ */
+export const updatePedidoSchema = z.object({
+  estado: z.enum(['PENDIENTE', 'PROCESANDO', 'COMPLETADO', 'CANCELADO', 'REEMBOLSADO']),
+  metodo_pago: z.nativeEnum(MetodoPago).optional(),
+  mensaje: z.string().trim().max(1000).optional().nullable()
+})
+
+export type UpdatePedidoDto = z.infer<typeof updatePedidoSchema>

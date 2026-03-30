@@ -13,7 +13,8 @@ import {
   Box,
   Avatar,
   Tooltip,
-  TablePagination
+  TablePagination,
+  MenuItem
 } from '@mui/material'
 import {
   createColumnHelper,
@@ -21,12 +22,14 @@ import {
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
-  getSortedRowModel
+  getSortedRowModel,
+  getFilteredRowModel
 } from '@tanstack/react-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import Swal from 'sweetalert2'
 
 import tableStyles from '@core/styles/table.module.css'
+import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 
@@ -167,8 +170,15 @@ export const RutasPage = ({ initialData }: RutasPageProps) => {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn: 'includesString',
     state: {
       globalFilter
+    },
+    initialState: {
+      pagination: {
+        pageSize: 10
+      }
     },
     onGlobalFilterChange: setGlobalFilter
   })
@@ -178,22 +188,35 @@ export const RutasPage = ({ initialData }: RutasPageProps) => {
       <Card>
         <CardHeader title='Gestión de Rutas de Aprendizaje' className='pbe-4' />
         <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
-          <DebouncedInput
-            value={globalFilter ?? ''}
-            onChange={value => setGlobalFilter(String(value))}
-            placeholder='Buscar ruta...'
-            className='is-full sm:is-auto'
-          />
-          <Button
-            variant='contained'
-            startIcon={<i className='tabler-plus' />}
-            onClick={() => {
-              setSelectedRuta(null)
-              setOpenRutaDialog(true)
-            }}
+          <CustomTextField
+            select
+            value={table.getState().pagination.pageSize}
+            onChange={e => table.setPageSize(Number(e.target.value))}
+            className='is-[70px]'
           >
-            Nueva Ruta
-          </Button>
+            <MenuItem value='10'>10</MenuItem>
+            <MenuItem value='25'>25</MenuItem>
+            <MenuItem value='50'>50</MenuItem>
+          </CustomTextField>
+          <div className='flex flex-col sm:flex-row is-full sm:is-auto items-start sm:items-center gap-4'>
+            <DebouncedInput
+              value={globalFilter ?? ''}
+              onChange={value => setGlobalFilter(String(value))}
+              placeholder='Buscar ruta'
+              className='is-full sm:is-auto'
+            />
+            <Button
+              variant='contained'
+              startIcon={<i className='tabler-plus' />}
+              onClick={() => {
+                setSelectedRuta(null)
+                setOpenRutaDialog(true)
+              }}
+              className='is-full sm:is-auto'
+            >
+              Nueva Ruta
+            </Button>
+          </div>
         </div>
 
         <div className='overflow-x-auto relative min-h-[200px]'>
@@ -215,9 +238,11 @@ export const RutasPage = ({ initialData }: RutasPageProps) => {
               ))}
             </thead>
             <tbody>
-              {rutas.length === 0 ? (
+              {table.getFilteredRowModel().rows.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className='text-center'>No hay rutas definidas</td>
+                  <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
+                    No hay rutas definidas
+                  </td>
                 </tr>
               ) : (
                 table.getRowModel().rows.map(row => (

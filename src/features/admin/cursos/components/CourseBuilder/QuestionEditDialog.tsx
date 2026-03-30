@@ -17,6 +17,8 @@ import {
     IconButton
 } from '@mui/material'
 
+import { toast } from 'react-toastify'
+
 import CustomTextField from '@core/components/mui/TextField'
 
 interface QuestionEditDialogProps {
@@ -69,13 +71,13 @@ export function QuestionEditDialog({ open, onClose, questionData, onSave, isSavi
         if (!texto.trim()) return
 
         if (!opciones.some(o => o.es_correcta)) {
-            alert('Debes marcar al menos una opción como correcta')
+            toast.error('Debes marcar al menos una opción como correcta')
 
             return
         }
 
         if (opciones.some(o => !o.texto.trim())) {
-            alert('Todas las opciones deben tener texto')
+            toast.error('Todas las opciones deben tener texto')
 
             return
         }
