@@ -97,6 +97,8 @@ export default withAuth(
           path.startsWith('/verificar-certificado') ||
           path.startsWith('/unauthorized') ||
           path.startsWith('/assets') ||
+          path.startsWith('/empresas') ||
+          path.startsWith('/politica-de-devoluciones') ||
           path === '/'
         ) {
           return true

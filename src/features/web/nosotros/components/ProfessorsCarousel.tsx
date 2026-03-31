@@ -180,9 +180,8 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                         {teacher.cargo}
                       </p>
                     )}
-
                     <Link
-                      href="/cursos"
+                      href={href}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -216,7 +215,7 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                       }}
                     >
                       <ChevronDown size={14} />
-                      Ver cursos
+                      Ver más
                     </Link>
                   </div>
                 </Link>

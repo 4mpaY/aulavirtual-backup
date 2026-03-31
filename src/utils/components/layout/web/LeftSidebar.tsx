@@ -5,14 +5,15 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Home, BookOpen, Users, Award, Map } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2 } from 'lucide-react'
 
 const navItems = [
   { title: 'Inicio', url: '/', icon: Home },
   { title: 'Cursos', url: '/cursos', icon: BookOpen },
+  { title: 'Rutas', url: '/rutas', icon: Map },
+  { title: 'Empresas', url: '/empresas', icon: Building2 },
   { title: 'Nosotros', url: '/nosotros', icon: Users },
   { title: 'Certificado', url: '/verificar-certificado', icon: Award },
-  { title: 'Rutas', url: '/rutas', icon: Map },
 ]
 
 export default function LeftSidebar() {
@@ -53,10 +54,10 @@ export default function LeftSidebar() {
               backgroundColor: active ? 'rgba(255,255,255,0.05)' : 'transparent',
             }}
             onMouseEnter={e => {
-              if (!active)(e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.05)'
+              if (!active) (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.05)'
             }}
             onMouseLeave={e => {
-              if (!active)(e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
+              if (!active) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
             }}
           >
             {/* Active indicator bar */}

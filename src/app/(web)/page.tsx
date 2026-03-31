@@ -304,7 +304,7 @@ export default async function HomePage() {
               Inscríbete hoy y comienza a aprender con los mejores profesionales del sector.
             </p>
             <Link
-              href="/register"
+              href="/cursos"
               className="no-underline inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
               style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#25927F', boxShadow: '0 6px 20px rgba(37,146,127,0.35)' }}
             >
