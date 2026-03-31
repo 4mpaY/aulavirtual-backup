@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
@@ -23,15 +23,35 @@ function teacherHref(t: Teacher) {
 }
 
 const AVATAR_COLORS = [
-  '#25927F', '#025E44', '#3AB079', '#0f4438',
+  'var(--web-primary, #25927F)', 'var(--web-dark, #025E44)', '#3AB079', '#0f4438',
   '#1a73e8', '#d93025', '#e37400', '#6d4c41', '#4527a0', '#00838f',
 ]
 
+function useVisible() {
+  const [visible, setVisible] = useState(4)
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth
+      setVisible(w < 640 ? 1 : w < 900 ? 2 : w < 1200 ? 3 : 4)
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  return visible
+}
+
 export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }) {
   const [current, setCurrent] = useState(0)
-  const visible = 4
+  const visible = useVisible()
   const total = teachers.length
   const maxStart = Math.max(0, total - visible)
+
+  useEffect(() => {
+    setCurrent(c => Math.min(c, maxStart))
+  }, [maxStart])
 
   const prev = () => setCurrent(c => Math.max(0, c - 1))
   const next = () => setCurrent(c => Math.min(maxStart, c + 1))
@@ -94,8 +114,8 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                     const el = e.currentTarget as HTMLAnchorElement
 
                     el.style.transform = 'translateY(-6px)'
-                    el.style.boxShadow = '0 12px 36px rgba(37,146,127,0.13)'
-                    el.style.borderColor = '#25927F'
+                    el.style.boxShadow = '0 12px 36px rgba(var(--web-primary-rgb, 37, 146, 127),0.13)'
+                    el.style.borderColor = 'var(--web-primary, #25927F)'
                   }}
                   onMouseLeave={e => {
                     const el = e.currentTarget as HTMLAnchorElement
@@ -202,9 +222,9 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                       onMouseEnter={e => {
                         const el = e.currentTarget as HTMLAnchorElement
 
-                        el.style.borderColor = '#25927F'
-                        el.style.color = '#25927F'
-                        el.style.backgroundColor = 'rgba(37,146,127,0.05)'
+                        el.style.borderColor = 'var(--web-primary, #25927F)'
+                        el.style.color = 'var(--web-primary, #25927F)'
+                        el.style.backgroundColor = 'rgba(var(--web-primary-rgb, 37, 146, 127),0.05)'
                       }}
                       onMouseLeave={e => {
                         const el = e.currentTarget as HTMLAnchorElement
@@ -238,7 +258,7 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                   height: '40px',
                   borderRadius: '50%',
                   backgroundColor: '#ffffff',
-                  border: `1.5px solid ${current === 0 ? '#e2e8f0' : '#25927F'}`,
+                  border: `1.5px solid ${current === 0 ? '#e2e8f0' : 'var(--web-primary, #25927F)'}`,
                   cursor: current === 0 ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -248,7 +268,7 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                   zIndex: 2,
                 }}
               >
-                <ChevronLeft size={18} color={current === 0 ? '#cbd5e1' : '#25927F'} />
+                <ChevronLeft size={18} color={current === 0 ? '#cbd5e1' : 'var(--web-primary, #25927F)'} />
               </button>
               <button
                 onClick={next}
@@ -262,7 +282,7 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                   height: '40px',
                   borderRadius: '50%',
                   backgroundColor: '#ffffff',
-                  border: `1.5px solid ${current >= maxStart ? '#e2e8f0' : '#25927F'}`,
+                  border: `1.5px solid ${current >= maxStart ? '#e2e8f0' : 'var(--web-primary, #25927F)'}`,
                   cursor: current >= maxStart ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -272,7 +292,7 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                   zIndex: 2,
                 }}
               >
-                <ChevronRight size={18} color={current >= maxStart ? '#cbd5e1' : '#25927F'} />
+                <ChevronRight size={18} color={current >= maxStart ? '#cbd5e1' : 'var(--web-primary, #25927F)'} />
               </button>
             </>
           )}
@@ -289,7 +309,7 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                   width: di === activeDot ? '28px' : '8px',
                   height: '8px',
                   borderRadius: '999px',
-                  backgroundColor: di === activeDot ? '#25927F' : '#cbd5e1',
+                  backgroundColor: di === activeDot ? 'var(--web-primary, #25927F)' : '#cbd5e1',
                   border: 'none',
                   cursor: 'pointer',
                   padding: 0,

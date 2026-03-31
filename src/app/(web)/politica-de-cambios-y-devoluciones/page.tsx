@@ -10,14 +10,14 @@ export default function PoliticaCambiosYDevolucionesPage() {
   return (
     <Box sx={{ bgcolor: 'white', py: { xs: 6, md: 10 }, color: '#333' }}>
       <Container maxWidth="md">
-        <Typography variant="h3" fontWeight={900} color="#02115C" mb={2} textAlign="center">
+        <Typography variant="h3" fontWeight={900} sx={{ color: 'var(--web-dark, #025E44)' }} mb={2} textAlign="center">
           Política de Cambios y Devoluciones
         </Typography>
         <Typography variant="body1" color="text.secondary" textAlign="center" mb={6}>
           Última actualización: Marzo de 2026
         </Typography>
 
-        <Box sx={{ '& h4': { color: '#02115C', fontWeight: 800, mt: 5, mb: 2 }, '& p': { mb: 2, lineHeight: 1.8 } }}>
+        <Box sx={{ '& h4': { color: 'var(--web-dark, #025E44)', fontWeight: 800, mt: 5, mb: 2 }, '& p': { mb: 2, lineHeight: 1.8 } }}>
 
           <Typography paragraph>
             La presente política regula las condiciones de reembolso y cambios aplicables a los
@@ -100,7 +100,7 @@ export default function PoliticaCambiosYDevolucionesPage() {
             Para consultas relacionadas con esta política, comuníquese con nosotros a través de{' '}
             <strong>arm.confiabilidad@gmail.com</strong>. De acuerdo con la legislación de protección
             al consumidor vigente, también ponemos a su disposición nuestro{' '}
-            <a href="/libro-de-reclamaciones" style={{ color: '#02115C', textDecoration: 'underline' }}>
+            <a href="/libro-de-reclamaciones" style={{ color: 'var(--web-dark, #025E44)', textDecoration: 'underline' }}>
               Libro de Reclamaciones
             </a>{' '}
             en la plataforma.

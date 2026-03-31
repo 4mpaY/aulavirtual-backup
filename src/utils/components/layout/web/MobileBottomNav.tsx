@@ -40,14 +40,14 @@ export default function MobileBottomNav() {
             key={item.title}
             href={item.url}
             className="no-underline flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors"
-            style={{ color: active ? '#25927F' : '#94a3b8' }}
+            style={{ color: active ? 'var(--web-primary, #25927F)' : '#94a3b8' }}
           >
             <div
               className="flex items-center justify-center rounded-xl transition-all duration-200"
               style={{
                 width: '36px',
                 height: '28px',
-                backgroundColor: active ? 'rgba(37,146,127,0.1)' : 'transparent',
+                backgroundColor: active ? 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)' : 'transparent',
               }}
             >
               <item.icon size={active ? 22 : 20} strokeWidth={active ? 2.5 : 1.8} />

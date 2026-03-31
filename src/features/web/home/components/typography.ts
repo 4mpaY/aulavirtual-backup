@@ -12,14 +12,14 @@ export const eyebrow: CSSProperties = {
   fontWeight: 700,
   letterSpacing: '0.12em',
   textTransform: 'uppercase',
-  color: '#25927F',
+  color: 'var(--web-primary, #25927F)',
   display: 'block',
   marginBottom: '0.75rem',
 }
 
 export const eyebrowDark: CSSProperties = {
   ...eyebrow,
-  color: '#BDD962',
+  color: 'var(--web-light, #BDD962)',
 }
 
 // ── H2 de sección ──────────────────────────────────────────

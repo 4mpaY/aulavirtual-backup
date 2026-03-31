@@ -80,7 +80,7 @@ const WebFooter = () => {
           </div>
 
           {/* Formación */}
-          <div>
+          <div className="pt-4 md:pt-0">
             <h4
               className="mb-4"
               style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.0625rem', color: '#ffffff' }}
@@ -106,7 +106,7 @@ const WebFooter = () => {
           </div>
 
           {/* Más Información */}
-          <div>
+          <div className="pt-4 md:pt-0">
             <h4
               className="mb-4"
               style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.0625rem', color: '#ffffff' }}
@@ -118,7 +118,7 @@ const WebFooter = () => {
                 { label: 'Nosotros', href: '/nosotros' },
                 { label: 'Términos y condiciones', href: '/terminos-y-condiciones' },
                 { label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones', icon: <BookOpenCheck size={13} /> },
-                { label: 'Política de Devoluciones', href: '/politica-de-devoluciones' },
+                { label: 'Política de Devoluciones', href: '/politica-de-cambios-y-devoluciones' },
               ].map(link => (
                 <li key={link.label}>
                   <Link
@@ -169,7 +169,7 @@ const WebFooter = () => {
                 fontWeight: 600,
                 fontSize: '0.875rem',
                 color: '#ffffff',
-                backgroundColor: '#025f4b',
+                backgroundColor: 'var(--web-dark, #025E44)',
                 borderRadius: '9999px',
                 padding: '0.5rem 1.25rem',
               }}
@@ -202,7 +202,7 @@ const WebFooter = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="no-underline hover:opacity-80"
-              style={{ color: 'hsl(75, 63%, 62%)', fontWeight: 600 }}
+              style={{ color: 'var(--web-light, #BDD962)', fontWeight: 600 }}
             >
               Fly Software
             </Link>

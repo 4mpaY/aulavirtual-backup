@@ -82,7 +82,7 @@ function MisionCard() {
         const el = e.currentTarget as HTMLDivElement
 
         el.style.transform = 'translateY(-6px)'
-        el.style.boxShadow = '0 16px 40px rgba(37,146,127,0.14)'
+        el.style.boxShadow = '0 16px 40px rgba(var(--web-primary-rgb, 37, 146, 127),0.14)'
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLDivElement
@@ -94,7 +94,7 @@ function MisionCard() {
       <div
         style={{
           height: '200px',
-          background: 'linear-gradient(135deg, #025E44 0%, #25927F 60%, #3AB079 100%)',
+          background: 'linear-gradient(135deg, var(--web-dark, #025E44) 0%, var(--web-primary, #25927F) 60%, #3AB079 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -117,7 +117,7 @@ function MisionCard() {
         </div>
       </div>
       <div style={{ padding: '1.75rem 2rem 2rem' }}>
-        <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: '#025E44' }}>
+        <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--web-dark, #025E44)' }}>
           Nuestra Misión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
@@ -145,7 +145,7 @@ function VisionCard() {
         const el = e.currentTarget as HTMLDivElement
 
         el.style.transform = 'translateY(-6px)'
-        el.style.boxShadow = '0 16px 40px rgba(189,217,98,0.18)'
+        el.style.boxShadow = '0 16px 40px rgba(var(--web-light-rgb, 189, 217, 98),0.18)'
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLDivElement
@@ -157,7 +157,7 @@ function VisionCard() {
       <div
         style={{
           height: '200px',
-          background: 'linear-gradient(135deg, #0A0A0A 0%, #1a2e20 60%, #025E44 100%)',
+          background: 'linear-gradient(135deg, #0A0A0A 0%, #1a2e20 60%, var(--web-dark, #025E44) 100%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -165,14 +165,14 @@ function VisionCard() {
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(189,217,98,0.06) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(var(--web-light-rgb, 189, 217, 98),0.06) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         <div
           style={{
             width: '80px', height: '80px', borderRadius: '24px',
-            backgroundColor: 'rgba(189,217,98,0.12)',
+            backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.12)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             backdropFilter: 'blur(8px)',
-            border: '2px solid rgba(189,217,98,0.25)',
+            border: '2px solid rgba(var(--web-light-rgb, 189, 217, 98),0.25)',
             position: 'relative', zIndex: 1,
           }}
         >
@@ -180,7 +180,7 @@ function VisionCard() {
         </div>
       </div>
       <div style={{ padding: '1.75rem 2rem 2rem' }}>
-        <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: '#025E44' }}>
+        <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--web-dark, #025E44)' }}>
           Nuestra Visión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
@@ -242,8 +242,8 @@ function ValorCard({ v }: { v: typeof valores[number] }) {
         const el = e.currentTarget as HTMLDivElement
 
         el.style.transform = 'translateY(-6px)'
-        el.style.boxShadow = '0 12px 36px rgba(37,146,127,0.12)'
-        el.style.borderColor = '#25927F'
+        el.style.boxShadow = '0 12px 36px rgba(var(--web-primary-rgb, 37, 146, 127),0.12)'
+        el.style.borderColor = 'var(--web-primary, #25927F)'
         el.style.backgroundColor = '#ffffff'
       }}
       onMouseLeave={e => {
@@ -258,13 +258,13 @@ function ValorCard({ v }: { v: typeof valores[number] }) {
       <div
         style={{
           width: '60px', height: '60px', borderRadius: '18px',
-          backgroundColor: 'rgba(37,146,127,0.1)',
+          backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '0 auto 1.25rem',
-          border: '1.5px solid rgba(37,146,127,0.2)',
+          border: '1.5px solid rgba(var(--web-primary-rgb, 37, 146, 127),0.2)',
         }}
       >
-        <v.icon size={28} color="#25927F" />
+        <v.icon size={28} color="var(--web-primary, #25927F)" />
       </div>
       <h3 style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#0A0A0A', marginBottom: '0.625rem' }}>
         {v.title}

@@ -19,10 +19,10 @@ const MODULES = [
 ]
 
 const COMMENTS = [
-  { name: 'Ana G.', msg: 'La explicación del módulo 2 fue excelente 🔥', avatar: 'AG', color: '#25927F' },
+  { name: 'Ana G.', msg: 'La explicación del módulo 2 fue excelente 🔥', avatar: 'AG', color: 'var(--web-primary, #25927F)' },
   { name: 'Carlos R.', msg: 'Muy bien estructurado el contenido', avatar: 'CR', color: '#3AB079' },
-  { name: 'Luis M.', msg: 'El material descargable es muy útil', avatar: 'LM', color: '#025E44' },
-  { name: 'Valeria P.', msg: 'Listo el módulo 3, ¡excelente!', avatar: 'VP', color: '#BDD962' },
+  { name: 'Luis M.', msg: 'El material descargable es muy útil', avatar: 'LM', color: 'var(--web-dark, #025E44)' },
+  { name: 'Valeria P.', msg: 'Listo el módulo 3, ¡excelente!', avatar: 'VP', color: 'var(--web-light, #BDD962)' },
 ]
 
 export default function HeroVisual() {
@@ -47,7 +47,7 @@ export default function HeroVisual() {
     <div className="relative flex items-center justify-center" style={{ minHeight: '500px' }}>
 
       {/* Glow ambient */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 60% 60% at 60% 50%, rgba(37,146,127,0.15) 0%, transparent 70%)' }} />
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(ellipse 60% 60% at 60% 50%, rgba(var(--web-primary-rgb, 37, 146, 127),0.15) 0%, transparent 70%)' }} />
 
       {/* ── Tarjeta principal ── */}
       <div style={{
@@ -64,7 +64,7 @@ export default function HeroVisual() {
         {/* Cabecera */}
         <div style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg,#025E44,#25927F)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg,var(--web-dark, #025E44),var(--web-primary, #25927F))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: '1rem' }}>🎓</span>
             </div>
             <div>
@@ -73,14 +73,14 @@ export default function HeroVisual() {
             </div>
           </div>
           {/* Badge GRABADO */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(189,217,98,0.12)', border: '1px solid rgba(189,217,98,0.3)', borderRadius: '999px', padding: '4px 10px' }}>
-            <Play size={9} color="#BDD962" fill="#BDD962" />
-            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: '#BDD962', fontWeight: 800, letterSpacing: '0.06em' }}>GRABADO</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.12)', border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)', borderRadius: '999px', padding: '4px 10px' }}>
+            <Play size={9} color="var(--web-light, #BDD962)" fill="var(--web-light, #BDD962)" />
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'var(--web-light, #BDD962)', fontWeight: 800, letterSpacing: '0.06em' }}>GRABADO</span>
           </div>
         </div>
 
         {/* Pantalla del video */}
-        <div style={{ position: 'relative', background: 'linear-gradient(160deg, #012d22 0%, #025E44 40%, #25927F 100%)', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', background: 'linear-gradient(160deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 40%, var(--web-primary, #25927F) 100%)', height: '160px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
 
           {/* Botón play central */}
@@ -95,7 +95,7 @@ export default function HeroVisual() {
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5rem', color: 'rgba(255,255,255,0.35)' }}>35:08</span>
             </div>
             <div style={{ height: '3px', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: '999px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${progress}%`, backgroundColor: '#BDD962', borderRadius: '999px', transition: 'width 0.4s linear' }} />
+              <div style={{ height: '100%', width: `${progress}%`, backgroundColor: 'var(--web-light, #BDD962)', borderRadius: '999px', transition: 'width 0.4s linear' }} />
             </div>
           </div>
         </div>
@@ -108,17 +108,17 @@ export default function HeroVisual() {
               style={{
                 display: 'flex', alignItems: 'center', gap: '10px',
                 padding: '7px 18px',
-                backgroundColor: m.active ? 'rgba(37,146,127,0.12)' : 'transparent',
-                borderLeft: m.active ? '3px solid #25927F' : '3px solid transparent',
+                backgroundColor: m.active ? 'rgba(var(--web-primary-rgb, 37, 146, 127),0.12)' : 'transparent',
+                borderLeft: m.active ? '3px solid var(--web-primary, #25927F)' : '3px solid transparent',
               }}
             >
               <div style={{ flexShrink: 0 }}>
                 {m.done
-                  ? <CheckCircle size={14} color="#BDD962" />
+                  ? <CheckCircle size={14} color="var(--web-light, #BDD962)" />
                   : m.locked
                     ? <Lock size={14} color="rgba(255,255,255,0.2)" />
                     : <div style={{ width: '14px', height: '14px', borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {m.active && <Play size={6} color="#25927F" fill="#25927F" />}
+                        {m.active && <Play size={6} color="var(--web-primary, #25927F)" fill="var(--web-primary, #25927F)" />}
                       </div>
                 }
               </div>
@@ -146,7 +146,7 @@ export default function HeroVisual() {
           {COMMENTS.slice(0, 2).map((c, i) => (
             <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
               <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: c.color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.4375rem', fontWeight: 800, color: c.color === '#BDD962' ? '#0A0A0A' : '#fff' }}>{c.avatar}</span>
+                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.4375rem', fontWeight: 800, color: c.color === 'var(--web-light, #BDD962)' ? '#0A0A0A' : '#fff' }}>{c.avatar}</span>
               </div>
               <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '5px 9px', flex: 1 }}>
                 <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: c.color, fontWeight: 700 }}>{c.name} </span>
@@ -167,11 +167,11 @@ export default function HeroVisual() {
       }}>
         <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: '#64748b', marginBottom: '6px' }}>Tu progreso</div>
         <div style={{ height: '5px', backgroundColor: '#f1f5f9', borderRadius: '999px', overflow: 'hidden', marginBottom: '5px' }}>
-          <div style={{ width: `${progress}%`, height: '100%', backgroundColor: '#25927F', borderRadius: '999px', transition: 'width 0.4s linear' }} />
+          <div style={{ width: `${progress}%`, height: '100%', backgroundColor: 'var(--web-primary, #25927F)', borderRadius: '999px', transition: 'width 0.4s linear' }} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 800, color: '#0A0A0A' }}>{progress}%</span>
-          <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: '#25927F', fontWeight: 600 }}>2 / 5 módulos</span>
+          <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>2 / 5 módulos</span>
         </div>
       </div>
 
@@ -184,7 +184,7 @@ export default function HeroVisual() {
         minWidth: '158px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(189,217,98,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.125rem', flexShrink: 0 }}>🏆</div>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.125rem', flexShrink: 0 }}>🏆</div>
           <div>
             <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', fontWeight: 800, color: '#0A0A0A', lineHeight: 1 }}>Certificado</div>
             <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: '#64748b', marginTop: '2px' }}>Al completar el curso</div>

@@ -56,7 +56,7 @@ export default function ClientLogosMarquee() {
             fontWeight: 700,
             letterSpacing: '0.15em',
             textTransform: 'uppercase',
-            color: '#25927F',
+            color: 'var(--web-primary, #25927F)',
             marginBottom: '0.75rem',
           }}
         >
@@ -73,7 +73,7 @@ export default function ClientLogosMarquee() {
           }}
         >
           Capacita a tu equipo,{' '}
-          <span style={{ color: '#25927F' }}>sin complicaciones</span>
+          <span style={{ color: 'var(--web-primary, #25927F)' }}>sin complicaciones</span>
         </h2>
       </div>
 

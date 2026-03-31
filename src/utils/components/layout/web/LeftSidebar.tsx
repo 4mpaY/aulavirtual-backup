@@ -32,8 +32,8 @@ export default function LeftSidebar() {
       style={{
         top: 'var(--navbar-height)',
         width: expanded ? 'var(--sidebar-width-expanded)' : 'var(--sidebar-width)',
-        backgroundColor: 'hsl(167, 96%, 19%)',
-        borderRight: '1px solid hsl(167, 96%, 25%)',
+        backgroundColor: 'var(--web-dark, #025E44)',
+        borderRight: '1px solid rgba(255,255,255,0.1)',
         zIndex: 40,
       }}
       onMouseEnter={() => setExpanded(true)}
@@ -49,7 +49,7 @@ export default function LeftSidebar() {
             className="no-underline flex items-center w-full px-4 transition-colors duration-200 relative"
             style={{
               height: '56px',
-              color: active ? 'hsl(75, 63%, 62%)' : 'rgba(255,255,255,0.7)',
+              color: active ? 'var(--web-light, #BDD962)' : '#ffffff',
               fontWeight: active ? 700 : 500,
               backgroundColor: active ? 'rgba(255,255,255,0.05)' : 'transparent',
             }}
@@ -64,7 +64,7 @@ export default function LeftSidebar() {
             {active && (
               <div
                 className="absolute left-0 rounded-r-full"
-                style={{ width: '4px', height: '32px', backgroundColor: 'hsl(75, 63%, 62%)' }}
+                style={{ width: '4px', height: '32px', backgroundColor: 'var(--web-light, #BDD962)' }}
               />
             )}
 
@@ -74,7 +74,7 @@ export default function LeftSidebar() {
               style={{
                 minWidth: '48px',
                 height: '48px',
-                backgroundColor: active ? 'hsl(75, 63%, 62%)' : 'transparent',
+                backgroundColor: active ? 'var(--web-light, #BDD962)' : 'transparent',
                 color: active ? '#0A0A0A' : 'inherit',
                 boxShadow: active ? '0 4px 12px rgba(0,0,0,0.2)' : 'none',
               }}
@@ -127,7 +127,7 @@ export default function LeftSidebar() {
           >
             Estado
           </p>
-          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'hsl(75, 63%, 62%)', fontWeight: 600 }}>
+          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#ffffff', fontWeight: 600 }}>
             Sistema Activo
           </p>
         </div>

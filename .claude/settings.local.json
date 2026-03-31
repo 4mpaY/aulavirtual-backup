@@ -14,7 +14,13 @@
       "Bash(find D:/GitHub/apps-fly/Edtech/apps/web/src -name *.tsx)",
       "Read(//d/GitHub/ipg-ingenieros-69927533/**)",
       "Bash(npx tsc:*)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(grep -r 25927F /d/GitHub/apps-fly/aula-virtual/src --include=*.ts --include=*.tsx --include=*.css)",
+      "Bash(grep -r BDD962 /d/GitHub/apps-fly/aula-virtual/src --include=*.ts --include=*.tsx --include=*.css)",
+      "Bash(grep -r 025E44 /d/GitHub/apps-fly/aula-virtual/src --include=*.ts --include=*.tsx --include=*.css)",
+      "Bash(grep -r \"color_primario\\\\|color_secundario\\\\|PRIMARY_COLOR_MAIN\\\\|PRIMARY_COLOR\" /d/GitHub/apps-fly/aula-virtual/src --include=*.ts --include=*.tsx -l)",
+      "Bash(grep -r \"getConfigs\\\\|Configuracion\" /d/GitHub/apps-fly/aula-virtual/src --include=*.ts -l)",
+      "Bash(find /d/GitHub/apps-fly/aula-virtual -type f -name *login* -o -name *register* -o -name *forgot*password*)"
     ]
   }
 }

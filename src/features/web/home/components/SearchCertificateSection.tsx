@@ -35,7 +35,7 @@ export default function SearchCertificateSection() {
   }
 
   return (
-    <section style={{ backgroundColor: 'hsl(167, 96%, 19%)', padding: '5rem 1rem' }}>
+    <section style={{ backgroundColor: 'var(--web-dark, #025E44)', padding: '5rem 1rem' }}>
       <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
         <ScrollReveal>
           <div
@@ -52,16 +52,16 @@ export default function SearchCertificateSection() {
               className="absolute top-0 right-0 pointer-events-none"
               style={{ opacity: 0.04, padding: '2rem' }}
             >
-              <Award style={{ width: '16rem', height: '16rem', color: '#BDD962', marginTop: '-3rem', marginRight: '-3rem' }} />
+              <Award style={{ width: '16rem', height: '16rem', color: 'var(--web-light, #BDD962)', marginTop: '-3rem', marginRight: '-3rem' }} />
             </div>
 
             {/* Header */}
             <div className="relative z-10 text-center mb-10">
               <div
                 className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6"
-                style={{ backgroundColor: 'rgba(189,217,98,0.15)', border: '1px solid rgba(189,217,98,0.2)' }}
+                style={{ backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.2)' }}
               >
-                <ShieldCheck style={{ width: '2rem', height: '2rem', color: '#BDD962' }} />
+                <ShieldCheck style={{ width: '2rem', height: '2rem', color: 'var(--web-light, #BDD962)' }} />
               </div>
               <h2 className="mb-4" style={sectionH2Dark}>
                 Verificar Certificado
@@ -104,7 +104,7 @@ export default function SearchCertificateSection() {
                       outline: 'none',
                       transition: 'border-color 0.2s',
                     }}
-                    onFocus={e => { e.currentTarget.style.borderColor = '#BDD962' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = 'var(--web-light, #BDD962)' }}
                     onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)' }}
                   />
                 </div>
@@ -116,17 +116,17 @@ export default function SearchCertificateSection() {
                     fontFamily: 'Poppins, sans-serif',
                     padding: '1rem 2rem',
                     borderRadius: '0.75rem',
-                    backgroundColor: '#BDD962',
+                    backgroundColor: 'var(--web-light, #BDD962)',
                     color: '#0A0A0A',
                     fontWeight: 700,
                     fontSize: '0.9375rem',
                     border: 'none',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 15px rgba(189,217,98,0.3)',
+                    boxShadow: '0 4px 15px rgba(var(--web-light-rgb, 189, 217, 98),0.3)',
                     opacity: !codigo.trim() ? 0.5 : 1,
                   }}
                   onMouseEnter={e => { if (codigo.trim()) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#cce670' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#BDD962' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--web-light, #BDD962)' }}
                 >
                   <Search size={18} />
                   Buscar
@@ -136,7 +136,7 @@ export default function SearchCertificateSection() {
               {error && (
                 <p
                   className="mt-3 text-center text-sm"
-                  style={{ fontFamily: 'Poppins, sans-serif', color: '#BDD962' }}
+                  style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-light, #BDD962)' }}
                 >
                   {error}
                 </p>

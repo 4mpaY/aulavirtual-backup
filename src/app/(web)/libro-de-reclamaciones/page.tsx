@@ -15,7 +15,7 @@ export default function LibroReclamacionesPage() {
       <Container maxWidth="lg">
         
         <Box textAlign="center" mb={6}>
-          <Typography variant="h3" fontWeight={900} color="#02115C" mb={2}>
+          <Typography variant="h3" fontWeight={900} sx={{ color: 'var(--web-dark, #025E44)' }} mb={2}>
             Libro de Reclamaciones Virtual
           </Typography>
           <Typography variant="body1" color="text.secondary" maxWidth="800px" mx="auto">

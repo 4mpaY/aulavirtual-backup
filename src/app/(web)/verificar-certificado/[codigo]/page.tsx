@@ -66,7 +66,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
   ])
 
   // Configuración de branding
-  const primaryColor = configs.PRIMARY_COLOR_MAIN || '#131FF2'
+  const primaryColor = configs.PRIMARY_COLOR_MAIN || '#25927F'
   const templateName = configs.TEMPLATE_NAME || 'Aula Virtual'
   const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
 
@@ -91,17 +91,19 @@ export default async function VerificarCertificadoPage({ params }: Props) {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
             No hemos podido encontrar ningún certificado con el código <strong>{codigo}</strong> en nuestra base de datos.
           </Typography>
-          <Button 
-            variant="contained" 
-            component={Link} 
+          <Button
+            variant="contained"
+            component={Link}
             href="/"
             startIcon={<ArrowBackIcon size={20} />}
-            sx={{ 
-              borderRadius: 3, 
-              px: 4, 
+            sx={{
+              borderRadius: 3,
+              px: 4,
               py: 1.5,
               textTransform: 'none',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              backgroundColor: primaryColor,
+              '&:hover': { filter: 'brightness(0.85)' }
             }}
           >
             Volver al inicio
@@ -223,12 +225,12 @@ export default async function VerificarCertificadoPage({ params }: Props) {
 
             <Grid item xs={12} md={6}>
               <Box 
-                sx={{ 
-                  p: 3, 
-                  bgcolor: 'rgba(19, 31, 242, 0.03)', 
-                  borderRadius: 4, 
+                sx={{
+                  p: 3,
+                  bgcolor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.05)',
+                  borderRadius: 4,
                   border: '1px solid',
-                  borderColor: 'rgba(19, 31, 242, 0.1)',
+                  borderColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.15)',
                   height: '100%'
                 }}
               >

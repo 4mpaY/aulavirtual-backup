@@ -10,14 +10,14 @@ export default function TerminosYCondicionesPage() {
   return (
     <Box sx={{ bgcolor: 'white', py: { xs: 6, md: 10 }, color: '#333' }}>
       <Container maxWidth="md">
-        <Typography variant="h3" fontWeight={900} color="#02115C" mb={2} textAlign="center">
+        <Typography variant="h3" fontWeight={900} sx={{ color: 'var(--web-dark, #025E44)' }} mb={2} textAlign="center">
           Términos y Condiciones
         </Typography>
         <Typography variant="body1" color="text.secondary" textAlign="center" mb={6}>
           Última actualización: Noviembre de 2024
         </Typography>
 
-        <Box sx={{ '& h4': { color: '#02115C', fontWeight: 800, mt: 5, mb: 2 }, '& p': { mb: 2, lineHeight: 1.8 } }}>
+        <Box sx={{ '& h4': { color: 'var(--web-dark, #025E44)', fontWeight: 800, mt: 5, mb: 2 }, '& p': { mb: 2, lineHeight: 1.8 } }}>
 
           <Typography paragraph>
             Bienvenido a <strong>NOMBRE DE TU EMPRESA</strong> (&quot;Nosotros&quot;, &quot;ARM&quot;).
@@ -77,7 +77,7 @@ export default function TerminosYCondicionesPage() {
           <Typography paragraph>
             Para consultas de soporte, envíe sus requerimientos a <strong>arm.confiabilidad@gmail.com</strong>.
             De acuerdo a la legislación vigente de protección al consumidor peruano, mantenemos un{' '}
-            <a href="/libro-de-reclamaciones" style={{ color: '#02115C', textDecoration: 'underline' }}>Libro de Reclamaciones a disposición pública</a>{' '}
+            <a href="/libro-de-reclamaciones" style={{ color: 'var(--web-dark, #025E44)', textDecoration: 'underline' }}>Libro de Reclamaciones a disposición pública</a>{' '}
             en nuestra plataforma web.
           </Typography>
 

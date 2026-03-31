@@ -94,7 +94,7 @@ export default async function HomePage() {
       {/* ── 1. HERO ─────────────────────────────────── */}
       <section
         style={{
-          background: 'linear-gradient(135deg, #012d22 0%, #025E44 45%, #0f4438 100%)',
+          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -109,7 +109,7 @@ export default async function HomePage() {
           }}
         />
         {/* Glow derecho */}
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,146,127,0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
+        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '5rem 1.5rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
@@ -119,10 +119,10 @@ export default async function HomePage() {
               {/* Eyebrow */}
               <div
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5"
-                style={{ backgroundColor: 'rgba(189,217,98,0.15)', border: '1px solid rgba(189,217,98,0.3)' }}
+                style={{ backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)' }}
               >
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#BDD962' }} />
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#BDD962', fontWeight: 600 }}>
+                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--web-light, #BDD962)' }} />
+                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
                   Plataforma educativa online
                 </span>
               </div>
@@ -140,7 +140,7 @@ export default async function HomePage() {
                 }}
               >
                 Aprende sin límites,<br />
-                <span style={{ color: '#BDD962' }}>crece sin fronteras</span>
+                <span style={{ color: 'var(--web-light, #BDD962)' }}>crece sin fronteras</span>
               </h1>
 
               {/* Descripción */}
@@ -163,7 +163,7 @@ export default async function HomePage() {
                 <Link
                   href="/cursos"
                   className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#25927F', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', boxShadow: '0 4px 20px rgba(37,146,127,0.45)' }}
+                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', boxShadow: '0 4px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.45)' }}
                 >
                   Ver Cursos <ArrowRight size={18} />
                 </Link>
@@ -184,7 +184,7 @@ export default async function HomePage() {
                   { value: '98%', label: 'Satisfacción' },
                 ].map(stat => (
                   <div key={stat.label}>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: '#BDD962', lineHeight: 1 }}>{stat.value}</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>{stat.value}</div>
                     <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px' }}>{stat.label}</div>
                   </div>
                 ))}
@@ -211,7 +211,7 @@ export default async function HomePage() {
             <Link
               href="/cursos"
               className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-              style={{ fontFamily: 'Poppins, sans-serif', color: '#25927F' }}
+              style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
             >
               Ver todos <ArrowRight size={16} />
             </Link>
@@ -223,7 +223,7 @@ export default async function HomePage() {
             <Link
               href="/cursos"
               className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#25927F', color: '#ffffff' }}
+              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff' }}
             >
               Ver todos los cursos <ArrowRight size={16} />
             </Link>
@@ -243,7 +243,7 @@ export default async function HomePage() {
                 <div>
                   <div
                     className="inline-flex items-center gap-2 mb-3"
-                    style={{ color: '#25927F', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
+                    style={{ color: 'var(--web-primary, #25927F)', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
                   >
                     <Map size={14} /> Especialízate
                   </div>
@@ -253,7 +253,7 @@ export default async function HomePage() {
                 <Link
                   href="/rutas"
                   className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ fontFamily: 'Poppins, sans-serif', color: '#25927F' }}
+                  style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
                 >
                   Ver todas <ArrowRight size={16} />
                 </Link>
@@ -284,7 +284,7 @@ export default async function HomePage() {
           <ScrollReveal>
             <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-              style={{ backgroundColor: 'rgba(37,146,127,0.08)', color: '#025E44' }}
+              style={{ backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.08)', color: 'var(--web-dark, #025E44)' }}
             >
               <CheckCircle size={16} />
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 600 }}>
@@ -306,7 +306,7 @@ export default async function HomePage() {
             <Link
               href="/cursos"
               className="no-underline inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#25927F', boxShadow: '0 6px 20px rgba(37,146,127,0.35)' }}
+              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.35)' }}
             >
               Inscribirse ahora <ArrowRight size={18} />
             </Link>

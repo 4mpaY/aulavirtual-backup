@@ -32,9 +32,9 @@ function TeacherCard({ teacher, index }: { teacher: Teacher; index: number }) {
   const initials = `${teacher.nombre[0]}${teacher.apellido[0]}`.toUpperCase()
 
   // Colores de fondo para el avatar inicial, cíclicos
-  const avatarColors = ['#25927F', '#025E44', '#3AB079', '#BDD962']
+  const avatarColors = ['var(--web-primary, #25927F)', 'var(--web-dark, #025E44)', '#3AB079', 'var(--web-light, #BDD962)']
   const avatarBg = avatarColors[index % avatarColors.length]
-  const avatarFg = avatarBg === '#BDD962' ? '#0A0A0A' : '#ffffff'
+  const avatarFg = index % avatarColors.length === 3 ? '#0A0A0A' : '#ffffff'
 
   return (
     <ScrollReveal delay={index * 0.1}>
@@ -52,8 +52,8 @@ function TeacherCard({ teacher, index }: { teacher: Teacher; index: number }) {
           const el = e.currentTarget as HTMLDivElement
 
           el.style.transform = 'translateY(-8px)'
-          el.style.borderColor = '#25927F'
-          el.style.boxShadow = '0 20px 50px rgba(37,146,127,0.15)'
+          el.style.borderColor = 'var(--web-primary, #25927F)'
+          el.style.boxShadow = '0 20px 50px rgba(var(--web-primary-rgb, 37, 146, 127),0.15)'
         }}
         onMouseLeave={e => {
           const el = e.currentTarget as HTMLDivElement
@@ -117,8 +117,8 @@ function TeacherCard({ teacher, index }: { teacher: Teacher; index: number }) {
               border: '1px solid rgba(255,255,255,0.1)',
             }}
           >
-            <BookOpen size={11} color="#BDD962" />
-            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: '#BDD962', fontWeight: 700 }}>
+            <BookOpen size={11} color="var(--web-light, #BDD962)" />
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: 'var(--web-light, #BDD962)', fontWeight: 700 }}>
               {teacher._count.cursos_dictados} {teacher._count.cursos_dictados === 1 ? 'curso' : 'cursos'}
             </span>
           </div>
@@ -139,7 +139,7 @@ function TeacherCard({ teacher, index }: { teacher: Teacher; index: number }) {
             {fullName}
           </h3>
           {teacher.cargo && (
-            <p style={{ ...smallText, color: '#25927F', fontWeight: 600, marginBottom: '0.5rem' }}>
+            <p style={{ ...smallText, color: 'var(--web-primary, #25927F)', fontWeight: 600, marginBottom: '0.5rem' }}>
               {teacher.cargo}
             </p>
           )}
@@ -181,7 +181,7 @@ export default function TeachersSection({ teachers }: Props) {
             <Link
               href="/docentes"
               className="no-underline inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:opacity-80"
-              style={{ fontFamily: 'Poppins, sans-serif', color: '#25927F' }}
+              style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
             >
               Ver todos los docentes <ArrowRight size={16} />
             </Link>

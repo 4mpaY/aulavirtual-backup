@@ -114,7 +114,7 @@ export default async function DocentePage({ params }: Props) {
       {/* Hero del docente */}
       <Box
         sx={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%)',
+          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
           py: { xs: 8, md: 12 },
           mb: 6,
           position: 'relative',
@@ -125,7 +125,7 @@ export default async function DocentePage({ params }: Props) {
         <Box
           sx={{
             position: 'absolute', inset: 0,
-            background: 'radial-gradient(ellipse at 60% 50%, rgba(16,185,129,0.08) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at 60% 50%, rgba(var(--web-primary-rgb, 37, 146, 127),0.12) 0%, transparent 70%)',
             pointerEvents: 'none'
           }}
         />
@@ -166,7 +166,7 @@ export default async function DocentePage({ params }: Props) {
                 <Chip
                   label="Docente"
                   size="small"
-                  sx={{ bgcolor: 'rgba(16,185,129,0.15)', color: '#10b981', fontWeight: 700, borderRadius: 2 }}
+                  sx={{ bgcolor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.15)', color: 'var(--web-primary, #25927F)', fontWeight: 700, borderRadius: 2 }}
                 />
                 <Typography
                   variant="h2"
@@ -177,7 +177,7 @@ export default async function DocentePage({ params }: Props) {
                 {tituloEspecializacion && (
                   <Typography
                     variant="h6"
-                    sx={{ color: '#10b981', fontWeight: 600, textAlign: { xs: 'center', md: 'left' } }}
+                    sx={{ color: 'var(--web-primary, #25927F)', fontWeight: 600, textAlign: { xs: 'center', md: 'left' } }}
                   >
                     {tituloEspecializacion}
                   </Typography>
@@ -205,7 +205,7 @@ export default async function DocentePage({ params }: Props) {
               <ScrollReveal>
                 <Paper sx={{ p: { xs: 3, md: 5 }, borderRadius: 4, boxShadow: '0 4px 24px rgba(0,0,0,0.06)', mb: 4 }}>
                   <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 3 }}>
-                    <Award size={22} color="#10b981" />
+                    <Award size={22} color="var(--web-primary, #25927F)" />
                     <Typography variant="h5" sx={{ fontWeight: 800 }}>
                       Sobre el docente
                     </Typography>
@@ -223,7 +223,7 @@ export default async function DocentePage({ params }: Props) {
                         color: '#1e293b',
                         textTransform: 'uppercase',
                         letterSpacing: '0.025em',
-                        borderLeft: '4px solid #10b981',
+                        borderLeft: '4px solid var(--web-primary, #25927F)',
                         pl: 2
                       },
                       '& p': { mb: 2 },

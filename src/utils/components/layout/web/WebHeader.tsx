@@ -49,7 +49,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontSize: '0.625rem',
-                color: '#025E44',
+                color: 'var(--web-dark, #025E44)',
                 fontWeight: 600,
                 letterSpacing: '0.15em',
                 textTransform: 'uppercase',
@@ -95,10 +95,10 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
                 px: 4,
                 py: 1.5,
                 borderRadius: '12px',
-                backgroundColor: '#25927F',
+                backgroundColor: 'var(--web-primary, #25927F)',
                 textTransform: 'none',
-                boxShadow: '0 4px 12px rgba(37,146,127,0.3)',
-                borderBottom: '4px solid rgba(2,94,68,0.3)',
+                boxShadow: '0 4px 12px rgba(var(--web-primary-rgb, 37, 146, 127),0.3)',
+                borderBottom: '4px solid rgba(var(--web-dark-rgb, 2, 94, 68),0.3)',
                 '&:hover': { backgroundColor: '#1e7a6a' },
               }}
             >

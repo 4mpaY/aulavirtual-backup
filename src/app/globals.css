@@ -25,9 +25,9 @@
   --color-4: 152 50% 46%;   /* Sage Green #3AB079 */
   --color-5: 0 0% 4%;       /* Almost Black #0A0A0A */
 
-  --ipg-primary: #25927F;
-  --ipg-primary-dark: #025E44;
-  --ipg-primary-light: #BDD962;
+  --ipg-primary: var(--web-primary, #25927F);
+  --ipg-primary-dark: var(--web-dark, #025E44);
+  --ipg-primary-light: var(--web-light, #BDD962);
   --ipg-black: #0A0A0A;
   --ipg-muted: #f1f5f4;
 
@@ -181,11 +181,11 @@ code {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #25927F;
+  color: var(--web-primary, #25927F);
   display: block;
   margin-bottom: 0.75rem;
 }
-.t-eyebrow-dark { color: #BDD962; }
+.t-eyebrow-dark { color: var(--web-light, #BDD962); }
 
 /* H2 de sección */
 .t-section-h2 {

@@ -32,7 +32,7 @@ export default function EnterpriseCTASection() {
   return (
     <section
       style={{
-        backgroundColor: '#BDD962',
+        backgroundColor: 'var(--web-light, #BDD962)',
         padding: '5rem 1rem',
         position: 'relative',
         overflow: 'hidden',
@@ -47,7 +47,7 @@ export default function EnterpriseCTASection() {
           width: '320px',
           height: '320px',
           borderRadius: '50%',
-          backgroundColor: 'rgba(2,94,68,0.08)',
+          backgroundColor: 'rgba(var(--web-dark-rgb, 2, 94, 68),0.08)',
           pointerEvents: 'none',
         }}
       />
@@ -59,7 +59,7 @@ export default function EnterpriseCTASection() {
           width: '240px',
           height: '240px',
           borderRadius: '50%',
-          backgroundColor: 'rgba(2,94,68,0.06)',
+          backgroundColor: 'rgba(var(--web-dark-rgb, 2, 94, 68),0.06)',
           pointerEvents: 'none',
         }}
       />
@@ -82,14 +82,14 @@ export default function EnterpriseCTASection() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  backgroundColor: 'rgba(2,94,68,0.12)',
+                  backgroundColor: 'rgba(var(--web-dark-rgb, 2, 94, 68),0.12)',
                   borderRadius: '999px',
                   padding: '0.375rem 1rem',
                   marginBottom: '1.25rem',
                 }}
               >
-                <Calendar size={14} color="#025E44" />
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: '#025E44', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
+                <Calendar size={14} color="var(--web-dark, #025E44)" />
+                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: 'var(--web-dark, #025E44)', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
                   Para empresas
                 </span>
               </div>
@@ -110,14 +110,14 @@ export default function EnterpriseCTASection() {
                         width: '32px',
                         height: '32px',
                         borderRadius: '10px',
-                        backgroundColor: 'rgba(2,94,68,0.1)',
+                        backgroundColor: 'rgba(var(--web-dark-rgb, 2, 94, 68),0.1)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
                       }}
                     >
-                      <b.icon size={16} color="#025E44" />
+                      <b.icon size={16} color="var(--web-dark, #025E44)" />
                     </div>
                     <span style={{ ...cardBody, color: '#0A0A0A', fontWeight: 500 }}>
                       {b.text}
@@ -144,15 +144,15 @@ export default function EnterpriseCTASection() {
                     width: '72px',
                     height: '72px',
                     borderRadius: '20px',
-                    backgroundColor: 'rgba(189,217,98,0.15)',
+                    backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     margin: '0 auto 1rem',
-                    border: '2px solid rgba(189,217,98,0.3)',
+                    border: '2px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)',
                   }}
                 >
-                  <Calendar size={36} color="#025E44" />
+                  <Calendar size={36} color="var(--web-dark, #025E44)" />
                 </div>
                 <h3 style={{ ...cardTitle, fontSize: '1.125rem', marginBottom: '0.5rem' }}>
                   Reunión sin costo
@@ -175,7 +175,7 @@ export default function EnterpriseCTASection() {
                   width: '100%',
                   padding: '1rem',
                   borderRadius: '14px',
-                  backgroundColor: '#025E44',
+                  backgroundColor: 'var(--web-dark, #025E44)',
                   color: '#ffffff',
                   fontFamily: 'Poppins, sans-serif',
                   fontWeight: 700,
@@ -183,7 +183,7 @@ export default function EnterpriseCTASection() {
                   textDecoration: 'none',
                   marginBottom: '0.75rem',
                   transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 15px rgba(2,94,68,0.25)',
+                  boxShadow: '0 4px 15px rgba(var(--web-dark-rgb, 2, 94, 68),0.25)',
                 }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLAnchorElement
@@ -194,7 +194,7 @@ export default function EnterpriseCTASection() {
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLAnchorElement
 
-                  el.style.backgroundColor = '#025E44'
+                  el.style.backgroundColor = 'var(--web-dark, #025E44)'
                   el.style.transform = 'scale(1)'
                 }}
               >

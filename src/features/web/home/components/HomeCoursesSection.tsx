@@ -67,7 +67,7 @@ export default function HomeCoursesSection({ courses }: Props) {
             {/* Hover overlay */}
             <div
               className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/thumb:opacity-100 transition-opacity duration-300"
-              style={{ backgroundColor: 'rgba(2,94,68,0.82)', zIndex: 3 }}
+              style={{ backgroundColor: 'rgba(var(--web-dark-rgb, 2, 94, 68),0.82)', zIndex: 3 }}
             >
               <Link
                 href={`/cursos/${course.slug}`}
@@ -75,7 +75,7 @@ export default function HomeCoursesSection({ courses }: Props) {
                 className="no-underline inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm"
                 style={{
                   fontFamily: 'Poppins, sans-serif',
-                  backgroundColor: '#BDD962',
+                  backgroundColor: 'var(--web-light, #BDD962)',
                   color: '#0A0A0A',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 }}
@@ -99,7 +99,7 @@ export default function HomeCoursesSection({ courses }: Props) {
               <div className="absolute top-3 right-3">
                 <span
                   className="px-2.5 py-1 rounded-full text-xs font-bold text-white"
-                  style={{ backgroundColor: '#25927F', fontFamily: 'Poppins, sans-serif' }}
+                  style={{ backgroundColor: 'var(--web-primary, #25927F)', fontFamily: 'Poppins, sans-serif' }}
                 >
                   {nivelLabel[course.nivel] ?? course.nivel}
                 </span>
@@ -125,8 +125,8 @@ export default function HomeCoursesSection({ courses }: Props) {
                 className="inline-block self-start px-2.5 py-0.5 rounded text-xs font-bold uppercase"
                 style={{
                   fontFamily: 'Poppins, sans-serif',
-                  backgroundColor: 'rgba(37,146,127,0.1)',
-                  color: '#025E44',
+                  backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)',
+                  color: 'var(--web-dark, #025E44)',
                 }}
               >
                 {course.categoria.nombre}
@@ -165,7 +165,7 @@ export default function HomeCoursesSection({ courses }: Props) {
             <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid hsl(214, 20%, 92%)' }}>
               <span
                 className="font-bold text-lg"
-                style={{ fontFamily: 'Poppins, sans-serif', color: '#25927F' }}
+                style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
               >
                 {course.es_gratis ? 'Gratis' : `${course.moneda} ${Number(course.precio).toFixed(2)}`}
               </span>
@@ -175,7 +175,7 @@ export default function HomeCoursesSection({ courses }: Props) {
                 className="no-underline inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
                 style={{
                   fontFamily: 'Poppins, sans-serif',
-                  backgroundColor: '#25927F',
+                  backgroundColor: 'var(--web-primary, #25927F)',
                   color: '#ffffff',
                 }}
               >

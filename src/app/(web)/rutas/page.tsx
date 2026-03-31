@@ -28,7 +28,7 @@ export default async function RutasIndexPage() {
       {/* ── 1. HERO RUTAS ─────────────────────── */}
       <section
         style={{
-          background: 'linear-gradient(135deg, #012d22 0%, #025E44 45%, #0f4438 100%)',
+          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
           padding: '6rem 1.5rem 5rem',
           position: 'relative',
           overflow: 'hidden',
@@ -44,7 +44,7 @@ export default async function RutasIndexPage() {
           }}
         />
         {/* Glow */}
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,146,127,0.22) 0%, transparent 65%)', pointerEvents: 'none' }} />
+        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.22) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div
@@ -63,15 +63,15 @@ export default async function RutasIndexPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                backgroundColor: 'rgba(189,217,98,0.12)',
-                border: '1px solid rgba(189,217,98,0.25)',
+                backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.12)',
+                border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.25)',
                 borderRadius: '999px',
                 padding: '0.375rem 1rem',
                 marginBottom: '0.5rem',
               }}
             >
-              <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#BDD962', boxShadow: '0 0 6px #BDD962' }} />
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#BDD962', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: 'var(--web-light, #BDD962)', boxShadow: '0 0 6px var(--web-light, #BDD962)' }} />
+              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 Catálogo Completo
               </span>
             </div>
@@ -86,7 +86,7 @@ export default async function RutasIndexPage() {
                 lineHeight: 1.15,
               }}
             >
-              Nuestras <span style={{ color: '#BDD962' }}>Rutas</span> de Aprendizaje
+              Nuestras <span style={{ color: 'var(--web-light, #BDD962)' }}>Rutas</span> de Aprendizaje
             </h1>
 
             <p

@@ -171,11 +171,21 @@ const ForgotPassword = ({ mode }: { mode: SystemMode }) => {
               )}
             />
 
-            <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
-              {isLoading ? <CircularProgress size={24} /> : 'Enviar Código'}
+            <Button
+              fullWidth
+              variant='contained'
+              type='submit'
+              disabled={isLoading}
+              sx={{
+                backgroundColor: 'var(--web-primary, #25927F)',
+                '&:hover': { backgroundColor: 'var(--web-dark, #025E44)' },
+                '&:disabled': { backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.4)', color: 'rgba(255,255,255,0.7)' }
+              }}
+            >
+              {isLoading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Enviar Código'}
             </Button>
 
-            <Typography className='flex justify-center items-center' color='primary'>
+            <Typography className='flex justify-center items-center' sx={{ color: 'var(--web-primary, #25927F)' }}>
               <Link href='/login' className='flex items-center gap-1.5'>
                 <i className='tabler-chevron-left text-xl' />
                 <span>Volver al inicio de sesión</span>

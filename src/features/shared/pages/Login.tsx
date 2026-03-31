@@ -303,15 +303,25 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
               <Typography
                 component={Link}
                 href='/forgot-password'
-                color='primary'
                 variant='body2'
+                sx={{ color: 'var(--web-primary, #25927F)', '&:hover': { color: 'var(--web-dark, #025E44)' } }}
               >
                 ¿Olvidaste tu contraseña?
               </Typography>
             </div>
 
-            <Button fullWidth variant='contained' type='submit' disabled={isLoading}>
-              {isLoading ? <CircularProgress size={24} /> : 'Iniciar Sesión'}
+            <Button
+              fullWidth
+              variant='contained'
+              type='submit'
+              disabled={isLoading}
+              sx={{
+                backgroundColor: 'var(--web-primary, #25927F)',
+                '&:hover': { backgroundColor: 'var(--web-dark, #025E44)' },
+                '&:disabled': { backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.4)', color: 'rgba(255,255,255,0.7)' }
+              }}
+            >
+              {isLoading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Iniciar Sesión'}
             </Button>
 
             <div className='flex justify-center items-center flex-wrap gap-2'>
@@ -319,7 +329,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
               <Typography
                 component={Link}
                 href={registerUrl}
-                color='primary'
+                sx={{ color: 'var(--web-primary, #25927F)', fontWeight: 600, '&:hover': { color: 'var(--web-dark, #025E44)' } }}
               >
                 Regístrate
               </Typography>

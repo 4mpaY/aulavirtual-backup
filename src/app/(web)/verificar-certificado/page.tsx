@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function VerificarCertificadoPage() {
   return (
-    <div className="pt-10 pb-20">
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--web-dark, #025E44)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       <SearchCertificateSection />
     </div>
   )

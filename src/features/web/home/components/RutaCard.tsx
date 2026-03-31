@@ -34,21 +34,21 @@ const StyledCard = styled(Card)(({ theme }) => ({
   transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
   overflow: 'hidden',
   backgroundColor: '#ffffff',
-  border: '1.5px solid rgba(37,146,127,0.1)',
+  border: '1.5px solid rgba(var(--web-primary-rgb, 37, 146, 127),0.1)',
   boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
   textDecoration: 'none',
   cursor: 'pointer',
   '&:hover': {
     transform: 'translateY(-8px)',
-    boxShadow: '0 24px 48px rgba(37, 146, 127, 0.12)',
-    borderColor: 'rgba(37,146,127,0.4)',
+    boxShadow: '0 24px 48px rgba(var(--web-primary-rgb, 37, 146, 127), 0.12)',
+    borderColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.4)',
     '& .arrow-icon': {
       transform: 'translateX(4px)'
     },
     '& .card-btn': {
-      backgroundColor: '#25927F',
+      backgroundColor: 'var(--web-primary, #25927F)',
       color: '#ffffff',
-      borderColor: '#25927F'
+      borderColor: 'var(--web-primary, #25927F)'
     }
   }
 }))
@@ -62,7 +62,8 @@ const RutaCard = ({
   cursos
 }: RutaCardProps) => {
   return (
-    <StyledCard component={Link} href={`/rutas/${slug}`}>
+    <Link href={`/rutas/${slug}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+    <StyledCard>
       <Box sx={{ position: 'relative', overflow: 'hidden' }}>
         <CourseThumbnail
           src={miniatura}
@@ -87,14 +88,14 @@ const RutaCard = ({
             top: 16,
             left: 16,
             zIndex: 2,
-            bgcolor: '#BDD962',
+            bgcolor: 'var(--web-light, #BDD962)',
             color: '#0A0A0A',
             fontWeight: 800,
             fontFamily: 'Poppins, sans-serif',
             fontSize: '0.65rem',
             letterSpacing: '0.05em',
             height: 24,
-            boxShadow: '0 4px 12px rgba(189,217,98,0.4)'
+            boxShadow: '0 4px 12px rgba(var(--web-light-rgb, 189, 217, 98),0.4)'
           }}
         />
 
@@ -186,6 +187,7 @@ const RutaCard = ({
         </Button>
       </CardContent>
     </StyledCard>
+    </Link>
   )
 }
 

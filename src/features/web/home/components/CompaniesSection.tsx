@@ -56,7 +56,7 @@ export default function CompaniesSection() {
               <p style={eyebrow}>Soluciones corporativas</p>
               <h2 style={sectionH2}>
                 Capacita a tu equipo<br />
-                <span style={{ color: '#25927F' }}>sin complicaciones</span>
+                <span style={{ color: 'var(--web-primary, #25927F)' }}>sin complicaciones</span>
               </h2>
               <p style={{ ...sectionDesc, marginBottom: '2rem' }}>
                 Ofrecemos planes especiales para empresas que quieren mantener a sus colaboradores actualizados y certificados en las últimas tendencias del sector.
@@ -66,7 +66,7 @@ export default function CompaniesSection() {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2.5rem' }}>
                 {benefits.map((b, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <CheckCircle size={18} style={{ color: '#25927F', flexShrink: 0, marginTop: '2px' }} />
+                    <CheckCircle size={18} style={{ color: 'var(--web-primary, #25927F)', flexShrink: 0, marginTop: '2px' }} />
                     <span style={{ ...cardBody, color: '#334155' }}>{b}</span>
                   </li>
                 ))}
@@ -135,8 +135,8 @@ export default function CompaniesSection() {
                     const el = e.currentTarget as HTMLDivElement
 
                     el.style.transform = 'translateX(8px)'
-                    el.style.boxShadow = '0 8px 32px rgba(37,146,127,0.12)'
-                    el.style.borderColor = '#25927F'
+                    el.style.boxShadow = '0 8px 32px rgba(var(--web-primary-rgb, 37, 146, 127),0.12)'
+                    el.style.borderColor = 'var(--web-primary, #25927F)'
                   }}
                   onMouseLeave={e => {
                     const el = e.currentTarget as HTMLDivElement
@@ -151,14 +151,14 @@ export default function CompaniesSection() {
                       width: '56px',
                       height: '56px',
                       borderRadius: '16px',
-                      backgroundColor: 'rgba(37,146,127,0.1)',
+                      backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
                     }}
                   >
-                    <stat.icon size={28} color="#25927F" />
+                    <stat.icon size={28} color="var(--web-primary, #25927F)" />
                   </div>
                   <div>
                     <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '2rem', fontWeight: 800, color: '#0A0A0A', lineHeight: 1, letterSpacing: '-0.03em' }}>
@@ -176,7 +176,7 @@ export default function CompaniesSection() {
                 style={{
                   borderRadius: '20px',
                   padding: '1.5rem 2rem',
-                  background: 'linear-gradient(135deg, #025E44 0%, #25927F 100%)',
+                  background: 'linear-gradient(135deg, var(--web-dark, #025E44) 0%, var(--web-primary, #25927F) 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '1rem',

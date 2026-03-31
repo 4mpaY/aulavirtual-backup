@@ -396,8 +396,18 @@ const Register = ({ mode }: { mode: SystemMode }) => {
               </Grid>
             </Grid>
 
-            <Button fullWidth variant='contained' type='submit' disabled={isLoading || success}>
-              {isLoading ? <CircularProgress size={24} /> : 'Registrarse'}
+            <Button
+              fullWidth
+              variant='contained'
+              type='submit'
+              disabled={isLoading || success}
+              sx={{
+                backgroundColor: 'var(--web-primary, #25927F)',
+                '&:hover': { backgroundColor: 'var(--web-dark, #025E44)' },
+                '&:disabled': { backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.4)', color: 'rgba(255,255,255,0.7)' }
+              }}
+            >
+              {isLoading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Registrarse'}
             </Button>
 
             <div className='flex justify-center items-center flex-wrap gap-2'>
@@ -405,7 +415,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
               <Typography
                 component={Link}
                 href={loginUrl}
-                color='primary'
+                sx={{ color: 'var(--web-primary, #25927F)', fontWeight: 600, '&:hover': { color: 'var(--web-dark, #025E44)' } }}
               >
                 Inicia sesión
               </Typography>
