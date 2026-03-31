@@ -1,209 +1,315 @@
 import Link from 'next/link'
 
-import { ArrowRight, Shield, BarChart3, Users, Award, Cog, Activity } from 'lucide-react'
+import { ArrowRight, CheckCircle, Map } from 'lucide-react'
 
-import HeroSlider from '@/features/web/home/components/HeroSlider'
-import ServiceCard from '@/features/web/home/components/ServiceCard'
-import ScrollReveal from '@/features/web/home/components/ScrollReveal'
+import prisma from '@/utils/libs/prisma'
+import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
+import RutasSection from '@/features/web/home/components/RutasSection'
+import ScrollReveal from '@/features/web/home/components/ScrollReveal'
+import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
+import HeroVisual from '@/features/web/home/components/HeroVisual'
+import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSection'
+import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
+import CompaniesSection from '@/features/web/home/components/CompaniesSection'
+import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
 
 export const metadata = {
-  title: 'ARM - Soluciones de Ingeniería Industrial',
-  description: 'Gestión de activos, mantenimiento predictivo y consultoría en confiabilidad industrial.',
+  title: 'Aula Virtual - Aprende sin límites',
+  description: 'Plataforma de aprendizaje online con cursos especializados, rutas de aprendizaje y certificados.',
 }
 
-const services = [
-  {
-    image: '/assets/services/proyectos/gerencia-de-proyectos.png',
-    title: 'Proyectos',
-    description: 'Gerencia y supervisión de proyectos industriales con enfoque técnico, metodológico y orientado a resultados.',
-    href: '/proyectos',
-  },
-  {
-    image: '/assets/services/mantenimiento/mantenimiento-predictivo.jpg',
-    title: 'Mantenimiento',
-    description: 'Soluciones avanzadas de mantenimiento predictivo y proactivo para maximizar disponibilidad y reducir fallas.',
-    href: '/mantenimiento',
-  },
-  {
-    image: '/assets/services/consultoria/gestion-iso-5500.jpeg',
-    title: 'Consultoría',
-    description: 'Implementación de estrategias de gestión de activos y mantenimiento alineadas con ISO 55000.',
-    href: '/consultoria',
-  },
-  {
-    image: '/images/cursos.jpg',
-    title: 'Capacitación',
-    description: 'Programas de formación técnica con metodología ARM Active Mastery™ — teoría, práctica y casos reales.',
-    href: '/cursos',
-  },
-]
+async function getHomeData() {
+  try {
+    const [coursesRaw, rutasRaw, teachersRaw] = await Promise.all([
+      // Cursos
+      prisma.curso.findMany({
+        where: { estado: 'PUBLICADO' },
+        include: {
+          profesor: { select: { nombre: true, apellido: true, avatar: true } },
+          categoria: { select: { id: true, nombre: true } },
+          _count: { select: { modulos: true, inscripciones: true } },
+        },
+        orderBy: { creado_en: 'desc' },
+        take: 6,
+      }),
+      // Rutas
+      prisma.rutaAprendizaje.findMany({
+        where: { esta_activo: true },
+        include: {
+          cursos: {
+            take: 4,
+            include: { curso: { select: { miniatura: true, titulo: true } } },
+          },
+        },
+        take: 3,
+      }),
+      // Profesores
+      prisma.usuario.findMany({
+        where: { rol: 'PROFESOR' },
+        select: {
+          id: true,
+          nombre: true,
+          apellido: true,
+          slug: true,
+          avatar: true,
+          cargo: true,
+          biografia: true,
+          _count: { select: { cursos_dictados: true } },
+        },
+        orderBy: { cursos_dictados: { _count: 'desc' } },
+        take: 8,
+      }),
+    ])
 
-const stats = [
-  { icon: Shield, value: '8+', label: 'Años de experiencia' },
-  { icon: BarChart3, value: '100+', label: 'Proyectos ejecutados' },
-  { icon: Users, value: '50+', label: 'Clientes satisfechos' },
-  { icon: Award, value: 'ISO', label: 'Alineados a ISO 55001' },
-]
+    const courses = await Promise.all(
+      coursesRaw.map(async course => {
+        const leccionesCount = await prisma.leccion.count({ where: { modulo: { curso_id: course.id } } })
 
-const news = [
-  {
-    title: 'La importancia del mantenimiento predictivo en la industria moderna',
-    excerpt: 'Descubra cómo las técnicas predictivas pueden reducir costos operativos hasta en un 30% y aumentar la disponibilidad de sus equipos.',
-    date: '15 Feb 2026',
-  },
-  {
-    title: 'Gestión de activos: claves para una operación eficiente',
-    excerpt: 'Conozca las mejores prácticas en gestión de activos según la norma ISO 55001 y cómo implementarlas en su organización.',
-    date: '8 Feb 2026',
-  },
-  {
-    title: 'ARM lanza nuevo programa de capacitación virtual',
-    excerpt: 'Nuestro aula virtual ofrece cursos especializados en confiabilidad y mantenimiento para profesionales de toda la región.',
-    date: '1 Feb 2026',
-  },
-]
+        return { ...course, _count: { ...course._count, lecciones: leccionesCount } }
+      })
+    )
 
-export default function HomePage() {
+    const rutas = rutasRaw.map(r => ({
+      ...r,
+      total_cursos: r.cursos.length,
+      cursos: r.cursos.map(c => ({ miniatura: c.curso.miniatura, titulo: c.curso.titulo })),
+    }))
+
+    return {
+      courses: JSON.parse(JSON.stringify(courses)),
+      rutas: JSON.parse(JSON.stringify(rutas)),
+      teachers: JSON.parse(JSON.stringify(teachersRaw)),
+    }
+  } catch {
+    return { courses: [], rutas: [], teachers: [] }
+  }
+}
+
+export default async function HomePage() {
+  const { courses, rutas, teachers } = await getHomeData()
+
   return (
     <>
-      <HeroSlider />
+      {/* ── 1. HERO ─────────────────────────────────── */}
+      <section
+        style={{
+          background: 'linear-gradient(135deg, #012d22 0%, #025E44 45%, #0f4438 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Patrón de grid decorativo */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+        />
+        {/* Glow derecho */}
+        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,146,127,0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
-      {/* Intro */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-32 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <ScrollReveal>
-            <div className="text-center">
-              <div className="w-20 h-1.5 bg-[#E2231A] mx-auto mb-8" />
-              <h2 className="text-4xl lg:text-6xl font-display font-black text-[#02115C] mb-10 leading-[1.1] uppercase">
-                Soluciones de ingeniería que generan resultados
-              </h2>
-              <p className="text-gray-500 leading-relaxed text-xl max-w-3xl mx-auto font-sans">
-                En ARM ayudamos a que las empresas operen con mayor seguridad, eficiencia y rentabilidad.
-                Desde 2018 acompañamos a organizaciones industriales que buscan elevar el desempeño de sus
-                activos y transformar su gestión de mantenimiento en una ventaja competitiva.
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '5rem 1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
+
+            {/* ── Izquierda: texto ── */}
+            <div style={{ position: 'relative', zIndex: 2 }}>
+              {/* Eyebrow */}
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5"
+                style={{ backgroundColor: 'rgba(189,217,98,0.15)', border: '1px solid rgba(189,217,98,0.3)' }}
+              >
+                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#BDD962' }} />
+                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#BDD962', fontWeight: 600 }}>
+                  Plataforma educativa online
+                </span>
+              </div>
+
+              {/* H1 */}
+              <h1
+                style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  letterSpacing: '-0.025em',
+                  lineHeight: 1.15,
+                  marginBottom: '1.25rem',
+                }}
+              >
+                Aprende sin límites,<br />
+                <span style={{ color: '#BDD962' }}>crece sin fronteras</span>
+              </h1>
+
+              {/* Descripción */}
+              <p
+                style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontSize: '1rem',
+                  color: 'rgba(255,255,255,0.7)',
+                  lineHeight: 1.75,
+                  maxWidth: '480px',
+                  marginBottom: '2.5rem',
+                }}
+              >
+                Accede a cursos especializados, rutas de aprendizaje y certificaciones
+                diseñadas para impulsar tu carrera profesional.
               </p>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
 
-      {/* Stats */}
-      <section className="bg-slate-50 py-32 relative overflow-hidden border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-20">
-            {stats.map((stat, i) => (
-              <ScrollReveal key={i} delay={i * 0.15}>
-                <div className="text-center group">
-                  <div className="inline-flex items-center justify-center w-20 h-20 border border-[#02115C]/10 mb-8 group-hover:bg-[#02115C] group-hover:border-[#02115C] transition-all duration-500 rounded-2xl bg-white shadow-sm">
-                    <stat.icon className="w-8 h-8 text-[#02115C] group-hover:text-white transition-colors duration-500" />
+              {/* Botones */}
+              <div className="flex flex-wrap gap-4" style={{ marginBottom: '2.5rem' }}>
+                <Link
+                  href="/cursos"
+                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#25927F', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', boxShadow: '0 4px 20px rgba(37,146,127,0.45)' }}
+                >
+                  Ver Cursos <ArrowRight size={18} />
+                </Link>
+                <Link
+                  href="/nosotros"
+                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-200"
+                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', border: '1.5px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
+                >
+                  Saber más
+                </Link>
+              </div>
+
+              {/* Mini stats */}
+              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                {[
+                  { value: '+1,200', label: 'Estudiantes' },
+                  { value: '+80', label: 'Cursos' },
+                  { value: '98%', label: 'Satisfacción' },
+                ].map(stat => (
+                  <div key={stat.label}>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: '#BDD962', lineHeight: 1 }}>{stat.value}</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px' }}>{stat.label}</div>
                   </div>
-                  <div className="text-5xl lg:text-6xl font-display font-black text-[#02115C] transition-transform group-hover:scale-110 duration-500">
-                    {stat.value}
-                  </div>
-                  <div className="text-[10px] text-gray-400 mt-4 uppercase tracking-[0.3em] font-black">
-                    {stat.label}
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Services */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-32 bg-gray-50/30">
-        <div className="max-w-7xl mx-auto">
-          <ScrollReveal>
-            <div className="text-center mb-20">
-              <div className="w-20 h-1.5 bg-[#E2231A] mx-auto mb-8" />
-              <h2 className="text-4xl lg:text-6xl font-display font-black text-[#02115C] mb-6 uppercase">
-                Nuestros Servicios
-              </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto text-lg font-sans">
-                Brindamos servicios de principios de confiabilidad, servicios predictivos y consultorías a empresas con precisión técnica.
-              </p>
-            </div>
-          </ScrollReveal>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {services.map((s, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <ServiceCard {...s} />
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Verificación de Certificados */}
-      <SearchCertificateSection />
-
-      {/* News */}
-      <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-32 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <ScrollReveal>
-            <div className="flex items-end justify-between mb-16">
-              <div>
-                <div className="w-20 h-1.5 bg-[#E2231A] mb-8" />
-                <h2 className="text-4xl lg:text-5xl font-display font-black text-[#02115C] uppercase leading-none">
-                  Noticias y Blog
-                </h2>
+                ))}
               </div>
             </div>
-          </ScrollReveal>
-          <div className="grid md:grid-cols-3 gap-10">
-            {news.map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <article className="group bg-white border border-gray-200 p-10 hover:shadow-2xl hover:border-[#02115C]/20 transition-all duration-500">
-                  <time className="text-xs text-[#E2231A] font-sans font-black uppercase tracking-widest">
-                    {item.date}
-                  </time>
-                  <h3 className="text-2xl font-display font-black text-[#02115C] mt-4 mb-6 leading-tight">
-                    {item.title}
-                  </h3>
-                  <p className="text-base text-gray-500 leading-relaxed font-sans mb-8">{item.excerpt}</p>
-                  <div className="flex items-center gap-2 text-xs font-sans font-black text-[#E2231A] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Leer más <ArrowRight className="w-4 h-4" />
-                  </div>
-                </article>
-              </ScrollReveal>
-            ))}
+
+            {/* ── Derecha: visual interactivo ── */}
+            <HeroVisual />
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="relative bg-white px-4 sm:px-6 lg:px-8 py-20 lg:py-32 overflow-hidden border-t border-gray-100">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-          <Cog className="absolute -right-20 -top-20 w-96 h-96 text-[#02115C] animate-[spin_60s_linear_infinite]" />
-          <Activity className="absolute -left-10 -bottom-10 w-80 h-80 text-[#02115C]" />
-        </div>
-        <div className="max-w-5xl mx-auto text-center relative z-10">
+      {/* ── 2. LOGO MARQUEE ─────────────────────────── */}
+      <ClientLogosMarquee />
+
+      {/* ── 3. CURSOS DESTACADOS ────────────────────── */}
+      <section className="section-container">
+        <ScrollReveal>
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <h2 className="section-title">Cursos destacados</h2>
+              <p className="section-subtitle">Descubre nuestros cursos más recientes</p>
+            </div>
+            <Link
+              href="/cursos"
+              className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
+              style={{ fontFamily: 'Poppins, sans-serif', color: '#25927F' }}
+            >
+              Ver todos <ArrowRight size={16} />
+            </Link>
+          </div>
+        </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <HomeCoursesSection courses={courses} />
+          <div className="flex justify-center mt-8 sm:hidden">
+            <Link
+              href="/cursos"
+              className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
+              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#25927F', color: '#ffffff' }}
+            >
+              Ver todos los cursos <ArrowRight size={16} />
+            </Link>
+          </div>
+        </ScrollReveal>
+      </section>
+
+      {/* ── 4. CARACTERÍSTICAS DE CLASES ────────────── */}
+      <ClassFeaturesSection />
+
+      {/* ── 5. RUTAS DE APRENDIZAJE ─────────────────── */}
+      {rutas.length > 0 && (
+        <section style={{ backgroundColor: 'hsl(210, 15%, 97%)', borderTop: '1px solid hsl(214, 20%, 92%)' }}>
+          <div className="section-container">
+            <ScrollReveal>
+              <div className="flex items-end justify-between mb-2">
+                <div>
+                  <div
+                    className="inline-flex items-center gap-2 mb-3"
+                    style={{ color: '#25927F', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
+                  >
+                    <Map size={14} /> Especialízate
+                  </div>
+                  <h2 className="section-title" style={{ marginBottom: '0.25rem' }}>Rutas de Aprendizaje</h2>
+                  <p className="section-subtitle">Colecciones curadas para llevarte de principiante a experto.</p>
+                </div>
+                <Link
+                  href="/rutas"
+                  className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
+                  style={{ fontFamily: 'Poppins, sans-serif', color: '#25927F' }}
+                >
+                  Ver todas <ArrowRight size={16} />
+                </Link>
+              </div>
+            </ScrollReveal>
+            <ScrollReveal delay={0.1}>
+              <RutasSection rutas={rutas} embedded />
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
+
+      {/* ── 6. PROFESORES ───────────────────────────── */}
+      <ProfessorsCarousel teachers={teachers} />
+
+      {/* ── 7. EMPRESAS (B2B informativo) ───────────── */}
+      <CompaniesSection />
+
+      {/* ── 8. CTA AGENDAR REUNIÓN ──────────────────── */}
+      <EnterpriseCTASection />
+
+      {/* ── 9. VERIFICAR CERTIFICADO ────────────────── */}
+      <SearchCertificateSection />
+
+      {/* ── 10. CTA INSCRIPCIÓN ─────────────────────── */}
+      <section className="bg-white py-16 text-center" style={{ borderTop: '1px solid hsl(214, 20%, 88%)' }}>
+        <div className="max-w-3xl mx-auto px-4">
           <ScrollReveal>
-            <div className="inline-flex items-center px-3 py-1 bg-[#02115C]/5 text-[#02115C] text-[10px] font-black uppercase tracking-widest border-l-2 border-[#02115C] mb-8">
-              Consultoría de Precisión
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+              style={{ backgroundColor: 'rgba(37,146,127,0.08)', color: '#025E44' }}
+            >
+              <CheckCircle size={16} />
+              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 600 }}>
+                Únete a miles de estudiantes
+              </span>
             </div>
-            <h2 className="text-4xl lg:text-7xl font-display font-black text-[#02115C] mb-10 leading-[1] uppercase mx-auto">
-              ¿Listo para transformar su operación?
+            <h2
+              className="mb-4"
+              style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 700, color: '#0A0A0A', letterSpacing: '-0.02em' }}
+            >
+              ¿Listo para transformar tu carrera?
             </h2>
-            <p className="text-gray-500 mb-14 max-w-2xl mx-auto text-xl font-medium leading-relaxed">
-              Descubra cómo nuestras soluciones de ingeniería pueden elevar la confiabilidad de sus activos a estándares de clase mundial.
+            <p
+              className="mb-8 max-w-xl mx-auto"
+              style={{ fontFamily: 'Poppins, sans-serif', color: 'hsl(215, 16%, 47%)', lineHeight: 1.7 }}
+            >
+              Inscríbete hoy y comienza a aprender con los mejores profesionales del sector.
             </p>
-            <div className="flex flex-wrap justify-center gap-6">
-              <Link
-                href="/contacto"
-                className="inline-flex items-center justify-center px-12 py-5 bg-[#02115C] text-white font-sans font-bold uppercase tracking-wider hover:bg-[#0A50A1] transition-all duration-300 text-sm shadow-xl group"
-              >
-                Solicita Asesoría Gratuita
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href="/proyectos"
-                className="inline-flex items-center justify-center px-12 py-5 border-2 border-[#02115C] text-[#02115C] font-sans font-bold uppercase tracking-wider hover:bg-[#02115C] hover:text-white transition-all duration-300 text-sm bg-transparent"
-              >
-                Explorar Soluciones
-              </Link>
-            </div>
+            <Link
+              href="/register"
+              className="no-underline inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
+              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: '#25927F', boxShadow: '0 6px 20px rgba(37,146,127,0.35)' }}
+            >
+              Inscribirse ahora <ArrowRight size={18} />
+            </Link>
           </ScrollReveal>
         </div>
       </section>

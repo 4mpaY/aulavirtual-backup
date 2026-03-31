@@ -4,9 +4,10 @@ import React, { useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import { Search, Award, CheckCircle } from 'lucide-react'
+import { Search, Award, ShieldCheck } from 'lucide-react'
 
 import ScrollReveal from './ScrollReveal'
+import { sectionH2Dark, sectionDescDark, smallText } from './typography'
 
 export default function SearchCertificateSection() {
   const router = useRouter()
@@ -15,7 +16,7 @@ export default function SearchCertificateSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const trimmedCodigo = codigo.trim()
 
     if (!trimmedCodigo) {
@@ -30,68 +31,122 @@ export default function SearchCertificateSection() {
       return
     }
 
-    // Redirige a la página de verificación del certificado
     router.push(`/verificar-certificado/${encodeURIComponent(trimmedCodigo)}`)
   }
 
   return (
-    <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-32 bg-[#F8FAFC]">
-      <div className="max-w-4xl mx-auto">
+    <section style={{ backgroundColor: 'hsl(167, 96%, 19%)', padding: '5rem 1rem' }}>
+      <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
         <ScrollReveal>
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 md:p-12 relative overflow-hidden">
-            {/* Elementos decorativos de fondo */}
-            <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
-              <Award className="w-64 h-64 text-[#02115C] -mt-12 -mr-12" />
+          <div
+            className="rounded-3xl relative overflow-hidden"
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              padding: '3rem 2rem',
+              backdropFilter: 'blur(10px)',
+            }}
+          >
+            {/* Decorative background icon */}
+            <div
+              className="absolute top-0 right-0 pointer-events-none"
+              style={{ opacity: 0.04, padding: '2rem' }}
+            >
+              <Award style={{ width: '16rem', height: '16rem', color: '#BDD962', marginTop: '-3rem', marginRight: '-3rem' }} />
             </div>
 
+            {/* Header */}
             <div className="relative z-10 text-center mb-10">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-[#02115C]/10 rounded-2xl mb-6">
-                <CheckCircle className="w-8 h-8 text-[#02115C]" />
+              <div
+                className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6"
+                style={{ backgroundColor: 'rgba(189,217,98,0.15)', border: '1px solid rgba(189,217,98,0.2)' }}
+              >
+                <ShieldCheck style={{ width: '2rem', height: '2rem', color: '#BDD962' }} />
               </div>
-              <h2 className="text-3xl lg:text-5xl font-display font-black text-[#02115C] mb-4 uppercase leading-tight">
+              <h2 className="mb-4" style={sectionH2Dark}>
                 Verificar Certificado
               </h2>
-              <p className="text-gray-500 text-lg max-w-2xl mx-auto font-sans leading-relaxed">
-                Ingresa el código único ubicado en la parte inferior de tu certificado para comprobar su validez, 
-                autenticidad y los detalles del alumno.
+              <p style={{ ...sectionDescDark, maxWidth: '36rem', margin: '0 auto' }}>
+                Ingresa el código único ubicado en la parte inferior de tu certificado
+                para comprobar su validez y autenticidad.
               </p>
             </div>
 
+            {/* Form */}
             <form onSubmit={handleSubmit} className="max-w-2xl mx-auto relative z-10">
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
+                    <Search style={{ width: '1.25rem', height: '1.25rem', color: 'rgba(255,255,255,0.4)' }} />
                   </div>
                   <input
                     type="text"
                     value={codigo}
-                    onChange={(e) => {
+                    onChange={e => {
                       setCodigo(e.target.value.toUpperCase())
                       setError('')
                     }}
                     placeholder="Ej. CER-2026-X8F9A"
-                    className="block w-full pl-11 pr-4 py-4 border-2 border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#02115C]/10 focus:border-[#02115C] transition-all font-sans text-lg uppercase"
-                    required
+                    style={{
+                      fontFamily: 'Poppins, sans-serif',
+                      display: 'block',
+                      width: '100%',
+                      paddingLeft: '3rem',
+                      paddingRight: '1rem',
+                      paddingTop: '1rem',
+                      paddingBottom: '1rem',
+                      backgroundColor: 'rgba(255,255,255,0.08)',
+                      border: '1.5px solid rgba(255,255,255,0.15)',
+                      borderRadius: '0.75rem',
+                      color: '#ffffff',
+                      fontSize: '1rem',
+                      letterSpacing: '0.05em',
+                      outline: 'none',
+                      transition: 'border-color 0.2s',
+                    }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#BDD962' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)' }}
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={!codigo.trim()}
-                  className="inline-flex items-center justify-center px-8 py-4 bg-[#E2231A] border border-transparent rounded-xl text-white font-sans font-bold uppercase tracking-wider hover:bg-[#C11B14] transition-colors focus:outline-none focus:ring-4 focus:ring-[#E2231A]/20 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#E2231A]/20 whitespace-nowrap"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap transition-all duration-200"
+                  style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    padding: '1rem 2rem',
+                    borderRadius: '0.75rem',
+                    backgroundColor: '#BDD962',
+                    color: '#0A0A0A',
+                    fontWeight: 700,
+                    fontSize: '0.9375rem',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(189,217,98,0.3)',
+                    opacity: !codigo.trim() ? 0.5 : 1,
+                  }}
+                  onMouseEnter={e => { if (codigo.trim()) (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#cce670' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#BDD962' }}
                 >
-                  Buscar <Search className="ml-2 w-5 h-5" />
+                  <Search size={18} />
+                  Buscar
                 </button>
               </div>
-              
+
               {error && (
-                <p className="mt-3 text-[#E2231A] text-sm font-medium text-center">
+                <p
+                  className="mt-3 text-center text-sm"
+                  style={{ fontFamily: 'Poppins, sans-serif', color: '#BDD962' }}
+                >
                   {error}
                 </p>
               )}
-              
-              <p className="mt-6 text-sm text-gray-400 text-center font-sans max-w-lg mx-auto">
-                Nuestro sistema garantiza la autenticidad e inmutabilidad de todos los certificados emitidos a través de nuestra plataforma.
+
+              <p
+                className="mt-5 text-center text-sm"
+                style={{ ...smallText, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}
+              >
+                Nuestro sistema garantiza la autenticidad de todos los certificados emitidos.
               </p>
             </form>
           </div>

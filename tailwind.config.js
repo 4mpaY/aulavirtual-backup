@@ -10,24 +10,38 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#02115C',
+          DEFAULT: '#25927F',
           foreground: '#ffffff',
+          dark: '#025E44',
+          light: '#BDD962',
         },
         secondary: {
-          DEFAULT: '#E2231A',
-          foreground: '#ffffff',
+          DEFAULT: '#BDD962',
+          foreground: '#0A0A0A',
         },
         muted: {
-          DEFAULT: '#f2f2f2',
-          foreground: '#4d4d4d',
+          DEFAULT: 'hsl(210, 15%, 93%)',
+          foreground: 'hsl(215, 16%, 47%)',
         },
-        border: 'hsl(0, 0%, 88%)',
-        foreground: 'hsl(0, 0%, 20%)',
+        border: 'hsl(214, 20%, 88%)',
+        foreground: '#0A0A0A',
         background: 'hsl(0, 0%, 100%)',
+        'color-1': 'hsl(170, 60%, 36%)',
+        'color-2': 'hsl(75, 63%, 62%)',
+        'color-3': 'hsl(167, 96%, 19%)',
+        'color-4': 'hsl(152, 50%, 46%)',
+        'color-5': 'hsl(0, 0%, 4%)',
+        sidebar: {
+          DEFAULT: 'hsl(167, 96%, 19%)',
+          foreground: '#ffffff',
+          accent: 'hsl(170, 60%, 36%)',
+          border: 'hsl(167, 96%, 25%)',
+        },
       },
       fontFamily: {
-        display: ['Montserrat', 'sans-serif'],
-        sans: ['Inter', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
+        sans: ['Poppins', 'sans-serif'],
+        body: ['Poppins', 'sans-serif'],
       },
     }
   }
