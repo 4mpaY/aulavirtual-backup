@@ -27,8 +27,13 @@ interface Props {
 export const dynamic = 'force-dynamic'
 
 async function getDocente(slug: string) {
-  const docente = await prisma.usuario.findUnique({
-    where: { slug },
+  const docente = await prisma.usuario.findFirst({
+    where: {
+      OR: [
+        { slug },
+        { id: slug }
+      ]
+    },
     select: {
       id: true,
       nombre: true,
@@ -57,7 +62,7 @@ async function getDocente(slug: string) {
     }
   })
 
-  if (!docente || docente.cursos_dictados.length === 0) return null
+  if (!docente) return null
 
   // Serializar Decimal a Number para Client Components
   return {
@@ -295,10 +300,17 @@ export default async function DocentePage({ params }: Props) {
                 Cursos de {docente!.nombre}
               </Typography>
               <Stack spacing={3}>
-                {/* CursoCard es Client Component — maneja onError e interactividad */}
-                {docente!.cursos_dictados.map((curso) => (
-                  <CursoCard key={curso.id} curso={curso as any} />
-                ))}
+                {docente!.cursos_dictados.length > 0 ? (
+                  docente!.cursos_dictados.map((curso) => (
+                    <CursoCard key={curso.id} curso={curso as any} />
+                  ))
+                ) : (
+                  <Paper sx={{ p: 4, borderRadius: 4, textAlign: 'center', boxShadow: 'none', border: '1px dashed #e2e8f0' }}>
+                    <Typography color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                      Este docente aún no tiene cursos publicados.
+                    </Typography>
+                  </Paper>
+                )}
               </Stack>
             </ScrollReveal>
           </Grid>
