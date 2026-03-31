@@ -85,7 +85,7 @@ export async function POST(request: Request) {
           </p>
         </div>
         <div style="background-color: #f3f4f6; padding: 15px; text-align: center; border-radius: 0 0 6px 6px; font-size: 12px; color: #888;">
-          ASSET RELIABILITY MANAGEMENT EIRL - RUC: 20604164771
+          NOMBRE DE TU EMPRESA - RUC: 20600000000
         </div>
       </div>
     `

@@ -21,8 +21,8 @@ export default function PoliticaCambiosYDevolucionesPage() {
 
           <Typography paragraph>
             La presente política regula las condiciones de reembolso y cambios aplicables a los
-            servicios educativos ofrecidos por <strong>ASSET Reliability Management EIRL</strong>,
-            con RUC <strong>20604164771</strong>, con domicilio en Av. Sánchez Cerro Mz O&apos; Lte 10,
+            servicios educativos ofrecidos por <strong>NOMBRE DE TU EMPRESA</strong>,
+            con RUC <strong>20600000000</strong>, con domicilio en [DIRECCIÓN],
             Urb. Santa Ana, Piura — a través de su Aula Virtual. Al adquirir cualquier curso,
             el usuario declara haber leído y aceptado los términos aquí descritos.
           </Typography>
@@ -45,7 +45,7 @@ export default function PoliticaCambiosYDevolucionesPage() {
           <Typography paragraph>
             El usuario reconoce expresamente que, al realizar el primer inicio de sesión, visualizar la primera
             lección o descargar cualquier material del curso, otorga su <strong>consentimiento expreso para el inicio
-            inmediato de la prestación del servicio</strong>, renunciando con ello a su derecho de arrepentimiento
+              inmediato de la prestación del servicio</strong>, renunciando con ello a su derecho de arrepentimiento
             o solicitud de reembolso, dado que el servicio se considera consumido desde el inicio de su ejecución.
           </Typography>
           <Typography paragraph>
@@ -91,7 +91,7 @@ export default function PoliticaCambiosYDevolucionesPage() {
             entre <strong>15 y 30 días hábiles</strong>.
           </Typography>
           <Typography paragraph>
-            ASSET Reliability Management EIRL se reserva el derecho de descontar las comisiones operativas
+            NOMBRE DE TU EMPRESA se reserva el derecho de descontar las comisiones operativas
             cobradas por la pasarela de pago que no sean reembolsables por la misma.
           </Typography>
 

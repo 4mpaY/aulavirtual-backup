@@ -136,9 +136,9 @@ export default function LibroReclamacionesForm() {
           Hoja de Reclamación Virtual
         </Typography>
         <Box sx={{ mt: 2, textAlign: 'left', bgcolor: 'white', p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-          <Typography variant="caption" display="block"><strong>PROVEEDOR:</strong> ASSET RELIABILITY MANAGEMENT EIRL</Typography>
-          <Typography variant="caption" display="block"><strong>RUC:</strong> 20604164771</Typography>
-          <Typography variant="caption" display="block"><strong>DOMICILIO:</strong> AV. SANCHEZ CERRO MZ O&apos; LTE 10, URB. SANTA ANA, PIURA, PIURA</Typography>
+          <Typography variant="caption" display="block"><strong>PROVEEDOR:</strong> NOMBRE DE TU EMPRESA</Typography>
+          <Typography variant="caption" display="block"><strong>RUC:</strong> 20600000000 </Typography>
+          <Typography variant="caption" display="block"><strong>DOMICILIO:</strong> [DIRECCIÓN]</Typography>
         </Box>
       </Box>
 

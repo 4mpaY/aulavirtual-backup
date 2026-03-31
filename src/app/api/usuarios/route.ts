@@ -143,6 +143,20 @@ export async function POST(request: Request) {
     // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(contrasena, 10)
 
+    // Generar slug
+    let baseSlug = `${nombre}-${apellido}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    if (!baseSlug) baseSlug = 'usuario';
+    
+    // Verificamos si el slug ya existe, si existe le añadimos un hash random
+    let slug = baseSlug;
+    let counter = 1;
+    
+    while (await prisma.usuario.findUnique({ where: { slug } })) {
+      const randomHash = Math.random().toString(36).substring(2, 6);
+      slug = `${baseSlug}-${randomHash}-${counter}`;
+      counter++;
+    }
+
     // Crear usuario
     const nuevoUsuario = await prisma.usuario.create({
       data: {
@@ -156,7 +170,8 @@ export async function POST(request: Request) {
         biografia: biografia || null,
         avatar: avatar || null,
         cargo: cargo || null,
-        firma: firma || null
+        firma: firma || null,
+        slug
       },
       select: {
         id: true,
