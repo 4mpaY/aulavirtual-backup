@@ -1,4 +1,5 @@
 import Link from 'next/link'
+
 import { ArrowRight } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'

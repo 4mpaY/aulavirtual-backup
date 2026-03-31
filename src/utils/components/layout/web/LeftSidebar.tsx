@@ -4,7 +4,9 @@ import { useRef, useState } from 'react'
 
 import Link from 'next/link'
 import Image from 'next/image'
+
 import { usePathname, useRouter } from 'next/navigation'
+
 import { signOut, useSession } from 'next-auth/react'
 
 import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut } from 'lucide-react'
@@ -30,8 +32,10 @@ export default function LeftSidebar() {
   const handleUserClick = () => {
     if (userButtonRef.current) {
       const rect = userButtonRef.current.getBoundingClientRect()
+
       setMenuPos({ bottom: window.innerHeight - rect.bottom, left: rect.right + 8 })
     }
+
     setUserMenuOpen(o => !o)
   }
 
@@ -202,6 +206,7 @@ export default function LeftSidebar() {
         )}
 
         {session?.user ? (
+
           /* Logged in — show avatar + name, click opens menu */
           <button
             ref={userButtonRef}
@@ -240,6 +245,7 @@ export default function LeftSidebar() {
             </div>
           </button>
         ) : (
+
           /* Not logged in — show login + register */
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <Link

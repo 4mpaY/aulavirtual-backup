@@ -1,18 +1,41 @@
 import { Container, Box } from '@mui/material'
 
-import { AxiosRuta } from '@/features/web/rutas/http/axiosRuta'
+import prisma from '@/utils/libs/prisma'
 import RutasCatalog from '@/features/web/rutas/components/RutasCatalog'
 
-export const metadata = {
-  title: 'Rutas de Aprendizaje - Aula Virtual',
-  description: 'Explora nuestros caminos de aprendizaje especializados, diseñados para llevarte paso a paso hacia el dominio de nuevas habilidades y tecnologías.',
-}
-
 async function getRutas() {
-  const axiosRuta = new AxiosRuta()
-
   try {
-    return await axiosRuta.searchAll()
+    const rutas = await prisma.rutaAprendizaje.findMany({
+      where: { esta_activo: true },
+      include: {
+        cursos: {
+          orderBy: { orden: 'asc' },
+          include: {
+            curso: {
+              select: {
+                id: true,
+                titulo: true,
+                miniatura: true,
+                slug: true,
+                precio: true,
+                moneda: true,
+                es_gratis: true
+              }
+            }
+          }
+        },
+        _count: {
+          select: { cursos: true }
+        }
+      },
+      orderBy: { creado_en: 'desc' }
+    })
+
+    return rutas.map(ruta => ({
+      ...ruta,
+      total_cursos: ruta._count.cursos,
+      cursos: ruta.cursos.map(rc => rc.curso)
+    })) as any[]
   } catch (err) {
     console.error('Error fetching routes:', err)
 

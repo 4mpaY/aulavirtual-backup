@@ -368,6 +368,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
               { key: 'paypal', label: 'PayPal', enabled: isPaypalEnabled },
             ] as const).filter(m => m.enabled).map(m => {
               const active = paymentMethod === m.key
+
               return (
                 <button
                   key={m.key}

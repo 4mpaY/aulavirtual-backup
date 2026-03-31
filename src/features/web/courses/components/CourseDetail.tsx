@@ -91,9 +91,13 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const getEmbedUrl = (url?: string | null) => {
     if (!url) return null
     const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
+
     if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=0&rel=0`
+
     const vimeoMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/)
+
     if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=0`
+
     return null
   }
 
@@ -102,7 +106,9 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const getDisplayDate = () => {
     const isSincrono = course.tipo_emision === 'SINCRONO' || course.tipo_emision === 'MIXTO'
     const dateToUse = isSincrono ? course.fecha_inicio : course.creado_en
+
     if (!dateToUse) return { label: isSincrono ? 'Inicio' : 'Publicado', value: 'Próximamente' }
+
     return {
       label: isSincrono ? 'Inicio' : 'Publicado',
       value: <HydratedDate date={dateToUse} format="date" options={{ day: '2-digit', month: '2-digit', year: 'numeric' }} />
