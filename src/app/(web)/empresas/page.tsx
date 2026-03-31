@@ -1,6 +1,3 @@
-import Link from 'next/link'
-import { Building2, ArrowRight } from 'lucide-react'
-
 import CompaniesSection from '@/features/web/home/components/CompaniesSection'
 import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
 

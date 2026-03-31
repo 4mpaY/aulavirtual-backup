@@ -121,9 +121,9 @@ function MisionCard() {
           Nuestra Misión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          "Brindar formación profesional de alta calidad, accesible y orientada al sector industrial,
+          &quot;Brindar formación profesional de alta calidad, accesible y orientada al sector industrial,
           impulsando el desarrollo de competencias que generan valor real en las organizaciones y en
-          la carrera de nuestros estudiantes."
+          la carrera de nuestros estudiantes.&quot;
         </p>
       </div>
     </div>
@@ -184,9 +184,9 @@ function VisionCard() {
           Nuestra Visión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          "Ser la plataforma de referencia en formación profesional especializada en Latinoamérica,
+          &quot;Ser la plataforma de referencia en formación profesional especializada en Latinoamérica,
           reconocida por la excelencia de sus contenidos, la solidez de sus certificaciones y su
-          compromiso con la transformación del sector industrial."
+          compromiso con la transformación del sector industrial.&quot;
         </p>
       </div>
     </div>
@@ -203,7 +203,7 @@ export function ValoresSection() {
             <p style={{ ...eyebrow, display: 'block', textAlign: 'center' }}>Lo que nos define</p>
             <h2 style={{ ...sectionH2, textAlign: 'center' }}>Valores que nos identifican</h2>
             <p style={{ ...sectionDesc, textAlign: 'center', marginTop: '0.75rem' }}>
-              "La excelencia no es un acto, sino un hábito. Cada valor que practicamos a diario define quiénes somos y hacia dónde vamos."
+              &quot;La excelencia no es un acto, sino un hábito. Cada valor que practicamos a diario define quiénes somos y hacia dónde vamos.&quot;
             </p>
           </div>
         </ScrollReveal>

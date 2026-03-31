@@ -33,6 +33,7 @@ async function getHomeData() {
         orderBy: { creado_en: 'desc' },
         take: 6,
       }),
+
       // Rutas
       prisma.rutaAprendizaje.findMany({
         where: { esta_activo: true },
@@ -44,6 +45,7 @@ async function getHomeData() {
         },
         take: 3,
       }),
+
       // Profesores
       prisma.usuario.findMany({
         where: { rol: 'PROFESOR' },

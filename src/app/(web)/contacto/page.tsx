@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Phone, Mail, MapPin } from 'lucide-react'
 
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import { eyebrow, sectionH2, sectionDesc } from '@/features/web/home/components/typography'
+import { eyebrow, sectionDesc } from '@/features/web/home/components/typography'
 
 export const metadata = {
   title: 'Contacto - ARM',
@@ -63,11 +63,13 @@ export default function ContactoPage() {
                   }}
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLDivElement
+
                     el.style.transform = 'translateY(-4px)'
                     el.style.boxShadow = '0 12px 32px rgba(var(--web-primary-rgb, 37, 146, 127),0.12)'
                   }}
                   onMouseLeave={e => {
                     const el = e.currentTarget as HTMLDivElement
+
                     el.style.transform = 'translateY(0)'
                     el.style.boxShadow = '0 2px 12px rgba(0,0,0,0.05)'
                   }}
@@ -140,11 +142,13 @@ export default function ContactoPage() {
                 }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLAnchorElement
+
                   el.style.backgroundColor = 'var(--web-primary, #25927F)'
                   el.style.color = '#ffffff'
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLAnchorElement
+
                   el.style.backgroundColor = 'transparent'
                   el.style.color = 'var(--web-primary, #25927F)'
                 }}

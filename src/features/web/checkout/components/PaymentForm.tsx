@@ -48,6 +48,8 @@ interface PaymentFormProps {
   finalTotal?: number
 }
 
+const FONT = 'Poppins, sans-serif'
+
 const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProps) => {
   const { data: session } = useSession()
   const router = useRouter()
@@ -274,23 +276,23 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
   if (paymentSuccess) {
     return (
-      <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '24px', bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}>
+      <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '24px', bgcolor: 'white', border: '1.5px solid hsl(214,20%,91%)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
         <Stack spacing={3} alignItems="center" sx={{ py: 4 }}>
-          <Box sx={{ width: 80, height: 80, borderRadius: '50%', bgcolor: 'success.light', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <i className="tabler-check" style={{ fontSize: '2.5rem', color: '#2e7d32' }} />
+          <Box sx={{ width: 80, height: 80, borderRadius: '50%', backgroundColor: 'rgba(22,163,74,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <i className="tabler-check" style={{ fontSize: '2.5rem', color: '#16a34a' }} />
           </Box>
-          <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main' }}>¡Pago Exitoso!</Typography>
-          <Typography variant="body1" color="text.secondary" textAlign="center">
+          <Typography sx={{ fontFamily: FONT, fontWeight: 800, fontSize: '1.375rem', color: '#16a34a' }}>¡Pago Exitoso!</Typography>
+          <Typography sx={{ fontFamily: FONT, fontSize: '0.9375rem', color: '#64748b', textAlign: 'center', lineHeight: 1.6 }}>
             Tu inscripción al curso ha sido confirmada. Serás redirigido a tus cursos en unos segundos...
           </Typography>
-          <CircularProgress size={24} color="success" />
+          <CircularProgress size={24} sx={{ color: '#16a34a' }} />
         </Stack>
       </Paper>
     )
   }
 
   return (
-    <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '24px', bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}>
+    <Paper elevation={0} sx={{ p: { xs: 3, md: 5 }, borderRadius: '24px', bgcolor: 'white', border: '1.5px solid hsl(214,20%,91%)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
       <IzipayScript />
       <CulqiScript
         publicKey={configs.CULQI_PUBLIC_KEY || ''}
@@ -316,10 +318,10 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         onError={(err) => setPaymentError(err)}
       />
 
-      <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: 'text.primary' }}>
-        Información de <span style={{ color: 'var(--mui-palette-primary-main)' }}>Pago</span>
+      <Typography sx={{ fontFamily: FONT, fontWeight: 800, fontSize: '1.25rem', color: '#0A0A0A', mb: 1 }}>
+        Información de <span style={{ color: 'var(--web-primary, #25927F)' }}>Pago</span>
       </Typography>
-      <Typography variant="body2" sx={{ mb: 4, color: 'text.secondary', fontWeight: 500 }}>
+      <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b', fontWeight: 500, mb: 4 }}>
         {isGuest ? 'Identifícate e ingresa tus datos para finalizar la inscripción.' : 'Verifica tus datos y completa el pago.'}
       </Typography>
 
@@ -331,33 +333,80 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         )}
 
         <Box>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>Datos del Estudiante</Typography>
+          <Typography sx={{ fontFamily: FONT, fontWeight: 700, fontSize: '0.9375rem', color: '#0A0A0A', mb: 2 }}>Datos del Estudiante</Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Nombres" value={formData.nombres} onChange={e => setFormData(p => ({ ...p, nombres: e.target.value }))} variant="outlined" disabled={!isGuest} />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField fullWidth label="Apellidos" value={formData.apellidos} onChange={e => setFormData(p => ({ ...p, apellidos: e.target.value }))} variant="outlined" disabled={!isGuest} />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField fullWidth label="Correo Electrónico" value={formData.correo} onChange={e => setFormData(p => ({ ...p, correo: e.target.value }))} variant="outlined" disabled={!isGuest} InputProps={{ startAdornment: (<InputAdornment position="start"><i className="tabler-mail" /></InputAdornment>), }} />
-            </Grid>
+            {[
+              { label: 'Nombres', key: 'nombres', sm: 6 },
+              { label: 'Apellidos', key: 'apellidos', sm: 6 },
+              { label: 'Correo Electrónico', key: 'correo', sm: 12 },
+            ].map(({ label, key, sm }) => (
+              <Grid item xs={12} sm={sm} key={key}>
+                <TextField
+                  fullWidth label={label}
+                  value={formData[key as keyof typeof formData]}
+                  onChange={e => setFormData(p => ({ ...p, [key]: e.target.value }))}
+                  variant="outlined" disabled={!isGuest}
+                  sx={{
+                    '& .MuiInputLabel-root': { fontFamily: FONT },
+                    '& .MuiOutlinedInput-root': { fontFamily: FONT, borderRadius: '12px' },
+                    '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'var(--web-primary, #25927F)' },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'var(--web-primary, #25927F)' },
+                  }}
+                  {...(key === 'correo' ? { InputProps: { startAdornment: (<InputAdornment position="start"><i className="tabler-mail" /></InputAdornment>) } } : {})}
+                />
+              </Grid>
+            ))}
           </Grid>
         </Box>
 
         <Box>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>Método de Pago</Typography>
-          <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-            {isCulqiEnabled && (
-              <Button variant={paymentMethod === 'culqi' ? 'contained' : 'outlined'} fullWidth onClick={() => setPaymentMethod('culqi')} sx={{ borderRadius: '12px', textTransform: 'none', py: 1.5 }}>Culqi</Button>
-            )}
-            {isIzipayEnabled && (
-              <Button variant={paymentMethod === 'izipay' ? 'contained' : 'outlined'} fullWidth onClick={() => setPaymentMethod('izipay')} sx={{ borderRadius: '12px', textTransform: 'none', py: 1.5 }}>Izipay</Button>
-            )}
-            {isPaypalEnabled && (
-              <Button variant={paymentMethod === 'paypal' ? 'contained' : 'outlined'} fullWidth onClick={() => setPaymentMethod('paypal')} sx={{ borderRadius: '12px', textTransform: 'none', py: 1.5 }}>PayPal</Button>
-            )}
-          </Stack>
+          <Typography sx={{ fontFamily: FONT, fontWeight: 700, fontSize: '0.9375rem', color: '#0A0A0A', mb: 2 }}>Método de Pago</Typography>
+          <Box sx={{ display: 'flex', gap: 1.5, mb: 3 }}>
+            {([
+              { key: 'culqi', label: 'Culqi', enabled: isCulqiEnabled },
+              { key: 'izipay', label: 'Izipay', enabled: isIzipayEnabled },
+              { key: 'paypal', label: 'PayPal', enabled: isPaypalEnabled },
+            ] as const).filter(m => m.enabled).map(m => {
+              const active = paymentMethod === m.key
+              return (
+                <button
+                  key={m.key}
+                  onClick={() => setPaymentMethod(m.key)}
+                  style={{
+                    flex: 1,
+                    padding: '12px 8px',
+                    borderRadius: '12px',
+                    fontFamily: FONT,
+                    fontWeight: 700,
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    backgroundColor: active ? 'var(--web-primary, #25927F)' : '#ffffff',
+                    color: active ? '#ffffff' : '#64748b',
+                    border: active ? '1.5px solid var(--web-primary, #25927F)' : '1.5px solid hsl(214,20%,88%)',
+                  }}
+                  onMouseEnter={e => {
+                    if (!active) {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--web-primary, #25927F)'
+                      ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--web-primary, #25927F)'
+                    } else {
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--web-dark, #025E44)'
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!active) {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(214,20%,88%)'
+                      ;(e.currentTarget as HTMLButtonElement).style.color = '#64748b'
+                    } else {
+                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--web-primary, #25927F)'
+                    }
+                  }}
+                >
+                  {m.label}
+                </button>
+              )
+            })}
+          </Box>
 
           {(!isCulqiEnabled && !isIzipayEnabled && !isPaypalEnabled) && (
             <Alert severity="warning" sx={{ mb: 3, borderRadius: '12px' }}>
@@ -366,39 +415,39 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
           )}
 
           {paymentMethod === 'culqi' && isCulqiEnabled ? (
-            <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+            <Box sx={{ p: 3, backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.04)', borderRadius: '16px', border: '1px solid rgba(var(--web-primary-rgb, 37, 146, 127), 0.15)', textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--mui-palette-primary-main)' }} />
-                <Typography variant="body2" color="text.secondary" fontWeight={600}>Pago seguro procesado por Culqi</Typography>
+                <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--web-primary, #25927F)' }} />
+                <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b', fontWeight: 600 }}>Pago seguro procesado por Culqi</Typography>
               </Box>
               <Box sx={{ mb: 3, textAlign: 'left' }}>
-                <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} color="primary" />} label={<Typography variant="body2" color="text.secondary">He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--mui-palette-primary-main)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
+                <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} sx={{ color: 'var(--web-primary, #25927F)', '&.Mui-checked': { color: 'var(--web-primary, #25927F)' } }} />} label={<Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b' }}>He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
               </Box>
-              <Button variant="contained" fullWidth size="large" onClick={handleCulqiCheckout} disabled={isLoading || !isCulqiLoaded || (!acceptedTerms && !isGuest)} startIcon={isLoading || !isCulqiLoaded ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />} sx={{ py: 2, borderRadius: '16px', fontWeight: 800, fontSize: '1.1rem', boxShadow: '0 10px 25px rgba(var(--mui-palette-primary-mainChannel), 0.2)', textTransform: 'none' }}>
+              <Button fullWidth size="large" onClick={handleCulqiCheckout} disabled={isLoading || !isCulqiLoaded || (!acceptedTerms && !isGuest)} startIcon={isLoading || !isCulqiLoaded ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />} sx={{ py: 2, borderRadius: '16px', fontFamily: FONT, fontWeight: 800, fontSize: '1rem', textTransform: 'none', backgroundColor: 'var(--web-light, #BDD962)', color: '#0A0A0A', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127), 0.25)', '&:hover': { backgroundColor: 'var(--web-primary, #25927F)', color: '#fff' }, '&:disabled': { backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.2)', color: 'rgba(0,0,0,0.35)' } }}>
                 {isLoading ? 'Procesando...' : (!isCulqiLoaded ? 'Cargando...' : (isGuest ? 'Identificarse para Comprar' : `Pagar ${currencySymbol} ${displayTotal.toFixed(2)}`))}
               </Button>
             </Box>
           ) : (paymentMethod === 'izipay' && isIzipayEnabled) ? (
-            <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+            <Box sx={{ p: 3, backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.04)', borderRadius: '16px', border: '1px solid rgba(var(--web-primary-rgb, 37, 146, 127), 0.15)', textAlign: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--mui-palette-primary-main)' }} />
-                <Typography variant="body2" color="text.secondary" fontWeight={600}>Pago seguro procesado por Izipay</Typography>
+                <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--web-primary, #25927F)' }} />
+                <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b', fontWeight: 600 }}>Pago seguro procesado por Izipay</Typography>
               </Box>
               <Box sx={{ mb: 3, textAlign: 'left' }}>
-                <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} color="primary" />} label={<Typography variant="body2" color="text.secondary">He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--mui-palette-primary-main)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
+                <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} sx={{ color: 'var(--web-primary, #25927F)', '&.Mui-checked': { color: 'var(--web-primary, #25927F)' } }} />} label={<Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b' }}>He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
               </Box>
-              <Button variant="contained" fullWidth size="large" onClick={handleCheckout} disabled={isLoading || (!acceptedTerms && !isGuest)} startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />} sx={{ py: 2, borderRadius: '16px', fontWeight: 800, fontSize: '1.1rem', boxShadow: '0 10px 25px rgba(var(--mui-palette-primary-mainChannel), 0.2)', textTransform: 'none' }}>
+              <Button fullWidth size="large" onClick={handleCheckout} disabled={isLoading || (!acceptedTerms && !isGuest)} startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />} sx={{ py: 2, borderRadius: '16px', fontFamily: FONT, fontWeight: 800, fontSize: '1rem', textTransform: 'none', backgroundColor: 'var(--web-light, #BDD962)', color: '#0A0A0A', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127), 0.25)', '&:hover': { backgroundColor: 'var(--web-primary, #25927F)', color: '#fff' }, '&:disabled': { backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.2)', color: 'rgba(0,0,0,0.35)' } }}>
                 {isLoading ? 'Preparando...' : (isGuest ? 'Identificarse para Comprar' : `Pagar ${currencySymbol} ${displayTotal.toFixed(2)}`)}
               </Button>
             </Box>
           ) : (paymentMethod === 'paypal' && isPaypalEnabled) && (
-            <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ p: 3, backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.04)', borderRadius: '16px', border: '1px solid rgba(var(--web-primary-rgb, 37, 146, 127), 0.15)' }}>
               {isGuest ? (
-                <Button variant="contained" fullWidth size="large" onClick={() => setIsAuthDialogOpen(true)} sx={{ py: 2, borderRadius: '16px', fontWeight: 800, textTransform: 'none' }}>Identificarse para Comprar</Button>
+                <Button fullWidth size="large" onClick={() => setIsAuthDialogOpen(true)} sx={{ py: 2, borderRadius: '16px', fontFamily: FONT, fontWeight: 800, textTransform: 'none', backgroundColor: 'var(--web-light, #BDD962)', color: '#0A0A0A', '&:hover': { backgroundColor: 'var(--web-primary, #25927F)', color: '#fff' } }}>Identificarse para Comprar</Button>
               ) : (
                 <>
                   <Box sx={{ mb: 3 }}>
-                    <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} color="primary" />} label={<Typography variant="body2" color="text.secondary">He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--mui-palette-primary-main)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
+                    <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} sx={{ color: 'var(--web-primary, #25927F)', '&.Mui-checked': { color: 'var(--web-primary, #25927F)' } }} />} label={<Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b' }}>He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
                   </Box>
                   {acceptedTerms ? (
                     <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'USD' }}>

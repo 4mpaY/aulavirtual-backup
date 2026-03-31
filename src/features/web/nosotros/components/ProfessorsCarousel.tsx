@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 
 import { eyebrow, sectionH2, sectionDesc } from '@/features/web/home/components/typography'
@@ -33,10 +34,13 @@ function useVisible() {
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth
+
       setVisible(w < 640 ? 1 : w < 900 ? 2 : w < 1200 ? 3 : 4)
     }
+
     update()
     window.addEventListener('resize', update)
+
     return () => window.removeEventListener('resize', update)
   }, [])
 

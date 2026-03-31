@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Award, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'

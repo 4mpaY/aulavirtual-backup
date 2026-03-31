@@ -29,6 +29,7 @@ function hexToRgb(hex: string): string {
   const r = parseInt(clean.slice(0, 2), 16) || 0
   const g = parseInt(clean.slice(2, 4), 16) || 0
   const b = parseInt(clean.slice(4, 6), 16) || 0
+  
   return `${r}, ${g}, ${b}`
 }
 
@@ -37,6 +38,7 @@ function darkenHex(hex: string, factor: number): string {
   const r = Math.round((parseInt(clean.slice(0, 2), 16) || 0) * factor)
   const g = Math.round((parseInt(clean.slice(2, 4), 16) || 0) * factor)
   const b = Math.round((parseInt(clean.slice(4, 6), 16) || 0) * factor)
+  
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
 }
 

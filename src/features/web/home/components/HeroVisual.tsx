@@ -36,12 +36,15 @@ export default function HeroVisual() {
     const iv = setInterval(() => {
       setCurrentTime(t => {
         const next = t + 1 > TOTAL ? t : t + 1
+
         setProgress(Math.round((next / TOTAL) * 100))
+
         return next
       })
     }, 400)
+
     return () => clearInterval(iv)
-  }, [])
+  }, [TOTAL])
 
   return (
     <div className="relative flex items-center justify-center" style={{ minHeight: '500px' }}>

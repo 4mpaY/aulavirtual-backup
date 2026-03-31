@@ -26,7 +26,7 @@ interface RutaCardProps {
   cursos: any[]
 }
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(() => ({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',

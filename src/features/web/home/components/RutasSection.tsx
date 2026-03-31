@@ -7,6 +7,7 @@ import RutaCard from './RutaCard'
 
 interface RutasSectionProps {
   rutas: any[]
+
   /** Cuando es true omite el wrapper/título propio (la home provee el suyo) */
   embedded?: boolean
 }

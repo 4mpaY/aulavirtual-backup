@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { ArrowRight, BookOpen } from 'lucide-react'
 
 import ScrollReveal from './ScrollReveal'
-import { eyebrowDark, sectionH2Dark, sectionDescDark, cardTitle, cardBody, smallText } from './typography'
+import { eyebrowDark, sectionH2Dark, sectionDescDark, cardBody, smallText } from './typography'
 
 interface Teacher {
   id: string

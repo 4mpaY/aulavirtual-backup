@@ -3,8 +3,11 @@
 import { useState } from 'react'
 
 import { Box, TextField, Button, Typography, InputAdornment, CircularProgress, Alert } from '@mui/material'
+import { Tag } from 'lucide-react'
 
 import axios from 'axios'
+
+const FONT = 'Poppins, sans-serif'
 
 
 interface CouponInputProps {
@@ -57,8 +60,8 @@ const CouponInput = ({ cursoIds, onApplied }: CouponInputProps) => {
   }
 
   return (
-    <Box sx={{ mt: 3 }}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5 }}>
+    <Box>
+      <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', fontWeight: 700, color: '#0A0A0A', mb: 1.5 }}>
         ¿Tienes un código de descuento?
       </Typography>
 
@@ -74,12 +77,17 @@ const CouponInput = ({ cursoIds, onApplied }: CouponInputProps) => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '12px',
-              }
+                fontFamily: FONT,
+                fontSize: '0.875rem',
+              },
+              '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'var(--web-primary, #25927F)',
+              },
             }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <i className="tabler-ticket" style={{ fontSize: '1.2rem', color: 'var(--mui-palette-text-secondary)' }} />
+                  <Tag size={16} color="#94a3b8" />
                 </InputAdornment>
               ),
             }}
@@ -91,12 +99,16 @@ const CouponInput = ({ cursoIds, onApplied }: CouponInputProps) => {
             sx={{
               borderRadius: '12px',
               px: 3,
+              fontFamily: FONT,
               fontWeight: 700,
               textTransform: 'none',
-              minWidth: '100px'
+              minWidth: '90px',
+              backgroundColor: 'var(--web-primary, #25927F)',
+              '&:hover': { backgroundColor: 'var(--web-dark, #025E44)' },
+              '&:disabled': { backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.35)', color: 'rgba(255,255,255,0.7)' },
             }}
           >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Aplicar'}
+            {loading ? <CircularProgress size={20} color="inherit" /> : 'Aplicar'}
           </Button>
         </Box>
       ) : (
@@ -105,7 +117,7 @@ const CouponInput = ({ cursoIds, onApplied }: CouponInputProps) => {
           onClose={handleRemove}
           sx={{
             borderRadius: '12px',
-            '& .MuiAlert-message': { fontWeight: 600 }
+            '& .MuiAlert-message': { fontFamily: FONT, fontWeight: 600, fontSize: '0.8125rem' },
           }}
         >
           {success}
@@ -113,7 +125,7 @@ const CouponInput = ({ cursoIds, onApplied }: CouponInputProps) => {
       )}
 
       {error && (
-        <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block', fontWeight: 600 }}>
+        <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', color: '#dc2626', mt: 1, display: 'block', fontWeight: 600 }}>
           {error}
         </Typography>
       )}

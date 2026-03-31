@@ -53,6 +53,7 @@ export async function POST(request: Request) {
 
     // Generar slug
     let baseSlug = `${nombre}-${apellido}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
     if (!baseSlug) baseSlug = 'usuario';
     
     let slug = baseSlug;
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
     
     while (await prisma.usuario.findUnique({ where: { slug } })) {
       const randomHash = Math.random().toString(36).substring(2, 6);
+
       slug = `${baseSlug}-${randomHash}-${counter}`;
       counter++;
     }

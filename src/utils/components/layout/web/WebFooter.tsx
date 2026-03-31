@@ -87,7 +87,7 @@ const WebFooter = () => {
             >
               Formación
             </h4>
-            <ul className="space-y-2" style={{ opacity: 0.8 }}>
+            <ul className="space-y-2 list-none pl-0 m-0" style={{ opacity: 0.8 }}>
               {[
                 { label: 'Cursos', href: '/cursos' },
                 { label: 'Rutas', href: '/rutas' },
@@ -113,7 +113,7 @@ const WebFooter = () => {
             >
               Más Información
             </h4>
-            <ul className="space-y-2" style={{ opacity: 0.8 }}>
+            <ul className="space-y-2 list-none pl-0 m-0" style={{ opacity: 0.8 }}>
               {[
                 { label: 'Nosotros', href: '/nosotros' },
                 { label: 'Términos y condiciones', href: '/terminos-y-condiciones' },
@@ -204,7 +204,7 @@ const WebFooter = () => {
               className="no-underline hover:opacity-80"
               style={{ color: 'var(--web-light, #BDD962)', fontWeight: 600 }}
             >
-              Fly Software
+              Fly
             </Link>
           </p>
         </div>

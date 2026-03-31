@@ -33,6 +33,17 @@ interface ConfiguracionViewProps {
   initialData?: Configuracion[]
 }
 
+const COLOR_PRESETS = [
+  { name: 'Teal & Lima',        main: '#25927F', light: '#BDD962', dark: '#025E44' },
+  { name: 'Índigo & Lima',      main: '#4F46E5', light: '#A3E635', dark: '#1E1B4B' },
+  { name: 'Océano Profundo',    main: '#2563EB', light: '#FCD34D', dark: '#0D1F3C' },
+  { name: 'Índigo & Dorado',    main: '#7C3AED', light: '#FCD34D', dark: '#1E1B4B' },
+  { name: 'Esmeralda',          main: '#10B981', light: '#A3E635', dark: '#022C1E' },
+  { name: 'Pizarra & Coral',    main: '#EA580C', light: '#FEF08A', dark: '#0F172A' },
+  { name: 'Granate & Champán',  main: '#BE185D', light: '#FDE68A', dark: '#1A0A14' },
+  { name: 'Cian Tecnológico',   main: '#0891B2', light: '#67E8F9', dark: '#0C1A2E' },
+]
+
 interface TabPanelProps {
   children?: React.ReactNode
   index: number
@@ -256,29 +267,103 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     {
       label: 'Apariencia (Colores)',
       content: (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Typography variant='subtitle2' gutterBottom>Color Primario Principal</Typography>
-            <Stack direction='row' spacing={2} alignItems='center'>
-              <TextField fullWidth value={config.PRIMARY_COLOR_MAIN} onChange={(e) => handleInputChange('PRIMARY_COLOR_MAIN', e.target.value)} />
-              <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_MAIN, border: '1px solid grey' }} />
-            </Stack>
+        <Stack spacing={4}>
+          {/* Palette presets */}
+          <Box>
+            <Typography variant='subtitle1' fontWeight={700} gutterBottom>Paletas Predefinidas</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+              Haz clic en una paleta para aplicar los colores automáticamente.
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
+              {COLOR_PRESETS.map(preset => {
+                const isActive =
+                  config.PRIMARY_COLOR_MAIN.toLowerCase() === preset.main.toLowerCase() &&
+                  config.PRIMARY_COLOR_LIGHT.toLowerCase() === preset.light.toLowerCase() &&
+                  config.PRIMARY_COLOR_DARK.toLowerCase() === preset.dark.toLowerCase()
+
+                return (
+                  <Box
+                    key={preset.name}
+                    onClick={() => {
+                      handleInputChange('PRIMARY_COLOR_MAIN', preset.main)
+                      handleInputChange('PRIMARY_COLOR_LIGHT', preset.light)
+                      handleInputChange('PRIMARY_COLOR_DARK', preset.dark)
+                    }}
+                    sx={{
+                      cursor: 'pointer',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      border: '2px solid',
+                      borderColor: isActive ? preset.main : 'divider',
+                      boxShadow: isActive ? `0 0 0 2px ${preset.main}40` : 1,
+                      transition: 'all 0.18s',
+                      '&:hover': { transform: 'translateY(-3px)', boxShadow: 4 },
+                      minWidth: 110,
+                    }}
+                  >
+                    {/* Color strip: dark | main | light */}
+                    <Box sx={{ display: 'flex', height: 28 }}>
+                      <Box sx={{ flex: 1, bgcolor: preset.dark }} />
+                      <Box sx={{ flex: 1, bgcolor: preset.main }} />
+                      <Box sx={{ flex: 1, bgcolor: preset.light }} />
+                    </Box>
+                    <Box sx={{ px: 1.5, py: 0.75, bgcolor: 'background.paper' }}>
+                      <Typography variant='caption' fontWeight={isActive ? 700 : 500} color={isActive ? preset.main : 'text.primary'}>
+                        {preset.name}
+                      </Typography>
+                    </Box>
+                  </Box>
+                )
+              })}
+            </Box>
+          </Box>
+
+          <Divider />
+
+          {/* Individual color pickers */}
+          <Grid container spacing={3}>
+            {([
+              { label: 'Color Primario Principal', key: 'PRIMARY_COLOR_MAIN' },
+              { label: 'Color Primario Claro (Light)', key: 'PRIMARY_COLOR_LIGHT' },
+              { label: 'Color Primario Oscuro (Dark)', key: 'PRIMARY_COLOR_DARK' },
+            ] as const).map(({ label, key }) => (
+              <Grid item xs={12} md={4} key={key}>
+                <Typography variant='subtitle2' gutterBottom>{label}</Typography>
+                <Stack direction='row' spacing={1.5} alignItems='center'>
+                  <TextField
+                    fullWidth
+                    value={config[key]}
+                    onChange={(e) => handleInputChange(key, e.target.value)}
+                  />
+                  {/* Clickable color swatch — opens native color picker */}
+                  <Box sx={{ position: 'relative', width: 48, height: 48, flexShrink: 0 }}>
+                    <Box
+                      component='input'
+                      type='color'
+                      value={config[key]}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(key, e.target.value)}
+                      sx={{
+                        position: 'absolute', inset: 0,
+                        width: '100%', height: '100%',
+                        opacity: 0, cursor: 'pointer',
+                        border: 'none', padding: 0, margin: 0,
+                      }}
+                    />
+                    <Box sx={{
+                      width: 48, height: 48,
+                      borderRadius: 2,
+                      bgcolor: config[key],
+                      border: '2px solid',
+                      borderColor: 'divider',
+                      boxShadow: 1,
+                      pointerEvents: 'none',
+                    }} />
+                  </Box>
+                </Stack>
+              </Grid>
+            ))}
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant='subtitle2' gutterBottom>Color Primario Claro (Light)</Typography>
-            <Stack direction='row' spacing={2} alignItems='center'>
-              <TextField fullWidth value={config.PRIMARY_COLOR_LIGHT} onChange={(e) => handleInputChange('PRIMARY_COLOR_LIGHT', e.target.value)} />
-              <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_LIGHT, border: '1px solid grey' }} />
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant='subtitle2' gutterBottom>Color Primario Oscuro (Dark)</Typography>
-            <Stack direction='row' spacing={2} alignItems='center'>
-              <TextField fullWidth value={config.PRIMARY_COLOR_DARK} onChange={(e) => handleInputChange('PRIMARY_COLOR_DARK', e.target.value)} />
-              <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: config.PRIMARY_COLOR_DARK, border: '1px solid grey' }} />
-            </Stack>
-          </Grid>
-        </Grid>
+        </Stack>
       )
     },
     config.PAYPAL_ENABLED === 'true' && {
