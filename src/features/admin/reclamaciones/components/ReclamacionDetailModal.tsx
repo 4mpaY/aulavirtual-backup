@@ -101,7 +101,7 @@ export default function ReclamacionDetailModal({
             </Box>
 
             <Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
-              Fecha de registro: <HydratedDate date={reclamacion.creado_en} format="dateTime" />
+              Fecha de registro: <HydratedDate date={reclamacion.creado_en} format='date' />
             </Typography>
           </Grid>
 

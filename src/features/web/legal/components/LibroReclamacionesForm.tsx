@@ -49,7 +49,7 @@ export default function LibroReclamacionesForm() {
       nombre_apoderado: '',
       bien_contratado_tipo: 'SERVICIO',
       moneda: 'PEN',
-      monto_reclamado: '',
+      monto_reclamado: 0,
       descripcion_bien: '',
       tipo_reclamacion: 'RECLAMO',
       detalle: '',
@@ -275,6 +275,7 @@ export default function LibroReclamacionesForm() {
                       error={!!errors.monto_reclamado}
                       helperText={errors.monto_reclamado?.message}
                       placeholder="Ej: 150.00"
+                      onChange={e => field.onChange(e.target.value === '' ? 0 : parseFloat(e.target.value))}
                     />
                   )}
                 />
