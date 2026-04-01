@@ -49,7 +49,11 @@ const socialLinks = [
   },
 ]
 
-const WebFooter = () => {
+interface WebFooterProps {
+  platformName?: string
+}
+
+const WebFooter = ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
   return (
     <footer style={{ backgroundColor: '#0A0A0A', color: '#ffffff' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12">
@@ -192,7 +196,7 @@ const WebFooter = () => {
                 color: 'rgba(255,255,255,0.5)',
               }}
             >
-              © <HydratedDate date={new Date()} format="year" /> Aula Virtual. Todos los derechos reservados.
+              © <HydratedDate date={new Date()} format="year" /> {platformName}. Todos los derechos reservados.
             </p>
           </div>
           <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>

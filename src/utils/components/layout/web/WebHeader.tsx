@@ -17,9 +17,11 @@ export interface Category {
 
 interface WebHeaderProps {
   initialCategories?: Category[]
+  platformName?: string
+  platformSlogan?: string
 }
 
-export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
+export default function WebHeader({ initialCategories = [], platformName = 'Aula Virtual', platformSlogan = 'Aprende sin límites' }: WebHeaderProps) {
   void initialCategories
   const { data: session } = useSession()
 
@@ -43,7 +45,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
                 lineHeight: 1,
               }}
             >
-              Aula Virtual
+              {platformName}
             </span>
             <span
               style={{
@@ -56,7 +58,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
                 marginTop: '2px',
               }}
             >
-              Aprende sin límites
+              {platformSlogan}
             </span>
           </div>
         </div>

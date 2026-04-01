@@ -1,21 +1,28 @@
 import React from 'react'
 
 import prisma from '@/utils/libs/prisma'
+import { getConfigs } from '@/utils/libs/config'
 import WebHeader from '@/utils/components/layout/web/WebHeader'
 import WebFooter from '@/utils/components/layout/web/WebFooter'
 import LeftSidebar from '@/utils/components/layout/web/LeftSidebar'
 import MobileBottomNav from '@/utils/components/layout/web/MobileBottomNav'
 
 const WebLayout = async ({ children }: { children: React.ReactNode }) => {
-  const categories = await prisma.categoria.findMany({
-    where: { esta_activo: true },
-    select: { id: true, nombre: true, slug: true },
-    orderBy: { orden: 'asc' }
-  })
+  const [categories, configs] = await Promise.all([
+    prisma.categoria.findMany({
+      where: { esta_activo: true },
+      select: { id: true, nombre: true, slug: true },
+      orderBy: { orden: 'asc' }
+    }),
+    getConfigs()
+  ])
+
+  const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+  const platformSlogan = configs.TEMPLATE_SLOGAN || 'Aprende sin límites'
 
   return (
     <div className="web-layout min-h-screen bg-background flex flex-col">
-      <WebHeader initialCategories={categories} />
+      <WebHeader initialCategories={categories} platformName={platformName} platformSlogan={platformSlogan} />
       <div className="flex flex-1" style={{ paddingTop: 'var(--navbar-height)' }}>
         {/* Sidebar: visible solo en sm+ */}
         <div className="hidden sm:block">
@@ -30,7 +37,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
           <div className="flex-1">
             {children}
           </div>
-          <WebFooter />
+          <WebFooter platformName={platformName} />
         </main>
       </div>
       {/* Bottom nav: visible solo en mobile */}
