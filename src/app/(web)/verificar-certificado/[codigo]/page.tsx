@@ -2,27 +2,27 @@ import React from 'react'
 
 import Link from 'next/link'
 
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Paper, 
-  Divider, 
-  Button, 
-  Avatar, 
-  Stack, 
-  Chip, 
-  Grid 
+import {
+  Box,
+  Container,
+  Typography,
+  Paper,
+  Divider,
+  Button,
+  Avatar,
+  Stack,
+  Chip,
+  Grid
 } from '@mui/material'
 
-import { 
-  CheckCircle2 as CheckCircleIcon, 
-  AlertCircle as ErrorIcon, 
-  Award as AwardIcon, 
-  Calendar as CalendarIcon, 
-  User as PersonIcon, 
-  FileSearch as HistoryIcon, 
-  ArrowLeft as ArrowBackIcon 
+import {
+  CheckCircle2 as CheckCircleIcon,
+  AlertCircle as ErrorIcon,
+  Award as AwardIcon,
+  Calendar as CalendarIcon,
+  User as PersonIcon,
+  FileSearch as HistoryIcon,
+  ArrowLeft as ArrowBackIcon
 } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
@@ -59,8 +59,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
             nombre: true,
             apellido: true
           }
-        },
-        datos: true
+        }
       }
     }),
     getConfigs()
@@ -70,11 +69,11 @@ export default async function VerificarCertificadoPage({ params }: Props) {
   if (!certificado) {
     return (
       <Container maxWidth="sm" sx={{ py: 12 }}>
-        <Paper 
-          elevation={4} 
-          sx={{ 
-            p: 6, 
-            textAlign: 'center', 
+        <Paper
+          elevation={4}
+          sx={{
+            p: 6,
+            textAlign: 'center',
             borderRadius: 4,
             background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
             border: '1px solid #fee2e2'
@@ -87,14 +86,14 @@ export default async function VerificarCertificadoPage({ params }: Props) {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
             No hemos podido encontrar ningún certificado con el código <strong>{codigo}</strong> en nuestra base de datos.
           </Typography>
-          <Button 
-            variant="contained" 
-            component={Link} 
+          <Button
+            variant="contained"
+            component={Link}
             href="/"
             startIcon={<ArrowBackIcon size={20} />}
-            sx={{ 
-              borderRadius: 3, 
-              px: 4, 
+            sx={{
+              borderRadius: 3,
+              px: 4,
               py: 1.5,
               textTransform: 'none',
               fontWeight: 'bold'
@@ -108,7 +107,8 @@ export default async function VerificarCertificadoPage({ params }: Props) {
   }
 
   const snapshot = certificado.datos as any
-  const nombreCompleto = snapshot?.usuario 
+
+  const nombreCompleto = snapshot?.usuario
     ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
     : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
 
@@ -137,10 +137,10 @@ export default async function VerificarCertificadoPage({ params }: Props) {
         </Typography>
       </Box>
 
-      <Paper 
-        elevation={10} 
-        sx={{ 
-          p: { xs: 4, md: 8 }, 
+      <Paper
+        elevation={10}
+        sx={{
+          p: { xs: 4, md: 8 },
           borderRadius: 6,
           position: 'relative',
           overflow: 'hidden',
@@ -150,28 +150,28 @@ export default async function VerificarCertificadoPage({ params }: Props) {
         }}
       >
         {/* Adorno decorativo superior */}
-        <Box 
-          sx={{ 
-            position: 'absolute', 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            height: 8, 
-            bgcolor: primaryColor 
-          }} 
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 8,
+            bgcolor: primaryColor
+          }}
         />
 
         <Stack spacing={4} alignItems="center">
           <Box sx={{ textAlign: 'center' }}>
             <Box sx={{ position: 'relative', display: 'inline-block' }}>
               <CheckCircleIcon size={90} style={{ color: '#22c55e', marginBottom: '16px' }} />
-              <Box 
-                sx={{ 
-                  position: 'absolute', 
-                  bottom: 25, 
-                  right: 0, 
-                  bgcolor: 'white', 
-                  borderRadius: '50%', 
+              <Box
+                sx={{
+                  position: 'absolute',
+                  bottom: 25,
+                  right: 0,
+                  bgcolor: 'white',
+                  borderRadius: '50%',
                   p: 0.5,
                   display: 'flex',
                   boxShadow: 2
@@ -180,18 +180,18 @@ export default async function VerificarCertificadoPage({ params }: Props) {
                 <AwardIcon size={24} style={{ color: '#fbbf24' }} />
               </Box>
             </Box>
-            
-            <Typography variant="h3" fontWeight={800} color="text.primary" sx={{ 
+
+            <Typography variant="h3" fontWeight={800} color="text.primary" sx={{
               fontSize: { xs: '2rem', md: '3rem' },
               mb: 1
             }}>
               Certificado Verificado
             </Typography>
-            <Chip 
-              icon={<HistoryIcon size={16} />} 
-              label={`Código: ${codigo}`} 
-              variant="outlined" 
-              sx={{ fontWeight: 'bold', px: 1 }} 
+            <Chip
+              icon={<HistoryIcon size={16} />}
+              label={`Código: ${codigo}`}
+              variant="outlined"
+              sx={{ fontWeight: 'bold', px: 1 }}
             />
           </Box>
 
@@ -229,11 +229,11 @@ export default async function VerificarCertificadoPage({ params }: Props) {
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Box 
-                sx={{ 
-                  p: 3, 
-                  bgcolor: 'rgba(19, 31, 242, 0.03)', 
-                  borderRadius: 4, 
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: 'rgba(19, 31, 242, 0.03)',
+                  borderRadius: 4,
                   border: '1px solid',
                   borderColor: 'rgba(19, 31, 242, 0.1)',
                   height: '100%'
@@ -245,13 +245,13 @@ export default async function VerificarCertificadoPage({ params }: Props) {
                 <Typography variant="h6" fontWeight="bold" sx={{ mt: 1, mb: 2, lineHeight: 1.3 }}>
                   {cursoTitulo}
                 </Typography>
-                <Button 
-                  variant="text" 
-                  component={Link} 
+                <Button
+                  variant="text"
+                  component={Link}
                   href={`/cursos/${certificado.curso.slug}`}
-                  sx={{ 
-                    color: primaryColor, 
-                    fontWeight: 'bold', 
+                  sx={{
+                    color: primaryColor,
+                    fontWeight: 'bold',
                     p: 0,
                     textTransform: 'none',
                     '&:hover': { background: 'transparent', textDecoration: 'underline' }
@@ -265,19 +265,19 @@ export default async function VerificarCertificadoPage({ params }: Props) {
 
           <Box sx={{ mt: 4, textAlign: 'center', maxWidth: 600 }}>
             <Typography variant="body2" color="text.secondary" fontStyle="italic">
-              Este certificado es auténtico y ha sido emitido de forma digital por <strong>{templateName}</strong>. 
+              Este certificado es auténtico y ha sido emitido de forma digital por <strong>{templateName}</strong>.
               La integridad de este documento puede ser confirmada en este portal oficial de verificación.
             </Typography>
           </Box>
 
-          <Button 
-            variant="outlined" 
-            component={Link} 
+          <Button
+            variant="outlined"
+            component={Link}
             href="/"
             startIcon={<ArrowBackIcon size={20} />}
-            sx={{ 
-              borderRadius: 3, 
-              px: 4, 
+            sx={{
+              borderRadius: 3,
+              px: 4,
               mt: 4,
               textTransform: 'none',
               fontWeight: 'bold',
