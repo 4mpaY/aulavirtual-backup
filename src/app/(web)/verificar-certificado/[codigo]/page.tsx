@@ -59,8 +59,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
             nombre: true,
             apellido: true
           }
-        },
-        datos: true
+        }
       }
     }),
     getConfigs()
@@ -115,6 +114,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
   }
 
   const snapshot = certificado.datos as any
+
   const nombreCompleto = snapshot?.usuario
     ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
     : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
