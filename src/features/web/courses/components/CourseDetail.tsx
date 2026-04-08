@@ -72,6 +72,7 @@ interface CourseDetailProps {
       nombre: string
     }
     video_presentacion?: string | null
+    duracion?: string | null
     fecha_inicio?: string | Date | null
     creado_en?: string | Date
     modulos: Modulo[]
@@ -350,17 +351,19 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                       </Box>
                     </Stack>
                   </Grid>
-                  <Grid item xs={6}>
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
-                        <i className="tabler-clock" style={{ fontSize: '1.4rem' }} />
-                      </Avatar>
-                      <Box>
-                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Duración</Typography>
-                        <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>4 Semanas</Typography>
-                      </Box>
-                    </Stack>
-                  </Grid>
+                  {course.duracion && (
+                    <Grid item xs={6}>
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
+                          <i className="tabler-clock" style={{ fontSize: '1.4rem' }} />
+                        </Avatar>
+                        <Box>
+                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Duración</Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>{course.duracion}</Typography>
+                        </Box>
+                      </Stack>
+                    </Grid>
+                  )}
                 </Grid>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>

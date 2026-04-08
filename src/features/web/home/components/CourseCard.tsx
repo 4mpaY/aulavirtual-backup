@@ -46,6 +46,7 @@ interface CourseCardProps {
   tipo_emision?: string
   fecha_inicio?: string | Date | null
   creado_en?: string | Date
+  duracion?: string | null
   es_comprado?: boolean
   video_presentacion?: string | null
 }
@@ -81,6 +82,7 @@ const CourseCard = ({
   tipo_emision,
   fecha_inicio,
   creado_en,
+  duracion,
   es_comprado,
   video_presentacion
 }: CourseCardProps) => {
@@ -116,7 +118,7 @@ const CourseCard = ({
       ? fecha_inicio
       : creado_en
 
-    if (!dateToUse) return 'Próximamente'
+    if (!dateToUse) return null
 
     const date = new Date(dateToUse)
 
@@ -132,6 +134,8 @@ const CourseCard = ({
       />
     )
   }
+
+  const displayDate = getDisplayDate()
 
   return (
     <StyledCard
@@ -277,20 +281,26 @@ const CourseCard = ({
             </Typography>
           </Stack>
 
-          <Stack direction="row" spacing={3} sx={{ mb: 2 }}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <i className="tabler-calendar" style={{ fontSize: '1.2rem', color: '#10b981' }} />
-              <Typography variant="body2" sx={{ color: '#1e293b', fontWeight: 600 }}>
-                {getDisplayDate()}
-              </Typography>
+          {(displayDate || duracion) && (
+            <Stack direction="row" spacing={3} sx={{ mb: 2 }}>
+              {displayDate && (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <i className="tabler-calendar" style={{ fontSize: '1.2rem', color: '#10b981' }} />
+                  <Typography variant="body2" sx={{ color: '#1e293b', fontWeight: 600 }}>
+                    {displayDate}
+                  </Typography>
+                </Stack>
+              )}
+              {duracion && (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <i className="tabler-clock" style={{ fontSize: '1.2rem', color: '#10b981' }} />
+                  <Typography variant="body2" sx={{ color: '#1e293b', fontWeight: 600 }}>
+                    {duracion}
+                  </Typography>
+                </Stack>
+              )}
             </Stack>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <i className="tabler-clock" style={{ fontSize: '1.2rem', color: '#10b981' }} />
-              <Typography variant="body2" sx={{ color: '#1e293b', fontWeight: 600 }}>
-                4 Semanas
-              </Typography>
-            </Stack>
-          </Stack>
+          )}
 
           <Typography variant="h5" sx={{ fontWeight: 800, color: es_comprado ? '#10b981' : 'primary.main', mb: 0 }}>
             {es_comprado ? 'Adquirido' : (es_gratis ? 'Gratis' : `${moneda} ${precio}`)}
