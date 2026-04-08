@@ -74,6 +74,7 @@ interface CourseDetailProps {
     }
     categoria?: { nombre: string }
     video_presentacion?: string | null
+    duracion?: string | null
     fecha_inicio?: string | Date | null
     creado_en?: string | Date
     modulos: Modulo[]
@@ -118,16 +119,16 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const { label: dateLabel, value: dateValue } = getDisplayDate()
 
   const defaultBeneficios = [
-    { title: 'Clase en vivo',             desc: 'Clases 100% en vivo por Zoom.',              icon: 'tabler-video' },
-    { title: 'Seguimiento personalizado', desc: 'Apoyo y soporte de la coordinadora.',         icon: 'tabler-headset' },
-    { title: 'Plataforma virtual',        desc: 'Acceso 24/7 durante el programa.',            icon: 'tabler-device-laptop' },
-    { title: 'Certificado Opcional',      desc: 'Solicítalo al finalizar el curso.',           icon: 'tabler-certificate' },
+    { title: 'Clase en vivo', desc: 'Clases 100% en vivo por Zoom.', icon: 'tabler-video' },
+    { title: 'Seguimiento personalizado', desc: 'Apoyo y soporte de la coordinadora.', icon: 'tabler-headset' },
+    { title: 'Plataforma virtual', desc: 'Acceso 24/7 durante el programa.', icon: 'tabler-device-laptop' },
+    { title: 'Certificado Opcional', desc: 'Solicítalo al finalizar el curso.', icon: 'tabler-certificate' },
   ]
 
   const defaultMetodologia = [
-    { title: 'Presentación de clase',              icon: 'tabler-presentation' },
-    { title: 'Material de clases y adicionales',   icon: 'tabler-folder' },
-    { title: 'Resolución de casos reales',         icon: 'tabler-messages' },
+    { title: 'Presentación de clase', icon: 'tabler-presentation' },
+    { title: 'Material de clases y adicionales', icon: 'tabler-folder' },
+    { title: 'Resolución de casos reales', icon: 'tabler-messages' },
   ]
 
   const defaultObjetivos = [
@@ -137,15 +138,15 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   ]
 
   const defaultIncluye = [
-    { text: 'Clases en vivo',                        active: true },
-    { text: 'Clases grabadas',                        active: true },
-    { text: 'Comunidad del curso',                    active: true },
-    { text: 'Materiales y adicionales',               active: true },
-    { text: 'Seguimiento académico',                  active: true },
-    { text: 'Evaluación programada',                  active: true },
-    { text: 'Evaluación en cualquier momento',        active: false },
-    { text: 'Recuperación de evaluación',             active: false },
-    { text: 'Certificado por Ecoambiental o CIP',     active: false },
+    { text: 'Clases en vivo', active: true },
+    { text: 'Clases grabadas', active: true },
+    { text: 'Comunidad del curso', active: true },
+    { text: 'Materiales y adicionales', active: true },
+    { text: 'Seguimiento académico', active: true },
+    { text: 'Evaluación programada', active: true },
+    { text: 'Evaluación en cualquier momento', active: false },
+    { text: 'Recuperación de evaluación', active: false },
+    { text: 'Certificado por Ecoambiental o CIP', active: false },
   ]
 
   return (
@@ -275,12 +276,19 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                       <Typography sx={{ fontFamily: FONT, fontSize: '0.9rem', color: '#fff', fontWeight: 700, mt: 0.25 }}>{dateValue}</Typography>
                     </Box>
                   </Grid>
-                  <Grid item xs={6} sm={3}>
-                    <Box sx={{ bgcolor: 'rgba(255,255,255,0.06)', borderRadius: '12px', p: 1.5, border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <Typography sx={{ fontFamily: FONT, fontSize: '0.6875rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Duración</Typography>
-                      <Typography sx={{ fontFamily: FONT, fontSize: '0.9rem', color: '#fff', fontWeight: 700, mt: 0.25 }}>4 Semanas</Typography>
-                    </Box>
-                  </Grid>
+                  {course.duracion && (
+                    <Grid item xs={6}>
+                      <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', width: 44, height: 44 }}>
+                          <i className="tabler-clock" style={{ fontSize: '1.4rem' }} />
+                        </Avatar>
+                        <Box>
+                          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }} display="block">Duración</Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 700, color: 'white', fontSize: '1.1rem' }}>{course.duracion}</Typography>
+                        </Box>
+                      </Stack>
+                    </Grid>
+                  )}
                 </Grid>
 
                 {/* Precio */}

@@ -63,6 +63,9 @@ const CourseList = ({ courses, loading, error }: CourseListProps) => {
               categoria={course.categoria}
               nivel={course.nivel}
               tipo_emision={course.tipo_emision}
+              fecha_inicio={course.fecha_inicio}
+              creado_en={course.creado_en}
+              duracion={course.duracion}
               es_comprado={course.es_comprado}
               video_presentacion={course.video_presentacion}
             />
