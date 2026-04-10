@@ -34,7 +34,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
       <Link href="/" className="flex items-center gap-3 group no-underline">
         <div className="flex items-center gap-4">
           <Logo />
-          <div className="hidden sm:flex flex-col">
+          {/* <div className="hidden sm:flex flex-col">
             <span
               style={{
                 fontFamily: 'Poppins, sans-serif',
@@ -60,7 +60,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
             >
               {platformSlogan}
             </span>
-          </div>
+          </div> */}
         </div>
       </Link>
 
