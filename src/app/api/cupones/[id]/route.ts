@@ -67,6 +67,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     if (cursoIds !== undefined) {
       await prisma.cuponCurso.deleteMany({ where: { cupon_id: params.id } })
+      
       if (Array.isArray(cursoIds) && cursoIds.length > 0) {
         await prisma.cuponCurso.createMany({
           data: cursoIds.map((id: string) => ({ cupon_id: params.id, curso_id: id }))

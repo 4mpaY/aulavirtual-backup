@@ -19,6 +19,7 @@ export function sanitizeDatetimeInput(value: string | null | undefined): string 
 
 export function toLocalDateInputValue(value: string | number | Date): string {
   const date = new Date(value)
+
   if (Number.isNaN(date.getTime())) return ''
 
   const pad = (num: number) => String(num).padStart(2, '0')
@@ -28,6 +29,7 @@ export function toLocalDateInputValue(value: string | number | Date): string {
 
 export function toLocalDatetimeLocalValue(value: string | number | Date): string {
   const date = new Date(value)
+  
   if (Number.isNaN(date.getTime())) return ''
 
   const pad = (num: number) => String(num).padStart(2, '0')
