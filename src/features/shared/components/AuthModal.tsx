@@ -84,6 +84,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
 
   const handleLoginSuccess = () => {
     onClose()
+
     if (callbackUrl) {
       window.location.href = callbackUrl
     } else {
@@ -271,8 +272,8 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
             {mode === 'login'
               ? 'Ingresa tus datos para continuar'
               : mode === 'register'
-              ? 'Completa tus datos para registrarte'
-              : 'Te enviaremos un enlace para restablecer tu contraseña'}
+                ? 'Completa tus datos para registrarte'
+                : 'Te enviaremos un enlace para restablecer tu contraseña'}
           </Typography>
         </Box>
 
@@ -570,7 +571,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
             </Grid>
           </form>
         ) : (
-          /* ── Forgot Password ─────────────────────────────── */
+
           forgotSuccess ? (
             <Stack spacing={3} sx={{ textAlign: 'center', py: 2 }}>
               <Box sx={{ fontSize: '3rem' }}>📧</Box>

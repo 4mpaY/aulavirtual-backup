@@ -55,6 +55,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     const { id: cursoId } = params
     const body = await request.json()
+    
     const {
       titulo,
       descripcion,
@@ -96,6 +97,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         where: { curso_id: cursoId, modulo_id, tipo: 'INTERMEDIO' },
         _max: { orden: true }
       })
+
 
       orden = (maxOrden._max.orden ?? -1) + 1
     }
