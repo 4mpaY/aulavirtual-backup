@@ -23,7 +23,7 @@ import { useSession } from 'next-auth/react'
 import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 
 import { useConfig } from '@/contexts/ConfigContext'
-import AuthDialog from './AuthDialog'
+import { useAuthModal } from '@/contexts/AuthModalContext'
 import IzipayScript from './IzipayScript'
 import CulqiScript from './CulqiScript'
 import { PayPalPaymentButton } from './PayPalPaymentButton'
@@ -52,7 +52,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const { data: session } = useSession()
   const router = useRouter()
   const { clearCart } = useCart()
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
+  const { openLogin } = useAuthModal()
   const [isLoading, setIsLoading] = useState(false)
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
@@ -167,7 +167,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
   const handleCheckout = async () => {
     if (!session) {
-      setIsAuthDialogOpen(true)
+      openLogin()
 
       return
     }
@@ -212,7 +212,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
   const handleCulqiCheckout = async () => {
     if (!session) {
-      setIsAuthDialogOpen(true)
+      openLogin()
 
       return
     }
@@ -394,7 +394,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
           ) : (paymentMethod === 'paypal' && isPaypalEnabled) && (
             <Box sx={{ p: 3, bgcolor: 'grey.50', borderRadius: '16px', border: '1px solid', borderColor: 'divider' }}>
               {isGuest ? (
-                <Button variant="contained" fullWidth size="large" onClick={() => setIsAuthDialogOpen(true)} sx={{ py: 2, borderRadius: '16px', fontWeight: 800, textTransform: 'none' }}>Identificarse para Comprar</Button>
+                <Button variant="contained" fullWidth size="large" onClick={() => openLogin()} sx={{ py: 2, borderRadius: '16px', fontWeight: 800, textTransform: 'none' }}>Identificarse para Comprar</Button>
               ) : (
                 <>
                   <Box sx={{ mb: 3 }}>
@@ -414,7 +414,6 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         </Box>
       </Stack>
 
-      <AuthDialog open={isAuthDialogOpen} onClose={() => setIsAuthDialogOpen(false)} />
     </Paper>
   )
 }

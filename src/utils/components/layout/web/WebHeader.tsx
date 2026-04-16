@@ -14,6 +14,7 @@ import { Button } from '@mui/material'
 import Logo from '@components/layout/shared/Logo'
 import UserDropdown from '@components/layout/shared/UserDropdown'
 import CartIcon from '@/features/web/cart/components/CartIcon'
+import { useAuthModal } from '@/contexts/AuthModalContext'
 
 export interface Category {
   id: string
@@ -415,6 +416,7 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
   const pathname = usePathname()
   const { data: session } = useSession()
+  const { openLogin, openRegister } = useAuthModal()
 
   // Generar navItems dinámicamente con las categorías apuntando a /cursos
   const dynamicNavItems = navItems.map(item => {
@@ -506,16 +508,14 @@ export default function WebHeader({ initialCategories = [] }: WebHeaderProps) {
           ) : (
             <>
               <Button
-                component={Link}
-                href="/login"
+                onClick={() => openLogin()}
                 size="small"
                 sx={{ fontWeight: 700, fontSize: '0.7rem', color: '#02115C', fontFamily: 'Inter, sans-serif' }}
               >
                 Iniciar Sesión
               </Button>
               <Button
-                component={Link}
-                href="/register"
+                onClick={() => openRegister()}
                 variant="contained"
                 size="small"
                 sx={{

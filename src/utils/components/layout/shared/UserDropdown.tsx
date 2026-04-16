@@ -69,7 +69,8 @@ const UserDropdown = () => {
   const handleUserLogout = async () => {
     await signOut({ redirect: false })
 
-    router.push('/login')
+    router.push('/')
+    router.refresh()
   }
 
   return (

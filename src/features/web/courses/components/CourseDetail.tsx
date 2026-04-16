@@ -38,7 +38,7 @@ import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
 import UserAvatar from '@/utils/components/UserAvatar'
 import HydratedDate from '@/utils/components/HydratedDate'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
-import AuthDialog from '@/features/web/checkout/components/AuthDialog'
+import { useAuthModal } from '@/contexts/AuthModalContext'
 
 interface Leccion {
   id: string
@@ -92,14 +92,14 @@ interface CourseDetailProps {
 
 const CourseDetail = ({ course }: CourseDetailProps) => {
   const [previewLesson, setPreviewLesson] = useState<any>(null)
-  const [authDialogOpen, setAuthDialogOpen] = useState(false)
   const [enrolling, setEnrolling] = useState(false)
   const { data: session } = useSession()
   const router = useRouter()
+  const { openLogin } = useAuthModal()
 
   const handleFreeEnroll = async () => {
     if (!session) {
-      setAuthDialogOpen(true)
+      openLogin()
 
       return
     }
@@ -804,12 +804,6 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
           </Grid>
         </Grid>
       </Container>
-
-      <AuthDialog
-        open={authDialogOpen}
-        onClose={() => setAuthDialogOpen(false)}
-        initialMode="login"
-      />
 
       {/* Dialog para la Vista Previa */}
       <Dialog
