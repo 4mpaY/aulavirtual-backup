@@ -28,7 +28,7 @@ export default async function Page() {
   let initialData: Pedido[] = []
 
   try {
-    const result = await axiosPedido.getAll({ estado: 'COMPLETADO' })
+    const result = await axiosPedido.getAll({ estado: 'TODOS' })
 
     initialData = result.pedidos ?? []
   } catch (error) {

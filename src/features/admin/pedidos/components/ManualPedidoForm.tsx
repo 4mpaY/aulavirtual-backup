@@ -35,7 +35,7 @@ export function ManualPedidoForm() {
     const { data: usuariosData, isLoading: isLoadingUsuarios } = useUsuarios()
     const { data: cursosData, isLoading: isLoadingCursos } = useCursos()
 
-    const usuarios = usuariosData || []
+    const usuarios = (usuariosData || []).filter(u => u.rol === 'ESTUDIANTE')
     const cursos = (cursosData?.cursos || []).filter(c => c.estado === 'PUBLICADO')
 
     const {
@@ -48,6 +48,7 @@ export function ManualPedidoForm() {
         defaultValues: {
             usuarios_ids: [],
             cursos_ids: [],
+            estado: 'COMPLETADO' as const,
             metodo_pago: MetodoPago.TRANSFERENCIA,
             precio: 0,
             mensaje: ''
@@ -170,6 +171,29 @@ export function ManualPedidoForm() {
                                             startAdornment: <Typography sx={{ mr: 2, color: 'text.secondary' }}>PEN</Typography>
                                         }}
                                     />
+                                )}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Controller
+                                name='estado'
+                                control={control}
+                                render={({ field }) => (
+                                    <CustomTextField
+                                        {...field}
+                                        select
+                                        fullWidth
+                                        label='Estado del Pedido'
+                                        error={!!errors.estado}
+                                        helperText={errors.estado?.message ?? (field.value !== 'COMPLETADO' ? 'El alumno no será inscrito hasta que el pedido esté Completado' : 'El alumno será inscrito inmediatamente')}
+                                    >
+                                        <MenuItem value='PENDIENTE'>Pendiente</MenuItem>
+                                        <MenuItem value='PROCESANDO'>Procesando</MenuItem>
+                                        <MenuItem value='COMPLETADO'>Completado (Pagado)</MenuItem>
+                                        <MenuItem value='CANCELADO'>Cancelado</MenuItem>
+                                        <MenuItem value='REEMBOLSADO'>Reembolsado</MenuItem>
+                                    </CustomTextField>
                                 )}
                             />
                         </Grid>

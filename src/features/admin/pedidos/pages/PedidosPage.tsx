@@ -63,7 +63,7 @@ interface PedidosPageProps {
 
 export function PedidosPage({ initialData }: PedidosPageProps) {
   const router = useRouter()
-  const [estadoFiltro, setEstadoFiltro] = useState('COMPLETADO')
+  const [estadoFiltro, setEstadoFiltro] = useState('TODOS')
   const [nroPedido, setNroPedido] = useState('')
   const [nombre, setNombre] = useState('')
 
@@ -98,7 +98,7 @@ export function PedidosPage({ initialData }: PedidosPageProps) {
     }
   )
 
-  const isDefaultQuery = estadoFiltro === 'COMPLETADO' && !nroPedido && !nombre && pagination.pageIndex === 0
+  const isDefaultQuery = estadoFiltro === 'TODOS' && !nroPedido && !nombre && pagination.pageIndex === 0
 
   const pedidos = data?.pedidos ?? (isDefaultQuery && initialData ? initialData : [])
   const total = data?.paginacion?.total ?? (isDefaultQuery && initialData ? initialData.length : 0)
