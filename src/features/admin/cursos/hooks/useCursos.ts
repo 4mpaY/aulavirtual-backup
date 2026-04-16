@@ -3,20 +3,41 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
 
-import type { Curso } from '../entity/Curso'
+import type { Curso, CursoListaItem } from '../entity/Curso'
 import type { CrearCursoDto, ActualizarCursoDto, CambiarEstadoCursoDto } from '@/schemas/curso.schema'
 import { AxiosCurso } from '../http/axiosCurso'
+import { AxiosCursoAdmin } from '../http/axiosCursoAdmin'
 
-const QUERY_KEY = { CURSOS: ['cursos'] }
+const QUERY_KEY = {
+  CURSOS: ['cursos'],
+  CURSOS_LISTA: ['cursos', 'lista']
+}
+
+const getAuthToken = async () => {
+  const s = await getSession()
+
+  return s?.user?.accessToken ?? null
+}
 
 // Singleton: instancia única reutilizada en todos los hooks (evita recrear en cada render)
-const axiosCurso = new AxiosCurso({
-  getAuthToken: async () => {
-    const s = await getSession()
+const axiosCurso = new AxiosCurso({ getAuthToken })
+const axiosCursoAdmin = new AxiosCursoAdmin({ getAuthToken })
 
-    return s?.user?.accessToken ?? null
-  }
-})
+/**
+ * Hook para obtener la lista simplificada de cursos (selector de cupones, rutas, etc.)
+ * Hidrata React Query con los datos prefetched desde el servidor.
+ */
+export function useCursosLista(initialData?: CursoListaItem[]) {
+  return useQuery<CursoListaItem[], any>({
+    queryKey: QUERY_KEY.CURSOS_LISTA,
+    queryFn: async () => await axiosCursoAdmin.getLista(),
+    // Solo hidratar con initialData si el servidor devolvió datos reales.
+    // Si llega [] (fallo silencioso del server), dejamos que el cliente haga el fetch.
+    initialData: initialData?.length ? initialData : undefined,
+    staleTime: 60_000,
+    retry: 1
+  })
+}
 
 /**
  * Hook para listar cursos con filtros

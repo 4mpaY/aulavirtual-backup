@@ -104,6 +104,7 @@ model Curso {
   inscripciones      Inscripcion[]
   modulos            Modulo[]
   progreso           ProgresoCurso[]
+  cupones            CuponCurso[]
 
   @@index([profesor_id])
   @@index([categoria_id])
@@ -441,8 +442,19 @@ model Cupon {
   creado_en        DateTime      @default(now())
   actualizado_en   DateTime      @updatedAt
   pedidos          Pedido[]
+  cursos           CuponCurso[]
 
   @@map("cupones")
+}
+
+model CuponCurso {
+  cupon_id  String
+  curso_id  String
+  cupon     Cupon  @relation(fields: [cupon_id], references: [id], onDelete: Cascade)
+  curso     Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  @@id([cupon_id, curso_id])
+  @@map("cupon_cursos")
 }
 
 model Configuracion {

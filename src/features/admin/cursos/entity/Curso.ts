@@ -1,3 +1,9 @@
+export interface CursoListaItem {
+  id: string
+  titulo: string
+  estado: string
+}
+
 export interface CursoProfesor {
   id: string
   nombre: string

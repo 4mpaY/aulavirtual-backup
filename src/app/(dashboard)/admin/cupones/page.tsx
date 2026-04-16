@@ -5,6 +5,7 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import { CuponesPage } from '@/features/admin/cupones/pages/CuponesPage'
 import { AxiosCupon } from '@/features/admin/cupones/http/axiosCupon'
+import { AxiosCursoAdmin } from '@/features/admin/cursos/http/axiosCursoAdmin'
 
 
 export const metadata = {
@@ -20,17 +21,28 @@ export default async function Page() {
 
   const token = session.user?.accessToken ?? null
 
-  const axiosCupon = new AxiosCupon({
-    getAuthToken: () => token
-  })
+  const axiosCupon = new AxiosCupon({ getAuthToken: () => token })
+  const axiosCursoAdmin = new AxiosCursoAdmin({ getAuthToken: () => token })
 
-  let initialData: any[] = []
+  let initialData: Awaited<ReturnType<typeof axiosCupon.getAll>> = []
+  let cursosDisponibles: Awaited<ReturnType<typeof axiosCursoAdmin.getLista>> = []
 
-  try {
-    initialData = await axiosCupon.getAll()
-  } catch (error) {
-    console.error('Error fetching cupones:', error)
+  const [cuponesResult, cursosResult] = await Promise.allSettled([
+    axiosCupon.getAll(),
+    axiosCursoAdmin.getLista()
+  ])
+
+  if (cuponesResult.status === 'fulfilled') {
+    initialData = cuponesResult.value
+  } else {
+    console.error('Error fetching cupones:', cuponesResult.reason)
   }
 
-  return <CuponesPage initialData={initialData} />
+  if (cursosResult.status === 'fulfilled') {
+    cursosDisponibles = cursosResult.value
+  } else {
+    console.error('Error fetching cursos lista:', cursosResult.reason)
+  }
+
+  return <CuponesPage initialData={initialData} cursosInitialData={cursosDisponibles} />
 }
