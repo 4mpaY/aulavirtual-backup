@@ -225,7 +225,100 @@ export function useComentariosCurso(cursoId: string) {
   })
 }
 
-// ===================== EXÁMENES =====================
+// ===================== EXÁMENES (plural) =====================
+
+export function useExamenesCurso(cursoId: string) {
+  return useQuery<{ examenes: any[] }, any>({
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes'],
+    queryFn: async () => await axiosCurso.getExamenes(cursoId),
+    enabled: !!cursoId,
+    staleTime: 30_000
+  })
+}
+
+export function useExamenById(cursoId: string, examenId: string) {
+  return useQuery<{ examen: any }, any>({
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes', examenId],
+    queryFn: async () => await axiosCurso.getExamenById(cursoId, examenId),
+    enabled: !!cursoId && !!examenId,
+    staleTime: 30_000
+  })
+}
+
+export function useCreateExamen() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { cursoId: string; data: any }>({
+    mutationFn: async ({ cursoId, data }) => await axiosCurso.createExamen(cursoId, data),
+    onSuccess: (_, { cursoId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes'] })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId] })
+    }
+  })
+}
+
+export function useUpdateExamen() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { cursoId: string; examenId: string; data: any }>({
+    mutationFn: async ({ cursoId, examenId, data }) => await axiosCurso.updateExamen(cursoId, examenId, data),
+    onSuccess: (_, { cursoId, examenId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes'] })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes', examenId] })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId] })
+    }
+  })
+}
+
+export function useDeleteExamen() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { cursoId: string; examenId: string }>({
+    mutationFn: async ({ cursoId, examenId }) => await axiosCurso.deleteExamen(cursoId, examenId),
+    onSuccess: (_, { cursoId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes'] })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId] })
+    }
+  })
+}
+
+export function useCreatePreguntaExamen() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { cursoId: string; examenId: string; data: any }>({
+    mutationFn: async ({ cursoId, examenId, data }) => await axiosCurso.createPreguntaExamen(cursoId, examenId, data),
+    onSuccess: (_, { cursoId, examenId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes', examenId] })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes'] })
+    }
+  })
+}
+
+export function useUpdatePreguntaExamen() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { cursoId: string; examenId: string; preguntaId: string; data: any }>({
+    mutationFn: async ({ cursoId, examenId, preguntaId, data }) =>
+      await axiosCurso.updatePreguntaExamen(cursoId, examenId, preguntaId, data),
+    onSuccess: (_, { cursoId, examenId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes', examenId] })
+    }
+  })
+}
+
+export function useDeletePreguntaExamen() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { cursoId: string; examenId: string; preguntaId: string }>({
+    mutationFn: async ({ cursoId, examenId, preguntaId }) =>
+      await axiosCurso.deletePreguntaExamen(cursoId, examenId, preguntaId),
+    onSuccess: (_, { cursoId, examenId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examenes', examenId] })
+    }
+  })
+}
+
+// ===================== EXÁMENES (legacy) =====================
 
 export function useExamenCurso(cursoId: string) {
 

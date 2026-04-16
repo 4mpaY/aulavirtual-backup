@@ -65,9 +65,17 @@ export async function GET(request: Request, { params }: { params: { slug: string
           orderBy: { orden: 'asc' }
         },
         examenes: {
+          where: { esta_publicado: true },
           select: {
             id: true,
             titulo: true,
+            tipo: true,
+            peso: true,
+            progreso_minimo: true,
+            orden: true,
+            modulo_id: true,
+            puntaje_aprobacion: true,
+            intentos_maximos: true,
             esta_publicado: true
           }
         }

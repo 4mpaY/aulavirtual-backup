@@ -120,6 +120,7 @@ model Modulo {
   creado_en      DateTime  @default(now())
   actualizado_en DateTime  @updatedAt
   curso_id       String
+  examenes       Examen[]
   lecciones      Leccion[]
   curso          Curso     @relation(fields: [curso_id], references: [id], onDelete: Cascade)
 
@@ -222,6 +223,8 @@ model Inscripcion {
   estado        EstadoInscripcion @default(ACTIVO)
   inscrito_en   DateTime          @default(now())
   completado_en DateTime?
+  nota_final    Float?
+  estado_nota   EstadoNota?
   usuario_id    String
   curso_id      String
   pedido_id     String?
@@ -270,6 +273,10 @@ model Examen {
   id                 String          @id @default(uuid())
   titulo             String
   descripcion        String?
+  tipo               TipoExamen      @default(FINAL)
+  peso               Int             @default(100)
+  progreso_minimo    Int             @default(0)
+  orden              Int?
   limite_tiempo      Int?
   puntaje_aprobacion Float           @default(60)
   intentos_maximos   Int             @default(1)
@@ -278,11 +285,14 @@ model Examen {
   creado_en          DateTime        @default(now())
   actualizado_en     DateTime        @updatedAt
   curso_id           String
+  modulo_id          String?
   curso              Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  modulo             Modulo?         @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
   intentos           IntentoExamen[]
   preguntas          Pregunta[]
 
   @@index([curso_id])
+  @@index([modulo_id])
   @@map("examenes")
 }
 
@@ -622,4 +632,15 @@ enum TipoReclamacion {
 enum EstadoReclamacion {
   PENDIENTE
   ATENDIDO
+}
+
+enum TipoExamen {
+  FINAL
+  INTERMEDIO
+}
+
+enum EstadoNota {
+  APROBADO
+  DESAPROBADO
+  EN_PROGRESO
 }

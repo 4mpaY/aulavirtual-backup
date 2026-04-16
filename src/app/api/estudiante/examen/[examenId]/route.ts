@@ -73,7 +73,7 @@ export async function GET(
       return ApiResponse.error(request, 'No estás inscrito en este curso', 403)
     }
 
-    // 3. Verificar progreso 100%
+    // 3. Verificar progreso mínimo requerido
     const progresoCurso = await prisma.progresoCurso.findUnique({
       where: {
         usuario_id_curso_id: {
@@ -83,12 +83,12 @@ export async function GET(
       }
     })
 
-    if (!progresoCurso || progresoCurso.porcentaje_progreso < 100) {
-      console.log(`[EXAMEN DEBUG] Usuario ${auth.user.id} tiene progreso insuficiente: ${progresoCurso?.porcentaje_progreso ?? 0}%`)
+    if (!progresoCurso || progresoCurso.porcentaje_progreso < examen.progreso_minimo) {
+      console.log(`[EXAMEN DEBUG] Usuario ${auth.user.id} tiene progreso insuficiente: ${progresoCurso?.porcentaje_progreso ?? 0}% (requerido: ${examen.progreso_minimo}%)`)
 
       return ApiResponse.error(
         request,
-        'Debes completar todas las lecciones antes de acceder al examen',
+        `Debes alcanzar ${examen.progreso_minimo}% de progreso antes de acceder a este examen`,
         403
       )
     }
