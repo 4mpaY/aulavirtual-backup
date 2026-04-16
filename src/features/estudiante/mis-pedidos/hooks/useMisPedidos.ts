@@ -27,7 +27,7 @@ export function useMisPedidos(query?: Record<string, string>, initialData?: Pedi
   return useQuery<{ pedidos: PedidoEstudiante[]; paginacion: any }, any>({
     queryKey: [...QUERY_KEY.MIS_PEDIDOS, query],
     queryFn: async () => await axiosPedido.getAll(query),
-    initialData: initialData ? { pedidos: initialData, paginacion: {} } : undefined,
+    initialData: initialData?.length ? { pedidos: initialData, paginacion: {} } : undefined,
     staleTime: 60_000,
     retry: 1
   })

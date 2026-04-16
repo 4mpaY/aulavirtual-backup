@@ -8,6 +8,7 @@ export const crearPedidoManualSchema = z.object({
   usuarios_ids: z.array(z.string().uuid('ID de usuario inválido')).min(1, 'Selecciona al menos un estudiante'),
   cursos_ids: z.array(z.string().uuid('ID de curso inválido')).min(1, 'Selecciona al menos un curso'),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').max(1000000, 'El precio es demasiado alto'),
+  estado: z.enum(['PENDIENTE', 'PROCESANDO', 'COMPLETADO', 'CANCELADO', 'REEMBOLSADO']).default('COMPLETADO'),
   metodo_pago: z.nativeEnum(MetodoPago).default(MetodoPago.TRANSFERENCIA),
   mensaje: z.string().trim().max(500, 'El mensaje no puede exceder 500 caracteres').optional()
 })

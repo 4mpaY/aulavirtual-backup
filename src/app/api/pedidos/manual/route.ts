@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       return validation.error
     }
 
-    const { usuarios_ids, cursos_ids, precio, metodo_pago, mensaje } = validation.data
+    const { usuarios_ids, cursos_ids, precio, estado, metodo_pago, mensaje } = validation.data
 
     // 3. Obtener información de los cursos
     const cursos = await prisma.curso.findMany({
@@ -77,14 +77,14 @@ export async function POST(request: Request) {
               usuario_id: usuario_id,
               total: precio,
               moneda: firstCourseMoneda,
-              estado: 'COMPLETADO',
+              estado: estado,
               metodo_pago: metodo_pago,
               mensaje: mensaje || `Pedido masivo generado por administrador`,
-              pagado_en: new Date(),
+              pagado_en: estado === 'COMPLETADO' ? new Date() : null,
               detalles: {
                 create: cursosParaInscribir.map(c => ({
                   curso_id: c.id,
-                  precio_unitario: precio / cursosParaInscribir.length, // Prorratear el precio total entre los cursos
+                  precio_unitario: precio / cursosParaInscribir.length,
                   subtotal: precio / cursosParaInscribir.length,
                   total: precio / cursosParaInscribir.length,
                   cantidad: 1
@@ -93,20 +93,22 @@ export async function POST(request: Request) {
             }
           })
 
-          // Crear las inscripciones
-          await Promise.all(
-            cursosParaInscribir.map(c => 
-              tx.inscripcion.create({
-                data: {
-                  usuario_id: usuario_id,
-                  curso_id: c.id,
-                  pedido_id: pedido.id,
-                  estado: 'ACTIVO',
-                  inscrito_en: new Date()
-                }
-              })
+          // Solo inscribir al estudiante si el pedido queda COMPLETADO
+          if (estado === 'COMPLETADO') {
+            await Promise.all(
+              cursosParaInscribir.map(c =>
+                tx.inscripcion.create({
+                  data: {
+                    usuario_id: usuario_id,
+                    curso_id: c.id,
+                    pedido_id: pedido.id,
+                    estado: 'ACTIVO',
+                    inscrito_en: new Date()
+                  }
+                })
+              )
             )
-          )
+          }
         })
 
         resultados.push({ 
