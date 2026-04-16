@@ -34,19 +34,23 @@ import { useCupones, useCuponMutation } from '../hooks/useCupones'
 import CuponForm from '../components/CuponForm'
 import HydratedDate from '@/utils/components/HydratedDate'
 import type { Cupon } from '../entity/Cupon'
+import { useCursosLista } from '@/features/admin/cursos/hooks/useCursos'
+import type { CursoListaItem } from '@/features/admin/cursos/entity/Curso'
 
 const columnHelper = createColumnHelper<Cupon>()
 
 interface CuponesPageProps {
   initialData?: Cupon[]
+  cursosInitialData?: CursoListaItem[]
 }
 
-export function CuponesPage({ initialData }: CuponesPageProps) {
+export function CuponesPage({ initialData, cursosInitialData }: CuponesPageProps) {
   const [buscar, setBuscar] = useState('')
   const [openForm, setOpenForm] = useState(false)
   const [cuponToEdit, setCuponToEdit] = useState<Cupon | null>(null)
-  
+
   const { data: cupones = [], isLoading } = useCupones(buscar, initialData)
+  const { data: cursosDisponibles = [] } = useCursosLista(cursosInitialData)
   const { deleteCupon } = useCuponMutation()
 
   const handleEdit = (cupon: any) => {
@@ -234,7 +238,7 @@ export function CuponesPage({ initialData }: CuponesPageProps) {
         />
       </Card>
 
-      <CuponForm open={openForm} handleClose={() => setOpenForm(false)} cuponToEdit={cuponToEdit} />
+      <CuponForm open={openForm} handleClose={() => setOpenForm(false)} cuponToEdit={cuponToEdit} cursosDisponibles={cursosDisponibles} />
     </>
   )
 }

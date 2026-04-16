@@ -4,7 +4,7 @@ import type { AxiosStatic } from 'axios'
 
 import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
-import type { Cupon } from '../entity/Cupon'
+import type { Cupon, CuponPayload } from '../entity/Cupon'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -26,33 +26,33 @@ export class AxiosCupon extends AxiosInternalHttpClient {
   async getAll(buscar: string = ''): Promise<Cupon[]> {
     try {
       const query = buscar ? `?buscar=${buscar}` : ''
-      const res = await this.iGet<any>(query)
-      
+      const res = await this.iGet<{ cupones: Cupon[] }>(query)
+
       return res?.cupones || []
     } catch (err: any) {
       throw err?.response?.data ?? err
     }
   }
 
-  async create(data: any): Promise<any> {
+  async create(data: CuponPayload): Promise<Cupon> {
     try {
-      return await this.iPost<any>('', data)
+      return await this.iPost<Cupon>('', data)
     } catch (err: any) {
       throw err?.response?.data ?? err
     }
   }
 
-  async update(id: string, data: any): Promise<any> {
+  async update(id: string, data: Partial<CuponPayload>): Promise<Cupon> {
     try {
-      return await this.iPatch<any>(`/${id}`, data)
+      return await this.iPatch<Cupon>(`/${id}`, data)
     } catch (err: any) {
       throw err?.response?.data ?? err
     }
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: string): Promise<{ message: string }> {
     try {
-      return await this.iDelete<any>(`/${id}`)
+      return await this.iDelete<{ message: string }>(`/${id}`)
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

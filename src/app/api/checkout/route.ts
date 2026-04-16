@@ -59,7 +59,8 @@ export async function POST(request: Request) {
     // 3.1. Validar cupón si se proporciona
     if (codigoCupon) {
       const cupon = await prisma.cupon.findUnique({
-        where: { codigo: codigoCupon.toUpperCase(), esta_activo: true }
+        where: { codigo: codigoCupon.toUpperCase(), esta_activo: true },
+        include: { cursos: { select: { curso_id: true } } }
       })
 
       if (cupon) {
@@ -75,7 +76,14 @@ export async function POST(request: Request) {
         const expirado = fechaExpiracion && fechaExpiracion < ahora
         const limiteAlcanzado = cupon.limite_uso !== null && cupon.usos_actuales >= cupon.limite_uso
 
-        if (!expirado && !limiteAlcanzado) {
+        // Verificar restricción por cursos
+        const cursosPermitidos = cupon.cursos.map(c => c.curso_id)
+        const tieneRestriccion = cursosPermitidos.length > 0
+        const cubreTodasLosCursos = tieneRestriccion
+          ? cursoIds.every((id: string) => cursosPermitidos.includes(id))
+          : true
+
+        if (!expirado && !limiteAlcanzado && cubreTodasLosCursos) {
           cuponId = cupon.id
 
           if (cupon.tipo === 'PORCENTAJE') {

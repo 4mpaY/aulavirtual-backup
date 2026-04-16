@@ -18,9 +18,10 @@ export async function POST(request: Request) {
 
     const { codigo, cursoIds } = validation.data
 
-    // 1. Buscar el cupón
+    // 1. Buscar el cupón incluyendo sus cursos permitidos
     const cupon = await prisma.cupon.findUnique({
-      where: { codigo: codigo.toUpperCase() }
+      where: { codigo: codigo.toUpperCase() },
+      include: { cursos: { select: { curso_id: true } } }
     })
 
     if (!cupon) {
@@ -49,7 +50,17 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'El cupón ha alcanzado su límite de uso', 400)
     }
 
-    // 3. Obtener precios de los cursos para calcular el descuento
+    // 3. Verificar restricción por cursos (si el cupón tiene cursos asignados)
+    if (cupon.cursos.length > 0) {
+      const cursosPermitidos = cupon.cursos.map(c => c.curso_id)
+      const cursosNoPermitidos = cursoIds.filter(id => !cursosPermitidos.includes(id))
+
+      if (cursosNoPermitidos.length > 0) {
+        return ApiResponse.error(request, 'Este cupón no es válido para uno o más cursos seleccionados', 400)
+      }
+    }
+
+    // 4. Obtener precios de los cursos para calcular el descuento
     const cursos = await prisma.curso.findMany({
       where: { id: { in: cursoIds } },
       select: { precio: true }
