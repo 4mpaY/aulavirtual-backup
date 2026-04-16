@@ -33,13 +33,13 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
     const [mobileTab, setMobileTab] = useState(0)
 
     // Zustand Store
-    const { 
-        course: storeCourse, 
-        currentLessonId, 
+    const {
+        course: storeCourse,
+        currentLessonId,
         currentView,
         examenId,
-        setCourse, 
-        setCurrentLessonId, 
+        setCourse,
+        setCurrentLessonId,
         updateLessonProgress,
         setExamenId,
         setExamStatus
@@ -92,14 +92,14 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
         () => storeCourse?.modulos.flatMap(m => m.lecciones) || [],
         [storeCourse?.modulos]
     )
-    
+
     const currentIndex = useMemo(
         () => flatLessons.findIndex(l => l.id === currentLessonId),
         [flatLessons, currentLessonId]
     )
 
     const currentLesson = currentIndex >= 0 ? flatLessons[currentIndex] : undefined
-    
+
     const prevLesson = currentIndex > 0 ? flatLessons[currentIndex - 1] : undefined
     const nextLesson = currentIndex < flatLessons.length - 1 ? flatLessons[currentIndex + 1] : undefined
 
@@ -136,7 +136,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                 if (response.data.result?.porcentaje !== undefined) {
                     updateLessonProgress(lessonId, completed, response.data.result.porcentaje)
                 }
-                
+
                 if (completed) {
                     toast.success('¡Lección completada!', {
                         position: 'bottom-right',
@@ -192,15 +192,15 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
         return (
             <>
                 {/* Video fijo en la parte superior en móvil o Placeholder de Clase en Vivo */}
-                <Grid item xs={12} key={`video-container-${currentLesson?.id || 'no-lesson'}`} sx={{ 
-                    p: 0, 
-                    position: { xs: 'sticky', md: 'relative' }, 
-                    top: 0, 
+                <Grid item xs={12} key={`video-container-${currentLesson?.id || 'no-lesson'}`} sx={{
+                    p: 0,
+                    position: { xs: 'sticky', md: 'relative' },
+                    top: 0,
                     zIndex: 6,
                     bgcolor: 'black'
                 }}>
                     {currentLesson?.es_en_vivo ? (
-                        <LiveLessonPlaceholder 
+                        <LiveLessonPlaceholder
                             titulo={currentLesson.titulo}
                             esEnVivo={true}
                             fechaProgramada={currentLesson.fecha_programada}
@@ -212,19 +212,19 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                 </Grid>
 
                 {/* Tabs fijos debajo del video en móvil */}
-                <Grid item xs={12} sx={{ 
-                    borderBottom: 1, 
-                    borderColor: 'divider', 
-                    bgcolor: 'background.paper', 
-                    position: { xs: 'sticky', md: 'relative' }, 
+                <Grid item xs={12} sx={{
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                    position: { xs: 'sticky', md: 'relative' },
                     top: { xs: 'calc((100vw * 9) / 16)', md: 0 },
-                    zIndex: 5, 
-                    px: { xs: 0, sm: 0 }, 
-                    mb: 1 
+                    zIndex: 5,
+                    px: { xs: 0, sm: 0 },
+                    mb: 1
                 }}>
-                    <Tabs 
-                        value={mobileTab} 
-                        onChange={handleTabChange} 
+                    <Tabs
+                        value={mobileTab}
+                        onChange={handleTabChange}
                         variant="fullWidth"
                         textColor="primary"
                         indicatorColor="primary"
@@ -252,7 +252,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             onClick={() => prevLesson && handleLessonSelect(prevLesson.id)}
                             sx={{ borderRadius: 2 }}
                         >
-                            <Box sx={{ display: { xs: 'none', sm: 'block' }}}>Anterior</Box>
+                            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Anterior</Box>
                         </Button>
 
                         {currentLesson && (
@@ -279,7 +279,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             onClick={() => nextLesson && handleLessonSelect(nextLesson.id)}
                             sx={{ borderRadius: 2 }}
                         >
-                            <Box sx={{ display: { xs: 'none', sm: 'block' }}}>Siguiente</Box>
+                            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Siguiente</Box>
                         </Button>
                     </Stack>
 
@@ -314,14 +314,14 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
 
     // Prevents SSR Hydration mismatch that breaks the drawer and layout in mobile
     if (!mounted) {
-        return null 
+        return null
     }
 
     return (
-        <Box sx={{ 
-            display: 'flex', 
-            height: 'calc(100dvh - 64px)', 
-            overflow: 'hidden', 
+        <Box sx={{
+            display: 'flex',
+            height: 'calc(100dvh - 64px)',
+            overflow: 'hidden',
             position: 'relative',
 
             // En móviles, forzamos 100vw y lo centramos para anular totalmente el padding del layout padre
@@ -333,7 +333,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
             <style>{`
                 footer { display: none !important; }
             `}</style>
-            
+
             {/* Contenido principal */}
             <Box
                 sx={{
