@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
 import axios from 'axios'
 import {
     Box,
@@ -8,10 +9,7 @@ import {
     CardContent,
     Chip,
     CircularProgress,
-    Divider,
-    Grid,
     Paper,
-    Stack,
     Table,
     TableBody,
     TableCell,
@@ -48,16 +46,20 @@ export default function CompletionSummary({ cursoId }: CompletionSummaryProps) {
         const fetchCompletionData = async () => {
             try {
                 setIsLoading(true)
+
                 // Obtener datos de inscripción (nota final)
                 const inscRes = await axios.get(`/api/estudiante/cursos/${cursoId}`)
+
                 if (inscRes.data.status && inscRes.data.inscripcion) {
                     setInscripcion(inscRes.data.inscripcion)
                 }
 
                 // Obtener detalles de exámenes
                 const examenesRes = await axios.get(`/api/cursos/${cursoId}/examenes`)
+
                 if (examenesRes.data.status && examenesRes.data.examenes) {
                     const publicados = examenesRes.data.examenes.filter((e: any) => e.esta_publicado)
+
                     setExamenes(publicados)
                 }
             } catch (err: any) {
@@ -142,7 +144,6 @@ export default function CompletionSummary({ cursoId }: CompletionSummaryProps) {
                             <TableBody>
                                 {examenes.map((examen: any) => {
                                     const puntajePorcentaje = examen.mejor_puntaje ?? 0
-                                    const contribucion = (puntajePorcentaje * examen.peso) / 100
 
                                     return (
                                         <TableRow key={examen.id}>

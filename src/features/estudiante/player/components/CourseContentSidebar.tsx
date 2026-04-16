@@ -177,6 +177,7 @@ const CourseContentSidebar = ({
 
                                         return allItems.map((item: any) => {
                                             const isLocked = item.tipo === 'examen' && progressPercentage < (item.progreso_minimo || 0)
+
                                             const isSelected = item.tipo === 'leccion'
                                                 ? currentLessonId === item.id && currentView === 'lesson'
                                                 : currentExamenId === item.id && currentView === 'exam'

@@ -98,13 +98,11 @@ const SortableLessonItem = ({ id, children }: { id: string; children: React.Reac
 // Fila de Evaluación dentro del módulo
 const EvaluacionRow = ({
   examen,
-  moduloId,
   onEdit,
   onDelete,
   dragHandleProps
 }: {
   examen: CursoExamenResumen
-  moduloId: string
   onEdit: (examen: CursoExamenResumen) => void
   onDelete: (examenId: string) => void
   dragHandleProps?: any

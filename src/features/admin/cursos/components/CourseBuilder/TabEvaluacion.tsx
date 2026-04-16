@@ -31,7 +31,6 @@ import {
     useDeletePregunta,
     useCreatePreguntaExamen,
     useUpdatePregunta,
-    useUpdateExamen,
     useDeleteExamen
 } from '../../hooks/useCursos'
 
@@ -45,7 +44,6 @@ export function TabEvaluacion({ cursoId }: TabEvaluacionProps) {
     const deletePreguntaMutation = useDeletePregunta()
     const createPreguntaMutation = useCreatePreguntaExamen()
     const updatePreguntaMutation = useUpdatePregunta()
-    const updateExamenMutation = useUpdateExamen()
     const deleteExamenMutation = useDeleteExamen()
 
     const [editingQuestion, setEditingQuestion] = useState<any>(null)
@@ -92,12 +90,13 @@ export function TabEvaluacion({ cursoId }: TabEvaluacionProps) {
         }
     }
 
-    if (isLoading)
+    if (isLoading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
                 <CircularProgress />
             </Box>
         )
+    }
 
     const examenes = data?.examenes || []
     const examenFinal = examenes.find((e: any) => e.tipo === 'FINAL')
@@ -106,7 +105,9 @@ export function TabEvaluacion({ cursoId }: TabEvaluacionProps) {
     const toggleExpanded = (examenId: string) => {
         setExpandedExamenesIds((prev) => {
             const newSet = new Set(prev)
+
             newSet.has(examenId) ? newSet.delete(examenId) : newSet.add(examenId)
+
             return newSet
         })
     }
