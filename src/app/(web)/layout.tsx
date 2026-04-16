@@ -6,6 +6,7 @@ import WebHeader from '@/utils/components/layout/web/WebHeader'
 import WebFooter from '@/utils/components/layout/web/WebFooter'
 import LeftSidebar from '@/utils/components/layout/web/LeftSidebar'
 import MobileBottomNav from '@/utils/components/layout/web/MobileBottomNav'
+import { AuthModalProvider } from '@/contexts/AuthModalContext'
 
 const WebLayout = async ({ children }: { children: React.ReactNode }) => {
   const [categories, configs] = await Promise.all([

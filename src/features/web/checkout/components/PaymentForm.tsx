@@ -23,7 +23,7 @@ import { useSession } from 'next-auth/react'
 import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 
 import { useConfig } from '@/contexts/ConfigContext'
-import AuthDialog from './AuthDialog'
+import { useAuthModal } from '@/contexts/AuthModalContext'
 import IzipayScript from './IzipayScript'
 import CulqiScript from './CulqiScript'
 import { PayPalPaymentButton } from './PayPalPaymentButton'
@@ -54,7 +54,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const { data: session } = useSession()
   const router = useRouter()
   const { clearCart } = useCart()
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false)
+  const { openLogin } = useAuthModal()
   const [isLoading, setIsLoading] = useState(false)
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
@@ -169,7 +169,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
   const handleCheckout = async () => {
     if (!session) {
-      setIsAuthDialogOpen(true)
+      openLogin()
 
       return
     }
@@ -214,7 +214,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
   const handleCulqiCheckout = async () => {
     if (!session) {
-      setIsAuthDialogOpen(true)
+      openLogin()
 
       return
     }
@@ -389,7 +389,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                   onMouseEnter={e => {
                     if (!active) {
                       (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--web-primary, #25927F)'
-                      ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--web-primary, #25927F)'
+                        ; (e.currentTarget as HTMLButtonElement).style.color = 'var(--web-primary, #25927F)'
                     } else {
                       (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--web-dark, #025E44)'
                     }
@@ -397,7 +397,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                   onMouseLeave={e => {
                     if (!active) {
                       (e.currentTarget as HTMLButtonElement).style.borderColor = 'hsl(214,20%,88%)'
-                      ;(e.currentTarget as HTMLButtonElement).style.color = '#64748b'
+                        ; (e.currentTarget as HTMLButtonElement).style.color = '#64748b'
                     } else {
                       (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--web-primary, #25927F)'
                     }
@@ -464,7 +464,6 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         </Box>
       </Stack>
 
-      <AuthDialog open={isAuthDialogOpen} onClose={() => setIsAuthDialogOpen(false)} />
     </Paper>
   )
 }
