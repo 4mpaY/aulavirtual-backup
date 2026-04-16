@@ -4,6 +4,8 @@ import { Fragment, useState } from 'react'
 
 import Link from 'next/link'
 
+import { useRouter } from 'next/navigation'
+
 import {
   Container,
   Grid,
@@ -25,8 +27,11 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  IconButton
+  IconButton,
+  CircularProgress
 } from '@mui/material'
+
+import { useSession } from 'next-auth/react'
 
 import { ChevronRight, CheckCircle, XCircle, Download, Play } from 'lucide-react'
 
@@ -34,6 +39,7 @@ import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
 import UserAvatar from '@/utils/components/UserAvatar'
 import HydratedDate from '@/utils/components/HydratedDate'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
+import AuthDialog from '@/features/web/checkout/components/AuthDialog'
 
 // ─── Typography tokens ────────────────────────────────────────────────────────
 const FONT = 'Poppins, sans-serif'
@@ -88,7 +94,43 @@ interface CourseDetailProps {
 
 const CourseDetail = ({ course }: CourseDetailProps) => {
   const [previewLesson, setPreviewLesson] = useState<any>(null)
+  const [authDialogOpen, setAuthDialogOpen] = useState(false)
+  const [enrolling, setEnrolling] = useState(false)
+  const { data: session } = useSession()
+  const router = useRouter()
 
+  const handleFreeEnroll = async () => {
+    if (!session) {
+      setAuthDialogOpen(true)
+
+      return
+    }
+
+    setEnrolling(true)
+
+    try {
+      const res = await fetch('/api/estudiante/enroll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cursoId: course.id })
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        router.push(`/estudiante/aprender/${course.slug}`)
+      } else {
+        // Si ya está inscrito, igualmente redirigir
+        if (res.status === 400 && data.message?.includes('Ya estás inscrito')) {
+          router.push(`/estudiante/aprender/${course.slug}`)
+        }
+      }
+    } finally {
+      setEnrolling(false)
+    }
+  }
+
+  // Helper para obtener el ID de video y la URL de embebido
   const getEmbedUrl = (url?: string | null) => {
     if (!url) return null
     const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|shorts\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
@@ -303,23 +345,43 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                   )}
                 </Box>
 
-                {/* CTA */}
-                <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                  component={Link}
-                  href={course.es_comprado ? `/estudiante/aprender/${course.slug}` : `/checkout/${course.slug}`}
-                  sx={{
-                    fontFamily: FONT, fontWeight: 800, fontSize: '1rem', py: 1.75,
-                    borderRadius: '14px', textTransform: 'none', letterSpacing: 0,
-                    bgcolor: 'var(--web-light, #BDD962)', color: '#0A0A0A',
-                    boxShadow: '0 8px 24px rgba(var(--web-light-rgb,189,217,98),0.35)',
-                    '&:hover': { bgcolor: 'var(--web-primary, #25927F)', color: '#fff', boxShadow: '0 8px 24px rgba(var(--web-primary-rgb,37,146,127),0.4)' },
-                  }}
-                >
-                  {course.es_comprado ? '▶ Seguir aprendiendo' : 'Matricúlate ahora →'}
-                </Button>
+                {course.es_comprado ? (
+                  <Button
+                    variant="contained"
+                    color="success"
+                    fullWidth
+                    size="large"
+                    component={Link}
+                    href={`/estudiante/aprender/${course.slug}`}
+                    sx={{ py: 2, borderRadius: '16px', fontWeight: 700, fontSize: '1.2rem', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)', textTransform: 'none' }}
+                  >
+                    Seguir aprendiendo
+                  </Button>
+                ) : course.es_gratis ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    size="large"
+                    onClick={handleFreeEnroll}
+                    disabled={enrolling}
+                    sx={{ py: 2, borderRadius: '16px', fontWeight: 700, fontSize: '1.2rem', textTransform: 'none' }}
+                  >
+                    {enrolling ? <CircularProgress size={24} color="inherit" /> : 'Inscribirme gratis'}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    size="large"
+                    component={Link}
+                    href={`/checkout/${course.slug}`}
+                    sx={{ py: 2, borderRadius: '16px', fontWeight: 700, fontSize: '1.2rem', boxShadow: 'var(--mui-palette-primary-darkOpacity)', textTransform: 'none' }}
+                  >
+                    Matricúlate
+                  </Button>
+                )}
               </Stack>
             </Grid>
           </Grid>
@@ -514,22 +576,43 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                     ))}
                   </Stack>
 
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    size="large"
-                    component={Link}
-                    href={course.es_comprado ? `/estudiante/aprender/${course.slug}` : `/checkout/${course.slug}`}
-                    sx={{
-                      fontFamily: FONT, fontWeight: 800, fontSize: '0.9375rem', py: 1.5,
-                      borderRadius: '12px', textTransform: 'none',
-                      bgcolor: 'var(--web-primary, #25927F)', color: '#fff',
-                      '&:hover': { bgcolor: 'var(--web-dark, #025E44)' },
-                    }}
-                  >
-                    {course.es_comprado ? 'Seguir aprendiendo' : 'Matricúlate'}
-                  </Button>
-                </Box>
+                  {course.es_comprado ? (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      size="large"
+                      component={Link}
+                      href={`/estudiante/aprender/${course.slug}`}
+                      sx={{ py: 1.5, borderRadius: '12px', fontWeight: 700, boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)', textTransform: 'none' }}
+                    >
+                      Seguir aprendiendo
+                    </Button>
+                  ) : course.es_gratis ? (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      size="large"
+                      onClick={handleFreeEnroll}
+                      disabled={enrolling}
+                      sx={{ py: 1.5, borderRadius: '12px', fontWeight: 700, textTransform: 'none' }}
+                    >
+                      {enrolling ? <CircularProgress size={22} color="inherit" /> : 'Inscribirme gratis'}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
+                      size="large"
+                      component={Link}
+                      href={`/checkout/${course.slug}`}
+                      sx={{ py: 1.5, borderRadius: '12px', fontWeight: 700, boxShadow: 'var(--mui-palette-primary-darkOpacity)', textTransform: 'none' }}
+                    >
+                      Matricúlate
+                    </Button>
+                  )}
               </Paper>
             </Box>
           </Grid>
@@ -537,11 +620,24 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
         </Grid>
       </Container>
 
-      {/* ─── DIALOG VISTA PREVIA ───────────────────────────────────────────── */}
-      <Dialog open={Boolean(previewLesson)} onClose={() => setPreviewLesson(null)} maxWidth="md" fullWidth
-        PaperProps={{ sx: { borderRadius: 3, overflow: 'hidden' } }}>
-        <DialogTitle sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography sx={{ fontFamily: FONT, fontWeight: 700, fontSize: '1rem' }}>
+      <AuthDialog
+        open={authDialogOpen}
+        onClose={() => setAuthDialogOpen(false)}
+        initialMode="login"
+      />
+
+      {/* Dialog para la Vista Previa */}
+      <Dialog
+        open={Boolean(previewLesson)}
+        onClose={() => setPreviewLesson(null)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3, bgcolor: 'background.paper', overflow: 'hidden' }
+        }}
+      >
+        <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" fontWeight={700}>
             Vista Previa: {previewLesson?.titulo}
           </Typography>
           <IconButton onClick={() => setPreviewLesson(null)} size="small">

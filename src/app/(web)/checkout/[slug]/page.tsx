@@ -1,7 +1,7 @@
 // Next Imports
 import React from 'react'
 
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 // Auth & Libs
 import { AxiosWebCursos } from '@/features/web/cursos/http/axiosWebCursos'
@@ -30,6 +30,10 @@ export default async function CheckoutPage({ params }: { params: { slug: string 
 
     if (!course) {
         notFound()
+    }
+
+    if (course.es_gratis || Number(course.precio) === 0) {
+        redirect(`/cursos/${params.slug}`)
     }
 
     return <CheckoutView courses={[course]} />
