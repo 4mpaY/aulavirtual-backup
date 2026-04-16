@@ -66,9 +66,9 @@ export default async function VerificarCertificadoPage({ params }: Props) {
   ])
 
   // Configuración de branding
-  const primaryColor = configs.PRIMARY_COLOR_MAIN || '#25927F'
-  const templateName = configs.TEMPLATE_NAME || 'Aula Virtual'
-  const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
+  const primaryColor = configs.PRIMARY_COLOR_MAIN
+  const templateName = configs.TEMPLATE_NAME
+  const logoUrl = configs.TEMPLATE_LOGO
 
   // Caso: No encontrado
   if (!certificado) {
@@ -128,10 +128,6 @@ export default async function VerificarCertificadoPage({ params }: Props) {
     year: 'numeric'
   })
 
-  // Configuración de branding
-  const primaryColor = configs.PRIMARY_COLOR_MAIN || '#131FF2'
-  const templateName = configs.TEMPLATE_NAME || 'Aula Virtual'
-  const logoUrl = configs.TEMPLATE_LOGO || '/images/logo-arm.png'
 
   return (
     <Container maxWidth="md" sx={{ py: 8 }}>

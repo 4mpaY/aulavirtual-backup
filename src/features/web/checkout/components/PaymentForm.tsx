@@ -444,7 +444,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
           ) : (paymentMethod === 'paypal' && isPaypalEnabled) && (
             <Box sx={{ p: 3, backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.04)', borderRadius: '16px', border: '1px solid rgba(var(--web-primary-rgb, 37, 146, 127), 0.15)' }}>
               {isGuest ? (
-                <Button fullWidth size="large" onClick={() => setIsAuthDialogOpen(true)} sx={{ py: 2, borderRadius: '16px', fontFamily: FONT, fontWeight: 800, textTransform: 'none', backgroundColor: 'var(--web-light, #BDD962)', color: '#0A0A0A', '&:hover': { backgroundColor: 'var(--web-primary, #25927F)', color: '#fff' } }}>Identificarse para Comprar</Button>
+                <Button fullWidth size="large" onClick={() => openLogin()} sx={{ py: 2, borderRadius: '16px', fontFamily: FONT, fontWeight: 800, textTransform: 'none', backgroundColor: 'var(--web-light, #BDD962)', color: '#0A0A0A', '&:hover': { backgroundColor: 'var(--web-primary, #25927F)', color: '#fff' } }}>Identificarse para Comprar</Button>
               ) : (
                 <>
                   <Box sx={{ mb: 3 }}>

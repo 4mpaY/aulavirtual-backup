@@ -613,6 +613,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                       Matricúlate
                     </Button>
                   )}
+                </Box>
               </Paper>
             </Box>
           </Grid>
