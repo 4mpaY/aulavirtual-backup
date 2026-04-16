@@ -4,6 +4,7 @@ import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import { sanitizeDatetimeInput } from '@/utils/functions/sanitizeDatetime'
 
 /**
  * GET /api/cupones/[id]
@@ -73,13 +74,15 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       }
     }
 
+    const fechaExpiracion = sanitizeDatetimeInput(camposBase.fecha_expiracion)
+
     const cuponActualizado = await prisma.cupon.update({
       where: { id: params.id },
       data: {
         ...camposBase,
         valor: camposBase.valor ? Number(camposBase.valor) : undefined,
         limite_uso: camposBase.limite_uso !== undefined ? (camposBase.limite_uso ? Number(camposBase.limite_uso) : null) : undefined,
-        fecha_expiracion: camposBase.fecha_expiracion ? new Date(camposBase.fecha_expiracion) : undefined
+        fecha_expiracion: fechaExpiracion ? new Date(fechaExpiracion) : undefined
       },
       include: {
         cursos: {

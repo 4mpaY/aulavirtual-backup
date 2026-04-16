@@ -16,6 +16,7 @@ import { useSnackbar } from 'notistack'
 
 import CustomTextField from '@core/components/mui/TextField'
 import MediaLibrary from '../MediaLibrary'
+import { sanitizeDatetimeInput, toLocalDateInputValue } from '@/utils/functions/sanitizeDatetime'
 
 import type { Curso } from '../../entity/Curso'
 import { useEditCurso } from '../../hooks/useCursos'
@@ -46,7 +47,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
     miniatura: curso.miniatura || '',
     video_presentacion: curso.video_presentacion || '',
     brochure: curso.brochure || '',
-    fecha_inicio: curso.fecha_inicio ? new Date(curso.fecha_inicio).toISOString().split('T')[0] : '',
+    fecha_inicio: curso.fecha_inicio ? toLocalDateInputValue(curso.fecha_inicio) : '',
     nivel: curso.nivel || 'BASICO'
   })
 
@@ -68,7 +69,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
           miniatura: form.miniatura || null,
           video_presentacion: form.video_presentacion || null,
           brochure: form.brochure || null,
-          fecha_inicio: form.fecha_inicio ? new Date(form.fecha_inicio).toISOString() : null,
+          fecha_inicio: form.fecha_inicio ? sanitizeDatetimeInput(form.fecha_inicio) : null,
           nivel: form.nivel as 'BASICO' | 'INTERMEDIO' | 'AVANZADO'
         }
       })

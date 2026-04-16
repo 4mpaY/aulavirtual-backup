@@ -20,6 +20,7 @@ import {
 
 import CustomTextField from '@core/components/mui/TextField'
 import MediaLibrary from '../MediaLibrary'
+import { sanitizeDatetimeInput, toLocalDatetimeLocalValue } from '@/utils/functions/sanitizeDatetime'
 
 interface LessonEditDialogProps {
   open: boolean
@@ -52,10 +53,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
 
       // Formatear fecha para el input datetime-local (YYYY-MM-DDTHH:mm)
       if (lessonData.fecha_programada) {
-        const date = new Date(lessonData.fecha_programada)
-        const formatted = date.toISOString().slice(0, 16)
-
-        setFechaProgramada(formatted)
+        setFechaProgramada(toLocalDatetimeLocalValue(lessonData.fecha_programada))
       } else {
         setFechaProgramada('')
       }
@@ -95,7 +93,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
       duracion: duration ? Number(duration) : null,
       video_url: videoUrl || null,
       es_en_vivo: esEnVivo,
-      fecha_programada: fechaProgramada ? new Date(fechaProgramada).toISOString() : null,
+      fecha_programada: sanitizeDatetimeInput(fechaProgramada),
       enlace_reunion: enlaceReunion || null,
       es_vista_previa: esVistaPrevia,
       contenido: contenido || null,
@@ -256,10 +254,10 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                     )
                   }}
                 />
-                <Button 
-                  variant='tonal' 
-                  size='small' 
-                  onClick={handleAddRecurso} 
+                <Button
+                  variant='tonal'
+                  size='small'
+                  onClick={handleAddRecurso}
                   disabled={!newRecurso.nombre || !newRecurso.url}
                   sx={{ height: 38, minWidth: 100 }}
                 >

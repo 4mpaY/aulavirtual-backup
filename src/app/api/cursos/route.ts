@@ -5,6 +5,7 @@ import { crearCursoSchema, listarCursosQuerySchema } from '@/schemas/curso.schem
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
+import { sanitizeDatetimeInput } from '@/utils/functions/sanitizeDatetime'
 import { generateUniqueSlug } from '@/utils/libs/slug'
 
 
@@ -159,11 +160,13 @@ export async function POST(request: Request) {
 
     const slug = await generateUniqueSlug(validation.data.titulo, prisma.curso)
 
+    const fechaInicio = sanitizeDatetimeInput(validation.data.fecha_inicio)
+
     const nuevoCurso = await prisma.curso.create({
       data: {
         ...validation.data,
         slug,
-        fecha_inicio: validation.data.fecha_inicio ? new Date(validation.data.fecha_inicio) : null,
+        fecha_inicio: fechaInicio ? new Date(fechaInicio) : null,
         estado: 'BORRADOR'
       },
       include: {

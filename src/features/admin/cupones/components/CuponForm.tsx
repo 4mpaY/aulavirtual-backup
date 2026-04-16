@@ -21,6 +21,7 @@ import {
 import { toast } from 'react-toastify'
 
 import CustomTextField from '@/@core/components/mui/TextField'
+import { sanitizeDatetimeInput, toLocalDateInputValue } from '@/utils/functions/sanitizeDatetime'
 import { useCuponMutation } from '../hooks/useCupones'
 import type { Cupon, CursoOpcion } from '../entity/Cupon'
 
@@ -52,7 +53,7 @@ const CuponForm = ({ open, handleClose, cuponToEdit, cursosDisponibles = [] }: C
         valor: cuponToEdit.valor.toString(),
         tipo: cuponToEdit.tipo,
         limite_uso: cuponToEdit.limite_uso?.toString() || '',
-        fecha_expiracion: cuponToEdit.fecha_expiracion ? new Date(cuponToEdit.fecha_expiracion).toISOString().split('T')[0] : '',
+        fecha_expiracion: cuponToEdit.fecha_expiracion ? toLocalDateInputValue(cuponToEdit.fecha_expiracion) : '',
         esta_activo: cuponToEdit.esta_activo
       })
 
@@ -82,7 +83,7 @@ const CuponForm = ({ open, handleClose, cuponToEdit, cursosDisponibles = [] }: C
       ...formData,
       valor: Number(formData.valor),
       limite_uso: formData.limite_uso ? Number(formData.limite_uso) : null,
-      fecha_expiracion: formData.fecha_expiracion || null,
+      fecha_expiracion: sanitizeDatetimeInput(formData.fecha_expiracion),
       cursoIds: cursosSeleccionados.map(c => c.id)
     }
 

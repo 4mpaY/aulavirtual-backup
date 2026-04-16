@@ -4,6 +4,7 @@ import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import { sanitizeDatetimeInput } from '@/utils/functions/sanitizeDatetime'
 
 /**
  * GET /api/cupones
@@ -88,13 +89,15 @@ export async function POST(request: Request) {
 
     const cursoIds: string[] = Array.isArray(data.cursoIds) ? data.cursoIds : []
 
+    const fechaExpiracion = sanitizeDatetimeInput(data.fecha_expiracion)
+
     const nuevoCupon = await prisma.cupon.create({
       data: {
         codigo: data.codigo.toUpperCase(),
         valor: data.valor,
         tipo: data.tipo,
         limite_uso: data.limite_uso ? Number(data.limite_uso) : null,
-        fecha_expiracion: data.fecha_expiracion ? new Date(data.fecha_expiracion) : null,
+        fecha_expiracion: fechaExpiracion ? new Date(fechaExpiracion) : null,
         esta_activo: data.esta_activo !== undefined ? data.esta_activo : true,
         cursos: cursoIds.length > 0
           ? { create: cursoIds.map((id: string) => ({ curso_id: id })) }

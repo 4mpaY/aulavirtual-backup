@@ -5,6 +5,7 @@ import { actualizarCursoSchema } from '@/schemas/curso.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireProfesorOrAdmin, requireAuth } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
+import { sanitizeDatetimeInput } from '@/utils/functions/sanitizeDatetime'
 
 /**
  * Genera un slug a partir de un texto
@@ -147,7 +148,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 
     if (data.fecha_inicio) {
-      updateData.fecha_inicio = new Date(data.fecha_inicio)
+      const fechaInicio = sanitizeDatetimeInput(data.fecha_inicio)
+      updateData.fecha_inicio = fechaInicio ? new Date(fechaInicio) : null
     } else if (data.fecha_inicio === null) {
       updateData.fecha_inicio = null
     }
