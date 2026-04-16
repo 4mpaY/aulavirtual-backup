@@ -12,6 +12,7 @@ import LessonContent from './LessonContent'
 import CommentsSection from './CommentsSection'
 import ExamSection from './ExamSection'
 import CertificateSection from './CertificateSection'
+import CompletionSummary from './CompletionSummary'
 import LiveLessonPlaceholder from './LiveLessonPlaceholder'
 
 import { useCourseStore } from '../store/useCourseStore'
@@ -38,6 +39,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
         currentLessonId,
         currentView,
         examenId,
+        currentExamenId,
         setCourse,
         setCurrentLessonId,
         updateLessonProgress,
@@ -53,10 +55,10 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
 
         if (course) {
             setCourse(course)
-            const examenPublicado = course.examenes?.find((e: any) => e.esta_publicado)
+            const examenFinal = course.examenes?.find((e: any) => e.tipo === 'FINAL' && e.esta_publicado)
 
-            if (examenPublicado) {
-                setExamenId(examenPublicado.id)
+            if (examenFinal) {
+                setExamenId(examenFinal.id)
             }
         }
     }, [course, setCourse, setExamenId])
@@ -165,7 +167,16 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
     }
 
     const handleExamPassed = () => {
-        setExamStatus('passed')
+        if (currentExamenId === examenId) {
+            setExamStatus('passed')
+        }
+    }
+
+    const handleContinueAfterExam = () => {
+        const { setCurrentLessonId: storeSLI } = useCourseStore.getState()
+        const firstLesson = storeCourse?.modulos[0]?.lecciones[0]
+
+        if (firstLesson) storeSLI(firstLesson.id)
     }
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -173,10 +184,23 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
     }
 
     const renderMainContent = () => {
-        if (currentView === 'exam' && examenId) {
+        if (currentView === 'exam' && currentExamenId) {
             return (
                 <Grid item xs={12} key="exam-section">
-                    <ExamSection examenId={examenId} onExamPassed={handleExamPassed} />
+                    <ExamSection
+                        examenId={currentExamenId}
+                        onExamPassed={handleExamPassed}
+                        isFinalExam={currentExamenId === examenId}
+                        onContinue={handleContinueAfterExam}
+                    />
+                </Grid>
+            )
+        }
+
+        if (currentView === 'completion' && storeCourse) {
+            return (
+                <Grid item xs={12} key="completion-section">
+                    <CompletionSummary cursoId={storeCourse.id} />
                 </Grid>
             )
         }

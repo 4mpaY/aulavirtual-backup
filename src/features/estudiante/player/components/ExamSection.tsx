@@ -51,9 +51,11 @@ interface ExamenData {
 interface ExamSectionProps {
     examenId: string
     onExamPassed: () => void
+    isFinalExam?: boolean
+    onContinue?: () => void
 }
 
-const ExamSection = ({ examenId, onExamPassed }: ExamSectionProps) => {
+const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }: ExamSectionProps) => {
     const [submitting, setSubmitting] = useState(false)
     const [respuestas, setRespuestas] = useState<Record<string, string>>({})
     const [resultado, setResultado] = useState<any>(null)
@@ -205,11 +207,18 @@ const ExamSection = ({ examenId, onExamPassed }: ExamSectionProps) => {
                 <CardContent sx={{ p: 4, textAlign: 'center' }}>
                     <i className="tabler-circle-check-filled" style={{ fontSize: '3rem', color: 'var(--mui-palette-success-main)' }} />
                     <Typography variant="h5" sx={{ fontWeight: 800, mt: 2, color: 'success.main' }}>
-                        ¡Examen aprobado!
+                        ¡Evaluación aprobada!
                     </Typography>
                     <Typography color="text.secondary" sx={{ mt: 1 }}>
-                        Ya has superado este examen. Ahora puedes obtener tu certificado.
+                        {isFinalExam
+                            ? 'Ya has superado este examen. Ahora puedes obtener tu certificado.'
+                            : 'Ya completaste esta evaluación. Continúa con el resto del curso.'}
                     </Typography>
+                    {!isFinalExam && onContinue && (
+                        <Button variant="contained" sx={{ mt: 3, borderRadius: '10px' }} onClick={onContinue}>
+                            Continuar curso
+                        </Button>
+                    )}
                 </CardContent>
             </Card>
         )
@@ -250,9 +259,22 @@ const ExamSection = ({ examenId, onExamPassed }: ExamSectionProps) => {
                 </Box>
                 <CardContent sx={{ p: 3, textAlign: 'center' }}>
                     {resultado.aprobado ? (
-                        <Typography color="success.main" fontWeight={600}>
-                            Ya puedes obtener tu certificado 🎓
-                        </Typography>
+                        isFinalExam ? (
+                            <Typography color="success.main" fontWeight={600}>
+                                Ya puedes obtener tu certificado 🎓
+                            </Typography>
+                        ) : (
+                            <Box>
+                                <Typography color="success.main" fontWeight={600} sx={{ mb: 2 }}>
+                                    Evaluación completada. Esta nota contribuye a tu calificación final.
+                                </Typography>
+                                {onContinue && (
+                                    <Button variant="contained" sx={{ borderRadius: '10px' }} onClick={onContinue}>
+                                        Continuar curso
+                                    </Button>
+                                )}
+                            </Box>
+                        )
                     ) : (
                         <>
                             {resultado.intentosRestantes > 0 ? (

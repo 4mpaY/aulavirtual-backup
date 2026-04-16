@@ -1,34 +1,38 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import {
     Box,
     Button,
     Card,
     CardContent,
+    CardHeader,
     Chip,
     CircularProgress,
     Divider,
-    Grid,
     IconButton,
     Paper,
-    Stack,
-    Switch,
-    Typography,
-    FormControlLabel
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Tooltip,
+    Typography
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 
-import CustomTextField from '@core/components/mui/TextField'
 import { QuestionEditDialog } from './QuestionEditDialog'
 
 import {
-    useExamenCurso,
-    useSaveExamen,
+    useExamenesCurso,
     useDeletePregunta,
-    useCreatePregunta,
-    useUpdatePregunta
+    useCreatePreguntaExamen,
+    useUpdatePregunta,
+    useUpdateExamen,
+    useDeleteExamen
 } from '../../hooks/useCursos'
 
 interface TabEvaluacionProps {
@@ -37,46 +41,15 @@ interface TabEvaluacionProps {
 
 export function TabEvaluacion({ cursoId }: TabEvaluacionProps) {
     const { enqueueSnackbar } = useSnackbar()
-    const { data, isLoading, refetch } = useExamenCurso(cursoId)
-    const saveExamenMutation = useSaveExamen()
+    const { data, isLoading, refetch } = useExamenesCurso(cursoId)
     const deletePreguntaMutation = useDeletePregunta()
-    const createPreguntaMutation = useCreatePregunta()
+    const createPreguntaMutation = useCreatePreguntaExamen()
     const updatePreguntaMutation = useUpdatePregunta()
+    const updateExamenMutation = useUpdateExamen()
+    const deleteExamenMutation = useDeleteExamen()
 
     const [editingQuestion, setEditingQuestion] = useState<any>(null)
-    const [isConfiguring, setIsConfiguring] = useState(false)
-
-    // Formulario de configuración del examen
-    const [configForm, setConfigForm] = useState({
-        titulo: '',
-        descripcion: '',
-        puntaje_aprobacion: 60,
-        intentos_maximos: 1,
-        esta_publicado: false
-    })
-
-    useEffect(() => {
-        if (data?.examen) {
-            setConfigForm({
-                titulo: data.examen.titulo || '',
-                descripcion: data.examen.descripcion || '',
-                puntaje_aprobacion: data.examen.puntaje_aprobacion || 60,
-                intentos_maximos: data.examen.intentos_maximos || 1,
-                esta_publicado: data.examen.esta_publicado || false
-            })
-        }
-    }, [data])
-
-    const handleSaveConfig = async () => {
-        try {
-            await saveExamenMutation.mutateAsync({ cursoId, data: configForm })
-            enqueueSnackbar('Configuración del examen guardada', { variant: 'success' })
-            setIsConfiguring(false)
-            refetch()
-        } catch (error: any) {
-            enqueueSnackbar(error?.message || 'Error al guardar configuración', { variant: 'error' })
-        }
-    }
+    const [expandedExamenesIds, setExpandedExamenesIds] = useState<Set<string>>(new Set())
 
     const handleDeleteQuestion = async (preguntaId: string) => {
         if (!window.confirm('¿Estás seguro de eliminar esta pregunta?')) return
@@ -90,13 +63,25 @@ export function TabEvaluacion({ cursoId }: TabEvaluacionProps) {
         }
     }
 
+    const handleDeleteExamen = async (examenId: string) => {
+        if (!window.confirm('¿Estás seguro de eliminar este examen y todas sus preguntas?')) return
+
+        try {
+            await deleteExamenMutation.mutateAsync({ cursoId, examenId })
+            enqueueSnackbar('Examen eliminado', { variant: 'success' })
+            refetch()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al eliminar', { variant: 'error' })
+        }
+    }
+
     const handleSaveQuestion = async (formData: any) => {
         try {
             if (editingQuestion?.id) {
                 await updatePreguntaMutation.mutateAsync({ cursoId, preguntaId: editingQuestion.id, data: formData })
                 enqueueSnackbar('Pregunta actualizada', { variant: 'success' })
             } else {
-                await createPreguntaMutation.mutateAsync({ cursoId, data: formData })
+                await createPreguntaMutation.mutateAsync({ cursoId, examenId: editingQuestion.examenId as string, data: formData })
                 enqueueSnackbar('Pregunta añadida', { variant: 'success' })
             }
 
@@ -107,198 +92,211 @@ export function TabEvaluacion({ cursoId }: TabEvaluacionProps) {
         }
     }
 
-    if (isLoading) return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
-            <CircularProgress />
-        </Box>
-    )
+    if (isLoading)
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
+                <CircularProgress />
+            </Box>
+        )
 
-    const examen = data?.examen
+    const examenes = data?.examenes || []
+    const examenFinal = examenes.find((e: any) => e.tipo === 'FINAL')
+    const examenesIntermedios = examenes.filter((e: any) => e.tipo === 'INTERMEDIO')
+
+    const toggleExpanded = (examenId: string) => {
+        setExpandedExamenesIds((prev) => {
+            const newSet = new Set(prev)
+            newSet.has(examenId) ? newSet.delete(examenId) : newSet.add(examenId)
+            return newSet
+        })
+    }
 
     return (
         <Box>
-            {/* Si no hay examen o si se está editando la configuración */}
-            {(!examen || isConfiguring) ? (
-                <Paper sx={{ p: 6, borderRadius: '24px' }}>
-                    <Typography variant='h5' sx={{ mb: 4, fontWeight: 800 }}>Configuración de la Evaluación</Typography>
-                    <Grid container spacing={4}>
-                        <Grid item xs={12}>
-                            <CustomTextField
-                                fullWidth
-                                label='Título del Examen'
-                                placeholder='Ej: Examen Final de Marketing Digital'
-                                value={configForm.titulo}
-                                onChange={(e) => setConfigForm({ ...configForm, titulo: e.target.value })}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <CustomTextField
-                                fullWidth
-                                multiline
-                                rows={2}
-                                label='Descripción'
-                                placeholder='Instrucciones para la evaluación...'
-                                value={configForm.descripcion}
-                                onChange={(e) => setConfigForm({ ...configForm, descripcion: e.target.value })}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <CustomTextField
-                                fullWidth
-                                type='number'
-                                label='Puntaje de Aprobación (%)'
-                                value={configForm.puntaje_aprobacion}
-                                onChange={(e) => setConfigForm({ ...configForm, puntaje_aprobacion: Number(e.target.value) })}
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <CustomTextField
-                                fullWidth
-                                type='number'
-                                label='Intentos Máximos'
-                                value={configForm.intentos_maximos}
-                                onChange={(e) => setConfigForm({ ...configForm, intentos_maximos: Number(e.target.value) })}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                             <FormControlLabel
-                                control={
-                                    <Switch
-                                        checked={configForm.esta_publicado}
-                                        onChange={e => setConfigForm({ ...configForm, esta_publicado: e.target.checked })}
-                                        color='success'
-                                    />
-                                }
-                                label='Examen publicado y disponible'
-                            />
-                        </Grid>
-                        <Grid item xs={12} sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                            {examen && (
-                                <Button variant='outlined' onClick={() => setIsConfiguring(false)}>Cancelar</Button>
-                            )}
-                            <Button
-                                variant='contained'
-                                onClick={handleSaveConfig}
-                                disabled={!configForm.titulo || saveExamenMutation.isPending}
-                            >
-                                {saveExamenMutation.isPending ? 'Guardando...' : 'Guardar y Continuar'}
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </Paper>
-            ) : (
-                <Box>
-                    {/* Resumen del Examen */}
-                    <Card sx={{ mb: 4, border: '1px solid', borderColor: 'divider' }}>
-                        <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Box>
-                                <Typography variant='h5' fontWeight={800}>{examen.titulo}</Typography>
-                                <Stack direction='row' spacing={2} sx={{ mt: 1 }}>
-                                    <Chip size='small' label={`${examen.preguntas?.length || 0} preguntas`} />
-                                    <Chip size='small' variant='tonal' color='success' label={`${examen.puntaje_aprobacion}% para aprobar`} />
-                                    <Chip size='small' variant='tonal' color='primary' label={`${examen.intentos_maximos} intentos`} />
-                                </Stack>
+            {/* ===== EXAMEN FINAL ===== */}
+            <Typography variant='h6' sx={{ mb: 2, fontWeight: 700 }}>
+                Examen Final
+            </Typography>
+            {examenFinal ? (
+                <Card sx={{ mb: 4 }}>
+                    <CardHeader
+                        title={examenFinal.titulo}
+                        subheader={`${examenFinal._count?.preguntas || 0} preguntas`}
+                        action={
+                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                <Chip
+                                    label={examenFinal.esta_publicado ? 'Publicado' : 'Borrador'}
+                                    color={examenFinal.esta_publicado ? 'success' : 'default'}
+                                    size='small'
+                                />
+                                <Tooltip title='Ver/Editar preguntas'>
+                                    <IconButton size='small' onClick={() => toggleExpanded(examenFinal.id)}>
+                                        <i className={`tabler-chevron-${expandedExamenesIds.has(examenFinal.id) ? 'up' : 'down'}`} />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title='Eliminar examen'>
+                                    <IconButton size='small' color='error' onClick={() => handleDeleteExamen(examenFinal.id)}>
+                                        <i className='tabler-trash text-lg' />
+                                    </IconButton>
+                                </Tooltip>
                             </Box>
-                            <Button
-                                variant='tonal'
-                                color='primary'
-                                startIcon={<i className='tabler-edit' />}
-                                onClick={() => setIsConfiguring(true)}
-                            >
-                                Editar Configuración
-                            </Button>
-                        </CardContent>
-                    </Card>
+                        }
+                    />
 
-                    <Divider sx={{ mb: 4 }} />
+                    {expandedExamenesIds.has(examenFinal.id) && (
+                        <>
+                            <Divider />
+                            <CardContent>
+                                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                                    Puntaje de aprobación: <strong>{examenFinal.puntaje_aprobacion}%</strong> | Intentos máximos:{' '}
+                                    <strong>{examenFinal.intentos_maximos}</strong>
+                                </Typography>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                        <Typography variant='h6' sx={{ fontWeight: 700 }}>Banco de Preguntas</Typography>
-                        <Button
-                            variant='contained'
-                            startIcon={<i className='tabler-plus' />}
-                            onClick={() => setEditingQuestion({ texto: '', tipo: 'OPCION_MULTIPLE', puntos: 1, opciones: [{ texto: '', es_correcta: false }, { texto: '', es_correcta: false }] })}
-                        >
-                            Añadir Pregunta
-                        </Button>
-                    </Box>
+                                <Typography variant='subtitle2' sx={{ mb: 2, fontWeight: 600 }}>
+                                    Preguntas:
+                                </Typography>
 
-                    {examen.preguntas?.length === 0 ? (
-                        <Paper sx={{ p: 10, textAlign: 'center', bgcolor: 'action.hover', border: '1px dashed', borderColor: 'divider' }}>
-                            <i className='tabler-help text-5xl text-textDisabled' />
-                            <Typography sx={{ mt: 2, color: 'text.secondary' }}>No hay preguntas en este examen. ¡Añade la primera!</Typography>
-                        </Paper>
-                    ) : (
-                        <Stack spacing={3}>
-                            {examen.preguntas.map((p: any, idx: number) => (
-                                <Card key={p.id} variant='outlined' sx={{ p: 4, position: 'relative' }}>
-                                    <Box sx={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 1 }}>
-                                        <IconButton size='small' color='primary' onClick={() => setEditingQuestion(p)}>
-                                            <i className='tabler-edit' />
-                                        </IconButton>
-                                        <IconButton size='small' color='error' onClick={() => handleDeleteQuestion(p.id)}>
-                                            <i className='tabler-trash' />
-                                        </IconButton>
-                                    </Box>
-                                    <Typography variant='subtitle1' sx={{ fontWeight: 700, mb: 2, pr: 10 }}>
-                                        {idx + 1}. {p.texto}
-                                        <Chip label={`${p.puntos} pto(s)`} size='small' sx={{ ml: 2, height: 20 }} />
+                                {(examenFinal.preguntas || []).length === 0 ? (
+                                    <Typography variant='body2' color='text.disabled' sx={{ mb: 2 }}>
+                                        Sin preguntas aún.
                                     </Typography>
-
-                                    <Grid container spacing={2}>
-                                        {p.opciones.map((opt: any, optIdx: number) => (
-                                            <Grid item xs={12} sm={6} key={opt.id}>
-                                                <Box
-                                                    sx={{
-                                                        p: 2,
-                                                        borderRadius: 1,
-                                                        border: '1px solid',
-                                                        borderColor: opt.es_correcta ? 'success.main' : 'divider',
-                                                        bgcolor: opt.es_correcta ? 'success.lightOpacity' : 'transparent',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: 2
-                                                    }}
-                                                >
-                                                    <Box
-                                                        sx={{
-                                                            width: 24,
-                                                            height: 24,
-                                                            borderRadius: '50%',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            fontSize: '0.75rem',
-                                                            fontWeight: 700,
-                                                            bgcolor: opt.es_correcta ? 'success.main' : 'action.disabledBackground',
-                                                            color: opt.es_correcta ? 'white' : 'text.disabled'
-                                                        }}
-                                                    >
-                                                        {String.fromCharCode(65 + optIdx)}
-                                                    </Box>
-                                                    <Typography variant='body2' sx={{ color: opt.es_correcta ? 'success.main' : 'text.primary', fontWeight: opt.es_correcta ? 600 : 400 }}>
-                                                        {opt.texto}
+                                ) : (
+                                    <Box sx={{ mb: 2, maxHeight: 400, overflowY: 'auto' }}>
+                                        {(examenFinal.preguntas || []).map((pregunta: any) => (
+                                            <Box
+                                                key={pregunta.id}
+                                                sx={{
+                                                    p: 2,
+                                                    mb: 1,
+                                                    border: '1px solid',
+                                                    borderColor: 'divider',
+                                                    borderRadius: 1,
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'flex-start'
+                                                }}
+                                            >
+                                                <Box>
+                                                    <Typography variant='body2'>
+                                                        <strong>P{pregunta.orden}:</strong> {pregunta.texto}
                                                     </Typography>
-                                                    {opt.es_correcta && <i className='tabler-check text-success text-lg ms-auto' />}
+                                                    <Typography variant='caption' color='text.secondary'>
+                                                        {pregunta.opciones?.length || 0} opciones | {pregunta.puntos} pts.
+                                                    </Typography>
                                                 </Box>
-                                            </Grid>
+                                                <Box sx={{ display: 'flex', gap: 0.5, ml: 1, flexShrink: 0 }}>
+                                                    <Tooltip title='Editar'>
+                                                        <IconButton
+                                                            size='small'
+                                                            onClick={() => setEditingQuestion({ ...pregunta, examenId: examenFinal.id })}
+                                                        >
+                                                            <i className='tabler-edit text-sm' />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title='Eliminar'>
+                                                        <IconButton size='small' color='error' onClick={() => handleDeleteQuestion(pregunta.id)}>
+                                                            <i className='tabler-trash text-sm' />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Box>
+                                            </Box>
                                         ))}
-                                    </Grid>
-                                </Card>
-                            ))}
-                        </Stack>
+                                    </Box>
+                                )}
+
+                                <Button
+                                    variant='tonal'
+                                    size='small'
+                                    startIcon={<i className='tabler-plus' />}
+                                    onClick={() => setEditingQuestion({ examenId: examenFinal.id })}
+                                >
+                                    Añadir Pregunta
+                                </Button>
+                            </CardContent>
+                        </>
                     )}
-                </Box>
+                </Card>
+            ) : (
+                <Paper sx={{ p: 3, mb: 4, textAlign: 'center', bgcolor: 'action.hover' }}>
+                    <Typography color='text.secondary'>No hay examen final creado.</Typography>
+                    <Typography variant='caption' color='text.secondary'>
+                        Crea el examen final desde la sección de Contenido.
+                    </Typography>
+                </Paper>
             )}
 
-            <QuestionEditDialog
-                key={editingQuestion?.id || 'new'}
-                open={!!editingQuestion}
-                onClose={() => setEditingQuestion(null)}
-                questionData={editingQuestion}
-                onSave={handleSaveQuestion}
-                isSaving={createPreguntaMutation.isPending || updatePreguntaMutation.isPending}
-            />
+            {/* ===== EVALUACIONES INTERMEDIAS ===== */}
+            <Typography variant='h6' sx={{ mb: 2, fontWeight: 700 }}>
+                Evaluaciones Intermedias
+            </Typography>
+
+            {examenesIntermedios.length === 0 ? (
+                <Paper sx={{ p: 3, textAlign: 'center', bgcolor: 'action.hover' }}>
+                    <Typography color='text.secondary'>No hay evaluaciones intermedias creadas.</Typography>
+                    <Typography variant='caption' color='text.secondary'>
+                        Crea evaluaciones intermedias desde la sección de Contenido dentro de cada módulo.
+                    </Typography>
+                </Paper>
+            ) : (
+                <TableContainer component={Paper}>
+                    <Table size='small'>
+                        <TableHead>
+                            <TableRow sx={{ bgcolor: 'action.hover' }}>
+                                <TableCell>Módulo</TableCell>
+                                <TableCell>Título</TableCell>
+                                <TableCell align='center'>Peso</TableCell>
+                                <TableCell align='center'>Progreso Mín.</TableCell>
+                                <TableCell align='center'>Preguntas</TableCell>
+                                <TableCell align='center'>Estado</TableCell>
+                                <TableCell align='right'>Acciones</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {examenesIntermedios.map((examen: any) => (
+                                <TableRow key={examen.id} hover>
+                                    <TableCell>{examen.modulo?.titulo || '—'}</TableCell>
+                                    <TableCell>{examen.titulo}</TableCell>
+                                    <TableCell align='center'>
+                                        <Chip label={`×${examen.peso}`} size='small' variant='outlined' />
+                                    </TableCell>
+                                    <TableCell align='center'>{examen.progreso_minimo}%</TableCell>
+                                    <TableCell align='center'>{examen._count?.preguntas || 0}</TableCell>
+                                    <TableCell align='center'>
+                                        <Chip
+                                            label={examen.esta_publicado ? 'Publicado' : 'Borrador'}
+                                            color={examen.esta_publicado ? 'success' : 'default'}
+                                            size='small'
+                                        />
+                                    </TableCell>
+                                    <TableCell align='right'>
+                                        <Tooltip title='Ver preguntas'>
+                                            <IconButton size='small' onClick={() => toggleExpanded(examen.id)}>
+                                                <i className={`tabler-chevron-${expandedExamenesIds.has(examen.id) ? 'up' : 'down'}`} />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip title='Eliminar'>
+                                            <IconButton size='small' color='error' onClick={() => handleDeleteExamen(examen.id)}>
+                                                <i className='tabler-trash text-lg' />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
+
+            {/* Modal para editar preguntas */}
+            {editingQuestion && (
+                <QuestionEditDialog
+                    open={true}
+                    onClose={() => setEditingQuestion(null)}
+                    onSave={handleSaveQuestion}
+                    isSaving={createPreguntaMutation.isPending || updatePreguntaMutation.isPending}
+                    questionData={editingQuestion}
+                />
+            )}
         </Box>
     )
 }

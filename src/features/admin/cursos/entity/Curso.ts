@@ -31,6 +31,22 @@ export interface CursoLeccionResumen {
   contenido: string | null
 }
 
+export interface CursoExamenResumen {
+  id: string
+  titulo: string
+  tipo: 'FINAL' | 'INTERMEDIO'
+  peso: number
+  progreso_minimo: number
+  orden: number | null
+  puntaje_aprobacion: number
+  intentos_maximos: number
+  esta_publicado: boolean
+  limite_tiempo: number | null
+  modulo_id: string | null
+  modulo?: { id: string; titulo: string; orden: number } | null
+  _count?: { preguntas: number }
+}
+
 export interface CursoModulo {
   id: string
   titulo: string
@@ -39,6 +55,7 @@ export interface CursoModulo {
   creado_en: string
   actualizado_en: string
   lecciones: CursoLeccionResumen[]
+  examenes: CursoExamenResumen[]
 }
 
 export interface Curso {

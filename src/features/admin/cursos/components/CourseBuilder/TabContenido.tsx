@@ -39,8 +39,9 @@ import { CSS } from '@dnd-kit/utilities'
 
 import CustomTextField from '@core/components/mui/TextField'
 import { LessonEditDialog } from './LessonEditDialog'
+import { EvaluacionDialog } from './EvaluacionDialog'
 
-import type { Curso, CursoLeccionResumen } from '../../entity/Curso'
+import type { Curso, CursoLeccionResumen, CursoExamenResumen } from '../../entity/Curso'
 import {
   useCreateModulo,
   useDeleteModulo,
@@ -48,7 +49,8 @@ import {
   useCreateLeccion,
   useUpdateLeccion,
   useDeleteLeccion,
-  useReorderLecciones
+  useReorderLecciones,
+  useDeleteExamen
 } from '../../hooks/useCursos'
 
 // Componente para Módulos arrastrables
@@ -93,6 +95,74 @@ const SortableLessonItem = ({ id, children }: { id: string; children: React.Reac
   )
 }
 
+// Fila de Evaluación dentro del módulo
+const EvaluacionRow = ({
+  examen,
+  moduloId,
+  onEdit,
+  onDelete,
+  dragHandleProps
+}: {
+  examen: CursoExamenResumen
+  moduloId: string
+  onEdit: (examen: CursoExamenResumen) => void
+  onDelete: (examenId: string) => void
+  dragHandleProps?: any
+}) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        py: 1.5,
+        px: 2,
+        borderRadius: 1,
+        bgcolor: 'warning.lightOpacity',
+        mb: 1,
+        border: '1px solid',
+        borderColor: 'warning.light',
+        '&:hover': { borderColor: 'warning.main' }
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box {...dragHandleProps} sx={{ display: 'flex', cursor: 'grab', '&:active': { cursor: 'grabbing' } }}>
+          <i className='tabler-grip-vertical text-lg text-textDisabled' />
+        </Box>
+        <i className='tabler-clipboard-list text-lg' style={{ color: 'var(--mui-palette-warning-main)' }} />
+        <Typography variant='body2' fontWeight={500}>{examen.titulo}</Typography>
+        <Chip
+          size='small'
+          variant='tonal'
+          label={`${examen._count?.preguntas ?? 0} preguntas`}
+          color='warning'
+        />
+        <Chip
+          size='small'
+          variant='outlined'
+          label={`Peso ×${examen.peso}`}
+          color='default'
+        />
+        {!examen.esta_publicado && (
+          <Chip size='small' variant='tonal' label='Borrador' color='default' />
+        )}
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Tooltip title='Editar evaluación'>
+          <IconButton size='small' color='warning' onClick={() => onEdit(examen)}>
+            <i className='tabler-edit text-lg' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Eliminar evaluación'>
+          <IconButton size='small' color='error' onClick={() => onDelete(examen.id)}>
+            <i className='tabler-trash text-lg' />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
+  )
+}
+
 // Componente que representa un Módulo (Card)
 const ModuleCard = ({
   modulo,
@@ -108,9 +178,14 @@ const ModuleCard = ({
   newLessonTitles,
   setNewLessonTitles,
   handleAddLesson,
+  onAddEvaluacion,
+  onEditEvaluacion,
+  onDeleteEvaluacion,
   sensors,
   dragHandleProps
 }: any) => {
+  const totalItems = (modulo.lecciones?.length ?? 0) + (modulo.examenes?.length ?? 0)
+
   return (
     <Card sx={{ border: '1px solid', borderColor: 'divider' }}>
       <Box
@@ -138,6 +213,14 @@ const ModuleCard = ({
             variant='outlined'
             label={`${modulo.lecciones?.length ?? 0} lecciones`}
           />
+          {(modulo.examenes?.length ?? 0) > 0 && (
+            <Chip
+              size='small'
+              variant='tonal'
+              color='warning'
+              label={`${modulo.examenes.length} evaluación${modulo.examenes.length > 1 ? 'es' : ''}`}
+            />
+          )}
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }} onClick={e => e.stopPropagation()}>
           <Tooltip title='Eliminar módulo'>
@@ -150,12 +233,13 @@ const ModuleCard = ({
 
       <Collapse in={expandedModule === modulo.id}>
         <CardContent>
-          {(modulo.lecciones?.length ?? 0) === 0 && (
+          {totalItems === 0 && (
             <Typography variant='body2' color='text.disabled' sx={{ py: 2, textAlign: 'center' }}>
-              Sin lecciones aún
+              Sin contenido aún. Añade lecciones o evaluaciones.
             </Typography>
           )}
 
+          {/* Lecciones */}
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -180,9 +264,21 @@ const ModuleCard = ({
             </SortableContext>
           </DndContext>
 
+          {/* Evaluaciones */}
+          {(modulo.examenes || []).map((examen: CursoExamenResumen) => (
+            <EvaluacionRow
+              key={examen.id}
+              examen={examen}
+              moduloId={modulo.id}
+              onEdit={onEditEvaluacion}
+              onDelete={onDeleteEvaluacion}
+            />
+          ))}
+
           <Divider sx={{ my: 2 }} />
 
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          {/* Añadir lección */}
+          <Box sx={{ display: 'flex', gap: 2, mb: 1.5 }}>
             <CustomTextField
               fullWidth
               size='small'
@@ -202,7 +298,21 @@ const ModuleCard = ({
               startIcon={<i className='tabler-plus' />}
               sx={{ whiteSpace: 'nowrap' }}
             >
-              Añadir
+              Añadir Lección
+            </Button>
+          </Box>
+
+          {/* Añadir evaluación */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              variant='tonal'
+              color='warning'
+              size='small'
+              startIcon={<i className='tabler-clipboard-plus' />}
+              onClick={() => onAddEvaluacion(modulo.id)}
+              sx={{ whiteSpace: 'nowrap' }}
+            >
+              Añadir Evaluación
             </Button>
           </Box>
         </CardContent>
@@ -311,11 +421,19 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
   const deleteLeccionMutation = useDeleteLeccion()
   const updateLeccionMutation = useUpdateLeccion()
   const reorderLeccionesMutation = useReorderLecciones()
+  const deleteExamenMutation = useDeleteExamen()
 
   const [newModuleTitle, setNewModuleTitle] = useState('')
   const [expandedModule, setExpandedModule] = useState<string | null>(null)
   const [newLessonTitles, setNewLessonTitles] = useState<Record<string, string>>({})
   const [editingLesson, setEditingLesson] = useState<{ moduloId: string; leccion: CursoLeccionResumen } | null>(null)
+
+  // Evaluacion dialog state
+  const [evaluacionDialog, setEvaluacionDialog] = useState<{
+    open: boolean
+    moduloId: string | null
+    examen: CursoExamenResumen | null
+  }>({ open: false, moduloId: null, examen: null })
 
   // Sensores para DND
   const sensors = useSensors(
@@ -466,6 +584,29 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
     }
   }
 
+  // Evaluacion handlers
+  const handleOpenAddEvaluacion = (moduloId: string) => {
+    setEvaluacionDialog({ open: true, moduloId, examen: null })
+  }
+
+  const handleOpenEditEvaluacion = (examen: CursoExamenResumen) => {
+    setEvaluacionDialog({ open: true, moduloId: examen.modulo_id, examen })
+  }
+
+  const handleDeleteEvaluacion = async (examenId: string) => {
+    if (!window.confirm('¿Eliminar esta evaluación y todas sus preguntas?')) return
+
+    try {
+      await deleteExamenMutation.mutateAsync({ cursoId: curso.id, examenId })
+      enqueueSnackbar('Evaluación eliminada', { variant: 'success' })
+      onSuccess()
+    } catch (error: any) {
+      enqueueSnackbar(error?.message || 'Error al eliminar', { variant: 'error' })
+    }
+  }
+
+  const activeModulo = evaluacionDialog.moduloId ? modulos.find(m => m.id === evaluacionDialog.moduloId) : null
+
   return (
     <Box>
       <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
@@ -527,6 +668,9 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
                 newLessonTitles={newLessonTitles}
                 setNewLessonTitles={setNewLessonTitles}
                 handleAddLesson={handleAddLesson}
+                onAddEvaluacion={handleOpenAddEvaluacion}
+                onEditEvaluacion={handleOpenEditEvaluacion}
+                onDeleteEvaluacion={handleDeleteEvaluacion}
                 sensors={sensors}
               />
             </SortableModuleItem>
@@ -541,6 +685,17 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
         lessonData={editingLesson?.leccion}
         onSave={handleSaveLessonEdit}
         isSaving={updateLeccionMutation.isPending}
+      />
+
+      <EvaluacionDialog
+        key={evaluacionDialog.examen?.id || `new-${evaluacionDialog.moduloId}`}
+        open={evaluacionDialog.open}
+        onClose={() => setEvaluacionDialog({ open: false, moduloId: null, examen: null })}
+        onSuccess={onSuccess}
+        cursoId={curso.id}
+        moduloId={evaluacionDialog.moduloId}
+        moduloTitulo={activeModulo?.titulo}
+        examenId={evaluacionDialog.examen?.id}
       />
     </Box>
   )

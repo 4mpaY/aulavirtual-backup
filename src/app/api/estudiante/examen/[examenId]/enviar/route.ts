@@ -65,8 +65,8 @@ export async function POST(
       }
     })
 
-    if (!progresoCurso || progresoCurso.porcentaje_progreso < 100) {
-      return ApiResponse.error(request, 'Debes completar todas las lecciones primero', 403)
+    if (!progresoCurso || progresoCurso.porcentaje_progreso < examen.progreso_minimo) {
+      return ApiResponse.error(request, `Debes alcanzar ${examen.progreso_minimo}% de progreso primero`, 403)
     }
 
     // 3. Verificar intentos restantes
@@ -125,7 +125,7 @@ export async function POST(
     const porcentaje = puntajeTotal > 0 ? Math.round((puntajeObtenido / puntajeTotal) * 100) : 0
     const aprobado = porcentaje >= examen.puntaje_aprobacion
 
-    // 6. Guardar intento y respuestas en transacción
+    // 6. Guardar intento y respuestas, y calcular nota ponderada
     const intento = await prisma.$transaction(async (tx) => {
       const nuevoIntento = await tx.intentoExamen.create({
         data: {
@@ -144,6 +144,62 @@ export async function POST(
           }
         }
       })
+
+      // Calcular nota ponderada después de guardar el intento
+      const examenesCurso = await tx.examen.findMany({
+        where: {
+          curso_id: examen.curso.id,
+          esta_publicado: true
+        }
+      })
+
+      if (examenesCurso.length > 0) {
+        // Obtener mejor intento para cada examen
+        const intentosPorExamen = await Promise.all(
+          examenesCurso.map(async (ex) => {
+            const mejorIntento = await tx.intentoExamen.findFirst({
+              where: {
+                usuario_id: auth.user.id,
+                examen_id: ex.id
+              },
+              orderBy: { puntaje: 'desc' }
+            })
+
+            return {
+              examenId: ex.id,
+              peso: ex.peso,
+              puntaje: mejorIntento?.puntaje ?? null
+            }
+          })
+        )
+
+        // Calcular nota ponderada: Σ(puntaje[i] × peso[i]) / Σ(peso[i])
+        const intentosConPuntaje = intentosPorExamen.filter((i) => i.puntaje !== null)
+        const sumaPesos = intentosPorExamen.reduce((sum, i) => sum + i.peso, 0)
+
+        if (intentosConPuntaje.length > 0 && sumaPesos > 0) {
+          const notaPonderada =
+            intentosConPuntaje.reduce((sum, i) => sum + (i.puntaje ?? 0) * i.peso, 0) / sumaPesos
+
+          // Determinar estado (aprobado/desaprobado)
+          const estadoNota =
+            notaPonderada >= examen.puntaje_aprobacion ? 'APROBADO' : 'DESAPROBADO'
+
+          // Actualizar inscripción con nota final y estado
+          await tx.inscripcion.update({
+            where: {
+              usuario_id_curso_id: {
+                usuario_id: auth.user.id,
+                curso_id: examen.curso.id
+              }
+            },
+            data: {
+              nota_final: notaPonderada,
+              estado_nota: estadoNota
+            }
+          })
+        }
+      }
 
       return nuevoIntento
     })

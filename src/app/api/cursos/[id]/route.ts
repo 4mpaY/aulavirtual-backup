@@ -66,6 +66,23 @@ const cursoInclude = {
           fecha_programada: true,
           enlace_reunion: true
         }
+      },
+      examenes: {
+        orderBy: { orden: 'asc' as const },
+        select: {
+          id: true,
+          titulo: true,
+          tipo: true,
+          peso: true,
+          progreso_minimo: true,
+          orden: true,
+          puntaje_aprobacion: true,
+          intentos_maximos: true,
+          esta_publicado: true,
+          limite_tiempo: true,
+          modulo_id: true,
+          _count: { select: { preguntas: true } }
+        }
       }
     }
   },
