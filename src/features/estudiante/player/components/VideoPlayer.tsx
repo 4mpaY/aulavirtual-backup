@@ -20,31 +20,42 @@ function getEmbedUrl(url: string): string {
     if (url.includes('youtube.com/watch')) {
         try {
             const videoId = new URL(url).searchParams.get('v')
-            if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}?${YT_PARAMS}`
+
+            if (videoId) {
+                return `https://www.youtube-nocookie.com/embed/${videoId}?${YT_PARAMS}`
+            }
         } catch { /* url inválida, retorna original */ }
     }
 
     // YouTube: youtu.be/
     if (url.includes('youtu.be/')) {
         const videoId = url.split('youtu.be/')[1]?.split('?')[0]
-        if (videoId) return `https://www.youtube-nocookie.com/embed/${videoId}?${YT_PARAMS}`
+
+        if (videoId) {
+            return `https://www.youtube-nocookie.com/embed/${videoId}?${YT_PARAMS}`
+        }
     }
 
     // YouTube: ya es embed
     if (url.includes('youtube.com/embed/') || url.includes('youtube-nocookie.com/embed/')) {
         const base = url.split('?')[0].replace('youtube.com', 'youtube-nocookie.com')
+
         return `${base}?${YT_PARAMS}`
     }
 
     // Vimeo: URL normal
     if (url.includes('vimeo.com/') && !url.includes('player.vimeo.com')) {
         const videoId = url.split('vimeo.com/')[1]?.split('?')[0]?.split('/')[0]
-        if (videoId) return `https://player.vimeo.com/video/${videoId}?${VIMEO_PARAMS}`
+
+        if (videoId) {
+            return `https://player.vimeo.com/video/${videoId}?${VIMEO_PARAMS}`
+        }
     }
 
     // Vimeo: ya es player embed
     if (url.includes('player.vimeo.com')) {
         const base = url.split('?')[0]
+
         return `${base}?${VIMEO_PARAMS}`
     }
 
@@ -66,7 +77,9 @@ const VideoPlayer = ({ url, tipo = 'VIDEO', onEnded, nextLessonTitle, onNextLess
 
     // Escucha postMessages de YouTube y Vimeo para detectar fin de video
     useEffect(() => {
-        if (!isEmbedded) return
+        if (!isEmbedded) {
+            return
+        }
 
         const handleMessage = (event: MessageEvent) => {
             try {
@@ -89,16 +102,20 @@ const VideoPlayer = ({ url, tipo = 'VIDEO', onEnded, nextLessonTitle, onNextLess
         }
 
         window.addEventListener('message', handleMessage)
+
         return () => window.removeEventListener('message', handleMessage)
     }, [isEmbedded, onEnded])
 
     // Vimeo: suscribirse al evento finish cuando el player esté listo
     useEffect(() => {
-        if (!isVimeo) return
+        if (!isVimeo) {
+            return
+        }
 
         const handleVimeoReady = (event: MessageEvent) => {
             try {
                 const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data
+
                 if (data?.event === 'ready' && iframeRef.current?.contentWindow) {
                     iframeRef.current.contentWindow.postMessage(
                         JSON.stringify({ method: 'addEventListener', value: 'finish' }),
@@ -109,6 +126,7 @@ const VideoPlayer = ({ url, tipo = 'VIDEO', onEnded, nextLessonTitle, onNextLess
         }
 
         window.addEventListener('message', handleVimeoReady)
+
         return () => window.removeEventListener('message', handleVimeoReady)
     }, [isVimeo])
 
