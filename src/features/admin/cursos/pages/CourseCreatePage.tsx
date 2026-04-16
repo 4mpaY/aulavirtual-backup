@@ -33,6 +33,7 @@ import { useSnackbar } from 'notistack'
 import CustomTextField from '@core/components/mui/TextField'
 
 import { crearCursoSchema, type CrearCursoDto } from '@/schemas/curso.schema'
+import { sanitizeDatetimeInput } from '@/utils/functions/sanitizeDatetime'
 import MediaLibrary from '../components/MediaLibrary'
 
 import { useCreateCurso } from '../hooks/useCursos'
@@ -71,12 +72,12 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
 
   const handleSubmit = async (values: CrearCursoDto, { setSubmitting }: FormikHelpers<CrearCursoDto>) => {
     try {
-      // The backend should handle null/undefined values for optional fields,
-      // so we can pass 'values' directly.
-      // If the backend expects fields to be absent rather than null,
-      // the deletion logic would be needed.
-      // For now, assuming direct pass is fine or backend handles nulls.
-      const result = await createMutation.mutateAsync(values)
+      const payload = {
+        ...values,
+        fecha_inicio: sanitizeDatetimeInput(values.fecha_inicio)
+      }
+
+      const result = await createMutation.mutateAsync(payload)
 
       enqueueSnackbar('Curso creado exitosamente', { variant: 'success' })
 
