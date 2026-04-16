@@ -31,6 +31,7 @@ export function useCursosLista(initialData?: CursoListaItem[]) {
   return useQuery<CursoListaItem[], any>({
     queryKey: QUERY_KEY.CURSOS_LISTA,
     queryFn: async () => await axiosCursoAdmin.getLista(),
+    
     // Solo hidratar con initialData si el servidor devolvió datos reales.
     // Si llega [] (fallo silencioso del server), dejamos que el cliente haga el fetch.
     initialData: initialData?.length ? initialData : undefined,

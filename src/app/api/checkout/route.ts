@@ -79,6 +79,7 @@ export async function POST(request: Request) {
         // Verificar restricción por cursos
         const cursosPermitidos = cupon.cursos.map(c => c.curso_id)
         const tieneRestriccion = cursosPermitidos.length > 0
+        
         const cubreTodasLosCursos = tieneRestriccion
           ? cursoIds.every((id: string) => cursosPermitidos.includes(id))
           : true

@@ -149,6 +149,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     if (data.fecha_inicio) {
       const fechaInicio = sanitizeDatetimeInput(data.fecha_inicio)
+      
       updateData.fecha_inicio = fechaInicio ? new Date(fechaInicio) : null
     } else if (data.fecha_inicio === null) {
       updateData.fecha_inicio = null
