@@ -95,7 +95,17 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const [enrolling, setEnrolling] = useState(false)
   const { data: session } = useSession()
   const router = useRouter()
-  const { openLogin } = useAuthModal()
+  const { openLogin, openRegister } = useAuthModal()
+
+  const handlePaidEnroll = () => {
+    if (!session) {
+      openRegister()
+
+      return
+    }
+
+    router.push(`/checkout/${course.slug}`)
+  }
 
   const handleFreeEnroll = async () => {
     if (!session) {
@@ -448,8 +458,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                     color="primary"
                     fullWidth
                     size="large"
-                    component={Link}
-                    href={`/checkout/${course.slug}`}
+                    onClick={handlePaidEnroll}
                     sx={{ py: 2, borderRadius: '16px', fontWeight: 700, fontSize: '1.2rem', boxShadow: 'var(--mui-palette-primary-darkOpacity)', textTransform: 'none' }}
                   >
                     Matricúlate
@@ -792,8 +801,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                     color="primary"
                     fullWidth
                     size="large"
-                    component={Link}
-                    href={`/checkout/${course.slug}`}
+                    onClick={handlePaidEnroll}
                     sx={{ py: 1.5, borderRadius: '12px', fontWeight: 700, boxShadow: 'var(--mui-palette-primary-darkOpacity)', textTransform: 'none' }}
                   >
                     Matricúlate

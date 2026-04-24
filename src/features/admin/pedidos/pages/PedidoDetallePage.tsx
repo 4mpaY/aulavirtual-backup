@@ -1,12 +1,18 @@
 'use client'
 
+import { useState } from 'react'
+
 import { useParams, useRouter } from 'next/navigation'
 
 import {
   Card, CardHeader, CardContent, Grid, Typography,
   Chip, Divider, Button, Avatar, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow, Paper, Box
+  TableCell, TableContainer, TableHead, TableRow, Paper, Box,
+  Alert, CircularProgress, Stack
 } from '@mui/material'
+import { useSnackbar } from 'notistack'
+import { useQueryClient } from '@tanstack/react-query'
+import { getSession } from 'next-auth/react'
 
 import HydratedDate from '@/utils/components/HydratedDate'
 import { usePedido } from '../hooks/usePedidos'
@@ -26,8 +32,37 @@ export function PedidoDetallePage() {
   const params = useParams()
   const router = useRouter()
   const { id } = params
+  const { enqueueSnackbar } = useSnackbar()
+  const queryClient = useQueryClient()
+  const [completing, setCompleting] = useState(false)
 
   const { data, isLoading, isError } = usePedido(id as string)
+
+  const handleCompletar = async () => {
+    if (!confirm('¿Confirmar el pago y activar las inscripciones del estudiante?')) return
+
+    try {
+      setCompleting(true)
+      const session = await getSession()
+      const token = (session?.user as any)?.accessToken
+
+      const res = await fetch(`/api/admin/pedidos/${id}/completar`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      const resData = await res.json()
+
+      if (!res.ok) throw new Error(resData.message || 'Error al completar el pedido')
+
+      enqueueSnackbar('Pedido completado. Inscripciones activadas.', { variant: 'success' })
+      queryClient.invalidateQueries({ queryKey: ['pedido', id] })
+    } catch (err: any) {
+      enqueueSnackbar(err.message || 'Error al completar el pedido', { variant: 'error' })
+    } finally {
+      setCompleting(false)
+    }
+  }
 
   if (isLoading) return <Card><CardContent>Cargando información del pedido...</CardContent></Card>
   if (isError || !data?.data) return <Card><CardContent>Error al cargar el pedido o no existe.</CardContent></Card>
@@ -113,6 +148,62 @@ export function PedidoDetallePage() {
               </Box>
             )}
           </Grid>
+
+          {/* Voucher y acción de completar */}
+          {(pedido.comprobante_url || pedido.metodo_pago_manual) && (
+            <Grid item xs={12}>
+              <Divider sx={{ mb: 3 }} />
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems='flex-start'>
+                {pedido.comprobante_url && (
+                  <Box>
+                    <Typography variant='h6' gutterBottom>Comprobante de Pago</Typography>
+                    <Box
+                      component='img'
+                      src={pedido.comprobante_url}
+                      alt='Comprobante'
+                      sx={{ maxWidth: 280, maxHeight: 320, borderRadius: 2, border: '1px solid', borderColor: 'divider', cursor: 'pointer' }}
+                      onClick={() => window.open(pedido.comprobante_url, '_blank')}
+                    />
+                    {pedido.comprobante_subido_en && (
+                      <Typography variant='caption' color='text.secondary' display='block' sx={{ mt: 0.5 }}>
+                        Subido: <HydratedDate date={pedido.comprobante_subido_en} format='locale' />
+                      </Typography>
+                    )}
+                  </Box>
+                )}
+
+                <Box flex={1}>
+                  {pedido.metodo_pago_manual && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant='h6' gutterBottom>Método Seleccionado</Typography>
+                      <Typography variant='body2'><b>{pedido.metodo_pago_manual.nombre}</b></Typography>
+                      <Typography variant='body2' color='text.secondary'>{pedido.metodo_pago_manual.numero_cuenta} · {pedido.metodo_pago_manual.nombre_cuenta}</Typography>
+                    </Box>
+                  )}
+
+                  {pedido.estado === 'PENDIENTE' && (
+                    <Alert severity='warning' sx={{ mb: 2, borderRadius: 2 }}>
+                      Este pedido está pendiente de verificación. Revisa el comprobante y complétalo para activar el acceso del estudiante.
+                    </Alert>
+                  )}
+
+                  {pedido.estado === 'PENDIENTE' && (
+                    <Button
+                      variant='contained'
+                      color='success'
+                      size='large'
+                      onClick={handleCompletar}
+                      disabled={completing}
+                      startIcon={completing ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-circle-check' />}
+                      sx={{ borderRadius: 2 }}
+                    >
+                      {completing ? 'Completando...' : 'Completar pedido y activar inscripciones'}
+                    </Button>
+                  )}
+                </Box>
+              </Stack>
+            </Grid>
+          )}
 
           {/* Tabla de cursos comprados */}
           <Grid item xs={12}>

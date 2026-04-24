@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-import { Box, Typography } from '@mui/material'
+import { Box } from '@mui/material'
 
 import { ConfiguracionView } from '@/features/admin/configuracion/components/ConfiguracionView'
 
@@ -33,9 +33,10 @@ export default async function Page() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 4 }}>Configuración del Sistema</Typography>
-      <ConfiguracionView initialData={initialData} />
+    <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <ConfiguracionView initialData={initialData} />
+      </Box>
     </Box>
   )
 }

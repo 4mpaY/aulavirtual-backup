@@ -25,6 +25,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       include: {
         usuario: { select: { id: true, nombre: true, apellido: true, correo: true, avatar: true } },
         cupon: true,
+        metodo_pago_manual: true,
         detalles: {
           include: {
             curso: { select: { id: true, titulo: true, miniatura: true, precio: true } }
