@@ -17,17 +17,16 @@ import {
   Alert,
   CircularProgress,
   Checkbox,
-  FormControlLabel,
-  CardActionArea,
   Chip,
   Divider,
   IconButton,
   Tooltip,
   Dialog,
   DialogContent,
-  Avatar
+  Avatar,
+  FormControlLabel
 } from '@mui/material'
-import QRCode from 'qrcode'
+import { toDataURL } from 'qrcode'
 import { useSession } from 'next-auth/react'
 import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 
@@ -255,6 +254,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
     try {
       setIsLoading(true)
       const pedidoId = (window as any)._currentPedidoId
+
       const res = await fetch('/api/culqi/charge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -272,12 +272,17 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   }, [handlePaymentSuccess])
 
   const handleCheckout = async () => {
-    if (!session) { openLogin(); return }
+    if (!session) {
+      openLogin();
+
+      return
+    }
 
     setPaymentError(null)
 
     try {
       setIsLoading(true)
+
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -303,12 +308,17 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   }
 
   const handleCulqiCheckout = async () => {
-    if (!session) { openLogin(); return }
+    if (!session) {
+      openLogin();
+
+      return
+    }
 
     setPaymentError(null)
 
     try {
       setIsLoading(true)
+
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -331,10 +341,23 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   }
 
   const handleManualCheckout = async () => {
-    if (!session) { openLogin(); return }
+    if (!session) {
+      openLogin();
 
-    if (!selectedMetodoManualId) { setPaymentError('Selecciona un método de pago'); return }
-    if (!voucher) { setPaymentError('Debes subir una imagen de tu comprobante de pago'); return }
+      return
+    }
+
+    if (!selectedMetodoManualId) {
+      setPaymentError('Selecciona un método de pago');
+
+      return
+    }
+
+    if (!voucher) {
+      setPaymentError('Debes subir una imagen de tu comprobante de pago');
+
+      return
+    }
 
     setPaymentError(null)
 
@@ -402,7 +425,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
           window.open(url, '_blank')
           router.push('/estudiante/pedidos')
         } else {
-          const qrDataUrl = await QRCode.toDataURL(url, {
+          const qrDataUrl = await toDataURL(url, {
             width: 320,
             margin: 3,
             errorCorrectionLevel: 'L',

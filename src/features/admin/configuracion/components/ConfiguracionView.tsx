@@ -19,7 +19,6 @@ import {
   Divider,
   MenuItem,
   Switch,
-  FormControlLabel,
   Accordion,
   AccordionSummary,
   AccordionDetails,

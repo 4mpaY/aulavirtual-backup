@@ -267,7 +267,6 @@ const ModuleCard = ({
             <EvaluacionRow
               key={examen.id}
               examen={examen}
-              moduloId={modulo.id}
               onEdit={onEditEvaluacion}
               onDelete={onDeleteEvaluacion}
             />

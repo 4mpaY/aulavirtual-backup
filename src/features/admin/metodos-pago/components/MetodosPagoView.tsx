@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import {
   Button,
@@ -83,8 +83,7 @@ export default function MetodosPagoView() {
     }
   }
 
-  const columns = useMemo<ColumnDef<MetodoPagoManual, any>[]>(
-    () => [
+  const columns: ColumnDef<MetodoPagoManual, any>[] = [
       columnHelper.display({
         id: 'numero',
         header: '#',
@@ -173,9 +172,7 @@ export default function MetodosPagoView() {
           </div>
         )
       })
-    ],
-    []
-  )
+    ]
 
   const table = useReactTable({
     data: metodos,

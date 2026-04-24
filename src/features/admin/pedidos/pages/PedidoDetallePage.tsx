@@ -1,18 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-
 import { useParams, useRouter } from 'next/navigation'
 
 import {
   Card, CardHeader, CardContent, Grid, Typography,
   Chip, Divider, Button, Avatar, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow, Paper, Box,
-  Alert, CircularProgress, Stack
+  TableCell, TableContainer, TableHead, TableRow, Paper, Box, Stack
 } from '@mui/material'
-import { useSnackbar } from 'notistack'
-import { useQueryClient } from '@tanstack/react-query'
-import { getSession } from 'next-auth/react'
 
 import HydratedDate from '@/utils/components/HydratedDate'
 import { usePedido } from '../hooks/usePedidos'
@@ -32,10 +26,6 @@ export function PedidoDetallePage() {
   const params = useParams()
   const router = useRouter()
   const { id } = params
-  const { enqueueSnackbar } = useSnackbar()
-  const queryClient = useQueryClient()
-  const [completing, setCompleting] = useState(false)
-
   const { data, isLoading, isError } = usePedido(id as string)
 
   if (isLoading) return <Card><CardContent>Cargando información del pedido...</CardContent></Card>
