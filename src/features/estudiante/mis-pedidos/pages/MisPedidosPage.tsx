@@ -2,6 +2,8 @@
 
 import { useMemo, useState, useRef } from 'react'
 
+import Link from 'next/link'
+
 import {
   Card,
   CardHeader,
@@ -17,7 +19,9 @@ import {
   DialogActions,
   Stack,
   Alert,
-  CircularProgress
+  CircularProgress,
+  IconButton,
+  Tooltip
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { useQueryClient } from '@tanstack/react-query'
@@ -166,7 +170,7 @@ export function MisPedidosPage({ initialData }: MisPedidosPageProps) {
         header: 'Método',
         cell: ({ row }) => (
           <Typography variant='body2' className='capitalize'>
-             {row.original.metodo_pago ? row.original.metodo_pago.toLowerCase().replace('_', ' ') : '-'}
+            {row.original.metodo_pago ? row.original.metodo_pago.toLowerCase().replace('_', ' ') : '-'}
           </Typography>
         )
       }),
@@ -199,40 +203,35 @@ export function MisPedidosPage({ initialData }: MisPedidosPageProps) {
         )
       }),
       columnHelper.display({
-        id: 'comprobante',
-        header: 'Comprobante',
+        id: 'accion',
+        header: 'Acción',
         cell: ({ row }) => {
           const p = row.original as any
 
-          if (p.estado !== 'PENDIENTE' || !p.metodo_pago_manual_id) return null
-
-          if (p.comprobante_url) {
-            return (
-              <Stack spacing={0.5}>
-                <Chip label='En revisión' size='small' color='info' variant='tonal' />
-                <Typography
-                  variant='caption'
-                  color='primary'
-                  sx={{ cursor: 'pointer', textDecoration: 'underline' }}
-                  onClick={() => window.open(p.comprobante_url, '_blank')}
-                >
-                  Ver voucher
-                </Typography>
-              </Stack>
-            )
-          }
-
           return (
-            <Button
-              size='small'
-              variant='outlined'
-              color='warning'
-              startIcon={<i className='tabler-upload' style={{ fontSize: 14 }} />}
-              onClick={() => setUploadPedidoId(p.id)}
-              sx={{ fontSize: 11, px: 1 }}
-            >
-              Subir voucher
-            </Button>
+            <Stack direction='row' spacing={0.5} alignItems='center'>
+              <Tooltip title='Ver detalle'>
+                <IconButton
+                  size='small'
+                  component={Link}
+                  href={`/estudiante/pedidos/${p.id}`}
+                  color='primary'
+                >
+                  <i className='tabler-eye' style={{ fontSize: 18 }} />
+                </IconButton>
+              </Tooltip>
+              {p.metodo_pago_manual_id && !p.comprobante_url && p.estado === 'PENDIENTE' && (
+                <Tooltip title='Subir voucher'>
+                  <IconButton
+                    size='small'
+                    color='warning'
+                    onClick={() => setUploadPedidoId(p.id)}
+                  >
+                    <i className='tabler-upload' style={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Stack>
           )
         }
       })
@@ -265,7 +264,7 @@ export function MisPedidosPage({ initialData }: MisPedidosPageProps) {
   return (
     <Card>
       <CardHeader title='Historial de Pedidos' />
-      
+
       <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
         <div className='flex items-center gap-4'>
           <CustomTextField

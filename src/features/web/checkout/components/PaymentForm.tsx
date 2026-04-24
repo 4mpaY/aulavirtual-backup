@@ -400,10 +400,9 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
         if (isMobile) {
           window.open(url, '_blank')
-          router.push('/estudiante/mis-pedidos')
+          router.push('/estudiante/pedidos')
         } else {
-          const qrSimpleUrl = `https://wa.me/${whatsappNumero}`
-          const qrDataUrl = await QRCode.toDataURL(qrSimpleUrl, {
+          const qrDataUrl = await QRCode.toDataURL(url, {
             width: 320,
             margin: 3,
             errorCorrectionLevel: 'L',
@@ -415,7 +414,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
           setWhatsappModalOpen(true)
         }
       } else {
-        router.push('/estudiante/mis-pedidos')
+        router.push('/estudiante/pedidos')
       }
     } catch (error: any) {
       setPaymentError(error.message || 'Ocurrió un error inesperado')
@@ -889,7 +888,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       {/* Modal WhatsApp Desktop */}
       <Dialog
         open={whatsappModalOpen}
-        onClose={() => { setWhatsappModalOpen(false); router.push('/estudiante/mis-pedidos') }}
+        onClose={() => { setWhatsappModalOpen(false); router.push('/estudiante/pedidos') }}
         maxWidth='sm'
         fullWidth
         PaperProps={{
@@ -904,7 +903,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
           <Box sx={{ pt: 3.5, pb: 2, px: 3, textAlign: 'center', position: 'relative' }}>
             <IconButton
-              onClick={() => { setWhatsappModalOpen(false); router.push('/estudiante/mis-pedidos') }}
+              onClick={() => { setWhatsappModalOpen(false); router.push('/estudiante/pedidos') }}
               sx={{
                 position: 'absolute', top: 10, right: 10,
                 color: 'white', width: 28, height: 28,
@@ -919,7 +918,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
             <Box sx={{ width: 36, height: 2.5, bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2, mx: 'auto', mt: 1 }} />
           </Box>
 
-          <Box sx={{ px: 2.5, pb: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Box sx={{ px: 2.5, py: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 
             <Paper
               elevation={0}
@@ -927,27 +926,27 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
               onClick={() => window.open(whatsappUrl, '_blank')}
             >
               <Stack direction='row' alignItems='center' spacing={2} sx={{ px: 2.5, py: 1.75 }}>
-                <Box sx={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, bgcolor: '#E8F9EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className='tabler-brand-whatsapp' style={{ fontSize: 22, color: '#25D366' }} />
+                <Box sx={{ width: 50, height: 50, borderRadius: '50%', flexShrink: 0, bgcolor: '#E8F9EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <i className='tabler-brand-whatsapp' style={{ fontSize: 30, color: '#25D366' }} />
                 </Box>
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant='body2' fontWeight={700} color='text.primary'>Ir a WhatsApp Web</Typography>
-                  <Typography variant='caption' color='text.secondary'>Continuar en esta computadora</Typography>
+                <Box sx={{ flex: 1, p: 2 }}>
+                  <Typography variant='h5' fontWeight={700} color='text.primary'>Ir a WhatsApp Web</Typography>
+                  <Typography variant='subtitle1' color='text.secondary'>Continuar en esta computadora</Typography>
                 </Box>
                 <i className='tabler-chevron-right' style={{ fontSize: 16, color: '#bbb' }} />
               </Stack>
             </Paper>
 
-            <Stack direction='row' alignItems='center' spacing={1.5} sx={{ px: 0.5 }}>
+            <Stack direction='row' alignItems='center' spacing={1.5} sx={{ px: 2, py: 6 }}>
               <Box sx={{ flex: 1, height: '1px', bgcolor: 'rgba(255,255,255,0.25)' }} />
-              <Typography variant='caption' color='rgba(255,255,255,0.75)' fontWeight={700} letterSpacing={1.5} textTransform='uppercase'>
+              <Typography variant='h6' color='rgba(255,255,255,0.75)' fontWeight={700} letterSpacing={1.5} textTransform='uppercase'>
                 O escanea el código
               </Typography>
               <Box sx={{ flex: 1, height: '1px', bgcolor: 'rgba(255,255,255,0.25)' }} />
             </Stack>
 
-            <Paper elevation={0} sx={{ borderRadius: 3, p: 2.5, textAlign: 'center' }}>
-              <Typography variant='body2' color='text.secondary' sx={{ mb: 2, lineHeight: 1.5 }}>
+            <Paper elevation={0} sx={{ borderRadius: 3, py: 5, px: 5, textAlign: 'center' }}>
+              <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 2, lineHeight: 1.5 }}>
                 Escanea este código QR con tu celular para abrir el chat de WhatsApp
               </Typography>
               {whatsappQr && (

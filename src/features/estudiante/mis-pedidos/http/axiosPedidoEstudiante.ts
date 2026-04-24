@@ -33,4 +33,14 @@ export class AxiosPedidoEstudiante extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  async getById(id: string): Promise<{ data: any }> {
+    try {
+      const payload = await this.iGet<{ data: any }>(`/${id}`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }
