@@ -168,7 +168,7 @@ const defaultConfig = {
   descripcion: '',
   peso: 1 as 1 | 2 | 3,
   progreso_minimo: 0,
-  puntaje_aprobacion: 60,
+  puntaje_aprobacion: 12, // Default 12/20
   intentos_maximos: 1,
   limite_tiempo: null as number | null,
   mezclar_preguntas: false,
@@ -222,7 +222,7 @@ export function EvaluacionDialog({
         descripcion: e.descripcion || '',
         peso: e.peso || 1,
         progreso_minimo: e.progreso_minimo ?? 0,
-        puntaje_aprobacion: e.puntaje_aprobacion || 60,
+        puntaje_aprobacion: e.puntaje_aprobacion ? Math.round(e.puntaje_aprobacion / 5) : 12,
         intentos_maximos: e.intentos_maximos || 1,
         limite_tiempo: e.limite_tiempo || null,
         mezclar_preguntas: e.mezclar_preguntas || false,
@@ -237,14 +237,19 @@ export function EvaluacionDialog({
   const handleSaveConfig = async () => {
     if (!config.titulo.trim()) return
 
+    const configToSave = {
+      ...config,
+      puntaje_aprobacion: config.puntaje_aprobacion * 5 // Convert back to percentage 0-100 for DB
+    }
+
     try {
       if (activeExamenId) {
-        await updateExamenMutation.mutateAsync({ cursoId, examenId: activeExamenId, data: config })
+        await updateExamenMutation.mutateAsync({ cursoId, examenId: activeExamenId, data: configToSave })
         enqueueSnackbar('Evaluación actualizada', { variant: 'success' })
       } else {
         const res = await createExamenMutation.mutateAsync({
           cursoId,
-          data: { ...config, tipo: 'INTERMEDIO', modulo_id: moduloId || null }
+          data: { ...configToSave, tipo: 'INTERMEDIO', modulo_id: moduloId || null }
         })
 
         setActiveExamenId(res.examen.id)
@@ -384,10 +389,15 @@ export function EvaluacionDialog({
               <CustomTextField
                 fullWidth
                 type='number'
-                label='Puntaje de aprobación (%)'
-                inputProps={{ min: 1, max: 100 }}
+                label='Puntaje de aprobación (0 - 20)'
+                inputProps={{ min: 0, max: 20 }}
                 value={config.puntaje_aprobacion}
-                onChange={e => set('puntaje_aprobacion', Number(e.target.value))}
+                onChange={e => {
+                  let val = Number(e.target.value)
+                  if (val > 20) val = 20
+                  if (val < 0) val = 0
+                  set('puntaje_aprobacion', val)
+                }}
               />
             </Grid>
 
@@ -470,7 +480,7 @@ export function EvaluacionDialog({
                   <Box>
                     <Typography variant='h6' fontWeight={700}>{examenData?.examen?.titulo}</Typography>
                     <Typography variant='caption' color='text.secondary'>
-                      {preguntas.length} pregunta{preguntas.length !== 1 ? 's' : ''} · Aprobación: {examenData?.examen?.puntaje_aprobacion}%
+                      {preguntas.length} pregunta{preguntas.length !== 1 ? 's' : ''} · Aprobación: {Math.round((examenData?.examen?.puntaje_aprobacion || 0) / 5)} / 20
                     </Typography>
                   </Box>
                   {!showQuestionForm && !editingQuestion && (

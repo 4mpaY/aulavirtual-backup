@@ -64,14 +64,33 @@ export default function CourseStudentsModal({
   const exportToExcel = () => {
     if (!data?.alumnos || data.alumnos.length === 0) return
 
-    const exportData = data.alumnos.map((a: any) => ({
-      'Nombres': a.nombre,
-      'Apellidos': a.apellido,
-      'Correo': a.correo,
-      'Documento': a.numero_documento || 'No especificado',
-      'Fecha Inscripción': new Date(a.inscrito_en).toLocaleDateString(),
-      'Estado': estadoLabel[a.estado_inscripcion] || a.estado_inscripcion
-    }))
+    const exportData = data.alumnos.map((a: any) => {
+      const baseObj: any = {
+        'Nombres': a.nombre,
+        'Apellidos': a.apellido,
+        'Documento': a.numero_documento || 'No especificado',
+        'Correo': a.correo,
+        'Fecha Inscripción': new Date(a.inscrito_en).toLocaleDateString(),
+        'Estado': estadoLabel[a.estado_inscripcion] || a.estado_inscripcion,
+        'Evaluaciones': `${a.evaluaciones_realizadas}/${a.total_examenes}`,
+      }
+
+      // Separar "N1: 20.0, N2: 15.0" en columnas individuales "N1" y "N2"
+      if (a.notas && a.notas !== 'Sin exámenes') {
+        const notasArray = a.notas.split(', ')
+        notasArray.forEach((notaItem: string) => {
+          const [key, val] = notaItem.split(': ')
+          if (key && val) {
+            baseObj[`Nota ${key}`] = Number(val) // Convertimos a número para que Excel lo trate como número
+          }
+        })
+      }
+
+      baseObj['Promedio Final'] = Number(a.promedio)
+      baseObj['Certificado'] = a.tiene_certificado ? 'Sí' : 'No'
+
+      return baseObj
+    })
 
     const worksheet = XLSX.utils.json_to_sheet(exportData)
     const workbook = XLSX.utils.book_new()
@@ -120,14 +139,15 @@ export default function CourseStudentsModal({
               <TableRow>
                 <TableCell>Estudiante</TableCell>
                 <TableCell>Documento</TableCell>
-                <TableCell>Fecha de Inscripción</TableCell>
+                <TableCell>Progreso & Notas</TableCell>
+                <TableCell>Certificado</TableCell>
                 <TableCell>Estado</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {!data?.alumnos || data.alumnos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} align='center' sx={{ py: 4 }}>
+                  <TableCell colSpan={5} align='center' sx={{ py: 4 }}>
                     <Typography variant='body2' color='text.secondary'>
                       {searchTerm ? 'No se encontraron alumnos con ese término de búsqueda.' : 'No hay alumnos inscritos en este curso.'}
                     </Typography>
@@ -155,11 +175,25 @@ export default function CourseStudentsModal({
                       <Typography variant='body2'>
                         {alumno.numero_documento || '-'}
                       </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant='body2'>
+                      <Typography variant='caption' color='text.secondary' display='block'>
                         {new Date(alumno.inscrito_en).toLocaleDateString()}
                       </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant='body2' fontWeight={600}>
+                        {alumno.evaluaciones_realizadas}/{alumno.total_examenes} Evals. <Typography component="span" variant="body2" color="primary.main" fontWeight={700} ml={1}>Prom: {alumno.promedio}</Typography>
+                      </Typography>
+                      <Typography variant='caption' color='text.secondary'>
+                        {alumno.notas}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={alumno.tiene_certificado ? 'Sí' : 'No'}
+                        color={alumno.tiene_certificado ? 'success' : 'default'}
+                        size='small'
+                        variant={alumno.tiene_certificado ? 'filled' : 'outlined'}
+                      />
                     </TableCell>
                     <TableCell>
                       <Chip

@@ -149,7 +149,7 @@ export function TabEvaluacion({ cursoId }: TabEvaluacionProps) {
                             <Divider />
                             <CardContent>
                                 <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-                                    Puntaje de aprobación: <strong>{examenFinal.puntaje_aprobacion}%</strong> | Intentos máximos:{' '}
+                                    Puntaje de aprobación: <strong>{Math.round((examenFinal.puntaje_aprobacion || 0) / 5)} / 20</strong> | Intentos máximos:{' '}
                                     <strong>{examenFinal.intentos_maximos}</strong>
                                 </Typography>
 
