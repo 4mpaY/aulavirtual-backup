@@ -117,6 +117,10 @@ export async function GET(request: Request, { params }: { params: { slug: string
     const formattedCourse = {
       id: course.id,
       titulo: course.titulo,
+      descripcion: (course as any).descripcion || null,
+      que_aprenderas: (course as any).que_aprenderas || null,
+      a_quien_va_dirigido: (course as any).a_quien_va_dirigido || null,
+      miniatura: (course as any).miniatura || null,
       modulos: course.modulos.map(m => ({
         id: m.id,
         titulo: m.titulo,
