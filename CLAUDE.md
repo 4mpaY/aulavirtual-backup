@@ -192,3 +192,6 @@ CULQI_*
 # Correo:
 SMTP_*
 ```
+
+PARA el uso de modales usa el <AppModal open={open} handleClose={handleClose}>, no uses tus propios componentes de modales, ya existe uno global para toda la aplicación
+import AppModal from '@/utils/components/AppModal'

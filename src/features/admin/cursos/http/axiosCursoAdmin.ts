@@ -30,4 +30,15 @@ export class AxiosCursoAdmin extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  async getAlumnos(cursoId: string, search?: string): Promise<{ alumnos: any[], total: number }> {
+    try {
+      const query = search ? `?search=${encodeURIComponent(search)}` : ''
+      const payload = await this.iGet<{ alumnos: any[], total: number }>(`/${cursoId}/alumnos${query}`)
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

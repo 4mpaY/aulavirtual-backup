@@ -1,6 +1,7 @@
 
 
 import DeleteCursoModal from './DeleteCursoModal'
+import CourseStudentsModal from './CourseStudentsModal'
 
 import type { Curso } from '../entity/Curso'
 
@@ -12,12 +13,14 @@ type ModalConfig = {
 interface CursosActionsProps {
     cursoClicked: Curso | null
     deleteCurso: ModalConfig
+    viewStudents: ModalConfig
     onSuccess?: () => void
 }
 
 export const CursosActions = ({
     cursoClicked,
     deleteCurso,
+    viewStudents,
     onSuccess
 }: CursosActionsProps) => {
     return (
@@ -38,6 +41,15 @@ export const CursosActions = ({
                 }
                 onSuccess={onSuccess}
             />
+
+            {/* Modal Ver Alumnos */}
+            <CourseStudentsModal
+                open={viewStudents.isOpen}
+                handleClose={viewStudents.closeHandler}
+                cursoId={cursoClicked?.id ?? null}
+                cursoTitulo={cursoClicked?.titulo ?? null}
+            />
         </>
     )
 }
+
