@@ -11,16 +11,22 @@ import { signOut, useSession } from 'next-auth/react'
 
 import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut } from 'lucide-react'
 
-const navItems = [
-  { title: 'Inicio', url: '/', icon: Home },
-  { title: 'Cursos', url: '/cursos', icon: BookOpen },
-  { title: 'Rutas', url: '/rutas', icon: Map },
-  { title: 'Empresas', url: '/empresas', icon: Building2 },
-  { title: 'Nosotros', url: '/nosotros', icon: Users },
-  { title: 'Certificado', url: '/verificar-certificado', icon: Award },
+const ALL_NAV_ITEMS = [
+  { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
+  { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
+  { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
+  { title: 'Empresas', url: '/empresas', icon: Building2, key: 'empresas' },
+  { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },
+  { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
 ]
 
-export default function LeftSidebar() {
+export default function LeftSidebar({
+  rutasHabilitado = true,
+  empresasHabilitado = true,
+}: {
+  rutasHabilitado?: boolean
+  empresasHabilitado?: boolean
+}) {
   const pathname = usePathname()
   const router = useRouter()
   const [expanded, setExpanded] = useState(false)
@@ -28,6 +34,13 @@ export default function LeftSidebar() {
   const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0 })
   const { data: session } = useSession()
   const userButtonRef = useRef<HTMLButtonElement>(null)
+
+  const navItems = ALL_NAV_ITEMS.filter(item => {
+    if (item.key === 'rutas' && !rutasHabilitado) return false
+    if (item.key === 'empresas' && !empresasHabilitado) return false
+
+    return true
+  })
 
   const handleUserClick = () => {
     if (userButtonRef.current) {

@@ -51,9 +51,10 @@ const socialLinks = [
 
 interface WebFooterProps {
   platformName?: string
+  rutasHabilitado?: boolean
 }
 
-const WebFooter = ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
+const WebFooter = ({ platformName = 'Aula Virtual', rutasHabilitado = true }: WebFooterProps) => {
   return (
     <footer style={{ backgroundColor: '#0A0A0A', color: '#ffffff' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12">
@@ -92,10 +93,10 @@ const WebFooter = ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
               Formación
             </h4>
             <ul className="space-y-2 list-none pl-0 m-0" style={{ opacity: 0.8 }}>
-              {[
+              {([
                 { label: 'Cursos', href: '/cursos' },
-                { label: 'Rutas', href: '/rutas' },
-              ].map(link => (
+                ...(rutasHabilitado ? [{ label: 'Rutas', href: '/rutas' }] : []),
+              ] as { label: string; href: string }[]).map(link => (
                 <li key={link.label}>
                   <Link
                     href={link.href}

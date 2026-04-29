@@ -105,13 +105,12 @@ export const actualizarUsuarioSchema = z.object({
   biografia: z
     .string()
     .trim()
-    .max(500, 'La biografía no puede exceder 500 caracteres')
     .optional(),
   avatar: z
     .string()
     .trim()
-    .url('URL de avatar inválida')
-    .optional(),
+    .optional()
+    .or(z.literal('')),
   esta_activo: z
     .boolean()
     .optional(),

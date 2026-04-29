@@ -1,6 +1,9 @@
+import { notFound } from 'next/navigation'
+
 import { Container, Box } from '@mui/material'
 
 import prisma from '@/utils/libs/prisma'
+import { getConfig } from '@/utils/libs/config'
 import RutasCatalog from '@/features/web/rutas/components/RutasCatalog'
 
 async function getRutas() {
@@ -44,6 +47,10 @@ async function getRutas() {
 }
 
 export default async function RutasIndexPage() {
+  const habilitado = await getConfig('WEB_RUTAS_HABILITADO', 'true')
+
+  if (habilitado !== 'true') notFound()
+
   const rutas = await getRutas()
 
   return (

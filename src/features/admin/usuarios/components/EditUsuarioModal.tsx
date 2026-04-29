@@ -2,18 +2,30 @@
 
 import { useState } from 'react'
 
-import { Box, Button, Grid, MenuItem, styled, Typography, CircularProgress, InputAdornment, IconButton } from '@mui/material'
+import {
+  Box,
+  Button,
+  Grid,
+  MenuItem,
+  styled,
+  Typography,
+  CircularProgress,
+  InputAdornment,
+  IconButton,
+  Avatar,
+  Divider,
+  Stack
+} from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
 import { useSnackbar } from 'notistack'
-
 import { Rol } from '@prisma/client'
-
-
 
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { actualizarUsuarioSchema, type ActualizarUsuarioDto } from '@/schemas/usuario.schema'
+import MediaLibrary from '../../cursos/components/MediaLibrary'
+import ProfesorBioEditor from '@/features/perfil/components/ProfesorBioEditor'
 
 import { useUsuario, useEditUsuario } from '../hooks/useUsuarios'
 import SignatureUpload from './SignatureUpload'
@@ -34,12 +46,12 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
   const { data: usuario, isLoading } = useUsuario(usuarioId || '')
   const editUsuarioMutation = useEditUsuario()
   const [showPassword, setShowPassword] = useState(false)
+  const [openAvatarMedia, setOpenAvatarMedia] = useState(false)
 
   const handleSubmit = async (values: ActualizarUsuarioDto, { setSubmitting }: FormikHelpers<ActualizarUsuarioDto>) => {
     if (!usuarioId) return
 
     try {
-      // Si la contraseña está vacía, no la enviamos para evitar errores de validación o sobreescritura
       const dataToSend = { ...values }
 
       if (!dataToSend.contrasena) {
@@ -71,9 +83,7 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
     )
   }
 
-  if (!usuario) {
-    return null
-  }
+  if (!usuario) return null
 
   const initialValues: ActualizarUsuarioDto = {
     correo: usuario.correo,
@@ -86,20 +96,19 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
     esta_activo: usuario.esta_activo,
     contrasena: '',
     cargo: usuario.cargo || '',
-    firma: usuario.firma || ''
+    firma: usuario.firma || '',
+    avatar: usuario.avatar || ''
   }
 
-  return (
-    <AppModal open={open} handleClose={handleClose}>
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant='h4' sx={{ mb: 1, fontWeight: 600 }}>
-          Editar Usuario
-        </Typography>
-        <Typography variant='body2' color='text.secondary'>
-          Actualiza la información del perfil y los permisos del usuario.
-        </Typography>
-      </Box>
+  const getInitials = (nombre: string, apellido: string) =>
+    `${nombre.charAt(0)}${apellido.charAt(0)}`.toUpperCase()
 
+  return (
+    <AppModal
+      open={open}
+      handleClose={handleClose}
+      sx={{ display: 'flex', flexDirection: 'column', p: '0 !important', overflow: 'hidden' }}
+    >
       <Formik
         initialValues={initialValues}
         validationSchema={toFormikValidationSchema(actualizarUsuarioSchema)}
@@ -107,13 +116,76 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
         enableReinitialize
       >
         {({ values, errors, touched, handleChange, handleBlur, handleSubmit, isSubmitting, setFieldValue }) => (
-          <form onSubmit={handleSubmit}>
-            <FormWrapper>
-              <Grid container spacing={3}>
-                {/* Sección: Información de Perfil */}
+          <>
+            {/* ── Área scrollable ── */}
+            <Box sx={{ flex: 1, overflowY: 'auto', px: { xs: 3, sm: 5 }, pt: { xs: 3, sm: 5 }, pb: 2 }}>
+              <Box sx={{ mb: 3, textAlign: 'center' }}>
+                <Typography variant='h4' sx={{ mb: 0.5, fontWeight: 600 }}>Editar Usuario</Typography>
+                <Typography variant='body2' color='text.secondary'>
+                  Actualiza la información del perfil y los permisos del usuario.
+                </Typography>
+              </Box>
+
+              <form id='edit-usuario-form' onSubmit={handleSubmit}>
+                <FormWrapper>
+                  <Grid container spacing={3}>
+
+                {/* ── Foto de Perfil ── */}
+                <Grid item xs={12}>
+                  <Typography variant='overline' color='text.disabled' sx={{ mb: 2, display: 'block' }}>
+                    Foto de Perfil
+                  </Typography>
+                  <Stack direction='row' alignItems='center' spacing={3}>
+                    <Avatar
+                      src={values.avatar || undefined}
+                      sx={{ width: 80, height: 80, fontSize: '1.5rem', bgcolor: 'primary.main' }}
+                    >
+                      {!values.avatar && getInitials(values.nombre || 'U', values.apellido || 'U')}
+                    </Avatar>
+                    <Stack spacing={1}>
+                      <Stack direction='row' spacing={1}>
+                        <Button
+                          variant='outlined'
+                          size='small'
+                          startIcon={<i className='tabler-camera text-base' />}
+                          onClick={() => setOpenAvatarMedia(true)}
+                          disabled={isSubmitting}
+                        >
+                          {values.avatar ? 'Cambiar foto' : 'Subir foto'}
+                        </Button>
+                        {values.avatar && (
+                          <IconButton
+                            size='small'
+                            color='error'
+                            onClick={() => setFieldValue('avatar', '')}
+                            disabled={isSubmitting}
+                            title='Eliminar foto'
+                          >
+                            <i className='tabler-trash text-base' />
+                          </IconButton>
+                        )}
+                      </Stack>
+                      <Typography variant='caption' color='text.secondary'>
+                        JPG, PNG o WEBP · recomendado 400×400px
+                      </Typography>
+                    </Stack>
+                  </Stack>
+
+                  <MediaLibrary
+                    open={openAvatarMedia}
+                    onClose={() => setOpenAvatarMedia(false)}
+                    onSelect={(url) => { setFieldValue('avatar', url); setOpenAvatarMedia(false) }}
+                    title='Seleccionar Foto de Perfil'
+                    acceptType='IMAGEN'
+                  />
+                </Grid>
+
+                <Grid item xs={12}><Divider /></Grid>
+
+                {/* ── Información Personal ── */}
                 <Grid item xs={12}>
                   <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
-                    Información de Perfil
+                    Información Personal
                   </Typography>
                 </Grid>
 
@@ -223,36 +295,51 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='Biografía'
-                    name='biografia'
-                    placeholder='Describe brevemente al usuario'
-                    value={values.biografia}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.biografia && Boolean(errors.biografia)}
-                    helperText={touched.biografia && errors.biografia}
-                    disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <i className='tabler-file-description text-xl text-textSecondary' />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
+                {/* Biografía — simple para ESTUDIANTE */}
+                {values.rol === Rol.ESTUDIANTE && (
+                  <Grid item xs={12}>
+                    <CustomTextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      label='Descripción / Biografía'
+                      name='biografia'
+                      placeholder='Describe brevemente al usuario...'
+                      value={values.biografia}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.biografia && Boolean(errors.biografia)}
+                      helperText={touched.biografia && errors.biografia}
+                      disabled={isSubmitting}
+                    />
+                  </Grid>
+                )}
 
+                {/* ── Perfil Docente (solo PROFESOR / ADMIN) ── */}
                 {(values.rol === Rol.ADMIN || values.rol === Rol.PROFESOR) && (
                   <>
+                    <Grid item xs={12}><Divider /></Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant='overline' color='text.disabled' sx={{ mb: 2, display: 'block' }}>
+                        Perfil Profesional
+                      </Typography>
+                      <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
+                        Esta información se mostrará públicamente en la página de docente.
+                      </Typography>
+                      <ProfesorBioEditor
+                        value={values.biografia}
+                        onChange={(html) => setFieldValue('biografia', html)}
+                        rol={values.rol}
+                      />
+                    </Grid>
+
                     <Grid item xs={12} sm={6}>
                       <CustomTextField
                         fullWidth
-                        label='Cargo'
+                        label='Cargo / Especialización'
                         name='cargo'
-                        placeholder='Ej: Gerente General / Instructor'
+                        placeholder='Ej: Instructor Senior · Seguridad Industrial'
                         value={values.cargo}
                         onChange={handleChange}
                         onBlur={handleBlur}
@@ -270,7 +357,13 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                     </Grid>
 
                     <Grid item xs={12}>
-                      <Typography variant='subtitle2' sx={{ mb: 2 }}>Firma Digital (Imagen)</Typography>
+                      <Divider sx={{ mb: 2 }} />
+                      <Typography variant='overline' color='text.disabled' sx={{ mb: 2, display: 'block' }}>
+                        Firma Digital
+                      </Typography>
+                      <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
+                        Utilizada para firmar los certificados de los cursos que dicta.
+                      </Typography>
                       <SignatureUpload
                         value={values.firma || ''}
                         onChange={(url) => setFieldValue('firma', url)}
@@ -280,8 +373,10 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                   </>
                 )}
 
-                {/* Sección: Seguridad y Permisos */}
-                <Grid item xs={12} sx={{ mt: 2 }}>
+                <Grid item xs={12}><Divider /></Grid>
+
+                {/* ── Seguridad y Permisos ── */}
+                <Grid item xs={12}>
                   <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
                     Seguridad y Permisos
                   </Typography>
@@ -348,29 +443,42 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                   />
                 </Grid>
               </Grid>
+              </FormWrapper>
+              </form>
+            </Box>
 
-              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 5 }}>
-                <Button
-                  variant='tonal'
-                  color='secondary'
-                  onClick={handleClose}
-                  disabled={isSubmitting}
-                  sx={{ px: 4 }}
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  variant='contained'
-                  type='submit'
-                  disabled={isSubmitting}
-                  sx={{ px: 4 }}
-                  startIcon={<i className='tabler-check' />}
-                >
-                  {isSubmitting ? 'Actualizando...' : 'Actualizar Usuario'}
-                </Button>
-              </Box>
-            </FormWrapper>
-          </form>
+            {/* ── Footer fijo ── */}
+            <Box sx={{
+              px: { xs: 3, sm: 5 },
+              py: 2,
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 2,
+              borderTop: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+            }}>
+              <Button
+                variant='tonal'
+                color='secondary'
+                onClick={handleClose}
+                disabled={isSubmitting}
+                sx={{ px: 4 }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant='contained'
+                type='submit'
+                form='edit-usuario-form'
+                disabled={isSubmitting}
+                sx={{ px: 4 }}
+                startIcon={<i className='tabler-check' />}
+              >
+                {isSubmitting ? 'Actualizando...' : 'Actualizar Usuario'}
+              </Button>
+            </Box>
+          </>
         )}
       </Formik>
     </AppModal>

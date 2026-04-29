@@ -220,6 +220,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     CULQI_RSA_ID: '',
     CULQI_RSA_PUBLIC_KEY: '',
     CERTIFICADO_GERENTE_GENERAL_ID: '',
+    WEB_RUTAS_HABILITADO: 'true',
+    WEB_EMPRESAS_HABILITADO: 'true',
     ...initialMapped
   })
 
@@ -383,6 +385,28 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
             title='Seleccionar Logo de Empresa'
             acceptType='IMAGEN'
           />
+
+          <Divider />
+
+          {/* Visibilidad de páginas */}
+          <Box>
+            <Typography variant='h6' gutterBottom>Visibilidad de Páginas</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Activa o desactiva las páginas del sitio web público. Los cambios pueden tardar unos minutos en aplicarse.
+            </Typography>
+            <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
+              <Stack spacing={1}>
+                <FormControlLabel
+                  control={<Switch checked={config.WEB_RUTAS_HABILITADO === 'true'} onChange={(e) => handleInputChange('WEB_RUTAS_HABILITADO', e.target.checked ? 'true' : 'false')} />}
+                  label='Mostrar página de Rutas de Aprendizaje'
+                />
+                <FormControlLabel
+                  control={<Switch checked={config.WEB_EMPRESAS_HABILITADO === 'true'} onChange={(e) => handleInputChange('WEB_EMPRESAS_HABILITADO', e.target.checked ? 'true' : 'false')} />}
+                  label='Mostrar página de Empresas'
+                />
+              </Stack>
+            </Paper>
+          </Box>
         </Stack>
       )
     },
