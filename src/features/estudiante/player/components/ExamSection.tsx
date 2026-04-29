@@ -69,6 +69,7 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
         examen: ExamenData
         yaAprobado: boolean
         intentosRestantes: number
+        resultadoAnterior?: any
     }>({
         queryKey: ['examen', 'estudiante', examenId],
         queryFn: async () => {
@@ -90,7 +91,13 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
         if (queryData) {
             setYaAprobado(queryData.yaAprobado)
             setIntentosRestantes(queryData.intentosRestantes)
+
+            // Si ya aprobó y la API nos devolvió el resultado anterior, lo mostramos en lugar de la pantalla vacía
+            if (queryData.yaAprobado && queryData.resultadoAnterior && !resultado) {
+                setResultado(queryData.resultadoAnterior)
+            }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [queryData])
 
     // Temporizador

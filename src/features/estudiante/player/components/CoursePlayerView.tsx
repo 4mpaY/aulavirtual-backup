@@ -60,8 +60,13 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
             if (examenFinal) {
                 setExamenId(examenFinal.id)
             }
+
+            // Si el curso no tiene examen final pero el alumno ya aprobó el promedio, habilitamos el certificado
+            if ((course as any).inscripcion?.estado_nota === 'APROBADO') {
+                setExamStatus('passed')
+            }
         }
-    }, [course, setCourse, setExamenId])
+    }, [course, setCourse, setExamenId, setExamStatus])
 
     // Verificar si el estudiante ya aprobó el examen
     useEffect(() => {

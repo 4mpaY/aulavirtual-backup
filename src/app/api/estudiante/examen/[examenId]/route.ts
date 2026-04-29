@@ -37,9 +37,8 @@ export async function GET(
               select: {
                 id: true,
                 texto: true,
-                orden: true
-
-                // NO incluir es_correcta
+                orden: true,
+                es_correcta: true // Lo necesitamos para el resultado anterior, pero no lo expondremos
               }
             }
           }
@@ -110,8 +109,36 @@ export async function GET(
         usuario_id: auth.user.id,
         examen_id: examenId,
         esta_aprobado: true
-      }
+      },
+      include: {
+        respuestas: true
+      },
+      orderBy: { enviado_en: 'desc' }
     })
+
+    let resultadoAnterior = null
+    if (intentoAprobado) {
+      resultadoAnterior = {
+        intentoId: intentoAprobado.id,
+        puntaje: intentoAprobado.puntaje,
+        aprobado: intentoAprobado.esta_aprobado,
+        puntajeAprobacion: examen.puntaje_aprobacion,
+        respuestasCorrectas: intentoAprobado.respuestas.filter((r: any) => r.es_correcta).length,
+        totalPreguntas: examen.preguntas.length,
+        intentosRestantes,
+        detallesRespuestas: intentoAprobado.respuestas.map((r: any) => {
+          const preg = examen.preguntas.find(p => p.id === r.pregunta_id)
+          const correcta = preg?.opciones.find(o => o.es_correcta)
+          
+          return {
+            preguntaId: r.pregunta_id,
+            opcionSeleccionadaId: r.opcion_seleccionada_id,
+            opcionCorrectaId: correcta?.id,
+            esCorrecta: r.es_correcta
+          }
+        })
+      }
+    }
 
     return ApiResponse.success(request, {
       examen: {
@@ -126,13 +153,18 @@ export async function GET(
           texto: p.texto,
           tipo: p.tipo,
           puntos: p.puntos,
-          opciones: p.opciones
+          opciones: p.opciones.map(o => ({
+            id: o.id,
+            texto: o.texto,
+            orden: o.orden
+          }))
         }))
       },
       cursoTitulo: examen.curso.titulo,
       intentosRestantes,
       yaAprobado: !!intentoAprobado,
-      puntajeAprobado: intentoAprobado?.puntaje || null
+      puntajeAprobado: intentoAprobado?.puntaje || null,
+      resultadoAnterior
     })
   } catch (error) {
     return handleApiError(error, request)

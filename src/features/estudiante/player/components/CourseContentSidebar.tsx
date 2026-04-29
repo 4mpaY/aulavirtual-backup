@@ -242,7 +242,7 @@ const CourseContentSidebar = ({
                     )))}
 
                 {/* Sección de Examen y Certificado */}
-                {examenId && (
+                {(examenId || examStatus === 'passed') && (
                     <>
                         <Divider />
                         <Box sx={{ p: 3 }}>

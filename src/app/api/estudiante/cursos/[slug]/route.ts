@@ -89,8 +89,9 @@ export async function GET(request: Request, { params }: { params: { slug: string
     const isAdmin = user.rol === 'ADMIN'
     const isCourseProfessor = user.rol === 'PROFESOR' && course.profesor_id === user.id
 
+    let inscription = null
     if (!isAdmin && !isCourseProfessor) {
-      const inscription = await prisma.inscripcion.findUnique({
+      inscription = await prisma.inscripcion.findUnique({
         where: {
           usuario_id_curso_id: {
             usuario_id: user.id,
@@ -135,7 +136,11 @@ export async function GET(request: Request, { params }: { params: { slug: string
             recursos: Array.isArray(l.recursos) ? l.recursos : []
           }))
       })),
-      examenes: course.examenes
+      examenes: course.examenes,
+      inscripcion: inscription ? {
+        estado_nota: inscription.estado_nota,
+        nota_final: inscription.nota_final
+      } : null
     }
 
     return ApiResponse.success(request, { course: formattedCourse })

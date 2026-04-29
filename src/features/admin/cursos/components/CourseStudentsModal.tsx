@@ -100,7 +100,7 @@ export default function CourseStudentsModal({
   }
 
   return (
-    <AppModal open={open} handleClose={handleCloseModal}>
+    <AppModal open={open} handleClose={handleCloseModal} sx={{ maxWidth: 1100 }}>
       <Box sx={{ mb: 6 }}>
         <Typography variant='h5' fontWeight={700} gutterBottom>
           Alumnos Inscritos
@@ -137,6 +137,7 @@ export default function CourseStudentsModal({
           <Table size='small'>
             <TableHead>
               <TableRow>
+                <TableCell>F. Inscripción</TableCell>
                 <TableCell>Estudiante</TableCell>
                 <TableCell>Documento</TableCell>
                 <TableCell>Progreso & Notas</TableCell>
@@ -147,7 +148,7 @@ export default function CourseStudentsModal({
             <TableBody>
               {!data?.alumnos || data.alumnos.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} align='center' sx={{ py: 4 }}>
+                  <TableCell colSpan={6} align='center' sx={{ py: 4 }}>
                     <Typography variant='body2' color='text.secondary'>
                       {searchTerm ? 'No se encontraron alumnos con ese término de búsqueda.' : 'No hay alumnos inscritos en este curso.'}
                     </Typography>
@@ -157,12 +158,31 @@ export default function CourseStudentsModal({
                 data.alumnos.map((alumno: any) => (
                   <TableRow key={alumno.id}>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Typography variant='body2' color='text.secondary'>
+                        {new Date(alumno.inscrito_en).toLocaleDateString()}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Box 
+                        component="a"
+                        href="/admin/usuarios"
+                        sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 2,
+                          textDecoration: 'none',
+                          color: 'inherit',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            opacity: 0.8
+                          }
+                        }}
+                      >
                         <Avatar src={alumno.avatar || ''} sx={{ width: 32, height: 32 }}>
                           {alumno.nombre[0]}
                         </Avatar>
                         <Box>
-                          <Typography variant='body2' fontWeight={600}>
+                          <Typography variant='body2' fontWeight={600} sx={{ '&:hover': { color: 'primary.main' } }}>
                             {alumno.nombre} {alumno.apellido}
                           </Typography>
                           <Typography variant='caption' color='text.secondary'>
@@ -174,9 +194,6 @@ export default function CourseStudentsModal({
                     <TableCell>
                       <Typography variant='body2'>
                         {alumno.numero_documento || '-'}
-                      </Typography>
-                      <Typography variant='caption' color='text.secondary' display='block'>
-                        {new Date(alumno.inscrito_en).toLocaleDateString()}
                       </Typography>
                     </TableCell>
                     <TableCell>

@@ -83,7 +83,7 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                         <Tab icon={<i className='tabler-info-circle' />} iconPosition='start' label='Información' value='1' />
                         <Tab icon={<i className='tabler-list-tree' />} iconPosition='start' label='Contenido' value='2' />
                         <Tab icon={<i className='tabler-star' />} iconPosition='start' label='Detalles Premium' value='4' />
-                        <Tab icon={<i className='tabler-clipboard-check' />} iconPosition='start' label='Evaluación' value='6' />
+                        {/* <Tab icon={<i className='tabler-clipboard-check' />} iconPosition='start' label='Evaluación' value='6' /> */}
                         <Tab icon={<i className='tabler-settings' />} iconPosition='start' label='Configuración' value='3' />
                         <Tab icon={<i className='tabler-message' />} iconPosition='start' label='Comentarios' value='5' />
                     </TabList>

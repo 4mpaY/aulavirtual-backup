@@ -40,7 +40,7 @@ export default async function MyCoursesPage() {
                         <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
                             Gestiona tu aprendizaje y sigue tu progreso en cada curso.
                         </Typography>
-                    </Box>
+                    </Box>{/*  */}
 
                     <MyCoursesList courses={courses} />
                 </Stack>
