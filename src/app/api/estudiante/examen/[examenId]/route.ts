@@ -109,6 +109,14 @@ export async function GET(
         usuario_id: auth.user.id,
         examen_id: examenId,
         esta_aprobado: true
+      }
+    })
+
+    const ultimoIntento = await prisma.intentoExamen.findFirst({
+      where: {
+        usuario_id: auth.user.id,
+        examen_id: examenId,
+        enviado_en: { not: null }
       },
       include: {
         respuestas: true
@@ -116,17 +124,19 @@ export async function GET(
       orderBy: { enviado_en: 'desc' }
     })
 
+    const yaAprobado = !!intentoAprobado
+
     let resultadoAnterior = null
-    if (intentoAprobado) {
+    if (ultimoIntento && (yaAprobado || intentosRestantes <= 0)) {
       resultadoAnterior = {
-        intentoId: intentoAprobado.id,
-        puntaje: intentoAprobado.puntaje,
-        aprobado: intentoAprobado.esta_aprobado,
+        intentoId: ultimoIntento.id,
+        puntaje: ultimoIntento.puntaje,
+        aprobado: ultimoIntento.esta_aprobado,
         puntajeAprobacion: examen.puntaje_aprobacion,
-        respuestasCorrectas: intentoAprobado.respuestas.filter((r: any) => r.es_correcta).length,
+        respuestasCorrectas: ultimoIntento.respuestas.filter((r: any) => r.es_correcta).length,
         totalPreguntas: examen.preguntas.length,
         intentosRestantes,
-        detallesRespuestas: intentoAprobado.respuestas.map((r: any) => {
+        detallesRespuestas: ultimoIntento.respuestas.map((r: any) => {
           const preg = examen.preguntas.find(p => p.id === r.pregunta_id)
           const correcta = preg?.opciones.find(o => o.es_correcta)
           
@@ -162,7 +172,7 @@ export async function GET(
       },
       cursoTitulo: examen.curso.titulo,
       intentosRestantes,
-      yaAprobado: !!intentoAprobado,
+      yaAprobado,
       puntajeAprobado: intentoAprobado?.puntaje || null,
       resultadoAnterior
     })

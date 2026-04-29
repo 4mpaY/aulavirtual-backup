@@ -178,10 +178,35 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
     }
 
     const handleContinueAfterExam = () => {
-        const { setCurrentLessonId: storeSLI } = useCourseStore.getState()
-        const firstLesson = storeCourse?.modulos[0]?.lecciones[0]
+        if (!storeCourse || !currentExamenId) return;
 
-        if (firstLesson) storeSLI(firstLesson.id)
+        const allItems: any[] = [];
+        storeCourse.modulos.forEach(module => {
+            const moduleItems = [
+                ...module.lecciones.map(l => ({ ...l, tipo: 'leccion' })),
+                ...(storeCourse.examenes || [])
+                    .filter(ex => ex.modulo_id === module.id && ex.tipo === 'INTERMEDIO')
+                    .map(ex => ({ ...ex, tipo: 'examen' }))
+            ].sort((a, b) => (a.orden || 0) - (b.orden || 0));
+
+            allItems.push(...moduleItems);
+        });
+
+        const currentIndex = allItems.findIndex(item => item.id === currentExamenId);
+
+        if (currentIndex !== -1 && currentIndex < allItems.length - 1) {
+            const nextItem = allItems[currentIndex + 1];
+            if (nextItem.tipo === 'leccion') {
+                setCurrentLessonId(nextItem.id);
+            } else {
+                const { openExam } = useCourseStore.getState();
+                openExam(nextItem.id);
+            }
+        } else {
+            // Fallback si no hay siguiente item
+            const firstLesson = storeCourse.modulos[0]?.lecciones[0];
+            if (firstLesson) setCurrentLessonId(firstLesson.id);
+        }
     }
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {

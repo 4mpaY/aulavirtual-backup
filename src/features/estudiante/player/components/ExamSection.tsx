@@ -86,19 +86,27 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
     const examen = queryData?.examen ?? null
     const error = queryError ? (queryError as any).response?.data?.message || (queryError as Error).message : null
 
+    // Resetear el estado local cuando cambia el examen
+    useEffect(() => {
+        setResultado(null)
+        setRespuestas({})
+        setExamenIniciado(false)
+        setTiempoRestante(null)
+    }, [examenId])
+
     // Sincronizar estado local desde query data
     useEffect(() => {
         if (queryData) {
             setYaAprobado(queryData.yaAprobado)
             setIntentosRestantes(queryData.intentosRestantes)
 
-            // Si ya aprobó y la API nos devolvió el resultado anterior, lo mostramos en lugar de la pantalla vacía
-            if (queryData.yaAprobado && queryData.resultadoAnterior && !resultado) {
+            // Si la API nos devolvió el resultado anterior, lo mostramos (siempre y cuando no haya un resultado más reciente recién enviado)
+            if (queryData.resultadoAnterior && !resultado) {
                 setResultado(queryData.resultadoAnterior)
             }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queryData])
+    }, [queryData, examenId])
 
     // Temporizador
     useEffect(() => {

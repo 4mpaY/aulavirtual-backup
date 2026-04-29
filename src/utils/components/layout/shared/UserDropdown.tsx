@@ -133,10 +133,16 @@ const UserDropdown = () => {
                     </MenuItem>
                   )}
                   {data?.user?.rol === 'ESTUDIANTE' && (
-                    <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/estudiante/mis-cursos')}>
-                      <i className='tabler-book text-[22px]' />
-                      <Typography color='text.primary'>Mis Cursos</Typography>
-                    </MenuItem>
+                    <div>
+                      <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/estudiante/mis-cursos')}>
+                        <i className='tabler-book text-[22px]' />
+                        <Typography color='text.primary'>Mis Cursos</Typography>
+                      </MenuItem>
+                      <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/cursos')}>
+                        <i className='tabler-search text-[20px]' />
+                        <Typography color='text.primary'>Explorar Cursos</Typography>
+                      </MenuItem>
+                    </div>
                   )}
                   {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
                     <i className='tabler-settings text-[22px]' />
