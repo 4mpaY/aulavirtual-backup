@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle, Map } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
+import { getConfigs } from '@/utils/libs/config'
 import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
 import RutasSection from '@/features/web/home/components/RutasSection'
@@ -21,7 +22,7 @@ export const metadata = {
 
 async function getHomeData() {
   try {
-    const [coursesRaw, rutasRaw, teachersRaw] = await Promise.all([
+    const [coursesRaw, rutasRaw, teachersRaw, configs] = await Promise.all([
       // Cursos
       prisma.curso.findMany({
         where: { estado: 'PUBLICADO' },
@@ -62,6 +63,7 @@ async function getHomeData() {
         orderBy: { cursos_dictados: { _count: 'desc' } },
         take: 8,
       }),
+      getConfigs(),
     ])
 
     const courses = await Promise.all(
@@ -78,18 +80,32 @@ async function getHomeData() {
       cursos: r.cursos.map(c => ({ miniatura: c.curso.miniatura, titulo: c.curso.titulo })),
     }))
 
+    const heroTitle = configs.HOME_HERO_TITLE || 'Aprende sin límites,\ncrece sin fronteras'
+    const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.'
+    let logos: { label: string; url: string }[] = []
+
+    try { logos = configs.HOME_LOGOS ? JSON.parse(configs.HOME_LOGOS) : [] } catch { logos = [] }
+
     return {
       courses: JSON.parse(JSON.stringify(courses)),
       rutas: JSON.parse(JSON.stringify(rutas)),
       teachers: JSON.parse(JSON.stringify(teachersRaw)),
+      heroTitle,
+      heroDescription,
+      logos,
     }
   } catch {
-    return { courses: [], rutas: [], teachers: [] }
+    return {
+      courses: [], rutas: [], teachers: [],
+      heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
+      heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
+      logos: [],
+    }
   }
 }
 
 export default async function HomePage() {
-  const { courses, rutas, teachers } = await getHomeData()
+  const { courses, rutas, teachers, heroTitle, heroDescription, logos } = await getHomeData()
 
   return (
     <>
@@ -141,8 +157,13 @@ export default async function HomePage() {
                   marginBottom: '1.25rem',
                 }}
               >
-                Aprende sin límites,<br />
-                <span style={{ color: 'var(--web-light, #BDD962)' }}>crece sin fronteras</span>
+                {heroTitle.split('\n')[0]}
+                {heroTitle.split('\n')[1] && (
+                  <>
+                    <br />
+                    <span style={{ color: 'var(--web-light, #BDD962)' }}>{heroTitle.split('\n')[1]}</span>
+                  </>
+                )}
               </h1>
 
               {/* Descripción */}
@@ -156,8 +177,7 @@ export default async function HomePage() {
                   marginBottom: '2.5rem',
                 }}
               >
-                Accede a cursos especializados, rutas de aprendizaje y certificaciones
-                diseñadas para impulsar tu carrera profesional.
+                {heroDescription}
               </p>
 
               {/* Botones */}
@@ -200,7 +220,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── 2. LOGO MARQUEE ─────────────────────────── */}
-      <ClientLogosMarquee />
+      <ClientLogosMarquee logos={logos} />
 
       {/* ── 3. CURSOS DESTACADOS ────────────────────── */}
       <section className="section-container">

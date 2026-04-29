@@ -175,6 +175,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const [tabValue, setTabValue] = useState(0)
   const [saving, setSaving] = useState(false)
   const [openMedia, setOpenMedia] = useState(false)
+  const [openLogoMedia, setOpenLogoMedia] = useState(false)
+  const [pendingLogoLabel, setPendingLogoLabel] = useState('')
 
   const [showSecret, setShowSecret] = useState<{ [key: string]: boolean }>({})
 
@@ -185,6 +187,9 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   }, {})
 
   const [config, setConfig] = useState<{ [key: string]: string }>({
+    HOME_HERO_TITLE: '',
+    HOME_HERO_DESCRIPTION: '',
+    HOME_LOGOS: '[]',
     TEMPLATE_NAME: 'Aula Virtual',
     TEMPLATE_SLOGAN: '',
     CERTIFICADO_INSTITUTION_NAME: '',
@@ -262,8 +267,125 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     }
   }
 
+  const logosArray: { label: string; url: string }[] = (() => {
+    try { return JSON.parse(config.HOME_LOGOS || '[]') } catch { return [] }
+  })()
+
+  const handleRemoveLogo = (index: number) => {
+    const updated = logosArray.filter((_, i) => i !== index)
+
+    handleInputChange('HOME_LOGOS', JSON.stringify(updated))
+  }
+
   // Definición de pestañas dinámicas
   const tabs = [
+    {
+      label: 'Web',
+      content: (
+        <Stack spacing={4}>
+          {/* Hero */}
+          <Box>
+            <Typography variant='h6' gutterBottom>Hero de la Página Principal</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Separa el título en dos líneas usando un salto de línea — la segunda línea se resaltará en color.
+            </Typography>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                label='Título del Hero'
+                placeholder={'Aprende sin límites,\ncrece sin fronteras'}
+                value={config.HOME_HERO_TITLE}
+                onChange={(e) => handleInputChange('HOME_HERO_TITLE', e.target.value)}
+                helperText='Usa Enter para separar líneas. La segunda línea aparece en color.'
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label='Descripción del Hero'
+                placeholder='Accede a cursos especializados, rutas de aprendizaje y certificaciones...'
+                value={config.HOME_HERO_DESCRIPTION}
+                onChange={(e) => handleInputChange('HOME_HERO_DESCRIPTION', e.target.value)}
+              />
+            </Stack>
+          </Box>
+
+          <Divider />
+
+          {/* Logos */}
+          <Box>
+            <Typography variant='h6' gutterBottom>Logos de Empresas Clientes</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Estos logos aparecerán en el carrusel de la página principal. Si no hay logos, se mostrarán los predeterminados.
+            </Typography>
+
+            {/* Lista de logos actuales */}
+            {logosArray.length > 0 && (
+              <Stack spacing={1} sx={{ mb: 3 }}>
+                {logosArray.map((logo, i) => (
+                  <Paper key={i} variant='outlined' sx={{ p: 1.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ width: 64, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.100', borderRadius: 1 }}>
+                      <img src={logo.url} alt={logo.label} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    </Box>
+                    <Typography variant='body2' sx={{ flex: 1 }}>{logo.label}</Typography>
+                    <IconButton size='small' color='error' onClick={() => handleRemoveLogo(i)}>
+                      <i className='tabler-trash' style={{ fontSize: '1rem' }} />
+                    </IconButton>
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
+            {/* Formulario añadir logo */}
+            <Paper variant='outlined' sx={{ p: 2 }}>
+              <Typography variant='subtitle2' gutterBottom>Añadir Logo</Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems='flex-start'>
+                <TextField
+                  size='small'
+                  label='Nombre del logo'
+                  placeholder='Ej: TechCorp'
+                  value={pendingLogoLabel}
+                  onChange={(e) => setPendingLogoLabel(e.target.value)}
+                  sx={{ flex: 1 }}
+                />
+                <Button
+                  variant='outlined'
+                  size='small'
+                  startIcon={<i className='tabler-photo' />}
+                  onClick={() => setOpenLogoMedia(true)}
+                  disabled={!pendingLogoLabel.trim()}
+                  sx={{ whiteSpace: 'nowrap' }}
+                >
+                  Seleccionar imagen
+                </Button>
+              </Stack>
+              {!pendingLogoLabel.trim() && (
+                <Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
+                  Escribe el nombre del logo antes de seleccionar la imagen.
+                </Typography>
+              )}
+            </Paper>
+          </Box>
+
+          <MediaLibrary
+            open={openLogoMedia}
+            onClose={() => setOpenLogoMedia(false)}
+            onSelect={(url) => {
+              const nuevo = { label: pendingLogoLabel.trim() || 'Logo', url }
+              const actualizado = [...logosArray, nuevo]
+
+              handleInputChange('HOME_LOGOS', JSON.stringify(actualizado))
+              setPendingLogoLabel('')
+              setOpenLogoMedia(false)
+            }}
+            title='Seleccionar Logo de Empresa'
+            acceptType='IMAGEN'
+          />
+        </Stack>
+      )
+    },
     {
       label: 'General (Branding)',
       content: (

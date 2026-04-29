@@ -1,16 +1,12 @@
 'use client'
 
-/* ─────────────────────────────────────────────
-   ClientLogosMarquee — rediseño profesional
-   • Una sola fila, marquee suave
-   • Cards minimalistas: solo sigla + nombre
-   • Transición grayscale → color con escala
-   • Se pausa al hacer hover sobre cualquier card
-   ───────────────────────────────────────────── */
-
 import React, { useRef } from 'react'
 
-const logos = [
+type HardcodedLogo = { label: string; initials: string; color: string; light: string }
+type DynamicLogo = { label: string; url: string }
+type LogoItem = HardcodedLogo | DynamicLogo
+
+const DEFAULT_LOGOS: HardcodedLogo[] = [
   { label: 'TechCorp', initials: 'TC', color: '#1a73e8', light: '#e8f0fe' },
   { label: 'Minera Sur', initials: 'MS', color: '#d93025', light: '#fce8e6' },
   { label: 'Grupo Alfa', initials: 'GA', color: '#e37400', light: '#fef3e2' },
@@ -23,10 +19,15 @@ const logos = [
   { label: 'HidroCorp', initials: 'HC', color: '#01579b', light: '#e3f2fd' },
 ]
 
-// Triplicar para un loop visualmente continuo
-const track = [...logos, ...logos, ...logos]
+interface Props {
+  logos?: DynamicLogo[]
+}
 
-export default function ClientLogosMarquee() {
+export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
+  const activeLogos: LogoItem[] =
+    logosFromProps && logosFromProps.length > 0 ? logosFromProps : DEFAULT_LOGOS
+
+  const track = [...activeLogos, ...activeLogos, ...activeLogos]
   const rowRef = useRef<HTMLDivElement>(null)
 
   const pauseAnimation = () => {
@@ -111,7 +112,9 @@ export default function ClientLogosMarquee() {
           }}
         >
           {track.map((logo, i) => (
-            <LogoCard key={i} {...logo} />
+            'url' in logo
+              ? <DynamicLogoCard key={i} label={logo.label} url={logo.url} />
+              : <LogoCard key={i} {...logo} />
           ))}
         </div>
       </div>
@@ -126,17 +129,57 @@ export default function ClientLogosMarquee() {
   )
 }
 
-function LogoCard({
-  label,
-  initials,
-  color,
-  light,
-}: {
-  label: string
-  initials: string
-  color: string
-  light: string
-}) {
+function DynamicLogoCard({ label, url }: { label: string; url: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  const handleEnter = () => {
+    if (!ref.current) return
+    ref.current.style.filter = 'grayscale(0) opacity(1)'
+    ref.current.style.transform = 'scale(1.05)'
+    ref.current.style.borderColor = 'var(--web-primary, #25927F)'
+    ref.current.style.boxShadow = '0 6px 24px rgba(37,146,127,0.2)'
+  }
+
+  const handleLeave = () => {
+    if (!ref.current) return
+    ref.current.style.filter = 'grayscale(1) opacity(0.55)'
+    ref.current.style.transform = 'scale(1)'
+    ref.current.style.borderColor = 'hsl(214,20%,90%)'
+    ref.current.style.boxShadow = 'none'
+  }
+
+  return (
+    <div
+      ref={ref}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      style={{
+        flexShrink: 0,
+        width: '200px',
+        height: '80px',
+        padding: '0.5rem 0.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '16px',
+        border: '1.5px solid hsl(214,20%,90%)',
+        backgroundColor: '#ffffff',
+        cursor: 'default',
+        filter: 'grayscale(1) opacity(0.55)',
+        transition: 'filter 0.3s ease, transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
+        userSelect: 'none',
+      }}
+    >
+      <img
+        src={url}
+        alt={label}
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      />
+    </div>
+  )
+}
+
+function LogoCard({ label, initials, color, light }: HardcodedLogo) {
   const ref = useRef<HTMLDivElement>(null)
 
   const handleEnter = () => {
@@ -188,7 +231,6 @@ function LogoCard({
         minWidth: '180px',
       }}
     >
-      {/* Sigla */}
       <div
         className="logo-badge"
         style={{
@@ -210,8 +252,6 @@ function LogoCard({
       >
         {initials}
       </div>
-
-      {/* Nombre */}
       <span
         style={{
           fontFamily: 'Poppins, sans-serif',
