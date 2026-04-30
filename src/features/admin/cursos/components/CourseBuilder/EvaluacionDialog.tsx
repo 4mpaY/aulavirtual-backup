@@ -394,8 +394,11 @@ export function EvaluacionDialog({
                 value={config.puntaje_aprobacion}
                 onChange={e => {
                   let val = Number(e.target.value)
+
                   if (val > 20) val = 20
+
                   if (val < 0) val = 0
+
                   set('puntaje_aprobacion', val)
                 }}
               />

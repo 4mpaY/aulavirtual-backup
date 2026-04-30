@@ -5,8 +5,8 @@ import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import {
-    Box, Grid, Container, useMediaQuery, useTheme,
-    Tabs, Tab, Button, Stack, Typography, Chip, IconButton, Tooltip
+    Box, Grid, useMediaQuery, useTheme,
+    Tabs, Tab, Button, Stack, Typography, Chip, Tooltip
 } from '@mui/material'
 
 import VideoPlayer from './VideoPlayer'
@@ -56,10 +56,14 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
 
     useEffect(() => {
         setMounted(true)
+
         if (course) {
             setCourse(course)
+
             const examenFinal = course.examenes?.find((e: any) => e.tipo === 'FINAL' && e.esta_publicado)
+
             if (examenFinal) setExamenId(examenFinal.id)
+
             if ((course as any).inscripcion?.estado_nota === 'APROBADO') setExamStatus('passed')
         }
     }, [course, setCourse, setExamenId, setExamStatus])
@@ -67,11 +71,14 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
     useEffect(() => {
         const checkExamStatus = async () => {
             if (!examenId || !storeCourse) return
+
             try {
                 const res = await axios.get(`/api/estudiante/examen/${examenId}`)
+
                 if (res.data.status && res.data.result.yaAprobado) setExamStatus('passed')
             } catch { /* silenced */ }
         }
+
         if (mounted) checkExamStatus()
     }, [examenId, storeCourse, setExamStatus, mounted])
 
@@ -83,10 +90,12 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
         () => storeCourse?.modulos.flatMap(m => m.lecciones) || [],
         [storeCourse?.modulos]
     )
+
     const currentIndex = useMemo(
         () => flatLessons.findIndex(l => l.id === currentLessonId),
         [flatLessons, currentLessonId]
     )
+
     const currentLesson = currentIndex >= 0 ? flatLessons[currentIndex] : undefined
     const prevLesson = currentIndex > 0 ? flatLessons[currentIndex - 1] : undefined
     const nextLesson = currentIndex < flatLessons.length - 1 ? flatLessons[currentIndex + 1] : undefined
@@ -103,13 +112,16 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
 
     const handleLessonComplete = async (lessonId: string, completed: boolean = true) => {
         updateLessonProgress(lessonId, completed)
+
         try {
             const { goToNextLesson: storeGoToNextLesson } = useCourseStore.getState()
             const response = await axios.post('/api/estudiante/progreso', { leccionId: lessonId, estaCompletado: completed })
+
             if (response.data.status) {
                 if (response.data.result?.porcentaje !== undefined) {
                     updateLessonProgress(lessonId, completed, response.data.result.porcentaje)
                 }
+
                 if (completed) {
                     toast.success('¡Lección completada!', { position: 'bottom-right', autoClose: 2000, hideProgressBar: true })
                     setTimeout(() => storeGoToNextLesson(), 1500)
@@ -134,7 +146,9 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
 
     const handleContinueAfterExam = () => {
         if (!storeCourse || !currentExamenId) return
+
         const allItems: any[] = []
+
         storeCourse.modulos.forEach(module => {
             const moduleItems = [
                 ...module.lecciones.map((l: any) => ({ ...l, tipo: 'leccion' })),
@@ -142,15 +156,20 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                     .filter((ex: any) => ex.modulo_id === module.id && ex.tipo === 'INTERMEDIO')
                     .map((ex: any) => ({ ...ex, tipo: 'examen' }))
             ].sort((a, b) => (a.orden || 0) - (b.orden || 0))
+
             allItems.push(...moduleItems)
         })
+
         const idx = allItems.findIndex(item => item.id === currentExamenId)
+
         if (idx !== -1 && idx < allItems.length - 1) {
             const nextItem = allItems[idx + 1]
+
             if (nextItem.tipo === 'leccion') setCurrentLessonId(nextItem.id)
             else openExam(nextItem.id)
         } else {
             const firstLesson = storeCourse.modulos[0]?.lecciones[0]
+
             if (firstLesson) setCurrentLessonId(firstLesson.id)
         }
     }
@@ -170,6 +189,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                 </Grid>
             )
         }
+
         if (currentView === 'completion' && storeCourse) {
             return (
                 <Grid item xs={12} key="completion-section">
@@ -177,6 +197,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                 </Grid>
             )
         }
+
         if (currentView === 'certificate' && storeCourse) {
             return (
                 <Grid item xs={12} key="certificate-section">
@@ -447,7 +468,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                         <Box sx={{ width: 3, height: 18, bgcolor: '#025E44', borderRadius: 2 }} />
                                         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Contenido de esta lección</Typography>
                                     </Box>
-                                    <LessonContent id={currentLesson.id} titulo="" descripcion={currentLesson.contenido} recursos={[]} />
+                                    <LessonContent titulo="" descripcion={currentLesson.contenido} recursos={[]} />
                                 </Box>
                             )}
                             {!(course as any).descripcion && !(course as any).que_aprenderas && !currentLesson?.contenido && (
@@ -462,20 +483,31 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                     {/* Evaluaciones */}
                     {activeTab === 1 && (() => {
                         const allExams = storeCourse?.examenes || []
-                        if (allExams.length === 0) return (
-                            <Box sx={{ p: 4, textAlign: 'center', bgcolor: 'action.hover', borderRadius: '16px' }}>
-                                <i className="tabler-clipboard-off text-3xl" style={{ opacity: 0.3 }} />
-                                <Typography color="text.secondary" sx={{ mt: 1 }}>No hay evaluaciones disponibles.</Typography>
-                            </Box>
-                        )
+
+                        if (allExams.length === 0) {
+                            return (
+                                <Box sx={{ p: 4, textAlign: 'center', bgcolor: 'action.hover', borderRadius: '16px' }}>
+                                    <i className="tabler-clipboard-off text-3xl" style={{ opacity: 0.3 }} />
+                                    <Typography color="text.secondary" sx={{ mt: 1 }}>No hay evaluaciones disponibles.</Typography>
+                                </Box>
+                            )
+                        }
 
                         const { progressPercentage } = useCourseStore.getState()
                         const byModule: Record<string, any[]> = {}
                         const finals: any[] = []
+
                         allExams.forEach((ex: any) => {
-                            if (ex.tipo === 'FINAL') { finals.push(ex); return }
+                            if (ex.tipo === 'FINAL') {
+                                finals.push(ex)
+
+                                return
+                            }
+
                             const key = ex.modulo_id || '__'
+
                             if (!byModule[key]) byModule[key] = []
+
                             byModule[key].push(ex)
                         })
 
@@ -483,6 +515,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             const locked = progressPercentage < (ex.progreso_minimo || 0)
                             const active = currentExamenId === ex.id && currentView === 'exam'
                             const modName = storeCourse?.modulos.find((m: any) => m.id === ex.modulo_id)?.titulo
+
                             return (
                                 <Box sx={{
                                     p: 2, borderRadius: '12px', border: '1px solid', display: 'flex', alignItems: 'center', gap: 2,
@@ -519,7 +552,11 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                                 {storeCourse?.modulos.map((mod: any) => {
                                     const exams = byModule[mod.id] || []
-                                    if (!exams.length) return null
+
+                                    if (!exams.length) {
+                                        return null
+                                    }
+
                                     return (
                                         <Box key={mod.id}>
                                             <Typography variant="caption" sx={{ fontWeight: 700, color: '#025E44', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', mb: 1 }}>{mod.titulo}</Typography>
@@ -542,7 +579,6 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                         <Box>
                             {currentLesson.recursos && currentLesson.recursos.length > 0 ? (
                                 <LessonContent
-                                    id={currentLesson.id}
                                     titulo=""
                                     recursos={currentLesson.recursos}
                                 />

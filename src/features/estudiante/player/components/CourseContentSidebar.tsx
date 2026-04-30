@@ -12,7 +12,6 @@ import {
     ListItem,
     ListItemButton,
     ListItemIcon,
-    ListItemText,
     LinearProgress,
     Divider,
     Button,
@@ -44,14 +43,19 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
 
     const filteredModules = useMemo(() => {
         const modules = course?.modulos || []
+
         if (!searchQuery.trim()) return modules
+
         const lowerQuery = searchQuery.toLowerCase()
+
         return modules
             .map(module => {
                 const moduleMatches = module.titulo.toLowerCase().includes(lowerQuery)
+
                 const matchedLessons = moduleMatches
                     ? module.lecciones
                     : module.lecciones.filter((l: any) => l.titulo.toLowerCase().includes(lowerQuery))
+
                 return matchedLessons.length > 0 ? { ...module, lecciones: matchedLessons } : null
             })
             .filter(Boolean) as any[]
@@ -173,15 +177,24 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                                 : currentExamenId === item.id && currentView === 'exam'
 
                                             const getIcon = () => {
-                                                if (isLocked || isLockedLesson) return (
-                                                    <i className="tabler-lock" style={{ fontSize: '1rem', color: '#9ca3af' }} />
-                                                )
-                                                if (item.tipo === 'examen') return (
-                                                    <i className="tabler-clipboard-check" style={{ fontSize: '1rem', color: '#d97706' }} />
-                                                )
-                                                if (item.completada) return (
-                                                    <i className="tabler-circle-check-filled" style={{ fontSize: '1rem', color: '#16a34a' }} />
-                                                )
+                                                if (isLocked || isLockedLesson) {
+                                                    return (
+                                                        <i className="tabler-lock" style={{ fontSize: '1rem', color: '#9ca3af' }} />
+                                                    )
+                                                }
+
+                                                if (item.tipo === 'examen') {
+                                                    return (
+                                                        <i className="tabler-clipboard-check" style={{ fontSize: '1rem', color: '#d97706' }} />
+                                                    )
+                                                }
+
+                                                if (item.completada) {
+                                                    return (
+                                                        <i className="tabler-circle-check-filled" style={{ fontSize: '1rem', color: '#16a34a' }} />
+                                                    )
+                                                }
+
                                                 return (
                                                     <i className="tabler-player-play" style={{ fontSize: '1rem', color: isSelected ? '#025E44' : '#9ca3af' }} />
                                                 )

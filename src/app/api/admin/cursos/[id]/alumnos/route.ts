@@ -1,5 +1,3 @@
-import { NextResponse } from 'next/server'
-
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
@@ -90,6 +88,7 @@ export async function GET(
     const alumnos = inscripciones.map(i => {
       // Agrupar el mejor intento por examen (viene como porcentaje 0-100)
       const mejoresIntentos: Record<string, number> = {}
+
       i.usuario.intentos_examen.forEach(intento => {
         if (!mejoresIntentos[intento.examen_id] || (intento.puntaje || 0) > mejoresIntentos[intento.examen_id]) {
           mejoresIntentos[intento.examen_id] = intento.puntaje || 0
@@ -97,26 +96,25 @@ export async function GET(
       })
 
       const evaluacionesRealizadas = Object.keys(mejoresIntentos).length
-      
-      // Notas convertidas a base 20 (Perú)
-      // Como el puntaje ya está en 0-100, solo multiplicamos por 0.2
+
       const notas = examenes.map((ex, index) => {
         const puntajePorcentaje = mejoresIntentos[ex.id] || 0
         const notaBase20 = puntajePorcentaje * 0.2
+
         return `N${index + 1}: ${notaBase20.toFixed(1)}`
       }).join(', ')
 
-      // Calcular promedio ponderado en base al porcentaje
-      let sumaPonderada = 0;
-      let pesoTotal = 0;
-      
-      examenes.forEach(ex => {
-        const puntajePorcentaje = mejoresIntentos[ex.id] || 0;
-        sumaPonderada += puntajePorcentaje * ex.peso;
-        pesoTotal += ex.peso;
-      });
+      let sumaPonderada = 0
+      let pesoTotal = 0
 
-      const promedioPorcentajeCalculado = pesoTotal > 0 ? (sumaPonderada / pesoTotal) : 0;
+      examenes.forEach(ex => {
+        const puntajePorcentaje = mejoresIntentos[ex.id] || 0
+
+        sumaPonderada += puntajePorcentaje * ex.peso
+        pesoTotal += ex.peso
+      })
+
+      const promedioPorcentajeCalculado = pesoTotal > 0 ? (sumaPonderada / pesoTotal) : 0
       
       // Convertir el porcentaje calculado (0-100) a base vigesimal peruana (0-20)
       const promedioVigesimalCalculado = (promedioPorcentajeCalculado * 0.2).toFixed(1);

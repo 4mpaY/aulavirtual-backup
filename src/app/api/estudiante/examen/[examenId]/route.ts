@@ -127,6 +127,7 @@ export async function GET(
     const yaAprobado = !!intentoAprobado
 
     let resultadoAnterior = null
+
     if (ultimoIntento && (yaAprobado || intentosRestantes <= 0)) {
       resultadoAnterior = {
         intentoId: ultimoIntento.id,

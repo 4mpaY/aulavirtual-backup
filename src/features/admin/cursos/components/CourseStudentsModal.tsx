@@ -15,10 +15,10 @@ import {
   Chip
 } from '@mui/material'
 
+import * as XLSX from 'xlsx'
+
 import AppModal from '@/utils/components/AppModal'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
-
-import * as XLSX from 'xlsx'
 
 import { useCursoAlumnos } from '../hooks/useCursoAlumnos'
 
@@ -78,10 +78,12 @@ export default function CourseStudentsModal({
       // Separar "N1: 20.0, N2: 15.0" en columnas individuales "N1" y "N2"
       if (a.notas && a.notas !== 'Sin exámenes') {
         const notasArray = a.notas.split(', ')
+
         notasArray.forEach((notaItem: string) => {
           const [key, val] = notaItem.split(': ')
+
           if (key && val) {
-            baseObj[`Nota ${key}`] = Number(val) // Convertimos a número para que Excel lo trate como número
+            baseObj[`Nota ${key}`] = Number(val)
           }
         })
       }

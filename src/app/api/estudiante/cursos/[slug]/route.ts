@@ -90,6 +90,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
     const isCourseProfessor = user.rol === 'PROFESOR' && course.profesor_id === user.id
 
     let inscription = null
+
     if (!isAdmin && !isCourseProfessor) {
       inscription = await prisma.inscripcion.findUnique({
         where: {
