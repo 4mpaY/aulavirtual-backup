@@ -66,11 +66,11 @@ export default function CourseStudentsModal({
 
     const exportData = data.alumnos.map((a: any) => {
       const baseObj: any = {
+        'Fecha Inscripción': new Date(a.inscrito_en).toLocaleDateString(),
         'Nombres': a.nombre,
         'Apellidos': a.apellido,
         'Documento': a.numero_documento || 'No especificado',
         'Correo': a.correo,
-        'Fecha Inscripción': new Date(a.inscrito_en).toLocaleDateString(),
         'Estado': estadoLabel[a.estado_inscripcion] || a.estado_inscripcion,
         'Evaluaciones': `${a.evaluaciones_realizadas}/${a.total_examenes}`,
       }

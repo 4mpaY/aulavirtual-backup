@@ -35,14 +35,14 @@ interface ConfiguracionViewProps {
 }
 
 const COLOR_PRESETS = [
-  { name: 'Teal & Lima',        main: '#25927F', light: '#BDD962', dark: '#025E44' },
-  { name: 'Índigo & Lima',      main: '#4F46E5', light: '#A3E635', dark: '#1E1B4B' },
-  { name: 'Océano Profundo',    main: '#2563EB', light: '#FCD34D', dark: '#0D1F3C' },
-  { name: 'Índigo & Dorado',    main: '#7C3AED', light: '#FCD34D', dark: '#1E1B4B' },
-  { name: 'Esmeralda',          main: '#10B981', light: '#A3E635', dark: '#022C1E' },
-  { name: 'Pizarra & Coral',    main: '#EA580C', light: '#FEF08A', dark: '#0F172A' },
-  { name: 'Granate & Champán',  main: '#BE185D', light: '#FDE68A', dark: '#1A0A14' },
-  { name: 'Cian Tecnológico',   main: '#0891B2', light: '#67E8F9', dark: '#0C1A2E' },
+  { name: 'Teal & Lima', main: '#25927F', light: '#BDD962', dark: '#025E44' },
+  { name: 'Índigo & Lima', main: '#4F46E5', light: '#A3E635', dark: '#1E1B4B' },
+  { name: 'Océano Profundo', main: '#2563EB', light: '#FCD34D', dark: '#0D1F3C' },
+  { name: 'Índigo & Dorado', main: '#7C3AED', light: '#FCD34D', dark: '#1E1B4B' },
+  { name: 'Esmeralda', main: '#10B981', light: '#A3E635', dark: '#022C1E' },
+  { name: 'Pizarra & Coral', main: '#EA580C', light: '#FEF08A', dark: '#0F172A' },
+  { name: 'Granate & Champán', main: '#BE185D', light: '#FDE68A', dark: '#1A0A14' },
+  { name: 'Cian Tecnológico', main: '#0891B2', light: '#67E8F9', dark: '#0C1A2E' },
 ]
 
 interface TabPanelProps {
@@ -195,7 +195,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     CERTIFICADO_INSTITUTION_NAME: '',
     CERTIFICADO_SLOGAN: '',
     CERTIFICADO_INSTITUTION_URL: '',
-    TEMPLATE_LOGO: '/images/logo-arm.png',
+    TEMPLATE_LOGO: '/images/logo.png',
     SETTINGS_COOKIE_NAME: 'arm',
     PRIMARY_COLOR_MAIN: '#131FF2',
     PRIMARY_COLOR_LIGHT: '#242CBF',

@@ -19,7 +19,7 @@ async function main() {
     },
     {
       clave: 'TEMPLATE_LOGO',
-      valor: process.env.NEXT_PUBLIC_TEMPLATE_LOGO || '/images/logo-arm.png',
+      valor: process.env.NEXT_PUBLIC_TEMPLATE_LOGO || '/images/logo.png',
       descripcion: 'URL del logo de la plataforma'
     },
     {

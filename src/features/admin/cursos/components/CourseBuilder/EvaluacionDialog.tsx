@@ -172,7 +172,9 @@ const defaultConfig = {
   intentos_maximos: 1,
   limite_tiempo: null as number | null,
   mezclar_preguntas: false,
-  esta_publicado: false
+  esta_publicado: false,
+  fecha_inicio: null as string | null,
+  fecha_fin: null as string | null
 }
 
 export function EvaluacionDialog({
@@ -217,6 +219,13 @@ export function EvaluacionDialog({
     if (examenData?.examen && phase === 'config') {
       const e = examenData.examen
 
+      const toDatetimeLocal = (val: any) => {
+        if (!val) return null
+        const d = new Date(val)
+
+        return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+      }
+
       setConfig({
         titulo: e.titulo || '',
         descripcion: e.descripcion || '',
@@ -226,7 +235,9 @@ export function EvaluacionDialog({
         intentos_maximos: e.intentos_maximos || 1,
         limite_tiempo: e.limite_tiempo || null,
         mezclar_preguntas: e.mezclar_preguntas || false,
-        esta_publicado: e.esta_publicado || false
+        esta_publicado: e.esta_publicado || false,
+        fecha_inicio: toDatetimeLocal(e.fecha_inicio),
+        fecha_fin: toDatetimeLocal(e.fecha_fin)
       })
     }
   }, [examenData, phase])
@@ -239,7 +250,9 @@ export function EvaluacionDialog({
 
     const configToSave = {
       ...config,
-      puntaje_aprobacion: config.puntaje_aprobacion * 5 // Convert back to percentage 0-100 for DB
+      puntaje_aprobacion: config.puntaje_aprobacion * 5, // Convert back to percentage 0-100 for DB
+      fecha_inicio: config.fecha_inicio || null,
+      fecha_fin: config.fecha_fin || null
     }
 
     try {
@@ -423,6 +436,40 @@ export function EvaluacionDialog({
                 inputProps={{ min: 1 }}
                 value={config.limite_tiempo ?? ''}
                 onChange={e => set('limite_tiempo', e.target.value ? Number(e.target.value) : null)}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.75, color: 'text.secondary' }}>
+                Fecha de inicio (opcional)
+              </Typography>
+              <input
+                type='datetime-local'
+                value={config.fecha_inicio || ''}
+                onChange={e => set('fecha_inicio', e.target.value || null)}
+                style={{
+                  width: '100%', padding: '10px 12px', borderRadius: 8,
+                  border: '1px solid rgba(0,0,0,0.23)', fontSize: '0.875rem',
+                  fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none',
+                  color: 'inherit', background: 'transparent'
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.75, color: 'text.secondary' }}>
+                Fecha de cierre (opcional)
+              </Typography>
+              <input
+                type='datetime-local'
+                value={config.fecha_fin || ''}
+                onChange={e => set('fecha_fin', e.target.value || null)}
+                style={{
+                  width: '100%', padding: '10px 12px', borderRadius: 8,
+                  border: '1px solid rgba(0,0,0,0.23)', fontSize: '0.875rem',
+                  fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none',
+                  color: 'inherit', background: 'transparent'
+                }}
               />
             </Grid>
 

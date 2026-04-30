@@ -282,6 +282,8 @@ model Examen {
   intentos_maximos   Int             @default(1)
   mezclar_preguntas  Boolean         @default(false)
   esta_publicado     Boolean         @default(false)
+  fecha_inicio       DateTime?
+  fecha_fin          DateTime?
   creado_en          DateTime        @default(now())
   actualizado_en     DateTime        @updatedAt
   curso_id           String

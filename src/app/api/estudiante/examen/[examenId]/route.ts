@@ -56,6 +56,18 @@ export async function GET(
       return ApiResponse.error(request, 'Este examen no está disponible', 403)
     }
 
+    const ahora = new Date()
+
+    if ((examen as any).fecha_inicio && ahora < (examen as any).fecha_inicio) {
+      const fechaStr = (examen as any).fecha_inicio.toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
+
+      return ApiResponse.error(request, `Este examen estará disponible desde el ${fechaStr}`, 403)
+    }
+
+    if ((examen as any).fecha_fin && ahora > (examen as any).fecha_fin) {
+      return ApiResponse.error(request, 'El período de evaluación ha finalizado', 403)
+    }
+
     // 2. Verificar inscripción
     const inscripcion = await prisma.inscripcion.findUnique({
       where: {

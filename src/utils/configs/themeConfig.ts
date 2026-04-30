@@ -60,7 +60,7 @@ const themeConfig: Config = {
     process.env.NEXT_PUBLIC_TEMPLATE_SLOGAN !== undefined
       ? process.env.NEXT_PUBLIC_TEMPLATE_SLOGAN
       : '',
-  templateLogo: process.env.NEXT_PUBLIC_TEMPLATE_LOGO || '/images/logo-arm.png',
+  templateLogo: process.env.NEXT_PUBLIC_TEMPLATE_LOGO || '/images/logo.png',
   settingsCookieName: process.env.NEXT_PUBLIC_SETTINGS_COOKIE_NAME || 'arm',
   mode: 'light', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'

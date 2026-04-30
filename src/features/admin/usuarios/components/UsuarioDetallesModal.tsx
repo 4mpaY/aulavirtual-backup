@@ -110,9 +110,20 @@ const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesM
             </Grid>
             <Grid item xs={12}>
               <Typography variant='caption' color='text.disabled' sx={{ fontWeight: 600 }}>BIOGRAFÍA</Typography>
-              <Typography variant='body1' sx={{ mt: 1, fontStyle: usuario.biografia ? 'normal' : 'italic' }}>
-                {usuario.biografia || 'Sin biografía redactada.'}
-              </Typography>
+              {usuario.biografia ? (
+                <Box
+                  sx={{ mt: 1, fontSize: '0.95rem', lineHeight: 1.7, color: 'text.primary',
+                    '& h1,& h2,& h3': { fontSize: '1rem', fontWeight: 700, mt: 1.5, mb: 0.5 },
+                    '& p': { m: 0 },
+                    '& ul,& ol': { pl: 3, my: 0.5 },
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: usuario.biografia.replace(/<!--PROFESOR_BIO_JSON:[\s\S]*?-->/g, '').trim()
+                  }}
+                />
+              ) : (
+                <Typography variant='body1' sx={{ mt: 1, fontStyle: 'italic' }}>Sin biografía redactada.</Typography>
+              )}
             </Grid>
           </Grid>
         )}

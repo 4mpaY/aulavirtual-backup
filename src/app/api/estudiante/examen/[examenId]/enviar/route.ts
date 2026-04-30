@@ -42,6 +42,16 @@ export async function POST(
       return ApiResponse.error(request, 'Examen no encontrado', 404)
     }
 
+    const ahora = new Date()
+
+    if ((examen as any).fecha_inicio && ahora < (examen as any).fecha_inicio) {
+      return ApiResponse.error(request, 'Este examen aún no está disponible', 403)
+    }
+
+    if ((examen as any).fecha_fin && ahora > (examen as any).fecha_fin) {
+      return ApiResponse.error(request, 'El período de evaluación ha finalizado', 403)
+    }
+
     // 2. Verificar inscripción y progreso
     const inscripcion = await prisma.inscripcion.findUnique({
       where: {

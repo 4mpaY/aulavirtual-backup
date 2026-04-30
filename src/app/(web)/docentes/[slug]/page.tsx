@@ -177,7 +177,7 @@ export default async function DocentePage({ params }: Props) {
                 {tituloEspecializacion && (
                   <Typography
                     variant="h6"
-                    sx={{ color: 'var(--web-primary, #25927F)', fontWeight: 600, textAlign: { xs: 'center', md: 'left' } }}
+                    sx={{ color: '#94a3b8', fontWeight: 600, textAlign: { xs: 'center', md: 'left' } }}
                   >
                     {tituloEspecializacion}
                   </Typography>

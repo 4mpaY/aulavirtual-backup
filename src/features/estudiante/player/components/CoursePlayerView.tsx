@@ -43,6 +43,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
         examenId,
         currentExamenId,
         examStatus,
+        progressPercentage,
         setCourse,
         setCurrentLessonId,
         updateLessonProgress,
@@ -493,7 +494,6 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             )
                         }
 
-                        const { progressPercentage } = useCourseStore.getState()
                         const byModule: Record<string, any[]> = {}
                         const finals: any[] = []
 
@@ -511,20 +511,45 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             byModule[key].push(ex)
                         })
 
+                        const fmtDate = (val: any) => {
+                            if (!val) return ''
+
+                            return new Date(val).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+                        }
+
                         const ExamCard = ({ ex }: { ex: any }) => {
-                            const locked = progressPercentage < (ex.progreso_minimo || 0)
-                            const active = currentExamenId === ex.id && currentView === 'exam'
+                            const ahora = new Date()
+                            const lockedProgress = progressPercentage < (ex.progreso_minimo || 0)
+                            const lockedFuture = ex.fecha_inicio && ahora < new Date(ex.fecha_inicio)
+                            const lockedExpired = ex.fecha_fin && ahora > new Date(ex.fecha_fin)
+                            const approved = !!ex.ya_aprobado
+                            const exhausted = !approved && (ex.intentos_realizados || 0) >= (ex.intentos_maximos || 1)
+                            const isActive = currentExamenId === ex.id && currentView === 'exam'
+                            const isLocked = lockedProgress || lockedFuture || lockedExpired || exhausted
+
                             const modName = storeCourse?.modulos.find((m: any) => m.id === ex.modulo_id)?.titulo
+
+                            // Configuración visual del botón según estado
+                            const btnConfig = (() => {
+                                if (approved) return { label: 'Aprobado ✓', bg: '#16a34a', disabled: true }
+                                if (exhausted) return { label: 'Finalizado', bg: '#ea580c', disabled: true }
+                                if (isActive) return { label: 'En curso', bg: '#d97706', disabled: false }
+                                if (lockedFuture) return { label: 'Próximamente', bg: '#3b82f6', disabled: true }
+                                if (lockedExpired) return { label: 'Expirado', bg: '#dc2626', disabled: true }
+                                if (lockedProgress) return { label: 'Bloqueado', bg: '#94a3b8', disabled: true }
+
+                                return { label: 'Iniciar', bg: '#025E44', disabled: false }
+                            })()
 
                             return (
                                 <Box sx={{
                                     p: 2, borderRadius: '12px', border: '1px solid', display: 'flex', alignItems: 'center', gap: 2,
-                                    borderColor: active ? '#025E44' : 'divider',
-                                    bgcolor: active ? 'rgba(2,94,68,0.04)' : 'background.paper',
-                                    opacity: locked ? 0.55 : 1,
+                                    borderColor: approved ? '#16a34a40' : isActive ? '#025E44' : 'divider',
+                                    bgcolor: approved ? 'rgba(22,163,74,0.04)' : isActive ? 'rgba(2,94,68,0.04)' : 'background.paper',
+                                    opacity: (lockedProgress && !approved) ? 0.65 : 1,
                                 }}>
-                                    <Box sx={{ width: 42, height: 42, borderRadius: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: ex.tipo === 'FINAL' ? 'rgba(2,94,68,0.1)' : 'rgba(217,119,6,0.1)' }}>
-                                        <i className={ex.tipo === 'FINAL' ? 'tabler-trophy' : 'tabler-clipboard-check'} style={{ fontSize: '1.2rem', color: ex.tipo === 'FINAL' ? '#025E44' : '#d97706' }} />
+                                    <Box sx={{ width: 42, height: 42, borderRadius: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: approved ? 'rgba(22,163,74,0.1)' : ex.tipo === 'FINAL' ? 'rgba(2,94,68,0.1)' : 'rgba(217,119,6,0.1)' }}>
+                                        <i className={approved ? 'tabler-circle-check-filled' : ex.tipo === 'FINAL' ? 'tabler-trophy' : 'tabler-clipboard-check'} style={{ fontSize: '1.2rem', color: approved ? '#16a34a' : ex.tipo === 'FINAL' ? '#025E44' : '#d97706' }} />
                                     </Box>
                                     <Box sx={{ flex: 1, minWidth: 0 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 0.25 }}>
@@ -535,14 +560,31 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                         <Stack direction="row" spacing={1.5} flexWrap="wrap">
                                             {modName && <Typography variant="caption" color="text.secondary"><i className="tabler-folders" style={{ marginRight: 3 }} />{modName}</Typography>}
                                             {ex.puntaje_aprobacion && <Typography variant="caption" color="text.secondary"><i className="tabler-award" style={{ marginRight: 3 }} />Aprobación: {ex.puntaje_aprobacion}%</Typography>}
-                                            {ex.intentos_maximos && <Typography variant="caption" color="text.secondary"><i className="tabler-refresh" style={{ marginRight: 3 }} />Intentos: {ex.intentos_maximos}</Typography>}
+                                            <Typography variant="caption" color="text.secondary"><i className="tabler-refresh" style={{ marginRight: 3 }} />{ex.intentos_realizados || 0}/{ex.intentos_maximos} intentos</Typography>
                                             {ex.progreso_minimo > 0 && <Typography variant="caption" color="text.secondary"><i className="tabler-lock" style={{ marginRight: 3 }} />Requiere {ex.progreso_minimo}% avance</Typography>}
                                         </Stack>
+                                        {(ex.fecha_inicio || ex.fecha_fin) && (
+                                            <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.5 }}>
+                                                <i className="tabler-calendar-time" style={{ fontSize: '0.78rem', color: '#64748b' }} />
+                                                <Typography variant="caption" color="text.disabled" sx={{ fontSize: '0.7rem' }}>
+                                                    {ex.fecha_inicio ? `Desde ${fmtDate(ex.fecha_inicio)}` : ''}
+                                                    {ex.fecha_inicio && ex.fecha_fin ? '  ·  ' : ''}
+                                                    {ex.fecha_fin ? `Hasta ${fmtDate(ex.fecha_fin)}` : ''}
+                                                </Typography>
+                                            </Stack>
+                                        )}
                                     </Box>
-                                    <Button size="small" variant={active ? 'contained' : 'outlined'} disabled={locked} onClick={() => openExam(ex.id)}
-                                        sx={{ flexShrink: 0, borderRadius: '10px', textTransform: 'none', fontWeight: 700, fontSize: '0.78rem', px: 2,
-                                            ...(active ? { bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' }, boxShadow: 'none' } : { borderColor: '#025E44', color: '#025E44', '&:hover': { bgcolor: 'rgba(2,94,68,0.05)' } }) }}>
-                                        {locked ? <i className="tabler-lock" /> : active ? 'En curso' : 'Iniciar'}
+                                    <Button
+                                        size="small"
+                                        variant="contained"
+                                        disabled={btnConfig.disabled || isLocked}
+                                        onClick={() => !btnConfig.disabled && !isLocked && openExam(ex.id)}
+                                        sx={{ flexShrink: 0, borderRadius: '10px', textTransform: 'none', fontWeight: 700, fontSize: '0.78rem', px: 2, minWidth: 90, boxShadow: 'none',
+                                            bgcolor: btnConfig.bg, '&:hover': { bgcolor: btnConfig.bg, filter: 'brightness(0.9)' },
+                                            '&.Mui-disabled': { bgcolor: `${btnConfig.bg}88`, color: '#fff' }
+                                        }}
+                                    >
+                                        {btnConfig.label}
                                     </Button>
                                 </Box>
                             )

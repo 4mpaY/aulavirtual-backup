@@ -76,7 +76,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       puntaje_aprobacion,
       intentos_maximos,
       esta_publicado,
-      mezclar_preguntas
+      mezclar_preguntas,
+      fecha_inicio,
+      fecha_fin
     } = await req.json()
 
     // Verify course existence and ownership
@@ -111,7 +113,9 @@ export async function POST(req: Request, { params }: { params: { id: string } })
           puntaje_aprobacion: puntaje_aprobacion !== undefined ? Number(puntaje_aprobacion) : examen.puntaje_aprobacion,
           intentos_maximos: intentos_maximos !== undefined ? Number(intentos_maximos) : examen.intentos_maximos,
           esta_publicado: esta_publicado !== undefined ? esta_publicado : examen.esta_publicado,
-          mezclar_preguntas: mezclar_preguntas !== undefined ? mezclar_preguntas : examen.mezclar_preguntas
+          mezclar_preguntas: mezclar_preguntas !== undefined ? mezclar_preguntas : examen.mezclar_preguntas,
+          fecha_inicio: fecha_inicio !== undefined ? (fecha_inicio ? new Date(fecha_inicio) : null) : examen.fecha_inicio,
+          fecha_fin: fecha_fin !== undefined ? (fecha_fin ? new Date(fecha_fin) : null) : examen.fecha_fin
         }
       })
     } else {
@@ -129,6 +133,8 @@ export async function POST(req: Request, { params }: { params: { id: string } })
           intentos_maximos: Number(intentos_maximos || 1),
           esta_publicado: esta_publicado || false,
           mezclar_preguntas: mezclar_preguntas || false,
+          fecha_inicio: fecha_inicio ? new Date(fecha_inicio) : null,
+          fecha_fin: fecha_fin ? new Date(fecha_fin) : null,
           curso_id: cursoId
         }
       })
