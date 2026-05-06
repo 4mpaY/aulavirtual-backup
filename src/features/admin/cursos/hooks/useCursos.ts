@@ -211,6 +211,16 @@ export function useReorderLecciones() {
   })
 }
 
+export function useReorderExamenesModulo() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { cursoId: string; moduloId: string; items: { id: string; orden: number }[] }>({
+    mutationFn: async ({ cursoId, moduloId, items }) =>
+      await axiosCurso.reorderExamenesModulo(cursoId, moduloId, items),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
 /**
  * Hook para obtener todos los comentarios de un curso
  */

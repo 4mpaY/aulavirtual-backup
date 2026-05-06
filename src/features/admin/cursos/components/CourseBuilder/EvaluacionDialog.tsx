@@ -3,17 +3,14 @@
 import { useState, useEffect } from 'react'
 
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Button,
   Grid,
   FormControlLabel,
   Switch,
   Typography,
   Box,
-  Slider,
+  Tabs,
+  Tab,
   ButtonGroup,
   Divider,
   Stack,
@@ -21,11 +18,13 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  CircularProgress
+  CircularProgress,
+  alpha
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { toast } from 'react-toastify'
 
+import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
 import {
   useCreateExamen,
@@ -76,7 +75,13 @@ function QuestionForm({ initial, onSave, onCancel, isSaving }: QuestionFormProps
   }
 
   return (
-    <Box sx={{ border: '1px solid', borderColor: 'primary.light', borderRadius: 2, p: 3, bgcolor: 'action.hover' }}>
+    <Box sx={{
+      border: '1.5px solid',
+      borderColor: 'primary.main',
+      borderRadius: 3,
+      p: 2.5,
+      bgcolor: theme => alpha(theme.palette.primary.main, 0.04)
+    }}>
       <Stack spacing={2}>
         <CustomTextField
           fullWidth
@@ -86,35 +91,43 @@ function QuestionForm({ initial, onSave, onCancel, isSaving }: QuestionFormProps
           value={texto}
           onChange={e => setTexto(e.target.value)}
         />
-        <CustomTextField
-          label='Puntos'
-          type='number'
-          value={puntos}
-          onChange={e => setPuntos(Number(e.target.value))}
-          sx={{ width: 120 }}
-        />
-        <Divider />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant='subtitle2' fontWeight={700}>Alternativas</Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <CustomTextField
+            label='Puntos'
+            type='number'
+            value={puntos}
+            onChange={e => setPuntos(Number(e.target.value))}
+            sx={{ width: 110 }}
+            inputProps={{ min: 1 }}
+          />
+          <Box sx={{ flex: 1 }} />
           <Button
             size='small'
-            startIcon={<i className='tabler-plus' />}
+            variant='outlined'
+            startIcon={<i className='tabler-plus' style={{ fontSize: '0.8rem' }} />}
             onClick={() => setOpciones([...opciones, { texto: '', es_correcta: false }])}
           >
             Añadir opción
           </Button>
         </Box>
-        <Stack spacing={1.5}>
+
+        <Divider>
+          <Typography variant='caption' color='text.secondary' fontWeight={600}>ALTERNATIVAS</Typography>
+        </Divider>
+
+        <Stack spacing={1.25}>
           {opciones.map((opt, idx) => (
             <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Tooltip title='Correcta'>
-                <Switch
-                  size='small'
-                  color='success'
-                  checked={opt.es_correcta}
-                  onChange={e => handleOptionChange(idx, 'es_correcta', e.target.checked)}
-                />
-              </Tooltip>
+              <Box sx={{
+                width: 28, height: 28, borderRadius: '50%', display: 'flex',
+                alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem',
+                fontWeight: 700, flexShrink: 0,
+                bgcolor: opt.es_correcta ? 'success.main' : 'action.disabledBackground',
+                color: opt.es_correcta ? 'white' : 'text.disabled'
+              }}>
+                {String.fromCharCode(65 + idx)}
+              </Box>
               <CustomTextField
                 fullWidth
                 size='small'
@@ -123,23 +136,34 @@ function QuestionForm({ initial, onSave, onCancel, isSaving }: QuestionFormProps
                 onChange={e => handleOptionChange(idx, 'texto', e.target.value)}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    bgcolor: opt.es_correcta ? 'success.lightOpacity' : 'transparent'
+                    bgcolor: opt.es_correcta ? alpha('#16a34a', 0.07) : 'transparent'
                   }
                 }}
               />
+              <Tooltip title='Marcar como correcta'>
+                <Switch
+                  size='small'
+                  color='success'
+                  checked={opt.es_correcta}
+                  onChange={e => handleOptionChange(idx, 'es_correcta', e.target.checked)}
+                />
+              </Tooltip>
               <IconButton
                 size='small'
                 color='error'
                 disabled={opciones.length <= 2}
                 onClick={() => setOpciones(opciones.filter((_, i) => i !== idx))}
               >
-                <i className='tabler-trash text-sm' />
+                <i className='tabler-trash' style={{ fontSize: '0.9rem' }} />
               </IconButton>
             </Box>
           ))}
         </Stack>
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-          <Button size='small' variant='outlined' onClick={onCancel} disabled={isSaving}>Cancelar</Button>
+
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', pt: 0.5 }}>
+          <Button size='small' variant='outlined' onClick={onCancel} disabled={isSaving}>
+            Cancelar
+          </Button>
           <Button size='small' variant='contained' onClick={handleSubmit} disabled={isSaving || !texto}>
             {isSaving ? 'Guardando...' : initial?.id ? 'Guardar cambios' : 'Añadir pregunta'}
           </Button>
@@ -158,7 +182,7 @@ interface EvaluacionDialogProps {
   cursoId: string
   moduloId?: string | null
   moduloTitulo?: string
-  examenId?: string | null  // if editing existing
+  examenId?: string | null
 }
 
 type Phase = 'config' | 'questions'
@@ -168,11 +192,11 @@ const defaultConfig = {
   descripcion: '',
   peso: 1 as 1 | 2 | 3,
   progreso_minimo: 0,
-  puntaje_aprobacion: 12, // Default 12/20
+  puntaje_aprobacion: 12,
   intentos_maximos: 1,
   limite_tiempo: null as number | null,
-  mezclar_preguntas: false,
-  esta_publicado: false,
+  mezclar_preguntas: true,
+  esta_publicado: true,
   fecha_inicio: null as string | null,
   fecha_fin: null as string | null
 }
@@ -204,7 +228,6 @@ export function EvaluacionDialog({
     activeExamenId || ''
   )
 
-  // Reset on open
   useEffect(() => {
     if (open) {
       setActiveExamenId(examenIdProp || null)
@@ -214,7 +237,6 @@ export function EvaluacionDialog({
     }
   }, [open, examenIdProp])
 
-  // Populate config when editing
   useEffect(() => {
     if (examenData?.examen && phase === 'config') {
       const e = examenData.examen
@@ -234,8 +256,8 @@ export function EvaluacionDialog({
         puntaje_aprobacion: e.puntaje_aprobacion ? Math.round(e.puntaje_aprobacion / 5) : 12,
         intentos_maximos: e.intentos_maximos || 1,
         limite_tiempo: e.limite_tiempo || null,
-        mezclar_preguntas: e.mezclar_preguntas || false,
-        esta_publicado: e.esta_publicado || false,
+        mezclar_preguntas: e.mezclar_preguntas ?? true,
+        esta_publicado: e.esta_publicado ?? true,
         fecha_inicio: toDatetimeLocal(e.fecha_inicio),
         fecha_fin: toDatetimeLocal(e.fecha_fin)
       })
@@ -250,7 +272,7 @@ export function EvaluacionDialog({
 
     const configToSave = {
       ...config,
-      puntaje_aprobacion: config.puntaje_aprobacion * 5, // Convert back to percentage 0-100 for DB
+      puntaje_aprobacion: config.puntaje_aprobacion * 5,
       fecha_inicio: config.fecha_inicio || null,
       fecha_fin: config.fecha_fin || null
     }
@@ -317,45 +339,102 @@ export function EvaluacionDialog({
   const isSavingQuestion = createPreguntaMutation.isPending || updatePreguntaMutation.isPending
   const preguntas = examenData?.examen?.preguntas || []
 
+  const dateInputStyle: React.CSSProperties = {
+    width: '100%', padding: '10px 12px', borderRadius: 8,
+    border: '1px solid rgba(0,0,0,0.23)', fontSize: '0.875rem',
+    fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none',
+    color: 'inherit', background: 'transparent'
+  }
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth='md' fullWidth scroll='paper'>
-      <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {phase === 'questions' && (
-            <IconButton size='small' onClick={() => setPhase('config')}>
-              <i className='tabler-arrow-left' />
-            </IconButton>
-          )}
+    <AppModal open={open} handleClose={onClose} sx={{ p: 0, maxWidth: 720 }}>
+      {/* ── Header ── */}
+      <Box sx={{
+        px: 3.5, pt: 3.5, pb: 0,
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+        position: 'sticky',
+        top: 0,
+        bgcolor: 'background.paper',
+        zIndex: 1,
+        borderRadius: '16px 16px 0 0'
+      }}>
+        {/* Title row */}
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 2, pr: 4 }}>
+          <Box sx={{
+            width: 40, height: 40, borderRadius: 2, flexShrink: 0,
+            bgcolor: alpha('#025E44', 0.1),
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <i className='tabler-clipboard-text' style={{ fontSize: '1.2rem', color: '#025E44' }} />
+          </Box>
           <Box>
-            {examenIdProp ? 'Editar Evaluación Intermedia' : 'Nueva Evaluación Intermedia'}
+            <Typography variant='h6' fontWeight={800} sx={{ lineHeight: 1.2, color: 'text.primary' }}>
+              {examenIdProp ? 'Editar evaluación' : 'Nueva evaluación'}
+            </Typography>
             {moduloTitulo && (
-              <Typography variant='caption' display='block' color='text.secondary'>
-                Módulo: {moduloTitulo}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.4 }}>
+                <i className='tabler-layout-list' style={{ fontSize: '0.75rem', color: '#6b7280' }} />
+                <Typography variant='caption' color='text.secondary' fontWeight={500}>
+                  {moduloTitulo}
+                </Typography>
+              </Box>
             )}
           </Box>
-          <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-            <Chip
-              size='small'
-              label='1. Configuración'
-              variant={phase === 'config' ? 'filled' : 'outlined'}
-              color={phase === 'config' ? 'primary' : 'default'}
-            />
-            <Chip
-              size='small'
-              label='2. Preguntas'
-              variant={phase === 'questions' ? 'filled' : 'outlined'}
-              color={phase === 'questions' ? 'primary' : 'default'}
-              disabled={!activeExamenId}
-            />
-          </Box>
         </Box>
-      </DialogTitle>
 
-      <DialogContent dividers sx={{ minHeight: 400 }}>
+        {/* Tabs */}
+        <Tabs
+          value={phase}
+          onChange={(_, v) => { if (v === 'questions' && !activeExamenId) return; setPhase(v) }}
+          sx={{
+            '& .MuiTabs-indicator': { bgcolor: '#025E44', height: 3, borderRadius: '3px 3px 0 0' },
+            '& .MuiTab-root': { textTransform: 'none', fontWeight: 700, fontSize: '0.875rem', color: 'text.secondary' },
+            '& .Mui-selected': { color: '#025E44 !important' }
+          }}
+        >
+          <Tab
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <Box sx={{
+                  width: 20, height: 20, borderRadius: '50%', fontSize: '0.7rem', fontWeight: 800,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  bgcolor: phase === 'config' ? '#025E44' : 'action.disabledBackground',
+                  color: phase === 'config' ? 'white' : 'text.disabled'
+                }}>1</Box>
+                Configuración
+              </Box>
+            }
+            value='config'
+          />
+          <Tab
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                <Box sx={{
+                  width: 20, height: 20, borderRadius: '50%', fontSize: '0.7rem', fontWeight: 800,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  bgcolor: phase === 'questions' ? '#025E44' : 'action.disabledBackground',
+                  color: phase === 'questions' ? 'white' : 'text.disabled',
+                  opacity: !activeExamenId ? 0.4 : 1
+                }}>2</Box>
+                Preguntas
+                {preguntas.length > 0 && (
+                  <Chip label={preguntas.length} size='small' sx={{ height: 18, fontSize: '0.68rem', fontWeight: 700, bgcolor: alpha('#025E44', 0.12), color: '#025E44' }} />
+                )}
+              </Box>
+            }
+            value='questions'
+            disabled={!activeExamenId}
+          />
+        </Tabs>
+      </Box>
+
+      {/* ── Body ── */}
+      <Box sx={{ px: 3.5, py: 3, overflowY: 'auto', maxHeight: 'calc(80vh - 200px)' }}>
+
         {/* ── PHASE 1: Config ── */}
         {phase === 'config' && (
-          <Grid container spacing={3} sx={{ pt: 1 }}>
+          <Grid container spacing={2.5}>
             <Grid item xs={12}>
               <CustomTextField
                 fullWidth
@@ -371,15 +450,15 @@ export function EvaluacionDialog({
                 fullWidth
                 multiline
                 rows={2}
-                label='Descripción / Instrucciones'
-                placeholder='Instrucciones para el estudiante...'
+                label='Instrucciones para el estudiante'
+                placeholder='Indica qué se evaluará, tiempo disponible, etc.'
                 value={config.descripcion}
                 onChange={e => set('descripcion', e.target.value)}
               />
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <Typography variant='body2' color='text.secondary' gutterBottom sx={{ mb: 1 }}>
+              <Typography variant='caption' fontWeight={600} color='text.secondary' sx={{ display: 'block', mb: 1 }}>
                 Peso en nota final
               </Typography>
               <ButtonGroup variant='outlined' fullWidth size='small'>
@@ -388,11 +467,12 @@ export function EvaluacionDialog({
                     key={v}
                     onClick={() => set('peso', v)}
                     variant={config.peso === v ? 'contained' : 'outlined'}
-                    sx={{ flex: 1 }}
+                    sx={{
+                      flex: 1, fontWeight: 700, textTransform: 'none',
+                      ...(config.peso === v && { bgcolor: '#025E44', borderColor: '#025E44', '&:hover': { bgcolor: '#014d36' } })
+                    }}
                   >
-                    {v} <Typography variant='caption' sx={{ ml: 0.5 }}>
-                      {v === 1 ? '(Bajo)' : v === 2 ? '(Medio)' : '(Alto)'}
-                    </Typography>
+                    {v === 1 ? 'Bajo' : v === 2 ? 'Medio' : 'Alto'}
                   </Button>
                 ))}
               </ButtonGroup>
@@ -402,16 +482,14 @@ export function EvaluacionDialog({
               <CustomTextField
                 fullWidth
                 type='number'
-                label='Puntaje de aprobación (0 - 20)'
+                label='Nota mínima de aprobación (0 – 20)'
                 inputProps={{ min: 0, max: 20 }}
                 value={config.puntaje_aprobacion}
                 onChange={e => {
                   let val = Number(e.target.value)
 
                   if (val > 20) val = 20
-
                   if (val < 0) val = 0
-
                   set('puntaje_aprobacion', val)
                 }}
               />
@@ -421,76 +499,67 @@ export function EvaluacionDialog({
               <CustomTextField
                 fullWidth
                 type='number'
-                label='Intentos máximos'
+                label='Intentos permitidos'
                 inputProps={{ min: 1 }}
                 value={config.intentos_maximos}
                 onChange={e => set('intentos_maximos', Number(e.target.value))}
               />
             </Grid>
 
+            <Grid item xs={12}>
+              <Divider sx={{ my: 0.5 }}>
+                <Typography variant='caption' color='text.secondary' fontWeight={600}>
+                  VENTANA DE DISPONIBILIDAD (OPCIONAL)
+                </Typography>
+              </Divider>
+            </Grid>
+
             <Grid item xs={12} sm={6}>
               <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.75, color: 'text.secondary' }}>
-                Fecha de inicio (opcional)
+                Fecha de inicio
               </Typography>
               <input
                 type='datetime-local'
                 value={config.fecha_inicio || ''}
                 onChange={e => set('fecha_inicio', e.target.value || null)}
-                style={{
-                  width: '100%', padding: '10px 12px', borderRadius: 8,
-                  border: '1px solid rgba(0,0,0,0.23)', fontSize: '0.875rem',
-                  fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none',
-                  color: 'inherit', background: 'transparent'
-                }}
+                style={dateInputStyle}
               />
             </Grid>
 
             <Grid item xs={12} sm={6}>
               <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.75, color: 'text.secondary' }}>
-                Fecha de cierre (opcional)
+                Fecha de cierre
               </Typography>
               <input
                 type='datetime-local'
                 value={config.fecha_fin || ''}
                 onChange={e => set('fecha_fin', e.target.value || null)}
-                style={{
-                  width: '100%', padding: '10px 12px', borderRadius: 8,
-                  border: '1px solid rgba(0,0,0,0.23)', fontSize: '0.875rem',
-                  fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none',
-                  color: 'inherit', background: 'transparent'
-                }}
+                style={dateInputStyle}
               />
             </Grid>
 
             <Grid item xs={12}>
-              <Typography variant='body2' color='text.secondary' gutterBottom>
-                Progreso mínimo del módulo para desbloquear: <strong>{config.progreso_minimo}%</strong>
-              </Typography>
-              <Box sx={{ px: 1 }}>
-                <Slider
-                  value={config.progreso_minimo}
-                  onChange={(_, val) => set('progreso_minimo', val as number)}
-                  min={0}
-                  max={100}
-                  step={10}
-                  marks
-                  valueLabelDisplay='auto'
-                  valueLabelFormat={v => `${v}%`}
-                />
-              </Box>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+              <Box sx={{
+                display: 'flex', gap: 1.5, flexWrap: 'wrap', p: 2,
+                borderRadius: 2.5, bgcolor: 'action.hover',
+                border: '1px solid', borderColor: 'divider'
+              }}>
                 <FormControlLabel
                   control={
                     <Switch
                       checked={config.mezclar_preguntas}
                       onChange={e => set('mezclar_preguntas', e.target.checked)}
+                      sx={{ '& .MuiSwitch-thumb': { bgcolor: config.mezclar_preguntas ? '#025E44' : undefined } }}
                     />
                   }
-                  label='Mezclar preguntas'
+                  label={
+                    <Box>
+                      <Typography variant='body2' fontWeight={600}>Mezclar preguntas</Typography>
+                      <Typography variant='caption' color='text.secondary'>Orden aleatorio para cada intento</Typography>
+                    </Box>
+                  }
                 />
+                <Divider orientation='vertical' flexItem sx={{ mx: 0.5 }} />
                 <FormControlLabel
                   control={
                     <Switch
@@ -499,7 +568,12 @@ export function EvaluacionDialog({
                       color='success'
                     />
                   }
-                  label='Publicar evaluación'
+                  label={
+                    <Box>
+                      <Typography variant='body2' fontWeight={600}>Publicar evaluación</Typography>
+                      <Typography variant='caption' color='text.secondary'>Visible para los estudiantes</Typography>
+                    </Box>
+                  }
                 />
               </Box>
             </Grid>
@@ -511,23 +585,32 @@ export function EvaluacionDialog({
           <Box>
             {isLoadingExamen ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                <CircularProgress />
+                <CircularProgress sx={{ color: '#025E44' }} />
               </Box>
             ) : (
               <>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                {/* Summary bar */}
+                <Box sx={{
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  mb: 2.5, p: 2, borderRadius: 2.5,
+                  bgcolor: alpha('#025E44', 0.06),
+                  border: '1px solid', borderColor: alpha('#025E44', 0.15)
+                }}>
                   <Box>
-                    <Typography variant='h6' fontWeight={700}>{examenData?.examen?.titulo}</Typography>
+                    <Typography variant='subtitle2' fontWeight={800} color='#025E44'>
+                      {examenData?.examen?.titulo}
+                    </Typography>
                     <Typography variant='caption' color='text.secondary'>
-                      {preguntas.length} pregunta{preguntas.length !== 1 ? 's' : ''} · Aprobación: {Math.round((examenData?.examen?.puntaje_aprobacion || 0) / 5)} / 20
+                      {preguntas.length} pregunta{preguntas.length !== 1 ? 's' : ''} · Aprobación: {Math.round((examenData?.examen?.puntaje_aprobacion || 0) / 5)}/20
                     </Typography>
                   </Box>
                   {!showQuestionForm && !editingQuestion && (
                     <Button
                       variant='contained'
                       size='small'
-                      startIcon={<i className='tabler-plus' />}
+                      startIcon={<i className='tabler-plus' style={{ fontSize: '0.85rem' }} />}
                       onClick={() => { setShowQuestionForm(true); setEditingQuestion(null) }}
+                      sx={{ bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' }, textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
                     >
                       Añadir pregunta
                     </Button>
@@ -545,79 +628,103 @@ export function EvaluacionDialog({
                   </Box>
                 )}
 
-                {/* Question list */}
-                {preguntas.length === 0 && !showQuestionForm ? (
-                  <Box sx={{ textAlign: 'center', py: 6, color: 'text.disabled' }}>
-                    <i className='tabler-help-circle text-5xl' />
-                    <Typography sx={{ mt: 2 }}>Aún no hay preguntas. Añade la primera.</Typography>
+                {/* Empty state */}
+                {preguntas.length === 0 && !showQuestionForm && (
+                  <Box sx={{ textAlign: 'center', py: 7, color: 'text.disabled' }}>
+                    <i className='tabler-help-circle' style={{ fontSize: '3rem', display: 'block', marginBottom: 12 }} />
+                    <Typography variant='body2' color='text.secondary'>
+                      Aún no hay preguntas. Añade la primera.
+                    </Typography>
                   </Box>
-                ) : (
+                )}
+
+                {/* Question list */}
+                {preguntas.length > 0 && (
                   <Stack spacing={2}>
                     {preguntas.map((p: any, idx: number) => (
-                      <Card key={p.id} variant='outlined' sx={{ p: 3 }}>
+                      <Card key={p.id} variant='outlined' sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
                         {editingQuestion?.id === p.id ? (
-                          <QuestionForm
-                            initial={p}
-                            onSave={handleSaveQuestion}
-                            onCancel={() => setEditingQuestion(null)}
-                            isSaving={isSavingQuestion}
-                          />
+                          <Box sx={{ p: 2 }}>
+                            <QuestionForm
+                              initial={p}
+                              onSave={handleSaveQuestion}
+                              onCancel={() => setEditingQuestion(null)}
+                              isSaving={isSavingQuestion}
+                            />
+                          </Box>
                         ) : (
                           <>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                              <Typography variant='subtitle2' fontWeight={700} sx={{ pr: 2 }}>
-                                {idx + 1}. {p.texto}
-                                <Chip label={`${p.puntos} pto${p.puntos !== 1 ? 's' : ''}`} size='small' sx={{ ml: 1, height: 18 }} />
-                              </Typography>
-                              <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
-                                <IconButton
-                                  size='small'
-                                  color='primary'
-                                  onClick={() => { setEditingQuestion(p); setShowQuestionForm(false) }}
-                                >
-                                  <i className='tabler-edit text-sm' />
-                                </IconButton>
-                                <IconButton
-                                  size='small'
-                                  color='error'
-                                  onClick={() => handleDeleteQuestion(p.id)}
-                                >
-                                  <i className='tabler-trash text-sm' />
-                                </IconButton>
+                            <Box sx={{ px: 2.5, pt: 2, pb: 1.5 }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                                <Box sx={{ display: 'flex', gap: 1.25, flex: 1, minWidth: 0 }}>
+                                  <Box sx={{
+                                    width: 26, height: 26, borderRadius: '50%', bgcolor: alpha('#025E44', 0.1),
+                                    color: '#025E44', fontSize: '0.72rem', fontWeight: 800, flexShrink: 0,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 0.15
+                                  }}>
+                                    {idx + 1}
+                                  </Box>
+                                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                                    <Typography variant='body2' fontWeight={700} sx={{ lineHeight: 1.4 }}>
+                                      {p.texto}
+                                    </Typography>
+                                    <Chip
+                                      label={`${p.puntos} pto${p.puntos !== 1 ? 's' : ''}`}
+                                      size='small'
+                                      sx={{ mt: 0.5, height: 18, fontSize: '0.68rem', fontWeight: 700 }}
+                                    />
+                                  </Box>
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 0.25, flexShrink: 0 }}>
+                                  <Tooltip title='Editar'>
+                                    <IconButton
+                                      size='small'
+                                      onClick={() => { setEditingQuestion(p); setShowQuestionForm(false) }}
+                                      sx={{ color: 'primary.main' }}
+                                    >
+                                      <i className='tabler-edit' style={{ fontSize: '0.9rem' }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title='Eliminar'>
+                                    <IconButton
+                                      size='small'
+                                      color='error'
+                                      onClick={() => handleDeleteQuestion(p.id)}
+                                    >
+                                      <i className='tabler-trash' style={{ fontSize: '0.9rem' }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
                               </Box>
                             </Box>
-                            <Grid container spacing={1}>
+
+                            <Divider />
+
+                            <Grid container spacing={0} sx={{ p: 1.5 }}>
                               {p.opciones?.map((opt: any, optIdx: number) => (
-                                <Grid item xs={12} sm={6} key={opt.id}>
+                                <Grid item xs={12} sm={6} key={opt.id} sx={{ p: 0.5 }}>
                                   <Box sx={{
-                                    p: 1.5,
-                                    borderRadius: 1,
+                                    p: 1.25, borderRadius: 1.5,
                                     border: '1px solid',
                                     borderColor: opt.es_correcta ? 'success.main' : 'divider',
-                                    bgcolor: opt.es_correcta ? 'success.lightOpacity' : 'transparent',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1
+                                    bgcolor: opt.es_correcta ? alpha('#16a34a', 0.08) : 'transparent',
+                                    display: 'flex', alignItems: 'center', gap: 1
                                   }}>
                                     <Box sx={{
-                                      width: 22,
-                                      height: 22,
-                                      borderRadius: '50%',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      fontSize: '0.7rem',
-                                      fontWeight: 700,
-                                      flexShrink: 0,
+                                      width: 22, height: 22, borderRadius: '50%',
+                                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      fontSize: '0.68rem', fontWeight: 800, flexShrink: 0,
                                       bgcolor: opt.es_correcta ? 'success.main' : 'action.disabledBackground',
                                       color: opt.es_correcta ? 'white' : 'text.disabled'
                                     }}>
                                       {String.fromCharCode(65 + optIdx)}
                                     </Box>
-                                    <Typography variant='body2' color={opt.es_correcta ? 'success.main' : 'text.primary'} fontWeight={opt.es_correcta ? 600 : 400}>
+                                    <Typography variant='body2' color={opt.es_correcta ? 'success.main' : 'text.primary'} fontWeight={opt.es_correcta ? 600 : 400} sx={{ fontSize: '0.8rem' }}>
                                       {opt.texto}
                                     </Typography>
-                                    {opt.es_correcta && <i className='tabler-check text-success ms-auto' />}
+                                    {opt.es_correcta && (
+                                      <i className='tabler-check' style={{ fontSize: '0.85rem', color: '#16a34a', marginLeft: 'auto', flexShrink: 0 }} />
+                                    )}
                                   </Box>
                                 </Grid>
                               ))}
@@ -632,33 +739,53 @@ export function EvaluacionDialog({
             )}
           </Box>
         )}
-      </DialogContent>
+      </Box>
 
-      <DialogActions sx={{ px: 3, py: 2 }}>
+      {/* ── Footer actions ── */}
+      <Box sx={{
+        px: 3.5, py: 2.5,
+        borderTop: '1px solid', borderColor: 'divider',
+        display: 'flex', gap: 1.5, justifyContent: 'flex-end',
+        bgcolor: 'background.paper',
+        borderRadius: '0 0 16px 16px'
+      }}>
         {phase === 'config' ? (
           <>
-            <Button variant='outlined' onClick={onClose} disabled={isSavingConfig}>
+            <Button variant='outlined' onClick={onClose} disabled={isSavingConfig} sx={{ textTransform: 'none', fontWeight: 600 }}>
               Cancelar
             </Button>
             <Button
               variant='contained'
               onClick={handleSaveConfig}
               disabled={!config.titulo.trim() || isSavingConfig}
+              endIcon={<i className='tabler-arrow-right' style={{ fontSize: '0.9rem' }} />}
+              sx={{ textTransform: 'none', fontWeight: 700, bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' } }}
             >
-              {isSavingConfig ? 'Guardando...' : activeExamenId ? 'Guardar y continuar →' : 'Crear y añadir preguntas →'}
+              {isSavingConfig ? 'Guardando...' : activeExamenId ? 'Guardar y continuar' : 'Crear y añadir preguntas'}
             </Button>
           </>
         ) : (
           <>
-            <Button variant='outlined' onClick={() => setPhase('config')}>
-              ← Editar configuración
+            <Button
+              variant='outlined'
+              onClick={() => setPhase('config')}
+              startIcon={<i className='tabler-arrow-left' style={{ fontSize: '0.9rem' }} />}
+              sx={{ textTransform: 'none', fontWeight: 600 }}
+            >
+              Configuración
             </Button>
-            <Button variant='contained' color='success' onClick={onClose}>
+            <Button
+              variant='contained'
+              color='success'
+              onClick={onClose}
+              startIcon={<i className='tabler-check' style={{ fontSize: '0.9rem' }} />}
+              sx={{ textTransform: 'none', fontWeight: 700 }}
+            >
               Finalizar
             </Button>
           </>
         )}
-      </DialogActions>
-    </Dialog>
+      </Box>
+    </AppModal>
   )
 }

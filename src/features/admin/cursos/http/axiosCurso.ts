@@ -176,6 +176,16 @@ export class AxiosCurso extends AxiosInternalHttpClient {
     }
   }
 
+  async reorderExamenesModulo(cursoId: string, moduloId: string, items: { id: string; orden: number }[]): Promise<any> {
+    try {
+      const payload = await this.iPatch(`/${cursoId}/modulos/${moduloId}/examenes/reordenar`, { items })
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
   async getComentarios(cursoId: string): Promise<{ comentarios: any[] }> {
     try {
       const payload = await this.iGet<{ comentarios: any[] }>(`/${cursoId}/comentarios`)

@@ -13,7 +13,8 @@ import {
   Typography,
   Tooltip,
   Divider,
-  Collapse
+  Collapse,
+  alpha
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 
@@ -50,6 +51,7 @@ import {
   useUpdateLeccion,
   useDeleteLeccion,
   useReorderLecciones,
+  useReorderExamenesModulo,
   useDeleteExamen
 } from '../../hooks/useCursos'
 
@@ -168,14 +170,12 @@ const ModuleCard = ({
   expandedModule,
   setExpandedModule,
   handleDeleteModule,
-  handleLessonDragEnd,
+  onCombinedDragEnd,
   handleToggleLessonStatus,
   handleToggleLessonPreview,
   setEditingLesson,
   handleDeleteLesson,
-  newLessonTitles,
-  setNewLessonTitles,
-  handleAddLesson,
+  onAddLesson,
   onAddEvaluacion,
   onEditEvaluacion,
   onDeleteEvaluacion,
@@ -185,7 +185,8 @@ const ModuleCard = ({
   const totalItems = (modulo.lecciones?.length ?? 0) + (modulo.examenes?.length ?? 0)
 
   return (
-    <Card sx={{ border: '1px solid', borderColor: 'divider' }}>
+    <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
+      {/* Header */}
       <Box
         sx={{
           display: 'flex',
@@ -194,30 +195,28 @@ const ModuleCard = ({
           px: 3,
           py: 2,
           bgcolor: 'action.hover',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          transition: 'background 0.15s',
+          '&:hover': { bgcolor: theme => alpha(theme.palette.action.hover, 0.12) }
         }}
         onClick={() => setExpandedModule(expandedModule === modulo.id ? null : modulo.id)}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box {...dragHandleProps} sx={{ display: 'flex', cursor: 'grab', '&:active': { cursor: 'grabbing' }, mr: 1 }}>
+          <Box {...dragHandleProps} sx={{ display: 'flex', cursor: 'grab', '&:active': { cursor: 'grabbing' }, mr: 0.5 }} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
             <i className='tabler-grip-vertical text-xl text-textDisabled' />
           </Box>
-          <i className={`tabler-chevron-${expandedModule === modulo.id ? 'down' : 'right'} text-xl`} />
-          <Typography variant='subtitle1' fontWeight={600}>
-            Módulo {mIndex + 1}: {modulo.titulo}
+          <Box sx={{
+            width: 28, height: 28, borderRadius: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            bgcolor: alpha('#025E44', 0.1), color: '#025E44', fontSize: '0.75rem', fontWeight: 800
+          }}>
+            {mIndex + 1}
+          </Box>
+          <Typography variant='subtitle1' fontWeight={700} color='text.primary'>
+            {modulo.titulo}
           </Typography>
-          <Chip
-            size='small'
-            variant='outlined'
-            label={`${modulo.lecciones?.length ?? 0} lecciones`}
-          />
+          <Chip size='small' variant='outlined' label={`${modulo.lecciones?.length ?? 0} lecciones`} sx={{ height: 20, fontSize: '0.72rem' }} />
           {(modulo.examenes?.length ?? 0) > 0 && (
-            <Chip
-              size='small'
-              variant='tonal'
-              color='warning'
-              label={`${modulo.examenes.length} evaluación${modulo.examenes.length > 1 ? 'es' : ''}`}
-            />
+            <Chip size='small' variant='tonal' color='warning' label={`${modulo.examenes.length} eval.`} sx={{ height: 20, fontSize: '0.72rem' }} />
           )}
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }} onClick={e => e.stopPropagation()}>
@@ -226,91 +225,101 @@ const ModuleCard = ({
               <i className='tabler-trash text-lg' />
             </IconButton>
           </Tooltip>
+          <Box sx={{ ml: 0.5, color: 'text.secondary' }}>
+            <i className={`tabler-chevron-${expandedModule === modulo.id ? 'up' : 'down'} text-lg`} />
+          </Box>
         </Box>
       </Box>
 
       <Collapse in={expandedModule === modulo.id}>
-        <CardContent>
-          {totalItems === 0 && (
-            <Typography variant='body2' color='text.disabled' sx={{ py: 2, textAlign: 'center' }}>
-              Sin contenido aún. Añade lecciones o evaluaciones.
-            </Typography>
-          )}
-
-          {/* Lecciones */}
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={(e) => handleLessonDragEnd(modulo.id, e)}
-          >
-            <SortableContext
-              items={(modulo.lecciones || []).map((l: any) => l.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {(modulo.lecciones || []).map((leccion: any) => (
-                <SortableLessonItem key={leccion.id} id={leccion.id}>
-                  <LessonRow
-                    leccion={leccion}
-                    moduloId={modulo.id}
-                    handleToggleLessonStatus={handleToggleLessonStatus}
-                    handleToggleLessonPreview={handleToggleLessonPreview}
-                    setEditingLesson={setEditingLesson}
-                    handleDeleteLesson={handleDeleteLesson}
-                  />
-                </SortableLessonItem>
-              ))}
-            </SortableContext>
-          </DndContext>
-
-          {/* Evaluaciones */}
-          {(modulo.examenes || []).map((examen: CursoExamenResumen) => (
-            <EvaluacionRow
-              key={examen.id}
-              examen={examen}
-              onEdit={onEditEvaluacion}
-              onDelete={onDeleteEvaluacion}
-            />
-          ))}
-
-          <Divider sx={{ my: 2 }} />
-
-          {/* Añadir lección */}
-          <Box sx={{ display: 'flex', gap: 2, mb: 1.5 }}>
-            <CustomTextField
-              fullWidth
-              size='small'
-              placeholder='Nueva lección...'
-              value={newLessonTitles[modulo.id] || ''}
-              onChange={e => setNewLessonTitles((prev: any) => ({ ...prev, [modulo.id]: e.target.value }))}
-              onKeyDown={e => e.key === 'Enter' && handleAddLesson(modulo.id)}
-              InputProps={{
-                startAdornment: <InputAdornment position='start'><i className='tabler-file-plus text-lg text-textSecondary' /></InputAdornment>
-              }}
-            />
+        <CardContent sx={{ p: 0 }}>
+          {/* ── Action buttons at top ── */}
+          <Box sx={{
+            display: 'flex', gap: 1.5, px: 2.5, py: 2,
+            borderBottom: '1px solid', borderColor: 'divider',
+            bgcolor: theme => alpha(theme.palette.background.paper, 0.6)
+          }}>
             <Button
-              variant='tonal'
+              variant='contained'
               size='small'
-              onClick={() => handleAddLesson(modulo.id)}
-              disabled={!newLessonTitles[modulo.id]?.trim()}
-              startIcon={<i className='tabler-plus' />}
-              sx={{ whiteSpace: 'nowrap' }}
+              startIcon={<i className='tabler-file-plus' style={{ fontSize: '0.95rem' }} />}
+              onClick={() => onAddLesson(modulo.id)}
+              sx={{
+                textTransform: 'none', fontWeight: 700, borderRadius: 2,
+                bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' },
+                boxShadow: '0 2px 8px rgba(2,94,68,0.25)',
+                px: 2, py: 0.75, fontSize: '0.82rem'
+              }}
             >
-              Añadir Lección
+              Lección
+            </Button>
+            <Button
+              variant='outlined'
+              size='small'
+              startIcon={<i className='tabler-clipboard-plus' style={{ fontSize: '0.95rem' }} />}
+              onClick={() => onAddEvaluacion(modulo.id)}
+              sx={{
+                textTransform: 'none', fontWeight: 700, borderRadius: 2,
+                borderColor: '#d97706', color: '#d97706',
+                '&:hover': { bgcolor: alpha('#d97706', 0.08), borderColor: '#b45309' },
+                px: 2, py: 0.75, fontSize: '0.82rem'
+              }}
+            >
+              Evaluación
             </Button>
           </Box>
 
-          {/* Añadir evaluación */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              variant='tonal'
-              color='warning'
-              size='small'
-              startIcon={<i className='tabler-clipboard-plus' />}
-              onClick={() => onAddEvaluacion(modulo.id)}
-              sx={{ whiteSpace: 'nowrap' }}
-            >
-              Añadir Evaluación
-            </Button>
+          {/* ── Content list ── */}
+          <Box sx={{ px: 2.5, py: 2 }}>
+            {totalItems === 0 && (
+              <Box sx={{ textAlign: 'center', py: 4, color: 'text.disabled' }}>
+                <i className='tabler-inbox' style={{ fontSize: '2rem', display: 'block', marginBottom: 8 }} />
+                <Typography variant='body2' color='text.secondary' fontSize='0.82rem'>
+                  Sin contenido aún. Añade lecciones o evaluaciones.
+                </Typography>
+              </Box>
+            )}
+
+            {/* Lista combinada: lecciones + evaluaciones ordenadas por orden */}
+            {(() => {
+              const allItems = [
+                ...(modulo.lecciones || []).map((l: any) => ({ ...l, _tipo: 'leccion' as const })),
+                ...(modulo.examenes  || []).map((e: any) => ({ ...e, _tipo: 'examen'  as const })),
+              ].sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
+
+              return (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={e => onCombinedDragEnd(modulo.id, e, allItems)}
+                >
+                  <SortableContext items={allItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                    {allItems.map(item =>
+                      item._tipo === 'leccion' ? (
+                        <SortableLessonItem key={item.id} id={item.id}>
+                          <LessonRow
+                            leccion={item}
+                            moduloId={modulo.id}
+                            handleToggleLessonStatus={handleToggleLessonStatus}
+                            handleToggleLessonPreview={handleToggleLessonPreview}
+                            setEditingLesson={setEditingLesson}
+                            handleDeleteLesson={handleDeleteLesson}
+                          />
+                        </SortableLessonItem>
+                      ) : (
+                        <SortableLessonItem key={item.id} id={item.id}>
+                          <EvaluacionRow
+                            examen={item}
+                            onEdit={onEditEvaluacion}
+                            onDelete={onDeleteEvaluacion}
+                          />
+                        </SortableLessonItem>
+                      )
+                    )}
+                  </SortableContext>
+                </DndContext>
+              )
+            })()}
           </Box>
         </CardContent>
       </Collapse>
@@ -418,11 +427,12 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
   const deleteLeccionMutation = useDeleteLeccion()
   const updateLeccionMutation = useUpdateLeccion()
   const reorderLeccionesMutation = useReorderLecciones()
+  const reorderExamenesMutation = useReorderExamenesModulo()
   const deleteExamenMutation = useDeleteExamen()
 
   const [newModuleTitle, setNewModuleTitle] = useState('')
   const [expandedModule, setExpandedModule] = useState<string | null>(null)
-  const [newLessonTitles, setNewLessonTitles] = useState<Record<string, string>>({})
+  const [addingLessonModuloId, setAddingLessonModuloId] = useState<string | null>(null)
   const [editingLesson, setEditingLesson] = useState<{ moduloId: string; leccion: CursoLeccionResumen } | null>(null)
 
   // Evaluacion dialog state
@@ -467,15 +477,13 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
     }
   }
 
-  const handleAddLesson = async (moduloId: string) => {
-    const titulo = newLessonTitles[moduloId]?.trim()
-
-    if (!titulo) return
+  const handleCreateLesson = async (data: any) => {
+    if (!addingLessonModuloId) return
 
     try {
-      await createLeccionMutation.mutateAsync({ cursoId: curso.id, moduloId, data: { titulo } })
-      setNewLessonTitles(prev => ({ ...prev, [moduloId]: '' }))
+      await createLeccionMutation.mutateAsync({ cursoId: curso.id, moduloId: addingLessonModuloId, data })
       enqueueSnackbar('Lección creada', { variant: 'success' })
+      setAddingLessonModuloId(null)
       onSuccess()
     } catch (error: any) {
       enqueueSnackbar(error?.message || 'Error al crear lección', { variant: 'error' })
@@ -543,20 +551,27 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
     }
   }
 
-  const handleLessonDragEnd = async (moduloId: string, event: DragEndEvent) => {
+  const handleCombinedDragEnd = async (
+    moduloId: string,
+    event: DragEndEvent,
+    allItems: Array<{ id: string; _tipo: 'leccion' | 'examen'; orden?: number | null }>
+  ) => {
     const { active, over } = event
 
     if (!over || active.id === over.id) return
-    const modulo = modulos.find(m => m.id === moduloId)
 
-    if (!modulo?.lecciones) return
-    const oldIndex = modulo.lecciones.findIndex(l => l.id === active.id)
-    const newIndex = modulo.lecciones.findIndex(l => l.id === over.id)
-    const reordered = arrayMove(modulo.lecciones, oldIndex, newIndex)
-    const items = reordered.map((l, i) => ({ id: l.id, orden: i }))
+    const oldIndex = allItems.findIndex(i => i.id === active.id)
+    const newIndex = allItems.findIndex(i => i.id === over.id)
+    const reordered = arrayMove(allItems, oldIndex, newIndex).map((item, i) => ({ ...item, orden: i }))
+
+    const lecciones = reordered.filter(i => i._tipo === 'leccion').map(i => ({ id: i.id, orden: i.orden as number }))
+    const examenes  = reordered.filter(i => i._tipo === 'examen').map(i => ({ id: i.id, orden: i.orden as number }))
 
     try {
-      await reorderLeccionesMutation.mutateAsync({ cursoId: curso.id, moduloId, items })
+      await Promise.all([
+        lecciones.length ? reorderLeccionesMutation.mutateAsync({ cursoId: curso.id, moduloId, items: lecciones }) : null,
+        examenes.length  ? reorderExamenesMutation.mutateAsync({ cursoId: curso.id, moduloId, items: examenes })   : null,
+      ].filter(Boolean) as Promise<any>[])
       onSuccess()
     } catch (error: any) {
       enqueueSnackbar(error?.message || 'Error al reordenar', { variant: 'error' })
@@ -657,14 +672,12 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
                 expandedModule={expandedModule}
                 setExpandedModule={setExpandedModule}
                 handleDeleteModule={handleDeleteModule}
-                handleLessonDragEnd={handleLessonDragEnd}
+                onCombinedDragEnd={handleCombinedDragEnd}
                 handleToggleLessonStatus={handleToggleLessonStatus}
                 handleToggleLessonPreview={handleToggleLessonPreview}
                 setEditingLesson={setEditingLesson}
                 handleDeleteLesson={handleDeleteLesson}
-                newLessonTitles={newLessonTitles}
-                setNewLessonTitles={setNewLessonTitles}
-                handleAddLesson={handleAddLesson}
+                onAddLesson={(moduloId: string) => { setExpandedModule(moduloId); setAddingLessonModuloId(moduloId) }}
                 onAddEvaluacion={handleOpenAddEvaluacion}
                 onEditEvaluacion={handleOpenEditEvaluacion}
                 onDeleteEvaluacion={handleDeleteEvaluacion}
@@ -675,13 +688,24 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
         </SortableContext>
       </DndContext>
 
+      {/* Edit existing lesson */}
       <LessonEditDialog
-        key={editingLesson?.leccion?.id || 'new'}
+        key={editingLesson?.leccion?.id || 'edit'}
         open={!!editingLesson}
         onClose={() => setEditingLesson(null)}
         lessonData={editingLesson?.leccion}
         onSave={handleSaveLessonEdit}
         isSaving={updateLeccionMutation.isPending}
+      />
+
+      {/* Create new lesson */}
+      <LessonEditDialog
+        key={addingLessonModuloId ? `new-${addingLessonModuloId}` : 'new'}
+        open={!!addingLessonModuloId}
+        onClose={() => setAddingLessonModuloId(null)}
+        lessonData={undefined}
+        onSave={handleCreateLesson}
+        isSaving={createLeccionMutation.isPending}
       />
 
       <EvaluacionDialog
