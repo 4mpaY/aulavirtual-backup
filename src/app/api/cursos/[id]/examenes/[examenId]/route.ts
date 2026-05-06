@@ -80,7 +80,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       intentos_maximos,
       esta_publicado,
       mezclar_preguntas,
-      modulo_id
+      modulo_id,
+      fecha_inicio,
+      fecha_fin
     } = body
 
     const updated = await prisma.examen.update({
@@ -95,7 +97,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         ...(intentos_maximos !== undefined && { intentos_maximos: Number(intentos_maximos) }),
         ...(esta_publicado !== undefined && { esta_publicado }),
         ...(mezclar_preguntas !== undefined && { mezclar_preguntas }),
-        ...(modulo_id !== undefined && { modulo_id: modulo_id || null })
+        ...(modulo_id !== undefined && { modulo_id: modulo_id || null }),
+        ...(fecha_inicio !== undefined && { fecha_inicio: fecha_inicio ? new Date(fecha_inicio) : null }),
+        ...(fecha_fin !== undefined && { fecha_fin: fecha_fin ? new Date(fecha_fin) : null })
       },
       include: {
         modulo: { select: { id: true, titulo: true, orden: true } },

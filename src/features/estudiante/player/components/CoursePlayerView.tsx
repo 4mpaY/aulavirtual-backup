@@ -524,21 +524,23 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             const lockedExpired = ex.fecha_fin && ahora > new Date(ex.fecha_fin)
                             const approved = !!ex.ya_aprobado
                             const exhausted = !approved && (ex.intentos_realizados || 0) >= (ex.intentos_maximos || 1)
+                            const expiredWithAttempts = !!lockedExpired && (ex.intentos_realizados || 0) > 0
                             const isActive = currentExamenId === ex.id && currentView === 'exam'
-                            const isLocked = lockedProgress || lockedFuture || lockedExpired || exhausted
+                            const isLocked = lockedProgress || (lockedFuture && !expiredWithAttempts) || (lockedExpired && !expiredWithAttempts) || exhausted
 
                             const modName = storeCourse?.modulos.find((m: any) => m.id === ex.modulo_id)?.titulo
 
                             // Configuración visual del botón según estado
                             const btnConfig = (() => {
-                                if (approved) return { label: 'Aprobado ✓', bg: '#16a34a', disabled: true }
-                                if (exhausted) return { label: 'Finalizado', bg: '#ea580c', disabled: true }
-                                if (isActive) return { label: 'En curso', bg: '#d97706', disabled: false }
-                                if (lockedFuture) return { label: 'Próximamente', bg: '#3b82f6', disabled: true }
-                                if (lockedExpired) return { label: 'Expirado', bg: '#dc2626', disabled: true }
-                                if (lockedProgress) return { label: 'Bloqueado', bg: '#94a3b8', disabled: true }
+                                if (approved) return { label: 'Aprobado ✓', bg: '#16a34a' }
+                                if (exhausted) return { label: 'Ver resultado', bg: '#ea580c' }
+                                if (isActive) return { label: 'En curso', bg: '#d97706' }
+                                if (expiredWithAttempts) return { label: 'Ver resultado', bg: '#64748b' }
+                                if (lockedFuture) return { label: 'Próximamente', bg: '#3b82f6' }
+                                if (lockedExpired) return { label: 'Expirado', bg: '#dc2626' }
+                                if (lockedProgress) return { label: 'Bloqueado', bg: '#94a3b8' }
 
-                                return { label: 'Iniciar', bg: '#025E44', disabled: false }
+                                return { label: 'Iniciar', bg: '#025E44' }
                             })()
 
                             return (
@@ -546,7 +548,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                     p: 2, borderRadius: '12px', border: '1px solid', display: 'flex', alignItems: 'center', gap: 2,
                                     borderColor: approved ? '#16a34a40' : isActive ? '#025E44' : 'divider',
                                     bgcolor: approved ? 'rgba(22,163,74,0.04)' : isActive ? 'rgba(2,94,68,0.04)' : 'background.paper',
-                                    opacity: (lockedProgress && !approved) ? 0.65 : 1,
+                                    opacity: (isLocked && !approved) ? 0.65 : 1,
                                 }}>
                                     <Box sx={{ width: 42, height: 42, borderRadius: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: approved ? 'rgba(22,163,74,0.1)' : ex.tipo === 'FINAL' ? 'rgba(2,94,68,0.1)' : 'rgba(217,119,6,0.1)' }}>
                                         <i className={approved ? 'tabler-circle-check-filled' : ex.tipo === 'FINAL' ? 'tabler-trophy' : 'tabler-clipboard-check'} style={{ fontSize: '1.2rem', color: approved ? '#16a34a' : ex.tipo === 'FINAL' ? '#025E44' : '#d97706' }} />
@@ -559,7 +561,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                         </Box>
                                         <Stack direction="row" spacing={1.5} flexWrap="wrap">
                                             {modName && <Typography variant="caption" color="text.secondary"><i className="tabler-folders" style={{ marginRight: 3 }} />{modName}</Typography>}
-                                            {ex.puntaje_aprobacion && <Typography variant="caption" color="text.secondary"><i className="tabler-award" style={{ marginRight: 3 }} />Aprobación: {ex.puntaje_aprobacion}%</Typography>}
+                                            {ex.puntaje_aprobacion && <Typography variant="caption" color="text.secondary"><i className="tabler-award" style={{ marginRight: 3 }} />Aprobación: {Math.round((ex.puntaje_aprobacion / 100) * 20)}/20</Typography>}
                                             <Typography variant="caption" color="text.secondary"><i className="tabler-refresh" style={{ marginRight: 3 }} />{ex.intentos_realizados || 0}/{ex.intentos_maximos} intentos</Typography>
                                             {ex.progreso_minimo > 0 && <Typography variant="caption" color="text.secondary"><i className="tabler-lock" style={{ marginRight: 3 }} />Requiere {ex.progreso_minimo}% avance</Typography>}
                                         </Stack>
@@ -577,8 +579,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                     <Button
                                         size="small"
                                         variant="contained"
-                                        disabled={btnConfig.disabled || isLocked}
-                                        onClick={() => !btnConfig.disabled && !isLocked && openExam(ex.id)}
+                                        onClick={() => openExam(ex.id)}
                                         sx={{ flexShrink: 0, borderRadius: '10px', textTransform: 'none', fontWeight: 700, fontSize: '0.78rem', px: 2, minWidth: 90, boxShadow: 'none',
                                             bgcolor: btnConfig.bg, '&:hover': { bgcolor: btnConfig.bg, filter: 'brightness(0.9)' },
                                             '&.Mui-disabled': { bgcolor: `${btnConfig.bg}88`, color: '#fff' }

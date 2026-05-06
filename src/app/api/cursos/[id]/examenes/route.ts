@@ -67,7 +67,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
       intentos_maximos = 1,
       esta_publicado = false,
       mezclar_preguntas = false,
-      modulo_id
+      modulo_id,
+      fecha_inicio,
+      fecha_fin
     } = body
 
     if (!titulo) return ApiResponse.error(request, 'El título es requerido', 400)
@@ -116,7 +118,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
         esta_publicado,
         mezclar_preguntas,
         curso_id: cursoId,
-        modulo_id: modulo_id || null
+        modulo_id: modulo_id || null,
+        fecha_inicio: fecha_inicio ? new Date(fecha_inicio) : null,
+        fecha_fin: fecha_fin ? new Date(fecha_fin) : null
       },
       include: {
         modulo: { select: { id: true, titulo: true, orden: true } },

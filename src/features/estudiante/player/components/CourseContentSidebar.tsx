@@ -258,23 +258,33 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                                                         Se desbloquea: {unlockDate}
                                                                     </Typography>
                                                                 )}
-                                                                {item.tipo === 'examen' && (item.fecha_inicio || item.fecha_cierre) && (
-                                                                    <Box sx={{ mt: 0.25 }}>
-                                                                        {item.fecha_inicio && (
-                                                                            <Typography variant="caption" sx={{ color: '#9ca3af', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                                                <i className="tabler-calendar-check" style={{ fontSize: '0.7rem' }} />
-                                                                                Inicio: {new Date(item.fecha_inicio).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                                            </Typography>
-                                                                        )}
-                                                                        {item.fecha_cierre && (
-                                                                            <Typography variant="caption" sx={{ color: '#9ca3af', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                                                                <i className="tabler-calendar-x" style={{ fontSize: '0.7rem' }} />
-                                                                                Cierre: {new Date(item.fecha_cierre).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                                            </Typography>
-                                                                        )}
-                                                                    </Box>
-                                                                )}
                                                             </Box>
+
+                                                            {/* Fechas al lado derecho */}
+                                                            {item.tipo === 'examen' && (item.fecha_inicio || item.fecha_fin) && (
+                                                                <Box sx={{ flexShrink: 0, textAlign: 'right', ml: 1 }}>
+                                                                    {item.fecha_inicio && (
+                                                                        <Typography variant="caption" sx={{
+                                                                            fontSize: '0.65rem', color: '#2563eb', fontWeight: 600,
+                                                                            display: 'flex', alignItems: 'center', gap: 0.4,
+                                                                            justifyContent: 'flex-end', whiteSpace: 'nowrap'
+                                                                        }}>
+                                                                            <i className="tabler-calendar-up" style={{ fontSize: '0.65rem' }} />
+                                                                            {new Date(item.fecha_inicio).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                                                        </Typography>
+                                                                    )}
+                                                                    {item.fecha_fin && (
+                                                                        <Typography variant="caption" sx={{
+                                                                            fontSize: '0.65rem', color: '#dc2626', fontWeight: 600,
+                                                                            display: 'flex', alignItems: 'center', gap: 0.4,
+                                                                            justifyContent: 'flex-end', whiteSpace: 'nowrap', mt: 0.3
+                                                                        }}>
+                                                                            <i className="tabler-calendar-down" style={{ fontSize: '0.65rem' }} />
+                                                                            {new Date(item.fecha_fin).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                                                        </Typography>
+                                                                    )}
+                                                                </Box>
+                                                            )}
                                                         </ListItemButton>
                                                     </Tooltip>
                                                 </ListItem>

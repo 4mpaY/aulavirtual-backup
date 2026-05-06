@@ -429,17 +429,6 @@ export function EvaluacionDialog({
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <CustomTextField
-                fullWidth
-                type='number'
-                label='Tiempo límite (minutos, opcional)'
-                inputProps={{ min: 1 }}
-                value={config.limite_tiempo ?? ''}
-                onChange={e => set('limite_tiempo', e.target.value ? Number(e.target.value) : null)}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
               <Typography variant='caption' sx={{ fontWeight: 600, display: 'block', mb: 0.75, color: 'text.secondary' }}>
                 Fecha de inicio (opcional)
               </Typography>

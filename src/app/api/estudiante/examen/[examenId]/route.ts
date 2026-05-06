@@ -57,6 +57,8 @@ export async function GET(
     }
 
     const ahora = new Date()
+    const fechaFin = (examen as any).fecha_fin as Date | null
+    const examenExpirado = !!(fechaFin && ahora > fechaFin)
 
     if ((examen as any).fecha_inicio && ahora < (examen as any).fecha_inicio) {
       const fechaStr = (examen as any).fecha_inicio.toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })
@@ -64,8 +66,15 @@ export async function GET(
       return ApiResponse.error(request, `Este examen estará disponible desde el ${fechaStr}`, 403)
     }
 
-    if ((examen as any).fecha_fin && ahora > (examen as any).fecha_fin) {
-      return ApiResponse.error(request, 'El período de evaluación ha finalizado', 403)
+    if (examenExpirado) {
+      // Allow viewing results if the student already attempted the exam
+      const tieneIntentos = await prisma.intentoExamen.count({
+        where: { usuario_id: auth.user.id, examen_id: examenId, enviado_en: { not: null } }
+      })
+
+      if (!tieneIntentos) {
+        return ApiResponse.error(request, 'El período de evaluación ha finalizado', 403)
+      }
     }
 
     // 2. Verificar inscripción
@@ -113,7 +122,7 @@ export async function GET(
       }
     })
 
-    const intentosRestantes = examen.intentos_maximos - intentosRealizados
+    const intentosRestantes = examenExpirado ? 0 : examen.intentos_maximos - intentosRealizados
 
     // 5. Verificar si ya aprobó
     const intentoAprobado = await prisma.intentoExamen.findFirst({
@@ -140,7 +149,7 @@ export async function GET(
 
     let resultadoAnterior = null
 
-    if (ultimoIntento && (yaAprobado || intentosRestantes <= 0)) {
+    if (ultimoIntento && (yaAprobado || intentosRestantes <= 0 || examenExpirado)) {
       resultadoAnterior = {
         intentoId: ultimoIntento.id,
         puntaje: ultimoIntento.puntaje,
@@ -168,7 +177,7 @@ export async function GET(
         id: examen.id,
         titulo: examen.titulo,
         descripcion: examen.descripcion,
-        limite_tiempo: examen.limite_tiempo,
+        fecha_fin: (examen as any).fecha_fin ?? null,
         puntaje_aprobacion: examen.puntaje_aprobacion,
         mezclar_preguntas: examen.mezclar_preguntas,
         preguntas: examen.preguntas.map(p => ({

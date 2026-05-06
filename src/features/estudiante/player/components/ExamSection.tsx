@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
     Box,
     Typography,
@@ -17,7 +17,6 @@ import {
     FormControl,
     FormLabel,
     CircularProgress,
-    Alert,
     Chip,
     Stack,
     LinearProgress,
@@ -42,7 +41,7 @@ interface ExamenData {
     id: string
     titulo: string
     descripcion?: string
-    limite_tiempo?: number
+    fecha_fin?: string | null
     puntaje_aprobacion: number
     mezclar_preguntas: boolean
     preguntas: Pregunta[]
@@ -55,7 +54,92 @@ interface ExamSectionProps {
     onContinue?: () => void
 }
 
+// ─── helpers ─────────────────────────────────────────────────────────────────
+
+const toVeinte = (pct: number) => Math.round((pct / 100) * 20)
+
+const fmtFecha = (val: string) =>
+    new Date(val).toLocaleString('es-PE', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit' })
+
+const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+}
+
+// ─── Score Ring ───────────────────────────────────────────────────────────────
+
+const ScoreRing = ({ puntaje, aprobado }: { puntaje: number; aprobado: boolean }) => {
+    const color = aprobado ? '#16a34a' : '#dc2626'
+    const nota = toVeinte(puntaje)
+
+    return (
+        <Box sx={{ position: 'relative', display: 'inline-flex', my: 1 }}>
+            <CircularProgress
+                variant="determinate"
+                value={100}
+                size={148}
+                thickness={5}
+                sx={{ color: 'rgba(0,0,0,0.07)', position: 'absolute', top: 0, left: 0 }}
+            />
+            <CircularProgress
+                variant="determinate"
+                value={puntaje}
+                size={148}
+                thickness={5}
+                sx={{ color }}
+            />
+            <Box sx={{
+                position: 'absolute', inset: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'
+            }}>
+                <Typography variant="h3" fontWeight={900} lineHeight={1} sx={{ color }}>
+                    {nota}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" fontWeight={700}>/20</Typography>
+            </Box>
+        </Box>
+    )
+}
+
+// ─── State Card Shell ─────────────────────────────────────────────────────────
+
+interface StateCardProps {
+    icon: string
+    iconColor: string
+    bgColor: string
+    borderColor: string
+    title: string
+    subtitle?: string
+    children?: React.ReactNode
+}
+
+const StateCard = ({ icon, iconColor, bgColor, borderColor, title, subtitle, children }: StateCardProps) => (
+    <Card variant="outlined" sx={{ borderRadius: '16px', overflow: 'hidden', borderColor }}>
+        <Box sx={{ p: 5, bgcolor: bgColor, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Box sx={{
+                width: 72, height: 72, borderRadius: '50%',
+                bgcolor: `${iconColor}20`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2
+            }}>
+                <i className={icon} style={{ fontSize: '2rem', color: iconColor }} />
+            </Box>
+            <Typography variant="h6" fontWeight={800} color="text.primary">{title}</Typography>
+            {subtitle && (
+                <Typography color="text.secondary" sx={{ mt: 0.75, maxWidth: 380, fontSize: '0.9rem' }}>
+                    {subtitle}
+                </Typography>
+            )}
+        </Box>
+        {children}
+    </Card>
+)
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }: ExamSectionProps) => {
+    const queryClient = useQueryClient()
     const [submitting, setSubmitting] = useState(false)
     const [respuestas, setRespuestas] = useState<Record<string, string>>({})
     const [resultado, setResultado] = useState<any>(null)
@@ -64,7 +148,10 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
     const [tiempoRestante, setTiempoRestante] = useState<number | null>(null)
     const [examenIniciado, setExamenIniciado] = useState(false)
 
-    // Cargar examen con React Query
+    // Refs para evitar stale closure en efectos
+    const resultadoRef = useRef<any>(null)
+    const examenIniciadoRef = useRef(false)
+
     const { data: queryData, isLoading: loading, error: queryError } = useQuery<{
         examen: ExamenData
         yaAprobado: boolean
@@ -80,35 +167,40 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
             return res.data.result
         },
         enabled: !!examenId,
-        staleTime: 60_000
+        staleTime: 60_000,
+        retry: false
     })
 
     const examen = queryData?.examen ?? null
-    const error = queryError ? (queryError as any).response?.data?.message || (queryError as Error).message : null
+    const errorMsg: string | null = queryError
+        ? (queryError as any).response?.data?.message || (queryError as Error).message
+        : null
 
-    // Resetear el estado local cuando cambia el examen
+    // Sincronizar refs con estado para evitar stale closure
+    useEffect(() => { resultadoRef.current = resultado }, [resultado])
+    useEffect(() => { examenIniciadoRef.current = examenIniciado }, [examenIniciado])
+
     useEffect(() => {
         setResultado(null)
         setRespuestas({})
         setExamenIniciado(false)
         setTiempoRestante(null)
+        resultadoRef.current = null
+        examenIniciadoRef.current = false
     }, [examenId])
 
-    // Sincronizar estado local desde query data
     useEffect(() => {
-        if (queryData) {
-            setYaAprobado(queryData.yaAprobado)
-            setIntentosRestantes(queryData.intentosRestantes)
+        if (!queryData) return
 
-            // Si la API nos devolvió el resultado anterior, lo mostramos (siempre y cuando no haya un resultado más reciente recién enviado)
-            if (queryData.resultadoAnterior && !resultado) {
-                setResultado(queryData.resultadoAnterior)
-            }
+        setYaAprobado(queryData.yaAprobado)
+        setIntentosRestantes(queryData.intentosRestantes)
+
+        // Solo cargar resultado anterior si el alumno no está en medio de un intento
+        if (queryData.resultadoAnterior && !resultadoRef.current && !examenIniciadoRef.current) {
+            setResultado(queryData.resultadoAnterior)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [queryData, examenId])
+    }, [queryData])
 
-    // Temporizador
     useEffect(() => {
         if (!examenIniciado || tiempoRestante === null || tiempoRestante <= 0) return
 
@@ -126,23 +218,21 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
         }, 1000)
 
         return () => clearInterval(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [examenIniciado, tiempoRestante])
 
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60)
-        const secs = seconds % 60
-
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-    }
-
     const handleStartExam = () => {
+        examenIniciadoRef.current = true
+        resultadoRef.current = null
         setExamenIniciado(true)
         setResultado(null)
         setRespuestas({})
+        setTiempoRestante(null)
 
-        if (examen?.limite_tiempo) {
-            setTiempoRestante(examen.limite_tiempo * 60)
+        if (examen?.fecha_fin) {
+            const secsLeft = Math.floor((new Date(examen.fecha_fin).getTime() - Date.now()) / 1000)
+
+            if (secsLeft > 0) setTiempoRestante(secsLeft)
         }
     }
 
@@ -172,16 +262,19 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
             })
 
             if (res.data.status) {
-                setResultado(res.data.result)
+                examenIniciadoRef.current = false
+                resultadoRef.current = res.data.result
                 setExamenIniciado(false)
+                setResultado(res.data.result)
                 setIntentosRestantes(res.data.result.intentosRestantes)
+                queryClient.invalidateQueries({ queryKey: ['examen', 'estudiante', examenId] })
 
                 if (res.data.result.aprobado) {
                     setYaAprobado(true)
-                    toast.success('🎉 ¡Felicidades! Has aprobado el examen')
+                    toast.success('¡Felicidades! Has aprobado el examen')
                     onExamPassed()
                 } else {
-                    toast.error('No has alcanzado el puntaje mínimo. ¡Inténtalo de nuevo!')
+                    toast.error('No alcanzaste el puntaje mínimo. ¡Sigue intentando!')
                 }
             }
         } catch (err: any) {
@@ -191,193 +284,382 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
         }
     }, [examen, respuestas, examenId, onExamPassed])
 
+    // ── Loading ──────────────────────────────────────────────────────────────
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                <CircularProgress />
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 10, gap: 2 }}>
+                <CircularProgress sx={{ color: '#025E44' }} />
+                <Typography color="text.secondary" variant="body2">Cargando evaluación…</Typography>
             </Box>
         )
     }
 
-    if (error) {
+    // ── Error states ─────────────────────────────────────────────────────────
+    if (errorMsg) {
+        const isExpired = errorMsg.toLowerCase().includes('finalizado')
+        const isFuture = errorMsg.toLowerCase().includes('disponible desde')
+        const isProgress = errorMsg.toLowerCase().includes('progreso')
+        const isEnrolment = errorMsg.toLowerCase().includes('inscrito')
+
+        const dateMatch = isFuture ? errorMsg.match(/desde el (.+)/) : null
+        const fechaStr = dateMatch ? dateMatch[1] : ''
+
+        if (isExpired) {
+            return (
+                <StateCard
+                    icon="tabler-calendar-x"
+                    iconColor="#64748b"
+                    bgColor="rgba(100,116,139,0.06)"
+                    borderColor="rgba(100,116,139,0.25)"
+                    title="Período de evaluación cerrado"
+                    subtitle="El tiempo para rendir este examen ha concluido y no registras ningún intento."
+                />
+            )
+        }
+
+        if (isFuture) {
+            return (
+                <StateCard
+                    icon="tabler-calendar-clock"
+                    iconColor="#2563eb"
+                    bgColor="rgba(37,99,235,0.06)"
+                    borderColor="rgba(37,99,235,0.25)"
+                    title="Aún no está disponible"
+                    subtitle={fechaStr ? `Este examen se habilitará el ${fechaStr}.` : errorMsg}
+                >
+                    <Box sx={{ px: 4, pb: 4, textAlign: 'center' }}>
+                        <Chip
+                            icon={<i className="tabler-clock" />}
+                            label={fechaStr || 'Próximamente'}
+                            color="primary"
+                            variant="outlined"
+                        />
+                    </Box>
+                </StateCard>
+            )
+        }
+
+        if (isProgress) {
+            const pctMatch = errorMsg.match(/(\d+)%/)
+            const pct = pctMatch ? pctMatch[1] : null
+
+            return (
+                <StateCard
+                    icon="tabler-lock"
+                    iconColor="#d97706"
+                    bgColor="rgba(217,119,6,0.06)"
+                    borderColor="rgba(217,119,6,0.25)"
+                    title="Avance insuficiente"
+                    subtitle={pct
+                        ? `Debes completar al menos el ${pct}% del curso antes de acceder a este examen.`
+                        : errorMsg}
+                >
+                    {pct && (
+                        <Box sx={{ px: 4, pb: 4 }}>
+                            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
+                                <Typography variant="caption" color="text.secondary">Tu avance actual</Typography>
+                                <Typography variant="caption" fontWeight={700} color="warning.main">{pct}% requerido</Typography>
+                            </Stack>
+                            <LinearProgress
+                                variant="determinate"
+                                value={0}
+                                sx={{
+                                    height: 8, borderRadius: 4, bgcolor: 'rgba(217,119,6,0.15)',
+                                    '& .MuiLinearProgress-bar': { bgcolor: '#d97706' }
+                                }}
+                            />
+                        </Box>
+                    )}
+                </StateCard>
+            )
+        }
+
+        if (isEnrolment) {
+            return (
+                <StateCard
+                    icon="tabler-user-x"
+                    iconColor="#dc2626"
+                    bgColor="rgba(220,38,38,0.05)"
+                    borderColor="rgba(220,38,38,0.2)"
+                    title="Sin acceso al curso"
+                    subtitle="No estás inscrito o tu matrícula no está activa en este curso."
+                />
+            )
+        }
+
         return (
-            <Alert severity="error" sx={{ borderRadius: '12px' }}>
-                {error}
-            </Alert>
+            <StateCard
+                icon="tabler-alert-circle"
+                iconColor="#dc2626"
+                bgColor="rgba(220,38,38,0.05)"
+                borderColor="rgba(220,38,38,0.2)"
+                title="No se pudo cargar el examen"
+                subtitle={errorMsg}
+            />
         )
     }
 
     if (!examen) {
         return (
-            <Alert severity="info" sx={{ borderRadius: '12px' }}>
-                No hay examen disponible para este curso
-            </Alert>
+            <StateCard
+                icon="tabler-clipboard-off"
+                iconColor="#94a3b8"
+                bgColor="rgba(148,163,184,0.06)"
+                borderColor="rgba(148,163,184,0.25)"
+                title="Sin evaluación disponible"
+                subtitle="No hay ningún examen configurado para esta sección."
+            />
         )
     }
 
-    // Ya aprobó y no hay resultado reciente
+    // ── Already approved (no recent result) ──────────────────────────────────
     if (yaAprobado && !resultado) {
         return (
-            <Card variant="outlined" sx={{ borderRadius: '16px', borderColor: 'success.main', bgcolor: 'success.50' }}>
-                <CardContent sx={{ p: 4, textAlign: 'center' }}>
-                    <i className="tabler-circle-check-filled" style={{ fontSize: '3rem', color: 'var(--mui-palette-success-main)' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 800, mt: 2, color: 'success.main' }}>
-                        ¡Evaluación aprobada!
-                    </Typography>
-                    <Typography color="text.secondary" sx={{ mt: 1 }}>
-                        {isFinalExam
-                            ? 'Ya has superado este examen. Ahora puedes obtener tu certificado.'
-                            : 'Ya completaste esta evaluación. Continúa con el resto del curso.'}
-                    </Typography>
-                    {!isFinalExam && onContinue && (
-                        <Button variant="contained" sx={{ mt: 3, borderRadius: '10px' }} onClick={onContinue}>
+            <StateCard
+                icon="tabler-trophy"
+                iconColor="#16a34a"
+                bgColor="rgba(22,163,74,0.06)"
+                borderColor="rgba(22,163,74,0.3)"
+                title="¡Evaluación aprobada!"
+                subtitle={isFinalExam
+                    ? 'Has superado este examen. Ya puedes obtener tu certificado.'
+                    : 'Completaste esta evaluación. Continúa avanzando en el curso.'}
+            >
+                {!isFinalExam && onContinue && (
+                    <Box sx={{ px: 4, pb: 4, textAlign: 'center' }}>
+                        <Button
+                            variant="contained"
+                            onClick={onContinue}
+                            startIcon={<i className="tabler-arrow-right" />}
+                            sx={{
+                                borderRadius: '10px', fontWeight: 700, bgcolor: '#16a34a',
+                                '&:hover': { bgcolor: '#15803d' }, boxShadow: 'none'
+                            }}
+                        >
                             Continuar curso
                         </Button>
-                    )}
-                </CardContent>
-            </Card>
+                    </Box>
+                )}
+            </StateCard>
         )
     }
 
-    // Mostrar resultado
+    // ── Result screen ─────────────────────────────────────────────────────────
     if (resultado) {
+        const nota = toVeinte(resultado.puntaje)
+        const notaMinima = toVeinte(resultado.puntajeAprobacion)
+        const aprobado = resultado.aprobado
+        const puedeVerRespuestas = resultado.intentosRestantes <= 0 || aprobado
+        const color = aprobado ? '#16a34a' : '#dc2626'
+        const bgColor = aprobado ? 'rgba(22,163,74,0.06)' : 'rgba(220,38,38,0.05)'
+        const borderColor = aprobado ? 'rgba(22,163,74,0.35)' : 'rgba(220,38,38,0.25)'
+
         return (
-            <Card variant="outlined" sx={{ borderRadius: '16px', overflow: 'hidden' }}>
-                <Box sx={{ 
-                    p: 4, 
-                    bgcolor: resultado.aprobado ? 'success.50' : 'error.50',
-                    textAlign: 'center'
-                }}>
-                    <i 
-                        className={resultado.aprobado ? 'tabler-trophy' : 'tabler-mood-sad'} 
-                        style={{ 
-                            fontSize: '3rem', 
-                            color: resultado.aprobado ? 'var(--mui-palette-success-main)' : 'var(--mui-palette-error-main)' 
-                        }} 
+            <Card variant="outlined" sx={{ borderRadius: '16px', overflow: 'hidden', borderColor }}>
+                {/* Header resultado */}
+                <Box sx={{ p: 4, pb: 3, bgcolor: bgColor, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Chip
+                        icon={<i className={aprobado ? 'tabler-circle-check' : 'tabler-circle-x'} style={{ fontSize: '1rem' }} />}
+                        label={aprobado ? 'APROBADO' : 'NO APROBADO'}
+                        sx={{
+                            mb: 2, fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.05em',
+                            bgcolor: color, color: '#fff', border: 'none',
+                            '& .MuiChip-icon': { color: '#fff' }
+                        }}
                     />
-                    <Typography variant="h4" sx={{ fontWeight: 900, mt: 2 }}>
-                        {resultado.aprobado ? '¡Felicidades!' : 'No aprobado'}
-                    </Typography>
-                    <Typography variant="h2" sx={{ 
-                        fontWeight: 900, 
-                        color: resultado.aprobado ? 'success.main' : 'error.main',
-                        mt: 1
-                    }}>
-                        {resultado.puntaje}%
-                    </Typography>
-                    <Typography color="text.secondary" sx={{ mt: 1 }}>
-                        {resultado.respuestasCorrectas} de {resultado.totalPreguntas} respuestas correctas
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Puntaje mínimo: {resultado.puntajeAprobacion}%
-                    </Typography>
-                </Box>
-                <CardContent sx={{ p: 3, textAlign: 'center' }}>
-                    {resultado.aprobado ? (
-                        isFinalExam ? (
-                            <Typography color="success.main" fontWeight={600}>
-                                Ya puedes obtener tu certificado 🎓
+
+                    <ScoreRing puntaje={resultado.puntaje} aprobado={aprobado} />
+
+                    {/* Stats row */}
+                    <Stack direction="row" spacing={3} mt={2.5} justifyContent="center" flexWrap="wrap">
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" fontWeight={800} color="text.primary">
+                                {resultado.respuestasCorrectas}/{resultado.totalPreguntas}
                             </Typography>
+                            <Typography variant="caption" color="text.secondary">Respuestas correctas</Typography>
+                        </Box>
+                        <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" fontWeight={800} sx={{ color }}>
+                                {nota}/20
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">Tu nota</Typography>
+                        </Box>
+                        <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
+                        <Box sx={{ textAlign: 'center' }}>
+                            <Typography variant="h6" fontWeight={800} color="text.secondary">
+                                {notaMinima}/20
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">Nota mínima</Typography>
+                        </Box>
+                    </Stack>
+                </Box>
+
+                {/* Actions */}
+                <Box sx={{ px: 4, py: 3, textAlign: 'center' }}>
+                    {aprobado ? (
+                        isFinalExam ? (
+                            <Stack direction="row" alignItems="center" justifyContent="center" spacing={1.5}
+                                sx={{ p: 2, bgcolor: 'rgba(22,163,74,0.08)', borderRadius: '12px' }}>
+                                <i className="tabler-certificate" style={{ fontSize: '1.5rem', color: '#16a34a' }} />
+                                <Box sx={{ textAlign: 'left' }}>
+                                    <Typography fontWeight={700} color="success.main" variant="body2">
+                                        ¡Excelente trabajo!
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Ya puedes descargar tu certificado de aprobación.
+                                    </Typography>
+                                </Box>
+                            </Stack>
                         ) : (
-                            <Box>
-                                <Typography color="success.main" fontWeight={600} sx={{ mb: 2 }}>
-                                    Evaluación completada. Esta nota contribuye a tu calificación final.
+                            <Stack spacing={1.5} alignItems="center">
+                                <Typography variant="body2" color="text.secondary">
+                                    Esta nota contribuye a tu calificación final del curso.
                                 </Typography>
                                 {onContinue && (
-                                    <Button variant="contained" sx={{ borderRadius: '10px' }} onClick={onContinue}>
+                                    <Button
+                                        variant="contained"
+                                        onClick={onContinue}
+                                        startIcon={<i className="tabler-arrow-right" />}
+                                        sx={{
+                                            borderRadius: '10px', fontWeight: 700, bgcolor: '#16a34a',
+                                            '&:hover': { bgcolor: '#15803d' }, boxShadow: 'none'
+                                        }}
+                                    >
                                         Continuar curso
                                     </Button>
                                 )}
-                            </Box>
+                            </Stack>
                         )
                     ) : (
-                        <>
-                            {resultado.intentosRestantes > 0 ? (
+                        resultado.intentosRestantes > 0 ? (
+                            <Stack spacing={1} alignItems="center">
+                                <Typography variant="body2" color="text.secondary">
+                                    Te quedan <strong>{resultado.intentosRestantes}</strong> intento{resultado.intentosRestantes !== 1 ? 's' : ''}.
+                                </Typography>
                                 <Button
                                     variant="contained"
                                     size="large"
                                     onClick={handleStartExam}
-                                    sx={{ borderRadius: '10px', mt: 1 }}
+                                    startIcon={<i className="tabler-refresh" />}
+                                    sx={{
+                                        borderRadius: '10px', fontWeight: 700, bgcolor: '#025E44',
+                                        '&:hover': { bgcolor: '#014d36' }, boxShadow: 'none'
+                                    }}
                                 >
-                                    Reintentar ({resultado.intentosRestantes} intentos restantes)
+                                    Volver a intentar
                                 </Button>
-                            ) : (
-                                <Alert severity="warning" sx={{ borderRadius: '10px' }}>
-                                    Has agotado todos tus intentos
-                                </Alert>
-                            )}
-                        </>
+                            </Stack>
+                        ) : (
+                            <Stack direction="row" alignItems="center" justifyContent="center" spacing={1.5}
+                                sx={{ p: 2, bgcolor: 'rgba(234,88,12,0.08)', borderRadius: '12px' }}>
+                                <i className="tabler-alert-triangle" style={{ fontSize: '1.4rem', color: '#ea580c' }} />
+                                <Box sx={{ textAlign: 'left' }}>
+                                    <Typography fontWeight={700} color="#ea580c" variant="body2">
+                                        Intentos agotados
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        No tienes más intentos disponibles para este examen.
+                                    </Typography>
+                                </Box>
+                            </Stack>
+                        )
                     )}
-                </CardContent>
+                </Box>
 
-                {/* Resumen del examen post-envío */}
+                {/* Resumen de respuestas */}
                 {resultado.detallesRespuestas && examen && (
                     <>
                         <Divider />
-                        <Box sx={{ p: 4, bgcolor: 'background.paper' }}>
-                            <Typography variant="h6" fontWeight={800} mb={3}>
-                                Resumen de tus respuestas
-                            </Typography>
-                            <Stack spacing={3}>
+                        <Box sx={{ p: 4 }}>
+                            <Stack direction="row" spacing={1} alignItems="center" mb={3}>
+                                <i className="tabler-list-details" style={{ fontSize: '1.2rem', color: '#64748b' }} />
+                                <Typography variant="subtitle1" fontWeight={800}>Revisión de respuestas</Typography>
+                            </Stack>
+                            <Stack spacing={2}>
                                 {examen.preguntas.map((pregunta, index) => {
                                     const detalle = resultado.detallesRespuestas.find((d: any) => d.preguntaId === pregunta.id)
-                                    
+
                                     if (!detalle) return null
 
                                     const opcionSeleccionada = pregunta.opciones.find(o => o.id === detalle.opcionSeleccionadaId)
                                     const opcionCorrecta = pregunta.opciones.find(o => o.id === detalle.opcionCorrectaId)
+                                    const esCorrecta = detalle.esCorrecta
 
                                     return (
-                                        <Card key={pregunta.id} variant="outlined" sx={{ 
-                                            borderRadius: '12px', 
-                                            borderColor: detalle.esCorrecta ? 'success.main' : 'error.main',
-                                            bgcolor: detalle.esCorrecta ? 'success.50' : 'error.50'
+                                        <Box key={pregunta.id} sx={{
+                                            p: 2.5, borderRadius: '12px',
+                                            border: '1px solid',
+                                            borderColor: esCorrecta ? 'rgba(22,163,74,0.3)' : 'rgba(220,38,38,0.25)',
+                                            bgcolor: esCorrecta ? 'rgba(22,163,74,0.04)' : 'rgba(220,38,38,0.04)'
                                         }}>
-                                            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                                                <Stack direction="row" spacing={1.5} mb={2}>
-                                                    <i 
-                                                        className={detalle.esCorrecta ? 'tabler-circle-check-filled' : 'tabler-circle-x-filled'} 
-                                                        style={{ 
-                                                            fontSize: '1.25rem',
-                                                            color: detalle.esCorrecta ? 'var(--mui-palette-success-main)' : 'var(--mui-palette-error-main)',
-                                                            marginTop: '2px'
-                                                        }} 
+                                            <Stack direction="row" spacing={1.5} alignItems="flex-start" mb={1.5}>
+                                                <Box sx={{
+                                                    mt: '2px', flexShrink: 0,
+                                                    width: 22, height: 22, borderRadius: '50%',
+                                                    bgcolor: esCorrecta ? '#16a34a' : '#dc2626',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                }}>
+                                                    <i
+                                                        className={esCorrecta ? 'tabler-check' : 'tabler-x'}
+                                                        style={{ fontSize: '0.8rem', color: '#fff' }}
                                                     />
-                                                    <Typography fontWeight={700} sx={{ flex: 1, color: 'text.primary' }}>
-                                                        {index + 1}. {pregunta.texto}
-                                                    </Typography>
-                                                </Stack>
+                                                </Box>
+                                                <Typography variant="body2" fontWeight={700} color="text.primary">
+                                                    {index + 1}. {pregunta.texto}
+                                                </Typography>
+                                            </Stack>
 
-                                                <Stack spacing={1.5} sx={{ pl: 4 }}>
-                                                    <Box>
-                                                        <Typography variant="caption" display="block" color="text.secondary" fontWeight={700} sx={{ mb: 0.5 }}>
-                                                            TU RESPUESTA:
+                                            <Stack spacing={1} sx={{ pl: 4 }}>
+                                                <Box sx={{
+                                                    px: 2, py: 1, borderRadius: '8px',
+                                                    bgcolor: esCorrecta ? 'rgba(22,163,74,0.1)' : 'rgba(220,38,38,0.08)',
+                                                    border: '1px solid',
+                                                    borderColor: esCorrecta ? 'rgba(22,163,74,0.2)' : 'rgba(220,38,38,0.15)'
+                                                }}>
+                                                    <Typography variant="caption" color="text.disabled" display="block" fontWeight={700} sx={{ mb: 0.25 }}>
+                                                        TU RESPUESTA
+                                                    </Typography>
+                                                    <Typography variant="body2" fontWeight={600}
+                                                        color={esCorrecta ? 'success.main' : 'error.main'}>
+                                                        {opcionSeleccionada?.texto || 'No respondida'}
+                                                    </Typography>
+                                                </Box>
+
+                                                {!esCorrecta && puedeVerRespuestas && (
+                                                    <Box sx={{
+                                                        px: 2, py: 1, borderRadius: '8px',
+                                                        bgcolor: 'rgba(22,163,74,0.08)',
+                                                        border: '1px solid rgba(22,163,74,0.2)'
+                                                    }}>
+                                                        <Typography variant="caption" color="text.disabled" display="block" fontWeight={700} sx={{ mb: 0.25 }}>
+                                                            RESPUESTA CORRECTA
                                                         </Typography>
-                                                        <Typography 
-                                                            variant="body2" 
-                                                            color={detalle.esCorrecta ? 'success.main' : 'error.main'}
-                                                            fontWeight={600}
-                                                        >
-                                                            {opcionSeleccionada?.texto || 'No respondida'}
+                                                        <Typography variant="body2" fontWeight={600} color="success.main">
+                                                            {opcionCorrecta?.texto || 'No disponible'}
                                                         </Typography>
                                                     </Box>
-
-                                                    {!detalle.esCorrecta && (
-                                                        <Box>
-                                                            <Typography variant="caption" display="block" color="text.secondary" fontWeight={700} sx={{ mb: 0.5 }}>
-                                                                RESPUESTA CORRECTA:
-                                                            </Typography>
-                                                            <Typography variant="body2" color="success.main" fontWeight={600}>
-                                                                {opcionCorrecta?.texto || 'No disponible'}
-                                                            </Typography>
-                                                        </Box>
-                                                    )}
-                                                </Stack>
-                                            </CardContent>
-                                        </Card>
+                                                )}
+                                            </Stack>
+                                        </Box>
                                     )
                                 })}
                             </Stack>
+
+                            {!puedeVerRespuestas && (
+                                <Box sx={{
+                                    mt: 3, p: 2.5, borderRadius: '12px', textAlign: 'center',
+                                    bgcolor: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.2)'
+                                }}>
+                                    <i className="tabler-eye-off" style={{ fontSize: '1.4rem', color: '#2563eb', display: 'block', marginBottom: 6 }} />
+                                    <Typography variant="body2" fontWeight={700} color="#2563eb">
+                                        Respuestas ocultas
+                                    </Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Las respuestas correctas se revelan cuando agotes todos tus intentos.
+                                    </Typography>
+                                </Box>
+                            )}
                         </Box>
                     </>
                 )}
@@ -385,63 +667,90 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
         )
     }
 
-    // Pantalla de inicio del examen
+    // ── Exam start screen ─────────────────────────────────────────────────────
     if (!examenIniciado) {
+        const puntajeMin = toVeinte(examen.puntaje_aprobacion)
+
         return (
-            <Card variant="outlined" sx={{ borderRadius: '16px', overflow: 'hidden' }}>
-                <Box sx={{ p: 4, bgcolor: 'primary.50', textAlign: 'center' }}>
-                    <i className="tabler-clipboard-text" style={{ fontSize: '3rem', color: 'var(--mui-palette-primary-main)' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 800, mt: 2 }}>
-                        {examen.titulo}
-                    </Typography>
+            <Card variant="outlined" sx={{ borderRadius: '16px', overflow: 'hidden', borderColor: 'divider' }}>
+                <Box sx={{ p: 4, bgcolor: 'rgba(2,94,68,0.05)', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <Box sx={{
+                        width: 72, height: 72, borderRadius: '50%', mb: 2,
+                        bgcolor: 'rgba(2,94,68,0.12)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <i className="tabler-clipboard-text" style={{ fontSize: '2rem', color: '#025E44' }} />
+                    </Box>
+                    <Typography variant="h6" fontWeight={800}>{examen.titulo}</Typography>
                     {examen.descripcion && (
-                        <Typography color="text.secondary" sx={{ mt: 1 }}>
+                        <Typography color="text.secondary" sx={{ mt: 0.75, maxWidth: 400, fontSize: '0.9rem' }}>
                             {examen.descripcion}
                         </Typography>
                     )}
                 </Box>
+
                 <CardContent sx={{ p: 4 }}>
-                    <Stack spacing={2}>
-                        <Stack direction="row" spacing={2} justifyContent="center">
-                            <Chip 
-                                icon={<i className="tabler-list-numbers" />} 
+                    <Stack spacing={3}>
+                        {/* Info chips */}
+                        <Stack direction="row" spacing={1.5} justifyContent="center" flexWrap="wrap" useFlexGap>
+                            <Chip
+                                icon={<i className="tabler-list-numbers" style={{ fontSize: '1rem' }} />}
                                 label={`${examen.preguntas.length} preguntas`}
-                                variant="outlined"
+                                variant="outlined" size="small"
                             />
-                            {examen.limite_tiempo && (
-                                <Chip 
-                                    icon={<i className="tabler-clock" />} 
-                                    label={`${examen.limite_tiempo} minutos`}
-                                    variant="outlined"
+                            <Chip
+                                icon={<i className="tabler-target" style={{ fontSize: '1rem' }} />}
+                                label={`Nota mínima: ${puntajeMin}/20`}
+                                variant="outlined" size="small" color="primary"
+                            />
+                            {examen.fecha_fin && (
+                                <Chip
+                                    icon={<i className="tabler-clock-stop" style={{ fontSize: '1rem' }} />}
+                                    label={`Cierra: ${fmtFecha(examen.fecha_fin)}`}
+                                    variant="outlined" size="small" color="warning"
                                 />
                             )}
-                            <Chip 
-                                icon={<i className="tabler-target" />} 
-                                label={`Aprobación: ${examen.puntaje_aprobacion}%`}
-                                variant="outlined"
-                                color="primary"
-                            />
                         </Stack>
 
                         {intentosRestantes <= 0 ? (
-                            <Alert severity="warning" sx={{ borderRadius: '10px' }}>
-                                Has agotado todos tus intentos para este examen
-                            </Alert>
-                        ) : (
-                            <>
-                                <Typography variant="body2" color="text.secondary" textAlign="center">
-                                    Tienes {intentosRestantes} intento{intentosRestantes !== 1 ? 's' : ''} restante{intentosRestantes !== 1 ? 's' : ''}
+                            <Box sx={{
+                                p: 2.5, borderRadius: '12px', textAlign: 'center',
+                                bgcolor: 'rgba(234,88,12,0.07)', border: '1px solid rgba(234,88,12,0.2)'
+                            }}>
+                                <i className="tabler-alert-triangle" style={{ fontSize: '1.5rem', color: '#ea580c', display: 'block', marginBottom: 8 }} />
+                                <Typography fontWeight={700} color="#ea580c" variant="body2">Intentos agotados</Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                    No tienes más intentos disponibles para este examen.
                                 </Typography>
+                            </Box>
+                        ) : (
+                            <Stack spacing={1.5}>
+                                <Box sx={{
+                                    p: 2, borderRadius: '10px', textAlign: 'center',
+                                    bgcolor: 'rgba(2,94,68,0.05)', border: '1px solid rgba(2,94,68,0.15)'
+                                }}>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Tienes{' '}
+                                        <Typography component="span" fontWeight={800} color="#025E44">
+                                            {intentosRestantes} intento{intentosRestantes !== 1 ? 's' : ''}
+                                        </Typography>
+                                        {' '}disponible{intentosRestantes !== 1 ? 's' : ''}
+                                    </Typography>
+                                </Box>
                                 <Button
                                     variant="contained"
                                     size="large"
                                     onClick={handleStartExam}
-                                    sx={{ borderRadius: '10px', py: 1.5, fontWeight: 700 }}
                                     fullWidth
+                                    startIcon={<i className="tabler-player-play" />}
+                                    sx={{
+                                        borderRadius: '12px', py: 1.5, fontWeight: 800, fontSize: '1rem',
+                                        bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' }, boxShadow: 'none'
+                                    }}
                                 >
                                     Comenzar Examen
                                 </Button>
-                            </>
+                            </Stack>
                         )}
                     </Stack>
                 </CardContent>
@@ -449,106 +758,144 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
         )
     }
 
-    // Examen en progreso
+    // ── Exam in progress ──────────────────────────────────────────────────────
     const preguntasRespondidas = Object.keys(respuestas).length
     const progreso = (preguntasRespondidas / examen.preguntas.length) * 100
+    const timerUrgente = tiempoRestante !== null && tiempoRestante < 120
 
     return (
         <Box>
-            {/* Barra superior fija */}
-            <Card variant="outlined" sx={{ borderRadius: '12px', mb: 3, position: 'sticky', top: 0, zIndex: 5 }}>
+            {/* Sticky header */}
+            <Card variant="outlined" sx={{
+                borderRadius: '12px', mb: 3,
+                position: 'sticky', top: 0, zIndex: 5,
+                borderColor: timerUrgente ? 'rgba(220,38,38,0.5)' : 'divider'
+            }}>
                 <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
-                        <Typography variant="h6" fontWeight={800}>{examen.titulo}</Typography>
-                        <Stack direction="row" spacing={2} alignItems="center">
-                            <Chip 
-                                label={`${preguntasRespondidas}/${examen.preguntas.length}`} 
-                                color="primary" 
-                                size="small"
+                        <Typography variant="subtitle1" fontWeight={800} noWrap sx={{ maxWidth: '60%' }}>
+                            {examen.titulo}
+                        </Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                            <Chip
+                                icon={<i className="tabler-check" style={{ fontSize: '0.85rem' }} />}
+                                label={`${preguntasRespondidas}/${examen.preguntas.length}`}
+                                color="primary" size="small" variant="outlined"
                             />
                             {tiempoRestante !== null && (
-                                <Chip 
-                                    icon={<i className="tabler-clock" />}
+                                <Chip
+                                    icon={<i className="tabler-clock" style={{ fontSize: '0.85rem' }} />}
                                     label={formatTime(tiempoRestante)}
-                                    color={tiempoRestante < 60 ? 'error' : 'default'}
+                                    color={timerUrgente ? 'error' : 'default'}
                                     size="small"
+                                    sx={timerUrgente ? { fontWeight: 800, animation: 'pulse 1s infinite' } : {}}
                                 />
                             )}
                         </Stack>
                     </Stack>
-                    <LinearProgress 
-                        variant="determinate" 
-                        value={progreso} 
-                        sx={{ mt: 1, height: 6, borderRadius: 3 }} 
+                    <LinearProgress
+                        variant="determinate"
+                        value={progreso}
+                        sx={{
+                            mt: 1.5, height: 5, borderRadius: 4,
+                            bgcolor: 'rgba(2,94,68,0.1)',
+                            '& .MuiLinearProgress-bar': { bgcolor: '#025E44', borderRadius: 4 }
+                        }}
                     />
                 </CardContent>
             </Card>
 
-            {/* Preguntas */}
-            <Stack spacing={3}>
-                {examen.preguntas.map((pregunta, index) => (
-                    <Card key={pregunta.id} variant="outlined" sx={{ borderRadius: '12px' }}>
-                        <CardContent sx={{ p: 3 }}>
-                            <FormControl component="fieldset" fullWidth>
-                                <FormLabel 
-                                    component="legend" 
-                                    sx={{ fontWeight: 700, color: 'text.primary', mb: 2, fontSize: '1rem' }}
-                                >
-                                    <Chip 
-                                        label={index + 1} 
-                                        size="small" 
-                                        color="primary" 
-                                        sx={{ mr: 1, fontWeight: 800 }} 
-                                    />
-                                    {pregunta.texto}
-                                    <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                                        ({pregunta.puntos} {pregunta.puntos === 1 ? 'punto' : 'puntos'})
-                                    </Typography>
-                                </FormLabel>
-                                <RadioGroup
-                                    value={respuestas[pregunta.id] || ''}
-                                    onChange={(e) => handleRespuesta(pregunta.id, e.target.value)}
-                                >
-                                    {pregunta.opciones.map((opcion) => (
-                                        <FormControlLabel
-                                            key={opcion.id}
-                                            value={opcion.id}
-                                            control={<Radio />}
-                                            label={opcion.texto}
-                                            sx={{
-                                                py: 0.5,
-                                                px: 2,
-                                                mx: 0,
-                                                borderRadius: '8px',
-                                                mb: 0.5,
-                                                bgcolor: respuestas[pregunta.id] === opcion.id ? 'primary.50' : 'transparent',
-                                                transition: 'background 0.2s',
-                                                '&:hover': { bgcolor: 'action.hover' }
-                                            }}
-                                        />
-                                    ))}
-                                </RadioGroup>
-                            </FormControl>
-                        </CardContent>
-                    </Card>
-                ))}
+            {/* Questions */}
+            <Stack spacing={2.5}>
+                {examen.preguntas.map((pregunta, index) => {
+                    const respondida = !!respuestas[pregunta.id]
+
+                    return (
+                        <Card key={pregunta.id} variant="outlined" sx={{
+                            borderRadius: '12px',
+                            borderColor: respondida ? 'rgba(2,94,68,0.4)' : 'divider',
+                            transition: 'border-color 0.2s'
+                        }}>
+                            <CardContent sx={{ p: 3 }}>
+                                <FormControl component="fieldset" fullWidth>
+                                    <FormLabel component="legend" sx={{ mb: 2 }}>
+                                        <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                                            <Chip
+                                                label={index + 1}
+                                                size="small"
+                                                sx={{
+                                                    fontWeight: 800, flexShrink: 0, mt: '2px',
+                                                    bgcolor: respondida ? '#025E44' : 'rgba(0,0,0,0.08)',
+                                                    color: respondida ? '#fff' : 'text.secondary',
+                                                    transition: 'all 0.2s'
+                                                }}
+                                            />
+                                            <Box>
+                                                <Typography fontWeight={700} color="text.primary" variant="body1">
+                                                    {pregunta.texto}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.disabled">
+                                                    {pregunta.puntos} {pregunta.puntos === 1 ? 'punto' : 'puntos'}
+                                                </Typography>
+                                            </Box>
+                                        </Stack>
+                                    </FormLabel>
+                                    <RadioGroup
+                                        value={respuestas[pregunta.id] || ''}
+                                        onChange={(e) => handleRespuesta(pregunta.id, e.target.value)}
+                                    >
+                                        {pregunta.opciones.map((opcion) => {
+                                            const selected = respuestas[pregunta.id] === opcion.id
+
+                                            return (
+                                                <FormControlLabel
+                                                    key={opcion.id}
+                                                    value={opcion.id}
+                                                    control={<Radio size="small" sx={{
+                                                        color: selected ? '#025E44' : undefined,
+                                                        '&.Mui-checked': { color: '#025E44' }
+                                                    }} />}
+                                                    label={opcion.texto}
+                                                    sx={{
+                                                        py: 0.75, px: 2, mx: 0, mb: 0.5, borderRadius: '8px',
+                                                        border: '1px solid',
+                                                        borderColor: selected ? 'rgba(2,94,68,0.35)' : 'transparent',
+                                                        bgcolor: selected ? 'rgba(2,94,68,0.06)' : 'transparent',
+                                                        transition: 'all 0.15s',
+                                                        '&:hover': { bgcolor: 'rgba(2,94,68,0.04)', borderColor: 'rgba(2,94,68,0.2)' }
+                                                    }}
+                                                />
+                                            )
+                                        })}
+                                    </RadioGroup>
+                                </FormControl>
+                            </CardContent>
+                        </Card>
+                    )
+                })}
             </Stack>
 
             <Divider sx={{ my: 4 }} />
 
-            {/* Botón de envío */}
             <Button
                 variant="contained"
                 size="large"
                 fullWidth
                 onClick={handleSubmit}
                 disabled={submitting || preguntasRespondidas < examen.preguntas.length}
-                sx={{ borderRadius: '12px', py: 1.5, fontWeight: 800, fontSize: '1.1rem' }}
+                sx={{
+                    borderRadius: '12px', py: 1.75, fontWeight: 800, fontSize: '1rem',
+                    bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' }, boxShadow: 'none',
+                    '&.Mui-disabled': { bgcolor: 'rgba(0,0,0,0.08)', color: 'rgba(0,0,0,0.3)' }
+                }}
             >
                 {submitting ? (
-                    <CircularProgress size={24} color="inherit" />
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                        <CircularProgress size={20} color="inherit" />
+                        <span>Enviando…</span>
+                    </Stack>
                 ) : (
-                    `Enviar Examen (${preguntasRespondidas}/${examen.preguntas.length})`
+                    `Enviar examen (${preguntasRespondidas}/${examen.preguntas.length} respondidas)`
                 )}
             </Button>
         </Box>
