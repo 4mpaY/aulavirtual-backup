@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -176,7 +176,7 @@ code {
 
 /* Eyebrow (label sobre el título) */
 .t-eyebrow {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -189,7 +189,7 @@ code {
 
 /* H2 de sección */
 .t-section-h2 {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.75rem;
   font-weight: 800;
   color: #0A0A0A;
@@ -204,7 +204,7 @@ code {
 
 /* Descripción / subtítulo de sección */
 .t-section-desc {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   font-weight: 400;
   color: #64748b;
@@ -215,7 +215,7 @@ code {
 
 /* Título de card */
 .t-card-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   font-weight: 700;
   color: #0A0A0A;
@@ -226,7 +226,7 @@ code {
 
 /* Cuerpo de card */
 .t-card-body {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.875rem;
   font-weight: 400;
   color: #64748b;
@@ -236,7 +236,7 @@ code {
 
 /* Texto pequeño / meta */
 .t-small {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.8125rem;
   font-weight: 400;
   color: #94a3b8;
@@ -245,7 +245,7 @@ code {
 
 /* Aliases de compatibilidad */
 .section-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1.75rem;
   font-weight: 800;
   color: #0A0A0A;
@@ -258,15 +258,21 @@ code {
 }
 
 .section-subtitle {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 1rem;
   color: #64748b;
   margin-bottom: 2rem;
   line-height: 1.7;
 }
 
-/* Ensure Poppins applies to web public pages */
+/* Apply Plus Jakarta Sans to web public pages */
 .web-layout,
 .web-layout * {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+/* SweetAlert2 — match system typography */
+.swal2-popup,
+.swal2-popup * {
+  font-family: var(--font-plus-jakarta-sans, 'Plus Jakarta Sans'), sans-serif !important;
 }

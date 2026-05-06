@@ -291,7 +291,6 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                         overflow: 'hidden',
                         bgcolor: '#0A0A0A',
                         boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-                        maxWidth: { md: '88%' },
                         position: { xs: 'sticky', md: 'relative' },
                         top: 0,
                         zIndex: 6,
@@ -580,7 +579,8 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                         size="small"
                                         variant="contained"
                                         onClick={() => openExam(ex.id)}
-                                        sx={{ flexShrink: 0, borderRadius: '10px', textTransform: 'none', fontWeight: 700, fontSize: '0.78rem', px: 2, minWidth: 90, boxShadow: 'none',
+                                        sx={{
+                                            flexShrink: 0, borderRadius: '10px', textTransform: 'none', fontWeight: 700, fontSize: '0.78rem', px: 2, minWidth: 90, boxShadow: 'none',
                                             bgcolor: btnConfig.bg, '&:hover': { bgcolor: btnConfig.bg, filter: 'brightness(0.9)' },
                                             '&.Mui-disabled': { bgcolor: `${btnConfig.bg}88`, color: '#fff' }
                                         }}
@@ -654,7 +654,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                 </>
                             ) : (
                                 <Typography variant="body2" color="text.secondary">
-                                    Completa y aprueba todas las evaluaciones del curso para desbloquear tu certificado.
+                                    Completa y aprueba el promedio de todas las evaluaciones del curso para desbloquear tu certificado.
                                 </Typography>
                             )}
                         </Box>

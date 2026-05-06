@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth'
 import { Providers } from '@/components/Providers'
 import { getConfigs } from '@/utils/libs/config'
 import { getAuthOptions } from '@/utils/configs/auth'
+import { plus_jakarta_sans } from '@core/theme'
 
 import './globals.css'
 import '@assets/iconify-icons/generated-icons.css'
@@ -60,7 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const webDarkMid  = darkenHex(webDark, 0.72)  // oscuro medio → reemplaza #0f4438
 
   return (
-    <html lang='es' suppressHydrationWarning>
+    <html lang='es' suppressHydrationWarning className={`${plus_jakarta_sans.variable} ${plus_jakarta_sans.className}`}>
       <body className='flex is-full min-bs-full flex-col' id="__next">
         <style dangerouslySetInnerHTML={{
           __html: `

@@ -5,8 +5,14 @@ export function sanitizeDatetimeInput(value: string | null | undefined): string 
 
   if (normalized.length === 0) return null
 
-  // Si ya incluye un tiempo, lo dejamos tal cual.
-  if (normalized.includes('T')) return normalized
+  // Si contiene T pero no tiene timezone, interpretarlo como hora local y convertir a UTC ISO
+  if (normalized.includes('T') && !normalized.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(normalized)) {
+    const date = new Date(normalized) // browser trata sin timezone como hora local
+
+    if (!isNaN(date.getTime())) return date.toISOString() // → "YYYY-MM-DDTHH:MM:SS.sssZ"
+
+    return normalized
+  }
 
   // Para fechas tipo YYYY-MM-DD, fijamos la hora a mediodía para evitar
   // desplazamientos de día por diferencias de zona horaria.

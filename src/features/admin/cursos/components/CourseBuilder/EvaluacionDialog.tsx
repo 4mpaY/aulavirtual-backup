@@ -165,7 +165,7 @@ function QuestionForm({ initial, onSave, onCancel, isSaving }: QuestionFormProps
             Cancelar
           </Button>
           <Button size='small' variant='contained' onClick={handleSubmit} disabled={isSaving || !texto}>
-            {isSaving ? 'Guardando...' : initial?.id ? 'Guardar cambios' : 'Añadir pregunta'}
+            {isSaving ? 'Guardando...' : initial?.id ? 'Guardar cambios' : 'Guardar'}
           </Button>
         </Box>
       </Stack>

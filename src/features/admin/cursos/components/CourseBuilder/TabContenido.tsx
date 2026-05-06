@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, Children, cloneElement } from 'react'
+import React, { useState, useRef, Children, cloneElement } from 'react'
 
 import {
   Box,
@@ -16,6 +16,7 @@ import {
   Collapse,
   alpha
 } from '@mui/material'
+import Swal from 'sweetalert2'
 import { useSnackbar } from 'notistack'
 
 import {
@@ -45,6 +46,7 @@ import { EvaluacionDialog } from './EvaluacionDialog'
 import type { Curso, CursoLeccionResumen, CursoExamenResumen } from '../../entity/Curso'
 import {
   useCreateModulo,
+  useUpdateModulo,
   useDeleteModulo,
   useReorderModulos,
   useCreateLeccion,
@@ -170,6 +172,7 @@ const ModuleCard = ({
   expandedModule,
   setExpandedModule,
   handleDeleteModule,
+  onRenameModule,
   onCombinedDragEnd,
   handleToggleLessonStatus,
   handleToggleLessonPreview,
@@ -183,6 +186,23 @@ const ModuleCard = ({
   dragHandleProps
 }: any) => {
   const totalItems = (modulo.lecciones?.length ?? 0) + (modulo.examenes?.length ?? 0)
+  const [editing, setEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(modulo.titulo)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const startEdit = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditTitle(modulo.titulo)
+    setEditing(true)
+    setTimeout(() => inputRef.current?.select(), 30)
+  }
+
+  const commitEdit = () => {
+    const trimmed = editTitle.trim()
+
+    if (trimmed && trimmed !== modulo.titulo) onRenameModule(modulo.id, trimmed)
+    setEditing(false)
+  }
 
   return (
     <Card sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
@@ -193,42 +213,84 @@ const ModuleCard = ({
           alignItems: 'center',
           justifyContent: 'space-between',
           px: 3,
-          py: 2,
+          py: editing ? 1.25 : 2,
           bgcolor: 'action.hover',
-          cursor: 'pointer',
+          cursor: editing ? 'default' : 'pointer',
           transition: 'background 0.15s',
           '&:hover': { bgcolor: theme => alpha(theme.palette.action.hover, 0.12) }
         }}
-        onClick={() => setExpandedModule(expandedModule === modulo.id ? null : modulo.id)}
+        onClick={() => !editing && setExpandedModule(expandedModule === modulo.id ? null : modulo.id)}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box {...dragHandleProps} sx={{ display: 'flex', cursor: 'grab', '&:active': { cursor: 'grabbing' }, mr: 0.5 }} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0 }}>
+          <Box {...dragHandleProps} sx={{ display: 'flex', cursor: 'grab', '&:active': { cursor: 'grabbing' }, mr: 0.5, flexShrink: 0 }} onClick={(e: React.MouseEvent) => e.stopPropagation()}>
             <i className='tabler-grip-vertical text-xl text-textDisabled' />
           </Box>
           <Box sx={{
             width: 28, height: 28, borderRadius: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            bgcolor: alpha('#025E44', 0.1), color: '#025E44', fontSize: '0.75rem', fontWeight: 800
+            bgcolor: alpha('#025E44', 0.1), color: '#025E44', fontSize: '0.75rem', fontWeight: 800, flexShrink: 0
           }}>
             {mIndex + 1}
           </Box>
-          <Typography variant='subtitle1' fontWeight={700} color='text.primary'>
-            {modulo.titulo}
-          </Typography>
-          <Chip size='small' variant='outlined' label={`${modulo.lecciones?.length ?? 0} lecciones`} sx={{ height: 20, fontSize: '0.72rem' }} />
-          {(modulo.examenes?.length ?? 0) > 0 && (
-            <Chip size='small' variant='tonal' color='warning' label={`${modulo.examenes.length} eval.`} sx={{ height: 20, fontSize: '0.72rem' }} />
+
+          {editing ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, minWidth: 0 }} onClick={e => e.stopPropagation()}>
+              <input
+                ref={inputRef}
+                value={editTitle}
+                onChange={e => setEditTitle(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') commitEdit()
+                  if (e.key === 'Escape') setEditing(false)
+                }}
+                onBlur={commitEdit}
+                autoFocus
+                style={{
+                  flex: 1, minWidth: 0, fontSize: '0.95rem', fontWeight: 700,
+                  border: '1.5px solid #025E44', borderRadius: 8, padding: '5px 10px',
+                  background: 'transparent', outline: 'none', color: 'inherit', fontFamily: 'inherit'
+                }}
+              />
+              <Tooltip title='Confirmar (Enter)'>
+                <IconButton size='small' color='success' onMouseDown={e => { e.preventDefault(); commitEdit() }}>
+                  <i className='tabler-check text-base' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Cancelar (Esc)'>
+                <IconButton size='small' onMouseDown={e => { e.preventDefault(); setEditing(false) }}>
+                  <i className='tabler-x text-base' />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          ) : (
+            <>
+              <Typography variant='subtitle1' fontWeight={700} color='text.primary' noWrap>
+                {modulo.titulo}
+              </Typography>
+              <Chip size='small' variant='outlined' label={`${modulo.lecciones?.length ?? 0} lecciones`} sx={{ height: 20, fontSize: '0.72rem', flexShrink: 0 }} />
+              {(modulo.examenes?.length ?? 0) > 0 && (
+                <Chip size='small' variant='tonal' color='warning' label={`${modulo.examenes.length} eval.`} sx={{ height: 20, fontSize: '0.72rem', flexShrink: 0 }} />
+              )}
+            </>
           )}
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }} onClick={e => e.stopPropagation()}>
-          <Tooltip title='Eliminar módulo'>
-            <IconButton size='small' color='error' onClick={() => handleDeleteModule(modulo.id)}>
-              <i className='tabler-trash text-lg' />
-            </IconButton>
-          </Tooltip>
-          <Box sx={{ ml: 0.5, color: 'text.secondary' }}>
-            <i className={`tabler-chevron-${expandedModule === modulo.id ? 'up' : 'down'} text-lg`} />
+
+        {!editing && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+            <Tooltip title='Renombrar módulo'>
+              <IconButton size='small' color='primary' onClick={startEdit}>
+                <i className='tabler-pencil text-lg' />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title='Eliminar módulo'>
+              <IconButton size='small' color='error' onClick={() => handleDeleteModule(modulo.id)}>
+                <i className='tabler-trash text-lg' />
+              </IconButton>
+            </Tooltip>
+            <Box sx={{ ml: 0.5, color: 'text.secondary' }}>
+              <i className={`tabler-chevron-${expandedModule === modulo.id ? 'up' : 'down'} text-lg`} />
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
 
       <Collapse in={expandedModule === modulo.id}>
@@ -421,6 +483,7 @@ interface TabContenidoProps {
 export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
   const { enqueueSnackbar } = useSnackbar()
   const createModuloMutation = useCreateModulo()
+  const updateModuloMutation = useUpdateModulo()
   const deleteModuloMutation = useDeleteModulo()
   const reorderModulosMutation = useReorderModulos()
   const createLeccionMutation = useCreateLeccion()
@@ -467,7 +530,42 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
     }
   }
 
+  const handleRenameModule = async (moduloId: string, titulo: string) => {
+    try {
+      await updateModuloMutation.mutateAsync({ cursoId: curso.id, moduloId, data: { titulo } })
+      enqueueSnackbar('Módulo renombrado', { variant: 'success' })
+      onSuccess()
+    } catch (error: any) {
+      enqueueSnackbar(error?.message || 'Error al renombrar', { variant: 'error' })
+    }
+  }
+
   const handleDeleteModule = async (moduloId: string) => {
+    const modulo = modulos.find(m => m.id === moduloId)
+    const lecciones = modulo?.lecciones?.length ?? 0
+    const evaluaciones = modulo?.examenes?.length ?? 0
+
+    const detail = [
+      lecciones > 0 ? `${lecciones} lección${lecciones !== 1 ? 'es' : ''}` : '',
+      evaluaciones > 0 ? `${evaluaciones} evaluación${evaluaciones !== 1 ? 'es' : ''}` : ''
+    ].filter(Boolean).join(' y ')
+
+    const result = await Swal.fire({
+      title: '¿Eliminar módulo?',
+      html: detail
+        ? `Se eliminarán permanentemente <strong>${detail}</strong> y todo su contenido. Esta acción no se puede deshacer.`
+        : 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    })
+
+    if (!result.isConfirmed) return
+
     try {
       await deleteModuloMutation.mutateAsync({ cursoId: curso.id, moduloId })
       enqueueSnackbar('Módulo eliminado', { variant: 'success' })
@@ -672,6 +770,7 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
                 expandedModule={expandedModule}
                 setExpandedModule={setExpandedModule}
                 handleDeleteModule={handleDeleteModule}
+                onRenameModule={handleRenameModule}
                 onCombinedDragEnd={handleCombinedDragEnd}
                 handleToggleLessonStatus={handleToggleLessonStatus}
                 handleToggleLessonPreview={handleToggleLessonPreview}
