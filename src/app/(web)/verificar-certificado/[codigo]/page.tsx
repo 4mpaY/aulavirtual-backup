@@ -115,9 +115,10 @@ export default async function VerificarCertificadoPage({ params }: Props) {
 
   const snapshot = certificado.datos as any
 
-  const nombreCompleto = snapshot?.usuario
-    ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
-    : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+  const nombreCompleto =
+    (snapshot?.usuario?.nombre && snapshot?.usuario?.apellido)
+      ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
+      : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
 
   const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
   const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
@@ -268,7 +269,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
 
           <Box sx={{ mt: 4, textAlign: 'center', maxWidth: 600 }}>
             <Typography variant="body2" color="text.secondary" fontStyle="italic">
-              Este certificado es auténtico y ha sido emitido de forma digital por <strong>{templateName}</strong>.
+              Este certificado es auténtico y ha sido emitido de forma digital.
               La integridad de este documento puede ser confirmada en este portal oficial de verificación.
             </Typography>
           </Box>

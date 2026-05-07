@@ -184,6 +184,18 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                                 }
 
                                                 if (item.tipo === 'examen') {
+                                                    if (item.ya_aprobado) {
+                                                        return (
+                                                            <i className="tabler-circle-check-filled" style={{ fontSize: '1rem', color: '#16a34a' }} />
+                                                        )
+                                                    }
+
+                                                    if ((item.intentos_realizados || 0) > 0) {
+                                                        return (
+                                                            <i className="tabler-circle-x-filled" style={{ fontSize: '1rem', color: '#dc2626' }} />
+                                                        )
+                                                    }
+
                                                     return (
                                                         <i className="tabler-clipboard-check" style={{ fontSize: '1rem', color: '#d97706' }} />
                                                     )
@@ -285,6 +297,19 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                                                     )}
                                                                 </Box>
                                                             )}
+                                                            {/* Fecha clase en vivo */}
+                                                            {item.tipo === 'leccion' && item.es_en_vivo && item.fecha_programada && (
+                                                                <Box sx={{ flexShrink: 0, textAlign: 'right', ml: 1 }}>
+                                                                    <Typography variant="caption" sx={{
+                                                                        fontSize: '0.65rem', color: '#7c3aed', fontWeight: 600,
+                                                                        display: 'flex', alignItems: 'center', gap: 0.4,
+                                                                        justifyContent: 'flex-end', whiteSpace: 'nowrap'
+                                                                    }}>
+                                                                        <i className="tabler-video" style={{ fontSize: '0.65rem' }} />
+                                                                        {new Date(item.fecha_programada).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                                                    </Typography>
+                                                                </Box>
+                                                            )}
                                                         </ListItemButton>
                                                     </Tooltip>
                                                 </ListItem>
@@ -297,8 +322,8 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                     ))
                 )}
 
-                {/* ── Final exam / Certificate ── */}
-                {(examenId || examStatus === 'passed') && (
+                {/* ── Final exam (solo si existe examen final) ── */}
+                {examenId && (
                     <>
                         <Divider />
                         <Box sx={{ p: 3 }}>
@@ -310,8 +335,7 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                     </Typography>
                                 </Box>
                             )}
-
-                            {(examStatus === 'available' || examStatus === 'failed') && examenId && (
+                            {(examStatus === 'available' || examStatus === 'failed') && (
                                 <Button
                                     fullWidth
                                     variant={currentView === 'exam' && currentExamenId === examenId ? 'contained' : 'outlined'}
@@ -323,28 +347,34 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                     Realizar Examen Final
                                 </Button>
                             )}
+                        </Box>
+                    </>
+                )}
 
-                            {examStatus === 'passed' && (
-                                <Button
-                                    fullWidth
-                                    variant={currentView === 'certificate' ? 'contained' : 'outlined'}
-                                    startIcon={<i className="tabler-certificate" />}
-                                    onClick={() => setCurrentView('certificate')}
-                                    sx={{
-                                        borderRadius: '10px',
-                                        py: 1.25,
-                                        fontWeight: 700,
-                                        textTransform: 'none',
-                                        fontSize: '0.875rem',
-                                        ...(currentView === 'certificate'
-                                            ? { bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' }, boxShadow: 'none' }
-                                            : { borderColor: '#025E44', color: '#025E44', '&:hover': { bgcolor: 'rgba(2,94,68,0.05)' } }
-                                        )
-                                    }}
-                                >
-                                    🎓 Ver Certificado
-                                </Button>
-                            )}
+                {/* ── Certificado — siempre visible ── */}
+                {course && (
+                    <>
+                        <Divider />
+                        <Box sx={{ p: 3 }}>
+                            <Button
+                                fullWidth
+                                variant={currentView === 'certificate' ? 'contained' : 'outlined'}
+                                startIcon={<i className="tabler-certificate" />}
+                                onClick={() => setCurrentView('certificate')}
+                                sx={{
+                                    borderRadius: '10px',
+                                    py: 1.25,
+                                    fontWeight: 700,
+                                    textTransform: 'none',
+                                    fontSize: '0.875rem',
+                                    ...(currentView === 'certificate'
+                                        ? { bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' }, boxShadow: 'none' }
+                                        : { borderColor: '#025E44', color: '#025E44', '&:hover': { bgcolor: 'rgba(2,94,68,0.05)' } }
+                                    )
+                                }}
+                            >
+                                Mi Certificado
+                            </Button>
                         </Box>
                     </>
                 )}

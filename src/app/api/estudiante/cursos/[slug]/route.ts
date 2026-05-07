@@ -124,20 +124,28 @@ export async function GET(request: Request, { params }: { params: { slug: string
         examen: { curso_id: course.id },
         enviado_en: { not: null }
       },
-      select: { examen_id: true, esta_aprobado: true }
+      select: { examen_id: true, esta_aprobado: true, puntaje: true }
     })
 
-    const intentosPorExamen: Record<string, { intentos_realizados: number; ya_aprobado: boolean }> = {}
+    const intentosPorExamen: Record<string, { intentos_realizados: number; ya_aprobado: boolean; mejor_puntaje: number | null }> = {}
 
     intentosUsuario.forEach(intento => {
       if (!intentosPorExamen[intento.examen_id]) {
-        intentosPorExamen[intento.examen_id] = { intentos_realizados: 0, ya_aprobado: false }
+        intentosPorExamen[intento.examen_id] = { intentos_realizados: 0, ya_aprobado: false, mejor_puntaje: null }
       }
 
       intentosPorExamen[intento.examen_id].intentos_realizados += 1
 
       if (intento.esta_aprobado) {
         intentosPorExamen[intento.examen_id].ya_aprobado = true
+      }
+
+      if (intento.puntaje != null) {
+        const actual = intentosPorExamen[intento.examen_id].mejor_puntaje ?? -Infinity
+
+        if (intento.puntaje > actual) {
+          intentosPorExamen[intento.examen_id].mejor_puntaje = intento.puntaje
+        }
       }
     })
 
@@ -170,7 +178,8 @@ export async function GET(request: Request, { params }: { params: { slug: string
       examenes: course.examenes.map(ex => ({
         ...ex,
         intentos_realizados: intentosPorExamen[ex.id]?.intentos_realizados ?? 0,
-        ya_aprobado: intentosPorExamen[ex.id]?.ya_aprobado ?? false
+        ya_aprobado: intentosPorExamen[ex.id]?.ya_aprobado ?? false,
+        mejor_puntaje: intentosPorExamen[ex.id]?.mejor_puntaje ?? null
       })),
       inscripcion: inscription ? {
         estado_nota: inscription.estado_nota,

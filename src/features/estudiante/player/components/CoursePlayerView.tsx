@@ -42,7 +42,6 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
         currentView,
         examenId,
         currentExamenId,
-        examStatus,
         progressPercentage,
         setCourse,
         setCurrentLessonId,
@@ -522,16 +521,17 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             const lockedFuture = ex.fecha_inicio && ahora < new Date(ex.fecha_inicio)
                             const lockedExpired = ex.fecha_fin && ahora > new Date(ex.fecha_fin)
                             const approved = !!ex.ya_aprobado
+                            const attempted = (ex.intentos_realizados || 0) > 0
+                            const failed = attempted && !approved
                             const exhausted = !approved && (ex.intentos_realizados || 0) >= (ex.intentos_maximos || 1)
-                            const expiredWithAttempts = !!lockedExpired && (ex.intentos_realizados || 0) > 0
+                            const expiredWithAttempts = !!lockedExpired && attempted
                             const isActive = currentExamenId === ex.id && currentView === 'exam'
                             const isLocked = lockedProgress || (lockedFuture && !expiredWithAttempts) || (lockedExpired && !expiredWithAttempts) || exhausted
 
                             const modName = storeCourse?.modulos.find((m: any) => m.id === ex.modulo_id)?.titulo
 
-                            // Configuración visual del botón según estado
                             const btnConfig = (() => {
-                                if (approved) return { label: 'Aprobado ✓', bg: '#16a34a' }
+                                if (approved) return { label: 'Ver resultado', bg: '#16a34a' }
                                 if (exhausted) return { label: 'Ver resultado', bg: '#ea580c' }
                                 if (isActive) return { label: 'En curso', bg: '#d97706' }
                                 if (expiredWithAttempts) return { label: 'Ver resultado', bg: '#64748b' }
@@ -539,28 +539,65 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                 if (lockedExpired) return { label: 'Expirado', bg: '#dc2626' }
                                 if (lockedProgress) return { label: 'Bloqueado', bg: '#94a3b8' }
 
-                                return { label: 'Iniciar', bg: '#025E44' }
+                                return { label: failed ? 'Reintentar' : 'Iniciar', bg: failed ? '#dc2626' : '#025E44' }
                             })()
+
+                            // Colores según resultado
+                            const cardBorderColor = approved ? '#16a34a40' : failed ? '#dc262640' : isActive ? '#025E44' : 'divider'
+                            const cardBg = approved ? 'rgba(22,163,74,0.04)' : failed ? 'rgba(220,38,38,0.03)' : isActive ? 'rgba(2,94,68,0.04)' : 'background.paper'
+                            const iconBg = approved ? 'rgba(22,163,74,0.12)' : failed ? 'rgba(220,38,38,0.1)' : ex.tipo === 'FINAL' ? 'rgba(2,94,68,0.1)' : 'rgba(217,119,6,0.1)'
+                            const iconClass = approved ? 'tabler-circle-check-filled' : failed ? 'tabler-circle-x-filled' : ex.tipo === 'FINAL' ? 'tabler-trophy' : 'tabler-clipboard-check'
+                            const iconColor = approved ? '#16a34a' : failed ? '#dc2626' : ex.tipo === 'FINAL' ? '#025E44' : '#d97706'
 
                             return (
                                 <Box sx={{
-                                    p: 2, borderRadius: '12px', border: '1px solid', display: 'flex', alignItems: 'center', gap: 2,
-                                    borderColor: approved ? '#16a34a40' : isActive ? '#025E44' : 'divider',
-                                    bgcolor: approved ? 'rgba(22,163,74,0.04)' : isActive ? 'rgba(2,94,68,0.04)' : 'background.paper',
-                                    opacity: (isLocked && !approved) ? 0.65 : 1,
+                                    p: 2, borderRadius: '12px', border: '1.5px solid', display: 'flex', alignItems: 'center', gap: 2,
+                                    borderColor: cardBorderColor,
+                                    bgcolor: cardBg,
+                                    opacity: (isLocked && !approved && !failed) ? 0.65 : 1,
                                 }}>
-                                    <Box sx={{ width: 42, height: 42, borderRadius: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: approved ? 'rgba(22,163,74,0.1)' : ex.tipo === 'FINAL' ? 'rgba(2,94,68,0.1)' : 'rgba(217,119,6,0.1)' }}>
-                                        <i className={approved ? 'tabler-circle-check-filled' : ex.tipo === 'FINAL' ? 'tabler-trophy' : 'tabler-clipboard-check'} style={{ fontSize: '1.2rem', color: approved ? '#16a34a' : ex.tipo === 'FINAL' ? '#025E44' : '#d97706' }} />
+                                    {/* Ícono con resultado */}
+                                    <Box sx={{ position: 'relative', flexShrink: 0 }}>
+                                        <Box sx={{ width: 42, height: 42, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: iconBg }}>
+                                            <i className={iconClass} style={{ fontSize: '1.2rem', color: iconColor }} />
+                                        </Box>
+                                        {/* Badge de resultado */}
+                                        {(approved || failed) && (
+                                            <Box sx={{
+                                                position: 'absolute', bottom: -4, right: -4,
+                                                width: 18, height: 18, borderRadius: '50%',
+                                                bgcolor: approved ? '#16a34a' : '#dc2626',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                border: '2px solid', borderColor: 'background.paper'
+                                            }}>
+                                                <i className={approved ? 'tabler-check' : 'tabler-x'} style={{ fontSize: '0.6rem', color: '#fff' }} />
+                                            </Box>
+                                        )}
                                     </Box>
+
                                     <Box sx={{ flex: 1, minWidth: 0 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 0.25 }}>
                                             <Typography variant="body2" sx={{ fontWeight: 700 }}>{ex.titulo}</Typography>
                                             <Chip size="small" label={ex.tipo === 'FINAL' ? 'Examen Final' : 'Evaluación'}
                                                 sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, bgcolor: ex.tipo === 'FINAL' ? 'rgba(2,94,68,0.1)' : 'rgba(217,119,6,0.1)', color: ex.tipo === 'FINAL' ? '#025E44' : '#d97706' }} />
+                                            {approved && (
+                                                <Chip size="small" label="Aprobado" icon={<i className="tabler-check" style={{ fontSize: '0.65rem' }} />}
+                                                    sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, bgcolor: 'rgba(22,163,74,0.12)', color: '#16a34a' }} />
+                                            )}
+                                            {failed && !exhausted && (
+                                                <Chip size="small" label="Reprobado" icon={<i className="tabler-x" style={{ fontSize: '0.65rem' }} />}
+                                                    sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, bgcolor: 'rgba(220,38,38,0.1)', color: '#dc2626' }} />
+                                            )}
                                         </Box>
                                         <Stack direction="row" spacing={1.5} flexWrap="wrap">
                                             {modName && <Typography variant="caption" color="text.secondary"><i className="tabler-folders" style={{ marginRight: 3 }} />{modName}</Typography>}
                                             {ex.puntaje_aprobacion && <Typography variant="caption" color="text.secondary"><i className="tabler-award" style={{ marginRight: 3 }} />Aprobación: {Math.round((ex.puntaje_aprobacion / 100) * 20)}/20</Typography>}
+                                            {ex.mejor_puntaje != null && attempted && (
+                                                <Typography variant="caption" sx={{ fontWeight: 700, color: approved ? '#16a34a' : '#dc2626' }}>
+                                                    <i className="tabler-star" style={{ marginRight: 3 }} />
+                                                    Tu nota: {Math.round((ex.mejor_puntaje / 100) * 20 * 10) / 10}/20
+                                                </Typography>
+                                            )}
                                             <Typography variant="caption" color="text.secondary"><i className="tabler-refresh" style={{ marginRight: 3 }} />{ex.intentos_realizados || 0}/{ex.intentos_maximos} intentos</Typography>
                                             {ex.progreso_minimo > 0 && <Typography variant="caption" color="text.secondary"><i className="tabler-lock" style={{ marginRight: 3 }} />Requiere {ex.progreso_minimo}% avance</Typography>}
                                         </Stack>
@@ -618,46 +655,58 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                     })()}
 
                     {/* Materiales */}
-                    {activeTab === 2 && currentLesson && (
-                        <Box>
-                            {currentLesson.recursos && currentLesson.recursos.length > 0 ? (
-                                <LessonContent
-                                    titulo=""
-                                    recursos={currentLesson.recursos}
-                                />
-                            ) : (
-                                <Box sx={{ p: 3, textAlign: 'center', bgcolor: 'action.hover', borderRadius: '16px' }}>
+                    {activeTab === 2 && (() => {
+                        const modulosConRecursos = (storeCourse?.modulos || []).map(mod => ({
+                            ...mod,
+                            lecciones: mod.lecciones.filter((l: any) => l.recursos && l.recursos.length > 0)
+                        })).filter(mod => mod.lecciones.length > 0)
+
+                        const totalRecursos = modulosConRecursos.reduce(
+                            (acc, mod) => acc + mod.lecciones.reduce((a: number, l: any) => a + l.recursos.length, 0), 0
+                        )
+
+                        if (totalRecursos === 0) {
+                            return (
+                                <Box sx={{ p: 4, textAlign: 'center', bgcolor: 'action.hover', borderRadius: '16px' }}>
                                     <i className="tabler-file-off text-3xl" style={{ opacity: 0.3 }} />
-                                    <Typography color="text.secondary" sx={{ mt: 1 }}>No hay materiales para esta lección.</Typography>
+                                    <Typography color="text.secondary" sx={{ mt: 1 }}>No hay materiales disponibles en este curso.</Typography>
                                 </Box>
-                            )}
-                        </Box>
-                    )}
+                            )
+                        }
+
+                        return (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                {modulosConRecursos.map(mod => (
+                                    <Box key={mod.id}>
+                                        {/* Cabecera de módulo */}
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                                            <Box sx={{ width: 3, height: 16, bgcolor: '#025E44', borderRadius: 2, flexShrink: 0 }} />
+                                            <Typography variant="caption" sx={{ fontWeight: 700, color: '#025E44', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                                {mod.titulo}
+                                            </Typography>
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                            {mod.lecciones.map((l: any) => (
+                                                <Box key={l.id}>
+                                                    {/* Etiqueta de lección */}
+                                                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, display: 'block', mb: 1, pl: 0.5 }}>
+                                                        <i className="tabler-player-play" style={{ fontSize: '0.75rem', marginRight: 4 }} />
+                                                        {l.titulo}
+                                                    </Typography>
+                                                    <LessonContent titulo="" recursos={l.recursos} />
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    </Box>
+                                ))}
+                            </Box>
+                        )
+                    })()}
 
                     {/* Certificación */}
-                    {activeTab === 3 && (
-                        <Box sx={{ p: 3, textAlign: 'center', bgcolor: 'rgba(2,94,68,0.03)', borderRadius: '16px', border: '1px dashed rgba(2,94,68,0.2)' }}>
-                            <Box sx={{ width: 56, height: 56, borderRadius: '16px', bgcolor: 'rgba(2,94,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2 }}>
-                                <i className="tabler-certificate text-2xl" style={{ color: '#025E44' }} />
-                            </Box>
-                            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Tu Certificado</Typography>
-                            {examStatus === 'passed' ? (
-                                <>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-                                        ¡Felicidades! Has aprobado el curso. Tu certificado está disponible.
-                                    </Typography>
-                                    <Button variant="contained" onClick={() => setCurrentView('certificate')}
-                                        startIcon={<i className="tabler-download" />}
-                                        sx={{ bgcolor: '#025E44', borderRadius: '10px', textTransform: 'none', fontWeight: 700, boxShadow: 'none', '&:hover': { bgcolor: '#014d36', boxShadow: 'none' } }}>
-                                        Ver mi Certificado
-                                    </Button>
-                                </>
-                            ) : (
-                                <Typography variant="body2" color="text.secondary">
-                                    Completa y aprueba el promedio de todas las evaluaciones del curso para desbloquear tu certificado.
-                                </Typography>
-                            )}
-                        </Box>
+                    {activeTab === 3 && storeCourse && (
+                        <CertificateSection cursoId={storeCourse.id} />
                     )}
 
                     {/* Comentarios */}
