@@ -6,6 +6,7 @@ import { join } from 'path'
 import { NextResponse } from 'next/server'
 
 import * as QRCode from 'qrcode'
+import sharp from 'sharp'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
@@ -214,13 +215,13 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const addSignatureBlock = async (x: number, lineY: number, user: any) => {
       if (!user) return
 
-      // Imagen de firma encima de la línea
+      // Imagen de firma — 34×34mm cuadrado, 1mm sobre la línea
       if (user.firma) {
         try {
           const signatureBuffer = await fetchImageBuffer(user.firma)
           if (signatureBuffer) {
             const sigExt = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
-            doc.addImage(signatureBuffer, sigExt.toUpperCase(), x - 22, lineY - 14, 44, 12)
+            doc.addImage(signatureBuffer, sigExt.toUpperCase(), x - 17, lineY - 34, 34, 34)
           }
         } catch { /* skip */ }
       }
@@ -230,20 +231,21 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       doc.setLineWidth(0.5)
       doc.line(x - 36, lineY, x + 36, lineY)
 
-      // Cargo en negrita
+      // Nombre completo
+      const nombreFirmante = `${user.nombre || ''} ${user.apellido || ''}`.trim()
       doc.setFontSize(9)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(25, 25, 25)
-      doc.text(user.cargo || 'Funcionario', x, lineY + 7, { align: 'center' })
+      doc.text(nombreFirmante, x, lineY + 7, { align: 'center' })
 
-      // Institución
-      doc.setFontSize(8)
-      doc.setFont('helvetica', 'normal')
-      const instSigLines = doc.splitTextToSize(nombreInstitucion, 72)
-      instSigLines.forEach((ln: string, i: number) => {
-        doc.setTextColor(120, 120, 120)
-        doc.text(ln, x, lineY + 14 + i * 4, { align: 'center' })
-      })
+      // Cargo (si existe)
+      if (user.cargo) {
+        doc.setFontSize(8)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(80, 80, 80)
+        doc.text(user.cargo, x, lineY + 13, { align: 'center' })
+      }
+
     }
 
     // ── PÁGINA 1 ─────────────────────────────────────────────────────────
@@ -299,154 +301,118 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFillColor(255, 255, 255)
     doc.roundedRect(qrX0 - 3, qrY0 - 3, qrSz + 6, qrSz + 6, 2, 2, 'F')
     doc.addImage(qrDataUrl, 'PNG', qrX0, qrY0, qrSz, qrSz)
-    doc.setFontSize(5)
+    doc.setFontSize(12)
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'normal')
-    doc.text('Escanea para verificar', contentW + panelW / 2, pageHeight - 7, { align: 'center' })
+    doc.text('Escanea para verificar', contentW + panelW / 2, pageHeight, { align: 'center' })
 
     // 5. Repisar el área de contenido izquierda en blanco (cubre posibles desbordes)
     doc.setFillColor(255, 255, 255)
     doc.rect(0, 0, contentW, pageHeight, 'F')
 
     // 6. Texto "CERTIFICADO" rotado vertical — se dibuja DESPUÉS del rect blanco
-    //    para que esté siempre visible dentro del panel
+    //    align:'center' con angle:90 desplaza el texto por textWidth/2 en el eje incorrecto,
+    //    por eso calculamos y manualmente usando getTextWidth y no usamos align.
     const vtR = Math.round(pr + (255 - pr) * 0.22)
     const vtG = Math.round(pg + (255 - pg) * 0.22)
     const vtB = Math.round(pb + (255 - pb) * 0.22)
-    const panelCx = contentW + panelW / 2   // centro horizontal del panel = 261mm
     doc.setFontSize(40)
     doc.setTextColor(vtR, vtG, vtB)
     doc.setFont('helvetica', 'bold')
-    doc.text('CERTIFICADO', panelCx, pageHeight * 0.52, { angle: 90, align: 'center' })
+    const certTxtW = doc.getTextWidth('CERTIFICADO')
+    // Sin align: el texto sube desde y hacia arriba por certTxtW mm.
+    // Para centrar verticalmente en el panel: y_start = pageHeight/2 + certTxtW/2
+    // Para centrar horizontalmente: baseline en panelCx (col. ~14mm de ancho, offset mínimo)
+    const panelCx = contentW + panelW / 2  // = 261mm
+    doc.text('CERTIFICADO', panelCx, pageHeight / 2 + certTxtW / 2, { angle: 90 })
 
     // ── ÁREA DE CONTENIDO ──────────────────────────────────────────────
 
-    // Borde interior decorativo (marco premium)
-    doc.setDrawColor(pr, pg, pb)
-    doc.setLineWidth(0.35)
-    doc.rect(8, 8, contentW - 16, pageHeight - 16)
-    // Línea interior doble (offset 2mm)
-    doc.setLineWidth(0.15)
-    doc.rect(10, 10, contentW - 20, pageHeight - 20)
+    // ── ENCABEZADO: solo logo centrado, proporciones reales ──
+    let y = 10
+    const maxLogoH = 22   // altura máxima en mm
+    const maxLogoW = 60   // ancho máximo en mm
+    let logoDisplayW = maxLogoH
+    let logoDisplayH = maxLogoH
 
-    // ── ENCABEZADO: logo superior izquierda + nombre institución ──
-    let y = 15
-    const logoW = 15, logoH = 15
-    const logoX = 16
-    const hTextX = logoX + logoW + 4  // texto a la derecha del logo
+    if (logoBuffer) {
+      try {
+        const meta = await sharp(logoBuffer).metadata()
+        if (meta.width && meta.height) {
+          const ratio = meta.width / meta.height
+          logoDisplayH = maxLogoH
+          logoDisplayW = Math.min(logoDisplayH * ratio, maxLogoW)
+          // Si es más ancho que alto, ajustar por ancho
+          if (logoDisplayW === maxLogoW) logoDisplayH = maxLogoW / ratio
+        }
+      } catch { /* usar tamaño por defecto */ }
+    }
 
     if (base64Logo) {
       try {
-        doc.addImage(base64Logo, 'PNG', logoX, y, logoW, logoH)
+        const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+        doc.addImage(base64Logo, ext, cx - logoDisplayW / 2, y, logoDisplayW, logoDisplayH)
       } catch { /* skip */ }
     }
 
-    // Nombre institución (en negro/oscuro, no primary)
-    doc.setFontSize(9)
-    doc.setTextColor(40, 40, 40)
-    doc.setFont('helvetica', 'bold')
-    const instHLines = doc.splitTextToSize(nombreInstitucion, contentW - hTextX - 12)
-    instHLines.forEach((ln: string, i: number) => {
-      doc.text(ln, hTextX, y + 5 + i * 4.2)
-    })
-
-    // Slogan
-    doc.setFontSize(7.5)
-    doc.setTextColor(140, 140, 140)
-    doc.setFont('helvetica', 'normal')
-    doc.text(slogan, hTextX, y + 5 + instHLines.length * 4.2 + 2)
-
-    y += Math.max(logoH, instHLines.length * 4.2 + 5 + 6) + 4
-
-    // ── Línea divisoria horizontal debajo del encabezado ──
-    doc.setDrawColor(pr, pg, pb)
-    doc.setLineWidth(1.0)
-    doc.line(14, y, contentW - 14, y)
-    // segunda línea fina decorativa
-    doc.setLineWidth(0.2)
-    doc.line(14, y + 1.5, contentW - 14, y + 1.5)
-    y += 13
+    y += logoDisplayH + 8
 
     // ── CERTIFICADO ──
-    doc.setFontSize(38)
+    doc.setFontSize(26)
     doc.setTextColor(18, 18, 18)
     doc.setFont('helvetica', 'bold')
     doc.text('CERTIFICADO', cx, y, { align: 'center' })
-    y += 5
-
-    // Línea ornamental bajo "CERTIFICADO"
-    doc.setDrawColor(pr, pg, pb)
-    doc.setLineWidth(1.2)
-    doc.line(cx - 30, y, cx + 30, y)
-    y += 8
-
-    // "Otorgado a:"
-    doc.setFontSize(8.5)
-    doc.setTextColor(160, 160, 160)
-    doc.setFont('helvetica', 'italic')
-    doc.text('Otorgado a:', cx, y, { align: 'center' })
     y += 9
 
+    // "Otorgado a:"
+    doc.setFontSize(13)
+    doc.setTextColor(100, 100, 100)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Otorgado a:', cx, y, { align: 'center' })
+    y += 10
+
     // ── Nombre del alumno ── grande, color primario
-    doc.setFontSize(22)
+    doc.setFontSize(26)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
     const nameStr = nombreCompleto.toUpperCase()
     doc.text(nameStr, cx, y, { align: 'center' })
-    y += 4
-
-    // Línea decorativa bajo el nombre
-    doc.setDrawColor(pr, pg, pb)
-    doc.setLineWidth(0.6)
-    const nw = Math.min(doc.getTextWidth(nameStr) + 8, contentW - 42)
-    doc.line(cx - nw / 2, y, cx + nw / 2, y)
-    y += 9
+    y += 11
 
     // "Por haber concluido..."
-    doc.setFontSize(8.5)
+    doc.setFontSize(13)
     doc.setTextColor(100, 100, 100)
-    doc.setFont('helvetica', 'italic')
+    doc.setFont('helvetica', 'normal')
     doc.text('Por haber concluido y aprobado con éxito el curso de especialización de:', cx, y, { align: 'center' })
-    y += 9
+    y += 10
 
     // ── Título del curso — negro bold ──
-    doc.setFontSize(17)
+    doc.setFontSize(26)
     doc.setTextColor(15, 15, 15)
     doc.setFont('helvetica', 'bold')
     const cursoLines = doc.splitTextToSize(cursoTitulo, contentW - 34)
     doc.text(cursoLines, cx, y, { align: 'center' })
-    y += cursoLines.length * 7.5 + 3
-
-    // Línea de info: duración · modalidad · nivel
-    doc.setFontSize(7.5)
-    doc.setTextColor(150, 150, 150)
-    doc.setFont('helvetica', 'normal')
-    doc.text(
-      `${cursoDuracion || '---'} horas lectivas  ·  ${modalidad}  ·  Nivel: ${cursoNivel}`,
-      cx, y, { align: 'center' }
-    )
-    y += 7
+    y += cursoLines.length * 7 + 6
 
     // ── Párrafo descriptivo ──
-    doc.setFontSize(8)
+    doc.setFontSize(13)
     doc.setFont('helvetica', 'normal')
-    doc.setTextColor(110, 110, 110)
+    doc.setTextColor(100, 100, 100)
     const fechaInicioLarga = formatDateLong(fechaInicioVal)
     const fechaFinLarga = formatDateLong(fechaFinVal)
-    const descripcionTxt = `Emitido por ${nombreInstitucion}, con una duración de ${cursoDuracion || '---'} horas académicas, realizado desde el ${fechaInicioLarga} hasta el ${fechaFinLarga}.`
+    const descripcionTxt = `Emitido por ${nombreInstitucion}, con una duración de ${cursoDuracion || '---'}, realizado desde el ${fechaInicioLarga} hasta el ${fechaFinLarga}.`
     const descripcionLines = doc.splitTextToSize(descripcionTxt, contentW - 40)
-    doc.setTextColor(110, 110, 110)
     doc.text(descripcionLines, cx, y, { align: 'center' })
-    y += descripcionLines.length * 4 + 4
+    y += descripcionLines.length * 6 + 4
 
     // "Por cuanto..."
+    doc.setFontSize(13)
     doc.setFont('helvetica', 'normal')
-    doc.setTextColor(110, 110, 110)
+    doc.setTextColor(100, 100, 100)
     const porcuantoTxt = 'Por cuanto: Para que conste y sea reconocido, se otorga el presente diploma en calidad de:'
     const porcuantoLines = doc.splitTextToSize(porcuantoTxt, contentW - 40)
-    doc.setTextColor(110, 110, 110)
     doc.text(porcuantoLines, cx, y, { align: 'center' })
-    y += porcuantoLines.length * 4 + 6
+    y += porcuantoLines.length * 6 + 5
 
     // ── APROBADO — destacado, con líneas decorativas a los lados ──
     doc.setFontSize(14)
@@ -464,27 +430,33 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const fechaFirmadaTxt = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
-    doc.setFontSize(8.5)
-    doc.setTextColor(120, 120, 120)
+    doc.setFontSize(13)
+    doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text(`Firmado, el ${fechaFirmadaTxt}.`, cx, y, { align: 'center' })
-    y += 15
+    y += 12
 
     // ── Bloques de firma ── centrado si uno solo, simétrico si dos
     const hasGerente = gerenteGeneral !== null
-    const s1x = hasGerente ? cx - 54 : cx
-    const s2x = cx + 54
-    await addSignatureBlock(s1x, y + 16, profesorSnapshot)
-    if (hasGerente) await addSignatureBlock(s2x, y + 16, gerenteGeneral)
+    const mostrarFirmaDocente = configs.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'
+    // Con docente: principal izquierda, docente derecha
+    // Sin docente: solo principal centrado (o solo docente centrado si no hay principal)
+    if (hasGerente && mostrarFirmaDocente) {
+      await addSignatureBlock(cx - 54, y + 38, gerenteGeneral)
+      await addSignatureBlock(cx + 54, y + 38, profesorSnapshot)
+    } else if (hasGerente) {
+      await addSignatureBlock(cx, y + 38, gerenteGeneral)
+    } else if (mostrarFirmaDocente) {
+      await addSignatureBlock(cx, y + 38, profesorSnapshot)
+    }
 
     // ── Footer: Certificado ID + Fecha apilados en esquina inferior izquierda ──
     const footerY1 = pageHeight - 10
     const footerY2 = pageHeight - 6
-    doc.setFontSize(6.5)
-    doc.setTextColor(160, 160, 160)
+    doc.setFontSize(8)
+    doc.setTextColor(90, 90, 90)
     doc.setFont('helvetica', 'normal')
-    doc.text(`Certificado Id: ${certificado.id}`, 16, footerY1)
-    doc.text(`Fecha de Emisión: ${fechaFirmadaTxt}`, 16, footerY2)
+    doc.text(`Código de Registro: ${certificado.codigo_verificacion}`, 16, footerY1)
 
     const previewFlag = reqUrl.searchParams.get('preview') === 'true'
 

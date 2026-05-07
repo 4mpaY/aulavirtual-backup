@@ -130,320 +130,320 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                 <FormWrapper>
                   <Grid container spacing={3}>
 
-                {/* ── Foto de Perfil ── */}
-                <Grid item xs={12}>
-                  <Typography variant='overline' color='text.disabled' sx={{ mb: 2, display: 'block' }}>
-                    Foto de Perfil
-                  </Typography>
-                  <Stack direction='row' alignItems='center' spacing={3}>
-                    <Avatar
-                      src={values.avatar || undefined}
-                      sx={{ width: 80, height: 80, fontSize: '1.5rem', bgcolor: 'primary.main' }}
-                    >
-                      {!values.avatar && getInitials(values.nombre || 'U', values.apellido || 'U')}
-                    </Avatar>
-                    <Stack spacing={1}>
-                      <Stack direction='row' spacing={1}>
-                        <Button
-                          variant='outlined'
-                          size='small'
-                          startIcon={<i className='tabler-camera text-base' />}
-                          onClick={() => setOpenAvatarMedia(true)}
-                          disabled={isSubmitting}
-                        >
-                          {values.avatar ? 'Cambiar foto' : 'Subir foto'}
-                        </Button>
-                        {values.avatar && (
-                          <IconButton
-                            size='small'
-                            color='error'
-                            onClick={() => setFieldValue('avatar', '')}
-                            disabled={isSubmitting}
-                            title='Eliminar foto'
-                          >
-                            <i className='tabler-trash text-base' />
-                          </IconButton>
-                        )}
-                      </Stack>
-                      <Typography variant='caption' color='text.secondary'>
-                        JPG, PNG o WEBP · recomendado 400×400px
-                      </Typography>
-                    </Stack>
-                  </Stack>
-
-                  <MediaLibrary
-                    open={openAvatarMedia}
-                    onClose={() => setOpenAvatarMedia(false)}
-                    onSelect={(url) => { setFieldValue('avatar', url); setOpenAvatarMedia(false) }}
-                    title='Seleccionar Foto de Perfil'
-                    acceptType='IMAGEN'
-                  />
-                </Grid>
-
-                <Grid item xs={12}><Divider /></Grid>
-
-                {/* ── Información Personal ── */}
-                <Grid item xs={12}>
-                  <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
-                    Información Personal
-                  </Typography>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='Nombre'
-                    name='nombre'
-                    value={values.nombre}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.nombre && Boolean(errors.nombre)}
-                    helperText={touched.nombre && errors.nombre}
-                    disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <i className='tabler-user text-xl text-textSecondary' />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='Apellido'
-                    name='apellido'
-                    value={values.apellido}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.apellido && Boolean(errors.apellido)}
-                    helperText={touched.apellido && errors.apellido}
-                    disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <i className='tabler-user text-xl text-textSecondary' />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='Correo Electrónico'
-                    name='correo'
-                    type='email'
-                    value={values.correo}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.correo && Boolean(errors.correo)}
-                    helperText={touched.correo && errors.correo}
-                    disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <i className='tabler-mail text-xl text-textSecondary' />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='DNI / Documento'
-                    name='numero_documento'
-                    value={values.numero_documento}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.numero_documento && Boolean(errors.numero_documento)}
-                    helperText={touched.numero_documento && errors.numero_documento}
-                    disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <i className='tabler-id text-xl text-textSecondary' />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='Celular'
-                    name='celular'
-                    value={values.celular}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.celular && Boolean(errors.celular)}
-                    helperText={touched.celular && errors.celular}
-                    disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <i className='tabler-phone text-xl text-textSecondary' />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
-
-                {/* Biografía — simple para ESTUDIANTE */}
-                {values.rol === Rol.ESTUDIANTE && (
-                  <Grid item xs={12}>
-                    <CustomTextField
-                      fullWidth
-                      multiline
-                      rows={3}
-                      label='Descripción / Biografía'
-                      name='biografia'
-                      placeholder='Describe brevemente al usuario...'
-                      value={values.biografia}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={touched.biografia && Boolean(errors.biografia)}
-                      helperText={touched.biografia && errors.biografia}
-                      disabled={isSubmitting}
-                    />
-                  </Grid>
-                )}
-
-                {/* ── Perfil Docente (solo PROFESOR / ADMIN) ── */}
-                {(values.rol === Rol.ADMIN || values.rol === Rol.PROFESOR) && (
-                  <>
-                    <Grid item xs={12}><Divider /></Grid>
-
+                    {/* ── Foto de Perfil ── */}
                     <Grid item xs={12}>
                       <Typography variant='overline' color='text.disabled' sx={{ mb: 2, display: 'block' }}>
-                        Perfil Profesional
+                        Foto de Perfil
                       </Typography>
-                      <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
-                        Esta información se mostrará públicamente en la página de docente.
-                      </Typography>
-                      <ProfesorBioEditor
-                        value={values.biografia}
-                        onChange={(html) => setFieldValue('biografia', html)}
-                        rol={values.rol}
+                      <Stack direction='row' alignItems='center' spacing={3}>
+                        <Avatar
+                          src={values.avatar || undefined}
+                          sx={{ width: 80, height: 80, fontSize: '1.5rem', bgcolor: 'primary.main' }}
+                        >
+                          {!values.avatar && getInitials(values.nombre || 'U', values.apellido || 'U')}
+                        </Avatar>
+                        <Stack spacing={1}>
+                          <Stack direction='row' spacing={1}>
+                            <Button
+                              variant='outlined'
+                              size='small'
+                              startIcon={<i className='tabler-camera text-base' />}
+                              onClick={() => setOpenAvatarMedia(true)}
+                              disabled={isSubmitting}
+                            >
+                              {values.avatar ? 'Cambiar foto' : 'Subir foto'}
+                            </Button>
+                            {values.avatar && (
+                              <IconButton
+                                size='small'
+                                color='error'
+                                onClick={() => setFieldValue('avatar', '')}
+                                disabled={isSubmitting}
+                                title='Eliminar foto'
+                              >
+                                <i className='tabler-trash text-base' />
+                              </IconButton>
+                            )}
+                          </Stack>
+                          <Typography variant='caption' color='text.secondary'>
+                            JPG, PNG o WEBP · recomendado 400×400px
+                          </Typography>
+                        </Stack>
+                      </Stack>
+
+                      <MediaLibrary
+                        open={openAvatarMedia}
+                        onClose={() => setOpenAvatarMedia(false)}
+                        onSelect={(url) => { setFieldValue('avatar', url); setOpenAvatarMedia(false) }}
+                        title='Seleccionar Foto de Perfil'
+                        acceptType='IMAGEN'
                       />
+                    </Grid>
+
+                    <Grid item xs={12}><Divider /></Grid>
+
+                    {/* ── Información Personal ── */}
+                    <Grid item xs={12}>
+                      <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
+                        Información Personal
+                      </Typography>
                     </Grid>
 
                     <Grid item xs={12} sm={6}>
                       <CustomTextField
                         fullWidth
-                        label='Cargo / Especialización'
-                        name='cargo'
-                        placeholder='Ej: Instructor Senior · Seguridad Industrial'
-                        value={values.cargo}
+                        label='Nombre'
+                        name='nombre'
+                        value={values.nombre}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        error={touched.cargo && Boolean(errors.cargo)}
-                        helperText={touched.cargo && errors.cargo}
+                        error={touched.nombre && Boolean(errors.nombre)}
+                        helperText={touched.nombre && errors.nombre}
                         disabled={isSubmitting}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position='start'>
-                              <i className='tabler-user-cog text-xl text-textSecondary' />
+                              <i className='tabler-user text-xl text-textSecondary' />
                             </InputAdornment>
                           )
                         }}
                       />
                     </Grid>
 
-                    <Grid item xs={12}>
-                      <Divider sx={{ mb: 2 }} />
-                      <Typography variant='overline' color='text.disabled' sx={{ mb: 2, display: 'block' }}>
-                        Firma Digital
-                      </Typography>
-                      <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
-                        Utilizada para firmar los certificados de los cursos que dicta.
-                      </Typography>
-                      <SignatureUpload
-                        value={values.firma || ''}
-                        onChange={(url) => setFieldValue('firma', url)}
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField
+                        fullWidth
+                        label='Apellido'
+                        name='apellido'
+                        value={values.apellido}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.apellido && Boolean(errors.apellido)}
+                        helperText={touched.apellido && errors.apellido}
                         disabled={isSubmitting}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <i className='tabler-user text-xl text-textSecondary' />
+                            </InputAdornment>
+                          )
+                        }}
                       />
                     </Grid>
-                  </>
-                )}
 
-                <Grid item xs={12}><Divider /></Grid>
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField
+                        fullWidth
+                        label='Correo Electrónico'
+                        name='correo'
+                        type='email'
+                        value={values.correo}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.correo && Boolean(errors.correo)}
+                        helperText={touched.correo && errors.correo}
+                        disabled={isSubmitting}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <i className='tabler-mail text-xl text-textSecondary' />
+                            </InputAdornment>
+                          )
+                        }}
+                      />
+                    </Grid>
 
-                {/* ── Seguridad y Permisos ── */}
-                <Grid item xs={12}>
-                  <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
-                    Seguridad y Permisos
-                  </Typography>
-                </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField
+                        fullWidth
+                        label='DNI / Documento'
+                        name='numero_documento'
+                        value={values.numero_documento}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.numero_documento && Boolean(errors.numero_documento)}
+                        helperText={touched.numero_documento && errors.numero_documento}
+                        disabled={isSubmitting}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <i className='tabler-id text-xl text-textSecondary' />
+                            </InputAdornment>
+                          )
+                        }}
+                      />
+                    </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    select
-                    fullWidth
-                    label='Rol de Usuario'
-                    name='rol'
-                    value={values.rol}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.rol && Boolean(errors.rol)}
-                    helperText={touched.rol && errors.rol}
-                    disabled={isSubmitting}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <i className='tabler-shield-lock text-xl text-textSecondary mr-2' />
-                        </InputAdornment>
-                      )
-                    }}
-                  >
-                    <MenuItem value={Rol.ESTUDIANTE}>Estudiante</MenuItem>
-                    <MenuItem value={Rol.PROFESOR}>Profesor</MenuItem>
-                    <MenuItem value={Rol.ADMIN}>Administrador</MenuItem>
-                  </CustomTextField>
-                </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField
+                        fullWidth
+                        label='Celular'
+                        name='celular'
+                        value={values.celular}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.celular && Boolean(errors.celular)}
+                        helperText={touched.celular && errors.celular}
+                        disabled={isSubmitting}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <i className='tabler-phone text-xl text-textSecondary' />
+                            </InputAdornment>
+                          )
+                        }}
+                      />
+                    </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <CustomTextField
-                    fullWidth
-                    label='Nueva Contraseña (Opcional)'
-                    name='contrasena'
-                    type={showPassword ? 'text' : 'password'}
-                    value={values.contrasena}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={touched.contrasena && Boolean(errors.contrasena)}
-                    helperText={touched.contrasena && errors.contrasena}
-                    disabled={isSubmitting}
-                    placeholder='Dejar en blanco para mantener la actual'
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position='start'>
-                          <i className='tabler-lock text-xl text-textSecondary' />
-                        </InputAdornment>
-                      ),
-                      endAdornment: (
-                        <InputAdornment position='end'>
-                          <IconButton
-                            edge='end'
-                            onClick={() => setShowPassword(!showPassword)}
-                            onMouseDown={e => e.preventDefault()}
-                            aria-label='toggle password visibility'
-                          >
-                            <i className={showPassword ? 'tabler-eye-off' : 'tabler-eye'} />
-                          </IconButton>
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              </FormWrapper>
+                    {/* Biografía — simple para ESTUDIANTE */}
+                    {values.rol === Rol.ESTUDIANTE && (
+                      <Grid item xs={12}>
+                        <CustomTextField
+                          fullWidth
+                          multiline
+                          rows={3}
+                          label='Descripción / Biografía'
+                          name='biografia'
+                          placeholder='Describe brevemente al usuario...'
+                          value={values.biografia}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={touched.biografia && Boolean(errors.biografia)}
+                          helperText={touched.biografia && errors.biografia}
+                          disabled={isSubmitting}
+                        />
+                      </Grid>
+                    )}
+
+                    {/* ── Perfil Docente (solo PROFESOR / ADMIN) ── */}
+                    {(values.rol === Rol.ADMIN || values.rol === Rol.PROFESOR) && (
+                      <>
+                        <Grid item xs={12}><Divider /></Grid>
+
+                        <Grid item xs={12}>
+                          <Typography variant='overline' color='text.disabled' sx={{ mb: 2, display: 'block' }}>
+                            Perfil Profesional
+                          </Typography>
+                          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
+                            Esta información se mostrará públicamente en la página de docente.
+                          </Typography>
+                          <ProfesorBioEditor
+                            value={values.biografia}
+                            onChange={(html) => setFieldValue('biografia', html)}
+                            rol={values.rol}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} sm={12}>
+                          <CustomTextField
+                            fullWidth
+                            label='Cargo en empresa (se muestra en el certificado)'
+                            name='cargo'
+                            placeholder='Ej: Instructor Senior · Seguridad Industrial'
+                            value={values.cargo}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={touched.cargo && Boolean(errors.cargo)}
+                            helperText={touched.cargo && errors.cargo}
+                            disabled={isSubmitting}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position='start'>
+                                  <i className='tabler-user-cog text-xl text-textSecondary' />
+                                </InputAdornment>
+                              )
+                            }}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                          <Divider sx={{ mb: 2 }} />
+                          <Typography variant='overline' color='text.disabled' sx={{ mb: 2, display: 'block' }}>
+                            Firma Digital
+                          </Typography>
+                          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
+                            Utilizada para firmar los certificados de los cursos que dicta. (Imagen PNG con tamaño 500px x 500px)
+                          </Typography>
+                          <SignatureUpload
+                            value={values.firma || ''}
+                            onChange={(url) => setFieldValue('firma', url)}
+                            disabled={isSubmitting}
+                          />
+                        </Grid>
+                      </>
+                    )}
+
+                    <Grid item xs={12}><Divider /></Grid>
+
+                    {/* ── Seguridad y Permisos ── */}
+                    <Grid item xs={12}>
+                      <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
+                        Seguridad y Permisos
+                      </Typography>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField
+                        select
+                        fullWidth
+                        label='Rol de Usuario'
+                        name='rol'
+                        value={values.rol}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.rol && Boolean(errors.rol)}
+                        helperText={touched.rol && errors.rol}
+                        disabled={isSubmitting}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <i className='tabler-shield-lock text-xl text-textSecondary mr-2' />
+                            </InputAdornment>
+                          )
+                        }}
+                      >
+                        <MenuItem value={Rol.ESTUDIANTE}>Estudiante</MenuItem>
+                        <MenuItem value={Rol.PROFESOR}>Profesor</MenuItem>
+                        <MenuItem value={Rol.ADMIN}>Administrador</MenuItem>
+                      </CustomTextField>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <CustomTextField
+                        fullWidth
+                        label='Nueva Contraseña (Opcional)'
+                        name='contrasena'
+                        type={showPassword ? 'text' : 'password'}
+                        value={values.contrasena}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.contrasena && Boolean(errors.contrasena)}
+                        helperText={touched.contrasena && errors.contrasena}
+                        disabled={isSubmitting}
+                        placeholder='Dejar en blanco para mantener la actual'
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              <i className='tabler-lock text-xl text-textSecondary' />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position='end'>
+                              <IconButton
+                                edge='end'
+                                onClick={() => setShowPassword(!showPassword)}
+                                onMouseDown={e => e.preventDefault()}
+                                aria-label='toggle password visibility'
+                              >
+                                <i className={showPassword ? 'tabler-eye-off' : 'tabler-eye'} />
+                              </IconButton>
+                            </InputAdornment>
+                          )
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </FormWrapper>
               </form>
             </Box>
 

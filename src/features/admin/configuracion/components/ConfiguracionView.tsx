@@ -112,7 +112,7 @@ function CertificadosSettings({ config, onInputChange }: { config: any, onInputC
       <Box>
         <Typography variant='h6' gutterBottom>Configuración de Firmas</Typography>
         <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-          Selecciona al usuario que actuará como <strong>Gerente General</strong> en los certificados.
+          Selecciona al usuario que actuará como <strong>principal</strong> en los certificados.
           Asegúrate de que este usuario tenga su <strong>Cargo</strong> y <strong>Firma</strong> configurados en su perfil.
         </Typography>
 
@@ -121,11 +121,11 @@ function CertificadosSettings({ config, onInputChange }: { config: any, onInputC
             <TextField
               select
               fullWidth
-              label='Designar Gerente General'
+              label='Designar Principal Firmante'
               value={config.CERTIFICADO_GERENTE_GENERAL_ID || ''}
               onChange={(e) => onInputChange('CERTIFICADO_GERENTE_GENERAL_ID', e.target.value)}
               disabled={isLoading}
-              helperText='Este usuario aparecerá como la segunda firma en todos los certificados.'
+              helperText='Este usuario aparecerá como el principal firmante en todos los certificados.'
             >
               <MenuItem value=''>
                 <em>Ninguno seleccionado</em>
@@ -136,6 +136,28 @@ function CertificadosSettings({ config, onInputChange }: { config: any, onInputC
                 </MenuItem>
               ))}
             </TextField>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Paper variant='outlined' sx={{ p: 2, height: '100%', display: 'flex', alignItems: 'center' }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={config.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'}
+                    onChange={(e) => onInputChange('CERTIFICADO_MOSTRAR_FIRMA_DOCENTE', e.target.checked ? 'true' : 'false')}
+                    color='primary'
+                  />
+                }
+                label={
+                  <Box>
+                    <Typography variant='body2' fontWeight={600}>Mostrar firma del docente</Typography>
+                    <Typography variant='caption' color='text.secondary'>
+                      Si está activo, la firma del docente del curso aparecerá como firmante secundario en el certificado.
+                    </Typography>
+                  </Box>
+                }
+              />
+            </Paper>
           </Grid>
         </Grid>
       </Box>
