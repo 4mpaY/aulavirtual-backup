@@ -122,6 +122,12 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
+    // fecha_fin del curso (campo nuevo — query raw hasta que se regenere el cliente Prisma)
+    const [cursoFechaFinRow] = await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
+      SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
+    `
+    const cursoFechaFin = cursoFechaFinRow?.fecha_fin ?? null
+
     // Branding (Priorizar llaves específicas de certificado)
     const colorPrimario = configs.PRIMARY_COLOR_MAIN ?? '#131FF2'
 
@@ -183,11 +189,15 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     }
 
     const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
+    const esSincrono = certificado.curso.tipo_emision === 'SINCRONO'
     const fechaInicioVal = snapshot?.fechas?.inicio_curso
-      || (certificado.curso.tipo_emision === 'SINCRONO'
+      || (esSincrono
         ? certificado.curso.fecha_inicio
         : (inscripcion?.inscrito_en || certificado.emitido_en))
-    const fechaFinVal = snapshot?.fechas?.culminacion || (inscripcion?.completado_en || certificado.emitido_en)
+    const fechaFinVal = snapshot?.fechas?.culminacion
+      || (esSincrono
+        ? (cursoFechaFin || certificado.emitido_en)
+        : (inscripcion?.completado_en || certificado.emitido_en))
 
     const fechaEmisionStr = formatDate(fechaEmisionVal)
     const profesorSnapshot = snapshot?.profesor || certificado.curso.profesor
@@ -233,14 +243,14 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
       // Nombre completo
       const nombreFirmante = `${user.nombre || ''} ${user.apellido || ''}`.trim()
-      doc.setFontSize(9)
+      doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(25, 25, 25)
       doc.text(nombreFirmante, x, lineY + 7, { align: 'center' })
 
       // Cargo (si existe)
       if (user.cargo) {
-        doc.setFontSize(8)
+        doc.setFontSize(12)
         doc.setFont('helvetica', 'normal')
         doc.setTextColor(80, 80, 80)
         doc.text(user.cargo, x, lineY + 13, { align: 'center' })
@@ -297,14 +307,14 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     // 4. QR esquina inferior del panel
     const qrSz = 30
     const qrX0 = contentW + (panelW - qrSz) / 2
-    const qrY0 = pageHeight - qrSz - 12
+    const qrY0 = pageHeight - qrSz - 24
     doc.setFillColor(255, 255, 255)
     doc.roundedRect(qrX0 - 3, qrY0 - 3, qrSz + 6, qrSz + 6, 2, 2, 'F')
     doc.addImage(qrDataUrl, 'PNG', qrX0, qrY0, qrSz, qrSz)
     doc.setFontSize(12)
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'normal')
-    doc.text('Escanea para verificar', contentW + panelW / 2, pageHeight, { align: 'center' })
+    doc.text('Escanea para verificar', contentW + panelW / 2, pageHeight - 16, { align: 'center' })
 
     // 5. Repisar el área de contenido izquierda en blanco (cubre posibles desbordes)
     doc.setFillColor(255, 255, 255)
@@ -316,15 +326,13 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const vtR = Math.round(pr + (255 - pr) * 0.22)
     const vtG = Math.round(pg + (255 - pg) * 0.22)
     const vtB = Math.round(pb + (255 - pb) * 0.22)
-    doc.setFontSize(40)
+    doc.setFontSize(55)
     doc.setTextColor(vtR, vtG, vtB)
     doc.setFont('helvetica', 'bold')
-    const certTxtW = doc.getTextWidth('CERTIFICADO')
-    // Sin align: el texto sube desde y hacia arriba por certTxtW mm.
-    // Para centrar verticalmente en el panel: y_start = pageHeight/2 + certTxtW/2
-    // Para centrar horizontalmente: baseline en panelCx (col. ~14mm de ancho, offset mínimo)
-    const panelCx = contentW + panelW / 2  // = 261mm
-    doc.text('CERTIFICADO', panelCx, pageHeight / 2 + certTxtW / 2, { angle: 90 })
+    // angle:90: x=baseline horizontal del texto, y=extremo inferior del texto
+    // QR empieza en pageHeight-42 (~168mm) → margen de 8mm: y=160
+    // x centrado en el panel: contentW + panelW/2
+    doc.text('CERTIFICADO', contentW + panelW / 2 + 8, 148, { angle: 90 })
 
     // ── ÁREA DE CONTENIDO ──────────────────────────────────────────────
 
@@ -355,21 +363,21 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       } catch { /* skip */ }
     }
 
-    y += logoDisplayH + 8
+    y += logoDisplayH + 14
 
     // ── CERTIFICADO ──
     doc.setFontSize(26)
     doc.setTextColor(18, 18, 18)
     doc.setFont('helvetica', 'bold')
     doc.text('CERTIFICADO', cx, y, { align: 'center' })
-    y += 9
+    y += 11
 
     // "Otorgado a:"
-    doc.setFontSize(13)
+    doc.setFontSize(12)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text('Otorgado a:', cx, y, { align: 'center' })
-    y += 10
+    y += 11
 
     // ── Nombre del alumno ── grande, color primario
     doc.setFontSize(26)
@@ -380,7 +388,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     y += 11
 
     // "Por haber concluido..."
-    doc.setFontSize(13)
+    doc.setFontSize(12)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text('Por haber concluido y aprobado con éxito el curso de especialización de:', cx, y, { align: 'center' })
@@ -395,7 +403,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     y += cursoLines.length * 7 + 6
 
     // ── Párrafo descriptivo ──
-    doc.setFontSize(13)
+    doc.setFontSize(12)
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(100, 100, 100)
     const fechaInicioLarga = formatDateLong(fechaInicioVal)
@@ -406,7 +414,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     y += descripcionLines.length * 6 + 4
 
     // "Por cuanto..."
-    doc.setFontSize(13)
+    doc.setFontSize(12)
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(100, 100, 100)
     const porcuantoTxt = 'Por cuanto: Para que conste y sea reconocido, se otorga el presente diploma en calidad de:'
@@ -430,7 +438,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const fechaFirmadaTxt = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
-    doc.setFontSize(13)
+    doc.setFontSize(12)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text(`Firmado, el ${fechaFirmadaTxt}.`, cx, y, { align: 'center' })
@@ -442,21 +450,22 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     // Con docente: principal izquierda, docente derecha
     // Sin docente: solo principal centrado (o solo docente centrado si no hay principal)
     if (hasGerente && mostrarFirmaDocente) {
-      await addSignatureBlock(cx - 54, y + 38, gerenteGeneral)
-      await addSignatureBlock(cx + 54, y + 38, profesorSnapshot)
+      await addSignatureBlock(cx - 54, y + 20, gerenteGeneral)
+      await addSignatureBlock(cx + 54, y + 20, profesorSnapshot)
     } else if (hasGerente) {
-      await addSignatureBlock(cx, y + 38, gerenteGeneral)
+      await addSignatureBlock(cx, y + 20, gerenteGeneral)
     } else if (mostrarFirmaDocente) {
-      await addSignatureBlock(cx, y + 38, profesorSnapshot)
+      await addSignatureBlock(cx, y + 20, profesorSnapshot)
     }
 
     // ── Footer: Certificado ID + Fecha apilados en esquina inferior izquierda ──
-    const footerY1 = pageHeight - 10
-    const footerY2 = pageHeight - 6
-    doc.setFontSize(8)
+    const footerY1 = pageHeight - 12
+    const footerY2 = pageHeight - 7
+    doc.setFontSize(10)
     doc.setTextColor(90, 90, 90)
     doc.setFont('helvetica', 'normal')
     doc.text(`Código de Registro: ${certificado.codigo_verificacion}`, 16, footerY1)
+    doc.text(`Fecha de Emisión: ${fechaFirmadaTxt}`, 16, footerY2)
 
     const previewFlag = reqUrl.searchParams.get('preview') === 'true'
 

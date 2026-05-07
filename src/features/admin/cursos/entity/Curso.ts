@@ -66,6 +66,7 @@ export interface Curso {
   miniatura: string | null
   video_presentacion: string | null
   fecha_inicio: string | Date | null
+  fecha_fin: string | Date | null
   duracion: string | null
   tipo_emision: 'SINCRONO' | 'ASINCRONO' | 'MIXTO'
   nivel: 'BASICO' | 'INTERMEDIO' | 'AVANZADO'

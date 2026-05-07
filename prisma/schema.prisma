@@ -93,6 +93,7 @@ model Curso {
   metodologia        Json?           @default("[]")
   objetivos          Json?           @default("[]")
   fecha_inicio       DateTime?
+  fecha_fin          DateTime?
   precio_oferta      Decimal?        @db.Decimal(10, 2)
   brochure           String?
   certificados       Certificado[]

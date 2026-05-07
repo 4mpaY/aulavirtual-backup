@@ -116,6 +116,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
       select: { completado_en: true, inscrito_en: true }
     })
 
+    // fecha_fin del curso (query raw hasta que se regenere el cliente Prisma)
+    const [cursoFechaFinRow] = await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
+      SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
+    `
+    const cursoFechaFin = cursoFechaFinRow?.fecha_fin ?? null
 
     // Branding (Priorizar llaves específicas de certificado)
     const colorPrimario = configs.PRIMARY_COLOR_MAIN ?? '#131FF2'
@@ -178,11 +183,15 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
+    const esSincrono = certificado.curso.tipo_emision === 'SINCRONO'
     const fechaInicioVal = snapshot?.fechas?.inicio_curso
-      || (certificado.curso.tipo_emision === 'SINCRONO'
+      || (esSincrono
         ? certificado.curso.fecha_inicio
         : (inscripcion?.inscrito_en || certificado.emitido_en))
-    const fechaFinVal = snapshot?.fechas?.culminacion || (inscripcion?.completado_en || certificado.emitido_en)
+    const fechaFinVal = snapshot?.fechas?.culminacion
+      || (esSincrono
+        ? (cursoFechaFin || certificado.emitido_en)
+        : (inscripcion?.completado_en || certificado.emitido_en))
 
     const fechaEmisionStr = formatDate(fechaEmisionVal)
     const profesorSnapshot = snapshot?.profesor || certificado.curso.profesor
@@ -228,14 +237,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
       // Nombre completo
       const nombreFirmante = `${user.nombre || ''} ${user.apellido || ''}`.trim()
-      doc.setFontSize(9)
+      doc.setFontSize(10)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(25, 25, 25)
       doc.text(nombreFirmante, x, lineY + 7, { align: 'center' })
 
       // Cargo (si existe)
       if (user.cargo) {
-        doc.setFontSize(8)
+        doc.setFontSize(10)
         doc.setFont('helvetica', 'normal')
         doc.setTextColor(80, 80, 80)
         doc.text(user.cargo, x, lineY + 13, { align: 'center' })
@@ -343,20 +352,20 @@ export async function GET(request: Request, { params }: { params: { id: string }
       } catch { /* skip */ }
     }
 
-    y += logoDisplayH + 8
+    y += logoDisplayH + 14
 
     // ── CERTIFICADO ──
     doc.setFontSize(38)
     doc.setTextColor(18, 18, 18)
     doc.setFont('helvetica', 'bold')
     doc.text('CERTIFICADO', cx, y, { align: 'center' })
-    y += 9
+    y += 11
 
     doc.setFontSize(13)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text('Otorgado a:', cx, y, { align: 'center' })
-    y += 10
+    y += 11
 
     // ── Nombre del alumno ──
     doc.setFontSize(26)
@@ -424,12 +433,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const hasGerente = gerenteGeneral !== null
     const mostrarFirmaDocente = configs.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'
     if (hasGerente && mostrarFirmaDocente) {
-      await addSignatureBlock(cx - 54, y + 38, gerenteGeneral)
-      await addSignatureBlock(cx + 54, y + 38, profesorSnapshot)
+      await addSignatureBlock(cx - 54, y + 20, gerenteGeneral)
+      await addSignatureBlock(cx + 54, y + 20, profesorSnapshot)
     } else if (hasGerente) {
-      await addSignatureBlock(cx, y + 38, gerenteGeneral)
+      await addSignatureBlock(cx, y + 20, gerenteGeneral)
     } else if (mostrarFirmaDocente) {
-      await addSignatureBlock(cx, y + 38, profesorSnapshot)
+      await addSignatureBlock(cx, y + 20, profesorSnapshot)
     }
 
     // ── Footer ──

@@ -25,6 +25,7 @@ export const crearCursoSchema = z.object({
   video_presentacion: z.string().optional().nullable(),
   brochure: z.string().optional().nullable(),
   fecha_inicio: z.string().optional().nullable(),
+  fecha_fin: z.string().optional().nullable(),
   nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).default('BASICO')
 })
 
@@ -53,6 +54,7 @@ export const actualizarCursoSchema = z.object({
   video_presentacion: z.string().optional().nullable(),
   brochure: z.string().optional().nullable(),
   fecha_inicio: z.string().optional().nullable(),
+  fecha_fin: z.string().optional().nullable(),
   objetivos: z.array(z.string()).optional(),
   metodologia: z.array(z.any()).optional(),
   beneficios: z.array(z.any()).optional(),

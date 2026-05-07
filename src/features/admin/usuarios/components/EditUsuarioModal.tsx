@@ -362,7 +362,7 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                             Firma Digital
                           </Typography>
                           <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
-                            Utilizada para firmar los certificados de los cursos que dicta. (Imagen PNG con tamaño 500px x 500px)
+                            Utilizada para firmar los certificados de los cursos que dicta. (Imagen PNG con tamaño 500px x 350px)
                           </Typography>
                           <SignatureUpload
                             value={values.firma || ''}

@@ -166,10 +166,16 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     if (data.fecha_inicio) {
       const fechaInicio = sanitizeDatetimeInput(data.fecha_inicio)
-      
       updateData.fecha_inicio = fechaInicio ? new Date(fechaInicio) : null
     } else if (data.fecha_inicio === null) {
       updateData.fecha_inicio = null
+    }
+
+    if (data.fecha_fin) {
+      const fechaFin = sanitizeDatetimeInput(data.fecha_fin)
+      updateData.fecha_fin = fechaFin ? new Date(fechaFin) : null
+    } else if (data.fecha_fin === null) {
+      updateData.fecha_fin = null
     }
 
     // Verificar profesor si se cambia

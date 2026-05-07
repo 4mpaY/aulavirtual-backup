@@ -48,6 +48,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
     video_presentacion: curso.video_presentacion || '',
     brochure: curso.brochure || '',
     fecha_inicio: curso.fecha_inicio ? toLocalDateInputValue(curso.fecha_inicio) : '',
+    fecha_fin: curso.fecha_fin ? toLocalDateInputValue(curso.fecha_fin) : '',
     nivel: curso.nivel || 'BASICO'
   })
 
@@ -70,6 +71,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
           video_presentacion: form.video_presentacion || null,
           brochure: form.brochure || null,
           fecha_inicio: form.fecha_inicio ? sanitizeDatetimeInput(form.fecha_inicio) : null,
+          fecha_fin: form.fecha_fin ? sanitizeDatetimeInput(form.fecha_fin) : null,
           nivel: form.nivel as 'BASICO' | 'INTERMEDIO' | 'AVANZADO'
         }
       })
@@ -178,20 +180,36 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
         </Box>
       </Grid>
       {(form.tipo_emision === 'SINCRONO' || form.tipo_emision === 'MIXTO') && (
-        <Grid item xs={12} sm={6}>
-          <CustomTextField
-            fullWidth
-            type='date'
-            label='Fecha de Inicio'
-            name='fecha_inicio'
-            value={form.fecha_inicio}
-            onChange={handleChange}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{
-              startAdornment: <InputAdornment position='start'><i className='tabler-calendar text-xl text-textSecondary' /></InputAdornment>
-            }}
-          />
-        </Grid>
+        <>
+          <Grid item xs={12} sm={6}>
+            <CustomTextField
+              fullWidth
+              type='date'
+              label='Fecha de Inicio'
+              name='fecha_inicio'
+              value={form.fecha_inicio}
+              onChange={handleChange}
+              InputLabelProps={{ shrink: true }}
+              InputProps={{
+                startAdornment: <InputAdornment position='start'><i className='tabler-calendar text-xl text-textSecondary' /></InputAdornment>
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <CustomTextField
+              fullWidth
+              type='date'
+              label='Fecha de Fin'
+              name='fecha_fin'
+              value={form.fecha_fin}
+              onChange={handleChange}
+              InputLabelProps={{ shrink: true }}
+              InputProps={{
+                startAdornment: <InputAdornment position='start'><i className='tabler-calendar-event text-xl text-textSecondary' /></InputAdornment>
+              }}
+            />
+          </Grid>
+        </>
       )}
       <Grid item xs={12} sm={6}>
         <CustomTextField
