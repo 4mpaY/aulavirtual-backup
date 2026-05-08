@@ -21,8 +21,6 @@ import {
   Divider,
   IconButton,
   Tooltip,
-  Dialog,
-  DialogContent,
   Avatar,
   FormControlLabel
 } from '@mui/material'
@@ -32,6 +30,7 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 
 import { useConfig } from '@/contexts/ConfigContext'
 import { useAuthModal } from '@/contexts/AuthModalContext'
+import AppModal from '@/utils/components/AppModal'
 import IzipayScript from './IzipayScript'
 import CulqiScript from './CulqiScript'
 import { PayPalPaymentButton } from './PayPalPaymentButton'
@@ -176,9 +175,11 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const [voucherPreview, setVoucherPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false)
   const [whatsappUrl, setWhatsappUrl] = useState('')
   const [whatsappQr, setWhatsappQr] = useState('')
+
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false)
+  const [confirmedOrder, setConfirmedOrder] = useState<{ pedidoId: string; numeroPedido: number; total: number; cursos: string[] } | null>(null)
 
   const [formData, setFormData] = useState({ nombres: '', apellidos: '', correo: '' })
 
@@ -396,6 +397,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
       clearCart()
 
+      // Preparar URL de WhatsApp si está configurado
       if (whatsappNumero) {
         const nombre = (session.user as any)?.nombre || session.user?.name || ''
         const cursosFormateados = (titulosCursos as string[]).map(t => `  • ${t}`).join('\n')
@@ -420,26 +422,29 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         ].join('\n')
 
         const url = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(mensaje)}`
-        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
 
-        if (isMobile) {
-          window.open(url, '_blank')
-          router.push('/estudiante/pedidos')
-        } else {
-          const qrDataUrl = await toDataURL(url, {
-            width: 320,
-            margin: 3,
-            errorCorrectionLevel: 'L',
-            color: { dark: '#111111', light: '#FFFFFF' }
-          })
+        // El QR solo lleva el número (URL corta) para que sea simple y escaneable
+        const urlCorta = `https://wa.me/${whatsappNumero}`
+
+        try {
+          const qrDataUrl = await toDataURL(urlCorta, { width: 300, margin: 3, errorCorrectionLevel: 'L', color: { dark: '#000000', light: '#FFFFFF' } })
 
           setWhatsappUrl(url)
           setWhatsappQr(qrDataUrl)
-          setWhatsappModalOpen(true)
+        } catch {
+          setWhatsappUrl(url)
         }
-      } else {
-        router.push('/estudiante/pedidos')
       }
+
+      // Resetear campos del formulario manual
+      setVoucher(null)
+      setVoucherPreview(null)
+      setSelectedMetodoManualId(metodosManual[0]?.id || null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+
+      // Mostrar modal de confirmación con el pedido y el voucher
+      setConfirmedOrder({ pedidoId, numeroPedido, total: Number(total), cursos: titulosCursos as string[] })
+      setConfirmModalOpen(true)
     } catch (error: any) {
       setPaymentError(error.message || 'Ocurrió un error inesperado')
     } finally {
@@ -946,84 +951,126 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         </Stack>
       </Paper>
 
-      {/* Modal WhatsApp Desktop */}
-      <Dialog
-        open={whatsappModalOpen}
-        onClose={() => { setWhatsappModalOpen(false); router.push('/estudiante/pedidos') }}
-        maxWidth='sm'
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            bgcolor: configs.PRIMARY_COLOR_MAIN,
-            overflow: 'hidden'
-          }
-        }}
+      {/* Modal de Confirmación de Pedido */}
+      <AppModal
+        open={confirmModalOpen}
+        handleClose={() => { setConfirmModalOpen(false); router.push('/cursos') }}
+        sx={{ p: 0, maxWidth: 500, width: 'calc(100% - 24px)', mx: 'auto', overflow: 'hidden' }}
       >
-        <DialogContent sx={{ p: 8 }}>
-
-          <Box sx={{ pt: 3.5, pb: 2, px: 3, textAlign: 'center', position: 'relative' }}>
-            <IconButton
-              onClick={() => { setWhatsappModalOpen(false); router.push('/estudiante/pedidos') }}
-              sx={{
-                position: 'absolute', top: 10, right: 10,
-                color: 'white', width: 28, height: 28,
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.15)' }
-              }}
-            >
-              <i className='tabler-x' style={{ fontSize: 16 }} />
-            </IconButton>
-            <Typography variant='h4' fontWeight={800} color='white' letterSpacing={1.5} textTransform='uppercase' lineHeight={1.3}>
-              Realizar pedido a WhatsApp
-            </Typography>
-            <Box sx={{ width: 36, height: 2.5, bgcolor: 'rgba(255,255,255,0.5)', borderRadius: 2, mx: 'auto', mt: 1 }} />
+        {/* Header verde */}
+        <Box sx={{ bgcolor: 'success.main', px: 4, pt: 4, pb: 3, textAlign: 'center' }}>
+          <Box sx={{
+            width: 64, height: 64, borderRadius: '50%',
+            bgcolor: 'rgba(255,255,255,0.2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            mx: 'auto', mb: 1.5,
+            border: '3px solid rgba(255,255,255,0.35)'
+          }}>
+            <i className='tabler-circle-check' style={{ fontSize: 38, color: 'white' }} />
           </Box>
+          <Typography variant='h5' fontWeight={900} color='white' letterSpacing={0.3}>
+            ¡Pedido Registrado!
+          </Typography>
+          {confirmedOrder && (
+            <Box sx={{ mt: 1, display: 'inline-flex', alignItems: 'center', gap: 0.75, bgcolor: 'rgba(255,255,255,0.18)', borderRadius: 6, px: 2, py: 0.5 }}>
+              <i className='tabler-hash' style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+              <Typography variant='body2' color='white' fontWeight={700} letterSpacing={1}>
+                {String(confirmedOrder.numeroPedido).padStart(6, '0')}
+              </Typography>
+            </Box>
+          )}
+        </Box>
 
-          <Box sx={{ px: 2.5, py: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        <Box sx={{ pt: 3, pb: 3, px: 3 }}>
+          {/* Resumen del pedido */}
+          {confirmedOrder && (
+            <Box sx={{ mb: 2.5, p: 2, borderRadius: 2, bgcolor: 'action.hover', border: '1px solid', borderColor: 'divider' }}>
+              <Stack spacing={0.75}>
+                {confirmedOrder.cursos.map((curso, i) => (
+                  <Stack key={i} direction='row' alignItems='flex-start' spacing={1}>
+                    <i className='tabler-book' style={{ fontSize: 14, color: '#25927F', marginTop: 2, flexShrink: 0 }} />
+                    <Typography variant='body2' fontWeight={500} lineHeight={1.4}>{curso}</Typography>
+                  </Stack>
+                ))}
+                <Divider sx={{ my: 0.5 }} />
+                <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                  <Typography variant='body2' color='text.secondary'>Total pagado</Typography>
+                  <Typography variant='subtitle1' fontWeight={800} color='success.main'>
+                    {currencySymbol} {confirmedOrder.total.toFixed(2)}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Box>
+          )}
 
-            <Paper
-              elevation={0}
-              sx={{ borderRadius: 3, cursor: 'pointer', '&:hover': { bgcolor: '#f5f5f5' }, transition: 'background 0.15s' }}
-              onClick={() => window.open(whatsappUrl, '_blank')}
+          {/* Comprobante subido */}
+          {voucherPreview && (
+            <Box sx={{ mb: 2.5 }}>
+              <Stack direction='row' alignItems='center' spacing={1} sx={{ mb: 1.25 }}>
+                <i className='tabler-photo-check' style={{ fontSize: 16, color: '#25927F' }} />
+                <Typography variant='subtitle2' fontWeight={700}>Comprobante subido</Typography>
+                <Chip label='✓ Recibido' size='small' color='success' variant='tonal' sx={{ ml: 'auto', fontWeight: 700, fontSize: '0.7rem' }} />
+              </Stack>
+              <Box
+                component='img'
+                src={voucherPreview}
+                alt='Comprobante'
+                sx={{
+                  width: '100%', maxHeight: 200, objectFit: 'contain',
+                  borderRadius: 2, border: '1.5px solid', borderColor: 'divider',
+                  bgcolor: '#f8fafc', cursor: 'zoom-in'
+                }}
+                onClick={() => window.open(voucherPreview!, '_blank')}
+              />
+            </Box>
+          )}
+
+          {/* Aviso */}
+          <Alert
+            severity='info'
+            icon={<i className='tabler-clock' style={{ fontSize: 18 }} />}
+            sx={{ mb: 2.5, borderRadius: 2, fontSize: '0.8125rem' }}
+          >
+            Tu pedido está en revisión. El acceso al curso se activa una vez verificado el pago.
+          </Alert>
+
+          {/* Botones */}
+          <Stack spacing={1.5}>
+            {whatsappUrl && (
+              <>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  size='large'
+                  sx={{ bgcolor: '#25D366', '&:hover': { bgcolor: '#1ebe5d' }, borderRadius: 2.5, fontWeight: 800, py: 1.5, fontSize: '0.95rem', boxShadow: '0 4px 14px rgba(37,211,102,0.3)' }}
+                  startIcon={<i className='tabler-brand-whatsapp' style={{ fontSize: 22 }} />}
+                  onClick={() => window.open(whatsappUrl, '_blank')}
+                >
+                  Enviar comprobante por WhatsApp
+                </Button>
+                {whatsappQr && (
+                  <Box sx={{ display: { xs: 'none', md: 'block' }, textAlign: 'center', py: 2, px: 2, bgcolor: 'action.hover', borderRadius: 2, border: '1px dashed', borderColor: 'divider' }}>
+                    <Typography variant='caption' color='text.secondary' display='block' sx={{ mb: 1.25, fontWeight: 500 }}>
+                      O escanea el QR desde tu celular:
+                    </Typography>
+                    <img src={whatsappQr} alt='QR WhatsApp' style={{ width: 220, height: 220, borderRadius: 10 }} />
+                  </Box>
+                )}
+              </>
+            )}
+            <Button
+              fullWidth
+              variant='outlined'
+              size='large'
+              startIcon={<i className='tabler-school' />}
+              onClick={() => { setConfirmModalOpen(false); router.push('/cursos') }}
+              sx={{ borderRadius: 2.5, fontWeight: 700, py: 1.4 }}
             >
-              <Stack direction='row' alignItems='center' spacing={2} sx={{ px: 2.5, py: 1.75 }}>
-                <Box sx={{ width: 50, height: 50, borderRadius: '50%', flexShrink: 0, bgcolor: '#E8F9EF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className='tabler-brand-whatsapp' style={{ fontSize: 30, color: '#25D366' }} />
-                </Box>
-                <Box sx={{ flex: 1, p: 2 }}>
-                  <Typography variant='h5' fontWeight={700} color='text.primary'>Ir a WhatsApp Web</Typography>
-                  <Typography variant='subtitle1' color='text.secondary'>Continuar en esta computadora</Typography>
-                </Box>
-                <i className='tabler-chevron-right' style={{ fontSize: 16, color: '#bbb' }} />
-              </Stack>
-            </Paper>
-
-            <Stack direction='row' alignItems='center' spacing={1.5} sx={{ px: 2, py: 6 }}>
-              <Box sx={{ flex: 1, height: '1px', bgcolor: 'rgba(255,255,255,0.25)' }} />
-              <Typography variant='h6' color='rgba(255,255,255,0.75)' fontWeight={700} letterSpacing={1.5} textTransform='uppercase'>
-                O escanea el código
-              </Typography>
-              <Box sx={{ flex: 1, height: '1px', bgcolor: 'rgba(255,255,255,0.25)' }} />
-            </Stack>
-
-            <Paper elevation={0} sx={{ borderRadius: 3, py: 5, px: 5, textAlign: 'center' }}>
-              <Typography variant='subtitle1' color='text.secondary' sx={{ mb: 2, lineHeight: 1.5 }}>
-                Escanea este código QR con tu celular para abrir el chat de WhatsApp
-              </Typography>
-              {whatsappQr && (
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <img src={whatsappQr} alt='QR WhatsApp' style={{ width: '100%', maxWidth: 300, height: 'auto', display: 'block', borderRadius: 8 }} />
-                </Box>
-              )}
-              <Stack direction='row' alignItems='center' justifyContent='center' spacing={0.75} sx={{ mt: 1.5 }}>
-                <i className='tabler-camera' style={{ fontSize: 13, color: '#aaa' }} />
-                <Typography variant='caption' color='text.disabled'>Usa la cámara de tu celular</Typography>
-              </Stack>
-            </Paper>
-
-          </Box>
-        </DialogContent>
-      </Dialog>
+              Explorar más cursos
+            </Button>
+          </Stack>
+        </Box>
+      </AppModal>
     </>
   )
 }

@@ -89,6 +89,8 @@ interface CourseDetailProps {
   }
 }
 
+const FONT = "'Inter', 'Helvetica Neue', Arial, sans-serif"
+
 const CourseDetail = ({ course }: CourseDetailProps) => {
   const [previewLesson, setPreviewLesson] = useState<any>(null)
   const [enrolling, setEnrolling] = useState(false)
@@ -189,7 +191,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   ]
 
   return (
-    <Box sx={{ pb: 10, bgcolor: '#f8fafc', fontFamily: FONT }}>
+    <Box sx={{ pb: 10, bgcolor: '#f8fafc' }}>
 
       {/* ─── HERO ──────────────────────────────────────────────────────────── */}
       <Box sx={{

@@ -790,6 +790,34 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
           </GatewayAccordion>
 
           <GatewayAccordion
+            icon='tabler-shopping-cart'
+            title='Mercado Pago'
+            subtitle='Pagos en línea con tarjetas, billeteras y más (Latinoamérica)'
+            enabledKey='MP_ENABLED'
+            config={config}
+            onInputChange={handleInputChange}
+          >
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <SecretField
+                  label='Access Token'
+                  configKey='MP_ACCESS_TOKEN'
+                  helperText='TEST-... (sandbox) o APP_USR-... (producción)'
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='Public Key'
+                  value={config.MP_PUBLIC_KEY || ''}
+                  onChange={(e) => handleInputChange('MP_PUBLIC_KEY', e.target.value)}
+                  helperText='TEST-... (sandbox) — usada en el frontend'
+                />
+              </Grid>
+            </Grid>
+          </GatewayAccordion>
+
+          <GatewayAccordion
             icon='tabler-device-mobile'
             title='Pago Manual'
             subtitle='Yape, transferencias bancarias — el admin verifica el voucher'
@@ -834,34 +862,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                     </Button>
                   </Stack>
                 </Paper>
-              </Grid>
-            </Grid>
-          </GatewayAccordion>
-
-          <GatewayAccordion
-            icon='tabler-shopping-cart'
-            title='Mercado Pago'
-            subtitle='Pagos en línea con tarjetas, billeteras y más (Latinoamérica)'
-            enabledKey='MP_ENABLED'
-            config={config}
-            onInputChange={handleInputChange}
-          >
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <SecretField
-                  label='Access Token'
-                  configKey='MP_ACCESS_TOKEN'
-                  helperText='TEST-... (sandbox) o APP_USR-... (producción)'
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label='Public Key'
-                  value={config.MP_PUBLIC_KEY || ''}
-                  onChange={(e) => handleInputChange('MP_PUBLIC_KEY', e.target.value)}
-                  helperText='TEST-... (sandbox) — usada en el frontend'
-                />
               </Grid>
             </Grid>
           </GatewayAccordion>
