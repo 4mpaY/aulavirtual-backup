@@ -1,6 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useRef } from 'react'
+
+import Link from 'next/link'
 
 import {
   Card,
@@ -9,8 +11,21 @@ import {
   Typography,
   Box,
   TablePagination,
-  MenuItem
+  MenuItem,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Stack,
+  Alert,
+  CircularProgress,
+  IconButton,
+  Tooltip
 } from '@mui/material'
+import { useSnackbar } from 'notistack'
+import { useQueryClient } from '@tanstack/react-query'
+import { getSession } from 'next-auth/react'
 import {
   createColumnHelper,
   flexRender,
@@ -54,6 +69,54 @@ export function MisPedidosPage({ initialData }: MisPedidosPageProps) {
   const [estadoFiltro, setEstadoFiltro] = useState('TODOS')
   const { data, isLoading } = useMisPedidos(estadoFiltro !== 'TODOS' ? { estado: estadoFiltro } : undefined, initialData)
   const pedidos = data?.pedidos || []
+  const { enqueueSnackbar } = useSnackbar()
+  const queryClient = useQueryClient()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadPedidoId, setUploadPedidoId] = useState<string | null>(null)
+  const [voucherFile, setVoucherFile] = useState<File | null>(null)
+  const [voucherPreview, setVoucherPreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+
+  const handleVoucherFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+
+    if (!file) return
+    setVoucherFile(file)
+    setVoucherPreview(URL.createObjectURL(file))
+  }
+
+  const handleUploadVoucher = async () => {
+    if (!uploadPedidoId || !voucherFile) return
+
+    try {
+      setUploading(true)
+      const session = await getSession()
+      const token = (session?.user as any)?.accessToken
+      const formData = new FormData()
+
+      formData.append('voucher', voucherFile)
+
+      const res = await fetch(`/api/pedidos/${uploadPedidoId}/voucher`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      })
+
+      const resData = await res.json()
+
+      if (!res.ok) throw new Error(resData.message || 'Error al subir el comprobante')
+
+      enqueueSnackbar('Comprobante enviado. El administrador verificará tu pago.', { variant: 'success' })
+      queryClient.invalidateQueries({ queryKey: ['mis-pedidos'] })
+      setUploadPedidoId(null)
+      setVoucherFile(null)
+      setVoucherPreview(null)
+    } catch (err: any) {
+      enqueueSnackbar(err.message || 'Error al subir el comprobante', { variant: 'error' })
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const columns = useMemo<ColumnDef<PedidoEstudiante, any>[]>(
     () => [
@@ -107,7 +170,7 @@ export function MisPedidosPage({ initialData }: MisPedidosPageProps) {
         header: 'Método',
         cell: ({ row }) => (
           <Typography variant='body2' className='capitalize'>
-             {row.original.metodo_pago ? row.original.metodo_pago.toLowerCase().replace('_', ' ') : '-'}
+            {row.original.metodo_pago ? row.original.metodo_pago.toLowerCase().replace('_', ' ') : '-'}
           </Typography>
         )
       }),
@@ -127,17 +190,50 @@ export function MisPedidosPage({ initialData }: MisPedidosPageProps) {
         header: 'Fecha de Compra',
         cell: ({ row }) => (
           <Typography variant='body2'>
-            <HydratedDate 
-              date={row.original.creado_en} 
+            <HydratedDate
+              date={row.original.creado_en}
               format="date"
               options={{
                 day: '2-digit',
                 month: 'short',
                 year: 'numeric'
-              }} 
+              }}
             />
           </Typography>
         )
+      }),
+      columnHelper.display({
+        id: 'accion',
+        header: 'Acción',
+        cell: ({ row }) => {
+          const p = row.original as any
+
+          return (
+            <Stack direction='row' spacing={0.5} alignItems='center'>
+              <Tooltip title='Ver detalle'>
+                <IconButton
+                  size='small'
+                  component={Link}
+                  href={`/estudiante/pedidos/${p.id}`}
+                  color='primary'
+                >
+                  <i className='tabler-eye' style={{ fontSize: 18 }} />
+                </IconButton>
+              </Tooltip>
+              {p.metodo_pago_manual_id && !p.comprobante_url && p.estado === 'PENDIENTE' && (
+                <Tooltip title='Subir voucher'>
+                  <IconButton
+                    size='small'
+                    color='warning'
+                    onClick={() => setUploadPedidoId(p.id)}
+                  >
+                    <i className='tabler-upload' style={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Stack>
+          )
+        }
       })
     ],
     []
@@ -168,7 +264,7 @@ export function MisPedidosPage({ initialData }: MisPedidosPageProps) {
   return (
     <Card>
       <CardHeader title='Historial de Pedidos' />
-      
+
       <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
         <div className='flex items-center gap-4'>
           <CustomTextField
@@ -251,6 +347,47 @@ export function MisPedidosPage({ initialData }: MisPedidosPageProps) {
         page={table.getState().pagination.pageIndex}
         onPageChange={(_, page) => table.setPageIndex(page)}
       />
+
+      {/* Modal para subir voucher tardío */}
+      <Dialog open={!!uploadPedidoId} onClose={() => { setUploadPedidoId(null); setVoucherFile(null); setVoucherPreview(null) }} maxWidth='xs' fullWidth>
+        <DialogTitle>Subir comprobante de pago</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <Alert severity='info'>
+              Sube una imagen clara de tu Yape o transferencia bancaria. El administrador verificará y activará tu acceso.
+            </Alert>
+
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='image/jpeg,image/png,image/webp'
+              style={{ display: 'none' }}
+              onChange={handleVoucherFileChange}
+            />
+
+            {voucherPreview ? (
+              <Stack spacing={1}>
+                <Box component='img' src={voucherPreview} alt='Voucher' sx={{ maxWidth: '100%', maxHeight: 200, borderRadius: 2, border: '2px solid', borderColor: 'success.main' }} />
+                <Button size='small' variant='text' onClick={() => { setVoucherFile(null); setVoucherPreview(null) }}>Cambiar imagen</Button>
+              </Stack>
+            ) : (
+              <Box
+                sx={{ border: '2px dashed', borderColor: 'divider', borderRadius: 2, p: 3, textAlign: 'center', cursor: 'pointer', '&:hover': { borderColor: 'primary.main' } }}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <i className='tabler-upload' style={{ fontSize: 32 }} />
+                <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>Haz clic para seleccionar la imagen</Typography>
+              </Box>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setUploadPedidoId(null); setVoucherFile(null); setVoucherPreview(null) }} disabled={uploading}>Cancelar</Button>
+          <Button variant='contained' onClick={handleUploadVoucher} disabled={!voucherFile || uploading} startIcon={uploading ? <CircularProgress size={16} /> : null}>
+            {uploading ? 'Enviando...' : 'Enviar comprobante'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   )
 }

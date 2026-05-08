@@ -62,6 +62,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const reqUrl = new URL(request.url)
     const currentHost = reqUrl.host
 
+    const reqUrl = new URL(request.url)
+    const currentHost = reqUrl.host
+
     // Cargar en paralelo
     const [certificado, configs] = await Promise.all([
       prisma.certificado.findUnique({
@@ -72,6 +75,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
               titulo: true,
               duracion: true,
               nivel: true,
+              fecha_inicio: true,
+              tipo_emision: true,
               fecha_inicio: true,
               tipo_emision: true,
               profesor: {
@@ -133,6 +138,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const linkInstitucion = configs.CERTIFICADO_INSTITUTION_URL || configs.SETTINGS_INSTITUTION_URL || currentHost
 
     const [pr, pg, pb] = hexToRgb(colorPrimario)
+
+    const goldColor: [number, number, number] = [184, 134, 11]
 
     const goldColor: [number, number, number] = [184, 134, 11]
 
@@ -492,6 +499,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     // ── PÁGINA 2: CONTENIDO ACADÉMICO ──
     doc.addPage()
     doc.setFillColor(255, 255, 255)
+    doc.setFillColor(255, 255, 255)
     doc.rect(0, 0, pageWidth, pageHeight, 'F')
 
     // Borde Dorado (Igual que Pág 1)
@@ -526,8 +534,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
     doc.setFillColor(pr, pg, pb)
     doc.rect(14, 26, pageWidth - 28, 12, 'F')
     doc.setFontSize(16)
+    doc.rect(14, 26, pageWidth - 28, 12, 'F')
+    doc.setFontSize(16)
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'bold')
+    doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO', pageWidth / 2, 34, { align: 'center' })
+
+    doc.setFontSize(12)
     doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO', pageWidth / 2, 34, { align: 'center' })
 
     doc.setFontSize(12)
@@ -537,17 +550,21 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const cursoTituloLines = doc.splitTextToSize(cursoTitulo, pageWidth - 40)
 
     doc.text(cursoTituloLines, pageWidth / 2, 45, { align: 'center' })
+    doc.text(cursoTituloLines, pageWidth / 2, 45, { align: 'center' })
 
+    // Listado de Módulos (Grid Mejorado)
+    const yPos = 55
     // Listado de Módulos (Grid Mejorado)
     const yPos = 55
     const modulos = certificado.curso.modulos ?? []
 
     if (modulos.length > 0) {
+    if (modulos.length > 0) {
       const colWidth = (pageWidth - 40) / 2
       let col = 0
       let yLeft = yPos
       let yRight = yPos
-
+      
       for (let mi = 0; mi < modulos.length; mi++) {
         const modulo = modulos[mi]
         const currentY = col === 0 ? yLeft : yRight
@@ -567,6 +584,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         // Header del Módulo
         doc.setFillColor(pr, pg, pb)
         doc.roundedRect(currentX, currentY, colWidth - 4, 8, 1, 1, 'F')
+        doc.roundedRect(currentX, currentY, colWidth - 4, 8, 1, 1, 'F')
         doc.setFontSize(9)
         doc.setTextColor(255, 255, 255)
         doc.setFont('helvetica', 'bold')
@@ -576,6 +594,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
         doc.text(moduloTitulo, currentX + 4, currentY + 5.5)
 
+        let yLeccion = currentY + 13
         let yLeccion = currentY + 13
 
         for (const leccion of modulo.lecciones) {
@@ -595,7 +614,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
           doc.text(leccionLines, currentX + 7, yLeccion + 2)
           yLeccion += leccionLines.length * 4.5
         }
-
+        
         yLeccion += 4
 
         if (col === 0) yLeft = yLeccion
@@ -623,6 +642,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
+        'Content-Disposition': `${preview ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
         'Content-Disposition': `${preview ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
         'Content-Length': pdfArrayBuffer.byteLength.toString()
       }

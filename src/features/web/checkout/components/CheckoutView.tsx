@@ -86,18 +86,19 @@ const CheckoutView = ({ courses }: CheckoutViewProps) => {
             {/* Content */}
             <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
                 <Grid container spacing={4}>
-                    <Grid item xs={12} lg={8}>
-                        <PaymentForm
-                            courses={courses}
-                            appliedCouponCode={appliedCoupon?.codigo}
-                            finalTotal={appliedCoupon ? appliedCoupon.total : undefined}
-                        />
-                    </Grid>
-                    <Grid item xs={12} lg={4}>
+                    <Grid item xs={12} lg={4} sx={{ order: { xs: 1, lg: 2 } }}>
                         <OrderSummary
                             courses={courses}
                             appliedCoupon={appliedCoupon}
                             onCouponApplied={setAppliedCoupon}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} lg={8} sx={{ order: { xs: 2, lg: 1 } }}>
+                        <PaymentForm
+                            courses={courses}
+                            appliedCouponCode={appliedCoupon?.codigo}
+                            finalTotal={appliedCoupon ? appliedCoupon.total : undefined}
                         />
                     </Grid>
                 </Grid>

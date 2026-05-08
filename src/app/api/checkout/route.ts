@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     if (!auth.authorized) return auth.error
 
-    const { cursoIds, codigoCupon, gateway = 'IZIPAY' } = await request.json()
+    const { cursoIds, codigoCupon, gateway = 'IZIPAY', metodoPagoManualId } = await request.json()
 
     if (!cursoIds || !Array.isArray(cursoIds) || cursoIds.length === 0) {
       return ApiResponse.error(request, 'Se requiere al menos un ID de curso', 400)
@@ -109,6 +109,7 @@ export async function POST(request: Request) {
         total,
         moneda,
         estado: 'PENDIENTE',
+        ...(gateway === 'MANUAL' && metodoPagoManualId ? { metodo_pago_manual_id: metodoPagoManualId } : {}),
         detalles: {
           create: cursos.map(c => {
             const precioCurso = Number(c.precio)
@@ -127,10 +128,27 @@ export async function POST(request: Request) {
             }
           })
         }
-      }
+      },
+      include: { detalles: { include: { curso: { select: { titulo: true } } } } }
     })
 
-    // 4. Generar transactionId y dateTimeTransaction para Izipay
+    // 5. Si el gateway es MANUAL, retornar datos para el mensaje de WhatsApp
+    if (gateway === 'MANUAL') {
+      return ApiResponse.success(
+        request,
+        {
+          message: 'Pedido creado. Sube tu comprobante de pago.',
+          pedidoId: pedido.id,
+          numeroPedido: pedido.numero_pedido,
+          total: pedido.total,
+          moneda: pedido.moneda,
+          cursos: pedido.detalles.map(d => d.curso.titulo)
+        },
+        201
+      )
+    }
+
+    // 6. Generar transactionId y dateTimeTransaction para Izipay
     const transactionId = String(Date.now()) // Al menos 13 chars (timestamp)
 
     // orderNumber debe tener entre 5-15 caracteres

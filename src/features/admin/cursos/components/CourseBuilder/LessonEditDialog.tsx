@@ -90,6 +90,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
 
       if (lessonData.fecha_programada) {
         setFechaProgramada(toLocalDatetimeLocalValue(lessonData.fecha_programada))
+        setFechaProgramada(toLocalDatetimeLocalValue(lessonData.fecha_programada))
       } else {
         setFechaProgramada('')
       }
@@ -133,6 +134,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
       duracion: duration ? Number(duration) : null,
       video_url: videoUrl || null,
       es_en_vivo: esEnVivo,
+      fecha_programada: sanitizeDatetimeInput(fechaProgramada),
       fecha_programada: sanitizeDatetimeInput(fechaProgramada),
       enlace_reunion: enlaceReunion || null,
       es_vista_previa: esVistaPrevia,

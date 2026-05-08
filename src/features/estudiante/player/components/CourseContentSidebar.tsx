@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 
 import {
     Box,
@@ -20,6 +21,7 @@ import {
 } from '@mui/material'
 
 import CustomTextField from '@core/components/mui/TextField'
+import CustomTextField from '@core/components/mui/TextField'
 import { useCourseStore } from '../store/useCourseStore'
 
 interface CourseContentSidebarProps {
@@ -35,6 +37,8 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
         examStatus,
         examenId,
         currentView,
+        setCurrentView,
+        openExam
         setCurrentView,
         openExam
     } = useCourseStore()
@@ -91,6 +95,7 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                 borderRadius: 4,
                                 background: 'linear-gradient(90deg, #025E44 0%, #BDD962 100%)',
                             }
+                        }}
                         }}
                     />
                 </Box>
@@ -338,6 +343,7 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                             {(examStatus === 'available' || examStatus === 'failed') && (
                                 <Button
                                     fullWidth
+                                    variant={currentView === 'exam' && currentExamenId === examenId ? 'contained' : 'outlined'}
                                     variant={currentView === 'exam' && currentExamenId === examenId ? 'contained' : 'outlined'}
                                     color="warning"
                                     startIcon={<i className="tabler-clipboard-text" />}

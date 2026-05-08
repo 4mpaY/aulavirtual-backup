@@ -14,7 +14,8 @@ import {
   Button,
   MenuItem,
   IconButton,
-  Tooltip
+  Tooltip,
+  Stack
 } from '@mui/material'
 import { toast } from 'react-toastify'
 import {
@@ -175,13 +176,25 @@ export function PedidosPage({ initialData }: PedidosPageProps) {
       columnHelper.accessor('estado', {
         header: 'Estado',
         cell: ({ row }) => (
-          <Chip
-            variant='tonal'
-            label={row.original.estado}
-            color={statusObj[row.original.estado] || 'default'}
-            size='small'
-            className='font-medium'
-          />
+          <Stack direction='column' spacing={0.5} alignItems='flex-start'>
+            <Chip
+              variant='tonal'
+              label={row.original.estado}
+              color={statusObj[row.original.estado] || 'default'}
+              size='small'
+              className='font-medium'
+            />
+            {(row.original as any).comprobante_url && row.original.estado === 'PENDIENTE' && (
+              <Chip
+                icon={<i className='tabler-photo' style={{ fontSize: 12 }} />}
+                label='Voucher adjunto'
+                size='small'
+                color='info'
+                variant='outlined'
+                sx={{ fontSize: 10, height: 20 }}
+              />
+            )}
+          </Stack>
         )
       }),
       columnHelper.accessor('creado_en', {

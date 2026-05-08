@@ -5,11 +5,12 @@ import { useParams, useRouter } from 'next/navigation'
 import {
   Card, CardHeader, CardContent, Grid, Typography,
   Chip, Divider, Button, Avatar, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow, Paper, Box, Stack
+  TableCell, TableContainer, TableHead, TableRow, Paper, Box,
+  Stack
 } from '@mui/material'
 
 import HydratedDate from '@/utils/components/HydratedDate'
-import { usePedido } from '../hooks/usePedidos'
+import { useMiPedido } from '../hooks/useMisPedidos'
 import type { ThemeColor } from '@/@core/types'
 
 type StatusType = { [key: string]: ThemeColor }
@@ -22,11 +23,14 @@ const statusObj: StatusType = {
   REEMBOLSADO: 'error'
 }
 
-export function PedidoDetallePage() {
+export function MiPedidoDetallePage() {
   const params = useParams()
   const router = useRouter()
   const { id } = params
-  const { data, isLoading, isError } = usePedido(id as string)
+
+  const { data, isLoading, isError, error } = useMiPedido(id as string)
+
+  console.log('[MiPedidoDetalle] id:', id, 'data:', data, 'isError:', isError, 'error:', error)
 
   if (isLoading) return <Card><CardContent>Cargando información del pedido...</CardContent></Card>
   if (isError || !data?.data) return <Card><CardContent>Error al cargar el pedido o no existe.</CardContent></Card>
@@ -38,7 +42,7 @@ export function PedidoDetallePage() {
       <CardHeader
         title={`Detalle de Pedido #${String(pedido.numero_pedido).padStart(6, '0')}`}
         action={
-          <Button variant="outlined" startIcon={<i className='tabler-arrow-left' />} onClick={() => router.push('/admin/pedidos')}>Volver</Button>
+          <Button variant="outlined" startIcon={<i className='tabler-arrow-left' />} onClick={() => router.push('/estudiante/pedidos')}>Volver</Button>
         }
       />
       <CardContent>
@@ -113,7 +117,7 @@ export function PedidoDetallePage() {
             )}
           </Grid>
 
-          {/* Voucher y acción de completar */}
+          {/* Voucher */}
           {(pedido.comprobante_url || pedido.metodo_pago_manual) && (
             <Grid item xs={12}>
               <Divider sx={{ mb: 3 }} />

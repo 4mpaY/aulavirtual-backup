@@ -32,3 +32,18 @@ export function useMisPedidos(query?: Record<string, string>, initialData?: Pedi
     retry: 1
   })
 }
+
+/**
+ * Hook para obtener el detalle de un pedido del estudiante
+ */
+export function useMiPedido(id: string) {
+  const axiosPedido = axiosPedidoEstudianteFactory()
+
+  return useQuery<{ data: any }, any>({
+    queryKey: [...QUERY_KEY.MIS_PEDIDOS, 'detalle', id],
+    queryFn: async () => await axiosPedido.getById(id),
+    enabled: !!id,
+    staleTime: 60_000,
+    retry: 1
+  })
+}

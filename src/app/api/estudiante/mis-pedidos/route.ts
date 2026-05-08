@@ -43,6 +43,9 @@ export async function GET(request: Request) {
                 select: { titulo: true }
               }
             }
+          },
+          metodo_pago_manual: {
+            select: { id: true, nombre: true }
           }
         }
       }),

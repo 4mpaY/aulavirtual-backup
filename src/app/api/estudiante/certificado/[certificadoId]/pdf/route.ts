@@ -75,6 +75,8 @@ export async function GET(request: Request, { params }: { params: { certificadoI
               nivel: true,
               fecha_inicio: true,
               tipo_emision: true,
+              fecha_inicio: true,
+              tipo_emision: true,
               profesor: {
                 select: {
                   nombre: true,
@@ -872,6 +874,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
+        'Content-Disposition': `${previewFlag ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
         'Content-Disposition': `${previewFlag ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
         'Content-Length': pdfArrayBuffer.byteLength.toString()
       }

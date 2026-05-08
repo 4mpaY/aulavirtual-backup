@@ -33,16 +33,11 @@ import {
 
 import { useSession } from 'next-auth/react'
 
-import { ChevronRight, CheckCircle, XCircle, Download, Play } from 'lucide-react'
-
 import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
 import UserAvatar from '@/utils/components/UserAvatar'
 import HydratedDate from '@/utils/components/HydratedDate'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
 import { useAuthModal } from '@/contexts/AuthModalContext'
-
-// ─── Typography tokens ────────────────────────────────────────────────────────
-const FONT = 'Poppins, sans-serif'
 
 interface Leccion {
   id: string
@@ -97,7 +92,17 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const [enrolling, setEnrolling] = useState(false)
   const { data: session } = useSession()
   const router = useRouter()
-  const { openLogin } = useAuthModal()
+  const { openLogin, openRegister } = useAuthModal()
+
+  const handlePaidEnroll = () => {
+    if (!session) {
+      openRegister()
+
+      return
+    }
+
+    router.push(`/checkout/${course.slug}`)
+  }
 
   const handleFreeEnroll = async () => {
     if (!session) {
