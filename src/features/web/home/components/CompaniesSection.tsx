@@ -16,10 +16,11 @@ const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
+import { useConfig } from '@/contexts/ConfigContext'
+
 import ScrollReveal from './ScrollReveal'
 import { eyebrow, sectionH2, sectionDesc, cardTitle, cardBody, smallText } from './typography'
 
-const WHATSAPP_NUMBER = '51928510125'
 const WHATSAPP_MSG = encodeURIComponent('Hola, me interesa conocer las opciones corporativas para capacitar a mi equipo.')
 
 const stats = [
@@ -36,7 +37,9 @@ const benefits = [
 ]
 
 export default function CompaniesSection() {
-  const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`
+  const configs = useConfig()
+  const waNumber = configs.WHATSAPP_NUMERO_EMPRESAS || configs.WHATSAPP_NUMERO || '51928510125'
+  const waLink = `https://wa.me/${waNumber}?text=${WHATSAPP_MSG}`
 
   return (
     <section style={{ backgroundColor: 'hsl(167, 30%, 96%)', padding: '5rem 1rem' }}>

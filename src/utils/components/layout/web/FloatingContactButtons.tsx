@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 
-const WHATSAPP_NUMBER = '51959436827'
-const PHONE_NUMBER = '+51959436827'
+import { useConfig } from '@/contexts/ConfigContext'
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
@@ -36,6 +35,9 @@ const tooltipStyle: React.CSSProperties = {
 export default function FloatingContactButtons() {
   const [hoveredWa, setHoveredWa] = useState(false)
   const [hoveredPhone, setHoveredPhone] = useState(false)
+  const configs = useConfig()
+  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const phoneNumber = waNumber.startsWith('+') ? waNumber : `+${waNumber}`
 
   return (
     <div
@@ -52,7 +54,7 @@ export default function FloatingContactButtons() {
       {/* WhatsApp */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <a
-          href={`https://wa.me/${WHATSAPP_NUMBER}`}
+          href={`https://wa.me/${waNumber}`}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Contactar por WhatsApp"
@@ -81,7 +83,7 @@ export default function FloatingContactButtons() {
       {/* Llamada */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <a
-          href={`tel:${PHONE_NUMBER}`}
+          href={`tel:${phoneNumber}`}
           aria-label="Llamar al negocio"
           style={{
             width: '52px',

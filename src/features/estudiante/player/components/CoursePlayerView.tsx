@@ -16,10 +16,10 @@ import CommentsSection from './CommentsSection'
 import ExamSection from './ExamSection'
 import CertificateSection from './CertificateSection'
 import CompletionSummary from './CompletionSummary'
-import CompletionSummary from './CompletionSummary'
 import LiveLessonPlaceholder from './LiveLessonPlaceholder'
 
 import { useCourseStore } from '../store/useCourseStore'
+import { useConfig } from '@/contexts/ConfigContext'
 
 interface CoursePlayerViewProps {
     course: {
@@ -32,6 +32,8 @@ interface CoursePlayerViewProps {
 }
 
 const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) => {
+    const configs = useConfig()
+    const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
     const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
@@ -180,50 +182,35 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
 
     const renderMainContent = () => {
         if (currentView === 'exam' && currentExamenId) {
-            if (currentView === 'exam' && currentExamenId) {
-                return (
-                    <Grid item xs={12} key="exam-section">
-                        <ExamSection
-                            examenId={currentExamenId}
-                            onExamPassed={handleExamPassed}
-                            isFinalExam={currentExamenId === examenId}
-                            onContinue={handleContinueAfterExam}
-                        />
-                    </Grid>
-                )
-            }
-
-            if (currentView === 'completion' && storeCourse) {
-                return (
-                    <Grid item xs={12} key="completion-section">
-                        <CompletionSummary cursoId={storeCourse.id} />
-                        <ExamSection
-                            examenId={currentExamenId}
-                            onExamPassed={handleExamPassed}
-                            isFinalExam={currentExamenId === examenId}
-                            onContinue={handleContinueAfterExam}
-                        />
-                    </Grid>
-                )
-            }
-
-            if (currentView === 'completion' && storeCourse) {
-                return (
-                    <Grid item xs={12} key="completion-section">
-                        <CompletionSummary cursoId={storeCourse.id} />
-                    </Grid>
-                )
-            }
-
-            if (currentView === 'certificate' && storeCourse) {
-                return (
-                    <Grid item xs={12} key="certificate-section">
-                        <CertificateSection cursoId={storeCourse.id} />
-                    </Grid>
-                )
-            }
-
             return (
+                <Grid item xs={12} key="exam-section">
+                    <ExamSection
+                        examenId={currentExamenId}
+                        onExamPassed={handleExamPassed}
+                        isFinalExam={currentExamenId === examenId}
+                        onContinue={handleContinueAfterExam}
+                    />
+                </Grid>
+            )
+        }
+
+        if (currentView === 'completion' && storeCourse) {
+            return (
+                <Grid item xs={12} key="completion-section">
+                    <CompletionSummary cursoId={storeCourse.id} />
+                </Grid>
+            )
+        }
+
+        if (currentView === 'certificate' && storeCourse) {
+            return (
+                <Grid item xs={12} key="certificate-section">
+                    <CertificateSection cursoId={storeCourse.id} />
+                </Grid>
+            )
+        }
+
+        return (
                 <>
                     {/* ── Lesson info row ── */}
                     {currentLesson && (
@@ -741,12 +728,12 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                         )}
                     </Grid>
                 </>
-            )
-        }
+        )
+    }
 
-        if (!mounted) return null
+    if (!mounted) return null
 
-        return (
+    return (
             <Box sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -795,7 +782,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                             </Button>
                             <Button
                                 variant="contained"
-                                href={`https://wa.me/51959436827?text=${encodeURIComponent('Hola, necesito ayuda académica con el curso: ' + storeCourse.titulo)}`}
+                                href={`https://wa.me/${waNumber}?text=${encodeURIComponent('Hola, necesito ayuda académica con el curso: ' + storeCourse.titulo)}`}
                                 target="_blank"
                                 sx={{
                                     borderRadius: '20px',
@@ -853,7 +840,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                     )}
                 </Box>
             </Box>
-        )
-    }
+    )
+}
 
-    export default CoursePlayerView
+export default CoursePlayerView

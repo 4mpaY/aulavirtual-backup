@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useState, useMemo } from 'react'
 
 import {
     Box,
@@ -21,7 +20,6 @@ import {
 } from '@mui/material'
 
 import CustomTextField from '@core/components/mui/TextField'
-import CustomTextField from '@core/components/mui/TextField'
 import { useCourseStore } from '../store/useCourseStore'
 
 interface CourseContentSidebarProps {
@@ -37,8 +35,6 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
         examStatus,
         examenId,
         currentView,
-        setCurrentView,
-        openExam
         setCurrentView,
         openExam
     } = useCourseStore()
@@ -95,7 +91,6 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                 borderRadius: 4,
                                 background: 'linear-gradient(90deg, #025E44 0%, #BDD962 100%)',
                             }
-                        }}
                         }}
                     />
                 </Box>
@@ -344,7 +339,6 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                 <Button
                                     fullWidth
                                     variant={currentView === 'exam' && currentExamenId === examenId ? 'contained' : 'outlined'}
-                                    variant={currentView === 'exam' && currentExamenId === examenId ? 'contained' : 'outlined'}
                                     color="warning"
                                     startIcon={<i className="tabler-clipboard-text" />}
                                     onClick={() => openExam(examenId)}
@@ -353,38 +347,38 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                     Realizar Examen Final
                                 </Button>
                             )}
-                        </Box>
-                    </>
+                    </Box>
+            </>
                 )}
 
-                {/* ── Certificado — siempre visible ── */}
-                {course && (
-                    <>
-                        <Divider />
-                        <Box sx={{ p: 3 }}>
-                            <Button
-                                fullWidth
-                                variant={currentView === 'certificate' ? 'contained' : 'outlined'}
-                                startIcon={<i className="tabler-certificate" />}
-                                onClick={() => setCurrentView('certificate')}
-                                sx={{
-                                    borderRadius: '10px',
-                                    py: 1.25,
-                                    fontWeight: 700,
-                                    textTransform: 'none',
-                                    fontSize: '0.875rem',
-                                    ...(currentView === 'certificate'
-                                        ? { bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' }, boxShadow: 'none' }
-                                        : { borderColor: '#025E44', color: '#025E44', '&:hover': { bgcolor: 'rgba(2,94,68,0.05)' } }
-                                    )
-                                }}
-                            >
-                                Mi Certificado
-                            </Button>
-                        </Box>
-                    </>
-                )}
-            </Box>
+            {/* ── Certificado — siempre visible ── */}
+            {course && (
+                <>
+                    <Divider />
+                    <Box sx={{ p: 3 }}>
+                        <Button
+                            fullWidth
+                            variant={currentView === 'certificate' ? 'contained' : 'outlined'}
+                            startIcon={<i className="tabler-certificate" />}
+                            onClick={() => setCurrentView('certificate')}
+                            sx={{
+                                borderRadius: '10px',
+                                py: 1.25,
+                                fontWeight: 700,
+                                textTransform: 'none',
+                                fontSize: '0.875rem',
+                                ...(currentView === 'certificate'
+                                    ? { bgcolor: '#025E44', '&:hover': { bgcolor: '#014d36' }, boxShadow: 'none' }
+                                    : { borderColor: '#025E44', color: '#025E44', '&:hover': { bgcolor: 'rgba(2,94,68,0.05)' } }
+                                )
+                            }}
+                        >
+                            Mi Certificado
+                        </Button>
+                    </Box>
+                </>
+            )}
+        </Box>
         </Box>
     )
 }

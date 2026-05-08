@@ -2,7 +2,7 @@ import prisma from '@/utils/libs/prisma'
 import { sendOrderConfirmationEmail } from './order-notifications'
 
 interface OrderCompletionData {
-  metodo_pago: 'PAYPAL' | 'IZIPAY' | 'CULQI' | 'YAPE' | 'PLIN' | 'TRANSFERENCIA' | 'OTRO'
+  metodo_pago: 'PAYPAL' | 'IZIPAY' | 'CULQI' | 'MERCADOPAGO' | 'YAPE' | 'PLIN' | 'TRANSFERENCIA' | 'OTRO'
   transaccion_id?: string
   respuesta_pago?: any
 }

@@ -306,6 +306,70 @@ export async function POST(request: Request) {
       )
     }
 
+    // Crear preferencia de Mercado Pago
+    if (gateway === 'MERCADOPAGO') {
+      const configs = await getConfigs()
+      const accessToken = configs.MP_ACCESS_TOKEN
+
+      if (!accessToken) {
+        return ApiResponse.error(request, 'La pasarela Mercado Pago no está configurada', 500)
+      }
+
+      const appUrl = new URL(request.url).origin
+
+      const preference = {
+        external_reference: pedido.id,
+        items: pedido.detalles.map((d: any) => ({
+          id: d.curso_id,
+          title: d.curso.titulo,
+          quantity: 1,
+          unit_price: Number(d.total),
+          currency_id: moneda
+        })),
+        back_urls: {
+          success: `${appUrl}/checkout/mercadopago/success?pedidoId=${pedido.id}`,
+          failure: `${appUrl}/checkout/mercadopago/failure?pedidoId=${pedido.id}`,
+          pending: `${appUrl}/checkout/mercadopago/pending?pedidoId=${pedido.id}`
+        },
+        auto_return: 'approved',
+        notification_url: `${appUrl}/api/mercadopago/webhook`
+      }
+
+      const mpResponse = await fetch('https://api.mercadopago.com/checkout/preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
+        body: JSON.stringify(preference)
+      })
+
+      if (!mpResponse.ok) {
+        console.error('[MP_CHECKOUT] Error:', await mpResponse.text())
+
+        return ApiResponse.error(request, 'Error al crear la preferencia de Mercado Pago', 500)
+      }
+
+      const mpData = await mpResponse.json()
+
+      await prisma.pedido.update({
+        where: { id: pedido.id },
+        data: { token_pago: mpData.id, metodo_pago: 'MERCADOPAGO' }
+      })
+
+      return ApiResponse.success(
+        request,
+        {
+          message: 'Preferencia de Mercado Pago creada',
+          pedidoId: pedido.id,
+          mpInitPoint: mpData.init_point,
+          mpSandboxInitPoint: mpData.sandbox_init_point,
+          preferenceId: mpData.id
+        },
+        201
+      )
+    }
+
     // Si no es ninguno de los anteriores
     return ApiResponse.success(
       request,

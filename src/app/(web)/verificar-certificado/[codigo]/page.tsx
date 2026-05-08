@@ -13,18 +13,7 @@ import {
   Stack,
   Chip,
   Grid
-import {
-    Box,
-    Container,
-    Typography,
-    Paper,
-    Divider,
-    Button,
-    Avatar,
-    Stack,
-    Chip,
-    Grid
-  } from '@mui/material'
+} from '@mui/material'
 
 import {
   CheckCircle2 as CheckCircleIcon,
@@ -34,15 +23,7 @@ import {
   User as PersonIcon,
   FileSearch as HistoryIcon,
   ArrowLeft as ArrowBackIcon
-import {
-    CheckCircle2 as CheckCircleIcon,
-    AlertCircle as ErrorIcon,
-    Award as AwardIcon,
-    Calendar as CalendarIcon,
-    User as PersonIcon,
-    FileSearch as HistoryIcon,
-    ArrowLeft as ArrowBackIcon
-  } from 'lucide-react'
+} from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
@@ -61,7 +42,6 @@ export const dynamic = 'force-dynamic'
 export default async function VerificarCertificadoPage({ params }: Props) {
   const { codigo } = params
 
-  // 1. Buscar el certificado en la DB
   const [certificado, configs] = await Promise.all([
     prisma.certificado.findUnique({
       where: { codigo_verificacion: codigo },
@@ -84,21 +64,14 @@ export default async function VerificarCertificadoPage({ params }: Props) {
     getConfigs()
   ])
 
-  // Configuración de branding
   const primaryColor = configs.PRIMARY_COLOR_MAIN
   const templateName = configs.TEMPLATE_NAME
   const logoUrl = configs.TEMPLATE_LOGO
 
-  // Caso: No encontrado
   if (!certificado) {
     return (
       <Container maxWidth="sm" sx={{ py: 12 }}>
         <Paper
-          elevation={4}
-          sx={{
-            p: 6,
-            textAlign: 'center',
-        < Paper
           elevation={4}
           sx={{
             p: 6,
@@ -118,28 +91,22 @@ export default async function VerificarCertificadoPage({ params }: Props) {
           <Button
             variant="contained"
             component={Link}
-          <Button
-            variant="contained"
-            component={Link}
             href="/"
             startIcon={<ArrowBackIcon size={20} />}
             sx={{
               borderRadius: 3,
               px: 4,
-              sx={{
-              borderRadius: 3,
-          px: 4,
-          py: 1.5,
-          textTransform: 'none',
-          fontWeight: 'bold',
-          backgroundColor: primaryColor,
-          '&:hover': {filter: 'brightness(0.85)' }
+              py: 1.5,
+              textTransform: 'none',
+              fontWeight: 'bold',
+              backgroundColor: primaryColor,
+              '&:hover': { filter: 'brightness(0.85)' }
             }}
           >
-          Volver al inicio
-        </Button>
-      </Paper>
-      </Container >
+            Volver al inicio
+          </Button>
+        </Paper>
+      </Container>
     )
   }
 
@@ -154,18 +121,13 @@ export default async function VerificarCertificadoPage({ params }: Props) {
   const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
 
   const fechaEmision = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
-    const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
-  const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
 
-  const fechaEmision = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })
-
-
-  return(
-    <Container maxWidth = "md" sx = {{ py: 8 }} >
+  return (
+    <Container maxWidth="md" sx={{ py: 8 }}>
       <Box sx={{ textAlign: 'center', mb: 6 }}>
         {logoUrl && (
           <Box component="img" src={logoUrl} alt={templateName} sx={{ height: 60, mb: 3, mx: 'auto' }} />
@@ -175,10 +137,6 @@ export default async function VerificarCertificadoPage({ params }: Props) {
         </Typography>
       </Box>
 
-      <Paper
-        elevation={10}
-        sx={{
-          p: { xs: 4, md: 8 },
       <Paper
         elevation={10}
         sx={{
@@ -201,28 +159,12 @@ export default async function VerificarCertificadoPage({ params }: Props) {
             height: 8,
             bgcolor: primaryColor
           }}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 8,
-            bgcolor: primaryColor
-          }}
         />
 
         <Stack spacing={4} alignItems="center">
           <Box sx={{ textAlign: 'center' }}>
             <Box sx={{ position: 'relative', display: 'inline-block' }}>
               <CheckCircleIcon size={90} style={{ color: '#22c55e', marginBottom: '16px' }} />
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: 25,
-                  right: 0,
-                  bgcolor: 'white',
-                  borderRadius: '50%',
               <Box
                 sx={{
                   position: 'absolute',
@@ -240,18 +182,11 @@ export default async function VerificarCertificadoPage({ params }: Props) {
             </Box>
 
             <Typography variant="h3" fontWeight={800} color="text.primary" sx={{
-
-            <Typography variant="h3" fontWeight={800} color="text.primary" sx={{
               fontSize: { xs: '2rem', md: '3rem' },
               mb: 1
             }}>
               Certificado Verificado
             </Typography>
-            <Chip
-              icon={<HistoryIcon size={16} />}
-              label={`Código: ${codigo}`}
-              variant="outlined"
-              sx={{ fontWeight: 'bold', px: 1 }}
             <Chip
               icon={<HistoryIcon size={16} />}
               label={`Código: ${codigo}`}
@@ -309,18 +244,11 @@ export default async function VerificarCertificadoPage({ params }: Props) {
                 </Typography>
                 <Typography variant="h6" fontWeight="bold" sx={{ mt: 1, mb: 2, lineHeight: 1.3 }}>
                   {cursoTitulo}
-                  {cursoTitulo}
                 </Typography>
                 <Button
                   variant="text"
                   component={Link}
-                <Button
-                  variant="text"
-                  component={Link}
                   href={`/cursos/${certificado.curso.slug}`}
-                  sx={{
-                    color: primaryColor,
-                    fontWeight: 'bold',
                   sx={{
                     color: primaryColor,
                     fontWeight: 'bold',
@@ -345,14 +273,8 @@ export default async function VerificarCertificadoPage({ params }: Props) {
           <Button
             variant="outlined"
             component={Link}
-          <Button
-            variant="outlined"
-            component={Link}
             href="/"
             startIcon={<ArrowBackIcon size={20} />}
-            sx={{
-              borderRadius: 3,
-              px: 4,
             sx={{
               borderRadius: 3,
               px: 4,
@@ -365,8 +287,8 @@ export default async function VerificarCertificadoPage({ params }: Props) {
           >
             Volver al inicio
           </Button>
-        </Stack >
-      </Paper >
-    </Container >
+        </Stack>
+      </Paper>
+    </Container>
   )
 }

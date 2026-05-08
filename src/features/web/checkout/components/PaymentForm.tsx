@@ -163,7 +163,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const isPaypalEnabled = configs.PAYPAL_ENABLED !== 'false'
   const isMercadoPagoEnabled = configs.MP_ENABLED !== 'false' && !!configs.MP_ACCESS_TOKEN
 
-  const [paymentMethod, setPaymentMethod] = useState<'izipay' | 'paypal' | 'culqi' | 'manual'>('culqi')
+  const [paymentMethod, setPaymentMethod] = useState<'izipay' | 'paypal' | 'culqi' | 'mercadopago' | 'manual'>('culqi')
   const [isCulqiLoaded, setIsCulqiLoaded] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [culqiSettings, setCulqiSettings] = useState<any>(null)
@@ -275,7 +275,6 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const handleCheckout = async () => {
     if (!session) {
       openLogin()
-      openLogin();
 
       return
     }
@@ -312,7 +311,6 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const handleCulqiCheckout = async () => {
     if (!session) {
       openLogin()
-      openLogin();
 
       return
     }
@@ -449,6 +447,38 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
     }
   }
 
+  const handleMercadoPagoCheckout = async () => {
+    if (!session) {
+      openLogin()
+
+      return
+    }
+
+    setPaymentError(null)
+
+    try {
+      setIsLoading(true)
+
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cursoIds: courses.map(c => c.id), codigoCupon: appliedCouponCode, gateway: 'MERCADOPAGO' })
+      })
+
+      const dataRaw = await response.json()
+
+      if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pago con Mercado Pago')
+
+      const { mpSandboxInitPoint, mpInitPoint } = dataRaw.result
+
+      window.location.href = mpSandboxInitPoint || mpInitPoint
+    } catch (error: any) {
+      setPaymentError(error.message || 'Ocurrió un error inesperado')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (culqiSettings && window.Culqi?.open) window.Culqi.open()
   }, [culqiSettings])
@@ -560,63 +590,33 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
               <Typography variant='subtitle1' fontWeight={700} color='text.primary'>Método de Pago</Typography>
             </Stack>
 
-            {(!isCulqiEnabled && !isIzipayEnabled && !isPaypalEnabled && (!isManualEnabled || metodosManual.length === 0)) && (
+            {(!isCulqiEnabled && !isIzipayEnabled && !isPaypalEnabled && !isMercadoPagoEnabled && (!isManualEnabled || metodosManual.length === 0)) && (
               <Alert severity='warning' sx={{ mb: 2, borderRadius: '12px' }}>
                 No hay métodos de pago habilitados en este momento. Por favor, contacte con soporte.
               </Alert>
             )}
 
             {/* Tab selector */}
-            <Stack direction='row' spacing={1} sx={{ mb: 3 }}>
+            <Stack direction='row' spacing={1} flexWrap='wrap' useFlexGap sx={{ mb: 3 }}>
               {isCulqiEnabled && (
-                <MethodTab
-                  icon='tabler-credit-card'
-                  label='Culqi'
-                  selected={paymentMethod === 'culqi'}
-                  onClick={() => setPaymentMethod('culqi')}
-                />
+                <MethodTab icon='tabler-credit-card' label='Culqi' selected={paymentMethod === 'culqi'} onClick={() => setPaymentMethod('culqi')} />
               )}
               {isIzipayEnabled && (
-                <MethodTab
-                  icon='tabler-building-bank'
-                  label='Izipay'
-                  selected={paymentMethod === 'izipay'}
-                  onClick={() => setPaymentMethod('izipay')}
-                />
+                <MethodTab icon='tabler-building-bank' label='Izipay' selected={paymentMethod === 'izipay'} onClick={() => setPaymentMethod('izipay')} />
               )}
               {isPaypalEnabled && (
-                <MethodTab
-                  icon='tabler-brand-paypal'
-                  label='PayPal'
-                  selected={paymentMethod === 'paypal'}
-                  onClick={() => setPaymentMethod('paypal')}
-                  color='#003087'
-                />
+                <MethodTab icon='tabler-brand-paypal' label='PayPal' selected={paymentMethod === 'paypal'} onClick={() => setPaymentMethod('paypal')} color='#003087' />
+              )}
+              {isMercadoPagoEnabled && (
+                <MethodTab icon='tabler-shopping-cart' label='Mercado Pago' selected={paymentMethod === 'mercadopago'} onClick={() => setPaymentMethod('mercadopago')} color='#009ee3' />
               )}
               {isManualEnabled && metodosManual.length > 0 && (
-                <MethodTab
-                  icon='tabler-device-mobile-message'
-                  label='Yape / Transferencia'
-                  selected={paymentMethod === 'manual'}
-                  onClick={() => setPaymentMethod('manual')}
-                  color='#6c3483'
-                />
+                <MethodTab icon='tabler-device-mobile-message' label='Yape / Transferencia' selected={paymentMethod === 'manual'} onClick={() => setPaymentMethod('manual')} color='#6c3483' />
               )}
             </Stack>
 
-            {(!isCulqiEnabled && !isIzipayEnabled && !isPaypalEnabled) && (
-              <Alert severity="warning" sx={{ mb: 3, borderRadius: '12px' }}>
-                No hay métodos de pago habilitados en este momento. Por favor, contacte con soporte.
-              </Alert>
-            )}
-
-            {paymentMethod === 'culqi' && isCulqiEnabled ? (
-              <Box sx={{ p: 3, backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.04)', borderRadius: '16px', border: '1px solid rgba(var(--web-primary-rgb, 37, 146, 127), 0.15)', textAlign: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                  <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--web-primary, #25927F)' }} />
-                  <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b', fontWeight: 600 }}>Pago seguro procesado por Culqi</Typography>
-                  {/* ── Culqi ── */}
-                  {paymentMethod === 'culqi' && isCulqiEnabled && (
+            {/* ── Culqi ── */}
+            {paymentMethod === 'culqi' && isCulqiEnabled && (
               <Box sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
                 <SecureBadge provider='Culqi' />
                 <TermsCheck checked={acceptedTerms} onChange={setAcceptedTerms} />
@@ -627,27 +627,15 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                   onClick={handleCulqiCheckout}
                   disabled={isLoading || !isCulqiLoaded || (!acceptedTerms && !isGuest)}
                   startIcon={isLoading || !isCulqiLoaded ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-lock' />}
-                  sx={{ py: 1.75, borderRadius: 2.5, fontWeight: 800, fontSize: '1rem', textTransform: 'none', letterSpacing: 0.3 }}
+                  sx={{ py: 1.75, borderRadius: 2.5, fontWeight: 800, fontSize: '1rem', textTransform: 'none' }}
                 >
                   {isLoading ? 'Procesando...' : !isCulqiLoaded ? 'Cargando...' : isGuest ? 'Identificarse para Comprar' : `Pagar ${currencySymbol} ${displayTotal.toFixed(2)}`}
                 </Button>
               </Box>
-              <Box sx={{ mb: 3, textAlign: 'left' }}>
-                <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} sx={{ color: 'var(--web-primary, #25927F)', '&.Mui-checked': { color: 'var(--web-primary, #25927F)' } }} />} label={<Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b' }}>He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
-              </Box>
-              <Button fullWidth size="large" onClick={handleCulqiCheckout} disabled={isLoading || !isCulqiLoaded || (!acceptedTerms && !isGuest)} startIcon={isLoading || !isCulqiLoaded ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />} sx={{ py: 2, borderRadius: '16px', fontFamily: FONT, fontWeight: 800, fontSize: '1rem', textTransform: 'none', backgroundColor: 'var(--web-light, #BDD962)', color: '#0A0A0A', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127), 0.25)', '&:hover': { backgroundColor: 'var(--web-primary, #25927F)', color: '#fff' }, '&:disabled': { backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.2)', color: 'rgba(0,0,0,0.35)' } }}>
-                {isLoading ? 'Procesando...' : (!isCulqiLoaded ? 'Cargando...' : (isGuest ? 'Identificarse para Comprar' : `Pagar ${currencySymbol} ${displayTotal.toFixed(2)}`))}
-              </Button>
-            </Box>
-                ) : (paymentMethod === 'izipay' && isIzipayEnabled) ? (
-                <Box sx={{ p: 3, backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.04)', borderRadius: '16px', border: '1px solid rgba(var(--web-primary-rgb, 37, 146, 127), 0.15)', textAlign: 'center' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 2 }}>
-                    <i className="tabler-shield-lock" style={{ fontSize: '1.4rem', color: 'var(--web-primary, #25927F)' }} />
-                    <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b', fontWeight: 600 }}>Pago seguro procesado por Izipay</Typography>
             )}
 
-                    {/* ── Izipay ── */}
-                    {paymentMethod === 'izipay' && isIzipayEnabled && (
+            {/* ── Izipay ── */}
+            {paymentMethod === 'izipay' && isIzipayEnabled && (
               <Box sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
                 <SecureBadge provider='Izipay' />
                 <TermsCheck checked={acceptedTerms} onChange={setAcceptedTerms} />
@@ -658,53 +646,18 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                   onClick={handleCheckout}
                   disabled={isLoading || (!acceptedTerms && !isGuest)}
                   startIcon={isLoading ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-lock' />}
-                  sx={{ py: 1.75, borderRadius: 2.5, fontWeight: 800, fontSize: '1rem', textTransform: 'none', letterSpacing: 0.3 }}
+                  sx={{ py: 1.75, borderRadius: 2.5, fontWeight: 800, fontSize: '1rem', textTransform: 'none' }}
                 >
                   {isLoading ? 'Preparando...' : isGuest ? 'Identificarse para Comprar' : `Pagar ${currencySymbol} ${displayTotal.toFixed(2)}`}
                 </Button>
               </Box>
-              <Box sx={{ mb: 3, textAlign: 'left' }}>
-                <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} sx={{ color: 'var(--web-primary, #25927F)', '&.Mui-checked': { color: 'var(--web-primary, #25927F)' } }} />} label={<Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b' }}>He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
-              </Box>
-              <Button fullWidth size="large" onClick={handleCheckout} disabled={isLoading || (!acceptedTerms && !isGuest)} startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-credit-card" />} sx={{ py: 2, borderRadius: '16px', fontFamily: FONT, fontWeight: 800, fontSize: '1rem', textTransform: 'none', backgroundColor: 'var(--web-light, #BDD962)', color: '#0A0A0A', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127), 0.25)', '&:hover': { backgroundColor: 'var(--web-primary, #25927F)', color: '#fff' }, '&:disabled': { backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.2)', color: 'rgba(0,0,0,0.35)' } }}>
-                {isLoading ? 'Preparando...' : (isGuest ? 'Identificarse para Comprar' : `Pagar ${currencySymbol} ${displayTotal.toFixed(2)}`)}
-              </Button>
-            </Box>
-                  ) : (paymentMethod === 'paypal' && isPaypalEnabled) && (
-                  <Box sx={{ p: 3, backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.04)', borderRadius: '16px', border: '1px solid rgba(var(--web-primary-rgb, 37, 146, 127), 0.15)' }}>
-                    {isGuest ? (
-                      <Button fullWidth size="large" onClick={() => openLogin()} sx={{ py: 2, borderRadius: '16px', fontFamily: FONT, fontWeight: 800, textTransform: 'none', backgroundColor: 'var(--web-light, #BDD962)', color: '#0A0A0A', '&:hover': { backgroundColor: 'var(--web-primary, #25927F)', color: '#fff' } }}>Identificarse para Comprar</Button>
-                    ) : (
-                      <>
-                        <Box sx={{ mb: 3 }}>
-                          <FormControlLabel control={<Checkbox checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} sx={{ color: 'var(--web-primary, #25927F)', '&.Mui-checked': { color: 'var(--web-primary, #25927F)' } }} />} label={<Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b' }}>He leído y acepto los <Link href="/terminos-y-condiciones" target="_blank" style={{ color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>Términos y Condiciones</Link></Typography>} />
-                        </Box>
-                        {acceptedTerms ? (
-                          <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'USD' }}>
-                            <PayPalPaymentButton cursoIds={courses.map(c => c.id)} codigoCupon={appliedCouponCode} onSuccess={handlePaymentSuccess} onError={(err) => setPaymentError(err)} />
-                          </PayPalScriptProvider>
-                        ) : (
-                          <Alert severity="info" sx={{ borderRadius: '12px' }}>Acepta los términos y condiciones para habilitar el pago con PayPal.</Alert>
-                        )}
-                      </>
-                    )}
-                  </Box>
-          )}
-                </Box>
-              </Stack>
             )}
 
             {/* ── PayPal ── */}
             {paymentMethod === 'paypal' && isPaypalEnabled && (
               <Box sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
                 {isGuest ? (
-                  <Button
-                    variant='contained'
-                    fullWidth
-                    size='large'
-                    onClick={() => openLogin()}
-                    sx={{ py: 1.75, borderRadius: 2.5, fontWeight: 800, textTransform: 'none' }}
-                  >
+                  <Button variant='contained' fullWidth size='large' onClick={() => openLogin()} sx={{ py: 1.75, borderRadius: 2.5, fontWeight: 800, textTransform: 'none' }}>
                     Identificarse para Comprar
                   </Button>
                 ) : (
@@ -718,6 +671,36 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                     ) : (
                       <Alert severity='info' sx={{ borderRadius: 2 }}>Acepta los términos y condiciones para habilitar el pago con PayPal.</Alert>
                     )}
+                  </>
+                )}
+              </Box>
+            )}
+
+            {/* ── Mercado Pago ── */}
+            {paymentMethod === 'mercadopago' && isMercadoPagoEnabled && (
+              <Box sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'grey.50' }}>
+                {isGuest ? (
+                  <Button variant='contained' fullWidth size='large' onClick={() => openLogin()} sx={{ py: 1.75, borderRadius: 2.5, fontWeight: 800, textTransform: 'none' }}>
+                    Identificarse para Comprar
+                  </Button>
+                ) : (
+                  <>
+                    <SecureBadge provider='Mercado Pago' />
+                    <TermsCheck checked={acceptedTerms} onChange={setAcceptedTerms} />
+                    <Button
+                      variant='contained'
+                      fullWidth
+                      size='large'
+                      onClick={handleMercadoPagoCheckout}
+                      disabled={isLoading || !acceptedTerms}
+                      startIcon={isLoading ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-shopping-cart' />}
+                      sx={{ py: 1.75, borderRadius: 2.5, fontWeight: 800, fontSize: '1rem', textTransform: 'none', bgcolor: '#009ee3', '&:hover': { bgcolor: '#0087c2' } }}
+                    >
+                      {isLoading ? 'Redirigiendo...' : `Pagar ${currencySymbol} ${displayTotal.toFixed(2)} con Mercado Pago`}
+                    </Button>
+                    <Typography variant='caption' color='text.secondary' textAlign='center' display='block' sx={{ mt: 1.5 }}>
+                      Serás redirigido a Mercado Pago para completar tu pago de forma segura.
+                    </Typography>
                   </>
                 )}
               </Box>

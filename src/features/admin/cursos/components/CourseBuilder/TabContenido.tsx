@@ -41,9 +41,7 @@ import { CSS } from '@dnd-kit/utilities'
 import CustomTextField from '@core/components/mui/TextField'
 import { LessonEditDialog } from './LessonEditDialog'
 import { EvaluacionDialog } from './EvaluacionDialog'
-import { EvaluacionDialog } from './EvaluacionDialog'
 
-import type { Curso, CursoLeccionResumen, CursoExamenResumen } from '../../entity/Curso'
 import type { Curso, CursoLeccionResumen, CursoExamenResumen } from '../../entity/Curso'
 import {
   useCreateModulo,

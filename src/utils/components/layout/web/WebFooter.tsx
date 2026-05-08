@@ -4,6 +4,7 @@ import Link from 'next/link'
 
 import { Phone, Mail, MapPin, BookOpenCheck, Facebook, Youtube, Instagram } from 'lucide-react'
 
+import { getConfigs } from '@/utils/libs/config'
 import HydratedDate from '@/utils/components/HydratedDate'
 import Logo from '@components/layout/shared/Logo'
 
@@ -21,32 +22,11 @@ const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
   </svg>
 )
 
-const socialLinks = [
-  {
-    label: 'Facebook',
-    href: 'https://www.facebook.com/flyup.store',
-    icon: <Facebook size={20} />,
-  },
-  {
-    label: 'TikTok',
-    href: 'https://tiktok.com/@flyupsale',
-    icon: <TikTokIcon size={20} />,
-  },
-  {
-    label: 'Instagram',
-    href: 'https://www.instagram.com/devrocket.software/',
-    icon: <Instagram size={20} />,
-  },
-  {
-    label: 'Youtube',
-    href: 'https://www.youtube.com/@Fly-s9b',
-    icon: <Youtube size={20} />,
-  },
-  {
-    label: 'WhatsApp',
-    href: 'https://wa.me/51959436827',
-    icon: <WhatsAppIcon size={20} />,
-  },
+const staticSocialLinks = [
+  { label: 'Facebook', href: 'https://www.facebook.com/flyup.store', icon: <Facebook size={20} /> },
+  { label: 'TikTok', href: 'https://tiktok.com/@flyupsale', icon: <TikTokIcon size={20} /> },
+  { label: 'Instagram', href: 'https://www.instagram.com/devrocket.software/', icon: <Instagram size={20} /> },
+  { label: 'Youtube', href: 'https://www.youtube.com/@Fly-s9b', icon: <Youtube size={20} /> },
 ]
 
 interface WebFooterProps {
@@ -54,7 +34,15 @@ interface WebFooterProps {
   rutasHabilitado?: boolean
 }
 
-const WebFooter = ({ platformName = 'Aula Virtual', rutasHabilitado = true }: WebFooterProps) => {
+const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true }: WebFooterProps) => {
+  const configs = await getConfigs()
+  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+
+  const socialLinks = [
+    ...staticSocialLinks,
+    { label: 'WhatsApp', href: `https://wa.me/${waNumber}`, icon: <WhatsAppIcon size={20} /> },
+  ]
+
   return (
     <footer style={{ backgroundColor: '#0A0A0A', color: '#ffffff' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12">

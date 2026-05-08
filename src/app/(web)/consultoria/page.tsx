@@ -4,13 +4,17 @@ import Image from 'next/image'
 import { CheckCircle2 } from 'lucide-react'
 
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
+import { getConfigs } from '@/utils/libs/config'
 
 export const metadata = {
   title: 'Consultoría - ARM',
   description: 'Consultoría en gestión de activos e ISO 55000',
 }
 
-export default function ConsultoriaPage() {
+export default async function ConsultoriaPage() {
+  const configs = await getConfigs()
+  const waNumero = configs.WHATSAPP_NUMERO || '51959436827'
+
   const sections = [
     {
       title: 'Gestión de Activos (ISO 55000)',
@@ -159,7 +163,7 @@ export default function ConsultoriaPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a
-                href="https://wa.me/51959436827?text=Estoy%20interesado%20en%20el%20servicio%20de%20Consultor%C3%ADa%20en%20Gesti%C3%B3n%20de%20Activos%20y%20Mantenimiento%20de%20ARM"
+                href={`https://wa.me/${waNumero}?text=Estoy%20interesado%20en%20el%20servicio%20de%20Consultor%C3%ADa%20en%20Gesti%C3%B3n%20de%20Activos%20y%20Mantenimiento%20de%20ARM`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-8 py-4 bg-[#02115C] text-white font-sans font-bold uppercase tracking-wider hover:bg-[#0A50A1] transition-all duration-300 text-sm"

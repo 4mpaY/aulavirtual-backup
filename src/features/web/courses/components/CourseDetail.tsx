@@ -31,6 +31,8 @@ import {
   CircularProgress
 } from '@mui/material'
 
+import { ChevronRight, CheckCircle, XCircle, Download, Play } from 'lucide-react'
+
 import { useSession } from 'next-auth/react'
 
 import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
@@ -92,17 +94,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const [enrolling, setEnrolling] = useState(false)
   const { data: session } = useSession()
   const router = useRouter()
-  const { openLogin, openRegister } = useAuthModal()
-
-  const handlePaidEnroll = () => {
-    if (!session) {
-      openRegister()
-
-      return
-    }
-
-    router.push(`/checkout/${course.slug}`)
-  }
+  const { openLogin } = useAuthModal()
 
   const handleFreeEnroll = async () => {
     if (!session) {

@@ -60,10 +60,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
     if (!auth.authorized) return auth.error
 
     const reqUrl = new URL(request.url)
-    const currentHost = reqUrl.host
-
-    const reqUrl = new URL(request.url)
-    const currentHost = reqUrl.host
 
     // Cargar en paralelo
     const [certificado, configs] = await Promise.all([
@@ -75,8 +71,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
               titulo: true,
               duracion: true,
               nivel: true,
-              fecha_inicio: true,
-              tipo_emision: true,
               fecha_inicio: true,
               tipo_emision: true,
               profesor: {
@@ -135,11 +129,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const nombreInstitucion = configs.CERTIFICADO_INSTITUTION_NAME || configs.TEMPLATE_NAME || 'Aula Virtual'
 
     // OBTENCIÓN AUTOMÁTICA DEL DOMINIO: Priorizamos config manual, luego host actual
-    const linkInstitucion = configs.CERTIFICADO_INSTITUTION_URL || configs.SETTINGS_INSTITUTION_URL || currentHost
 
     const [pr, pg, pb] = hexToRgb(colorPrimario)
-
-    const goldColor: [number, number, number] = [184, 134, 11]
 
     const goldColor: [number, number, number] = [184, 134, 11]
 
@@ -499,48 +490,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
     // ── PÁGINA 2: CONTENIDO ACADÉMICO ──
     doc.addPage()
     doc.setFillColor(255, 255, 255)
-    doc.setFillColor(255, 255, 255)
     doc.rect(0, 0, pageWidth, pageHeight, 'F')
-
-    // Borde Dorado (Igual que Pág 1)
-    doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
-    doc.setLineWidth(0.5)
-    doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
-
-    // Cabecera de Página 2 (Minimizada pero Premium)
-    if (logoBuffer) {
-      try {
-        const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
-        const base64LogoP2 = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
-
-        doc.setFillColor(252, 252, 252)
-        doc.roundedRect(14, 12, 12, 10, 1, 1, 'F')
-        doc.addImage(base64LogoP2, 'PNG', 15, 12.5, 10, 9)
-      } catch (err) { console.error('Logo Error P2:', err) }
-    }
-
-    doc.setFontSize(10)
-    doc.setTextColor(pr, pg, pb)
-    doc.setFont('helvetica', 'bold')
-    doc.text(nombreInstitucion.toUpperCase(), 28, 16)
-    doc.setFontSize(7)
-    doc.setTextColor(150, 150, 150)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Link de Plataforma:', pageWidth - 14, 16, { align: 'right' })
-    doc.setTextColor(pr, pg, pb)
-    doc.text(linkInstitucion, pageWidth - 14, 20, { align: 'right' })
 
     // Título de la Sección
     doc.setFillColor(pr, pg, pb)
     doc.rect(14, 26, pageWidth - 28, 12, 'F')
     doc.setFontSize(16)
-    doc.rect(14, 26, pageWidth - 28, 12, 'F')
-    doc.setFontSize(16)
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'bold')
-    doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO', pageWidth / 2, 34, { align: 'center' })
-
-    doc.setFontSize(12)
     doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO', pageWidth / 2, 34, { align: 'center' })
 
     doc.setFontSize(12)
@@ -550,15 +507,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const cursoTituloLines = doc.splitTextToSize(cursoTitulo, pageWidth - 40)
 
     doc.text(cursoTituloLines, pageWidth / 2, 45, { align: 'center' })
-    doc.text(cursoTituloLines, pageWidth / 2, 45, { align: 'center' })
 
-    // Listado de Módulos (Grid Mejorado)
-    const yPos = 55
     // Listado de Módulos (Grid Mejorado)
     const yPos = 55
     const modulos = certificado.curso.modulos ?? []
 
-    if (modulos.length > 0) {
     if (modulos.length > 0) {
       const colWidth = (pageWidth - 40) / 2
       let col = 0
@@ -584,7 +537,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
         // Header del Módulo
         doc.setFillColor(pr, pg, pb)
         doc.roundedRect(currentX, currentY, colWidth - 4, 8, 1, 1, 'F')
-        doc.roundedRect(currentX, currentY, colWidth - 4, 8, 1, 1, 'F')
         doc.setFontSize(9)
         doc.setTextColor(255, 255, 255)
         doc.setFont('helvetica', 'bold')
@@ -594,7 +546,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
         doc.text(moduloTitulo, currentX + 4, currentY + 5.5)
 
-        let yLeccion = currentY + 13
         let yLeccion = currentY + 13
 
         for (const leccion of modulo.lecciones) {
@@ -642,7 +593,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `${preview ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
         'Content-Disposition': `${preview ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
         'Content-Length': pdfArrayBuffer.byteLength.toString()
       }

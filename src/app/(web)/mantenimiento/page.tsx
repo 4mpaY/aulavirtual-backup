@@ -4,13 +4,17 @@ import Image from 'next/image'
 import { CheckCircle2 } from 'lucide-react'
 
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
+import { getConfigs } from '@/utils/libs/config'
 
 export const metadata = {
   title: 'Mantenimiento - ARM',
   description: 'Soluciones de mantenimiento predictivo y proactivo',
 }
 
-export default function MantenimientoPage() {
+export default async function MantenimientoPage() {
+  const configs = await getConfigs()
+  const waNumero = configs.WHATSAPP_NUMERO || '51959436827'
+
   const sections = [
     {
       title: 'Mantenimiento Predictivo',
@@ -133,7 +137,7 @@ export default function MantenimientoPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a
-                href="https://wa.me/51959436827?text=Estoy%20interesado%20en%20el%20servicio%20de%20Mantenimiento%20Predictivo%20e%20Ingenier%C3%ADa%20de%20Confiabilidad%20de%20ARM"
+                href={`https://wa.me/${waNumero}?text=Estoy%20interesado%20en%20el%20servicio%20de%20Mantenimiento%20Predictivo%20e%20Ingenier%C3%ADa%20de%20Confiabilidad%20de%20ARM`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-8 py-4 bg-[#02115C] text-white font-sans font-bold uppercase tracking-wider hover:bg-[#0A50A1] transition-all duration-300 text-sm"

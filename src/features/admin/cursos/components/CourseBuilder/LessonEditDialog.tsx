@@ -135,7 +135,6 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
       video_url: videoUrl || null,
       es_en_vivo: esEnVivo,
       fecha_programada: sanitizeDatetimeInput(fechaProgramada),
-      fecha_programada: sanitizeDatetimeInput(fechaProgramada),
       enlace_reunion: enlaceReunion || null,
       es_vista_previa: esVistaPrevia,
       contenido: contenido || null,

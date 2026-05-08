@@ -24,7 +24,8 @@ import {
   AccordionDetails,
   Chip,
   Link,
-  CardHeader
+  CardHeader,
+  FormControlLabel
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { getSession } from 'next-auth/react'
@@ -39,16 +40,6 @@ interface ConfiguracionViewProps {
   initialData?: Configuracion[]
 }
 
-const COLOR_PRESETS = [
-  { name: 'Teal & Lima', main: '#25927F', light: '#BDD962', dark: '#025E44' },
-  { name: 'Índigo & Lima', main: '#4F46E5', light: '#A3E635', dark: '#1E1B4B' },
-  { name: 'Océano Profundo', main: '#2563EB', light: '#FCD34D', dark: '#0D1F3C' },
-  { name: 'Índigo & Dorado', main: '#7C3AED', light: '#FCD34D', dark: '#1E1B4B' },
-  { name: 'Esmeralda', main: '#10B981', light: '#A3E635', dark: '#022C1E' },
-  { name: 'Pizarra & Coral', main: '#EA580C', light: '#FEF08A', dark: '#0F172A' },
-  { name: 'Granate & Champán', main: '#BE185D', light: '#FDE68A', dark: '#1A0A14' },
-  { name: 'Cian Tecnológico', main: '#0891B2', light: '#67E8F9', dark: '#0C1A2E' },
-]
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -269,6 +260,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const [saving, setSaving] = useState(false)
   const [openMedia, setOpenMedia] = useState(false)
   const [showSecret, setShowSecret] = useState<{ [key: string]: boolean }>({})
+  const [openLogoMedia, setOpenLogoMedia] = useState(false)
+  const [pendingLogoLabel, setPendingLogoLabel] = useState('')
 
   const initialMapped = (initialData || []).reduce((acc: { [key: string]: string }, curr: Configuracion) => {
     acc[curr.clave] = curr.valor
@@ -279,6 +272,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const [config, setConfig] = useState<{ [key: string]: string }>({
     HOME_HERO_TITLE: '',
     HOME_HERO_DESCRIPTION: '',
+    WHATSAPP_NUMERO: '',
+    WHATSAPP_NUMERO_EMPRESAS: '',
     HOME_LOGOS: '[]',
     TEMPLATE_NAME: 'Aula Virtual',
     TEMPLATE_SLOGAN: '',
@@ -313,6 +308,9 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     PAGO_MANUAL_ENABLED: 'false',
     PAGO_MANUAL_WHATSAPP_NUMERO: '',
     PAGO_MANUAL_WHATSAPP_MENSAJE: '',
+    MP_ENABLED: 'true',
+    MP_ACCESS_TOKEN: '',
+    MP_PUBLIC_KEY: '',
     ...initialMapped
   })
 
@@ -322,6 +320,16 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
 
   const handleInputChange = (clave: string, valor: string) => {
     setConfig(prev => ({ ...prev, [clave]: valor }))
+  }
+
+  const logosArray: { label: string; url: string }[] = (() => {
+    try { return JSON.parse(config.HOME_LOGOS || '[]') } catch { return [] }
+  })()
+
+  const handleRemoveLogo = (index: number) => {
+    const updated = logosArray.filter((_, i) => i !== index)
+
+    handleInputChange('HOME_LOGOS', JSON.stringify(updated))
   }
 
   const toggleSecret = (key: string) => {
@@ -829,6 +837,34 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
               </Grid>
             </Grid>
           </GatewayAccordion>
+
+          <GatewayAccordion
+            icon='tabler-shopping-cart'
+            title='Mercado Pago'
+            subtitle='Pagos en línea con tarjetas, billeteras y más (Latinoamérica)'
+            enabledKey='MP_ENABLED'
+            config={config}
+            onInputChange={handleInputChange}
+          >
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <SecretField
+                  label='Access Token'
+                  configKey='MP_ACCESS_TOKEN'
+                  helperText='TEST-... (sandbox) o APP_USR-... (producción)'
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='Public Key'
+                  value={config.MP_PUBLIC_KEY || ''}
+                  onChange={(e) => handleInputChange('MP_PUBLIC_KEY', e.target.value)}
+                  helperText='TEST-... (sandbox) — usada en el frontend'
+                />
+              </Grid>
+            </Grid>
+          </GatewayAccordion>
         </Stack>
       )
     },
@@ -836,177 +872,98 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       label: 'Integraciones',
       icon: 'tabler-plug',
       content: (
-<<<<<<< HEAD
         <Stack spacing={3}>
-          <TextField label='Google Client ID' fullWidth value={config.GOOGLE_CLIENT_ID} onChange={(e) => handleInputChange('GOOGLE_CLIENT_ID', e.target.value)} />
           <TextField
-            label='Google Client Secret'
+            label='Google Client ID'
             fullWidth
-            type={showSecret.GOOGLE_CLIENT_SECRET ? 'text' : 'password'}
-            value={config.GOOGLE_CLIENT_SECRET}
-            onChange={(e) => handleInputChange('GOOGLE_CLIENT_SECRET', e.target.value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position='end'>
-                  <IconButton onClick={() => toggleSecret('GOOGLE_CLIENT_SECRET')} edge='end'>
-                    <i className={showSecret.GOOGLE_CLIENT_SECRET ? 'tabler-eye-off' : 'tabler-eye'} />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
+            value={config.GOOGLE_CLIENT_ID}
+            onChange={(e) => handleInputChange('GOOGLE_CLIENT_ID', e.target.value)}
+          />
+          <SecretField
+            label='Google Client Secret'
+            configKey='GOOGLE_CLIENT_SECRET'
           />
         </Stack>
       )
     },
-    config.IZIPAY_ENABLED === 'true' && {
-      label: 'Integración Izipay',
-      content: (
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Stack spacing={3}>
-              <TextField label='Merchant Code' fullWidth value={config.IZIPAY_MERCHANT_CODE} onChange={(e) => handleInputChange('IZIPAY_MERCHANT_CODE', e.target.value)} />
-              <TextField
-                label='API Key'
-                fullWidth
-                type={showSecret.IZIPAY_API_KEY ? 'text' : 'password'}
-                value={config.IZIPAY_API_KEY}
-                onChange={(e) => handleInputChange('IZIPAY_API_KEY', e.target.value)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton onClick={() => toggleSecret('IZIPAY_API_KEY')} edge='end'>
-                        <i className={showSecret.IZIPAY_API_KEY ? 'tabler-eye-off' : 'tabler-eye'} />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }}
-              />
-              <TextField label='RSA Key' fullWidth multiline rows={2} value={config.IZIPAY_RSA_KEY} onChange={(e) => handleInputChange('IZIPAY_RSA_KEY', e.target.value)} />
-              <Paper
-                variant='outlined'
-                sx={{ p: 3, borderRadius: 2 }}
-              >
-                <Stack direction='row' spacing={2} alignItems='flex-start' sx={{ mb: 3 }}>
-                  <Box
-                    sx={{
-                      width: 48, height: 48, borderRadius: 2, flexShrink: 0,
-                      bgcolor: '#EA433520', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}
-                  >
-                    <i className='tabler-brand-google' style={{ fontSize: 24, color: '#EA4335' }} />
-                  </Box>
-                  <Box>
-                    <Typography variant='subtitle1' fontWeight={600}>Google OAuth 2.0</Typography>
-                    <Typography variant='body2' color='text.secondary'>
-                      Permite que los usuarios inicien sesión con su cuenta de Google. Requiere configuración en Google Cloud Console.
-                    </Typography>
-                  </Box>
-                </Stack>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label='Client ID'
-                      value={config.GOOGLE_CLIENT_ID}
-                      onChange={(e) => handleInputChange('GOOGLE_CLIENT_ID', e.target.value)}
-                      placeholder='xxxxxxxx.apps.googleusercontent.com'
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <SecretField
-                      label='Client Secret'
-                      configKey='GOOGLE_CLIENT_SECRET'
-                    />
-                  </Grid>
-                </Grid>
-              </Paper>
-            </Stack>
-            )
-    },
-            {
-              label: 'Certificación',
-            icon: 'tabler-certificate',
-            content: <CertificadosSettings config={config} onInputChange={handleInputChange} />
+    {
+      label: 'Certificación',
+      icon: 'tabler-certificate',
+      content: <CertificadosSettings config={config} onInputChange={handleInputChange} />
     }
-            ]
+  ]
 
-            return (
-            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
-              <Paper
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  flex: 1,
-                  minHeight: 0,
-                  borderRadius: 2,
-                  overflow: 'hidden'
-                }}
-              >
-                {/* Título del módulo */}
-                <CardHeader title='Configuración del Sistema' className='pbe-4' sx={{ flexShrink: 0 }} />
-                <Divider sx={{ flexShrink: 0 }} />
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+      <Paper
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          minHeight: 0,
+          borderRadius: 2,
+          overflow: 'hidden'
+        }}
+      >
+        <CardHeader title='Configuración del Sistema' className='pbe-4' sx={{ flexShrink: 0 }} />
+        <Divider sx={{ flexShrink: 0 }} />
 
-                {/* Header de tabs — siempre visible */}
-                <Box sx={{ flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}>
-                  <Tabs
-                    value={tabValue}
-                    onChange={handleChangeTab}
-                    aria-label='configuracion tabs'
-                    sx={{
-                      px: 2, pt: 1,
-                      '& .MuiTab-root': { minHeight: 52, textTransform: 'none', fontWeight: 500, fontSize: '0.875rem' },
-                      '& .MuiTab-iconWrapper': { mr: 0.75 }
-                    }}
-                    variant='scrollable'
-                    scrollButtons='auto'
-                  >
-                    {tabs.map((tab, i) => (
-                      <Tab
-                        key={i}
-                        label={tab.label}
-                        icon={<i className={tab.icon} style={{ fontSize: 18 }} />}
-                        iconPosition='start'
-                      />
-                    ))}
-                  </Tabs>
-                </Box>
+        <Box sx={{ flexShrink: 0, borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleChangeTab}
+            aria-label='configuracion tabs'
+            sx={{
+              px: 2, pt: 1,
+              '& .MuiTab-root': { minHeight: 52, textTransform: 'none', fontWeight: 500, fontSize: '0.875rem' },
+              '& .MuiTab-iconWrapper': { mr: 0.75 }
+            }}
+            variant='scrollable'
+            scrollButtons='auto'
+          >
+            {tabs.map((tab, i) => (
+              <Tab
+                key={i}
+                label={tab.label}
+                icon={tab.icon ? <i className={tab.icon} style={{ fontSize: 18 }} /> : undefined}
+                iconPosition='start'
+              />
+            ))}
+          </Tabs>
+        </Box>
 
-                {/* Área de contenido — scrollable */}
-                <Box sx={{ flex: 1, overflowY: 'auto', px: 3 }}>
-                  {tabs.map((tab, i) => (
-                    <CustomTabPanel key={i} value={tabValue} index={i}>
-                      {tab.content}
-                    </CustomTabPanel>
-                  ))}
-                </Box>
+        <Box sx={{ flex: 1, overflowY: 'auto', px: 3 }}>
+          {tabs.map((tab, i) => (
+            <CustomTabPanel key={i} value={tabValue} index={i}>
+              {tab.content}
+            </CustomTabPanel>
+          ))}
+        </Box>
 
-                {/* Footer fijo con el botón */}
-                <Box
-                  sx={{
-                    flexShrink: 0,
-                    borderTop: 1,
-                    borderColor: 'divider',
-                    px: 3,
-                    py: 2,
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    bgcolor: 'background.paper'
-                  }}
-                >
-                  <Button
-                    variant='contained'
-                    size='large'
-                    onClick={handleSave}
-                    disabled={saving}
-                    startIcon={saving ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-device-floppy' />}
-                    sx={{ minWidth: 180 }}
-                  >
-                    {saving ? 'Guardando...' : 'Guardar'}
-                  </Button>
-                </Box>
-              </Paper>
-            </Box>
-            )
+        <Box
+          sx={{
+            flexShrink: 0,
+            borderTop: 1,
+            borderColor: 'divider',
+            px: 3,
+            py: 2,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            bgcolor: 'background.paper'
+          }}
+        >
+          <Button
+            variant='contained'
+            size='large'
+            onClick={handleSave}
+            disabled={saving}
+            startIcon={saving ? <CircularProgress size={18} color='inherit' /> : <i className='tabler-device-floppy' />}
+            sx={{ minWidth: 180 }}
+          >
+            {saving ? 'Guardando...' : 'Guardar'}
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
+  )
 }
-
-            export default ConfiguracionView

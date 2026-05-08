@@ -599,6 +599,7 @@ enum MetodoPago {
   PAYPAL
   IZIPAY
   CULQI
+  MERCADOPAGO
 }
 
 enum TipoPregunta {
