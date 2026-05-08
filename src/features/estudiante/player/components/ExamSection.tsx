@@ -172,6 +172,7 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
     })
 
     const examen = queryData?.examen ?? null
+
     const errorMsg: string | null = queryError
         ? (queryError as any).response?.data?.message || (queryError as Error).message
         : null
@@ -282,7 +283,7 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
         } finally {
             setSubmitting(false)
         }
-    }, [examen, respuestas, examenId, onExamPassed])
+    }, [examen, respuestas, examenId, onExamPassed, queryClient])
 
     // ── Loading ──────────────────────────────────────────────────────────────
     if (loading) {

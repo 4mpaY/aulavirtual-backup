@@ -140,6 +140,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const [cursoFechaFinRow] = await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
       SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
     `
+
     const cursoFechaFin = cursoFechaFinRow?.fecha_fin ?? null
 
     // Branding (Priorizar llaves específicas de certificado)
@@ -152,7 +153,6 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     // OBTENCIÓN AUTOMÁTICA DEL DOMINIO: Priorizamos config manual, luego host actual
 
     const [pr, pg, pb] = hexToRgb(colorPrimario)
-
 
     const appUrl = `${reqUrl.protocol}//${reqUrl.host}`
     const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
@@ -190,40 +190,43 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
 
     const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
-    const cursoNivel = snapshot?.curso?.nivel || certificado.curso.nivel
     const cursoModalidad = snapshot?.curso?.tipo_emision || certificado.curso.tipo_emision
     const cursoDuracion = snapshot?.curso?.duracion || certificado.curso.duracion
-    const modalidad = cursoModalidad === 'ASINCRONO' ? 'VIRTUAL ASÍNCRONO' : 'PRESENCIAL/VIRTUAL'
 
     const formatDate = (date: Date | string | null | undefined) => {
       if (!date) return '---'
+
       return new Date(date).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' })
     }
 
     const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
     const esSincrono = certificado.curso.tipo_emision === 'SINCRONO'
+
     const fechaInicioVal = snapshot?.fechas?.inicio_curso
       || (esSincrono
         ? certificado.curso.fecha_inicio
         : (inscripcion?.inscrito_en || certificado.emitido_en))
+
     const fechaFinVal = snapshot?.fechas?.culminacion
       || (esSincrono
         ? (cursoFechaFin || certificado.emitido_en)
         : (inscripcion?.completado_en || certificado.emitido_en))
 
-    const fechaEmisionStr = formatDate(fechaEmisionVal)
     const profesorSnapshot = snapshot?.profesor || certificado.curso.profesor
 
     const formatDateLong = (date: Date | string | null | undefined) => {
       if (!date) return '---'
+
       return new Date(date).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' })
     }
 
     // Base64 del logo (precomputado)
     let base64Logo: string | null = null
+
     if (logoBuffer) {
       try {
         const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
         base64Logo = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
       } catch { /* skip */ }
     }
@@ -241,8 +244,10 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       if (user.firma) {
         try {
           const signatureBuffer = await fetchImageBuffer(user.firma)
+
           if (signatureBuffer) {
             const sigExt = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+
             doc.addImage(signatureBuffer, sigExt.toUpperCase(), x - 17, lineY - 34, 34, 34)
           }
         } catch { /* skip */ }
@@ -255,6 +260,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
       // Nombre completo
       const nombreFirmante = `${user.nombre || ''} ${user.apellido || ''}`.trim()
+
       doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(25, 25, 25)
@@ -267,7 +273,6 @@ export async function GET(request: Request, { params }: { params: { certificadoI
         doc.setTextColor(80, 80, 80)
         doc.text(user.cargo, x, lineY + 13, { align: 'center' })
       }
-
     }
 
     // ── PÁGINA 1 ─────────────────────────────────────────────────────────
@@ -283,17 +288,21 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     // 2. Gradiente del panel: saturado arriba (primary + 12% blanco) → muy oscuro abajo
     const gradStrips = 70
+
     for (let i = 0; i < gradStrips; i++) {
       const t = i / (gradStrips - 1)
       const r = Math.round(pr + (255 - pr) * 0.12 - (pr + (255 - pr) * 0.12 - dpR) * t)
       const g = Math.round(pg + (255 - pg) * 0.12 - (pg + (255 - pg) * 0.12 - dpG) * t)
       const b = Math.round(pb + (255 - pb) * 0.12 - (pb + (255 - pb) * 0.12 - dpB) * t)
+
       doc.setFillColor(
         Math.max(0, Math.min(255, r)),
         Math.max(0, Math.min(255, g)),
         Math.max(0, Math.min(255, b))
       )
+
       const sy = (i / gradStrips) * pageHeight
+
       doc.rect(contentW, sy, panelW, pageHeight / gradStrips + 0.5, 'F')
     }
 
@@ -301,6 +310,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const ribR1 = Math.round(pr + (255 - pr) * 0.28)
     const ribG1 = Math.round(pg + (255 - pg) * 0.28)
     const ribB1 = Math.round(pb + (255 - pb) * 0.28)
+
     doc.setFillColor(ribR1, ribG1, ribB1)
     doc.lines(
       [[21, 22, 41, 68, 60, 96], [0, 24], [-19, -12, -39, -48, -60, -96], [0, -24]],
@@ -310,6 +320,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const ribR2 = Math.round(pr + (255 - pr) * 0.14)
     const ribG2 = Math.round(pg + (255 - pg) * 0.14)
     const ribB2 = Math.round(pb + (255 - pb) * 0.14)
+
     doc.setFillColor(ribR2, ribG2, ribB2)
     doc.lines(
       [[20, 18, 41, 62, 60, 88], [0, 32], [-19, -4, -39, -42, -60, -98], [0, -22]],
@@ -320,6 +331,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const qrSz = 30
     const qrX0 = contentW + (panelW - qrSz) / 2
     const qrY0 = pageHeight - qrSz - 24
+
     doc.setFillColor(255, 255, 255)
     doc.roundedRect(qrX0 - 3, qrY0 - 3, qrSz + 6, qrSz + 6, 2, 2, 'F')
     doc.addImage(qrDataUrl, 'PNG', qrX0, qrY0, qrSz, qrSz)
@@ -338,9 +350,10 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFontSize(55)
     doc.setTextColor(Math.round(pr * 0.55), Math.round(pg * 0.55), Math.round(pb * 0.55))
     doc.setFont('helvetica', 'bold')
-    // angle:90: x=baseline horizontal del texto, y=extremo inferior del texto
-    // QR empieza en pageHeight-42 (~168mm) → margen de 8mm: y=160
-    // x centrado en el panel: contentW + panelW/2
+
+    /* angle:90: x=baseline horizontal del texto, y=extremo inferior del texto */
+    /* QR empieza en pageHeight-42 (~168mm) → margen de 8mm: y=160 */
+    /* x centrado en el panel: contentW + panelW/2 */
     doc.text('CERTIFICADO', contentW + panelW / 2 + 8, 148, { angle: 90 })
 
     // ── ÁREA DE CONTENIDO ──────────────────────────────────────────────
@@ -355,11 +368,14 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     if (logoBuffer) {
       try {
         const meta = await sharp(logoBuffer).metadata()
+
         if (meta.width && meta.height) {
           const ratio = meta.width / meta.height
+
           logoDisplayH = maxLogoH
           logoDisplayW = Math.min(logoDisplayH * ratio, maxLogoW)
-          // Si es más ancho que alto, ajustar por ancho
+
+          /* Si es más ancho que alto, ajustar por ancho */
           if (logoDisplayW === maxLogoW) logoDisplayH = maxLogoW / ratio
         }
       } catch { /* usar tamaño por defecto */ }
@@ -368,6 +384,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     if (base64Logo) {
       try {
         const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
         doc.addImage(base64Logo, ext, cx - logoDisplayW / 2, y, logoDisplayW, logoDisplayH)
       } catch { /* skip */ }
     }
@@ -392,7 +409,9 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFontSize(26)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
+
     const nameStr = nombreCompleto.toUpperCase()
+
     doc.text(nameStr, cx, y, { align: 'center' })
     y += 11
 
@@ -407,7 +426,9 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFontSize(26)
     doc.setTextColor(15, 15, 15)
     doc.setFont('helvetica', 'bold')
+
     const cursoLines = doc.splitTextToSize(cursoTitulo, contentW - 34)
+
     doc.text(cursoLines, cx, y, { align: 'center' })
     y += cursoLines.length * 7 + 6
 
@@ -415,10 +436,12 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFontSize(12)
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(100, 100, 100)
+
     const fechaInicioLarga = formatDateLong(fechaInicioVal)
     const fechaFinLarga = formatDateLong(fechaFinVal)
     const descripcionTxt = `Emitido por ${nombreInstitucion}, con una duración de ${cursoDuracion || '---'}, realizado desde el ${fechaInicioLarga} hasta el ${fechaFinLarga}.`
     const descripcionLines = doc.splitTextToSize(descripcionTxt, contentW - 40)
+
     doc.text(descripcionLines, cx, y, { align: 'center' })
     y += descripcionLines.length * 6 + 4
 
@@ -426,8 +449,10 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setFontSize(12)
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(100, 100, 100)
+
     const porcuantoTxt = 'Por cuanto: Para que conste y sea reconocido, se otorga el presente diploma en calidad de:'
     const porcuantoLines = doc.splitTextToSize(porcuantoTxt, contentW - 40)
+
     doc.text(porcuantoLines, cx, y, { align: 'center' })
     y += porcuantoLines.length * 6 + 5
 
@@ -436,7 +461,9 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
     doc.text('APROBADO', cx, y, { align: 'center' })
+
     const aprobadoW = doc.getTextWidth('APROBADO')
+
     doc.setDrawColor(pr, pg, pb)
     doc.setLineWidth(0.4)
     doc.line(cx - aprobadoW / 2 - 10, y - 1.5, cx - aprobadoW / 2 - 2, y - 1.5)
@@ -447,6 +474,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const fechaFirmadaTxt = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
+
     doc.setFontSize(12)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
@@ -456,8 +484,9 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     // ── Bloques de firma ── centrado si uno solo, simétrico si dos
     const hasGerente = gerenteGeneral !== null
     const mostrarFirmaDocente = configs.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'
-    // Con docente: principal izquierda, docente derecha
-    // Sin docente: solo principal centrado (o solo docente centrado si no hay principal)
+
+    /* Con docente: principal izquierda, docente derecha */
+    /* Sin docente: solo principal centrado (o solo docente centrado si no hay principal) */
     if (hasGerente && mostrarFirmaDocente) {
       await addSignatureBlock(cx - 54, y + 20, gerenteGeneral)
       await addSignatureBlock(cx + 54, y + 20, profesorSnapshot)
@@ -470,6 +499,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     // ── Footer: Certificado ID + Fecha apilados en esquina inferior izquierda ──
     const footerY1 = pageHeight - 12
     const footerY2 = pageHeight - 7
+
     doc.setFontSize(10)
     doc.setTextColor(90, 90, 90)
     doc.setFont('helvetica', 'normal')
@@ -477,6 +507,11 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.text(`Fecha de Emisión: ${fechaFirmadaTxt}`, 16, footerY2)
 
     const previewFlag = reqUrl.searchParams.get('preview') === 'true'
+
+    // Evitar warning de variable no usada
+    void previewFlag
+    void cursoModalidad
+    void formatDate
 
     // ── PÁGINA 2: PERFIL + RENDIMIENTO + CONTENIDO ──────────────────────
     doc.addPage()
@@ -504,27 +539,35 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const maxLogoWP2 = 40
     let logoP2W = maxLogoHP2
     let logoP2H = maxLogoHP2
+
     if (logoBuffer) {
       try {
         const meta = await sharp(logoBuffer).metadata()
+
         if (meta.width && meta.height) {
           const ratio = meta.width / meta.height
+
           logoP2H = maxLogoHP2
           logoP2W = Math.min(logoP2H * ratio, maxLogoWP2)
+
           if (logoP2W === maxLogoWP2) logoP2H = maxLogoWP2 / ratio
-          // Asegurar que nunca supere el alto del band
+
+          /* Asegurar que nunca supere el alto del band */
           if (logoP2H > maxLogoHP2) { logoP2H = maxLogoHP2; logoP2W = logoP2H * ratio }
         }
       } catch { /* usar tamaño por defecto */ }
     }
+
     if (base64Logo) {
       try {
         const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
         doc.addImage(base64Logo, ext, margin, (bandH - logoP2H) / 2, logoP2W, logoP2H)
       } catch { /* skip */ }
     }
 
     const logoRightEdge = margin + logoP2W + 4
+
     doc.setFontSize(12)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(255, 255, 255)
@@ -540,7 +583,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.text(`Código: ${certificado.codigo_verificacion}`, pageWidth - margin, 9, { align: 'right' })
     doc.setFontSize(T.label)
     doc.setFont('helvetica', 'normal')
-    doc.text(`Fecha de emisión: ${fechaEmisionStr}`, pageWidth - margin, 15, { align: 'right' })
+    doc.text(`Fecha de emisión: ${fechaFirmadaTxt}`, pageWidth - margin, 15, { align: 'right' })
 
     // ── ZONA A: FOTO + DATOS DEL GRADUADO ────────────────────────────────
     const zoneAY = 24
@@ -550,6 +593,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     // Foto del estudiante (círculo)
     const avatarBuffer = usuarioCompleto?.avatar ? await fetchImageBuffer(usuarioCompleto.avatar) : null
+
     if (avatarBuffer) {
       try {
         // Máscara circular: clip manual con círculo blanco de fondo
@@ -564,12 +608,15 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       doc.setFontSize(14)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(255, 255, 255)
+
       const initials = nombreCompleto.split(' ').slice(0, 2).map((w: string) => w[0]).join('')
+
       doc.text(initials, avatarX + avatarSize / 2, avatarY + avatarSize / 2 + 2.5, { align: 'center' })
     }
 
     // Nombre y curso del graduado
     const textX = avatarX + avatarSize + 5
+
     doc.setFontSize(13)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(25, 25, 25)
@@ -581,6 +628,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     doc.text('Certificado de Finalización', textX, zoneAY + 14)
 
     const cursoTituloP2Lines = doc.splitTextToSize(cursoTitulo, pageWidth - textX - margin - 80)
+
     doc.setFontSize(T.body)
     doc.setFont('helvetica', 'italic')
     doc.setTextColor(60, 60, 60)
@@ -613,24 +661,32 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     // Promedio ponderado — se calcula desde los intentos aprobados por módulo (escala 0-20)
     // Si no hay intentos por módulo, cae a inscripcion.nota_final normalizado
     const notasPorModulo: Record<string, { puntaje: number; count: number }> = {}
+
     for (const intento of intentosExamen) {
       const mid = intento.examen.modulo_id!
+
       if (!notasPorModulo[mid]) notasPorModulo[mid] = { puntaje: 0, count: 0 }
+
       notasPorModulo[mid].puntaje += intento.puntaje ?? 0
       notasPorModulo[mid].count += 1
     }
 
     const promediosPorModulo = Object.values(notasPorModulo).map(e => {
       const raw = e.puntaje / e.count
+
       return raw > 20 ? raw / 5 : raw
     })
+
     const notaMax = 20
+
     const notaFinal = promediosPorModulo.length > 0
       ? promediosPorModulo.reduce((a, b) => a + b, 0) / promediosPorModulo.length
       : (() => {
           const raw = inscripcion?.nota_final ?? null
+
           return raw !== null ? (raw > 20 ? raw / 5 : raw) : null
         })()
+
     const notaDisplay = notaFinal !== null ? notaFinal.toFixed(2) : '---'
     const porcentaje = notaFinal !== null ? Math.min(notaFinal / notaMax, 1) : 0
 
@@ -654,6 +710,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const barW = colW - 16
     const barH = 4
     const barX = colLeft + 8
+
     doc.setFillColor(230, 230, 230)
     doc.roundedRect(barX, yLeft, barW, barH, 2, 2, 'F')
     doc.setFillColor(pr, pg, pb)
@@ -698,7 +755,9 @@ export async function GET(request: Request, { params }: { params: { certificadoI
         // Línea punteada
         doc.setDrawColor(210, 210, 210)
         doc.setLineWidth(0.15)
+
         const dotY = yLeft + 0.5
+
         doc.line(colLeft + 4 + doc.getTextWidth(tituloMod[0]) + 2, dotY, colLeft + colW - 10, dotY)
 
         yLeft += tituloMod.length * 4.5 + 2
@@ -731,6 +790,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       doc.setTextColor(255, 255, 255)
       doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO (continuación)', margin, 5.5)
       onExtraPage = true
+
       return 14
     }
 
@@ -748,6 +808,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       doc.setFillColor(Math.round(pr * 0.12 + 255 * 0.88), Math.round(pg * 0.12 + 255 * 0.88), Math.round(pb * 0.12 + 255 * 0.88))
       const modX = onExtraPage ? margin : colRight
       const modWd = onExtraPage ? pageWidth - margin * 2 : colW
+
       doc.roundedRect(modX, yRight, modWd, modH, 1, 1, 'F')
       doc.setFontSize(T.sectionTitle)
       doc.setFont('helvetica', 'bold')
@@ -779,6 +840,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     // ── PIE DE PÁGINA 2 ───────────────────────────────────────────────────
     const footerTopY = pageHeight - 20
+
     doc.setFillColor(245, 245, 245)
     doc.rect(0, footerTopY, pageWidth, 20, 'F')
     doc.setDrawColor(pr, pg, pb)
@@ -790,6 +852,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     if (disclaimer) {
       const disclaimerLines = doc.splitTextToSize(disclaimer, pageWidth - margin * 2 - 60)
+
       doc.setFontSize(T.small)
       doc.setFont('helvetica', 'normal')
       doc.setTextColor(120, 120, 120)
@@ -800,14 +863,8 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       doc.setFontSize(T.small)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(pr, pg, pb)
-      doc.text(`Verifícalo en: ${institutionUrl}`, margin, footerTopY + (disclaimer ? 13 : 7))
+      doc.text(institutionUrl, pageWidth - margin, footerTopY + 5, { align: 'right' })
     }
-
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(90, 90, 90)
-    doc.text(`Código de Registro: ${certificado.codigo_verificacion}`, pageWidth - margin, footerTopY + 5, { align: 'right' })
-    doc.text(`Fecha de Emisión: ${fechaFirmadaTxt}`, pageWidth - margin, footerTopY + 11, { align: 'right' })
 
     const pdfArrayBuffer = doc.output('arraybuffer')
 

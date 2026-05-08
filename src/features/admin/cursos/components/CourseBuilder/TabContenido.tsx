@@ -12,7 +12,6 @@ import {
   InputAdornment,
   Typography,
   Tooltip,
-  Divider,
   Collapse,
   alpha
 } from '@mui/material'

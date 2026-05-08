@@ -48,7 +48,6 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
         updateLessonProgress,
         setExamenId,
         setExamStatus,
-        setCurrentView,
         openExam
     } = useCourseStore()
 

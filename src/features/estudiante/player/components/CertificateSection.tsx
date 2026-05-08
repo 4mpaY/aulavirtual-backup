@@ -323,6 +323,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
     return (
         <Wrapper>
             {el.isEligible ? (
+
                 /* Elegible → botón para generar */
                 <Box sx={{ textAlign: 'center' }}>
                     <Box sx={{
@@ -353,6 +354,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
                     </Button>
                 </Box>
             ) : (
+
                 /* No elegible → mostrar progreso */
                 <Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
