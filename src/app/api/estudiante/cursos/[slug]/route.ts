@@ -66,7 +66,6 @@ export async function GET(request: Request, { params }: { params: { slug: string
         },
         examenes: {
           where: { esta_publicado: true },
-          where: { esta_publicado: true },
           select: {
             id: true,
             titulo: true,

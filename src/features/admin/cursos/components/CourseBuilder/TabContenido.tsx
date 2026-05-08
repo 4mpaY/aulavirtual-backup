@@ -164,72 +164,6 @@ const EvaluacionRow = ({
   )
 }
 
-// Fila de Evaluación dentro del módulo
-const EvaluacionRow = ({
-  examen,
-  onEdit,
-  onDelete,
-  dragHandleProps
-}: {
-  examen: CursoExamenResumen
-  onEdit: (examen: CursoExamenResumen) => void
-  onDelete: (examenId: string) => void
-  dragHandleProps?: any
-}) => {
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        py: 1.5,
-        px: 2,
-        borderRadius: 1,
-        bgcolor: 'warning.lightOpacity',
-        mb: 1,
-        border: '1px solid',
-        borderColor: 'warning.light',
-        '&:hover': { borderColor: 'warning.main' }
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-        <Box {...dragHandleProps} sx={{ display: 'flex', cursor: 'grab', '&:active': { cursor: 'grabbing' } }}>
-          <i className='tabler-grip-vertical text-lg text-textDisabled' />
-        </Box>
-        <i className='tabler-clipboard-list text-lg' style={{ color: 'var(--mui-palette-warning-main)' }} />
-        <Typography variant='body2' fontWeight={500}>{examen.titulo}</Typography>
-        <Chip
-          size='small'
-          variant='tonal'
-          label={`${examen._count?.preguntas ?? 0} preguntas`}
-          color='warning'
-        />
-        <Chip
-          size='small'
-          variant='outlined'
-          label={`Peso ×${examen.peso}`}
-          color='default'
-        />
-        {!examen.esta_publicado && (
-          <Chip size='small' variant='tonal' label='Borrador' color='default' />
-        )}
-      </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-        <Tooltip title='Editar evaluación'>
-          <IconButton size='small' color='warning' onClick={() => onEdit(examen)}>
-            <i className='tabler-edit text-lg' />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title='Eliminar evaluación'>
-          <IconButton size='small' color='error' onClick={() => onDelete(examen.id)}>
-            <i className='tabler-trash text-lg' />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    </Box>
-  )
-}
-
 // Componente que representa un Módulo (Card)
 const ModuleCard = ({
   modulo,
@@ -570,13 +504,6 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
     examen: CursoExamenResumen | null
   }>({ open: false, moduloId: null, examen: null })
 
-  // Evaluacion dialog state
-  const [evaluacionDialog, setEvaluacionDialog] = useState<{
-    open: boolean
-    moduloId: string | null
-    examen: CursoExamenResumen | null
-  }>({ open: false, moduloId: null, examen: null })
-
   // Sensores para DND
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -765,29 +692,6 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
       enqueueSnackbar(error?.message || 'Error al actualizar lección', { variant: 'error' })
     }
   }
-
-  // Evaluacion handlers
-  const handleOpenAddEvaluacion = (moduloId: string) => {
-    setEvaluacionDialog({ open: true, moduloId, examen: null })
-  }
-
-  const handleOpenEditEvaluacion = (examen: CursoExamenResumen) => {
-    setEvaluacionDialog({ open: true, moduloId: examen.modulo_id, examen })
-  }
-
-  const handleDeleteEvaluacion = async (examenId: string) => {
-    if (!window.confirm('¿Eliminar esta evaluación y todas sus preguntas?')) return
-
-    try {
-      await deleteExamenMutation.mutateAsync({ cursoId: curso.id, examenId })
-      enqueueSnackbar('Evaluación eliminada', { variant: 'success' })
-      onSuccess()
-    } catch (error: any) {
-      enqueueSnackbar(error?.message || 'Error al eliminar', { variant: 'error' })
-    }
-  }
-
-  const activeModulo = evaluacionDialog.moduloId ? modulos.find(m => m.id === evaluacionDialog.moduloId) : null
 
   // Evaluacion handlers
   const handleOpenAddEvaluacion = (moduloId: string) => {
