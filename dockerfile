@@ -1,117 +1,70 @@
-# Fase 1: Base (Instalación de herramientas necesarias)
-FROM node:20-alpine AS base
+# Fase 1: base
+FROM node:20-slim AS base
 
-# Dependencias necesarias para Prisma y Alpine
-RUN apk add --no-cache libc6-compat openssl
+RUN apt-get update && apt-get install -y \
+    openssl \
+    libc6 \
+    libvips-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Habilitar pnpm de forma estricta instalándolo de manera global
 RUN npm install -g pnpm@9.0.0
 
-# Fase 2: Dependencias
+# Fase 2: dependencias
 FROM base AS deps
 WORKDIR /app
 
-# Copiar archivos de dependencias
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
-# Instalar TODAS las dependencias congelando el lockfile
 RUN pnpm install --frozen-lockfile
+RUN pnpm rebuild sharp
 
-# Fase 3: Construcción de la aplicación (Builder)
+# Fase 3: build
 FROM base AS builder
 WORKDIR /app
 
-# Copiar las dependencias de la fase anterior
 COPY --from=deps /app/node_modules ./node_modules
-# Copiar el resto del código fuente
 COPY . .
 
-# Deshabilitar telemetría de Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Variables NEXT_PUBLIC requeridas en tiempo de compilación (build time) para el frontend
+# Solo si tu app usa este valor en build-time
 ARG NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
-ARG NEXT_PUBLIC_TEMPLATE_NAME
-ENV NEXT_PUBLIC_TEMPLATE_NAME=$NEXT_PUBLIC_TEMPLATE_NAME
-
-ARG NEXT_PUBLIC_TEMPLATE_SLOGAN
-ENV NEXT_PUBLIC_TEMPLATE_SLOGAN=$NEXT_PUBLIC_TEMPLATE_SLOGAN
-
-ARG NEXT_PUBLIC_TEMPLATE_LOGO
-ENV NEXT_PUBLIC_TEMPLATE_LOGO=$NEXT_PUBLIC_TEMPLATE_LOGO
-
-ARG NEXT_PUBLIC_SETTINGS_COOKIE_NAME
-ENV NEXT_PUBLIC_SETTINGS_COOKIE_NAME=$NEXT_PUBLIC_SETTINGS_COOKIE_NAME
-
-ARG NEXT_PUBLIC_PRIMARY_COLOR_MAIN
-ENV NEXT_PUBLIC_PRIMARY_COLOR_MAIN=$NEXT_PUBLIC_PRIMARY_COLOR_MAIN
-
-ARG NEXT_PUBLIC_PRIMARY_COLOR_LIGHT
-ENV NEXT_PUBLIC_PRIMARY_COLOR_LIGHT=$NEXT_PUBLIC_PRIMARY_COLOR_LIGHT
-
-ARG NEXT_PUBLIC_PRIMARY_COLOR_DARK
-ENV NEXT_PUBLIC_PRIMARY_COLOR_DARK=$NEXT_PUBLIC_PRIMARY_COLOR_DARK
-
-ARG NEXT_PUBLIC_IZIPAY_SDK_URL
-ENV NEXT_PUBLIC_IZIPAY_SDK_URL=$NEXT_PUBLIC_IZIPAY_SDK_URL
-
-ARG NEXT_PUBLIC_PAYPAL_CLIENT_ID
-ENV NEXT_PUBLIC_PAYPAL_CLIENT_ID=$NEXT_PUBLIC_PAYPAL_CLIENT_ID
-
-# Generar el cliente de Prisma para producción
 RUN pnpm run db:client:generate
-
-# Limpiar artefactos previos para evitar errores de caché corrupta
 RUN rm -rf .next
-
-# Compilar Next.js (esto generará .next/standalone si next.config.js está bien configurado)
 RUN pnpm run build
 
-
-# Fase 4: Producción (Runner ultra-ligero)
-FROM base AS runner
+# Fase 4: runtime
+FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-
-# Definir puerto por defecto (Coolify lo usará)
 ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+ENV HOSTNAME=0.0.0.0
 
-# URL interna para que los Server Components puedan hacer HTTP al propio servidor
-ENV INTERNAL_API_URL="http://web:3000"
+RUN apt-get update && apt-get install -y \
+    openssl \
+    libc6 \
+    libvips-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Crear un usuario y grupo sin privilegios de root por seguridad
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --gid 1001 nodejs && useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
 
-# Copiar carpeta public entera (para que Coolify la mantenga a salvo)
 COPY --from=builder /app/public ./public
 
-# Crear el directorio uploads y subcarpetas necesarias para cursos, perfiles y firmas
-RUN mkdir -p /app/public/uploads/cursos /app/public/uploads/perfil /app/public/uploads/firmas && \
-    chown -R nextjs:nodejs /app/public/uploads
+RUN mkdir -p /app/public/uploads/cursos /app/public/uploads/perfil /app/public/uploads/firmas
+RUN chown -R nextjs:nodejs /app/public
 
-# Configurar permisos para la caché de pre-renderizado de Next.js
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+RUN mkdir .next && chown nextjs:nodejs .next
 
-# -- COPIAR EL STANDALONE DE NEXT.JS --
-# standalone contiene el propio motor de Node.js minimizado y solo los paquetes estrictamente necesarios.
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copiar la carpeta Prisma por si se necesitan ejecutar comandos como migeraciones desde bash en el VPS
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
-# Utilizar el nuevo usuario por seguridad
 USER nextjs
 
 EXPOSE 3000
-
-# El build standalone genera un servidor propio con nombre server.js
 CMD ["node", "server.js"]

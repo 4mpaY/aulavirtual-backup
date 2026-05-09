@@ -94,3 +94,143 @@ export async function GET(request: Request) {
     return handleApiError(error, request)
   }
 }
+
+/**
+ * POST /api/admin/certificados
+ * Crear un certificado de forma manual (solo ADMIN)
+ */
+export async function POST(request: Request) {
+  try {
+    const auth = await requireAdmin(request)
+
+    if (!auth.authorized) return auth.error
+
+    const body = await request.json()
+
+    const {
+      usuario_id,
+      curso_id,
+      fecha_emision,
+      fecha_inicio_curso,
+      fecha_culminacion,
+      nota_final,
+      docente_nombre_override,
+      docente_cargo_override,
+      reemplazar = false
+    } = body
+
+    if (!usuario_id || !curso_id) {
+      return ApiResponse.error(request, 'El usuario y el curso son requeridos.', 400)
+    }
+
+    // Verificar que el usuario existe
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: usuario_id },
+      select: { id: true, nombre: true, apellido: true, correo: true }
+    })
+
+    if (!usuario) {
+      return ApiResponse.error(request, 'El usuario seleccionado no existe.', 404)
+    }
+
+    // Verificar que el curso existe con datos del profesor
+    const curso = await prisma.curso.findUnique({
+      where: { id: curso_id },
+      include: {
+        profesor: { select: { nombre: true, apellido: true, cargo: true, firma: true } },
+        modulos: {
+          orderBy: { orden: 'asc' },
+          select: {
+            id: true, titulo: true, orden: true,
+            lecciones: {
+              orderBy: { orden: 'asc' },
+              select: { id: true, titulo: true, orden: true, duracion: true }
+            }
+          }
+        }
+      }
+    })
+
+    if (!curso) {
+      return ApiResponse.error(request, 'El curso seleccionado no existe.', 404)
+    }
+
+    // Verificar si ya existe un certificado para esta combinación
+    const existente = await prisma.certificado.findUnique({
+      where: { usuario_id_curso_id: { usuario_id, curso_id } }
+    })
+
+    if (existente && !reemplazar) {
+      return ApiResponse.error(
+        request,
+        `CERTIFICADO_DUPLICADO:${existente.id}:${existente.codigo_verificacion}`,
+        409
+      )
+    }
+
+    // Construir el snapshot de datos
+    const fechaEmision = fecha_emision ? new Date(fecha_emision) : new Date()
+
+    const snapshot = {
+      usuario: { nombre: usuario.nombre, apellido: usuario.apellido },
+      curso: {
+        titulo: curso.titulo,
+        tipo_emision: curso.tipo_emision,
+        duracion: curso.duracion
+      },
+      fechas: {
+        emision: fechaEmision.toISOString(),
+        inicio_curso: fecha_inicio_curso ? new Date(fecha_inicio_curso).toISOString() : null,
+        culminacion: fecha_culminacion ? new Date(fecha_culminacion).toISOString() : null
+      },
+      nota_final: nota_final !== undefined && nota_final !== '' ? parseFloat(nota_final) : null,
+      profesor: {
+        nombre: docente_nombre_override || curso.profesor.nombre,
+        apellido: docente_cargo_override ? '' : curso.profesor.apellido,
+        cargo: docente_cargo_override || curso.profesor.cargo,
+        firma: curso.profesor.firma
+      },
+      emision_manual: true
+    }
+
+    let certificado
+
+    if (existente && reemplazar) {
+      // Actualizar el existente (conserva el mismo código de verificación)
+      certificado = await prisma.certificado.update({
+        where: { id: existente.id },
+        data: {
+          emitido_en: fechaEmision,
+          datos: snapshot
+        },
+        include: {
+          usuario: { select: { id: true, nombre: true, apellido: true, correo: true, avatar: true } },
+          curso: { select: { id: true, titulo: true } }
+        }
+      })
+    } else {
+      // Generar código de verificación único
+      const timestamp = Date.now().toString(36).toUpperCase()
+      const random = Math.random().toString(36).substring(2, 6).toUpperCase()
+      const codigoVerificacion = `CERT-${timestamp}-${random}`
+
+      certificado = await prisma.certificado.create({
+        data: {
+          usuario_id,
+          curso_id,
+          codigo_verificacion: codigoVerificacion,
+          emitido_en: fechaEmision,
+          datos: snapshot
+        },
+        include: {
+          usuario: { select: { id: true, nombre: true, apellido: true, correo: true, avatar: true } },
+          curso: { select: { id: true, titulo: true } }
+        }
+      })
+    }
+
+    return ApiResponse.success(request, { certificado }, existente && reemplazar ? 200 : 201)
+  } catch (error) {
+    return handleApiError(error, request)
+  }
+}

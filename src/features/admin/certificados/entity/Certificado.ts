@@ -31,3 +31,29 @@ export interface CertificadosResponse {
     }
   }
 }
+
+export interface CreateCertificadoPayload {
+  usuario_id: string
+  curso_id: string
+  fecha_emision?: string
+  fecha_inicio_curso?: string
+  fecha_culminacion?: string
+  nota_final?: number | ''
+  docente_nombre_override?: string
+  docente_cargo_override?: string
+  reemplazar?: boolean
+}
+
+export interface UsuarioBusqueda {
+  id: string
+  nombre: string
+  apellido: string
+  correo: string
+  avatar: string | null
+}
+
+export interface CursoBusqueda {
+  id: string
+  titulo: string
+  estado: string
+}
