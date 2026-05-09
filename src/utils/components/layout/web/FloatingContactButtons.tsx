@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 
-import { useConfig } from '@/contexts/ConfigContext'
+const WHATSAPP_NUMBER = '51922873669'
+const PHONE_NUMBER = '+51922873669'
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
@@ -35,9 +36,6 @@ const tooltipStyle: React.CSSProperties = {
 export default function FloatingContactButtons() {
   const [hoveredWa, setHoveredWa] = useState(false)
   const [hoveredPhone, setHoveredPhone] = useState(false)
-  const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
-  const phoneNumber = waNumber.startsWith('+') ? waNumber : `+${waNumber}`
 
   return (
     <div
@@ -54,7 +52,7 @@ export default function FloatingContactButtons() {
       {/* WhatsApp */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <a
-          href={`https://wa.me/${waNumber}`}
+          href={`https://wa.me/${WHATSAPP_NUMBER}`}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Contactar por WhatsApp"
@@ -83,18 +81,18 @@ export default function FloatingContactButtons() {
       {/* Llamada */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <a
-          href={`tel:${phoneNumber}`}
+          href={`tel:${PHONE_NUMBER}`}
           aria-label="Llamar al negocio"
           style={{
             width: '52px',
             height: '52px',
             borderRadius: '50%',
-            backgroundColor: '#02115C',
+            backgroundColor: '#2d2db3',
             color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: hoveredPhone ? '0 6px 20px rgba(2, 17, 92, 0.55)' : '0 4px 16px rgba(2, 17, 92, 0.4)',
+            boxShadow: hoveredPhone ? '0 6px 20px rgba(45, 45, 179, 0.6)' : '0 4px 16px rgba(45, 45, 179, 0.4)',
             transform: hoveredPhone ? 'scale(1.1)' : 'scale(1)',
             transition: 'transform 0.2s ease, box-shadow 0.2s ease',
             textDecoration: 'none',

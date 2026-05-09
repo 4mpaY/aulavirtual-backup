@@ -5,8 +5,8 @@ import { Box, Container, Typography } from '@mui/material'
 import LibroReclamacionesForm from '@/features/web/legal/components/LibroReclamacionesForm'
 
 export const metadata = {
-  title: 'Libro de Reclamaciones | ARM Asset Reliability Management',
-  description: 'Libro de reclamaciones virtual para el registro de quejas y reclamos conforme a la ley peruana.',
+  title: 'Libro de Reclamaciones | VISIONA PERU',
+  description: 'Libro de reclamaciones virtual de VISIONA PERU SAFETY SOLUTIONS S.A.C para el registro de quejas y reclamos conforme a la ley peruana.',
 }
 
 export default function LibroReclamacionesPage() {

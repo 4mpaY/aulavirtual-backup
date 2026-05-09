@@ -1,4 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+/* ─── Visiona Brand Utilities ─────────────────────────────────────────────── */
+.gradient-visiona {
+  background: linear-gradient(90deg, #000000 0%, #0a0f3f 30%, #1f1f7a 65%, #2d2db3 100%);
+}
+
+.gradient-visiona-soft {
+  background: linear-gradient(135deg, #000000 0%, #0a0f3f 100%);
+}
+
+.text-gold {
+  color: hsl(43 74% 49%);
+}
+
+.hover\:text-gold:hover {
+  color: hsl(43 74% 49%);
+}
 
 @tailwind base;
 @tailwind components;
@@ -265,11 +283,7 @@ code {
   line-height: 1.7;
 }
 
-/* Apply Plus Jakarta Sans to web public pages */
-.web-layout,
-.web-layout * {
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
-}
+/* Allow specific fonts on web layout by not overriding everything */
 
 /* SweetAlert2 — match system typography */
 .swal2-popup,
