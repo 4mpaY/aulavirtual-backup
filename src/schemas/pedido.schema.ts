@@ -20,7 +20,7 @@ export type CrearPedidoManualDto = z.infer<typeof crearPedidoManualSchema>
  */
 export const listarPedidosQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(10),
+  limit: z.coerce.number().int().positive().max(5000).default(10),
   estado: z.string().default('COMPLETADO'),
   buscar: z.string().trim().optional(),
   nro_pedido: z.string().trim().optional(),

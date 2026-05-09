@@ -280,7 +280,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     CERTIFICADO_INSTITUTION_NAME: '',
     CERTIFICADO_SLOGAN: '',
     CERTIFICADO_INSTITUTION_URL: '',
-    TEMPLATE_LOGO: '/images/logo-arm.png',
+    TEMPLATE_LOGO: '',
     SETTINGS_COOKIE_NAME: 'arm',
     PRIMARY_COLOR_MAIN: '#131FF2',
     PRIMARY_COLOR_LIGHT: '#242CBF',
@@ -565,7 +565,12 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   }}
                 >
                   {config.TEMPLATE_LOGO ? (
-                    <img src={config.TEMPLATE_LOGO} alt='Logo' style={{ maxHeight: 80, maxWidth: '100%', objectFit: 'contain' }} />
+                    <img
+                      src={config.TEMPLATE_LOGO}
+                      alt='Logo'
+                      style={{ maxHeight: 80, maxWidth: '100%', objectFit: 'contain' }}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                    />
                   ) : (
                     <Typography variant='caption' color='text.disabled'>Sin logo</Typography>
                   )}
@@ -595,11 +600,68 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
 
           <Box>
             <SectionLabel>Colores del Tema</SectionLabel>
+
+            {/* Paletas predefinidas */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant='body2' color='text.secondary' sx={{ mb: 1.5 }}>Paletas Predefinidas</Typography>
+              <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
+                Haz clic en una paleta para aplicar los colores automáticamente.
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, 110px)', gap: 1.5 }}>
+                {[
+                  { label: 'Teal & Lima', main: '#25927F', light: '#BDD962', dark: '#025E44' },
+                  { label: 'Índigo & Lima', main: '#4F46E5', light: '#A3E635', dark: '#3730A3' },
+                  { label: 'Océano Profundo', main: '#0369A1', light: '#38BDF8', dark: '#082F49' },
+                  { label: 'Índigo & Dorado', main: '#7C3AED', light: '#FCD34D', dark: '#4C1D95' },
+                  { label: 'Esmeralda', main: '#059669', light: '#A7F3D0', dark: '#064E3B' },
+                  { label: 'Pizarra & Coral', main: '#475569', light: '#FB923C', dark: '#1E293B' },
+                  { label: 'Granate & Champán', main: '#9F1239', light: '#FBCFE8', dark: '#4C0519' },
+                  { label: 'Cian Tecnológico', main: '#0891B2', light: '#67E8F9', dark: '#164E63' },
+                  { label: 'Naranja Fuego', main: '#EA580C', light: '#FED7AA', dark: '#7C2D12' },
+                  { label: 'Naranja & Negro', main: '#F97316', light: '#FFEDD5', dark: '#1C1917' },
+                  { label: 'Ámbar Dorado', main: '#D97706', light: '#FDE68A', dark: '#78350F' },
+                  { label: 'Azul Presidencial', main: '#1D4ED8', light: '#93C5FD', dark: '#1E3A8A' },
+                  { label: 'Azul & Oro', main: '#2563EB', light: '#FCD34D', dark: '#1E3A8A' },
+                  { label: 'Marino Oficial', main: '#0F4C81', light: '#BAE6FD', dark: '#0C2340' },
+                ].map((palette) => (
+                  <Box
+                    key={palette.label}
+                    onClick={() => {
+                      handleInputChange('PRIMARY_COLOR_MAIN', palette.main)
+                      handleInputChange('PRIMARY_COLOR_LIGHT', palette.light)
+                      handleInputChange('PRIMARY_COLOR_DARK', palette.dark)
+                    }}
+                    sx={{
+                      width: 110,
+                      cursor: 'pointer',
+                      borderRadius: 2,
+                      border: '2px solid',
+                      borderColor: config.PRIMARY_COLOR_MAIN === palette.main ? 'primary.main' : 'divider',
+                      overflow: 'hidden',
+                      transition: 'transform 0.15s, box-shadow 0.15s',
+                      '&:hover': { transform: 'scale(1.04)', boxShadow: 3 },
+                    }}
+                  >
+                    <Stack direction='row' sx={{ height: 32 }}>
+                      <Box sx={{ flex: 1, bgcolor: palette.dark }} />
+                      <Box sx={{ flex: 1, bgcolor: palette.main }} />
+                      <Box sx={{ flex: 1, bgcolor: palette.light }} />
+                    </Stack>
+                    <Box sx={{ px: 1, py: 0.5, bgcolor: 'background.paper', width: '100%' }}>
+                      <Typography variant='caption' sx={{ fontSize: '0.65rem', fontWeight: 600, display: 'block', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {palette.label}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
             <Grid container spacing={3}>
               {[
-                { label: 'Color Principal', key: 'PRIMARY_COLOR_MAIN' },
-                { label: 'Color Claro', key: 'PRIMARY_COLOR_LIGHT' },
-                { label: 'Color Oscuro', key: 'PRIMARY_COLOR_DARK' }
+                { label: 'Color Primario Principal', key: 'PRIMARY_COLOR_MAIN' },
+                { label: 'Color Primario Claro (Light)', key: 'PRIMARY_COLOR_LIGHT' },
+                { label: 'Color Primario Oscuro (Dark)', key: 'PRIMARY_COLOR_DARK' }
               ].map(({ label, key }) => (
                 <Grid item xs={12} md={4} key={key}>
                   <Typography variant='body2' fontWeight={500} sx={{ mb: 1 }}>{label}</Typography>
@@ -622,7 +684,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                     >
                       <input
                         type='color'
-                        value={config[key]}
+                        value={/^#[0-9A-Fa-f]{6}$/.test(config[key]) ? config[key] : '#000000'}
                         onChange={(e) => handleInputChange(key, e.target.value)}
                         style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
                       />

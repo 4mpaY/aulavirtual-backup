@@ -47,6 +47,7 @@ export const actualizarCursoSchema = z.object({
   tipo_emision: z.enum(['SINCRONO', 'ASINCRONO', 'MIXTO']).optional(),
   nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).optional(),
   es_gratis: z.boolean().optional(),
+  es_privado: z.boolean().optional(),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').optional(),
   moneda: z.string().max(3).optional(),
   duracion: z.string().max(50).optional().nullable(),

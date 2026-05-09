@@ -72,6 +72,7 @@ export interface Curso {
   nivel: 'BASICO' | 'INTERMEDIO' | 'AVANZADO'
   estado: 'BORRADOR' | 'PUBLICADO' | 'ARCHIVADO'
   es_gratis: boolean
+  es_privado: boolean
   precio: number
   moneda: string
   creado_en: string

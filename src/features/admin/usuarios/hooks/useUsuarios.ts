@@ -98,6 +98,19 @@ export function useDeleteUsuario() {
 }
 
 /**
+ * Hook para importar usuarios masivamente desde Excel
+ */
+export function useImportarUsuarios() {
+  const qc = useQueryClient()
+  const axiosUsuario = axiosUsuarioFactory()
+
+  return useMutation<{ exitosos: number; errores: any[] }, any, any[]>({
+    mutationFn: async (usuarios: any[]) => await axiosUsuario.bulkCreate(usuarios),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.USUARIOS })
+  })
+}
+
+/**
  * Hook para activar/desactivar un usuario
  */
 export function useToggleUsuarioStatus() {

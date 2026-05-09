@@ -84,4 +84,12 @@ export class AxiosUsuario extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  async bulkCreate(usuarios: any[]): Promise<{ exitosos: number; errores: { fila: number; correo: string; mensaje: string }[] }> {
+    try {
+      return await this.iPost<any>('/bulk', { usuarios })
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

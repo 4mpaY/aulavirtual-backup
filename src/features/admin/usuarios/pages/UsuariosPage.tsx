@@ -47,6 +47,7 @@ import TablePaginationComponent from '@/utils/components/others/TablePaginationC
 import type { Usuario } from '../entity/Usuario'
 import { useUsuarios } from '../hooks/useUsuarios'
 import { UsuariosActions } from '../components/UsuariosActions'
+import ImportarUsuariosModal from '../components/ImportarUsuariosModal'
 
 type UsuarioStatusType = {
   [key: string]: ThemeColor
@@ -80,6 +81,7 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false)
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false)
   const [openViewModal, setOpenViewModal] = useState<boolean>(false)
+  const [openImportModal, setOpenImportModal] = useState<boolean>(false)
   const [usuarioToEdit, setUsuarioToEdit] = useState<Usuario | null>(null)
 
   const [rowSelection, setRowSelection] = useState({})
@@ -281,6 +283,15 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
             />
             <Button
               variant='contained'
+              color='success'
+              startIcon={<i className='tabler-file-import' />}
+              onClick={() => setOpenImportModal(true)}
+              className='is-full sm:is-auto'
+            >
+              Importar Excel
+            </Button>
+            <Button
+              variant='contained'
               startIcon={<i className='tabler-plus' />}
               onClick={() => setOpenCreateModal(true)}
               className='is-full sm:is-auto'
@@ -386,6 +397,11 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
           }
         }}
         onSuccess={() => refetchUsuarios()}
+      />
+
+      <ImportarUsuariosModal
+        open={openImportModal}
+        handleClose={() => setOpenImportModal(false)}
       />
     </>
   )

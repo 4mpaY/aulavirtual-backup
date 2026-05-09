@@ -81,6 +81,7 @@ model Curso {
   tipo_emision       TipoEmision     @default(ASINCRONO)
   estado             EstadoCurso     @default(BORRADOR)
   es_gratis          Boolean         @default(false)
+  es_privado         Boolean         @default(false)
   precio             Decimal         @default(0) @db.Decimal(10, 2)
   moneda             String          @default("PEN")
   creado_en          DateTime        @default(now())

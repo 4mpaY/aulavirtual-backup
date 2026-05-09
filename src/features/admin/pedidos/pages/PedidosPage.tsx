@@ -4,6 +4,8 @@ import { useMemo, useState, useCallback } from 'react'
 
 import { useRouter } from 'next/navigation'
 
+import { getSession } from 'next-auth/react'
+
 import {
   Card,
   CardHeader,
@@ -15,7 +17,8 @@ import {
   MenuItem,
   IconButton,
   Tooltip,
-  Stack
+  Stack,
+  CircularProgress
 } from '@mui/material'
 import { toast } from 'react-toastify'
 import {
@@ -26,6 +29,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel
 } from '@tanstack/react-table'
+import * as XLSX from 'xlsx'
 
 import classnames from 'classnames'
 
@@ -39,6 +43,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import type { ThemeColor } from '@/@core/types'
 import type { Pedido } from '../entity/Pedido'
 import { usePedidos, useDeletePedido } from '../hooks/usePedidos'
+import { AxiosPedido } from '../http/axiosPedido'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import HydratedDate from '@/utils/components/HydratedDate'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
@@ -70,6 +75,41 @@ export function PedidosPage({ initialData }: PedidosPageProps) {
 
   const { mutateAsync: deletePedido, isPending: isDeleting } = useDeletePedido()
   const [deleteInfo, setDeleteInfo] = useState<{ open: boolean, id: string | null }>({ open: false, id: null })
+  const [isExporting, setIsExporting] = useState(false)
+
+  const handleExportarExcel = async () => {
+    setIsExporting(true)
+
+    try {
+      const session = await getSession()
+      const token = session?.user?.accessToken ?? null
+      const axiosPedido = new AxiosPedido({ getAuthToken: () => token })
+      const res = await axiosPedido.getAll({ estado: estadoFiltro, nro_pedido: nroPedido, nombre, limit: '5000' })
+      const todos: Pedido[] = res?.pedidos ?? []
+
+      const filas = todos.map(p => ({
+        '# Pedido': `#${String(p.numero_pedido).padStart(6, '0')}`,
+        Estudiante: `${p.usuario?.nombre ?? ''} ${p.usuario?.apellido ?? ''}`.trim(),
+        Correo: p.usuario?.correo ?? '',
+        'Curso(s)': p.detalles?.map(d => d.curso?.titulo).join(' | ') ?? '',
+        Total: `${p.moneda} ${Number(p.total).toFixed(2)}`,
+        Cupón: p.cupon?.codigo ?? '',
+        'Método de pago': p.metodo_pago?.toLowerCase().replace('_', ' ') ?? '',
+        Estado: p.estado,
+        Fecha: p.creado_en ? new Date(p.creado_en).toLocaleDateString('es-PE') : ''
+      }))
+
+      const ws = XLSX.utils.json_to_sheet(filas)
+      const wb = XLSX.utils.book_new()
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Pedidos')
+      XLSX.writeFile(wb, `pedidos_${new Date().toISOString().slice(0, 10)}.xlsx`)
+    } catch {
+      toast.error('Error al exportar los pedidos')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   const handleDelete = useCallback(async () => {
     if (!deleteInfo.id) return
@@ -313,6 +353,16 @@ export function PedidosPage({ initialData }: PedidosPageProps) {
             className='is-full sm:is-[200px]'
           />
 
+          <Button
+            variant='contained'
+            color='success'
+            startIcon={isExporting ? <CircularProgress size={16} color='inherit' /> : <i className='tabler-file-spreadsheet' />}
+            onClick={handleExportarExcel}
+            disabled={isExporting}
+            className='is-full sm:is-auto'
+          >
+            {isExporting ? 'Exportando...' : 'Exportar Excel'}
+          </Button>
           <Button
             variant='contained'
             startIcon={<i className='tabler-plus' />}
