@@ -60,6 +60,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     if (!auth.authorized) return auth.error
 
     const reqUrl = new URL(request.url)
+    const currentHost = reqUrl.host
 
     // Cargar en paralelo
     const [certificado, configs] = await Promise.all([
@@ -129,6 +130,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const nombreInstitucion = configs.CERTIFICADO_INSTITUTION_NAME || configs.TEMPLATE_NAME || 'Aula Virtual'
 
     // OBTENCIÓN AUTOMÁTICA DEL DOMINIO: Priorizamos config manual, luego host actual
+    const linkInstitucion = configs.CERTIFICADO_INSTITUTION_URL || configs.SETTINGS_INSTITUTION_URL || currentHost
 
     const [pr, pg, pb] = hexToRgb(colorPrimario)
 
@@ -492,6 +494,34 @@ export async function GET(request: Request, { params }: { params: { id: string }
     doc.setFillColor(255, 255, 255)
     doc.rect(0, 0, pageWidth, pageHeight, 'F')
 
+    // Borde Dorado (Igual que Pág 1)
+    doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
+    doc.setLineWidth(0.5)
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
+
+    // Cabecera de Página 2 (Minimizada pero Premium)
+    if (logoBuffer) {
+      try {
+        const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+        const base64LogoP2 = `data:image/${ext.toLowerCase()};base64,${logoBuffer.toString('base64')}`
+
+        doc.setFillColor(252, 252, 252)
+        doc.roundedRect(14, 12, 12, 10, 1, 1, 'F')
+        doc.addImage(base64LogoP2, 'PNG', 15, 12.5, 10, 9)
+      } catch (err) { console.error('Logo Error P2:', err) }
+    }
+
+    doc.setFontSize(10)
+    doc.setTextColor(pr, pg, pb)
+    doc.setFont('helvetica', 'bold')
+    doc.text(nombreInstitucion.toUpperCase(), 28, 16)
+    doc.setFontSize(7)
+    doc.setTextColor(150, 150, 150)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Link de Plataforma:', pageWidth - 14, 16, { align: 'right' })
+    doc.setTextColor(pr, pg, pb)
+    doc.text(linkInstitucion, pageWidth - 14, 20, { align: 'right' })
+
     // Título de la Sección
     doc.setFillColor(pr, pg, pb)
     doc.rect(14, 26, pageWidth - 28, 12, 'F')
@@ -517,7 +547,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       let col = 0
       let yLeft = yPos
       let yRight = yPos
-      
+
       for (let mi = 0; mi < modulos.length; mi++) {
         const modulo = modulos[mi]
         const currentY = col === 0 ? yLeft : yRight
@@ -565,7 +595,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
           doc.text(leccionLines, currentX + 7, yLeccion + 2)
           yLeccion += leccionLines.length * 4.5
         }
-        
+
         yLeccion += 4
 
         if (col === 0) yLeft = yLeccion
