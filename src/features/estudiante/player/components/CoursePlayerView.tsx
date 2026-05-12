@@ -131,7 +131,14 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
 
                 if (completed) {
                     toast.success('¡Lección completada!', { position: 'bottom-right', autoClose: 2000, hideProgressBar: true })
-                    setTimeout(() => storeGoToNextLesson(), 1500)
+
+                    const isLastLesson = flatLessons.length > 0 && flatLessons[flatLessons.length - 1].id === lessonId
+
+                    if (isLastLesson) {
+                        setTimeout(() => setRatingModalOpen(true), 2000)
+                    } else {
+                        setTimeout(() => storeGoToNextLesson(), 1500)
+                    }
                 }
             } else {
                 updateLessonProgress(lessonId, !completed)
