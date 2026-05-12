@@ -17,6 +17,7 @@ import ExamSection from './ExamSection'
 import CertificateSection from './CertificateSection'
 import CompletionSummary from './CompletionSummary'
 import LiveLessonPlaceholder from './LiveLessonPlaceholder'
+import RatingModal from './RatingModal'
 
 import { useCourseStore } from '../store/useCourseStore'
 import { useConfig } from '@/contexts/ConfigContext'
@@ -24,6 +25,7 @@ import { useConfig } from '@/contexts/ConfigContext'
 interface CoursePlayerViewProps {
     course: {
         id: string
+        slug: string
         titulo: string
         modulos: any[]
         examenes?: any[]
@@ -38,6 +40,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
     const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
     const [activeTab, setActiveTab] = useState(0)
+    const [ratingModalOpen, setRatingModalOpen] = useState(false)
 
     const {
         course: storeCourse,
@@ -768,6 +771,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                         <Stack direction="row" spacing={1} flexShrink={0}>
                             <Button
                                 variant="outlined"
+                                onClick={() => setRatingModalOpen(true)}
                                 sx={{
                                     borderRadius: '20px',
                                     textTransform: 'none',
@@ -839,6 +843,16 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                         </Box>
                     )}
                 </Box>
+                {/* ── Rating Modal ── */}
+                {storeCourse && (
+                    <RatingModal
+                        open={ratingModalOpen}
+                        handleClose={() => setRatingModalOpen(false)}
+                        cursoId={storeCourse.id}
+                        cursoSlug={storeCourse.slug}
+                        cursoTitulo={storeCourse.titulo}
+                    />
+                )}
             </Box>
     )
 }

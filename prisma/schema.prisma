@@ -34,6 +34,7 @@ model Usuario {
   pedidos            Pedido[]
   progreso_cursos    ProgresoCurso[]
   progreso_lecciones ProgresoLeccion[]
+  valoraciones       ValoracionCurso[]
 
   @@index([rol])
   @@map("usuarios")
@@ -107,6 +108,7 @@ model Curso {
   modulos            Modulo[]
   progreso           ProgresoCurso[]
   cupones            CuponCurso[]
+  valoraciones       ValoracionCurso[]
 
   @@index([profesor_id])
   @@index([categoria_id])
@@ -403,6 +405,23 @@ model Certificado {
   @@index([usuario_id])
   @@index([curso_id])
   @@map("certificados")
+}
+
+model ValoracionCurso {
+  id             String   @id @default(uuid())
+  puntuacion     Int
+  comentario     String?
+  creado_en      DateTime @default(now())
+  actualizado_en DateTime @updatedAt
+  usuario_id     String
+  curso_id       String
+  curso          Curso    @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  usuario        Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, curso_id])
+  @@index([usuario_id])
+  @@index([curso_id])
+  @@map("valoraciones_curso")
 }
 
 model Tenant {
