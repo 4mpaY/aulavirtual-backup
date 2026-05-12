@@ -57,11 +57,11 @@ const navLinks = [
 ]
 
 const serviceLinks = [
-  'Consultoría ISO',
-  'Primera Respuesta',
-  'Academy — Formación y Entrenamiento',
-  'Activaciones BTL en SST',
-  'Trabajos de Alto Riesgo',
+  { label: 'Consultoría ISO', href: '/consultoria' },
+  { label: 'Primera Respuesta', href: '/servicios' },
+  { label: 'Academy — Formación y Entrenamiento', href: '/cursos' },
+  { label: 'Activaciones BTL en SST', href: '/servicios' },
+  { label: 'Trabajos de Alto Riesgo', href: '/servicios' }
 ]
 
 const WebFooter = () => {
@@ -131,9 +131,15 @@ const WebFooter = () => {
             >
               Servicios
             </h4>
-            <div className="flex flex-col gap-2 text-sm text-white/60" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <div className="flex flex-col gap-2" style={{ fontFamily: "'Inter', sans-serif" }}>
               {serviceLinks.map((s) => (
-                <span key={s}>{s}</span>
+                <Link
+                  key={s.label}
+                  href={s.href}
+                  className="text-sm text-white/60 hover:text-white transition-colors"
+                >
+                  {s.label}
+                </Link>
               ))}
             </div>
 
@@ -156,10 +162,10 @@ const WebFooter = () => {
             </h4>
             <div className="flex flex-col gap-3 text-sm text-white/60" style={{ fontFamily: "'Inter', sans-serif" }}>
               <a
-                href="mailto:visionasafetysolutions@gmail.com"
+                href="mailto:comercial@visionaperu.com"
                 className="flex items-center gap-2 hover:text-white transition-colors"
               >
-                <Mail size={16} /> visionasafetysolutions@gmail.com
+                <Mail size={16} /> comercial@visionaperu.com
               </a>
               <a
                 href="tel:+51922873669"

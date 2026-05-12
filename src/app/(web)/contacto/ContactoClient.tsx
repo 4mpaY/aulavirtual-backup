@@ -127,7 +127,7 @@ export default function ContactoClient() {
                   />
                   <div className="absolute top-4 left-4 pointer-events-none">
                     <div className="px-4 py-2 rounded-lg border shadow-sm" style={{ background: 'rgba(10,15,63,0.8)', backdropFilter: 'blur(10px)', borderColor: 'rgba(255,255,255,0.1)' }}>
-                        <span className="text-xs font-bold text-white flex items-center gap-2">
+                      <span className="text-xs font-bold text-white flex items-center gap-2">
                         <MapPin size={14} style={{ color: 'hsl(43 74% 49%)' }} />
                         Las Brenias 116 - Chorrillos
                       </span>
@@ -195,13 +195,13 @@ export default function ContactoClient() {
                   <div className="mt-12 pt-10" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                     <h3 className="text-xs font-black uppercase tracking-widest mb-8" style={{ color: 'hsl(43 74% 49%)' }}>Información de contacto</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-                      <a href="mailto:visionasafetysolutions@gmail.com" className="flex items-center gap-4 group/item">
+                      <a href="mailto:comercial@visionaperu.com" className="flex items-center gap-4 group/item">
                         <div className="w-11 h-11 rounded-xl flex items-center justify-center transition-all" style={{ background: 'hsl(43 74% 49% / 0.1)' }}>
                           <Mail size={20} className="text-white" />
                         </div>
                         <div className="flex flex-col">
                           <span className="text-[10px] uppercase font-bold text-white/40">Email</span>
-                          <span className="text-sm font-medium text-white">visionasafetysolutions@gmail.com</span>
+                          <span className="text-sm font-medium text-white">comercial@visionaperu.com</span>
                         </div>
                       </a>
                       <a href="tel:+51922873669" className="flex items-center gap-4">
