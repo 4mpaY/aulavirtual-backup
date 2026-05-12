@@ -182,6 +182,9 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const [confirmedOrder, setConfirmedOrder] = useState<{ pedidoId: string; numeroPedido: number; total: number; cursos: string[] } | null>(null)
 
   const [formData, setFormData] = useState({ nombres: '', apellidos: '', correo: '' })
+  const [tipoComprobante, setTipoComprobante] = useState<'TICKET' | 'BOLETA' | 'FACTURA'>('TICKET')
+  const [numeroComprobante, setNumeroComprobante] = useState('')
+  const [comprobanteError, setComprobanteError] = useState<string | null>(null)
 
   const subtotal = courses.reduce((acc, c) => acc + Number(c.precio), 0)
   const displayTotal = finalTotal !== undefined ? finalTotal : subtotal
@@ -232,6 +235,34 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
     setTimeout(() => router.push('/estudiante/mis-cursos'), 2000)
   }, [router, clearCart])
 
+  const validateComprobante = useCallback(() => {
+    if (configs.PEDIDOS_SOLICITAR_COMPROBANTE === 'false') return true
+
+    setComprobanteError(null)
+
+    if (tipoComprobante === 'FACTURA') {
+      if (!/^\d{11}$/.test(numeroComprobante)) {
+        setComprobanteError('El RUC para factura debe tener 11 dígitos')
+
+        return false
+      }
+    } else if (tipoComprobante === 'BOLETA') {
+      if (!/^\d{8}$|^\d{11}$/.test(numeroComprobante)) {
+        setComprobanteError('El documento para boleta debe tener 8 u 11 dígitos')
+
+        return false
+      }
+    } else if (tipoComprobante === 'TICKET') {
+      if (numeroComprobante && !/^\d{8}$|^\d{11}$/.test(numeroComprobante)) {
+        setComprobanteError('Si ingresas un documento, debe tener 8 u 11 dígitos')
+
+        return false
+      }
+    }
+
+    return true
+  }, [configs.PEDIDOS_SOLICITAR_COMPROBANTE, tipoComprobante, numeroComprobante])
+
   const handlePaymentResponse = useCallback(async (response: any, pedidoId: string) => {
     try {
       const confirmRes = await fetch('/api/izipay/confirm', {
@@ -280,6 +311,8 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       return
     }
 
+    if (!validateComprobante()) return
+
     setPaymentError(null)
 
     try {
@@ -288,7 +321,13 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cursoIds: courses.map(c => c.id), codigoCupon: appliedCouponCode, gateway: 'IZIPAY' })
+        body: JSON.stringify({
+          cursoIds: courses.map(c => c.id),
+          codigoCupon: appliedCouponCode,
+          gateway: 'IZIPAY',
+          tipoComprobante,
+          numeroComprobante
+        })
       })
 
       const dataRaw = await response.json()
@@ -316,6 +355,8 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       return
     }
 
+    if (!validateComprobante()) return
+
     setPaymentError(null)
 
     try {
@@ -324,7 +365,13 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cursoIds: courses.map(c => c.id), codigoCupon: appliedCouponCode, gateway: 'CULQI' })
+        body: JSON.stringify({
+          cursoIds: courses.map(c => c.id),
+          codigoCupon: appliedCouponCode,
+          gateway: 'CULQI',
+          tipoComprobante,
+          numeroComprobante
+        })
       })
 
       const dataRaw = await response.json()
@@ -361,6 +408,8 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       return
     }
 
+    if (!validateComprobante()) return
+
     setPaymentError(null)
 
     try {
@@ -373,7 +422,9 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
           cursoIds: courses.map(c => c.id),
           codigoCupon: appliedCouponCode,
           gateway: 'MANUAL',
-          metodoPagoManualId: selectedMetodoManualId
+          metodoPagoManualId: selectedMetodoManualId,
+          tipoComprobante,
+          numeroComprobante
         })
       })
 
@@ -445,6 +496,8 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       return
     }
 
+    if (!validateComprobante()) return
+
     setPaymentError(null)
 
     try {
@@ -453,7 +506,13 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cursoIds: courses.map(c => c.id), codigoCupon: appliedCouponCode, gateway: 'MERCADOPAGO' })
+        body: JSON.stringify({
+          cursoIds: courses.map(c => c.id),
+          codigoCupon: appliedCouponCode,
+          gateway: 'MERCADOPAGO',
+          tipoComprobante,
+          numeroComprobante
+        })
       })
 
       const dataRaw = await response.json()
@@ -571,6 +630,48 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
               </Grid>
             </Grid>
           </Box>
+
+          {/* ─── Voucher selection (Comprobante) ─── */}
+          {configs.PEDIDOS_SOLICITAR_COMPROBANTE !== 'false' && (
+            <Box>
+              <Stack direction='row' alignItems='center' spacing={1} sx={{ mb: 2 }}>
+                <Box sx={{ width: 28, height: 28, borderRadius: 1.5, bgcolor: 'primary.50', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <i className='tabler-file-invoice' style={{ fontSize: 15, color: 'var(--mui-palette-primary-main)' }} />
+                </Box>
+                <Typography variant='subtitle1' fontWeight={700} color='text.primary'>Datos de Facturación (Opcional)</Typography>
+              </Stack>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    select
+                    fullWidth
+                    size='small'
+                    label='Tipo de Comprobante'
+                    value={tipoComprobante}
+                    onChange={e => setTipoComprobante(e.target.value as any)}
+                    SelectProps={{ native: true }}
+                  >
+                    <option value='TICKET'>Ticket</option>
+                    <option value='BOLETA'>Boleta</option>
+                    <option value='FACTURA'>Factura</option>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={8}>
+                  <TextField
+                    fullWidth
+                    size='small'
+                    label={tipoComprobante === 'FACTURA' ? 'RUC (11 dígitos)' : 'DNI/RUC (8 u 11 dígitos)'}
+                    value={numeroComprobante}
+                    onChange={e => setNumeroComprobante(e.target.value.replace(/\D/g, '').substring(0, 11))}
+                    error={!!comprobanteError}
+                    helperText={comprobanteError}
+                    placeholder={tipoComprobante === 'FACTURA' ? 'Ingrese RUC' : 'Ingrese documento'}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          )}
 
           {/* ─── Payment method selector ─── */}
           <Box>

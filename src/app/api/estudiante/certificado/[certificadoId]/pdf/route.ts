@@ -6,7 +6,6 @@ import { join } from 'path'
 import { NextResponse } from 'next/server'
 
 import * as QRCode from 'qrcode'
-import sharp from 'sharp'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
@@ -367,6 +366,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     if (logoBuffer) {
       try {
+        const { default: sharp } = await import('sharp')
         const meta = await sharp(logoBuffer).metadata()
 
         if (meta.width && meta.height) {
@@ -392,7 +392,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     y += logoDisplayH + 14
 
     // ── CERTIFICADO ──
-    doc.setFontSize(26)
+    doc.setFontSize(20)
     doc.setTextColor(18, 18, 18)
     doc.setFont('helvetica', 'bold')
     doc.text('CERTIFICADO', cx, y, { align: 'center' })
@@ -406,7 +406,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     y += 11
 
     // ── Nombre del alumno ── grande, color primario
-    doc.setFontSize(26)
+    doc.setFontSize(20)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
 
@@ -423,7 +423,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     y += 10
 
     // ── Título del curso — negro bold ──
-    doc.setFontSize(26)
+    doc.setFontSize(20)
     doc.setTextColor(15, 15, 15)
     doc.setFont('helvetica', 'bold')
 
@@ -542,6 +542,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     if (logoBuffer) {
       try {
+        const { default: sharp } = await import('sharp')
         const meta = await sharp(logoBuffer).metadata()
 
         if (meta.width && meta.height) {
@@ -596,10 +597,13 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     if (avatarBuffer) {
       try {
+        const ext = usuarioCompleto!.avatar!.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+        const base64Avatar = `data:image/${ext.toLowerCase()};base64,${avatarBuffer.toString('base64')}`
+
         // Máscara circular: clip manual con círculo blanco de fondo
         doc.setFillColor(240, 240, 240)
         doc.circle(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 'F')
-        doc.addImage(avatarBuffer, 'JPEG', avatarX, avatarY, avatarSize, avatarSize)
+        doc.addImage(base64Avatar, ext, avatarX, avatarY, avatarSize, avatarSize)
       } catch { /* skip */ }
     } else {
       // Placeholder avatar

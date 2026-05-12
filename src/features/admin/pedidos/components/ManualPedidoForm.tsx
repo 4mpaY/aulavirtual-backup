@@ -240,6 +240,47 @@ export function ManualPedidoForm() {
                             />
                         </Grid>
 
+                        <Grid item xs={12} md={4}>
+                            <Controller
+                                name='tipo_comprobante'
+                                control={control}
+                                render={({ field }) => (
+                                    <CustomTextField
+                                        {...field}
+                                        select
+                                        fullWidth
+                                        label='Tipo de Comprobante'
+                                        value={field.value || ''}
+                                        error={!!errors.tipo_comprobante}
+                                        helperText={errors.tipo_comprobante?.message}
+                                    >
+                                        <MenuItem value=''>Ninguno</MenuItem>
+                                        <MenuItem value='TICKET'>Ticket</MenuItem>
+                                        <MenuItem value='BOLETA'>Boleta</MenuItem>
+                                        <MenuItem value='FACTURA'>Factura</MenuItem>
+                                    </CustomTextField>
+                                )}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} md={4}>
+                            <Controller
+                                name='numero_comprobante'
+                                control={control}
+                                render={({ field }) => (
+                                    <CustomTextField
+                                        {...field}
+                                        fullWidth
+                                        label='Número de Documento (RUC/DNI)'
+                                        placeholder='Ej: 20601234567'
+                                        value={field.value || ''}
+                                        error={!!errors.numero_comprobante}
+                                        helperText={errors.numero_comprobante?.message}
+                                    />
+                                )}
+                            />
+                        </Grid>
+
                         <Grid item xs={12} className='flex gap-4'>
                             <Button
                                 type='submit'

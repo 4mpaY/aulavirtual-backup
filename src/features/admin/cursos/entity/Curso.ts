@@ -91,5 +91,7 @@ export interface Curso {
     modulos: number
     lecciones: number
     inscripciones: number
+    valoraciones: number
   }
+  promedio_valoracion: number
 }

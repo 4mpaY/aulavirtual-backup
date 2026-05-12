@@ -215,6 +215,26 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
         )
       }),
       columnHelper.display({
+        id: 'valoracion',
+        header: 'Valoración',
+        cell: ({ row }) => {
+          const promedio = row.original.promedio_valoracion
+          const total = row.original._count.valoraciones
+
+          return (
+            <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 100 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant='body2' fontWeight={600}>{promedio.toFixed(1)}</Typography>
+                <i className='tabler-star-filled text-warning text-sm' />
+              </Box>
+              <Typography variant='caption' color='text.secondary'>
+                {total} {total === 1 ? 'reseña' : 'reseñas'}
+              </Typography>
+            </Box>
+          )
+        }
+      }),
+      columnHelper.display({
         id: 'contenido',
         header: 'Contenido',
         cell: ({ row }) => {

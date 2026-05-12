@@ -14,7 +14,14 @@ export async function POST(request: Request) {
 
     if (!auth.authorized) return auth.error
 
-    const { cursoIds, codigoCupon, gateway = 'IZIPAY', metodoPagoManualId } = await request.json()
+    const {
+      cursoIds,
+      codigoCupon,
+      gateway = 'IZIPAY',
+      metodoPagoManualId,
+      tipoComprobante,
+      numeroComprobante
+    } = await request.json()
 
     if (!cursoIds || !Array.isArray(cursoIds) || cursoIds.length === 0) {
       return ApiResponse.error(request, 'Se requiere al menos un ID de curso', 400)
@@ -109,6 +116,8 @@ export async function POST(request: Request) {
         total,
         moneda,
         estado: 'PENDIENTE',
+        tipo_comprobante: tipoComprobante,
+        numero_comprobante: numeroComprobante,
         ...(gateway === 'MANUAL' && metodoPagoManualId ? { metodo_pago_manual_id: metodoPagoManualId } : {}),
         detalles: {
           create: cursos.map(c => {

@@ -6,7 +6,6 @@ import { join } from 'path'
 import { NextResponse } from 'next/server'
 
 import * as QRCode from 'qrcode'
-import sharp from 'sharp'
 
 import prisma from '@/utils/libs/prisma'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
@@ -50,8 +49,8 @@ async function fetchImageBuffer(url: string | null): Promise<Buffer | null> {
 }
 
 /**
- * GET /api/admin/certificados/[id]/download
- * Genera y descarga el PDF del certificado (solo ADMIN)
+ * GET /api/estudiante/certificado/[certificadoId]/pdf
+ * Genera y descarga el PDF del certificado (Estudiante)
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -59,12 +58,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     if (!auth.authorized) return auth.error
 
+    const { id } = params
+
     const reqUrl = new URL(request.url)
 
     // Cargar en paralelo
     const [certificado, configs] = await Promise.all([
       prisma.certificado.findUnique({
-        where: { id: params.id },
+        where: { id: id },
         include: {
           curso: {
             select: {
@@ -105,17 +106,32 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: 'Certificado no encontrado' }, { status: 404 })
     }
 
-    const inscripcion = await prisma.inscripcion.findUnique({
-      where: {
-        usuario_id_curso_id: {
+    const [inscripcion, usuarioCompleto, intentosExamen] = await Promise.all([
+      prisma.inscripcion.findUnique({
+        where: {
+          usuario_id_curso_id: {
+            usuario_id: certificado.usuario_id,
+            curso_id: certificado.curso_id
+          }
+        },
+        select: { completado_en: true, inscrito_en: true, nota_final: true }
+      }),
+      prisma.usuario.findUnique({
+        where: { id: certificado.usuario_id },
+        select: { avatar: true }
+      }),
+      prisma.intentoExamen.findMany({
+        where: {
           usuario_id: certificado.usuario_id,
-          curso_id: certificado.curso_id
-        }
-      },
-      select: { completado_en: true, inscrito_en: true }
-    })
+          esta_aprobado: true,
+          examen: { curso_id: certificado.curso_id, modulo_id: { not: null } }
+        },
+        select: { puntaje: true, examen: { select: { modulo_id: true, peso: true } } },
+        orderBy: { enviado_en: 'desc' }
+      })
+    ])
 
-    // fecha_fin del curso (query raw hasta que se regenere el cliente Prisma)
+    // fecha_fin del curso (campo nuevo — query raw hasta que se regenere el cliente Prisma)
     const [cursoFechaFinRow] = await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
       SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
     `
@@ -127,12 +143,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     const logoUrl = configs.TEMPLATE_LOGO || '/images/logo.png'
     const nombreInstitucion = configs.CERTIFICADO_INSTITUTION_NAME || configs.TEMPLATE_NAME || 'Aula Virtual'
-
+    const slogan = configs.CERTIFICADO_SLOGAN || configs.TEMPLATE_SLOGAN || 'Capacitación Especializada'
+    
     // OBTENCIÓN AUTOMÁTICA DEL DOMINIO: Priorizamos config manual, luego host actual
 
     const [pr, pg, pb] = hexToRgb(colorPrimario)
-
-    const goldColor: [number, number, number] = [184, 134, 11]
 
     const appUrl = `${reqUrl.protocol}//${reqUrl.host}`
     const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
@@ -194,10 +209,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     const profesorSnapshot = snapshot?.profesor || certificado.curso.profesor
 
-    // Necesario para mostrar en el texto pero no en el panel de firma
-    void cursoModalidad
-    void formatDate
-
     const formatDateLong = (date: Date | string | null | undefined) => {
       if (!date) return '---'
 
@@ -224,7 +235,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const addSignatureBlock = async (x: number, lineY: number, user: any) => {
       if (!user) return
 
-      // Imagen de firma — 34×34mm cuadrado, 0mm sobre la línea
+      // Imagen de firma — 34×34mm cuadrado, 1mm sobre la línea
       if (user.firma) {
         try {
           const signatureBuffer = await fetchImageBuffer(user.firma)
@@ -245,14 +256,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
       // Nombre completo
       const nombreFirmante = `${user.nombre || ''} ${user.apellido || ''}`.trim()
 
-      doc.setFontSize(10)
+      doc.setFontSize(12)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(25, 25, 25)
       doc.text(nombreFirmante, x, lineY + 7, { align: 'center' })
 
       // Cargo (si existe)
       if (user.cargo) {
-        doc.setFontSize(10)
+        doc.setFontSize(12)
         doc.setFont('helvetica', 'normal')
         doc.setTextColor(80, 80, 80)
         doc.text(user.cargo, x, lineY + 13, { align: 'center' })
@@ -314,45 +325,44 @@ export async function GET(request: Request, { params }: { params: { id: string }
     // 4. QR esquina inferior del panel
     const qrSz = 30
     const qrX0 = contentW + (panelW - qrSz) / 2
-    const qrY0 = pageHeight - qrSz - 12
+    const qrY0 = pageHeight - qrSz - 24
 
     doc.setFillColor(255, 255, 255)
     doc.roundedRect(qrX0 - 3, qrY0 - 3, qrSz + 6, qrSz + 6, 2, 2, 'F')
     doc.addImage(qrDataUrl, 'PNG', qrX0, qrY0, qrSz, qrSz)
-    doc.setFontSize(5)
+    doc.setFontSize(12)
     doc.setTextColor(255, 255, 255)
     doc.setFont('helvetica', 'normal')
-    doc.text('Escanea para verificar', contentW + panelW / 2, pageHeight - 7, { align: 'center' })
+    doc.text('Escanea para verificar', contentW + panelW / 2, pageHeight - 16, { align: 'center' })
 
     // 5. Repisar el área de contenido izquierda en blanco (cubre posibles desbordes)
     doc.setFillColor(255, 255, 255)
     doc.rect(0, 0, contentW, pageHeight, 'F')
 
     // 6. Texto "CERTIFICADO" rotado vertical — se dibuja DESPUÉS del rect blanco
-    const vtR = Math.round(pr + (255 - pr) * 0.22)
-    const vtG = Math.round(pg + (255 - pg) * 0.22)
-    const vtB = Math.round(pb + (255 - pb) * 0.22)
-
-    doc.setFontSize(40)
-    doc.setTextColor(vtR, vtG, vtB)
+    //    align:'center' con angle:90 desplaza el texto por textWidth/2 en el eje incorrecto,
+    //    por eso calculamos y manualmente usando getTextWidth y no usamos align.
+    doc.setFontSize(55)
+    doc.setTextColor(Math.round(pr * 0.55), Math.round(pg * 0.55), Math.round(pb * 0.55))
     doc.setFont('helvetica', 'bold')
 
-    const certTxtW = doc.getTextWidth('CERTIFICADO')
-    const panelCx = contentW + panelW / 2
-
-    doc.text('CERTIFICADO', panelCx, pageHeight / 2 + certTxtW / 2, { angle: 90 })
+    /* angle:90: x=baseline horizontal del texto, y=extremo inferior del texto */
+    /* QR empieza en pageHeight-42 (~168mm) → margen de 8mm: y=160 */
+    /* x centrado en el panel: contentW + panelW/2 */
+    doc.text('CERTIFICADO', contentW + panelW / 2 + 8, 148, { angle: 90 })
 
     // ── ÁREA DE CONTENIDO ──────────────────────────────────────────────
 
     // ── ENCABEZADO: solo logo centrado, proporciones reales ──
     let y = 10
-    const maxLogoH = 22
-    const maxLogoW = 60
+    const maxLogoH = 22   // altura máxima en mm
+    const maxLogoW = 60   // ancho máximo en mm
     let logoDisplayW = maxLogoH
     let logoDisplayH = maxLogoH
 
     if (logoBuffer) {
       try {
+        const { default: sharp } = await import('sharp')
         const meta = await sharp(logoBuffer).metadata()
 
         if (meta.width && meta.height) {
@@ -361,6 +371,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
           logoDisplayH = maxLogoH
           logoDisplayW = Math.min(logoDisplayH * ratio, maxLogoW)
 
+          /* Si es más ancho que alto, ajustar por ancho */
           if (logoDisplayW === maxLogoW) logoDisplayH = maxLogoW / ratio
         }
       } catch { /* usar tamaño por defecto */ }
@@ -377,20 +388,21 @@ export async function GET(request: Request, { params }: { params: { id: string }
     y += logoDisplayH + 14
 
     // ── CERTIFICADO ──
-    doc.setFontSize(38)
+    doc.setFontSize(20)
     doc.setTextColor(18, 18, 18)
     doc.setFont('helvetica', 'bold')
     doc.text('CERTIFICADO', cx, y, { align: 'center' })
     y += 11
 
-    doc.setFontSize(13)
+    // "Otorgado a:"
+    doc.setFontSize(12)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text('Otorgado a:', cx, y, { align: 'center' })
     y += 11
 
-    // ── Nombre del alumno ──
-    doc.setFontSize(26)
+    // ── Nombre del alumno ── grande, color primario
+    doc.setFontSize(20)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
 
@@ -399,14 +411,15 @@ export async function GET(request: Request, { params }: { params: { id: string }
     doc.text(nameStr, cx, y, { align: 'center' })
     y += 11
 
-    doc.setFontSize(13)
+    // "Por haber concluido..."
+    doc.setFontSize(12)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text('Por haber concluido y aprobado con éxito el curso de especialización de:', cx, y, { align: 'center' })
     y += 10
 
-    // ── Título del curso ──
-    doc.setFontSize(17)
+    // ── Título del curso — negro bold ──
+    doc.setFontSize(20)
     doc.setTextColor(15, 15, 15)
     doc.setFont('helvetica', 'bold')
 
@@ -416,19 +429,20 @@ export async function GET(request: Request, { params }: { params: { id: string }
     y += cursoLines.length * 7 + 6
 
     // ── Párrafo descriptivo ──
-    doc.setFontSize(13)
+    doc.setFontSize(12)
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(100, 100, 100)
 
     const fechaInicioLarga = formatDateLong(fechaInicioVal)
     const fechaFinLarga = formatDateLong(fechaFinVal)
-    const descripcionTxt = `Emitido por ${nombreInstitucion}, con una duración de ${cursoDuracion || '---'} horas académicas, realizado desde el ${fechaInicioLarga} hasta el ${fechaFinLarga}.`
+    const descripcionTxt = `Emitido por ${nombreInstitucion}, con una duración de ${cursoDuracion || '---'}, realizado desde el ${fechaInicioLarga} hasta el ${fechaFinLarga}.`
     const descripcionLines = doc.splitTextToSize(descripcionTxt, contentW - 40)
 
     doc.text(descripcionLines, cx, y, { align: 'center' })
     y += descripcionLines.length * 6 + 4
 
-    doc.setFontSize(13)
+    // "Por cuanto..."
+    doc.setFontSize(12)
     doc.setFont('helvetica', 'normal')
     doc.setTextColor(100, 100, 100)
 
@@ -438,7 +452,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     doc.text(porcuantoLines, cx, y, { align: 'center' })
     y += porcuantoLines.length * 6 + 5
 
-    // ── APROBADO ──
+    // ── APROBADO — destacado, con líneas decorativas a los lados ──
     doc.setFontSize(14)
     doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
@@ -452,20 +466,23 @@ export async function GET(request: Request, { params }: { params: { id: string }
     doc.line(cx + aprobadoW / 2 + 2, y - 1.5, cx + aprobadoW / 2 + 10, y - 1.5)
     y += 8
 
+    // "Firmado, el..."
     const fechaFirmadaTxt = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
 
-    doc.setFontSize(13)
+    doc.setFontSize(12)
     doc.setTextColor(100, 100, 100)
     doc.setFont('helvetica', 'normal')
     doc.text(`Firmado, el ${fechaFirmadaTxt}.`, cx, y, { align: 'center' })
     y += 12
 
-    // ── Bloques de firma ──
+    // ── Bloques de firma ── centrado si uno solo, simétrico si dos
     const hasGerente = gerenteGeneral !== null
     const mostrarFirmaDocente = configs.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'
 
+    /* Con docente: principal izquierda, docente derecha */
+    /* Sin docente: solo principal centrado (o solo docente centrado si no hay principal) */
     if (hasGerente && mostrarFirmaDocente) {
       await addSignatureBlock(cx - 54, y + 20, gerenteGeneral)
       await addSignatureBlock(cx + 54, y + 20, profesorSnapshot)
@@ -475,117 +492,379 @@ export async function GET(request: Request, { params }: { params: { id: string }
       await addSignatureBlock(cx, y + 20, profesorSnapshot)
     }
 
-    // ── Footer ──
-    const footerY1 = pageHeight - 10
-    const footerY2 = pageHeight - 6
+    // ── Footer: Certificado ID + Fecha apilados en esquina inferior izquierda ──
+    const footerY1 = pageHeight - 12
+    const footerY2 = pageHeight - 7
 
-    doc.setFontSize(8)
-    doc.setTextColor(160, 160, 160)
+    doc.setFontSize(10)
+    doc.setTextColor(90, 90, 90)
     doc.setFont('helvetica', 'normal')
-    doc.text(`Certificado Id: ${certificado.id}`, 16, footerY1)
+    doc.text(`Código de Registro: ${certificado.codigo_verificacion}`, 16, footerY1)
     doc.text(`Fecha de Emisión: ${fechaFirmadaTxt}`, 16, footerY2)
 
-    const preview = reqUrl.searchParams.get('preview') === 'true'
+    const previewFlag = reqUrl.searchParams.get('preview') === 'true'
 
-    // ── PÁGINA 2: CONTENIDO ACADÉMICO ──
+    // Evitar warning de variable no usada
+    void previewFlag
+    void cursoModalidad
+    void formatDate
+
+    // ── PÁGINA 2: PERFIL + RENDIMIENTO + CONTENIDO ──────────────────────
     doc.addPage()
     doc.setFillColor(255, 255, 255)
     doc.rect(0, 0, pageWidth, pageHeight, 'F')
 
-    // Título de la Sección
+    // Tipografías estándar de la página 2
+    const T = {
+      sectionTitle: 9,   // encabezados de sección
+      label:        8,   // etiquetas
+      body:         8,   // cuerpo de texto
+      small:        7,   // notas al pie
+      score:        22,  // número de nota grande
+    }
+
+    const margin = 12
+
+    // ── BAND SUPERIOR con color primario ─────────────────────────────────
     doc.setFillColor(pr, pg, pb)
-    doc.rect(14, 26, pageWidth - 28, 12, 'F')
-    doc.setFontSize(16)
-    doc.setTextColor(255, 255, 255)
-    doc.setFont('helvetica', 'bold')
-    doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO', pageWidth / 2, 34, { align: 'center' })
+    doc.rect(0, 0, pageWidth, 18, 'F')
+
+    // Logo en la banda con proporciones reales, capped al alto del band
+    const bandH = 20
+    const maxLogoHP2 = bandH - 8   // logo más pequeño
+    const maxLogoWP2 = 40
+    let logoP2W = maxLogoHP2
+    let logoP2H = maxLogoHP2
+
+    if (logoBuffer) {
+      try {
+        const { default: sharp } = await import('sharp')
+        const meta = await sharp(logoBuffer).metadata()
+
+        if (meta.width && meta.height) {
+          const ratio = meta.width / meta.height
+
+          logoP2H = maxLogoHP2
+          logoP2W = Math.min(logoP2H * ratio, maxLogoWP2)
+
+          if (logoP2W === maxLogoWP2) logoP2H = maxLogoWP2 / ratio
+
+          /* Asegurar que nunca supere el alto del band */
+          if (logoP2H > maxLogoHP2) { logoP2H = maxLogoHP2; logoP2W = logoP2H * ratio }
+        }
+      } catch { /* usar tamaño por defecto */ }
+    }
+
+    if (base64Logo) {
+      try {
+        const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
+        doc.addImage(base64Logo, ext, margin, (bandH - logoP2H) / 2, logoP2W, logoP2H)
+      } catch { /* skip */ }
+    }
+
+    const logoRightEdge = margin + logoP2W + 4
 
     doc.setFontSize(12)
-    doc.setTextColor(pr, pg, pb)
     doc.setFont('helvetica', 'bold')
+    doc.setTextColor(255, 255, 255)
+    doc.text(nombreInstitucion.toUpperCase(), logoRightEdge, 10)
+    doc.setFontSize(T.body)
+    doc.setFont('helvetica', 'normal')
+    doc.text(slogan, logoRightEdge, 16)
 
-    const cursoTituloLines = doc.splitTextToSize(cursoTitulo, pageWidth - 40)
+    // Código y fecha más grandes alineados a la derecha
+    doc.setFontSize(T.label)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(255, 255, 255)
+    doc.text(`Código: ${certificado.codigo_verificacion}`, pageWidth - margin, 9, { align: 'right' })
+    doc.setFontSize(T.label)
+    doc.setFont('helvetica', 'normal')
+    doc.text(`Fecha de emisión: ${fechaFirmadaTxt}`, pageWidth - margin, 15, { align: 'right' })
 
-    doc.text(cursoTituloLines, pageWidth / 2, 45, { align: 'center' })
+    // ── ZONA A: FOTO + DATOS DEL GRADUADO ────────────────────────────────
+    const zoneAY = 24
+    const avatarSize = 22
+    const avatarX = margin
+    const avatarY = zoneAY
 
-    // Listado de Módulos (Grid Mejorado)
-    const yPos = 55
-    const modulos = certificado.curso.modulos ?? []
+    // Foto del estudiante (círculo)
+    const avatarBuffer = usuarioCompleto?.avatar ? await fetchImageBuffer(usuarioCompleto.avatar) : null
 
-    if (modulos.length > 0) {
-      const colWidth = (pageWidth - 40) / 2
-      let col = 0
-      let yLeft = yPos
-      let yRight = yPos
-      
-      for (let mi = 0; mi < modulos.length; mi++) {
-        const modulo = modulos[mi]
-        const currentY = col === 0 ? yLeft : yRight
-        const currentX = col === 0 ? 18 : 22 + colWidth
+    if (avatarBuffer) {
+      try {
+        const ext = usuarioCompleto!.avatar!.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+        const base64Avatar = `data:image/${ext.toLowerCase()};base64,${avatarBuffer.toString('base64')}`
 
-        // Salto de página preventivo si el módulo es muy largo
-        if (currentY > 175) {
-          doc.addPage()
-          doc.setDrawColor(goldColor[0], goldColor[1], goldColor[2])
-          doc.setLineWidth(0.5)
-          doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
-          yLeft = 20
-          yRight = 20
-          col = 0
-        }
+        // Máscara circular: clip manual con círculo blanco de fondo
+        doc.setFillColor(240, 240, 240)
+        doc.circle(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 'F')
+        doc.addImage(base64Avatar, ext, avatarX, avatarY, avatarSize, avatarSize)
+      } catch { /* skip */ }
+    } else {
+      // Placeholder avatar
+      doc.setFillColor(pr, pg, pb)
+      doc.circle(avatarX + avatarSize / 2, avatarY + avatarSize / 2, avatarSize / 2, 'F')
+      doc.setFontSize(14)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(255, 255, 255)
 
-        // Header del Módulo
-        doc.setFillColor(pr, pg, pb)
-        doc.roundedRect(currentX, currentY, colWidth - 4, 8, 1, 1, 'F')
-        doc.setFontSize(9)
-        doc.setTextColor(255, 255, 255)
+      const initials = nombreCompleto.split(' ').slice(0, 2).map((w: string) => w[0]).join('')
+
+      doc.text(initials, avatarX + avatarSize / 2, avatarY + avatarSize / 2 + 2.5, { align: 'center' })
+    }
+
+    // Nombre y curso del graduado
+    const textX = avatarX + avatarSize + 5
+
+    doc.setFontSize(13)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(25, 25, 25)
+    doc.text(nombreCompleto, textX, zoneAY + 8)
+
+    doc.setFontSize(T.body)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(100, 100, 100)
+    doc.text('Certificado de Finalización', textX, zoneAY + 14)
+
+    const cursoTituloP2Lines = doc.splitTextToSize(cursoTitulo, pageWidth - textX - margin - 80)
+
+    doc.setFontSize(T.body)
+    doc.setFont('helvetica', 'italic')
+    doc.setTextColor(60, 60, 60)
+    doc.text(cursoTituloP2Lines, textX, zoneAY + 20)
+
+    // Separador
+    doc.setDrawColor(220, 220, 220)
+    doc.setLineWidth(0.3)
+    doc.line(margin, zoneAY + avatarSize + 5, pageWidth - margin, zoneAY + avatarSize + 5)
+
+    // ── ZONA B: DOS COLUMNAS ─────────────────────────────────────────────
+    const zoneB_Y = zoneAY + avatarSize + 10
+    const colGap = 6
+    const colW = (pageWidth - margin * 2 - colGap) / 2
+    const colLeft = margin
+    const colRight = margin + colW + colGap
+
+    // ── COLUMNA IZQUIERDA: Rendimiento académico ─────────────────────────
+
+    // Header sección izquierda
+    doc.setFillColor(pr, pg, pb)
+    doc.roundedRect(colLeft, zoneB_Y, colW, 8, 1, 1, 'F')
+    doc.setFontSize(T.sectionTitle)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(255, 255, 255)
+    doc.text('RENDIMIENTO ACADÉMICO', colLeft + colW / 2, zoneB_Y + 5.5, { align: 'center' })
+
+    let yLeft = zoneB_Y + 13
+
+    // Promedio ponderado — se calcula desde los intentos aprobados por módulo (escala 0-20)
+    // Si no hay intentos por módulo, cae a inscripcion.nota_final normalizado
+    const notasPorModulo: Record<string, { puntaje: number; count: number }> = {}
+
+    for (const intento of intentosExamen) {
+      const mid = intento.examen.modulo_id!
+
+      if (!notasPorModulo[mid]) notasPorModulo[mid] = { puntaje: 0, count: 0 }
+
+      notasPorModulo[mid].puntaje += intento.puntaje ?? 0
+      notasPorModulo[mid].count += 1
+    }
+
+    const promediosPorModulo = Object.values(notasPorModulo).map(e => {
+      const raw = e.puntaje / e.count
+
+      return raw > 20 ? raw / 5 : raw
+    })
+
+    const notaMax = 20
+
+    const notaFinal = promediosPorModulo.length > 0
+      ? promediosPorModulo.reduce((a, b) => a + b, 0) / promediosPorModulo.length
+      : (() => {
+          const raw = inscripcion?.nota_final ?? null
+
+          return raw !== null ? (raw > 20 ? raw / 5 : raw) : null
+        })()
+
+    const notaDisplay = notaFinal !== null ? notaFinal.toFixed(2) : '---'
+    const porcentaje = notaFinal !== null ? Math.min(notaFinal / notaMax, 1) : 0
+
+    // Número grande de nota
+    doc.setFontSize(T.score)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(pr, pg, pb)
+    doc.text(notaDisplay, colLeft + colW / 2, yLeft + 10, { align: 'center' })
+    doc.setFontSize(T.small)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(150, 150, 150)
+    doc.text(`/ ${notaMax}.00`, colLeft + colW / 2 + 8, yLeft + 10)
+    doc.setFontSize(T.label)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(120, 120, 120)
+    doc.text('Promedio Ponderado Final', colLeft + colW / 2, yLeft + 16, { align: 'center' })
+
+    yLeft += 22
+
+    // Barra de progreso
+    const barW = colW - 16
+    const barH = 4
+    const barX = colLeft + 8
+
+    doc.setFillColor(230, 230, 230)
+    doc.roundedRect(barX, yLeft, barW, barH, 2, 2, 'F')
+    doc.setFillColor(pr, pg, pb)
+    doc.roundedRect(barX, yLeft, barW * porcentaje, barH, 2, 2, 'F')
+    doc.setFontSize(T.small)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(pr, pg, pb)
+    doc.text(`${Math.round(porcentaje * 100)}%`, barX + barW + 2, yLeft + 3.5)
+
+    yLeft += 10
+
+    // Notas por módulo (reutiliza notasPorModulo ya calculado arriba)
+    const modulosConNota = certificado.curso.modulos.filter(m => notasPorModulo[m.id])
+
+    if (modulosConNota.length > 0) {
+      // Subheader
+      doc.setDrawColor(220, 220, 220)
+      doc.setLineWidth(0.2)
+      doc.line(colLeft + 4, yLeft, colLeft + colW - 4, yLeft)
+      yLeft += 5
+      doc.setFontSize(T.label)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(80, 80, 80)
+      doc.text('Calificaciones por Módulo', colLeft + 4, yLeft)
+      yLeft += 6
+
+      for (const mod of modulosConNota) {
+        if (yLeft > 168) break
+        const entry = notasPorModulo[mod.id]
+        const rawMod = entry.puntaje / entry.count
+        const promMod = (rawMod > 20 ? rawMod / 5 : rawMod).toFixed(1)
+        const tituloMod = doc.splitTextToSize(mod.titulo, colW - 22)
+
+        doc.setFontSize(T.body)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(60, 60, 60)
+        doc.text(tituloMod, colLeft + 4, yLeft)
         doc.setFont('helvetica', 'bold')
+        doc.setTextColor(pr, pg, pb)
+        doc.text(promMod, colLeft + colW - 4, yLeft, { align: 'right' })
 
-        const moduloTituloStr = `${modulo.orden}. ${modulo.titulo}`.toUpperCase()
-        const moduloTitulo = doc.splitTextToSize(moduloTituloStr, colWidth - 12)
+        // Línea punteada
+        doc.setDrawColor(210, 210, 210)
+        doc.setLineWidth(0.15)
 
-        doc.text(moduloTitulo, currentX + 4, currentY + 5.5)
+        const dotY = yLeft + 0.5
 
-        let yLeccion = currentY + 13
+        doc.line(colLeft + 4 + doc.getTextWidth(tituloMod[0]) + 2, dotY, colLeft + colW - 10, dotY)
 
-        for (const leccion of modulo.lecciones) {
-          if (yLeccion > 190) break
-
-          doc.setFontSize(8)
-          doc.setTextColor(60, 60, 60)
-          doc.setFont('helvetica', 'normal')
-
-          const leccionTxt = `${modulo.orden}.${leccion.orden} ${leccion.titulo}`
-          const leccionLines = doc.splitTextToSize(leccionTxt, colWidth - 16)
-
-          // Bullet point
-          doc.setFillColor(goldColor[0], goldColor[1], goldColor[2])
-          doc.circle(currentX + 4.5, yLeccion + 1, 0.8, 'F')
-
-          doc.text(leccionLines, currentX + 7, yLeccion + 2)
-          yLeccion += leccionLines.length * 4.5
-        }
-        
-        yLeccion += 4
-
-        if (col === 0) yLeft = yLeccion
-        else yRight = yLeccion
-
-        // Alternar columnas (simple toggle)
-        col = (col === 0) ? 1 : 0
+        yLeft += tituloMod.length * 4.5 + 2
       }
     }
 
-    // Pie de Página 2
-    doc.setDrawColor(230, 230, 230)
-    doc.setLineWidth(0.2)
-    doc.line(14, pageHeight - 15, pageWidth - 14, pageHeight - 15)
+    // ── COLUMNA DERECHA: Contenido del programa ──────────────────────────
 
-    doc.setFontSize(7)
-    doc.setTextColor(150, 150, 150)
-    doc.setFont('helvetica', 'normal')
-    doc.text(`Certificado de Finalización: ${nombreCompleto}`, 14, pageHeight - 10)
-    doc.text(`Código de Verificación: ${certificado.codigo_verificacion}`, pageWidth - 14, pageHeight - 10, { align: 'right' })
+    // Header sección derecha
+    doc.setFillColor(pr, pg, pb)
+    doc.roundedRect(colRight, zoneB_Y, colW, 8, 1, 1, 'F')
+    doc.setFontSize(T.sectionTitle)
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(255, 255, 255)
+    doc.text('CONTENIDO DEL PROGRAMA', colRight + colW / 2, zoneB_Y + 5.5, { align: 'center' })
+
+    let yRight = zoneB_Y + 13
+    const modulos = certificado.curso.modulos ?? []
+    const contentBottomLimit = pageHeight - 22
+    let onExtraPage = false
+
+    const startNewModulosPage = () => {
+      doc.addPage()
+      doc.setFillColor(255, 255, 255)
+      doc.rect(0, 0, pageWidth, pageHeight, 'F')
+      doc.setFillColor(pr, pg, pb)
+      doc.rect(0, 0, pageWidth, 8, 'F')
+      doc.setFontSize(T.small)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(255, 255, 255)
+      doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO (continuación)', margin, 5.5)
+      onExtraPage = true
+
+      return 14
+    }
+
+    for (const modulo of modulos) {
+      const modTxt = `${modulo.orden}. ${modulo.titulo}`.toUpperCase()
+      const modLines = doc.splitTextToSize(modTxt, colW - 8)
+      const modH = modLines.length * 4.5 + 4
+
+      // Nueva página si no cabe el módulo
+      if (yRight + modH > contentBottomLimit) {
+        yRight = startNewModulosPage()
+      }
+
+      // Título del módulo
+      doc.setFillColor(Math.round(pr * 0.12 + 255 * 0.88), Math.round(pg * 0.12 + 255 * 0.88), Math.round(pb * 0.12 + 255 * 0.88))
+      const modX = onExtraPage ? margin : colRight
+      const modWd = onExtraPage ? pageWidth - margin * 2 : colW
+
+      doc.roundedRect(modX, yRight, modWd, modH, 1, 1, 'F')
+      doc.setFontSize(T.sectionTitle)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(pr, pg, pb)
+      doc.text(modLines, modX + 4, yRight + 4.5)
+      yRight += modH + 2
+
+      // Lecciones
+      for (const leccion of modulo.lecciones) {
+        const lecTxt = `${modulo.orden}.${leccion.orden}  ${leccion.titulo}`
+        const lecLines = doc.splitTextToSize(lecTxt, modWd - 14)
+        const lecH = lecLines.length * 4 + 1.5
+
+        if (yRight + lecH > contentBottomLimit) {
+          yRight = startNewModulosPage()
+        }
+
+        doc.setFillColor(pr, pg, pb)
+        doc.circle(modX + 4, yRight + 1.5, 0.9, 'F')
+        doc.setFontSize(T.body)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(60, 60, 60)
+        doc.text(lecLines, modX + 7, yRight + 2.5)
+        yRight += lecH
+      }
+
+      yRight += 3
+    }
+
+    // ── PIE DE PÁGINA 2 ───────────────────────────────────────────────────
+    const footerTopY = pageHeight - 20
+
+    doc.setFillColor(245, 245, 245)
+    doc.rect(0, footerTopY, pageWidth, 20, 'F')
+    doc.setDrawColor(pr, pg, pb)
+    doc.setLineWidth(0.4)
+    doc.line(0, footerTopY, pageWidth, footerTopY)
+
+    const disclaimer = configs.CERTIFICADO_DISCLAIMER || ''
+    const institutionUrl = configs.CERTIFICADO_INSTITUTION_URL || ''
+
+    if (disclaimer) {
+      const disclaimerLines = doc.splitTextToSize(disclaimer, pageWidth - margin * 2 - 60)
+
+      doc.setFontSize(T.small)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(120, 120, 120)
+      doc.text(disclaimerLines, margin, footerTopY + 5)
+    }
+
+    if (institutionUrl) {
+      doc.setFontSize(T.small)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(pr, pg, pb)
+      doc.text(institutionUrl, pageWidth - margin, footerTopY + 5, { align: 'right' })
+    }
 
     const pdfArrayBuffer = doc.output('arraybuffer')
 
@@ -593,7 +872,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `${preview ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
+        'Content-Disposition': `${previewFlag ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
         'Content-Length': pdfArrayBuffer.byteLength.toString()
       }
     })
