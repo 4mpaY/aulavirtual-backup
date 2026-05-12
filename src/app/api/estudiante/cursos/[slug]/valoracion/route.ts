@@ -13,6 +13,7 @@ export async function GET(
 ) {
   try {
     const auth = await requireAuth(request)
+
     if (!auth.authorized) return auth.error
 
     const course = await prisma.curso.findUnique({
@@ -47,6 +48,7 @@ export async function POST(
 ) {
   try {
     const auth = await requireAuth(request)
+
     if (!auth.authorized) return auth.error
 
     const { puntuacion, comentario } = await request.json()

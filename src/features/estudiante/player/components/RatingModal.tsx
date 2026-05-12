@@ -22,13 +22,12 @@ import { valoracionSchema, type ValoracionFormData } from '@/schemas/valoracion.
 interface RatingModalProps {
   open: boolean
   handleClose: () => void
-  cursoId: string
   cursoSlug: string
   cursoTitulo: string
   onSuccess?: () => void
 }
 
-const RatingModal = ({ open, handleClose, cursoId, cursoSlug, cursoTitulo, onSuccess }: RatingModalProps) => {
+const RatingModal = ({ open, handleClose, cursoSlug, cursoTitulo, onSuccess }: RatingModalProps) => {
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(false)
 

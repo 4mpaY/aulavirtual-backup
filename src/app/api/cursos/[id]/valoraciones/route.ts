@@ -12,6 +12,7 @@ import { handleApiError } from '@/utils/libs/validation'
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireProfesorOrAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { user } = auth

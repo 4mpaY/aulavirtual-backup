@@ -30,6 +30,7 @@ export function TabValoraciones({ cursoId }: TabValoracionesProps) {
     const fetchValoraciones = async () => {
       try {
         setLoading(true)
+
         const axiosCurso = new AxiosCurso({
           getAuthToken: () => session?.user?.accessToken ?? null
         })
@@ -135,7 +136,7 @@ export function TabValoraciones({ cursoId }: TabValoracionesProps) {
             
             {val.comentario ? (
               <Typography variant='body2' sx={{ fontStyle: 'italic', color: 'text.secondary', mt: 2 }}>
-                "{val.comentario}"
+                &quot;{val.comentario}&quot;
               </Typography>
             ) : (
               <Typography variant='caption' color='text.disabled' sx={{ fontStyle: 'italic' }}>
