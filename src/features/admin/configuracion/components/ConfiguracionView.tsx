@@ -311,6 +311,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     MP_ENABLED: 'true',
     MP_ACCESS_TOKEN: '',
     MP_PUBLIC_KEY: '',
+    PEDIDOS_SOLICITAR_COMPROBANTE: 'true',
     ...initialMapped
   })
 
@@ -509,6 +510,27 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   label='Mostrar página de Empresas'
                 />
               </Stack>
+            </Paper>
+          </Box>
+
+          <Divider />
+
+          {/* Facturación */}
+          <Box>
+            <Typography variant='h6' gutterBottom>Facturación y Comprobantes</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Controla si los alumnos pueden solicitar comprobantes de pago (Boleta/Factura) durante el checkout.
+            </Typography>
+            <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={config.PEDIDOS_SOLICITAR_COMPROBANTE === 'true'}
+                    onChange={(e) => handleInputChange('PEDIDOS_SOLICITAR_COMPROBANTE', e.target.checked ? 'true' : 'false')}
+                  />
+                }
+                label='Habilitar solicitud de comprobantes en el Checkout'
+              />
             </Paper>
           </Box>
         </Stack>

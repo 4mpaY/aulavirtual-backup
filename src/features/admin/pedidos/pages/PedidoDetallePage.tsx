@@ -80,6 +80,14 @@ export function PedidoDetallePage() {
                   className='font-medium'
                 />
               </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body2" color="text.secondary">Tipo de Comprobante</Typography>
+                <Typography variant="body1" className="capitalize">{pedido.tipo_comprobante || '-'}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="body2" color="text.secondary">Número de Documento</Typography>
+                <Typography variant="body1">{pedido.numero_comprobante || '-'}</Typography>
+              </Grid>
             </Grid>
           </Grid>
 

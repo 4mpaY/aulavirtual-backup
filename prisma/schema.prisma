@@ -189,6 +189,8 @@ model Pedido {
   respuesta_izipay      Json?
   comprobante_url       String?
   comprobante_subido_en DateTime?
+  tipo_comprobante      String?
+  numero_comprobante    String?
   creado_en             DateTime          @default(now())
   pagado_en             DateTime?
   cancelado_en          DateTime?

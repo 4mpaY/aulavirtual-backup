@@ -49,14 +49,16 @@ export function PedidoEditPage() {
   const { data, isLoading } = usePedido(id as string)
   const { mutateAsync: updatePedido, isPending } = useUpdatePedido()
 
-  const [formData, setFormData] = useState({ estado: '', metodo_pago: '', mensaje: '' })
+  const [formData, setFormData] = useState({ estado: '', metodo_pago: '', mensaje: '', tipo_comprobante: '', numero_comprobante: '' })
 
   useEffect(() => {
     if (data?.data) {
       setFormData({
         estado: data.data.estado || 'PENDIENTE',
         metodo_pago: data.data.metodo_pago || 'TRANSFERENCIA',
-        mensaje: data.data.mensaje || ''
+        mensaje: data.data.mensaje || '',
+        tipo_comprobante: data.data.tipo_comprobante || '',
+        numero_comprobante: data.data.numero_comprobante || ''
       })
     }
   }, [data])
@@ -74,7 +76,9 @@ export function PedidoEditPage() {
         data: {
           estado: formData.estado as Pedido['estado'],
           metodo_pago: formData.metodo_pago as Pedido['metodo_pago'],
-          mensaje: formData.mensaje || null
+          mensaje: formData.mensaje || null,
+          tipo_comprobante: formData.tipo_comprobante || null,
+          numero_comprobante: formData.numero_comprobante || null
         } as any
       })
 
@@ -280,6 +284,31 @@ export function PedidoEditPage() {
                         </MenuItem>
                       ))}
                     </CustomTextField>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <CustomTextField
+                      select
+                      fullWidth
+                      label='Tipo de Comprobante'
+                      value={formData.tipo_comprobante}
+                      onChange={e => setFormData({ ...formData, tipo_comprobante: e.target.value })}
+                    >
+                      <MenuItem value=''>Ninguno</MenuItem>
+                      <MenuItem value='TICKET'>Ticket</MenuItem>
+                      <MenuItem value='BOLETA'>Boleta</MenuItem>
+                      <MenuItem value='FACTURA'>Factura</MenuItem>
+                    </CustomTextField>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <CustomTextField
+                      fullWidth
+                      label='Número de Documento (RUC/DNI)'
+                      placeholder='Ej. 20601234567'
+                      value={formData.numero_comprobante}
+                      onChange={e => setFormData({ ...formData, numero_comprobante: e.target.value })}
+                    />
                   </Grid>
 
                   <Grid item xs={12}>

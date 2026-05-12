@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       return validation.error
     }
 
-    const { usuarios_ids, cursos_ids, precio, estado, metodo_pago, mensaje } = validation.data
+    const { usuarios_ids, cursos_ids, precio, estado, metodo_pago, mensaje, tipo_comprobante, numero_comprobante } = validation.data
 
     // 3. Obtener información de los cursos
     const cursos = await prisma.curso.findMany({
@@ -80,6 +80,8 @@ export async function POST(request: Request) {
               estado: estado,
               metodo_pago: metodo_pago,
               mensaje: mensaje || `Pedido masivo generado por administrador`,
+              tipo_comprobante: tipo_comprobante,
+              numero_comprobante: numero_comprobante,
               pagado_en: estado === 'COMPLETADO' ? new Date() : null,
               detalles: {
                 create: cursosParaInscribir.map(c => ({
