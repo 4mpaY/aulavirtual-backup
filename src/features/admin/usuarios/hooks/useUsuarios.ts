@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
 
 import type { Usuario } from '../entity/Usuario'
@@ -23,23 +23,26 @@ const axiosUsuarioFactory = () => {
 /**
  * Hook para obtener todos los usuarios
  */
-export function useUsuarios(initialData?: Usuario[]) {
+export function useUsuarios(query?: Record<string, string>, initialData?: Usuario[], initialTotal?: number) {
   const axiosUsuario = axiosUsuarioFactory()
 
-  return useQuery<Usuario[], any>({
-    queryKey: QUERY_KEY.USUARIOS,
-    queryFn: async () => await axiosUsuario.searchAll(),
-    initialData,
-    staleTime: 60_000,
-    retry: 1,
-    select: data => {
-      return [...data].sort((a, b) => {
-        const dateA = new Date(a.creado_en).getTime()
-        const dateB = new Date(b.creado_en).getTime()
+  const isInitialQuery = !query || (
+    (query.page === '1' || !query.page) &&
+    (query.limit === '10' || !query.limit) &&
+    (!query.buscar || query.buscar === '') &&
+    (!query.rol || query.rol === '')
+  )
 
-        return dateB - dateA
-      })
-    }
+  return useQuery<{ usuarios: Usuario[]; paginacion: any }, any>({
+    queryKey: [...QUERY_KEY.USUARIOS, query],
+    queryFn: async () => await axiosUsuario.searchAll(query),
+    initialData: (isInitialQuery && initialData) ? {
+      usuarios: initialData,
+      paginacion: { total: initialTotal || initialData.length, page: 1, limit: 10 }
+    } : undefined,
+    placeholderData: keepPreviousData,
+    staleTime: 60_000,
+    retry: 1
   })
 }
 

@@ -24,12 +24,12 @@ export class AxiosUsuario extends AxiosInternalHttpClient {
     })
   }
 
-  async searchAll(query?: Record<string, string>): Promise<Usuario[]> {
+  async searchAll(query?: Record<string, string>): Promise<{ usuarios: Usuario[]; paginacion: any }> {
     try {
       const queryString = query ? '?' + new URLSearchParams(query).toString() : ''
       const payload = await this.iGet<{ usuarios: Usuario[]; paginacion: any }>(queryString)
 
-      return payload?.usuarios || []
+      return payload || { usuarios: [], paginacion: {} }
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

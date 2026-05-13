@@ -79,8 +79,8 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 function CertificadosSettings({ config, onInputChange }: { config: any; onInputChange: (clave: string, valor: string) => void }) {
-  const { data: usuarios, isLoading } = useUsuarios()
-  const candidatos = (usuarios || []).filter(u => u.rol === Rol.ADMIN || u.rol === Rol.PROFESOR)
+  const { data: usuariosData, isLoading } = useUsuarios({ limit: '1000' })
+  const candidatos = (usuariosData?.usuarios || []).filter(u => u.rol === Rol.ADMIN || u.rol === Rol.PROFESOR)
 
   return (
     <Stack spacing={4}>
