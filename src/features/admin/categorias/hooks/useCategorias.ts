@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
 
 import type { Categoria, CategoriaHijo } from '../entity/Categoria'
@@ -22,13 +22,24 @@ const axiosCategoriaFactory = () => {
 /**
  * Hook para obtener todas las categorías (solo padres con hijos incluidos)
  */
-export function useCategorias(initialData?: Categoria[]) {
+export function useCategorias(query?: Record<string, any>, initialData?: Categoria[], initialTotal?: number) {
   const axiosCategoria = axiosCategoriaFactory()
 
-  return useQuery<Categoria[], any>({
-    queryKey: QUERY_KEY.CATEGORIAS,
-    queryFn: async () => await axiosCategoria.searchAll(),
-    initialData,
+  const isInitialQuery = !query || (
+    (query.page === '1' || !query.page) &&
+    (query.limit === '10' || !query.limit) &&
+    (!query.buscar || query.buscar === '') &&
+    (query.esta_activo === undefined)
+  )
+
+  return useQuery<{ categorias: Categoria[]; paginacion: any }, any>({
+    queryKey: [...QUERY_KEY.CATEGORIAS, query],
+    queryFn: async () => await axiosCategoria.searchAll(query),
+    initialData: (isInitialQuery && initialData) ? {
+      categorias: initialData,
+      paginacion: { total: initialTotal || initialData.length, page: 1, limit: 10 }
+    } : undefined,
+    placeholderData: keepPreviousData,
     staleTime: 60_000,
     retry: 1
   })
@@ -37,6 +48,25 @@ export function useCategorias(initialData?: Categoria[]) {
 /**
  * Hook para obtener una categoría por ID
  */
+export async function searchAll(query?: Record<string, string | number | boolean | undefined | null>): Promise<{ categorias: Categoria[]; paginacion: any }> {
+    try {
+      // Limpiamos los parámetros para evitar campos vacíos o undefined
+      const cleanQuery = query 
+        ? Object.fromEntries(Object.entries(query).filter(([_, v]) => v !== undefined && v !== null && v !== ''))
+        : {}
+
+      const queryString = Object.keys(cleanQuery).length > 0 
+        ? '?' + new URLSearchParams(cleanQuery as any).toString() 
+        : ''
+
+      const payload = await this.iGet<{ categorias: Categoria[]; paginacion: any }>(queryString)
+
+      return payload || { categorias: [], paginacion: {} }
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+}
+
 export function useCategoria(id: string) {
   const axiosCategoria = axiosCategoriaFactory()
 

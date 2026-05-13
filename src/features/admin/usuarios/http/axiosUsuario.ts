@@ -24,9 +24,17 @@ export class AxiosUsuario extends AxiosInternalHttpClient {
     })
   }
 
-  async searchAll(query?: Record<string, string>): Promise<{ usuarios: Usuario[]; paginacion: any }> {
+  async searchAll(query?: Record<string, string | number | undefined | null>): Promise<{ usuarios: Usuario[]; paginacion: any }> {
     try {
-      const queryString = query ? '?' + new URLSearchParams(query).toString() : ''
+      // Limpiamos los parámetros para no enviar campos vacíos o undefined que invaliden el Zod del backend
+      const cleanQuery = query 
+        ? Object.fromEntries(Object.entries(query).filter(([_, v]) => v !== undefined && v !== null && v !== ''))
+        : {}
+
+      const queryString = Object.keys(cleanQuery).length > 0 
+        ? '?' + new URLSearchParams(cleanQuery as any).toString() 
+        : ''
+
       const payload = await this.iGet<{ usuarios: Usuario[]; paginacion: any }>(queryString)
 
       return payload || { usuarios: [], paginacion: {} }
