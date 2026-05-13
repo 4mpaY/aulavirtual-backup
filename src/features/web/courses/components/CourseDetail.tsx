@@ -96,7 +96,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const [enrolling, setEnrolling] = useState(false)
   const { data: session } = useSession()
   const router = useRouter()
-  const { openLogin, openRegister } = useAuthModal()
+  const { openRegister } = useAuthModal()
 
   const handleFreeEnroll = async () => {
     if (!session) {
