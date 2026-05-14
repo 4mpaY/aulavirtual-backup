@@ -32,10 +32,10 @@ export function ManualPedidoForm() {
     const { enqueueSnackbar } = useSnackbar()
     const [selectedCoursePrice, setSelectedCoursePrice] = useState<number>(0)
 
-    const { data: usuariosData, isLoading: isLoadingUsuarios } = useUsuarios()
+    const { data: usuariosData, isLoading: isLoadingUsuarios } = useUsuarios({ limit: '1000' })
     const { data: cursosData, isLoading: isLoadingCursos } = useCursos()
 
-    const usuarios = (usuariosData || []).filter(u => u.rol === 'ESTUDIANTE')
+    const usuarios = (usuariosData?.usuarios || []).filter(u => u.rol === 'ESTUDIANTE')
     const cursos = (cursosData?.cursos || []).filter(c => c.estado === 'PUBLICADO')
 
     const {

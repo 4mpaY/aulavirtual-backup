@@ -48,7 +48,8 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
   const { enqueueSnackbar } = useSnackbar()
   const router = useRouter()
   const createMutation = useCreateCurso()
-  const { data: categorias = [] } = useCategorias()
+  const { data: categoriasRes } = useCategorias()
+  const categorias = categoriasRes?.categorias || []
   const [activeTab, setActiveTab] = useState('1')
   const [openMedia, setOpenMedia] = useState(false)
   const [openBrochure, setOpenBrochure] = useState(false)

@@ -2,7 +2,10 @@ import React from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
+import Image from 'next/image'
 
+
+import { Phone, Mail, MapPin, Facebook, Youtube, Instagram } from 'lucide-react'
 import { Mail, Phone, MapPin, Award } from 'lucide-react'
 
 import HydratedDate from '@/utils/components/HydratedDate'
@@ -121,6 +124,21 @@ const WebFooter = () => {
                 </Link>
               ))}
             </div>
+            <div className="mt-6">
+              <Link
+                href="/libro-de-reclamaciones"
+                className="inline-block transition-opacity hover:opacity-80"
+              >
+                <Image
+                  src="/images/libro-reclamaciones.jpg"
+                  alt="Libro de Reclamaciones"
+                  width={160}
+                  height={75}
+                  className="h-auto w-auto max-w-[160px] rounded-lg"
+                  style={{ objectFit: 'contain' }}
+                />
+              </Link>
+            </div>
           </div>
 
           {/* Servicios */}
@@ -189,17 +207,23 @@ const WebFooter = () => {
               </span>
             </div>
           </div>
-        </div>
-
-        <div
-          className="flex flex-col md:flex-row items-center justify-between gap-4 mt-12 pt-8"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
-        >
-          <p className="text-xs text-white/40" style={{ fontFamily: "'Inter', sans-serif" }}>
-            © <HydratedDate date={new Date()} format="year" /> VISIONA. Todos los derechos reservados.
-          </p>
-          <p className="text-xs text-white/40 italic" style={{ fontFamily: "'Inter', sans-serif" }}>
-            &quot;Impulsamos el éxito de tu negocio&quot;
+          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
+            Desarrollado con ❤️ por
+            <Link
+              href="https://flyup.pe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="no-underline hover:opacity-80 inline-flex items-center align-middle"
+              style={{ color: 'var(--web-light, #BDD962)', fontWeight: 600 }}
+            >
+              <Image
+                src="/images/logo.svg"
+                alt="Fly Logo"
+                width={80}
+                height={25}
+                style={{ objectFit: 'contain' }}
+              />
+            </Link>
           </p>
         </div>
       </div>

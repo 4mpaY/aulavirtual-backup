@@ -6,6 +6,9 @@ import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import { sendMail } from '@/utils/libs/mailer'
+import { getConfigs } from '@/utils/libs/config'
+import { getWelcomeTemplate } from '@/utils/libs/email-templates'
 
 const MAX_BULK = 500
 
@@ -73,6 +76,28 @@ export async function POST(request: Request) {
             slug
           }
         })
+
+        // 📧 Enviar correo de bienvenida con credenciales
+        try {
+          const configs = await getConfigs()
+          const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+          
+          const emailHtml = getWelcomeTemplate({
+            platformName,
+            customerName: String(nombre),
+            correo: String(correo),
+            contrasena: String(contrasena),
+            appUrl: process.env.NEXT_PUBLIC_APP_URL || ''
+          })
+
+          await sendMail({
+            to: String(correo),
+            subject: `Tus credenciales de acceso - ${platformName}`,
+            html: emailHtml
+          })
+        } catch (mailError) {
+          console.error(`[Bulk-UserCreate] Error al enviar correo a ${correo}:`, mailError)
+        }
 
         exitosos.push(fila)
       } catch (err: any) {

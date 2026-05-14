@@ -32,7 +32,8 @@ interface TabInformacionProps {
 export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionProps) {
   const { enqueueSnackbar } = useSnackbar()
   const editMutation = useEditCurso()
-  const { data: categorias = [] } = useCategorias()
+  const { data: categoriasRes } = useCategorias()
+  const categorias = categoriasRes?.categorias || []
 
   const [openMedia, setOpenMedia] = useState(false)
   const [openBrochure, setOpenBrochure] = useState(false)

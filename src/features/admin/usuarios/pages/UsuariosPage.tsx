@@ -13,7 +13,8 @@ import {
   TablePagination,
   Typography,
   Box,
-  Avatar
+  Avatar,
+  CircularProgress
 } from '@mui/material'
 
 // Table & Utils Imports
@@ -21,13 +22,7 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
-  useReactTable,
-  getFilteredRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFacetedMinMaxValues,
-  getPaginationRowModel,
-  getSortedRowModel
+  useReactTable
 } from '@tanstack/react-table'
 import type { ColumnDef } from '@tanstack/react-table'
 
@@ -74,9 +69,10 @@ const columnHelper = createColumnHelper<Usuario>()
 
 interface UsuariosPageProps {
   initialDataUsuarios?: Usuario[]
+  initialTotal?: number
 }
 
-export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
+export function UsuariosPage({ initialDataUsuarios, initialTotal = 0 }: UsuariosPageProps) {
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false)
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false)
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false)
@@ -88,13 +84,34 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
   const [globalFilter, setGlobalFilter] = useState('')
   const [rolFilter, setRolFilter] = useState<string>('all')
 
-  const { data: usuarios = [], isLoading, refetch: refetchUsuarios } = useUsuarios(initialDataUsuarios)
+  // Estado para paginación manual
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10
+  })
 
-  const filteredData = useMemo(() => {
-    if (rolFilter === 'all') return usuarios
+  const { data: usuariosData, isFetching, isPlaceholderData, refetch: refetchUsuarios } = useUsuarios({
+    page: (pagination.pageIndex + 1).toString(),
+    limit: pagination.pageSize.toString(),
+    buscar: globalFilter,
+    rol: rolFilter === 'all' ? '' : rolFilter
+  }, initialDataUsuarios, initialTotal)
 
-    return usuarios.filter(u => u.rol === rolFilter)
-  }, [usuarios, rolFilter])
+  const usuarios = useMemo(() => {
+    if (usuariosData?.usuarios) return usuariosData.usuarios
+
+    if (pagination.pageIndex === 0 && initialDataUsuarios) return initialDataUsuarios
+
+    return []
+  }, [usuariosData, initialDataUsuarios, pagination.pageIndex])
+
+  const totalUsuarios = useMemo(() => {
+    if (usuariosData?.paginacion?.total !== undefined) return usuariosData.paginacion.total
+
+    if (pagination.pageIndex === 0) return initialTotal
+
+    return 0
+  }, [usuariosData, initialTotal, pagination.pageIndex])
 
   const handleDeleteClick = (usuario: Usuario) => {
     setUsuarioToEdit(usuario)
@@ -118,7 +135,7 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
         header: '#',
         cell: ({ row }) => (
           <Typography color='text.secondary' variant='body2'>
-            {row.index + 1}
+            {pagination.pageIndex * pagination.pageSize + row.index + 1}
           </Typography>
         )
       }),
@@ -208,45 +225,32 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
         )
       })
     ],
-    []
+    [pagination]
   )
 
   const table = useReactTable({
-    data: filteredData,
+    data: usuarios,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
     },
     state: {
       rowSelection,
-      globalFilter
+      globalFilter,
+      pagination
     },
-    initialState: {
-      pagination: {
-        pageSize: 10
-      }
-    },
+    onPaginationChange: setPagination,
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
+    rowCount: totalUsuarios,
     enableRowSelection: true,
-    globalFilterFn: fuzzyFilter,
     onRowSelectionChange: setRowSelection,
-    getCoreRowModel: getCoreRowModel(),
     onGlobalFilterChange: setGlobalFilter,
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues()
+    getCoreRowModel: getCoreRowModel()
   })
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader title='Usuarios' />
-        <Box p={4}>Cargando...</Box>
-      </Card>
-    )
-  }
+
 
   return (
     <>
@@ -267,7 +271,10 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
             <CustomTextField
               select
               value={rolFilter}
-              onChange={e => setRolFilter(e.target.value)}
+              onChange={e => {
+                setRolFilter(e.target.value)
+                table.setPageIndex(0)
+              }}
               className='is-full sm:is-[200px]'
             >
               <MenuItem value='all'>Todos los roles</MenuItem>
@@ -277,7 +284,10 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
             </CustomTextField>
             <DebouncedInput
               value={globalFilter ?? ''}
-              onChange={value => setGlobalFilter(String(value))}
+              onChange={value => {
+                setGlobalFilter(String(value))
+                table.setPageIndex(0)
+              }}
               placeholder='Buscar usuario'
               className='is-full sm:is-auto'
             />
@@ -301,7 +311,25 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
           </div>
         </div>
 
-        <div className='overflow-x-auto'>
+        <div className='overflow-x-auto relative'>
+          {(isFetching && !isPlaceholderData) && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bgcolor: 'rgba(255, 255, 255, 0.6)',
+                zIndex: 10
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
           <table className={tableStyles.table}>
             <thead>
               {table.getHeaderGroups().map(headerGroup => (
@@ -332,18 +360,24 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
                 </tr>
               ))}
             </thead>
-            {table.getFilteredRowModel().rows.length === 0 ? (
+            {usuarios.length === 0 ? (
               <tbody>
                 <tr>
-                  <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                    No hay datos disponibles
+                  <td colSpan={table.getVisibleFlatColumns().length} className='text-center py-10'>
+                    {isFetching ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                        <CircularProgress />
+                      </Box>
+                    ) : (
+                      'No hay datos disponibles'
+                    )}
                   </td>
                 </tr>
               </tbody>
             ) : (
               <tbody>
                 {table
-                  .getRowModel()
+                  .getCoreRowModel()
                   .rows
                   .map(row => {
                     return (
@@ -360,12 +394,11 @@ export function UsuariosPage({ initialDataUsuarios }: UsuariosPageProps) {
         </div>
         <TablePagination
           component={() => <TablePaginationComponent table={table as any} />}
-          count={table.getFilteredRowModel().rows.length}
-          rowsPerPage={table.getState().pagination.pageSize}
-          page={table.getState().pagination.pageIndex}
+          count={totalUsuarios}
+          rowsPerPage={pagination.pageSize}
+          page={pagination.pageIndex}
           onPageChange={(_, page) => table.setPageIndex(page)}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          onRowsPerPageChange={e => table.setPageSize(Number(e.target.value))}
+          rowsPerPageOptions={[10, 25, 50]}
         />
       </Card>
 
