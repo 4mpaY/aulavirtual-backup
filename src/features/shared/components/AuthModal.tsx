@@ -22,11 +22,11 @@ import { signIn } from 'next-auth/react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { loginSchema, type LoginDto, registerSchema, type RegisterDto, forgotPasswordSchema, type ForgotPasswordDto } from '@/schemas/auth.schema'
+import { loginSchema, type LoginDto, registerSchema, type RegisterDto, forgotPasswordSchema, type ForgotPasswordDto, resetPasswordSchema, type ResetPasswordDto } from '@/schemas/auth.schema'
 import CustomTextField from '@core/components/mui/TextField'
 import Logo from '@components/layout/shared/Logo'
 
-export type Mode = 'login' | 'register' | 'forgot-password'
+export type Mode = 'login' | 'register' | 'forgot-password' | 'reset-password'
 
 interface AuthModalProps {
   open: boolean
@@ -68,6 +68,11 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
     defaultValues: { correo: '' }
   })
 
+  const resetForm = useForm<ResetPasswordDto>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { correo: '', codigo: '', nuevaContrasena: '', confirmarNuevaContrasena: '' }
+  })
+
   useEffect(() => {
     if (!open) {
       setError('')
@@ -79,6 +84,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
       loginForm.reset()
       registerForm.reset()
       forgotForm.reset()
+      resetForm.reset()
     }
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -219,9 +225,42 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
         throw new Error(result.message || 'Error al solicitar recuperación')
       }
 
-      setForgotSuccess(true)
+      // Pasar al modo reset-password y prellenar el correo
+      resetForm.setValue('correo', data.correo)
+      setError('')
+      setRegisterSuccess(false)
+      setForgotSuccess(false)
+      onSwitchMode('reset-password')
     } catch (err: any) {
       setError(err.message || 'Ocurrió un error inesperado.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const onResetSubmit = async (data: ResetPasswordDto) => {
+    try {
+      setIsLoading(true)
+      setError('')
+
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al restablecer contraseña')
+      }
+
+      setForgotSuccess(true)
+
+      // Limpiar el formulario de reset
+      resetForm.reset()
+    } catch (err: any) {
+      setError(err.message || 'Error al restablecer la contraseña')
     } finally {
       setIsLoading(false)
     }
@@ -232,6 +271,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
     setRegisterSuccess(false)
     setForgotSuccess(false)
     forgotForm.reset()
+    resetForm.reset()
     onSwitchMode(next)
   }
 
@@ -273,7 +313,9 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
               ? 'Ingresa tus datos para continuar'
               : mode === 'register'
                 ? 'Completa tus datos para registrarte'
-                : 'Te enviaremos un enlace para restablecer tu contraseña'}
+                : mode === 'forgot-password'
+                  ? 'Te enviaremos un código para restablecer tu contraseña'
+                  : 'Ingresa el código que recibiste y tu nueva contraseña'}
           </Typography>
         </Box>
 
@@ -281,7 +323,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
         {registerSuccess && <Alert severity="success" sx={{ mb: 2 }}>¡Registro exitoso! Iniciando sesión...</Alert>}
 
         {mode === 'login' ? (
-          <form onSubmit={loginForm.handleSubmit(onLoginSubmit)}>
+          <form key="login-form" onSubmit={loginForm.handleSubmit(onLoginSubmit)}>
             <Stack spacing={3}>
               <Controller
                 name="correo"
@@ -376,7 +418,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
             </Stack>
           </form>
         ) : mode === 'register' ? (
-          <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)}>
+          <form key="register-form" onSubmit={registerForm.handleSubmit(onRegisterSubmit)}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Controller
@@ -570,48 +612,150 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
               </Grid>
             </Grid>
           </form>
-        ) : (
+        ) : mode === 'forgot-password' ? (
+          <form key="forgot-password-form" onSubmit={forgotForm.handleSubmit(onForgotSubmit)}>
+            <Stack spacing={3}>
+              <Controller
+                name="correo"
+                control={forgotForm.control}
+                render={({ field }) => (
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    label="Correo electrónico"
+                    placeholder="correo@ejemplo.com"
+                    type="email"
+                    error={!!forgotForm.formState.errors.correo}
+                    helperText={forgotForm.formState.errors.correo?.message}
+                    disabled={isLoading}
+                  />
+                )}
+              />
 
+              <Button fullWidth variant="contained" type="submit" size="large" disabled={isLoading} sx={{ py: 1.5, borderRadius: '12px', fontWeight: 700 }}>
+                {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Enviar código'}
+              </Button>
+
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography
+                  variant="body2"
+                  component="button"
+                  type="button"
+                  onClick={() => handleSwitch('login')}
+                  sx={{ color: 'primary.main', fontWeight: 700, border: 'none', bgcolor: 'transparent', cursor: 'pointer', p: 0, display: 'inline-flex', alignItems: 'center', gap: 0.5 }}
+                >
+                  <i className="tabler-chevron-left" style={{ fontSize: '1rem' }} />
+                  Volver al inicio de sesión
+                </Typography>
+              </Box>
+            </Stack>
+          </form>
+        ) : mode === 'reset-password' ? (
           forgotSuccess ? (
-            <Stack spacing={3} sx={{ textAlign: 'center', py: 2 }}>
-              <Box sx={{ fontSize: '3rem' }}>📧</Box>
-              <Typography variant="h6" fontWeight={700}>¡Revisa tu correo!</Typography>
+            <Stack key="reset-success" spacing={3} sx={{ textAlign: 'center', py: 2 }}>
+              <Box sx={{ fontSize: '3rem' }}>✅</Box>
+              <Typography variant="h6" fontWeight={700}>¡Contraseña Restablecida!</Typography>
               <Typography variant="body2" color="text.secondary">
-                Si el correo existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña.
+                Tu contraseña ha sido actualizada con éxito. Ya puedes iniciar sesión con tus nuevas credenciales.
               </Typography>
               <Button
                 fullWidth
-                variant="outlined"
+                variant="contained"
                 size="large"
                 onClick={() => handleSwitch('login')}
                 sx={{ py: 1.5, borderRadius: '12px', fontWeight: 700 }}
               >
-                Volver al inicio de sesión
+                Ir al inicio de sesión
               </Button>
             </Stack>
           ) : (
-            <form onSubmit={forgotForm.handleSubmit(onForgotSubmit)}>
+            <form key="reset-password-form" onSubmit={resetForm.handleSubmit(onResetSubmit)}>
               <Stack spacing={3}>
+                <Alert severity="info">
+                  Hemos enviado un código de 6 dígitos a tu correo. Por favor, ingrésalo a continuación.
+                </Alert>
+
                 <Controller
-                  name="correo"
-                  control={forgotForm.control}
+                  name="codigo"
+                  control={resetForm.control}
                   render={({ field }) => (
                     <CustomTextField
                       {...field}
                       fullWidth
                       autoFocus
-                      label="Correo electrónico"
-                      placeholder="correo@ejemplo.com"
-                      type="email"
-                      error={!!forgotForm.formState.errors.correo}
-                      helperText={forgotForm.formState.errors.correo?.message}
+                      label="Código de verificación (OTP)"
+                      placeholder="123456"
+                      error={!!resetForm.formState.errors.codigo}
+                      helperText={resetForm.formState.errors.codigo?.message}
                       disabled={isLoading}
                     />
                   )}
                 />
 
+                <Controller
+                  name="nuevaContrasena"
+                  control={resetForm.control}
+                  render={({ field }) => (
+                    <CustomTextField
+                      {...field}
+                      fullWidth
+                      label="Nueva contraseña"
+                      placeholder="············"
+                      type={isPasswordShown ? 'text' : 'password'}
+                      error={!!resetForm.formState.errors.nuevaContrasena}
+                      helperText={resetForm.formState.errors.nuevaContrasena?.message}
+                      disabled={isLoading}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              edge="end"
+                              onClick={() => setIsPasswordShown(v => !v)}
+                              onMouseDown={e => e.preventDefault()}
+                              disabled={isLoading}
+                            >
+                              <i className={isPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="confirmarNuevaContrasena"
+                  control={resetForm.control}
+                  render={({ field }) => (
+                    <CustomTextField
+                      {...field}
+                      fullWidth
+                      label="Confirmar nueva contraseña"
+                      placeholder="············"
+                      type={isConfirmPasswordShown ? 'text' : 'password'}
+                      error={!!resetForm.formState.errors.confirmarNuevaContrasena}
+                      helperText={resetForm.formState.errors.confirmarNuevaContrasena?.message}
+                      disabled={isLoading}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              edge="end"
+                              onClick={() => setIsConfirmPasswordShown(v => !v)}
+                              onMouseDown={e => e.preventDefault()}
+                              disabled={isLoading}
+                            >
+                              <i className={isConfirmPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  )}
+                />
+
                 <Button fullWidth variant="contained" type="submit" size="large" disabled={isLoading} sx={{ py: 1.5, borderRadius: '12px', fontWeight: 700 }}>
-                  {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Enviar enlace'}
+                  {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Restablecer contraseña'}
                 </Button>
 
                 <Box sx={{ textAlign: 'center' }}>
@@ -629,7 +773,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
               </Stack>
             </form>
           )
-        )}
+        ) : null}
       </DialogContent>
     </Dialog>
   )
