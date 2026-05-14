@@ -28,7 +28,7 @@ export class AxiosCategoria extends AxiosInternalHttpClient {
     try {
       // Limpiamos los parámetros para evitar campos vacíos o undefined
       const cleanQuery = query 
-        ? Object.fromEntries(Object.entries(query).filter(([_, v]) => v !== undefined && v !== null && v !== ''))
+        ? Object.fromEntries(Object.entries(query).filter(([, v]) => v !== undefined && v !== null && v !== ''))
         : {}
 
       const queryString = Object.keys(cleanQuery).length > 0 

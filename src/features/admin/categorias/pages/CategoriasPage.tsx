@@ -11,7 +11,8 @@ import {
   MenuItem,
   TablePagination,
   Typography,
-  Box
+  Box,
+  CircularProgress
 } from '@mui/material'
 
 
@@ -19,13 +20,7 @@ import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
-  useReactTable,
-  getFilteredRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFacetedMinMaxValues,
-  getPaginationRowModel,
-  getSortedRowModel
+  useReactTable
 } from '@tanstack/react-table'
 
 import classnames from 'classnames'
@@ -72,6 +67,7 @@ export function CategoriasPage({ initialDataCategorias, initialTotal = 0 }: Cate
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10
@@ -205,7 +201,7 @@ export function CategoriasPage({ initialDataCategorias, initialTotal = 0 }: Cate
         )
       })
     ],
-    []
+    [pagination.pageIndex, pagination.pageSize]
   )
 
   const table = useReactTable({

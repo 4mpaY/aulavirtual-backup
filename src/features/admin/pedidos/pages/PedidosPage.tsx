@@ -26,7 +26,6 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  getPaginationRowModel,
   getSortedRowModel
 } from '@tanstack/react-table'
 import * as XLSX from 'xlsx'

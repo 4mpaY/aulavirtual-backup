@@ -8,6 +8,7 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import { sendMail } from '@/utils/libs/mailer'
 import { getConfigs } from '@/utils/libs/config'
+import { getWelcomeTemplate } from '@/utils/libs/email-templates'
 
 const MAX_BULK = 500
 
@@ -81,29 +82,13 @@ export async function POST(request: Request) {
           const configs = await getConfigs()
           const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
           
-          const emailHtml = `
-            <div style="font-family: sans-serif; max-width: 500px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="color: #25927F;">¡Bienvenido a ${platformName}!</h2>
-              <p>Hola, <strong>${nombre}</strong>.</p>
-              <p>Tu cuenta ha sido creada exitosamente. A continuación, te proporcionamos tus credenciales de acceso:</p>
-              
-              <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #25927F;">
-                <p style="margin: 5px 0;"><strong>Usuario:</strong> ${correo}</p>
-                <p style="margin: 5px 0;"><strong>Contraseña:</strong> ${contrasena}</p>
-              </div>
-              
-              <p>Te recomendamos cambiar tu contraseña una vez que hayas iniciado sesión por primera vez.</p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || '#'}/login" style="background: #25927F; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                  Iniciar Sesión
-                </a>
-              </div>
-              
-              <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-              <p style="font-size: 12px; color: #999; text-align: center;">© ${new Date().getFullYear()} ${platformName}</p>
-            </div>
-          `
+          const emailHtml = getWelcomeTemplate({
+            platformName,
+            customerName: String(nombre),
+            correo: String(correo),
+            contrasena: String(contrasena),
+            appUrl: process.env.NEXT_PUBLIC_APP_URL || ''
+          })
 
           await sendMail({
             to: String(correo),

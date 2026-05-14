@@ -28,7 +28,7 @@ export class AxiosUsuario extends AxiosInternalHttpClient {
     try {
       // Limpiamos los parámetros para no enviar campos vacíos o undefined que invaliden el Zod del backend
       const cleanQuery = query 
-        ? Object.fromEntries(Object.entries(query).filter(([_, v]) => v !== undefined && v !== null && v !== ''))
+        ? Object.fromEntries(Object.entries(query).filter(([, v]) => v !== undefined && v !== null && v !== ''))
         : {}
 
       const queryString = Object.keys(cleanQuery).length > 0 

@@ -129,6 +129,16 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
     }
   }
 
+  const handleEnroll = () => {
+    if (!session) {
+      openLogin()
+
+      return
+    }
+
+    router.push(`/checkout/${course.slug}`)
+  }
+
   // Helper para obtener el ID de video y la URL de embebido
   const getEmbedUrl = (url?: string | null) => {
     if (!url) return null
@@ -374,8 +384,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                     color="primary"
                     fullWidth
                     size="large"
-                    component={Link}
-                    href={`/checkout/${course.slug}`}
+                    onClick={handleEnroll}
                     sx={{ py: 2, borderRadius: '16px', fontWeight: 700, fontSize: '1.2rem', boxShadow: 'var(--mui-palette-primary-darkOpacity)', textTransform: 'none' }}
                   >
                     Matricúlate
@@ -605,8 +614,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                       color="primary"
                       fullWidth
                       size="large"
-                      component={Link}
-                      href={`/checkout/${course.slug}`}
+                      onClick={handleEnroll}
                       sx={{ py: 1.5, borderRadius: '12px', fontWeight: 700, boxShadow: 'var(--mui-palette-primary-darkOpacity)', textTransform: 'none' }}
                     >
                       Matricúlate
