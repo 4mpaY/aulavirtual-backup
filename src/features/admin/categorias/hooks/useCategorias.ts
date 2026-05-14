@@ -48,25 +48,6 @@ export function useCategorias(query?: Record<string, any>, initialData?: Categor
 /**
  * Hook para obtener una categoría por ID
  */
-export async function searchAll(query?: Record<string, string | number | boolean | undefined | null>): Promise<{ categorias: Categoria[]; paginacion: any }> {
-    try {
-      // Limpiamos los parámetros para evitar campos vacíos o undefined
-      const cleanQuery = query 
-        ? Object.fromEntries(Object.entries(query).filter(([_, v]) => v !== undefined && v !== null && v !== ''))
-        : {}
-
-      const queryString = Object.keys(cleanQuery).length > 0 
-        ? '?' + new URLSearchParams(cleanQuery as any).toString() 
-        : ''
-
-      const payload = await this.iGet<{ categorias: Categoria[]; paginacion: any }>(queryString)
-
-      return payload || { categorias: [], paginacion: {} }
-    } catch (err: any) {
-      throw err?.response?.data ?? err
-    }
-}
-
 export function useCategoria(id: string) {
   const axiosCategoria = axiosCategoriaFactory()
 
