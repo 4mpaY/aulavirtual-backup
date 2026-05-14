@@ -131,7 +131,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
 
   const handleEnroll = () => {
     if (!session) {
-      openLogin()
+      openRegister()
 
       return
     }
