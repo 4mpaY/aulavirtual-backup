@@ -7,7 +7,6 @@ import HeroSlider from '@/features/web/home/components/HeroSlider'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ContactSection from '@/features/web/home/components/ContactSection'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
-import prisma from '@/utils/libs/prisma'
 
 export const metadata = {
   title: 'Terramett SAC — Ingeniería que transforma',
