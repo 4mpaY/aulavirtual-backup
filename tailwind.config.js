@@ -10,27 +10,28 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#25927F',
+          DEFAULT: '#1177AB',
           foreground: '#ffffff',
-          dark: '#025E44',
-          light: '#BDD962',
+          dark: '#0D3A52',
+          light: '#88C7E6',
         },
         secondary: {
-          DEFAULT: '#BDD962',
-          foreground: '#0A0A0A',
+          DEFAULT: '#88C7E6',
+          foreground: '#0D3A52',
         },
         muted: {
-          DEFAULT: 'hsl(210, 15%, 93%)',
-          foreground: 'hsl(215, 16%, 47%)',
+          DEFAULT: '#EBF5FB',
+          foreground: '#4d6b7d',
         },
-        border: 'hsl(214, 20%, 88%)',
-        foreground: '#0A0A0A',
+        border: 'hsl(200, 20%, 88%)',
+        foreground: 'hsl(200, 82%, 15%)',
         background: 'hsl(0, 0%, 100%)',
-        'color-1': 'hsl(170, 60%, 36%)',
-        'color-2': 'hsl(75, 63%, 62%)',
-        'color-3': 'hsl(167, 96%, 19%)',
-        'color-4': 'hsl(152, 50%, 46%)',
-        'color-5': 'hsl(0, 0%, 4%)',
+        'terramett-navy': '#1177AB',
+        'terramett-navy-light': '#2892C7',
+        'terramett-cyan': '#88C7E6',
+        'terramett-cyan-light': '#B8DEEF',
+        // Keep original colors for compatibility if needed
+        'original-primary': '#25927F',
         sidebar: {
           DEFAULT: 'hsl(167, 96%, 19%)',
           foreground: '#ffffff',
@@ -39,9 +40,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        display: ['Poppins', 'sans-serif'],
-        sans: ['Poppins', 'sans-serif'],
-        body: ['Poppins', 'sans-serif'],
+        display: ['Montserrat', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
       },
     }
   }

@@ -1,8 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── TerraMett Design System ─────────────────────────────────────────────── */
+@layer components {
+  .section-padding {
+    @apply py-16 md:py-24 px-4 md:px-8;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-8 py-3 rounded-lg bg-[#1177AB] text-white font-semibold hover:bg-[#2892C7] transition-colors duration-200 cursor-pointer;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center px-8 py-3 rounded-lg bg-[#1177AB] text-white font-semibold hover:bg-[#2892C7] transition-colors duration-200 cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-8 py-3 rounded-lg border-2 border-[#88C7E6] text-white font-semibold hover:bg-[#88C7E6]/20 transition-colors duration-200 cursor-pointer;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#88C7E6] to-[#1177AB];
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 :root {
   --border-radius: var(--mui-shape-borderRadius);
@@ -17,19 +68,6 @@
   --search-z-index: var(--mui-zIndex-tooltip);
   --drawer-z-index: var(--mui-zIndex-drawer);
   --backdrop-color: rgb(var(--mui-mainColorChannels-light) / 0.5);
-
-  /* IPG Design System */
-  --color-1: 170 60% 36%;   /* Primary Teal #25927F */
-  --color-2: 75 63% 62%;    /* Lime Green #BDD962 */
-  --color-3: 167 96% 19%;   /* Deep Teal #025E44 */
-  --color-4: 152 50% 46%;   /* Sage Green #3AB079 */
-  --color-5: 0 0% 4%;       /* Almost Black #0A0A0A */
-
-  --ipg-primary: var(--web-primary, #25927F);
-  --ipg-primary-dark: var(--web-dark, #025E44);
-  --ipg-primary-light: var(--web-light, #BDD962);
-  --ipg-black: #0A0A0A;
-  --ipg-muted: #f1f5f4;
 
   --navbar-height: 88px;
   --sidebar-width: 80px;
@@ -145,134 +183,18 @@ code {
   border: 0;
 }
 
-/* ─────────────────────────────────────────
-   IPG Design System — Escala tipográfica
-   ─────────────────────────────────────────
-
-   Roles y valores fijos (NO cambiar por componente):
-
-   eyebrow   → 0.75rem  | w700 | uppercase | ls 0.12em
-   h2        → 2rem     | w800 | ls -0.02em  (responsive: 1.75rem mobile)
-   desc      → 1rem     | w400 | lh 1.7
-   card-title → 1rem    | w700
-   card-body  → 0.875rem | w400 | lh 1.6
-   small      → 0.8125rem| w400
-   ───────────────────────────────────────── */
-
-/* Layout */
-.section-container {
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 4rem 1rem;
-}
-
-@media (min-width: 640px) {
-  .section-container { padding-left: 1.5rem; padding-right: 1.5rem; }
-}
-@media (min-width: 1024px) {
-  .section-container { padding: 5rem 2.5rem; }
-}
-
-/* Eyebrow (label sobre el título) */
-.t-eyebrow {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--web-primary, #25927F);
-  display: block;
-  margin-bottom: 0.75rem;
-}
-.t-eyebrow-dark { color: var(--web-light, #BDD962); }
-
-/* H2 de sección */
-.t-section-h2 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #0A0A0A;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 0.75rem;
-}
-@media (min-width: 768px) {
-  .t-section-h2 { font-size: 2rem; }
-}
-.t-section-h2-dark { color: #ffffff; }
-
-/* Descripción / subtítulo de sección */
-.t-section-desc {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 400;
-  color: #64748b;
-  line-height: 1.7;
-  margin-bottom: 0;
-}
-.t-section-desc-dark { color: rgba(255, 255, 255, 0.55); }
-
-/* Título de card */
-.t-card-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  color: #0A0A0A;
-  letter-spacing: -0.01em;
-  margin-bottom: 0.25rem;
-}
-.t-card-title-dark { color: #ffffff; }
-
-/* Cuerpo de card */
-.t-card-body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 400;
-  color: #64748b;
-  line-height: 1.6;
-}
-.t-card-body-dark { color: rgba(255, 255, 255, 0.4); }
-
-/* Texto pequeño / meta */
-.t-small {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 400;
-  color: #94a3b8;
-  line-height: 1.5;
-}
-
-/* Aliases de compatibilidad */
-.section-title {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #0A0A0A;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-@media (min-width: 768px) {
-  .section-title { font-size: 2rem; }
-}
-
-.section-subtitle {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1rem;
-  color: #64748b;
-  margin-bottom: 2rem;
-  line-height: 1.7;
-}
-
-/* Apply Plus Jakarta Sans to web public pages */
+/* Apply fonts to web public pages */
 .web-layout,
 .web-layout * {
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.font-display {
+  font-family: 'Montserrat', sans-serif !important;
 }
 
 /* SweetAlert2 — match system typography */
 .swal2-popup,
 .swal2-popup * {
-  font-family: var(--font-plus-jakarta-sans, 'Plus Jakarta Sans'), sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
 }

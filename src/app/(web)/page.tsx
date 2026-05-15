@@ -1,337 +1,398 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
-import { ArrowRight, CheckCircle, Map } from 'lucide-react'
+import { ArrowRight, MapPin, Droplets, CloudRain, Mountain, Building2, Globe, Camera, Target, Shield, TrendingUp, Users, CheckCircle2, Calendar, Clock, Award, Eye, RotateCcw, Maximize2 } from 'lucide-react'
 
-import prisma from '@/utils/libs/prisma'
-import { getConfigs } from '@/utils/libs/config'
-import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
-import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
-import RutasSection from '@/features/web/home/components/RutasSection'
+import HeroSlider from '@/features/web/home/components/HeroSlider'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
-import HeroVisual from '@/features/web/home/components/HeroVisual'
-import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSection'
-import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
-import CompaniesSection from '@/features/web/home/components/CompaniesSection'
-import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
+import ContactSection from '@/features/web/home/components/ContactSection'
+import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
+import prisma from '@/utils/libs/prisma'
 
 export const metadata = {
-  title: 'Aula Virtual - Aprende sin límites',
-  description: 'Plataforma de aprendizaje online con cursos especializados, rutas de aprendizaje y certificados.',
+  title: 'Terramett SAC — Ingeniería que transforma',
+  description: 'Soluciones integrales en topografía, hidráulica, hidrología, geotecnia e ingeniería civil. Más de 12 años de experiencia en el Perú.',
 }
 
-async function getHomeData() {
-  try {
-    const [coursesRaw, rutasRaw, teachersRaw, configs] = await Promise.all([
-      // Cursos
-      prisma.curso.findMany({
-        where: { estado: 'PUBLICADO' },
-        include: {
-          profesor: { select: { nombre: true, apellido: true, avatar: true } },
-          categoria: { select: { id: true, nombre: true } },
-          _count: { select: { modulos: true, inscripciones: true } },
-        },
-        orderBy: { creado_en: 'desc' },
-        take: 6,
-      }),
+// ─── Datos ─────────────────────────────────────────────────────────────────
 
-      // Rutas
-      prisma.rutaAprendizaje.findMany({
-        where: { esta_activo: true },
-        include: {
-          cursos: {
-            take: 4,
-            include: { curso: { select: { miniatura: true, titulo: true } } },
-          },
-        },
-        take: 3,
-      }),
+const services = [
+  { icon: MapPin, title: 'Topografía', description: 'Levantamientos topográficos de alta precisión, replanteos, control geodésico y estudios catastrales con equipos de última generación.', image: '/assets/terramett/topografia-lev.jpeg' },
+  { icon: Globe, title: 'Geodesia', description: 'Georreferenciación de predios y posicionamiento GNSS de alta precisión para proyectos de gran envergadura.', image: '/assets/terramett/Geodesia-GNNS-4.jpg' },
+  { icon: Camera, title: 'Fotogrametría', description: 'Ortomosaicos de altísima resolución y modelos digitales para un análisis detallado del terreno con drones de última generación.', image: '/assets/terramett/fotogrametria.jpg' },
+  { icon: Droplets, title: 'Hidráulica', description: 'Diseño y análisis de sistemas hidráulicos, redes de agua potable, alcantarillado y obras de conducción.', image: '/assets/terramett/hidraulica.jpg' },
+  { icon: CloudRain, title: 'Hidrología', description: 'Estudios hidrológicos, análisis de cuencas, modelamiento de escorrentía y gestión de recursos hídricos.', image: '/assets/terramett/hidrologia.jpg' },
+  { icon: Mountain, title: 'Geotecnia', description: 'Estudios geotécnicos, análisis de suelos, estabilidad de taludes y diseño de cimentaciones.', image: '/assets/terramett/cursos-geotecnia.jpg' },
+  { icon: Building2, title: 'Ingeniería Civil', description: 'Diseño estructural, supervisión de obras, expedientes técnicos y gestión integral de proyectos de infraestructura.', image: '/assets/terramett/civil.jpg' },
+]
 
-      // Profesores
-      prisma.usuario.findMany({
-        where: { rol: 'PROFESOR' },
-        select: {
-          id: true,
-          nombre: true,
-          apellido: true,
-          slug: true,
-          avatar: true,
-          cargo: true,
-          biografia: true,
-          _count: { select: { cursos_dictados: true } },
-        },
-        orderBy: { cursos_dictados: { _count: 'desc' } },
-        take: 8,
-      }),
-      getConfigs(),
-    ])
+const values = [
+  { icon: Target, title: 'Precisión', description: 'Utilizamos equipos de última generación para garantizar resultados exactos.' },
+  { icon: Shield, title: 'Confianza', description: '12 años de experiencia nos respaldan en cada proyecto.' },
+  { icon: TrendingUp, title: 'Innovación', description: 'Incorporamos las últimas tecnologías en topografía y geomática.' },
+  { icon: Users, title: 'Equipo', description: 'Profesionales certificados y comprometidos con la excelencia.' },
+]
 
-    const courses = await Promise.all(
-      coursesRaw.map(async course => {
-        const leccionesCount = await prisma.leccion.count({ where: { modulo: { curso_id: course.id } } })
+const achievements = [
+  'Clientes en todos los sectores de la industria',
+  'Equipos topográficos de precisión milimétrica',
+  'Cobertura en todo el territorio peruano',
+  'Garantía de puntualidad y calidad',
+]
 
-        return { ...course, _count: { ...course._count, lecciones: leccionesCount } }
-      })
-    )
+const blogPosts = [
+  {
+    id: 'fotogrametria-drones-futuro',
+    title: 'Fotogrametría con Drones: El Futuro de la Topografía',
+    excerpt: 'Descubre cómo los drones están revolucionando los levantamientos topográficos con mayor precisión y eficiencia. La fotogrametría con drones ha transformado radicalmente la manera en que realizamos levantamientos topográficos.',
+    image: '/assets/terramett/fotogrametria.jpg',
+    date: '15 Enero 2026',
+    readTime: '5 min',
+    category: 'Tecnología',
+  },
+  {
+    id: 'gnss-alta-precision',
+    title: 'GNSS de Alta Precisión en Proyectos de Ingeniería',
+    excerpt: 'La tecnología GNSS permite obtener coordenadas con precisión milimétrica para proyectos de gran escala. Los sistemas globales de navegación por satélite son hoy indispensables en la ingeniería moderna.',
+    image: '/assets/terramett/geodesia-gnss.jpg',
+    date: '10 Enero 2026',
+    readTime: '7 min',
+    category: 'Geodesia',
+  },
+  {
+    id: 'estaciones-totales-guia',
+    title: 'Estaciones Totales: Guía Completa para Topógrafos',
+    excerpt: 'Todo lo que necesitas saber sobre el uso y mantenimiento de estaciones totales modernas. A pesar del auge de nuevas tecnologías, la estación total sigue siendo el caballo de batalla de la topografía.',
+    image: '/assets/terramett/equipos-et.jpg',
+    date: '5 Enero 2026',
+    readTime: '10 min',
+    category: 'Equipos',
+  },
+]
 
-    const rutas = rutasRaw.map(r => ({
-      ...r,
-      total_cursos: r.cursos.length,
-      cursos: r.cursos.map(c => ({ miniatura: c.curso.miniatura, titulo: c.curso.titulo })),
-    }))
+// ─── Page ──────────────────────────────────────────────────────────────────
 
-    const heroTitle = configs.HOME_HERO_TITLE || 'Aprende sin límites,\ncrece sin fronteras'
-    const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.'
-    let logos: { label: string; url: string }[] = []
-
-    try { logos = configs.HOME_LOGOS ? JSON.parse(configs.HOME_LOGOS) : [] } catch { logos = [] }
-
-    return {
-      courses: JSON.parse(JSON.stringify(courses)),
-      rutas: JSON.parse(JSON.stringify(rutas)),
-      teachers: JSON.parse(JSON.stringify(teachersRaw)),
-      heroTitle,
-      heroDescription,
-      logos,
-    }
-  } catch {
-    return {
-      courses: [], rutas: [], teachers: [],
-      heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
-      heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
-      logos: [],
-    }
-  }
-}
-
-export default async function HomePage() {
-  const { courses, rutas, teachers, heroTitle, heroDescription, logos } = await getHomeData()
+export default function HomePage() {
 
   return (
     <>
-      {/* ── 1. HERO ─────────────────────────────────── */}
-      <section
-        style={{
-          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Patrón de grid decorativo */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
-        {/* Glow derecho */}
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      {/* ── HERO ── */}
+      <HeroSlider />
 
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '5rem 1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
-
-            {/* ── Izquierda: texto ── */}
-            <div style={{ position: 'relative', zIndex: 2 }}>
-              {/* Eyebrow */}
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5"
-                style={{ backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)' }}
-              >
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--web-light, #BDD962)' }} />
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
-                  Plataforma educativa online
-                </span>
-              </div>
-
-              {/* H1 */}
-              <h1
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: 'clamp(2rem, 5vw, 3.25rem)',
-                  fontWeight: 800,
-                  color: '#ffffff',
-                  letterSpacing: '-0.025em',
-                  lineHeight: 1.15,
-                  marginBottom: '1.25rem',
-                }}
-              >
-                {heroTitle.split('\n')[0]}
-                {heroTitle.split('\n')[1] && (
-                  <>
-                    <br />
-                    <span style={{ color: 'var(--web-light, #BDD962)' }}>{heroTitle.split('\n')[1]}</span>
-                  </>
-                )}
-              </h1>
-
-              {/* Descripción */}
-              <p
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: '1rem',
-                  color: 'rgba(255,255,255,0.7)',
-                  lineHeight: 1.75,
-                  maxWidth: '480px',
-                  marginBottom: '2.5rem',
-                }}
-              >
-                {heroDescription}
+      {/* ── SERVICIOS ── */}
+      <section id="servicios" className="section-padding bg-white">
+        <div className="container-custom mx-auto">
+          <ScrollReveal>
+            <div className="text-center mb-14">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-[#1177AB]/8 text-[#1177AB] font-semibold text-xs uppercase tracking-widest border border-[#1177AB]/15 mb-4">
+                Nuestros Servicios
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D3A52] mb-4 leading-tight">
+                Soluciones integrales de <span className="text-[#1177AB]">ingeniería</span>
+              </h2>
+              <p className="text-[#4d6b7d] text-lg max-w-2xl mx-auto">
+                Brindamos servicios de alta precisión técnica para proyectos de infraestructura en todo el Perú.
               </p>
+            </div>
+          </ScrollReveal>
 
-              {/* Botones */}
-              <div className="flex flex-wrap gap-4" style={{ marginBottom: '2.5rem' }}>
-                <Link
-                  href="/cursos"
-                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', boxShadow: '0 4px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.45)' }}
-                >
-                  Ver Cursos <ArrowRight size={18} />
-                </Link>
-                <Link
-                  href="/nosotros"
-                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-200"
-                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', border: '1.5px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
-                >
-                  Saber más
-                </Link>
-              </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {services.map((service, i) => {
+              const Icon = service.icon
 
-              {/* Mini stats */}
-              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                {[
-                  { value: '+1,200', label: 'Estudiantes' },
-                  { value: '+80', label: 'Cursos' },
-                  { value: '98%', label: 'Satisfacción' },
-                ].map(stat => (
-                  <div key={stat.label}>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>{stat.value}</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px' }}>{stat.label}</div>
+              return (
+                <ScrollReveal key={service.title} delay={i * 0.07}>
+                  <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-[#EBF5FB] hover:border-[#88C7E6]/50 card-hover">
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
+                        src={service.image}
+                        alt={service.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-[#1177AB]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute top-4 left-4 w-10 h-10 rounded-xl bg-[#1177AB] flex items-center justify-center shadow-lg">
+                        <Icon size={20} className="text-white" />
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-display text-lg font-bold text-[#0D3A52] mb-2 group-hover:text-[#1177AB] transition-colors">
+                        {service.title}
+                      </h3>
+                      <p className="text-sm text-[#4d6b7d] leading-relaxed mb-4 line-clamp-3">{service.description}</p>
+                      <Link
+                        href="/servicios"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1177AB] uppercase tracking-wider hover:gap-3 transition-all duration-300"
+                      >
+                        Ver más <ArrowRight size={14} />
+                      </Link>
+                    </div>
                   </div>
-                ))}
+                </ScrollReveal>
+              )
+            })}
+          </div>
+
+          <ScrollReveal>
+            <div className="text-center mt-12">
+              <Link href="/servicios" className="btn-primary inline-flex items-center gap-2">
+                Ver todos los servicios <ArrowRight size={18} />
+              </Link>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── VISTA 360° ── */}
+      <section id="viewer360" className="section-padding bg-[#EBF5FB]/40">
+        <div className="container-custom mx-auto">
+          <ScrollReveal>
+            <div className="text-center mb-12">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-[#1177AB]/8 text-[#1177AB] font-semibold text-xs uppercase tracking-widest border border-[#1177AB]/15 mb-4">
+                Experiencia Inmersiva
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D3A52] mb-4">
+                Vista <span className="text-[#1177AB]">360°</span> de Nuestros Proyectos
+              </h2>
+              <p className="text-[#4d6b7d] text-lg max-w-2xl mx-auto">
+                Explora nuestros trabajos con una vista panorámica interactiva. Navega libremente y descubre cada detalle.
+              </p>
+            </div>
+
+            <div className="flex justify-center gap-8 mb-8">
+              <div className="flex items-center gap-2 text-sm text-[#4d6b7d]">
+                <Eye size={17} className="text-[#1177AB]" />
+                <span>Arrastra para explorar</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-[#4d6b7d]">
+                <RotateCcw size={17} className="text-[#1177AB]" />
+                <span>Rotación automática</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-[#4d6b7d]">
+                <Maximize2 size={17} className="text-[#1177AB]" />
+                <span>Pantalla completa</span>
               </div>
             </div>
 
-            {/* ── Derecha: visual interactivo ── */}
-            <HeroVisual />
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-[#B8DEEF]">
+              <div className="aspect-video w-full">
+                <iframe
+                  src="https://momento360.com/e/u/a17052d2ee764a04ba02662a4f36c075?loop=1&autoplay=1"
+                  className="w-full h-full"
+                  allowFullScreen
+                  title="Vista 360° de proyecto Terramett"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            <p className="text-center text-sm text-[#4d6b7d] mt-4">
+              Proyecto de levantamiento topográfico — Vista panorámica interactiva
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── NOSOTROS ── */}
+      <section id="nosotros" className="section-padding bg-[#EBF5FB]/40 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-[#88C7E6]/10 -skew-x-12 translate-x-1/2 -z-10" />
+        <div className="container-custom mx-auto">
+          <ScrollReveal>
+            <div className="flex justify-center mb-12">
+              <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#1177AB]/8 text-[#1177AB] font-semibold text-xs uppercase tracking-widest border border-[#1177AB]/15">
+                Sobre Nosotros
+              </span>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid lg:grid-cols-2 gap-16 items-start mb-16">
+            {/* Texto */}
+            <ScrollReveal direction="left">
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0D3A52] leading-[1.1] mb-8">
+                Terramett: <span className="text-[#1177AB]">Precisión</span> que respalda el diseño, control que garantiza la obra.
+              </h2>
+              <div className="space-y-5 text-[#4d6b7d] text-base leading-relaxed">
+                <p>
+                  <strong className="text-[#0D3A52] font-bold text-lg">TERRAMETT SAC</strong> es una empresa peruana especializada en mediciones topográficas aplicadas al diseño, ejecución y supervisión de obras de infraestructura, con más de 12 años de experiencia en el rubro de la ingeniería.
+                </p>
+                <p>
+                  Brindamos soluciones técnicas confiables en levantamientos topográficos, control geométrico, replanteos y monitoreo de obras, integrando precisión, criterio ingenieril y tecnología especializada para garantizar una correcta toma de decisiones en cada etapa del proyecto.
+                </p>
+                <p>
+                  Trabajamos bajo estándares técnicos y control de calidad, empleando equipos modernos y metodologías compatibles con entornos <strong className="text-[#0D3A52]">CAD y BIM</strong>, aportando valor en proyectos viales, saneamiento, edificaciones e infraestructura en general.
+                </p>
+                <p className="font-medium text-[#0D3A52] italic border-l-4 border-[#88C7E6] pl-5 py-2 bg-[#88C7E6]/10 rounded-r-lg">
+                  TERRAMETT es su aliado estratégico para asegurar precisión, control y cumplimiento en obras de infraestructura.
+                </p>
+              </div>
+
+              {/* Valores */}
+              <div className="grid grid-cols-2 gap-4 mt-10">
+                {values.map(v => {
+                  const Icon = v.icon
+
+                  return (
+                    <div key={v.title} className="flex items-start gap-3 p-4 rounded-xl bg-white border border-[#EBF5FB] hover:border-[#88C7E6]/50 hover:shadow-md transition-all duration-300">
+                      <div className="shrink-0 w-9 h-9 rounded-lg bg-[#1177AB]/10 flex items-center justify-center">
+                        <Icon size={18} className="text-[#1177AB]" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-[#0D3A52] text-sm">{v.title}</div>
+                        <div className="text-xs text-[#4d6b7d] leading-snug mt-0.5">{v.description}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </ScrollReveal>
+
+            {/* Imagen + logros */}
+            <ScrollReveal direction="right">
+              <div className="relative group mb-8">
+                <div className="absolute -inset-4 bg-[#88C7E6]/20 rounded-[2rem] blur-2xl group-hover:bg-[#88C7E6]/30 transition-colors duration-500" />
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+                  <Image
+                    src="/assets/terramett/Terramett-hero1.webp"
+                    alt="Equipo profesional TERRAMETT"
+                    width={600}
+                    height={450}
+                    className="w-full object-cover aspect-[4/3] group-hover:scale-105 transition-transform duration-700"
+                  />
+                  {/* Badge flotante */}
+                  <div className="absolute bottom-6 right-6 bg-black/40 backdrop-blur-xl p-4 rounded-2xl border border-white/20 flex items-center gap-3 shadow-2xl">
+                    <div className="w-12 h-12 rounded-xl bg-[#1177AB] flex items-center justify-center">
+                      <Award className="text-white" size={24} />
+                    </div>
+                    <div className="text-white">
+                      <div className="font-display text-2xl font-black leading-none">12+</div>
+                      <div className="text-[10px] font-bold uppercase tracking-wide opacity-90">Años de<br />Experiencia</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                {achievements.map(a => (
+                  <div key={a} className="flex items-center gap-3 p-4 rounded-xl bg-white border border-[#EBF5FB] hover:border-[#88C7E6]/50 hover:shadow-md transition-all duration-300 group">
+                    <div className="shrink-0 w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm group-hover:bg-[#1177AB] transition-colors">
+                      <CheckCircle2 size={18} className="text-[#1177AB] group-hover:text-white transition-colors" />
+                    </div>
+                    <span className="text-sm font-semibold text-[#0D3A52]/80 leading-snug">{a}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8">
+                <Link href="/nosotros" className="btn-primary inline-flex items-center gap-2">
+                  Conoce Nuestra Historia <ArrowRight size={18} />
+                </Link>
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
-      {/* ── 2. LOGO MARQUEE ─────────────────────────── */}
-      <ClientLogosMarquee logos={logos} />
-
-      {/* ── 3. CURSOS DESTACADOS ────────────────────── */}
-      <section className="section-container">
-        <ScrollReveal>
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="section-title">Cursos destacados</h2>
-              <p className="section-subtitle">Descubre nuestros cursos más recientes</p>
-            </div>
-            <Link
-              href="/cursos"
-              className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-            >
-              Ver todos <ArrowRight size={16} />
-            </Link>
-          </div>
-        </ScrollReveal>
-        <ScrollReveal delay={0.1}>
-          <HomeCoursesSection courses={courses} />
-          <div className="flex justify-center mt-8 sm:hidden">
-            <Link
-              href="/cursos"
-              className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff' }}
-            >
-              Ver todos los cursos <ArrowRight size={16} />
-            </Link>
-          </div>
-        </ScrollReveal>
-      </section>
-
-      {/* ── 4. CARACTERÍSTICAS DE CLASES ────────────── */}
-      <ClassFeaturesSection />
-
-      {/* ── 5. RUTAS DE APRENDIZAJE ─────────────────── */}
-      {rutas.length > 0 && (
-        <section style={{ backgroundColor: 'hsl(210, 15%, 97%)', borderTop: '1px solid hsl(214, 20%, 92%)' }}>
-          <div className="section-container">
-            <ScrollReveal>
-              <div className="flex items-end justify-between mb-2">
-                <div>
-                  <div
-                    className="inline-flex items-center gap-2 mb-3"
-                    style={{ color: 'var(--web-primary, #25927F)', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
-                  >
-                    <Map size={14} /> Especialízate
-                  </div>
-                  <h2 className="section-title" style={{ marginBottom: '0.25rem' }}>Rutas de Aprendizaje</h2>
-                  <p className="section-subtitle">Colecciones curadas para llevarte de principiante a experto.</p>
-                </div>
-                <Link
-                  href="/rutas"
-                  className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-                >
-                  Ver todas <ArrowRight size={16} />
-                </Link>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={0.1}>
-              <RutasSection rutas={rutas} embedded />
-            </ScrollReveal>
-          </div>
-        </section>
-      )}
-
-      {/* ── 6. PROFESORES ───────────────────────────── */}
-      <ProfessorsCarousel teachers={teachers} />
-
-      {/* ── 7. EMPRESAS (B2B informativo) ───────────── */}
-      <CompaniesSection />
-
-      {/* ── 8. CTA AGENDAR REUNIÓN ──────────────────── */}
-      <EnterpriseCTASection />
-
-      {/* ── 9. VERIFICAR CERTIFICADO ────────────────── */}
+      {/* Verificación de Certificados */}
       <SearchCertificateSection />
 
-      {/* ── 10. CTA INSCRIPCIÓN ─────────────────────── */}
-      <section className="bg-white py-16 text-center" style={{ borderTop: '1px solid hsl(214, 20%, 88%)' }}>
-        <div className="max-w-3xl mx-auto px-4">
+      {/* ── BLOGS ── */}
+      <section id="blogs" className="section-padding bg-white">
+        <div className="container-custom mx-auto">
           <ScrollReveal>
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-              style={{ backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.08)', color: 'var(--web-dark, #025E44)' }}
-            >
-              <CheckCircle size={16} />
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 600 }}>
-                Únete a miles de estudiantes
+            <div className="text-center mb-14">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-[#1177AB]/8 text-[#1177AB] font-semibold text-xs uppercase tracking-widest border border-[#1177AB]/15 mb-4">
+                Blog & Recursos
               </span>
+              <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-[#0D3A52] mb-4">
+                Artículos y <span className="text-[#1177AB]">Novedades</span>
+              </h2>
+              <p className="text-[#4d6b7d] text-lg max-w-2xl mx-auto">
+                Mantente actualizado con las últimas tendencias, tecnologías y mejores prácticas en ingeniería.
+              </p>
             </div>
-            <h2
-              className="mb-4"
-              style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 700, color: '#0A0A0A', letterSpacing: '-0.02em' }}
-            >
-              ¿Listo para transformar tu carrera?
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {blogPosts.map((post, i) => (
+              <ScrollReveal key={post.id} delay={i * 0.1}>
+                <Link href={`/blogs/${post.id}`} className="block group">
+                  <article className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-[#EBF5FB] hover:border-[#88C7E6]/50 card-hover h-full flex flex-col">
+                    <div className="relative h-48 overflow-hidden shrink-0">
+                      <Image
+                        src={post.image}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 left-3">
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-[#1177AB] text-white px-2.5 py-1 rounded-full">
+                          {post.category}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-6 flex flex-col flex-grow">
+                      <div className="flex items-center gap-4 text-xs text-[#4d6b7d] mb-3">
+                        <span className="flex items-center gap-1"><Calendar size={12} /> {post.date}</span>
+                        <span className="flex items-center gap-1"><Clock size={12} /> {post.readTime}</span>
+                      </div>
+                      <h3 className="font-display text-lg font-bold text-[#0D3A52] mb-3 leading-snug group-hover:text-[#1177AB] transition-colors line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-sm text-[#4d6b7d] leading-relaxed line-clamp-3 flex-grow">{post.excerpt}</p>
+                      <div className="mt-4 inline-flex items-center gap-2 text-[#1177AB] font-semibold text-sm group-hover:gap-3 transition-all">
+                        Leer más <ArrowRight size={15} />
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              </ScrollReveal>
+            ))}
+          </div>
+
+          <ScrollReveal>
+            <div className="text-center mt-12">
+              <Link href="/blogs" className="btn-primary inline-flex items-center gap-2">
+                Ver todos los artículos <ArrowRight size={18} />
+              </Link>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ── CONTACTO ── */}
+      <ContactSection />
+
+      {/* ── CTA ── */}
+      <section className="relative bg-[#1177AB] px-4 sm:px-6 lg:px-8 py-20 lg:py-28 overflow-hidden">
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-white" />
+          <div className="absolute -left-10 -bottom-10 w-64 h-64 rounded-full bg-[#88C7E6]" />
+        </div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <ScrollReveal>
+            <span className="inline-flex items-center px-3 py-1 bg-white/15 text-white text-[10px] font-black uppercase tracking-widest rounded-full mb-8">
+              Consultoría Técnica
+            </span>
+            <h2 className="font-display text-4xl lg:text-6xl font-bold text-white mb-8 leading-tight">
+              ¿Listo para transformar tu proyecto?
             </h2>
-            <p
-              className="mb-8 max-w-xl mx-auto"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'hsl(215, 16%, 47%)', lineHeight: 1.7 }}
-            >
-              Inscríbete hoy y comienza a aprender con los mejores profesionales del sector.
+            <p className="text-white/80 mb-12 max-w-2xl mx-auto text-xl leading-relaxed">
+              Contacta con nuestro equipo de ingenieros especializados y obtén una cotización personalizada para tu proyecto.
             </p>
-            <Link
-              href="/cursos"
-              className="no-underline inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.35)' }}
-            >
-              Inscribirse ahora <ArrowRight size={18} />
-            </Link>
+            <div className="flex flex-wrap justify-center gap-5">
+              <Link
+                href="/contacto"
+                className="inline-flex items-center justify-center px-10 py-4 bg-white text-[#1177AB] font-bold uppercase tracking-wider hover:bg-[#EBF5FB] transition-all duration-300 text-sm shadow-xl rounded-lg group"
+              >
+                Solicitar Cotización
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/servicios"
+                className="inline-flex items-center justify-center px-10 py-4 border-2 border-white text-white font-bold uppercase tracking-wider hover:bg-white/10 transition-all duration-300 text-sm rounded-lg"
+              >
+                Ver Servicios
+              </Link>
+            </div>
           </ScrollReveal>
         </div>
       </section>

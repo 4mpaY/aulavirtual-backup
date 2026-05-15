@@ -1,145 +1,108 @@
-"use client";
+'use client'
 
-import Link from "next/link";
+import { useState, useEffect } from 'react'
 
-import { ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+import Link from 'next/link'
+
+import { ChevronRight, Award } from 'lucide-react'
+
+const backgroundImages = [
+  '/assets/terramett/topografia-lev.jpeg',
+  '/assets/terramett/fotogrametria.jpg',
+  '/assets/terramett/Terramett-hero1.webp',
+]
 
 export default function HeroSlider() {
-  const content = {
-    tag: "Confiabilidad Industrial",
-    title: ["Transformamos", "mantenimiento", "en", "confiabilidad"],
-    subtitle: "Soluciones de ingeniería de clase mundial para maximizar la disponibilidad y el rendimiento de sus activos industriales.",
-    cta: "Solicita Asesoría Gratuita",
-    href: "/contacto",
-  };
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex(prev => (prev + 1) % backgroundImages.length)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   return (
-    <section className="relative w-full min-h-[600px] lg:h-[85vh] overflow-hidden bg-white">
-      {/* Technical Grid Overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }}
-      />
+    <section className="relative overflow-hidden min-h-[90vh] flex items-center justify-center">
+      {/* Fondo negro base */}
+      <div className="absolute inset-0 bg-black" />
 
-      {/* Content Container */}
-      <div className="relative h-full flex items-center z-10 py-20 lg:py-0">
-        <div className="w-full px-6 md:px-12 lg:px-20 xl:px-32">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      {/* Imágenes rotativas */}
+      {backgroundImages.map((src, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 transition-opacity duration-1000"
+          style={{
+            opacity: i === currentIndex ? 0.18 : 0,
+            backgroundImage: `url(${src})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+      ))}
 
-            {/* Left Col: Main Content */}
-            <div className="lg:col-span-7">
-              <div className="max-w-2xl">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                >
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2, duration: 0.6 }}
-                    className="flex items-center gap-4 mb-8"
-                  >
-                    <span className="w-12 h-[2px] bg-[#E2231A]" />
-                    <span className="text-[#02115C] text-[10px] lg:text-xs font-sans font-extrabold uppercase tracking-[0.4em]">
-                      {content.tag}
-                    </span>
-                  </motion.div>
+      {/* Contenido centrado */}
+      <div className="relative z-10 flex flex-col items-center text-center text-white px-4 animate-slide-up max-w-3xl mx-auto section-padding">
 
-                  <motion.h1
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-black text-slate-900 leading-[1.1] mb-6 uppercase tracking-tighter"
-                  >
-                    {content.title.map((line, i) => (
-                      <span key={i} className="block">{line}</span>
-                    ))}
-                  </motion.h1>
+        {/* Badge */}
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm mb-8">
+          <Award size={18} className="text-[#88C7E6]" />
+          <span className="text-sm font-medium">12 años de experiencia</span>
+        </div>
 
-                  <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6, duration: 0.7 }}
-                    className="text-sm sm:text-base text-slate-600 mb-10 max-w-xl leading-relaxed font-sans font-medium"
-                  >
-                    {content.subtitle}
-                  </motion.p>
+        {/* Título */}
+        <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+          Ingeniería que{' '}
+          <span className="block text-[#88C7E6]">transforma</span>
+        </h1>
 
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8, duration: 0.6 }}
-                    className="flex flex-wrap gap-4"
-                  >
-                    <Link
-                      href={content.href}
-                      className="inline-flex items-center justify-center px-8 py-4 bg-[#02115C] text-white font-sans font-bold uppercase tracking-wider hover:bg-[#0A50A1] transition-all duration-300 text-sm shadow-xl min-w-[220px] group"
-                    >
-                      {content.cta}
-                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                    <Link
-                      href="/proyectos"
-                      className="inline-flex items-center justify-center px-8 py-4 border-2 border-slate-200 text-slate-900 font-sans font-bold uppercase tracking-wider hover:bg-slate-50 transition-all duration-300 text-sm min-w-[220px]"
-                    >
-                      Explorar Soluciones
-                    </Link>
-                  </motion.div>
-                </motion.div>
-              </div>
-            </div>
+        {/* Subtítulo */}
+        <p className="text-lg md:text-xl text-white/80 mb-10 max-w-xl leading-relaxed">
+          Soluciones integrales en topografía, hidráulica, hidrología, geotecnia e ingeniería civil.
+          Transformamos tu visión en realidad con precisión y excelencia técnica.
+        </p>
 
-            {/* Right Col: Visual */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="hidden lg:block lg:col-span-5"
-            >
-              <div className="relative group overflow-hidden rounded-3xl shadow-2xl ring-1 ring-slate-100 hover:ring-slate-200 transition-all duration-700 bg-white">
-                {/* Overlay Area with Video Background */}
-                <div className="relative w-full h-[480px] flex items-center justify-center z-10 overflow-hidden">
-                  {/* Hero Video inserted into the Overlay Text block */}
-                  <video
-                    src="/assets/logos/hero.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover z-0"
-                  />
-                  {/* Gradient to darken/tint the video slightly */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#02115C]/30 via-white/40 to-[#E2231A]/30 backdrop-blur-[2px] z-10 pointer-events-none mix-blend-overlay" />
-                  
-                  {/* Original Text content centered over the video */}
-                  <div className="relative z-20 text-center p-12">
-                    <div className="text-7xl font-display font-black text-[#02115C] uppercase tracking-tighter leading-none mb-4 shadow-sm mix-blend-multiply drop-shadow-lg">
-                      ARM
-                    </div>
-                    <div className="text-xs text-[#02115C] font-black uppercase tracking-[0.4em] drop-shadow-md">
-                      Asset Reliability Management
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute top-8 right-8 flex flex-col gap-2 opacity-30 group-hover:opacity-100 transition-opacity">
-                  <div className="w-10 h-[2px] bg-[#E2231A]" />
-                  <div className="w-6 h-[2px] bg-[#E2231A]" />
-                </div>
-              </div>
-            </motion.div>
+        {/* CTAs */}
+        <div className="flex flex-wrap gap-4 justify-center mb-14">
+          <Link href="/servicios" className="btn-accent inline-flex items-center gap-2">
+            Nuestros Servicios
+            <ChevronRight size={18} />
+          </Link>
+          <Link href="/contacto" className="btn-secondary inline-flex items-center gap-2">
+            Solicitar Cotización
+          </Link>
+        </div>
 
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-12">
+          <div className="text-center">
+            <div className="font-display text-4xl md:text-5xl font-bold text-[#88C7E6]">12+</div>
+            <div className="text-sm text-white/70 mt-1">Años de Experiencia</div>
+          </div>
+          <div className="text-center">
+            <div className="font-display text-4xl md:text-5xl font-bold text-[#88C7E6]">100%</div>
+            <div className="text-sm text-white/70 mt-1">Clientes Satisfechos</div>
           </div>
         </div>
       </div>
 
-      {/* Decorative Blur */}
-      <div className="absolute -top-[10%] -right-[5%] w-[40%] h-[40%] bg-[#02115C]/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-[10%] -left-[5%] w-[30%] h-[30%] bg-[#E2231A]/10 rounded-full blur-[100px] pointer-events-none" />
+      {/* Indicadores de slide */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        {backgroundImages.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentIndex(i)}
+            className="transition-all duration-300 rounded-full cursor-pointer"
+            style={{
+              width: i === currentIndex ? '24px' : '8px',
+              height: '8px',
+              backgroundColor: i === currentIndex ? '#88C7E6' : 'rgba(255,255,255,0.4)',
+            }}
+            aria-label={`Slide ${i + 1}`}
+          />
+        ))}
+      </div>
     </section>
-  );
+  )
 }
