@@ -73,6 +73,7 @@ export interface Curso {
   estado: 'BORRADOR' | 'PUBLICADO' | 'ARCHIVADO'
   es_gratis: boolean
   es_privado: boolean
+  precio_certificado: number | null
   precio: number
   moneda: string
   creado_en: string

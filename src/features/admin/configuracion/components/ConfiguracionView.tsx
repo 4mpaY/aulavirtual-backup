@@ -78,12 +78,106 @@ function SectionLabel({ children }: { children: string }) {
   )
 }
 
+const PLANTILLAS_CERTIFICADO = [
+  {
+    id: 'clasico',
+    nombre: 'Clásico',
+    descripcion: 'Panel lateral con gradiente. Ideal para institutos y academias.',
+    thumbnail: '/images/plantillas-certificado/clasico.png',
+  },
+  {
+    id: 'corporativo',
+    nombre: 'Corporativo',
+    descripcion: 'Diseño formal con borde y detalles dorados. Empresas B2B.',
+    thumbnail: '/images/plantillas-certificado/corporativo.png',
+  },
+  {
+    id: 'moderno',
+    nombre: 'Moderno',
+    descripcion: 'Fondo oscuro con acentos de color. Academias tech y startups.',
+    thumbnail: '/images/plantillas-certificado/moderno.png',
+  },
+  {
+    id: 'elegante',
+    nombre: 'Elegante',
+    descripcion: 'Fondo crema con bordes ornamentales. Estilo universitario.',
+    thumbnail: '/images/plantillas-certificado/elegante.png',
+  },
+]
+
 function CertificadosSettings({ config, onInputChange }: { config: any; onInputChange: (clave: string, valor: string) => void }) {
   const { data: usuariosData, isLoading } = useUsuarios({ limit: '1000' })
   const candidatos = (usuariosData?.usuarios || []).filter(u => u.rol === Rol.ADMIN || u.rol === Rol.PROFESOR)
+  const plantillaActiva = config.CERTIFICADO_PLANTILLA || 'clasico'
 
   return (
     <Stack spacing={4}>
+
+      {/* ── SELECTOR DE PLANTILLA ─────────────────────────────── */}
+      <Box>
+        <SectionLabel>Plantilla de Certificado</SectionLabel>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+          Selecciona el diseño que se usará para todos los certificados generados en la plataforma.
+          Los colores y el logo se aplican automáticamente según el branding configurado.
+        </Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 2 }}>
+          {PLANTILLAS_CERTIFICADO.map((p) => {
+            const isSelected = plantillaActiva === p.id
+            return (
+              <Box
+                key={p.id}
+                onClick={() => onInputChange('CERTIFICADO_PLANTILLA', p.id)}
+                sx={{
+                  cursor: 'pointer',
+                  borderRadius: 2,
+                  border: '2px solid',
+                  borderColor: isSelected ? 'primary.main' : 'divider',
+                  overflow: 'hidden',
+                  transition: 'all 0.18s',
+                  boxShadow: isSelected ? 4 : 0,
+                  '&:hover': { transform: 'translateY(-2px)', boxShadow: 3 },
+                  position: 'relative',
+                }}
+              >
+                {isSelected && (
+                  <Box
+                    sx={{
+                      position: 'absolute', top: 6, right: 6, zIndex: 1,
+                      bgcolor: 'primary.main', borderRadius: '50%',
+                      width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    <i className='tabler-check' style={{ fontSize: 13, color: '#fff' }} />
+                  </Box>
+                )}
+                <Box
+                  component='img'
+                  src={p.thumbnail}
+                  alt={p.nombre}
+                  sx={{ width: '100%', aspectRatio: '297/210', objectFit: 'cover', display: 'block' }}
+                />
+                <Box sx={{ p: 1.5, bgcolor: isSelected ? 'primary.main' : 'background.paper' }}>
+                  <Typography
+                    variant='body2'
+                    fontWeight={700}
+                    sx={{ color: isSelected ? '#fff' : 'text.primary', mb: 0.3 }}
+                  >
+                    {p.nombre}
+                  </Typography>
+                  <Typography
+                    variant='caption'
+                    sx={{ color: isSelected ? 'rgba(255,255,255,0.8)' : 'text.secondary', lineHeight: 1.3, display: 'block' }}
+                  >
+                    {p.descripcion}
+                  </Typography>
+                </Box>
+              </Box>
+            )
+          })}
+        </Box>
+      </Box>
+
+      <Divider />
       <Box>
         <SectionLabel>Información de la Institución</SectionLabel>
         <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
@@ -305,6 +399,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     CULQI_RSA_ID: '',
     CULQI_RSA_PUBLIC_KEY: '',
     CERTIFICADO_GERENTE_GENERAL_ID: '',
+    CERTIFICADO_PLANTILLA: 'clasico',
     PAGO_MANUAL_ENABLED: 'false',
     PAGO_MANUAL_WHATSAPP_NUMERO: '',
     PAGO_MANUAL_WHATSAPP_MENSAJE: '',
