@@ -412,7 +412,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
                     <CustomTextField
                       {...field}
                       fullWidth
-                      label="Nombre"
+                      label="Nombres"
                       placeholder="Juan"
                       error={!!registerForm.formState.errors.nombre}
                       helperText={registerForm.formState.errors.nombre?.message}
@@ -429,7 +429,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
                     <CustomTextField
                       {...field}
                       fullWidth
-                      label="Apellido"
+                      label="Apellidos"
                       placeholder="Pérez"
                       error={!!registerForm.formState.errors.apellido}
                       helperText={registerForm.formState.errors.apellido?.message}

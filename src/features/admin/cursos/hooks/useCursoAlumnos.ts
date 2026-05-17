@@ -8,9 +8,12 @@ interface UseCursoAlumnosProps {
   search?: string
 }
 
+export const CURSO_ALUMNOS_QUERY_KEY = (cursoId: string | null, search?: string) =>
+  ['curso-alumnos', cursoId, search]
+
 export const useCursoAlumnos = ({ cursoId, search }: UseCursoAlumnosProps) => {
   return useQuery({
-    queryKey: ['curso-alumnos', cursoId, search],
+    queryKey: CURSO_ALUMNOS_QUERY_KEY(cursoId, search),
     queryFn: async () => {
       if (!cursoId) return { alumnos: [], total: 0 }
 
