@@ -86,6 +86,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
     const [fetchError, setFetchError] = useState(false)
     const [pagoPendiente, setPagoPendiente] = useState(false)
     const [precioCertificado, setPrecioCertificado] = useState<number | null>(null)
+    const [cursoTitulo, setCursoTitulo] = useState<string | null>(null)
     const [whatsappNumero, setWhatsappNumero] = useState<string | null>(null)
     const autoGeneradoRef = useRef(false)
 
@@ -104,6 +105,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
                     setElegibilidad(res.data.result.elegibilidad ?? null)
                     setPagoPendiente(res.data.result.pagoPendiente ?? false)
                     setPrecioCertificado(res.data.result.precioCertificado ?? null)
+                    setCursoTitulo(res.data.result.cursoTitulo ?? null)
                     setWhatsappNumero(resPago?.data?.result?.whatsapp_numero || null)
                 } else {
                     setFetchError(true)
@@ -361,7 +363,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
         const moneda = 'S/'
         const precioFmt = precioCertificado ? `${moneda} ${Number(precioCertificado).toFixed(2)}` : ''
         const waUrl = whatsappNumero
-            ? `https://wa.me/${whatsappNumero.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, quiero obtener mi certificado${precioFmt ? ` (${precioFmt})` : ''}. Por favor, indícame los pasos para realizar el pago.`)}`
+            ? `https://wa.me/${whatsappNumero.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, quiero obtener mi certificado del curso "${cursoTitulo || ''}"${precioFmt ? ` (${precioFmt})` : ''}. Por favor, indícame los pasos para realizar el pago.`)}`
             : null
 
         return (

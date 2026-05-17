@@ -77,7 +77,7 @@ export async function GET(request: Request) {
         where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } },
         select: { certificado_habilitado: true }
       }),
-      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true } })
+      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true, titulo: true } })
     ])
 
     const precioCert = curso?.precio_certificado ? Number(curso.precio_certificado) : null
@@ -91,6 +91,7 @@ export async function GET(request: Request) {
         cursoTitulo: certificado.curso.titulo,
         nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
       } : null,
+      cursoTitulo: curso?.titulo ?? null,
       elegibilidad,
       pagoPendiente: pagoPendiente || false,
       precioCertificado: precioCert
@@ -122,7 +123,7 @@ export async function POST(request: Request) {
       prisma.inscripcion.findUnique({
         where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } }
       }),
-      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true } })
+      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true, codigo: true, slug: true } })
     ])
 
     if (!inscripcion || inscripcion.estado !== 'ACTIVO') {
@@ -180,7 +181,7 @@ export async function POST(request: Request) {
       }),
       prisma.usuario.findUnique({
         where: { id: auth.user.id },
-        select: { nombre: true, apellido: true }
+        select: { nombre: true, apellido: true, numero_documento: true }
       })
     ])
 
@@ -188,8 +189,12 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'Curso no encontrado', 404)
     }
 
-    // 5. Generar código de verificación único
-    const codigoVerificacion = `CERT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+    // 5. Generar código de verificación único: {CODIGO_CURSO}-{YYYYMMDD}-{DNI}-{NN}
+    const fechaEmision = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+    const dni = usuarioData?.numero_documento?.replace(/\D/g, '') || 'SINDNI'
+    const codigoCurso = cursoData?.codigo || cursoData?.slug?.slice(0, 12).toUpperCase() || cursoId.slice(0, 8).toUpperCase()
+    const numeroIntento = 1
+    const codigoVerificacion = `${codigoCurso}-${fechaEmision}-${dni}-${String(numeroIntento).padStart(2, '0')}`
 
     const datosSnapshot = {
       curso: {
@@ -220,6 +225,7 @@ export async function POST(request: Request) {
         usuario_id: auth.user.id,
         curso_id: cursoId,
         codigo_verificacion: codigoVerificacion,
+        numero_intento: numeroIntento,
         datos: datosSnapshot as any
       },
       include: {

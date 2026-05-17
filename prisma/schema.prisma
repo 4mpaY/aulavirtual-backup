@@ -75,6 +75,7 @@ model Curso {
   id                 String          @id @default(uuid())
   titulo             String
   slug               String          @unique
+  codigo             String?         @unique
   descripcion        String?
   miniatura          String?
   video_presentacion String?
@@ -402,6 +403,7 @@ model Certificado {
   usuario_id          String
   curso_id            String
   datos               Json?
+  numero_intento      Int      @default(1)
   curso               Curso    @relation(fields: [curso_id], references: [id], onDelete: Cascade)
   usuario             Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 

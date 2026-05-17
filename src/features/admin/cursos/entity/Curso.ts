@@ -62,6 +62,7 @@ export interface Curso {
   id: string
   titulo: string
   slug: string
+  codigo: string | null
   descripcion: string | null
   miniatura: string | null
   video_presentacion: string | null
