@@ -90,7 +90,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
   const mostrarFirmaDocente = configs.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'
 
   // ── QR ──
-  const appUrl = `${reqUrl.protocol}//${reqUrl.host}`
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${reqUrl.protocol}//${reqUrl.host}`
   const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
   const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
     width: 120, margin: 1,

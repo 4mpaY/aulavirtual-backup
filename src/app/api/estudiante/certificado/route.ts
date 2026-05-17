@@ -64,7 +64,7 @@ export async function GET(request: Request) {
       return ApiResponse.error(request, 'El ID del curso es requerido', 400)
     }
 
-    const [certificado, elegibilidad] = await Promise.all([
+    const [certificado, elegibilidad, inscripcion, curso] = await Promise.all([
       prisma.certificado.findUnique({
         where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } },
         include: {
@@ -72,8 +72,16 @@ export async function GET(request: Request) {
           usuario: { select: { nombre: true, apellido: true } }
         }
       }),
-      calcularElegibilidad(auth.user.id, cursoId)
+      calcularElegibilidad(auth.user.id, cursoId),
+      prisma.inscripcion.findUnique({
+        where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } },
+        select: { certificado_habilitado: true }
+      }),
+      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true } })
     ])
+
+    const precioCert = curso?.precio_certificado ? Number(curso.precio_certificado) : null
+    const pagoPendiente = precioCert && precioCert > 0 && !inscripcion?.certificado_habilitado
 
     return ApiResponse.success(request, {
       certificado: certificado ? {
@@ -83,7 +91,9 @@ export async function GET(request: Request) {
         cursoTitulo: certificado.curso.titulo,
         nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
       } : null,
-      elegibilidad
+      elegibilidad,
+      pagoPendiente: pagoPendiente || false,
+      precioCertificado: precioCert
     })
   } catch (error) {
     return handleApiError(error, request)
@@ -108,12 +118,22 @@ export async function POST(request: Request) {
     }
 
     // 1. Verificar inscripción activa
-    const inscripcion = await prisma.inscripcion.findUnique({
-      where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } }
-    })
+    const [inscripcion, curso] = await Promise.all([
+      prisma.inscripcion.findUnique({
+        where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } }
+      }),
+      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true } })
+    ])
 
     if (!inscripcion || inscripcion.estado !== 'ACTIVO') {
       return ApiResponse.error(request, 'No estás inscrito en este curso', 403)
+    }
+
+    // 1b. Verificar pago del certificado si aplica
+    const precioCert = curso?.precio_certificado ? Number(curso.precio_certificado) : null
+
+    if (precioCert && precioCert > 0 && !inscripcion.certificado_habilitado) {
+      return ApiResponse.error(request, 'El certificado de este curso requiere un pago previo. Comunícate con nosotros para habilitarlo.', 403)
     }
 
     // 2. Verificar elegibilidad (progreso + promedio de evaluaciones)

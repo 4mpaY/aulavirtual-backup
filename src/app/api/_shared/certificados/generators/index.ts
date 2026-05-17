@@ -1,5 +1,6 @@
 import type { GeneratorFn } from './types'
 import { generarClasico } from './clasico'
+import { generarClasicoResumido } from './clasico_resumido'
 import { generarCorporativo } from './corporativo'
 import { generarModerno } from './moderno'
 import { generarElegante } from './elegante'
@@ -11,6 +12,13 @@ export const PLANTILLAS = {
     descripcion: 'Panel lateral con gradiente, diseño balanceado. Ideal para institutos y academias.',
     paginas: 2,
     thumbnail: '/images/plantillas-certificado/clasico.png',
+  },
+  clasico_resumido: {
+    id: 'clasico_resumido',
+    nombre: 'Clásico (Resumido)',
+    descripcion: 'Versión del clásico con el temario resumido a dos columnas para ahorrar espacio.',
+    paginas: 2,
+    thumbnail: '/images/plantillas-certificado/clasico.png', // Reusing the same thumbnail for now, will replace
   },
   corporativo: {
     id: 'corporativo',
@@ -43,6 +51,7 @@ export type PlantillaId = keyof typeof PLANTILLAS
  */
 export function getGenerator(plantilla: string): GeneratorFn {
   switch (plantilla) {
+    case 'clasico_resumido': return generarClasicoResumido
     case 'corporativo': return generarCorporativo
     case 'moderno':     return generarModerno
     case 'elegante':    return generarElegante
@@ -50,4 +59,4 @@ export function getGenerator(plantilla: string): GeneratorFn {
   }
 }
 
-export { generarClasico, generarCorporativo, generarModerno, generarElegante }
+export { generarClasico, generarClasicoResumido, generarCorporativo, generarModerno, generarElegante }

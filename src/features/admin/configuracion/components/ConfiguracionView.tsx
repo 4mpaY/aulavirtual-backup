@@ -86,6 +86,12 @@ const PLANTILLAS_CERTIFICADO = [
     thumbnail: '/images/plantillas-certificado/clasico.png',
   },
   {
+    id: 'clasico_resumido',
+    nombre: 'Clásico (Resumido)',
+    descripcion: 'Temario a dos columnas sin cuadro de notas para ahorrar espacio.',
+    thumbnail: '/images/plantillas-certificado/clasico_resumido.png',
+  },
+  {
     id: 'corporativo',
     nombre: 'Corporativo',
     descripcion: 'Diseño formal con borde y detalles dorados. Empresas B2B.',
