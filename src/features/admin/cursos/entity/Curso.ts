@@ -62,6 +62,7 @@ export interface Curso {
   id: string
   titulo: string
   slug: string
+  codigo: string | null
   descripcion: string | null
   miniatura: string | null
   video_presentacion: string | null
@@ -73,6 +74,7 @@ export interface Curso {
   estado: 'BORRADOR' | 'PUBLICADO' | 'ARCHIVADO'
   es_gratis: boolean
   es_privado: boolean
+  precio_certificado: number | null
   precio: number
   moneda: string
   creado_en: string

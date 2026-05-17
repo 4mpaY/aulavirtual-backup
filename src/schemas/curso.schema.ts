@@ -19,6 +19,7 @@ export const crearCursoSchema = z.object({
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').default(0),
   moneda: z.string().max(3).default('PEN'),
   duracion: z.string().max(50).optional().nullable(),
+  codigo: z.string().max(20).optional().nullable(),
 
   // Paso 3: Media (opcional al crear)
   miniatura: z.string().optional().nullable(),
@@ -48,9 +49,11 @@ export const actualizarCursoSchema = z.object({
   nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).optional(),
   es_gratis: z.boolean().optional(),
   es_privado: z.boolean().optional(),
+  precio_certificado: z.coerce.number().min(0).optional().nullable(),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').optional(),
   moneda: z.string().max(3).optional(),
   duracion: z.string().max(50).optional().nullable(),
+  codigo: z.string().max(20).optional().nullable(),
   miniatura: z.string().optional().nullable(),
   video_presentacion: z.string().optional().nullable(),
   brochure: z.string().optional().nullable(),

@@ -33,12 +33,20 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
     const [esPrivado, setEsPrivado] = useState(curso.es_privado ?? false)
     const [precio, setPrecio] = useState(curso.precio)
     const [moneda, setMoneda] = useState(curso.moneda)
+    const [precioCertificado, setPrecioCertificado] = useState<number | ''>(curso.precio_certificado ?? '')
 
     const handleSavePrice = async () => {
         try {
             await editMutation.mutateAsync({
                 id: curso.id,
-                data: { es_gratis: esGratis, precio: esGratis ? 0 : precio, moneda }
+                data: {
+                    es_gratis: esGratis,
+                    precio: esGratis ? 0 : precio,
+                    moneda,
+                    precio_certificado: esGratis
+                        ? (precioCertificado === '' ? null : Number(precioCertificado))
+                        : null
+                }
             })
             enqueueSnackbar('Configuración actualizada', { variant: 'success' })
             onSuccess()
@@ -81,11 +89,25 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                                 setEsGratis(e.target.checked)
 
                                 if (e.target.checked) setPrecio(0)
+                                else setPrecioCertificado('')
                             }}
                         />
                     }
                     label='Este curso es gratis'
                 />
+                {esGratis && (
+                    <Box sx={{ mt: 2 }}>
+                        <CustomTextField
+                            type='number'
+                            label='Precio del certificado'
+                            value={precioCertificado}
+                            onChange={e => setPrecioCertificado(e.target.value === '' ? '' : Number(e.target.value))}
+                            sx={{ width: 260 }}
+                            inputProps={{ min: 0, step: 0.01 }}
+                            helperText='Déjalo vacío si el certificado también es gratuito'
+                        />
+                    </Box>
+                )}
                 {!esGratis && (
                     <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
                         <CustomTextField

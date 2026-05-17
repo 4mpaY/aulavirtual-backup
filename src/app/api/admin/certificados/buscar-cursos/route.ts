@@ -23,8 +23,7 @@ export async function GET(request: Request) {
         ? { titulo: { contains: buscar, mode: 'insensitive' } }
         : {},
       select: { id: true, titulo: true, estado: true },
-      orderBy: { titulo: 'asc' },
-      take: 30
+      orderBy: [{ estado: 'asc' }, { titulo: 'asc' }]
     })
 
     return ApiResponse.success(request, { cursos })

@@ -178,32 +178,16 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
   const handleGoogleAuth = async () => {
     try {
       setIsLoading(true)
-      const result = await signIn('google', { redirect: false })
+      setError('')
 
-      if (result?.url) {
-        const width = 500
-        const height = 600
-        const left = window.screenX + (window.outerWidth - width) / 2
-        const top = window.screenY + (window.outerHeight - height) / 2
-
-        const popup = window.open(
-          result.url,
-          'google-auth',
-          `width=${width},height=${height},left=${left},top=${top}`
-        )
-
-        const checkPopup = setInterval(() => {
-          if (!popup || popup.closed) {
-            clearInterval(checkPopup)
-            handleLoginSuccess()
-          }
-        }, 1000)
-      } else {
-        setError('No se pudo conectar con Google.')
-      }
-    } catch {
+      // Usamos el redireccionamiento estándar de NextAuth.
+      // Esto es más robusto que usar ventanas emergentes (popups) que pueden ser bloqueadas.
+      await signIn('google', {
+        callbackUrl: callbackUrl || window.location.href
+      })
+    } catch (error) {
+      console.error('Error al conectar con Google:', error)
       setError('Ocurrió un error al conectar con Google.')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -428,7 +412,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
                     <CustomTextField
                       {...field}
                       fullWidth
-                      label="Nombre"
+                      label="Nombres"
                       placeholder="Juan"
                       error={!!registerForm.formState.errors.nombre}
                       helperText={registerForm.formState.errors.nombre?.message}
@@ -445,7 +429,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
                     <CustomTextField
                       {...field}
                       fullWidth
-                      label="Apellido"
+                      label="Apellidos"
                       placeholder="Pérez"
                       error={!!registerForm.formState.errors.apellido}
                       helperText={registerForm.formState.errors.apellido?.message}
