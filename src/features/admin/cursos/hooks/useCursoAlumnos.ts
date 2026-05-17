@@ -15,7 +15,7 @@ export const useCursoAlumnos = ({ cursoId, search }: UseCursoAlumnosProps) => {
   return useQuery({
     queryKey: CURSO_ALUMNOS_QUERY_KEY(cursoId, search),
     queryFn: async () => {
-      if (!cursoId) return { alumnos: [], total: 0 }
+      if (!cursoId) return { alumnos: [], total: 0, totalExamenes: 0, precio_certificado: null }
 
       const getAuthToken = async () => {
         const session = await getSession()

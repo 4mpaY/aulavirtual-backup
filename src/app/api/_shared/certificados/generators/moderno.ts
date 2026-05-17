@@ -1,4 +1,4 @@
-import type { CertificadoData, GeneratorFn } from './types'
+import type { GeneratorFn } from './types'
 import { fetchImageBuffer, formatDateLong, resolveLogoDimensions } from './utils'
 
 /**
@@ -38,20 +38,26 @@ export const generarModerno: GeneratorFn = async (data) => {
 
   const addSignatureBlock = async (x: number, lineY: number, user: any) => {
     if (!user) return
+
     if (user.firma) {
       try {
         const buf = await fetchImageBuffer(user.firma)
+
         if (buf) {
           const ext = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+
           doc.addImage(buf, ext.toUpperCase(), x - 15, lineY - 26, 30, 26)
         }
       } catch { /* skip */ }
     }
+
     doc.setDrawColor(pr, pg, pb); doc.setLineWidth(0.6)
     doc.line(x - 35, lineY, x + 35, lineY)
     const name = `${user.nombre || ''} ${user.apellido || ''}`.trim()
+
     doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(...TEXT)
     doc.text(name, x, lineY + 5, { align: 'center' })
+
     if (user.cargo) {
       doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(...MUTED)
       doc.text(user.cargo, x, lineY + 10, { align: 'center' })
@@ -65,14 +71,17 @@ export const generarModerno: GeneratorFn = async (data) => {
 
   // Franja lateral izquierda de color primario (glow effect con strips)
   const accentW = 8
+
   for (let i = 0; i < 20; i++) {
     const alpha = 1 - i / 20
     const r = Math.round(pr + (BG[0] - pr) * (1 - alpha))
     const g = Math.round(pg + (BG[1] - pg) * (1 - alpha))
     const b = Math.round(pb + (BG[2] - pb) * (1 - alpha))
+
     doc.setFillColor(r, g, b)
     doc.rect(accentW + i * 3, 0, 3, H, 'F')
   }
+
   doc.setFillColor(pr, pg, pb); doc.rect(0, 0, accentW, H, 'F')
 
   // Panel de contenido (surface)
@@ -82,9 +91,11 @@ export const generarModerno: GeneratorFn = async (data) => {
   // Área izquierda: logo + QR + institución
   const leftCx = accentW + 30
   const { w: lw, h: lh } = await resolveLogoDimensions(logoBuffer, 42, 18)
+
   if (base64Logo) {
     try {
       const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
       doc.addImage(base64Logo, ext, leftCx - lw / 2, 12, lw, lh)
     } catch { /* skip */ }
   }
@@ -103,6 +114,7 @@ export const generarModerno: GeneratorFn = async (data) => {
   const qrSz = 28
   const qrX = leftCx - qrSz / 2
   const qrY = H - qrSz - 22
+
   doc.setFillColor(255, 255, 255)
   doc.roundedRect(qrX - 2, qrY - 2, qrSz + 4, qrSz + 4, 2, 2, 'F')
   doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSz, qrSz)
@@ -130,6 +142,7 @@ export const generarModerno: GeneratorFn = async (data) => {
   // Nombre del alumno — muy grande
   doc.setFontSize(22); doc.setFont('helvetica', 'bold'); doc.setTextColor(...TEXT)
   const nameLines = doc.splitTextToSize(nombreCompleto.toUpperCase(), contentW)
+
   doc.text(nameLines, ccx, y, { align: 'center' }); y += nameLines.length * 9 + 2
 
   // Línea de acento bajo el nombre
@@ -143,6 +156,7 @@ export const generarModerno: GeneratorFn = async (data) => {
   // Título del curso
   doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(pr, pg, pb)
   const cursoL = doc.splitTextToSize(cursoTitulo, contentW - 10)
+
   doc.text(cursoL, ccx, y, { align: 'center' }); y += cursoL.length * 6 + 4
 
   // Detalles: duración, fechas en chips
@@ -151,9 +165,12 @@ export const generarModerno: GeneratorFn = async (data) => {
     { label: 'INICIO', value: formatDateLong(fechaInicioVal) },
     { label: 'CULMINACIÓN', value: formatDateLong(fechaFinVal) },
   ]
+
   const chipW = (contentW - 8) / chips.length
+
   chips.forEach((chip, i) => {
     const cx2 = contentX + chipW * i + chipW / 2 + (i > 0 ? 4 : 0)
+
     doc.setFillColor(Math.round(pr * 0.15 + BG[0] * 0.85), Math.round(pg * 0.15 + BG[1] * 0.85), Math.round(pb * 0.15 + BG[2] * 0.85))
     doc.roundedRect(contentX + chipW * i + (i > 0 ? 4 : 0), y, chipW - 2, 12, 2, 2, 'F')
     doc.setFontSize(6); doc.setFont('helvetica', 'bold'); doc.setTextColor(pr, pg, pb)
@@ -169,6 +186,7 @@ export const generarModerno: GeneratorFn = async (data) => {
 
   // Firmas
   const hasGerente = gerenteGeneral !== null
+
   if (hasGerente && mostrarFirmaDocente) {
     await addSignatureBlock(contentX + contentW / 4, y + 20, gerenteGeneral)
     await addSignatureBlock(contentX + (contentW * 3) / 4, y + 20, profesorSnapshot)
@@ -191,13 +209,16 @@ export const generarModerno: GeneratorFn = async (data) => {
 
   // Banda superior
   doc.setFillColor(pr, pg, pb); doc.rect(accentW, 0, W - accentW, 12, 'F')
+
   if (base64Logo) {
     try {
       const ext2 = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
       const { w: lw2, h: lh2 } = await resolveLogoDimensions(logoBuffer, 28, 8)
+
       doc.addImage(base64Logo, ext2, accentW + 4, (12 - lh2) / 2, lw2, lh2)
     } catch { /* skip */ }
   }
+
   doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
   doc.text(nombreInstitucion.toUpperCase(), W - 8, 7.5, { align: 'right' })
 
@@ -215,10 +236,21 @@ export const generarModerno: GeneratorFn = async (data) => {
   doc.text('RENDIMIENTO', cL + cW2 / 2, p2Y + 5, { align: 'center' })
 
   let yL = p2Y + 11
-  const promedios = Object.values(notasPorModulo).map(e => { const r = e.puntaje / e.count; return r > 20 ? r / 5 : r })
+
+  const promedios = Object.values(notasPorModulo).map(e => { const r = e.puntaje / e.count;
+
+ 
+
+return r > 20 ? r / 5 : r })
+
   const nf = promedios.length > 0
     ? promedios.reduce((a, b) => a + b, 0) / promedios.length
-    : (() => { const r = notaInscripcion ?? null; return r !== null ? (r > 20 ? r / 5 : r) : null })()
+    : (() => { const r = notaInscripcion ?? null;
+
+ 
+
+return r !== null ? (r > 20 ? r / 5 : r) : null })()
+
   const nd = nf !== null ? nf.toFixed(2) : '---'
   const pct = nf !== null ? Math.min(nf / 20, 1) : 0
 
@@ -231,6 +263,7 @@ export const generarModerno: GeneratorFn = async (data) => {
   yL += 18
 
   const bw = cW2 - 12
+
   doc.setFillColor(30, 41, 59); doc.roundedRect(cL + 6, yL, bw, 3, 1.5, 1.5, 'F')
   doc.setFillColor(pr, pg, pb); doc.roundedRect(cL + 6, yL, bw * pct, 3, 1.5, 1.5, 'F')
   doc.setFontSize(T.s); doc.setFont('helvetica', 'bold'); doc.setTextColor(pr, pg, pb)
@@ -242,6 +275,7 @@ export const generarModerno: GeneratorFn = async (data) => {
     const e = notasPorModulo[mod.id]
     const pm2 = (e.puntaje / e.count > 20 ? (e.puntaje / e.count) / 5 : e.puntaje / e.count).toFixed(1)
     const tl = doc.splitTextToSize(mod.titulo, cW2 - 18)
+
     doc.setFontSize(T.s); doc.setFont('helvetica', 'normal'); doc.setTextColor(...TEXT)
     doc.text(tl, cL + 3, yL)
     doc.setFont('helvetica', 'bold'); doc.setTextColor(pr, pg, pb)
@@ -255,23 +289,28 @@ export const generarModerno: GeneratorFn = async (data) => {
   doc.text('CONTENIDO DEL PROGRAMA', cR + cW2 / 2, p2Y + 5, { align: 'center' })
 
   let yR = p2Y + 11
+
   for (const mod of modulos) {
     const mt = `${mod.orden}. ${mod.titulo}`.toUpperCase()
     const ml = doc.splitTextToSize(mt, cW2 - 8)
     const mh = ml.length * 3.5 + 3
+
     if (yR + mh > H - 10) break
     doc.setFillColor(Math.round(pr * 0.3 + BG[0] * 0.7), Math.round(pg * 0.3 + BG[1] * 0.7), Math.round(pb * 0.3 + BG[2] * 0.7))
     doc.roundedRect(cR, yR, cW2, mh, 1, 1, 'F')
     doc.setFontSize(T.h); doc.setFont('helvetica', 'bold'); doc.setTextColor(pr, pg, pb)
     doc.text(ml, cR + 3, yR + 3); yR += mh + 1
+
     for (const lec of mod.lecciones) {
       const ll = doc.splitTextToSize(`${mod.orden}.${lec.orden} ${lec.titulo}`, cW2 - 12)
       const lh = ll.length * 3 + 1
+
       if (yR + lh > H - 10) break
       doc.setFillColor(pr, pg, pb); doc.circle(cR + 3.5, yR + 1.5, 0.7, 'F')
       doc.setFontSize(T.s); doc.setFont('helvetica', 'normal'); doc.setTextColor(...TEXT)
       doc.text(ll, cR + 6, yR + 2.5); yR += lh
     }
+
     yR += 2
   }
 

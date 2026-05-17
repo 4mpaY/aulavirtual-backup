@@ -34,6 +34,7 @@ export interface ModuloData {
  * y lo pasan al generador seleccionado por la configuración CERTIFICADO_PLANTILLA.
  */
 export interface CertificadoData {
+
   // ── Branding ──
   colorPrimario: string          // hex, ej: '#131FF2'
   pr: number                     // R del color primario (0-255)

@@ -1,4 +1,4 @@
-import type { CertificadoData, GeneratorFn } from './types'
+import type { GeneratorFn } from './types'
 import { fetchImageBuffer, formatDateLong } from './utils'
 
 /**
@@ -10,7 +10,7 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
   const {
     pr, pg, pb,
     logoBuffer, logoUrl, base64Logo,
-    nombreInstitucion, slogan, disclaimer, institutionUrl,
+    nombreInstitucion, slogan,
     nombreCompleto, avatarBuffer,
     cursoTitulo, cursoDuracion,
     fechaEmisionVal, fechaInicioVal, fechaFinVal,
@@ -36,23 +36,29 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
 
   const addSignatureBlock = async (x: number, lineY: number, user: any) => {
     if (!user) return
+
     if (user.firma) {
       try {
         const signatureBuffer = await fetchImageBuffer(user.firma)
+
         if (signatureBuffer) {
           const sigExt = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+
           doc.addImage(signatureBuffer, sigExt.toUpperCase(), x - 17, lineY - 34, 34, 34)
         }
       } catch { /* skip */ }
     }
+
     doc.setDrawColor(50, 50, 50)
     doc.setLineWidth(0.5)
     doc.line(x - 36, lineY, x + 36, lineY)
     const nombreFirmante = `${user.nombre || ''} ${user.apellido || ''}`.trim()
+
     doc.setFontSize(12)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(25, 25, 25)
     doc.text(nombreFirmante, x, lineY + 7, { align: 'center' })
+
     if (user.cargo) {
       doc.setFontSize(12)
       doc.setFont('helvetica', 'normal')
@@ -71,11 +77,13 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
 
   // Gradiente del panel lateral
   const gradStrips = 70
+
   for (let i = 0; i < gradStrips; i++) {
     const t = i / (gradStrips - 1)
     const r = Math.round(pr + (255 - pr) * 0.12 - (pr + (255 - pr) * 0.12 - dpR) * t)
     const g = Math.round(pg + (255 - pg) * 0.12 - (pg + (255 - pg) * 0.12 - dpG) * t)
     const b = Math.round(pb + (255 - pb) * 0.12 - (pb + (255 - pb) * 0.12 - dpB) * t)
+
     doc.setFillColor(Math.max(0, Math.min(255, r)), Math.max(0, Math.min(255, g)), Math.max(0, Math.min(255, b)))
     doc.rect(contentW, (i / gradStrips) * pageHeight, panelW, pageHeight / gradStrips + 0.5, 'F')
   }
@@ -84,12 +92,14 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
   const ribR1 = Math.round(pr + (255 - pr) * 0.28)
   const ribG1 = Math.round(pg + (255 - pg) * 0.28)
   const ribB1 = Math.round(pb + (255 - pb) * 0.28)
+
   doc.setFillColor(ribR1, ribG1, ribB1)
   doc.lines([[21, 22, 41, 68, 60, 96], [0, 24], [-19, -12, -39, -48, -60, -96], [0, -24]], 237, 0, [1, 1], 'F', true)
 
   const ribR2 = Math.round(pr + (255 - pr) * 0.14)
   const ribG2 = Math.round(pg + (255 - pg) * 0.14)
   const ribB2 = Math.round(pb + (255 - pb) * 0.14)
+
   doc.setFillColor(ribR2, ribG2, ribB2)
   doc.lines([[20, 18, 41, 62, 60, 88], [0, 32], [-19, -4, -39, -42, -60, -98], [0, -22]], 237, 90, [1, 1], 'F', true)
 
@@ -97,6 +107,7 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
   const qrSz = 30
   const qrX0 = contentW + (panelW - qrSz) / 2
   const qrY0 = pageHeight - qrSz - 24
+
   doc.setFillColor(255, 255, 255)
   doc.roundedRect(qrX0 - 3, qrY0 - 3, qrSz + 6, qrSz + 6, 2, 2, 'F')
   doc.addImage(qrDataUrl, 'PNG', qrX0, qrY0, qrSz, qrSz)
@@ -126,8 +137,10 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
     try {
       const { default: sharp } = await import('sharp')
       const meta = await sharp(logoBuffer).metadata()
+
       if (meta.width && meta.height) {
         const ratio = meta.width / meta.height
+
         logoDisplayH = maxLogoH
         logoDisplayW = Math.min(logoDisplayH * ratio, maxLogoW)
         if (logoDisplayW === maxLogoW) logoDisplayH = maxLogoW / ratio
@@ -138,9 +151,11 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
   if (base64Logo) {
     try {
       const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
       doc.addImage(base64Logo, ext, cx - logoDisplayW / 2, y, logoDisplayW, logoDisplayH)
     } catch { /* skip */ }
   }
+
   y += logoDisplayH + 14
 
   // Título, nombre, curso, descripción
@@ -158,19 +173,23 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
 
   doc.setFontSize(20); doc.setTextColor(15, 15, 15); doc.setFont('helvetica', 'bold')
   const cursoLines = doc.splitTextToSize(cursoTitulo, contentW - 34)
+
   doc.text(cursoLines, cx, y, { align: 'center' }); y += cursoLines.length * 7 + 6
 
   doc.setFontSize(12); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100)
   const descripcionTxt = `Emitido por ${nombreInstitucion}, con una duración de ${cursoDuracion || '---'}, realizado desde el ${formatDateLong(fechaInicioVal)} hasta el ${formatDateLong(fechaFinVal)}.`
   const descripcionLines = doc.splitTextToSize(descripcionTxt, contentW - 40)
+
   doc.text(descripcionLines, cx, y, { align: 'center' }); y += descripcionLines.length * 6 + 4
 
   const porcuantoLines = doc.splitTextToSize('Por cuanto: Para que conste y sea reconocido, se otorga el presente diploma en calidad de:', contentW - 40)
+
   doc.text(porcuantoLines, cx, y, { align: 'center' }); y += porcuantoLines.length * 6 + 5
 
   doc.setFontSize(14); doc.setTextColor(pr, pg, pb); doc.setFont('helvetica', 'bold')
   doc.text('APROBADO', cx, y, { align: 'center' })
   const aprobadoW = doc.getTextWidth('APROBADO')
+
   doc.setDrawColor(pr, pg, pb); doc.setLineWidth(0.4)
   doc.line(cx - aprobadoW / 2 - 10, y - 1.5, cx - aprobadoW / 2 - 2, y - 1.5)
   doc.line(cx + aprobadoW / 2 + 2, y - 1.5, cx + aprobadoW / 2 + 10, y - 1.5)
@@ -181,6 +200,7 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
 
   // Firmas
   const hasGerente = gerenteGeneral !== null
+
   if (hasGerente && mostrarFirmaDocente) {
     await addSignatureBlock(cx - 54, y + 20, gerenteGeneral)
     await addSignatureBlock(cx + 54, y + 20, profesorSnapshot)
@@ -217,6 +237,7 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
   const bx = 8, by = 8
   const bRight = pageWidth - 8
   const bandBottom = 24
+
   doc.setFillColor(pr, pg, pb)
   doc.path([
     { op: 'm', c: [bx, by + br] },
@@ -239,8 +260,10 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
     try {
       const { default: sharp } = await import('sharp')
       const meta = await sharp(logoBuffer).metadata()
+
       if (meta.width && meta.height) {
         const ratio = meta.width / meta.height
+
         logoP2H = maxLogoHP2
         logoP2W = Math.min(logoP2H * ratio, maxLogoWP2)
         if (logoP2W === maxLogoWP2) logoP2H = maxLogoWP2 / ratio
@@ -252,11 +275,13 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
   if (base64Logo) {
     try {
       const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
       doc.addImage(base64Logo, ext, margin, 8.4 + (bandH - logoP2H) / 2, logoP2W, logoP2H)
     } catch { /* skip */ }
   }
 
   const logoRightEdge = margin + logoP2W + 4
+
   doc.setFontSize(12); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
   doc.text(nombreInstitucion.toUpperCase(), logoRightEdge, 14)
   doc.setFontSize(T.body); doc.setFont('helvetica', 'normal')
@@ -320,6 +345,7 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
     }
 
     const x = currentColumn === 1 ? col1X : col2X
+
     if (isModule) currentY += 2 // Extra gap before module
     doc.text(lines, x, currentY)
     currentY += lines.length * lineHeight
@@ -327,6 +353,7 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
 
   for (const modulo of modulos) {
     const tituloMod = `- ${modulo.titulo}`.toUpperCase()
+
     addLine(tituloMod, true)
 
     for (const leccion of modulo.lecciones) {

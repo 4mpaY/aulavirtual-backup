@@ -95,6 +95,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
             try {
                 setLoading(true)
                 setFetchError(false)
+
                 const [res, resPago] = await Promise.all([
                     axios.get(`/api/estudiante/certificado?cursoId=${cursoId}`),
                     axios.get('/api/metodos-pago').catch(() => null)
@@ -188,6 +189,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
     // ── Wrapper visual ──────────────────────────────────────────────
     const Wrapper = ({ children }: { children: React.ReactNode }) => {
         const hasPago = pagoPendiente && !certificado
+
         const borderColor = certificado
             ? 'success.light'
             : hasPago
@@ -195,6 +197,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
                 : elegibilidad?.isEligible
                     ? 'primary.light'
                     : 'divider'
+
         const headerBg = certificado
             ? 'rgba(22,163,74,0.06)'
             : hasPago
@@ -202,12 +205,15 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
                 : elegibilidad?.isEligible
                     ? 'rgba(2,94,68,0.06)'
                     : 'rgba(0,0,0,0.02)'
+
         const iconBg = certificado
             ? 'rgba(22,163,74,0.12)'
             : hasPago
                 ? 'rgba(245,158,11,0.12)'
                 : 'rgba(2,94,68,0.1)'
+
         const iconColor = certificado ? '#16a34a' : hasPago ? '#d97706' : '#025E44'
+
         const subtitle = certificado
             ? 'Certificado de finalización obtenido'
             : hasPago
@@ -362,6 +368,7 @@ const CertificateSection = ({ cursoId }: CertificateSectionProps) => {
     if (pagoPendiente) {
         const moneda = 'S/'
         const precioFmt = precioCertificado ? `${moneda} ${Number(precioCertificado).toFixed(2)}` : ''
+
         const waUrl = whatsappNumero
             ? `https://wa.me/${whatsappNumero.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, quiero obtener mi certificado del curso "${cursoTitulo || ''}"${precioFmt ? ` (${precioFmt})` : ''}. Por favor, indícame los pasos para realizar el pago.`)}`
             : null

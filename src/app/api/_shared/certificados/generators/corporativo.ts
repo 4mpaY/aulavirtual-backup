@@ -1,4 +1,4 @@
-import type { CertificadoData, GeneratorFn } from './types'
+import type { GeneratorFn } from './types'
 import { fetchImageBuffer, formatDateLong, resolveLogoDimensions } from './utils'
 
 /**
@@ -10,7 +10,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
   const {
     pr, pg, pb,
     logoBuffer, logoUrl, base64Logo,
-    nombreInstitucion, slogan, disclaimer, institutionUrl,
+    nombreInstitucion, disclaimer, institutionUrl,
     nombreCompleto,
     cursoTitulo, cursoDuracion,
     fechaEmisionVal, fechaInicioVal, fechaFinVal,
@@ -37,20 +37,26 @@ export const generarCorporativo: GeneratorFn = async (data) => {
 
   const addSignatureBlock = async (x: number, lineY: number, user: any) => {
     if (!user) return
+
     if (user.firma) {
       try {
         const buf = await fetchImageBuffer(user.firma)
+
         if (buf) {
           const ext = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+
           doc.addImage(buf, ext.toUpperCase(), x - 17, lineY - 30, 34, 30)
         }
       } catch { /* skip */ }
     }
+
     doc.setDrawColor(...gold); doc.setLineWidth(0.6)
     doc.line(x - 40, lineY, x + 40, lineY)
     const name = `${user.nombre || ''} ${user.apellido || ''}`.trim()
+
     doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(20, 20, 20)
     doc.text(name, x, lineY + 6, { align: 'center' })
+
     if (user.cargo) {
       doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(80, 80, 80)
       doc.text(user.cargo, x, lineY + 11, { align: 'center' })
@@ -79,12 +85,16 @@ export const generarCorporativo: GeneratorFn = async (data) => {
 
   // Logo en banda superior (alineado a la izquierda)
   const { w: lw, h: lh } = await resolveLogoDimensions(logoBuffer, 40, 10)
+
   if (base64Logo) {
     try {
       const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
       doc.addImage(base64Logo, ext, 8, (14 - lh) / 2, lw, lh)
     } catch { /* skip */ }
   }
+
+
   // Nombre institución en banda
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
   doc.text(nombreInstitucion.toUpperCase(), W - margin, 9, { align: 'right' })
@@ -112,6 +122,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
   // Línea dorada bajo el nombre
   doc.setDrawColor(...gold); doc.setLineWidth(0.8)
   const nameW = doc.getTextWidth(nombreCompleto)
+
   doc.line(cx - Math.min(nameW / 2, 80), y, cx + Math.min(nameW / 2, 80), y)
   y += 8
 
@@ -123,12 +134,14 @@ export const generarCorporativo: GeneratorFn = async (data) => {
   // Título del curso
   doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(20, 20, 20)
   const cursoLines = doc.splitTextToSize(cursoTitulo, W - 80)
+
   doc.text(cursoLines, cx, y, { align: 'center' }); y += cursoLines.length * 7 + 5
 
   // Descripción breve
   doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100)
   const desc = `Con una duración de ${cursoDuracion || '---'}, realizado desde el ${formatDateLong(fechaInicioVal)} hasta el ${formatDateLong(fechaFinVal)}.`
   const descLines = doc.splitTextToSize(`Emitido por ${nombreInstitucion}. ${desc}`, W - 80)
+
   doc.text(descLines, cx, y, { align: 'center' }); y += descLines.length * 5 + 5
 
   // "APROBADO" con ornamentos
@@ -145,6 +158,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
 
   // Firmas
   const hasGerente = gerenteGeneral !== null
+
   if (hasGerente && mostrarFirmaDocente) {
     await addSignatureBlock(cx - 60, y + 24, gerenteGeneral)
     await addSignatureBlock(cx + 60, y + 24, profesorSnapshot)
@@ -156,6 +170,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
 
   // QR esquina inferior derecha (sobre la banda inferior)
   const qrSz = 22
+
   doc.setFillColor(255, 255, 255)
   doc.roundedRect(W - qrSz - 12, H - qrSz - 14, qrSz + 4, qrSz + 4, 1, 1, 'F')
   doc.addImage(qrDataUrl, 'PNG', W - qrSz - 10, H - qrSz - 12, qrSz, qrSz)
@@ -178,9 +193,11 @@ export const generarCorporativo: GeneratorFn = async (data) => {
   if (base64Logo) {
     try {
       const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
+
       doc.addImage(base64Logo, ext, 8, (12 - lh) / 2, lw, lh)
     } catch { /* skip */ }
   }
+
   doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255)
   doc.text(nombreInstitucion.toUpperCase(), W - 12, 7, { align: 'right' })
 
@@ -199,12 +216,22 @@ export const generarCorporativo: GeneratorFn = async (data) => {
   doc.text('RENDIMIENTO ACADÉMICO', colL + colW2 / 2, p2Y + 5, { align: 'center' })
 
   let yL = p2Y + 11
+
   const promedios = Object.values(notasPorModulo).map(e => {
-    const r = e.puntaje / e.count; return r > 20 ? r / 5 : r
+    const r = e.puntaje / e.count;
+
+ 
+
+return r > 20 ? r / 5 : r
   })
+
   const nf = promedios.length > 0
     ? promedios.reduce((a, b) => a + b, 0) / promedios.length
-    : (() => { const r = notaInscripcion ?? null; return r !== null ? (r > 20 ? r / 5 : r) : null })()
+    : (() => { const r = notaInscripcion ?? null;
+
+ 
+
+return r !== null ? (r > 20 ? r / 5 : r) : null })()
 
   const nd = nf !== null ? nf.toFixed(2) : '---'
   const pct = nf !== null ? Math.min(nf / 20, 1) : 0
@@ -219,6 +246,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
 
   // Barra
   const bw = colW2 - 14
+
   doc.setFillColor(230, 230, 230); doc.roundedRect(colL + 7, yL, bw, 3.5, 1.5, 1.5, 'F')
   doc.setFillColor(pr, pg, pb); doc.roundedRect(colL + 7, yL, bw * pct, 3.5, 1.5, 1.5, 'F')
   doc.setFontSize(T.small); doc.setFont('helvetica', 'bold'); doc.setTextColor(pr, pg, pb)
@@ -226,6 +254,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
   yL += 9
 
   const modsConNota = modulos.filter(m => notasPorModulo[m.id])
+
   if (modsConNota.length > 0) {
     doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.2)
     doc.line(colL + 3, yL, colL + colW2 - 3, yL); yL += 4
@@ -238,6 +267,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
       const rm = entry.puntaje / entry.count
       const pm = (rm > 20 ? rm / 5 : rm).toFixed(1)
       const tl = doc.splitTextToSize(mod.titulo, colW2 - 20)
+
       doc.setFontSize(T.small); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60)
       doc.text(tl, colL + 3, yL)
       doc.setFont('helvetica', 'bold'); doc.setTextColor(...gold)
@@ -259,6 +289,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
     const mt = `${mod.orden}. ${mod.titulo}`.toUpperCase()
     const ml = doc.splitTextToSize(mt, colW2 - 8)
     const mh = ml.length * 4 + 3
+
     if (yR + mh > btmLimit) break
 
     doc.setFillColor(Math.round(pr * 0.1 + 255 * 0.9), Math.round(pg * 0.1 + 255 * 0.9), Math.round(pb * 0.1 + 255 * 0.9))
@@ -270,11 +301,13 @@ export const generarCorporativo: GeneratorFn = async (data) => {
       const lt = `${mod.orden}.${lec.orden}  ${lec.titulo}`
       const ll = doc.splitTextToSize(lt, colW2 - 12)
       const lh = ll.length * 3.5 + 1
+
       if (yR + lh > btmLimit) break
       doc.setFillColor(...gold); doc.circle(colR + 3.5, yR + 1.5, 0.7, 'F')
       doc.setFontSize(T.small); doc.setFont('helvetica', 'normal'); doc.setTextColor(60, 60, 60)
       doc.text(ll, colR + 6.5, yR + 2.5); yR += lh
     }
+
     yR += 2
   }
 

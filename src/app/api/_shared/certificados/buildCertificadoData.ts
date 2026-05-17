@@ -1,4 +1,5 @@
 import * as QRCode from 'qrcode'
+
 import { hexToRgb, fetchImageBuffer } from './generators/utils'
 import type { CertificadoData } from './generators/types'
 
@@ -80,8 +81,10 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
   // ── Fechas ──
   const esSincrono = certificado.curso.tipo_emision === 'SINCRONO'
   const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
+
   const fechaInicioVal = snapshot?.fechas?.inicio_curso
     || (esSincrono ? certificado.curso.fecha_inicio : (inscripcion?.inscrito_en || certificado.emitido_en))
+
   const fechaFinVal = snapshot?.fechas?.culminacion
     || (esSincrono ? (cursoFechaFin || certificado.emitido_en) : (inscripcion?.completado_en || certificado.emitido_en))
 
@@ -92,6 +95,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
   // ── QR ──
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${reqUrl.protocol}//${reqUrl.host}`
   const verifyUrl = `${appUrl}/verificar-certificado/${certificado.codigo_verificacion}`
+
   const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
     width: 120, margin: 1,
     color: { dark: colorPrimario, light: '#ffffff' }
@@ -100,9 +104,11 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
   // ── Imágenes ──
   const logoBuffer = await fetchImageBuffer(logoUrl)
   let base64Logo: string | null = null
+
   if (logoBuffer) {
     try {
       const ext = logoUrl.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+
       base64Logo = `data:image/${ext};base64,${logoBuffer.toString('base64')}`
     } catch { /* skip */ }
   }
@@ -111,8 +117,10 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
 
   // ── Rendimiento: calcula notas por módulo ──
   const notasPorModulo: Record<string, { puntaje: number; count: number }> = {}
+
   for (const intento of intentosExamen) {
     const mid = intento.examen.modulo_id!
+
     if (!notasPorModulo[mid]) notasPorModulo[mid] = { puntaje: 0, count: 0 }
     notasPorModulo[mid].puntaje += intento.puntaje ?? 0
     notasPorModulo[mid].count += 1

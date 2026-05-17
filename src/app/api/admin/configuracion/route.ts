@@ -50,9 +50,11 @@ export async function POST(request: Request) {
       try {
         if (conf.valor === undefined || conf.valor === null) {
           console.error(`[CONFIG_SAVE_ERROR] Clave ${conf.clave} tiene un valor inválido:`, conf.valor)
+
           // Forzar a string vacío o saltar
           conf.valor = ''
         }
+
         await prisma.configuracion.upsert({
           where: { clave: conf.clave },
           update: {
@@ -79,6 +81,7 @@ export async function POST(request: Request) {
     return ApiResponse.success(request, { message: 'Configuraciones actualizadas' })
   } catch (error: any) {
     console.error('[CONFIG_ROUTE_ERROR] Error general:', error)
-    return handleApiError(error, request)
+    
+return handleApiError(error, request)
   }
 }

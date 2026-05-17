@@ -66,6 +66,7 @@ export default function CourseStudentsModal({
   const [certLoading, setCertLoading] = useState(false)
 
   const queryClient = useQueryClient()
+
   const { data, isLoading } = useCursoAlumnos({
     cursoId: open ? cursoId : null,
     search: searchTerm

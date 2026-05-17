@@ -170,6 +170,7 @@ const UsuarioDetallesModal = ({ open, handleClose, usuarioId }: UsuarioDetallesM
               <List sx={{ pt: 0 }}>
                 {usuario.inscripciones.map((insc, index) => {
                   const tieneCertPago = insc.curso.precio_certificado && Number(insc.curso.precio_certificado) > 0
+
                   const precioFmt = tieneCertPago
                     ? `${insc.curso.moneda} ${Number(insc.curso.precio_certificado).toFixed(2)}`
                     : null

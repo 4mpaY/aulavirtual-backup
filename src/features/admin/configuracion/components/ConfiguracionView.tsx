@@ -129,7 +129,9 @@ function CertificadosSettings({ config, onInputChange }: { config: any; onInputC
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 2 }}>
           {PLANTILLAS_CERTIFICADO.map((p) => {
             const isSelected = plantillaActiva === p.id
-            return (
+
+            
+return (
               <Box
                 key={p.id}
                 onClick={() => onInputChange('CERTIFICADO_PLANTILLA', p.id)}

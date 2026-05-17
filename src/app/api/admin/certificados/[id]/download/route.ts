@@ -17,6 +17,7 @@ import { getGenerator } from '@/app/api/_shared/certificados/generators'
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { id } = params
@@ -91,10 +92,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const [cursoFechaFinRow] = await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
       SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
     `
+
     const cursoFechaFin = cursoFechaFinRow?.fecha_fin ?? null
 
     // ── Gerente General ───────────────────────────────────────────────
     const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID
+
     const gerenteGeneral = gerenteGeneralId
       ? await prisma.usuario.findUnique({
           where: { id: gerenteGeneralId },
