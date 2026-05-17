@@ -225,7 +225,6 @@ export async function POST(request: Request) {
         usuario_id: auth.user.id,
         curso_id: cursoId,
         codigo_verificacion: codigoVerificacion,
-        numero_intento: numeroIntento,
         datos: datosSnapshot as any
       },
       include: {

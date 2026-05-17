@@ -38,16 +38,6 @@ export async function GET(request: Request, { params }: { params: { certificadoI
               profesor: {
                 select: { nombre: true, apellido: true, cargo: true, firma: true }
               },
-              modulos: {
-                orderBy: { orden: 'asc' },
-                select: {
-                  id: true, titulo: true, orden: true,
-                  lecciones: {
-                    orderBy: { orden: 'asc' },
-                    select: { id: true, titulo: true, orden: true, duracion: true }
-                  }
-                }
-              }
             }
           },
           usuario: { select: { nombre: true, apellido: true } }
@@ -66,7 +56,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     }
 
     // ── Carga secundaria ──────────────────────────────────────────────
-    const [inscripcion, usuarioCompleto, intentosExamen] = await Promise.all([
+    const [inscripcion, usuarioCompleto, intentosExamen, modulosCurso] = await Promise.all([
       prisma.inscripcion.findUnique({
         where: {
           usuario_id_curso_id: {
@@ -88,6 +78,17 @@ export async function GET(request: Request, { params }: { params: { certificadoI
         },
         select: { puntaje: true, examen: { select: { modulo_id: true, peso: true } } },
         orderBy: { enviado_en: 'desc' }
+      }),
+      prisma.modulo.findMany({
+        where: { curso_id: certificado.curso_id },
+        orderBy: { orden: 'asc' },
+        select: {
+          id: true, titulo: true, orden: true,
+          lecciones: {
+            orderBy: { orden: 'asc' },
+            select: { id: true, titulo: true, orden: true, duracion: true }
+          }
+        }
       })
     ])
 
@@ -108,7 +109,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     // ── Construir datos del certificado ───────────────────────────────
     const certData = await buildCertificadoData({
-      certificado,
+      certificado: { ...certificado, curso: { ...certificado.curso, modulos: modulosCurso } } as any,
       configs,
       inscripcion,
       usuarioAvatar: usuarioCompleto?.avatar,

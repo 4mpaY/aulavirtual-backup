@@ -33,13 +33,13 @@ export async function fetchImageBuffer(url: string | null): Promise<Buffer | nul
 /** Formatea una fecha a formato largo en español peruano */
 export function formatDateLong(date: Date | string | null | undefined): string {
   if (!date) return '---'
-  return new Date(date).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(date).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
 }
 
 /** Formatea una fecha a formato corto dd/mm/yyyy */
 export function formatDateShort(date: Date | string | null | undefined): string {
   if (!date) return '---'
-  return new Date(date).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' })
+  return new Date(date).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'UTC' })
 }
 
 /**

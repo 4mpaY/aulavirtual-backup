@@ -39,6 +39,7 @@ export interface CreateCertificadoPayload {
   fecha_inicio_curso?: string
   fecha_culminacion?: string
   nota_final?: number | ''
+  duracion_override?: string
   docente_nombre_override?: string
   docente_cargo_override?: string
   reemplazar?: boolean

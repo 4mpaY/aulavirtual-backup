@@ -145,7 +145,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     notaFinal: null,      // calculado dentro de cada generador desde notasPorModulo
     notasPorModulo,
     intentosExamen,
-    notaInscripcion: inscripcion?.nota_final ?? null,
+    notaInscripcion: snapshot?.nota_final ?? inscripcion?.nota_final ?? null,
     previewFlag,
   }
 }

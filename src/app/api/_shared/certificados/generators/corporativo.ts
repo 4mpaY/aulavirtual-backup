@@ -32,7 +32,7 @@ export const generarCorporativo: GeneratorFn = async (data) => {
   const gold = [180, 145, 60] as [number, number, number]
 
   const fechaFirmadaTxt = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
-    day: 'numeric', month: 'long', year: 'numeric'
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
   })
 
   const addSignatureBlock = async (x: number, lineY: number, user: any) => {

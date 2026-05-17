@@ -31,7 +31,7 @@ export const generarClasico: GeneratorFn = async (data) => {
   const dpB = Math.round(pb * 0.52)
 
   const fechaFirmadaTxt = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
-    day: 'numeric', month: 'long', year: 'numeric'
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
   })
 
   const addSignatureBlock = async (x: number, lineY: number, user: any) => {

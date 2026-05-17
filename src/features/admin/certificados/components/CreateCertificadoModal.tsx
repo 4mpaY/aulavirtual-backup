@@ -17,7 +17,8 @@ import {
   CircularProgress,
   Alert,
   Divider,
-  IconButton
+  IconButton,
+  Chip
 } from '@mui/material'
 
 import { toast } from 'react-toastify'
@@ -54,6 +55,7 @@ export function CreateCertificadoModal({ open, onClose }: Props) {
   const [fechaInicio, setFechaInicio] = useState('')
   const [fechaCulminacion, setFechaCulminacion] = useState('')
   const [notaFinal, setNotaFinal] = useState('')
+  const [duracion, setDuracion] = useState('')
   const [docenteNombre, setDocenteNombre] = useState('')
   const [docenteCargo, setDocenteCargo] = useState('')
 
@@ -120,6 +122,7 @@ export function CreateCertificadoModal({ open, onClose }: Props) {
     setFechaInicio('')
     setFechaCulminacion('')
     setNotaFinal('')
+    setDuracion('')
     setDocenteNombre('')
     setDocenteCargo('')
     setDuplicado(null)
@@ -145,6 +148,7 @@ export function CreateCertificadoModal({ open, onClose }: Props) {
         fecha_inicio_curso: fechaInicio || undefined,
         fecha_culminacion: fechaCulminacion || undefined,
         nota_final: notaFinal !== '' ? parseFloat(notaFinal) : undefined,
+        duracion_override: duracion || undefined,
         docente_nombre_override: docenteNombre || undefined,
         docente_cargo_override: docenteCargo || undefined,
         reemplazar
@@ -264,8 +268,18 @@ export function CreateCertificadoModal({ open, onClose }: Props) {
               isOptionEqualToValue={(a, b) => a.id === b.id}
               noOptionsText='Sin resultados'
               renderOption={(props, option) => (
-                <Box component='li' {...props} key={option.id}>
-                  <Typography variant='body2' fontWeight={600}>{option.titulo}</Typography>
+                <Box component='li' {...props} key={option.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: 1 }}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant='body2' fontWeight={600} noWrap>{option.titulo}</Typography>
+                    <Typography variant='caption' color='text.disabled'>ID: {option.id.slice(0, 8)}</Typography>
+                  </Box>
+                  <Chip
+                    size='small'
+                    label={option.estado === 'PUBLICADO' ? 'Publicado' : option.estado === 'ARCHIVADO' ? 'Archivado' : 'Borrador'}
+                    color={option.estado === 'PUBLICADO' ? 'success' : option.estado === 'ARCHIVADO' ? 'default' : 'warning'}
+                    variant='tonal'
+                    sx={{ flexShrink: 0 }}
+                  />
                 </Box>
               )}
               renderInput={(params) => (
@@ -332,7 +346,7 @@ export function CreateCertificadoModal({ open, onClose }: Props) {
             />
           </Grid>
 
-          {/* ── NOTA ── */}
+          {/* ── NOTA Y DURACIÓN ── */}
           <Grid item xs={12} md={4}>
             <TextField
               label='Nota final (0 – 20)'
@@ -344,9 +358,19 @@ export function CreateCertificadoModal({ open, onClose }: Props) {
               helperText='Aparece en la página 2 del PDF'
             />
           </Grid>
+          <Grid item xs={12} md={4}>
+            <TextField
+              label='Duración del curso'
+              fullWidth
+              value={duracion}
+              onChange={e => setDuracion(e.target.value)}
+              placeholder='Ej: 40 horas académicas'
+              helperText='Dejar vacío para usar la duración del curso'
+            />
+          </Grid>
 
           {/* ── OVERRIDE DOCENTE ── */}
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <Divider>
               <Typography variant='caption' color='text.secondary' sx={{ textTransform: 'uppercase', letterSpacing: 1, fontSize: '0.65rem' }}>
                 Override del docente (opcional)
@@ -374,7 +398,7 @@ export function CreateCertificadoModal({ open, onClose }: Props) {
               placeholder='Ej: Instructor Principal'
               helperText='Dejar vacío para usar el cargo del profesor del curso'
             />
-          </Grid>
+          </Grid> */}
         </Grid>
       </DialogContent>
 

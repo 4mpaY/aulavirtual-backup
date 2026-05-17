@@ -33,7 +33,7 @@ export const generarModerno: GeneratorFn = async (data) => {
   const MUTED: [number, number, number] = [100, 116, 139]  // #64748b
 
   const fechaFirmadaTxt = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
-    day: 'numeric', month: 'long', year: 'numeric'
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
   })
 
   const addSignatureBlock = async (x: number, lineY: number, user: any) => {
