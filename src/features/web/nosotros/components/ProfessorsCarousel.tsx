@@ -114,6 +114,9 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                     flexDirection: 'column',
                     textDecoration: 'none',
                     cursor: 'pointer',
+                    maxWidth: '300px',
+                    width: '100%',
+                    margin: '0 auto',
                   }}
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLAnchorElement
@@ -130,30 +133,21 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                     el.style.borderColor = 'hsl(214,20%,91%)'
                   }}
                 >
-                  {/* Photo — cuadrado perfecto con padding-top hack */}
-                  <div style={{ position: 'relative', width: '100%', paddingTop: '100%', backgroundColor: `${color}14`, overflow: 'hidden' }}>
-                    {teacher.avatar ? (
-                      <Image
-                        src={teacher.avatar}
-                        alt={`${teacher.nombre} ${teacher.apellido}`}
-                        fill
-                        style={{ objectFit: 'cover', objectPosition: 'center top' }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
+                  {/* Photo — Avatar circular centrado */}
+                  <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '1.5rem' }}>
+                    <div style={{ position: 'relative', width: '90px', height: '90px', borderRadius: '50%', backgroundColor: `${color}14`, overflow: 'hidden', border: `2px solid ${color}44`, boxShadow: `0 4px 12px ${color}22` }}>
+                      {teacher.avatar ? (
+                        <Image
+                          src={teacher.avatar}
+                          alt={`${teacher.nombre} ${teacher.apellido}`}
+                          fill
+                          style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                        />
+                      ) : (
                         <div
                           style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '50%',
+                            width: '100%',
+                            height: '100%',
                             backgroundColor: color,
                             display: 'flex',
                             alignItems: 'center',
@@ -162,14 +156,12 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                             fontSize: '1.75rem',
                             fontWeight: 800,
                             color: '#ffffff',
-                            border: '3px solid rgba(255,255,255,0.5)',
-                            boxShadow: `0 4px 20px ${color}44`,
                           }}
                         >
                           {initials}
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
                   {/* Info */}
