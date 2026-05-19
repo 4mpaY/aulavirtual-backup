@@ -1,5 +1,5 @@
 // Next Imports
-import { Plus_Jakarta_Sans } from 'next/font/google'
+import { Montserrat } from 'next/font/google'
 
 // MUI Imports
 import type { Theme } from '@mui/material/styles'
@@ -16,10 +16,10 @@ import shadows from './shadows'
 import customShadows from './customShadows'
 import typography from './typography'
 
-export const plus_jakarta_sans = Plus_Jakarta_Sans({
+export const montserrat = Montserrat({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700', '800'],
-  variable: '--font-plus-jakarta-sans'
+  variable: '--font-montserrat'
 })
 
 const theme = (settings: Settings, mode: SystemMode, direction: Theme['direction']): Theme => {
@@ -39,7 +39,7 @@ const theme = (settings: Settings, mode: SystemMode, direction: Theme['direction
       }
     },
     shadows: shadows(mode),
-    typography: typography(plus_jakarta_sans.style.fontFamily),
+    typography: typography(montserrat.style.fontFamily),
     customShadows: customShadows(mode),
     mainColorChannels: {
       light: '47 43 61',

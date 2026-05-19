@@ -52,7 +52,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
             <Button
               onClick={() => openLogin()}
               size="small"
-              sx={{ fontWeight: 700, fontSize: '0.7rem', color: '#02115C', fontFamily: 'Inter, sans-serif' }}
+              sx={{ fontWeight: 700, fontSize: '0.7rem', color: '#02115C', fontFamily: 'Montserrat, sans-serif' }}
             >
               Iniciar Sesión
             </Button>
@@ -61,13 +61,15 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
               variant="contained"
               size="small"
               sx={{
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'Montserrat, sans-serif',
                 fontWeight: 700,
                 fontSize: '0.7rem',
                 borderRadius: '8px',
-                backgroundColor: primaryColor,
+                backgroundColor: '#2C2C2C',
+                color: '#FFFFFF',
+                border: '1px solid #4A4A4A',
                 display: { xs: 'none', sm: 'inline-flex' },
-                '&:hover': { backgroundColor: primaryColor, opacity: 0.85 },
+                '&:hover': { backgroundColor: '#3D3D3D' },
               }}
             >
               Registrarse

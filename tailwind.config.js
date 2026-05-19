@@ -39,9 +39,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        display: ['Poppins', 'sans-serif'],
-        sans: ['Poppins', 'sans-serif'],
-        body: ['Poppins', 'sans-serif'],
+        display: ['Montserrat', 'sans-serif'],
+        sans: ['Montserrat', 'sans-serif'],
+        body: ['Montserrat', 'sans-serif'],
       },
     }
   }

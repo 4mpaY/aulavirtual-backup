@@ -88,7 +88,7 @@ export default function CompaniesSection() {
                   borderRadius: '14px',
                   backgroundColor: '#025f4b',
                   color: '#ffffff',
-                  fontFamily: 'Poppins, sans-serif',
+                  fontFamily: 'Montserrat, sans-serif',
                   fontWeight: 700,
                   fontSize: '0.9375rem',
                   textDecoration: 'none',
@@ -164,7 +164,7 @@ export default function CompaniesSection() {
                     <stat.icon size={28} color="var(--web-primary, #25927F)" />
                   </div>
                   <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '2rem', fontWeight: 800, color: '#0A0A0A', lineHeight: 1, letterSpacing: '-0.03em' }}>
+                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '2rem', fontWeight: 800, color: '#0A0A0A', lineHeight: 1, letterSpacing: '-0.03em' }}>
                       {stat.value}
                     </div>
                     <div style={{ ...smallText, color: '#64748b', marginTop: '0.25rem' }}>

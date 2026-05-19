@@ -9,7 +9,7 @@ import SearchCertificateSection from '@/features/web/home/components/SearchCerti
 import RutasSection from '@/features/web/home/components/RutasSection'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
-import HeroVisual from '@/features/web/home/components/HeroVisual'
+import HeroCarousel from '@/features/web/home/components/HeroCarousel'
 import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSection'
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
 import CompaniesSection from '@/features/web/home/components/CompaniesSection'
@@ -109,115 +109,8 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ── 1. HERO ─────────────────────────────────── */}
-      <section
-        style={{
-          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Patrón de grid decorativo */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
-        {/* Glow derecho */}
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
-
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '5rem 1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
-
-            {/* ── Izquierda: texto ── */}
-            <div style={{ position: 'relative', zIndex: 2 }}>
-              {/* Eyebrow */}
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5"
-                style={{ backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)' }}
-              >
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--web-light, #BDD962)' }} />
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
-                  Plataforma educativa online
-                </span>
-              </div>
-
-              {/* H1 */}
-              <h1
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: 'clamp(2rem, 5vw, 3.25rem)',
-                  fontWeight: 800,
-                  color: '#ffffff',
-                  letterSpacing: '-0.025em',
-                  lineHeight: 1.15,
-                  marginBottom: '1.25rem',
-                }}
-              >
-                {heroTitle.split('\n')[0]}
-                {heroTitle.split('\n')[1] && (
-                  <>
-                    <br />
-                    <span style={{ color: 'var(--web-light, #BDD962)' }}>{heroTitle.split('\n')[1]}</span>
-                  </>
-                )}
-              </h1>
-
-              {/* Descripción */}
-              <p
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: '1rem',
-                  color: 'rgba(255,255,255,0.7)',
-                  lineHeight: 1.75,
-                  maxWidth: '480px',
-                  marginBottom: '2.5rem',
-                }}
-              >
-                {heroDescription}
-              </p>
-
-              {/* Botones */}
-              <div className="flex flex-wrap gap-4" style={{ marginBottom: '2.5rem' }}>
-                <Link
-                  href="/cursos"
-                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', boxShadow: '0 4px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.45)' }}
-                >
-                  Ver Cursos <ArrowRight size={18} />
-                </Link>
-                <Link
-                  href="/nosotros"
-                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-200"
-                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', border: '1.5px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
-                >
-                  Saber más
-                </Link>
-              </div>
-
-              {/* Mini stats */}
-              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                {[
-                  { value: '+1,200', label: 'Estudiantes' },
-                  { value: '+80', label: 'Cursos' },
-                  { value: '98%', label: 'Satisfacción' },
-                ].map(stat => (
-                  <div key={stat.label}>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>{stat.value}</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px' }}>{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── Derecha: visual interactivo ── */}
-            <HeroVisual />
-          </div>
-        </div>
-      </section>
+      {/* ── 1. HERO CAROUSEL ─────────────────────────── */}
+      <HeroCarousel heroTitle={heroTitle} heroDescription={heroDescription} />
 
       {/* ── 2. LOGO MARQUEE ─────────────────────────── */}
       <ClientLogosMarquee logos={logos} />
@@ -228,12 +121,12 @@ export default async function HomePage() {
           <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="section-title">Cursos destacados</h2>
-              <p className="section-subtitle">Descubre nuestros cursos más recientes</p>
+              <p className="section-subtitle">Especializaciones y cursos de actualización legal</p>
             </div>
             <Link
               href="/cursos"
               className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
+              style={{ fontFamily: 'Montserrat, sans-serif', color: 'var(--web-primary, #25927F)' }}
             >
               Ver todos <ArrowRight size={16} />
             </Link>
@@ -245,7 +138,7 @@ export default async function HomePage() {
             <Link
               href="/cursos"
               className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff' }}
+              style={{ fontFamily: 'Montserrat, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff' }}
             >
               Ver todos los cursos <ArrowRight size={16} />
             </Link>
@@ -265,17 +158,17 @@ export default async function HomePage() {
                 <div>
                   <div
                     className="inline-flex items-center gap-2 mb-3"
-                    style={{ color: 'var(--web-primary, #25927F)', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
+                    style={{ color: 'var(--web-primary, #25927F)', fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
                   >
                     <Map size={14} /> Especialízate
                   </div>
                   <h2 className="section-title" style={{ marginBottom: '0.25rem' }}>Rutas de Aprendizaje</h2>
-                  <p className="section-subtitle">Colecciones curadas para llevarte de principiante a experto.</p>
+                  <p className="section-subtitle">Programas integrales para dominar diferentes ramas del derecho y compliance.</p>
                 </div>
                 <Link
                   href="/rutas"
                   className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
+                  style={{ fontFamily: 'Montserrat, sans-serif', color: 'var(--web-primary, #25927F)' }}
                 >
                   Ver todas <ArrowRight size={16} />
                 </Link>
@@ -301,34 +194,43 @@ export default async function HomePage() {
       <SearchCertificateSection />
 
       {/* ── 10. CTA INSCRIPCIÓN ─────────────────────── */}
-      <section className="bg-white py-16 text-center" style={{ borderTop: '1px solid hsl(214, 20%, 88%)' }}>
+      <section 
+        className="py-24 text-center" 
+        style={{ 
+          backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.60) 100%), url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=2000&q=80")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          borderTop: '1px solid hsl(214, 20%, 88%)' 
+        }}
+      >
         <div className="max-w-3xl mx-auto px-4">
           <ScrollReveal>
             <div
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-              style={{ backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.08)', color: 'var(--web-dark, #025E44)' }}
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', color: 'var(--web-light, #BDD962)', border: '1px solid rgba(255,255,255,0.2)' }}
             >
               <CheckCircle size={16} />
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 600 }}>
-                Únete a miles de estudiantes
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', fontWeight: 600 }}>
+                Únete a miles de profesionales
               </span>
             </div>
             <h2
               className="mb-4"
-              style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 700, color: '#0A0A0A', letterSpacing: '-0.02em' }}
+              style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em' }}
             >
               ¿Listo para transformar tu carrera?
             </h2>
             <p
               className="mb-8 max-w-xl mx-auto"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'hsl(215, 16%, 47%)', lineHeight: 1.7 }}
+              style={{ fontFamily: 'Montserrat, sans-serif', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7 }}
             >
-              Inscríbete hoy y comienza a aprender con los mejores profesionales del sector.
+              Inscríbete hoy y comienza a aprender con los mejores expertos y consultores legales del sector.
             </p>
             <Link
               href="/cursos"
               className="no-underline inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.35)' }}
+              style={{ fontFamily: 'Montserrat, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.35)' }}
             >
               Inscribirse ahora <ArrowRight size={18} />
             </Link>

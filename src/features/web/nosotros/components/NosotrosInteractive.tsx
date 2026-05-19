@@ -7,29 +7,29 @@ import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 
 const valores = [
   {
-    icon: Heart,
-    title: 'Compromiso',
-    desc: 'Nos dedicamos plenamente a la formación de cada estudiante, acompañándolos en cada etapa de su aprendizaje.',
+    icon: ShieldCheck,
+    title: 'Integridad',
+    desc: 'Actuamos con transparencia, honestidad y rigor jurídico en cada asesoría, decisición y relación con nuestros clientes.',
   },
   {
     icon: Lightbulb,
-    title: 'Innovación',
-    desc: 'Buscamos constantemente nuevas formas de enseñar y de acercar el conocimiento de manera más efectiva.',
+    title: 'Excelencia',
+    desc: 'Buscamos los más altos estándares en formación legal, actualizando nuestros contenidos con la normativa y jurisprudencia vigente.',
   },
   {
     icon: Users,
-    title: 'Trabajo en Equipo',
-    desc: 'Creemos en la colaboración como motor del aprendizaje y el crecimiento colectivo.',
+    title: 'Compromiso',
+    desc: 'Nos dedicamos plenamente a cada profesional y empresa, acompañándolos en su desarrollo legal y corporativo.',
   },
   {
     icon: TrendingUp,
-    title: 'Mejora Continua',
-    desc: 'Actualizamos nuestros contenidos y metodologías para mantenernos a la vanguardia del sector.',
+    title: 'Innovación',
+    desc: 'Aplicamos metodologías modernas al derecho para hacer la formación jurídica más accesible, práctica y efectiva.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Integridad',
-    desc: 'Actuamos con transparencia y honestidad, generando confianza en cada relación con nuestros estudiantes y empresas.',
+    icon: Heart,
+    title: 'Confianza',
+    desc: 'Construimos relaciones sólidas basadas en el respeto, la confidencialidad y la responsabilidad profesional.',
   },
 ]
 
@@ -94,7 +94,7 @@ function MisionCard() {
       <div
         style={{
           height: '200px',
-          backgroundImage: 'linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.2)), url(/images/mision_bg.png)',
+          backgroundImage: 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.50)), url("https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
@@ -104,7 +104,6 @@ function MisionCard() {
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         <div
           style={{
             width: '80px', height: '80px', borderRadius: '24px',
@@ -115,17 +114,17 @@ function MisionCard() {
             position: 'relative', zIndex: 1,
           }}
         >
-          <span style={{ fontSize: '2.5rem' }}>🎯</span>
+          <span style={{ fontSize: '2.5rem' }}>⚖️</span>
         </div>
       </div>
       <div style={{ padding: '1.75rem 2rem 2rem' }}>
         <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--web-dark, #025E44)' }}>
           Nuestra Misión
         </h3>
-        <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Brindar formación profesional de alta calidad, accesible y orientada al sector industrial,
-          impulsando el desarrollo de competencias que generan valor real en las organizaciones y en
-          la carrera de nuestros estudiantes.&quot;
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
+          &quot;Brindar formación jurídica y corporativa de alta calidad, dictada por abogados en ejercicio,
+          que impulse el desarrollo profesional de nuestros estudiantes y la solidez legal de las
+          organizaciones que atendemos.&quot;
         </p>
       </div>
     </div>
@@ -159,7 +158,7 @@ function VisionCard() {
       <div
         style={{
           height: '200px',
-          backgroundImage: 'linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url(/images/vision_bg.png)',
+          backgroundImage: 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.50)), url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',
@@ -169,7 +168,6 @@ function VisionCard() {
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(var(--web-light-rgb, 189, 217, 98),0.06) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
         <div
           style={{
             width: '80px', height: '80px', borderRadius: '24px',
@@ -180,17 +178,17 @@ function VisionCard() {
             position: 'relative', zIndex: 1,
           }}
         >
-          <span style={{ fontSize: '2.5rem' }}>🔭</span>
+          <span style={{ fontSize: '2.5rem' }}>🌟</span>
         </div>
       </div>
       <div style={{ padding: '1.75rem 2rem 2rem' }}>
         <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--web-dark, #025E44)' }}>
           Nuestra Visión
         </h3>
-        <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Ser la plataforma de referencia en formación profesional especializada en Latinoamérica,
-          reconocida por la excelencia de sus contenidos, la solidez de sus certificaciones y su
-          compromiso con la transformación del sector industrial.&quot;
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
+          &quot;Ser la firma legal y academia de referencia en Latinoamérica, reconocida por la excelencia
+          de su equipo jurídico, la solidez de sus certificaciones y su compromiso con la transformación
+          del ejercicio del derecho corporativo.&quot;
         </p>
       </div>
     </div>
@@ -270,7 +268,7 @@ function ValorCard({ v }: { v: typeof valores[number] }) {
       >
         <v.icon size={28} color="var(--web-primary, #25927F)" />
       </div>
-      <h3 style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#0A0A0A', marginBottom: '0.625rem' }}>
+      <h3 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#0A0A0A', marginBottom: '0.625rem' }}>
         {v.title}
       </h3>
       <p style={{ ...cardBody, textAlign: 'center' }}>{v.desc}</p>

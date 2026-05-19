@@ -42,7 +42,10 @@ export default async function NosotrosPage() {
       {/* ── 1. HERO SOBRE NOSOTROS ─────────────────────── */}
       <section
         style={{
-          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
+          backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.42) 100%), url("https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=2000&q=80")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
           padding: '6rem 1.5rem 5rem',
           position: 'relative',
           overflow: 'hidden',
@@ -87,21 +90,21 @@ export default async function NosotrosPage() {
                   }}
                 >
                   <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg,var(--web-dark, #025E44),var(--web-primary, #25927F))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.75rem' }}>
-                    🎓
+                    ⚖️
                   </div>
                   <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Plataforma educativa</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>Formación profesional</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>especializada y certificada</div>
+                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Academia jurídica legal</div>
+                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>Formación profesional</div>
+                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>en derecho corporativo y compliance</div>
                   </div>
                 </div>
 
                 {/* Stats 2×2 */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   {[
-                    { emoji: '👩‍🎓', value: '+1,200', label: 'Estudiantes formados' },
-                    { emoji: '📚', value: '+80', label: 'Cursos disponibles' },
-                    { emoji: '👨‍🏫', value: '+30', label: 'Docentes expertos' },
+                    { emoji: '⚖️', value: '+1,200', label: 'Profesionales formados' },
+                    { emoji: '📜', value: '+80', label: 'Cursos jurídicos' },
+                    { emoji: '👤', value: '+30', label: 'Abogados docentes' },
                     { emoji: '🏆', value: '98%', label: 'Tasa de satisfacción' },
                   ].map((s, i) => (
                     <div
@@ -166,7 +169,7 @@ export default async function NosotrosPage() {
 
                 <h1
                   style={{
-                    fontFamily: 'Poppins, sans-serif',
+                    fontFamily: 'Montserrat, sans-serif',
                     fontSize: 'clamp(1.875rem, 4vw, 2.75rem)',
                     fontWeight: 800,
                     color: '#ffffff',
@@ -175,14 +178,14 @@ export default async function NosotrosPage() {
                     marginBottom: '1.25rem',
                   }}
                 >
-                  Somos calidad y{' '}
-                  <span style={{ color: 'var(--web-light, #BDD962)' }}>responsabilidad</span>{' '}
-                  a tu servicio
+                  Firma legal de{' '}
+                  <span style={{ color: 'var(--web-light, #BDD962)' }}>excelencia</span>{' '}
+                  y confianza
                 </h1>
 
                 <p
                   style={{
-                    fontFamily: 'Poppins, sans-serif',
+                    fontFamily: 'Montserrat, sans-serif',
                     fontSize: '1rem',
                     color: 'rgba(255,255,255,0.65)',
                     lineHeight: 1.75,
@@ -190,9 +193,9 @@ export default async function NosotrosPage() {
                     marginBottom: '2.5rem',
                   }}
                 >
-                  Somos una plataforma educativa especializada en la formación profesional de alto impacto.
-                  Ofrecemos cursos diseñados por expertos del sector, con certificaciones reconocidas
-                  que impulsan tu desarrollo profesional y el de tu equipo.
+                  Somos una firma legal y academia especializada en derecho corporativo, compliance y
+                  asesoramiento empresarial. Nuestros cursos son diseñados y dictados por abogados en ejercicio
+                  con amplia trayectoria en el sector.
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -206,7 +209,7 @@ export default async function NosotrosPage() {
                       borderRadius: '12px',
                       backgroundColor: 'var(--web-light, #BDD962)',
                       color: '#0A0A0A',
-                      fontFamily: 'Poppins, sans-serif',
+                      fontFamily: 'Montserrat, sans-serif',
                       fontWeight: 700,
                       fontSize: '0.9375rem',
                       textDecoration: 'none',
@@ -225,7 +228,7 @@ export default async function NosotrosPage() {
                       borderRadius: '12px',
                       backgroundColor: 'rgba(255,255,255,0.08)',
                       color: '#ffffff',
-                      fontFamily: 'Poppins, sans-serif',
+                      fontFamily: 'Montserrat, sans-serif',
                       fontWeight: 600,
                       fontSize: '0.9375rem',
                       textDecoration: 'none',

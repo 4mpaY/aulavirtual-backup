@@ -52,8 +52,11 @@ export default async function CursosPage() {
       {/* Banner */}
       <Box
         sx={{
-          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 100%)',
-          py: { xs: 5, md: 7 },
+          backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.68) 0%, rgba(0,0,0,0.50) 100%), url("https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=2000&q=80")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          py: { xs: 6, md: 9 },
           px: { xs: 3, md: 6 },
           position: 'relative',
           overflow: 'hidden',
@@ -81,8 +84,8 @@ export default async function CursosPage() {
 
           <Box
             sx={{
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: { xs: '1.75rem', md: '2.25rem' },
+              fontFamily: 'Montserrat, sans-serif',
+              fontSize: { xs: '2rem', md: '2.75rem' },
               fontWeight: 800,
               color: '#ffffff',
               letterSpacing: '-0.02em',
@@ -91,20 +94,21 @@ export default async function CursosPage() {
             }}
             component="h1"
           >
-            Catálogo de Cursos
+            Catálogo de <span style={{ color: 'var(--web-light, #BDD962)' }}>Especializaciones Legales</span>
           </Box>
           <Box
-            sx={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.7)', maxWidth: 520, lineHeight: 1.6 }}
+            sx={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.75)', maxWidth: 580, lineHeight: 1.7 }}
             component="p"
           >
-            Explora nuestra selección de cursos y comienza a aprender hoy.
+            Accede a cursos impartidos por abogados y juristas en ejercicio. Formación especializada en derecho corporativo, compliance, contratos y más.
           </Box>
 
           {/* Stats chips */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 3 }}>
             {[
-              { label: `${courses.length} cursos disponibles`, icon: '📚' },
-              { label: `${categories.length} categorías`, icon: '🗂️' },
+              { label: `${courses.length} cursos disponibles`, icon: '⚖️' },
+              { label: `${categories.length} áreas del derecho`, icon: '📜' },
+              { label: 'Impartido por abogados en ejercicio', icon: '🏫' },
             ].map(chip => (
               <Box
                 key={chip.label}

@@ -11,18 +11,18 @@ import { useEffect, useState } from 'react'
 import { Play, CheckCircle, Lock, Clock } from 'lucide-react'
 
 const MODULES = [
-  { title: 'Introducción al curso', duration: '12:40', done: true },
-  { title: 'Fundamentos teóricos', duration: '28:15', done: true },
-  { title: 'Aplicación práctica', duration: '35:08', done: false, active: true },
-  { title: 'Casos de estudio', duration: '22:50', done: false },
-  { title: 'Evaluación final', duration: '18:00', done: false, locked: true },
+  { title: 'Introducción al Derecho Corporativo', duration: '12:40', done: true },
+  { title: 'Marco Legal y Normativa', duration: '28:15', done: true },
+  { title: 'Análisis de Jurisprudencia', duration: '35:08', done: false, active: true },
+  { title: 'Redacción de Contratos', duration: '22:50', done: false },
+  { title: 'Resolución de Conflictos', duration: '18:00', done: false, locked: true },
 ]
 
 const COMMENTS = [
-  { name: 'Ana G.', msg: 'La explicación del módulo 2 fue excelente 🔥', avatar: 'AG', color: 'var(--web-primary, #25927F)' },
-  { name: 'Carlos R.', msg: 'Muy bien estructurado el contenido', avatar: 'CR', color: '#3AB079' },
-  { name: 'Luis M.', msg: 'El material descargable es muy útil', avatar: 'LM', color: 'var(--web-dark, #025E44)' },
-  { name: 'Valeria P.', msg: 'Listo el módulo 3, ¡excelente!', avatar: 'VP', color: 'var(--web-light, #BDD962)' },
+  { name: 'Dr. Silva', msg: 'Excelente análisis de la jurisprudencia ⚖️', avatar: 'AS', color: 'var(--web-primary, #25927F)' },
+  { name: 'Carlos R.', msg: 'El material sobre contratos es muy completo.', avatar: 'CR', color: '#3AB079' },
+  { name: 'Luis M.', msg: 'Las plantillas legales ahorran mucho tiempo.', avatar: 'LM', color: 'var(--web-dark, #025E44)' },
+  { name: 'Valeria P.', msg: 'Muy clara la explicación sobre compliance.', avatar: 'VP', color: 'var(--web-light, #BDD962)' },
 ]
 
 export default function HeroVisual() {
@@ -68,17 +68,17 @@ export default function HeroVisual() {
         <div style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg,var(--web-dark, #025E44),var(--web-primary, #25927F))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '1rem' }}>🎓</span>
+              <span style={{ fontSize: '1rem' }}>⚖️</span>
             </div>
             <div>
-              <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>Gestión Ambiental</div>
-              <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Módulo 3 · Aplicación práctica</div>
+              <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>Asesoría Legal Corporativa</div>
+              <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Módulo 3 · Análisis de Jurisprudencia</div>
             </div>
           </div>
           {/* Badge GRABADO */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.12)', border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)', borderRadius: '999px', padding: '4px 10px' }}>
             <Play size={9} color="var(--web-light, #BDD962)" fill="var(--web-light, #BDD962)" />
-            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'var(--web-light, #BDD962)', fontWeight: 800, letterSpacing: '0.06em' }}>GRABADO</span>
+            <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: 'var(--web-light, #BDD962)', fontWeight: 800, letterSpacing: '0.06em' }}>GRABADO</span>
           </div>
         </div>
 
@@ -94,8 +94,8 @@ export default function HeroVisual() {
           {/* Barra de progreso */}
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 14px 10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>{fmt(currentTime)}</span>
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5rem', color: 'rgba(255,255,255,0.35)' }}>35:08</span>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>{fmt(currentTime)}</span>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5rem', color: 'rgba(255,255,255,0.35)' }}>35:08</span>
             </div>
             <div style={{ height: '3px', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: '999px', overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${progress}%`, backgroundColor: 'var(--web-light, #BDD962)', borderRadius: '999px', transition: 'width 0.4s linear' }} />
@@ -126,14 +126,14 @@ export default function HeroVisual() {
                 }
               </div>
               <span style={{
-                fontFamily: 'Poppins, sans-serif', fontSize: '0.6875rem', flex: 1,
+                fontFamily: 'Montserrat, sans-serif', fontSize: '0.6875rem', flex: 1,
                 color: m.done ? 'rgba(255,255,255,0.5)' : m.locked ? 'rgba(255,255,255,0.2)' : m.active ? '#ffffff' : 'rgba(255,255,255,0.65)',
                 fontWeight: m.active ? 700 : 400,
                 textDecoration: m.done ? 'line-through' : 'none',
               }}>
                 {m.title}
               </span>
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: 'rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0 }}>
                 <Clock size={9} />
                 {m.duration}
               </span>
@@ -143,17 +143,17 @@ export default function HeroVisual() {
 
         {/* Comentarios */}
         <div style={{ padding: '10px 18px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '2px' }}>
+          <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '2px' }}>
             Comentarios del módulo
           </div>
           {COMMENTS.slice(0, 2).map((c, i) => (
             <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
               <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: c.color, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.4375rem', fontWeight: 800, color: c.color === 'var(--web-light, #BDD962)' ? '#0A0A0A' : '#fff' }}>{c.avatar}</span>
+                <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.4375rem', fontWeight: 800, color: c.color === 'var(--web-light, #BDD962)' ? '#0A0A0A' : '#fff' }}>{c.avatar}</span>
               </div>
               <div style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '5px 9px', flex: 1 }}>
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: c.color, fontWeight: 700 }}>{c.name} </span>
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'rgba(255,255,255,0.4)' }}>{c.msg}</span>
+                <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: c.color, fontWeight: 700 }}>{c.name} </span>
+                <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: 'rgba(255,255,255,0.4)' }}>{c.msg}</span>
               </div>
             </div>
           ))}
@@ -168,13 +168,13 @@ export default function HeroVisual() {
         animation: 'heroFloat 4s ease-in-out infinite',
         minWidth: '152px',
       }}>
-        <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: '#64748b', marginBottom: '6px' }}>Tu progreso</div>
+        <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.625rem', color: '#64748b', marginBottom: '6px' }}>Tu progreso</div>
         <div style={{ height: '5px', backgroundColor: '#f1f5f9', borderRadius: '999px', overflow: 'hidden', marginBottom: '5px' }}>
           <div style={{ width: `${progress}%`, height: '100%', backgroundColor: 'var(--web-primary, #25927F)', borderRadius: '999px', transition: 'width 0.4s linear' }} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 800, color: '#0A0A0A' }}>{progress}%</span>
-          <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>2 / 5 módulos</span>
+          <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', fontWeight: 800, color: '#0A0A0A' }}>{progress}%</span>
+          <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: 'var(--web-primary, #25927F)', fontWeight: 600 }}>2 / 5 módulos</span>
         </div>
       </div>
 
@@ -187,10 +187,10 @@ export default function HeroVisual() {
         minWidth: '158px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.125rem', flexShrink: 0 }}>🏆</div>
+          <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.125rem', flexShrink: 0 }}>📜</div>
           <div>
-            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', fontWeight: 800, color: '#0A0A0A', lineHeight: 1 }}>Certificado</div>
-            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: '#64748b', marginTop: '2px' }}>Al completar el curso</div>
+            <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8125rem', fontWeight: 800, color: '#0A0A0A', lineHeight: 1 }}>Certificación Legal</div>
+            <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: '#64748b', marginTop: '2px' }}>Al completar el curso</div>
           </div>
         </div>
       </div>

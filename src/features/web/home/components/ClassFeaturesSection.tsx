@@ -17,28 +17,28 @@ import { eyebrowDark, sectionH2Dark, sectionDescDark, cardTitle, cardBody } from
 const features = [
   {
     icon: Video,
-    title: 'Clases en vivo y grabadas',
-    desc: 'Sesiones sincrónicas con instructor en tiempo real y acceso a grabaciones para repasar cuando quieras.',
+    title: 'Clases en vivo con expertos legales',
+    desc: 'Sesiones sincrónicas con abogados y consultores en ejercicio, más acceso a grabaciones permanentes.',
   },
   {
     icon: Download,
-    title: 'Material descargable',
-    desc: 'PDFs, plantillas y recursos de cada clase disponibles para siempre en tu biblioteca personal.',
+    title: 'Plantillas y documentos legales',
+    desc: 'Contratos, escritos judiciales, modelos normativos y recursos descargables para tu práctica profesional.',
   },
   {
     icon: ClipboardList,
     title: 'Evaluaciones y seguimiento',
-    desc: 'Exámenes por módulo con retroalimentación inmediata y panel de progreso detallado.',
+    desc: 'Exámenes por módulo con retroalimentación inmediata y panel de progreso detallado para certificarte.',
   },
   {
     icon: MessageSquare,
-    title: 'Foro de estudiantes',
-    desc: 'Comunidad activa donde puedes resolver dudas, compartir experiencias y hacer networking.',
+    title: 'Comunidad de juristas',
+    desc: 'Foro activo donde abogados, fiscales y asesores comparten casos, criterios y oportunidades de networking.',
   },
   {
     icon: Award,
-    title: 'Certificado verificable',
-    desc: 'Al finalizar recibes un certificado con código QR que cualquier empresa puede validar.',
+    title: 'Certificado con validez profesional',
+    desc: 'Al finalizar recibes un certificado con código QR verificable, reconocido en el ámbito empresarial y legal.',
   },
 ]
 
@@ -118,11 +118,11 @@ function PhoneMockup() {
 
           {/* Header de la clase */}
           <div style={{ padding: '4px 14px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>Gestión Ambiental</span>
+            <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>Asesoría Jurídica Corporativa</span>
             {/* Live badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '999px', padding: '2px 7px' }}>
               <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#ef4444', animation: 'pulse 1.5s infinite' }} />
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5rem', color: '#ef4444', fontWeight: 800, letterSpacing: '0.08em' }}>EN VIVO</span>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5rem', color: '#ef4444', fontWeight: 800, letterSpacing: '0.08em' }}>EN VIVO</span>
             </div>
           </div>
 
@@ -143,9 +143,9 @@ function PhoneMockup() {
             {/* Silueta instructor */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: '1.125rem' }}>👨‍🏫</span>
+                <span style={{ fontSize: '1.125rem' }}>⚖️</span>
               </div>
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Ing. Carlos Mendoza</span>
+              <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Dr. Carlos Mendoza</span>
             </div>
 
             {/* Controles video */}
@@ -289,11 +289,11 @@ export default function ClassFeaturesSection() {
               <div style={{ marginBottom: '2.5rem' }}>
                 <p style={eyebrowDark}>Experiencia de aprendizaje</p>
                 <h2 style={sectionH2Dark}>
-                  Todo lo que necesitas<br />
-                  <span style={{ color: 'var(--web-primary, #25927F)' }}>en un solo lugar</span>
+                  Formación jurídica<br />
+                  <span style={{ color: 'var(--web-primary, #25927F)' }}>de alto impacto</span>
                 </h2>
                 <p style={sectionDescDark}>
-                  Una plataforma diseñada para que el aprendizaje sea efectivo, flexible y reconocido por las empresas.
+                  Una plataforma diseñada para abogados, asesores y gestores que necesitan actualización legal continua, respaldada por expertos en ejercicio.
                 </p>
               </div>
             </ScrollReveal>

@@ -35,7 +35,10 @@ export default function EnterpriseCTASection() {
   return (
     <section
       style={{
-        backgroundColor: 'var(--web-light, #BDD962)',
+        backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.45) 100%), url("https://images.unsplash.com/photo-1589391886645-d51941baf7fb?auto=format&fit=crop&w=2000&q=80")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
         padding: '5rem 1rem',
         position: 'relative',
         overflow: 'hidden',
@@ -85,23 +88,24 @@ export default function EnterpriseCTASection() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  backgroundColor: 'rgba(var(--web-dark-rgb, 2, 94, 68),0.12)',
+                  backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)',
+                  border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)',
                   borderRadius: '999px',
                   padding: '0.375rem 1rem',
                   marginBottom: '1.25rem',
                 }}
               >
-                <Calendar size={14} color="var(--web-dark, #025E44)" />
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: 'var(--web-dark, #025E44)', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
+                <Calendar size={14} color="var(--web-light, #BDD962)" />
+                <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: 'var(--web-light, #BDD962)', letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
                   Para empresas
                 </span>
               </div>
 
-              <h2 style={{ ...sectionH2, marginBottom: '1rem' }}>
-                ¿Capacitas equipos<br />en tu empresa?
+              <h2 style={{ ...sectionH2, color: '#ffffff', marginBottom: '1rem' }}>
+                ¿Capacitas equipos<br />legales en tu empresa?
               </h2>
-              <p style={{ ...sectionDesc, color: 'rgba(10,10,10,0.6)', marginBottom: '2rem', maxWidth: '440px' }}>
-                Agenda una reunión gratuita con nuestro equipo y descubre cómo podemos diseñar un plan de formación a medida para tus colaboradores.
+              <p style={{ ...sectionDesc, color: 'rgba(255,255,255,0.72)', marginBottom: '2rem', maxWidth: '440px' }}>
+                Diseñamos planes de formación jurídica a medida para equipos corporativos. Nuestros abogados docentes les capacitarán con casos reales y normativa vigente.
               </p>
 
               {/* Bullets */}
@@ -113,16 +117,16 @@ export default function EnterpriseCTASection() {
                         width: '32px',
                         height: '32px',
                         borderRadius: '10px',
-                        backgroundColor: 'rgba(var(--web-dark-rgb, 2, 94, 68),0.1)',
+                        backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
                       }}
                     >
-                      <b.icon size={16} color="var(--web-dark, #025E44)" />
+                      <b.icon size={16} color="var(--web-light, #BDD962)" />
                     </div>
-                    <span style={{ ...cardBody, color: '#0A0A0A', fontWeight: 500 }}>
+                    <span style={{ ...cardBody, color: 'rgba(255,255,255,0.80)', fontWeight: 500 }}>
                       {b.text}
                     </span>
                   </li>
@@ -158,10 +162,10 @@ export default function EnterpriseCTASection() {
                   <Calendar size={36} color="var(--web-dark, #025E44)" />
                 </div>
                 <h3 style={{ ...cardTitle, fontSize: '1.125rem', marginBottom: '0.5rem' }}>
-                  Reunión sin costo
+                  Consultoría jurídica sin costo
                 </h3>
                 <p style={cardBody}>
-                  30 minutos para entender tus necesidades y presentarte nuestra propuesta de valor.
+                  30 minutos para entender tus necesidades legales y presentarte nuestra propuesta de valor corporativa.
                 </p>
               </div>
 
@@ -180,7 +184,7 @@ export default function EnterpriseCTASection() {
                   borderRadius: '14px',
                   backgroundColor: 'var(--web-dark, #025E44)',
                   color: '#ffffff',
-                  fontFamily: 'Poppins, sans-serif',
+                  fontFamily: 'Montserrat, sans-serif',
                   fontWeight: 700,
                   fontSize: '0.9375rem',
                   textDecoration: 'none',
@@ -220,7 +224,7 @@ export default function EnterpriseCTASection() {
                   borderRadius: '14px',
                   backgroundColor: 'transparent',
                   color: '#25D366',
-                  fontFamily: 'Poppins, sans-serif',
+                  fontFamily: 'Montserrat, sans-serif',
                   fontWeight: 600,
                   fontSize: '0.9375rem',
                   textDecoration: 'none',
