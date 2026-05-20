@@ -17,6 +17,7 @@ export const crearCursoSchema = z.object({
   // Paso 2: Configuración y precio (opcional al crear)
   es_gratis: z.boolean().default(false),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').default(0),
+  precio_falso: z.coerce.number().min(0, 'El precio falso no puede ser negativo').optional().nullable(),
   moneda: z.string().max(3).default('PEN'),
   duracion: z.string().max(50).optional().nullable(),
   codigo: z.string().max(20).optional().nullable(),
@@ -51,6 +52,7 @@ export const actualizarCursoSchema = z.object({
   es_privado: z.boolean().optional(),
   precio_certificado: z.coerce.number().min(0).optional().nullable(),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').optional(),
+  precio_falso: z.coerce.number().min(0, 'El precio falso no puede ser negativo').optional(),
   moneda: z.string().max(3).optional(),
   duracion: z.string().max(50).optional().nullable(),
   codigo: z.string().max(20).optional().nullable(),

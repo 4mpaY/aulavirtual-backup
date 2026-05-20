@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react'
 
 import {
+  Avatar,
+  Box,
   Button,
   Card,
   CardHeader,
@@ -10,39 +12,36 @@ import {
   IconButton,
   MenuItem,
   TablePagination,
-  Typography,
-  Box,
-  Avatar,
-  Tooltip
+  Tooltip,
+  Typography
 } from '@mui/material'
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
-  useReactTable,
-  getFilteredRowModel,
+  getFacetedMinMaxValues,
   getFacetedRowModel,
   getFacetedUniqueValues,
-  getFacetedMinMaxValues,
+  getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel
+  getSortedRowModel,
+  useReactTable
 } from '@tanstack/react-table'
+
 import type { ColumnDef } from '@tanstack/react-table'
+
 import classnames from 'classnames'
 
-import tableStyles from '@core/styles/table.module.css'
-
-import CustomTextField from '@/@core/components/mui/TextField'
-import type { ThemeColor } from '@/@core/types'
-
-import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
-import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
-import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
-
-import type { Curso } from '../entity/Curso'
-import { useCursos } from '../hooks/useCursos'
-import { CursosActions } from '../components/CursosActions'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
+import type { Curso } from '../entity/Curso'
+import { CursosActions } from '../components/CursosActions'
+import CustomTextField from '@/@core/components/mui/TextField'
+import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
+import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
+import type { ThemeColor } from '@/@core/types'
+import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
+import tableStyles from '@core/styles/table.module.css'
+import { useCursos } from '../hooks/useCursos'
 
 type EstadoColorMap = {
   [key: string]: ThemeColor
@@ -116,12 +115,12 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
         header: 'Curso',
         cell: ({ row }) => (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, maxWidth: 300 }}>
-              <CourseThumbnail
-                src={row.original.miniatura}
-                title={row.original.titulo}
-                variant='simple'
-                sx={{ width: 44, height: 32, flexShrink: 0, borderRadius: '8px' }}
-              />
+            <CourseThumbnail
+              src={row.original.miniatura}
+              title={row.original.titulo}
+              variant='simple'
+              sx={{ width: 44, height: 32, flexShrink: 0, borderRadius: '8px' }}
+            />
             <Box sx={{ minWidth: 0 }}>
               <Typography
                 variant='body2'

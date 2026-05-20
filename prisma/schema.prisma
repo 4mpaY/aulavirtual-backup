@@ -72,37 +72,38 @@ model Categoria {
 }
 
 model Curso {
-  id                 String          @id @default(uuid())
+  id                 String            @id @default(uuid())
   titulo             String
-  slug               String          @unique
-  codigo             String?         @unique
+  slug               String            @unique
+  codigo             String?           @unique
   descripcion        String?
   miniatura          String?
   video_presentacion String?
   duracion           String?
-  tipo_emision       TipoEmision     @default(ASINCRONO)
-  estado             EstadoCurso     @default(BORRADOR)
-  es_gratis          Boolean         @default(false)
-  es_privado         Boolean         @default(false)
-  precio_certificado Decimal?        @db.Decimal(10, 2)
-  precio             Decimal         @default(0) @db.Decimal(10, 2)
-  moneda             String          @default("PEN")
-  creado_en          DateTime        @default(now())
-  actualizado_en     DateTime        @updatedAt
+  tipo_emision       TipoEmision       @default(ASINCRONO)
+  estado             EstadoCurso       @default(BORRADOR)
+  es_gratis          Boolean           @default(false)
+  es_privado         Boolean           @default(false)
+  precio_certificado Decimal?          @db.Decimal(10, 2)
+  precio             Decimal           @default(0) @db.Decimal(10, 2)
+  precio_falso       Decimal           @default(0) @db.Decimal(10, 2)
+  moneda             String            @default("PEN")
+  creado_en          DateTime          @default(now())
+  actualizado_en     DateTime          @updatedAt
   profesor_id        String
   categoria_id       String?
-  nivel              NivelCurso      @default(BASICO)
-  beneficios         Json?           @default("[]")
-  incluye            Json?           @default("[]")
-  metodologia        Json?           @default("[]")
-  objetivos          Json?           @default("[]")
+  nivel              NivelCurso        @default(BASICO)
+  beneficios         Json?             @default("[]")
+  incluye            Json?             @default("[]")
+  metodologia        Json?             @default("[]")
+  objetivos          Json?             @default("[]")
   fecha_inicio       DateTime?
   fecha_fin          DateTime?
-  precio_oferta      Decimal?        @db.Decimal(10, 2)
+  precio_oferta      Decimal?          @db.Decimal(10, 2)
   brochure           String?
   certificados       Certificado[]
-  categoria          Categoria?      @relation(fields: [categoria_id], references: [id])
-  profesor           Usuario         @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
+  categoria          Categoria?        @relation(fields: [categoria_id], references: [id])
+  profesor           Usuario           @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
   rutas              CursoEnRuta[]
   detalles_pedido    DetallePedido[]
   examenes           Examen[]
@@ -250,19 +251,19 @@ model DetallePedido {
 }
 
 model Inscripcion {
-  id            String            @id @default(uuid())
-  estado                  EstadoInscripcion @default(ACTIVO)
-  inscrito_en             DateTime          @default(now())
-  completado_en           DateTime?
-  nota_final              Float?
-  estado_nota             EstadoNota?
-  certificado_habilitado  Boolean           @default(false)
-  usuario_id    String
-  curso_id      String
-  pedido_id     String?
-  curso         Curso             @relation(fields: [curso_id], references: [id], onDelete: Cascade)
-  pedido        Pedido?           @relation(fields: [pedido_id], references: [id])
-  usuario       Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  id                     String            @id @default(uuid())
+  estado                 EstadoInscripcion @default(ACTIVO)
+  inscrito_en            DateTime          @default(now())
+  completado_en          DateTime?
+  nota_final             Float?
+  estado_nota            EstadoNota?
+  certificado_habilitado Boolean           @default(false)
+  usuario_id             String
+  curso_id               String
+  pedido_id              String?
+  curso                  Curso             @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  pedido                 Pedido?           @relation(fields: [pedido_id], references: [id])
+  usuario                Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@unique([usuario_id, curso_id])
   @@index([usuario_id])
@@ -510,10 +511,10 @@ model Cupon {
 }
 
 model CuponCurso {
-  cupon_id  String
-  curso_id  String
-  cupon     Cupon  @relation(fields: [cupon_id], references: [id], onDelete: Cascade)
-  curso     Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  cupon_id String
+  curso_id String
+  cupon    Cupon  @relation(fields: [cupon_id], references: [id], onDelete: Cascade)
+  curso    Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
 
   @@id([cupon_id, curso_id])
   @@map("cupon_cursos")

@@ -3,21 +3,23 @@
 import { useState } from 'react'
 
 import {
-    Grid,
-    Typography,
     Box,
     Button,
+    Chip,
     Divider,
     FormControlLabel,
-    Switch,
+    Grid,
     MenuItem,
-    Chip
+    Switch,
+    Typography
 } from '@mui/material'
+
 import { useSnackbar } from 'notistack'
 
-import CustomTextField from '@core/components/mui/TextField'
+import { useCambiarEstadoCurso, useEditCurso } from '../../hooks/useCursos'
+
 import type { Curso } from '../../entity/Curso'
-import { useEditCurso, useCambiarEstadoCurso } from '../../hooks/useCursos'
+import CustomTextField from '@core/components/mui/TextField'
 
 interface TabConfiguracionProps {
     curso: Curso
@@ -32,6 +34,7 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
     const [esGratis, setEsGratis] = useState(curso.es_gratis)
     const [esPrivado, setEsPrivado] = useState(curso.es_privado ?? false)
     const [precio, setPrecio] = useState(curso.precio)
+    const [precioFalso, setPrecioFalso] = useState(curso.precio_falso)
     const [moneda, setMoneda] = useState(curso.moneda)
     const [precioCertificado, setPrecioCertificado] = useState<number | ''>(curso.precio_certificado ?? '')
 
@@ -42,6 +45,7 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                 data: {
                     es_gratis: esGratis,
                     precio: esGratis ? 0 : precio,
+                    precio_falso: esGratis ? 0 : precioFalso,
                     moneda,
                     precio_certificado: esGratis
                         ? (precioCertificado === '' ? null : Number(precioCertificado))
@@ -115,6 +119,13 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                             label='Precio'
                             value={precio}
                             onChange={e => setPrecio(Number(e.target.value))}
+                            sx={{ width: 200 }}
+                        />
+                        <CustomTextField
+                            type='number'
+                            label='Precio Falso'
+                            value={precioFalso}
+                            onChange={e => setPrecioFalso(Number(e.target.value))}
                             sx={{ width: 200 }}
                         />
                         <CustomTextField
