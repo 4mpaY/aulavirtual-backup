@@ -348,13 +348,12 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                   <Typography sx={{ fontFamily: FONT, fontWeight: 900, fontSize: { xs: '2.5rem', md: '3rem' }, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>
                     {course.es_comprado ? 'Adquirido' : course.es_gratis ? 'Gratis' : `${course.moneda} ${course.precio}`}
                   </Typography>
-                  {(!course.es_gratis && !course.es_comprado && course.precio_falso === 0) ? (
+                  {!course.es_gratis && !course.es_comprado && (
                     <Typography sx={{ fontFamily: FONT, fontSize: '1rem', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>
-                      {course.moneda} {(course.precio * 1.5).toFixed(2)}
-                    </Typography>
-                  ) : (
-                    <Typography sx={{ fontFamily: FONT, fontSize: '1rem', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>
-                      {course.moneda} {course.precio_falso}
+                      {course.moneda}{' '}
+                      {Number(course.precio_falso) !== 0
+                        ? Number(course.precio_falso)
+                        : (course.precio * 1.5).toFixed(2)}
                     </Typography>
                   )}
                 </Box>
