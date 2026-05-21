@@ -169,7 +169,7 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
   doc.text(nombreCompleto.toUpperCase(), cx, y, { align: 'center' }); y += 11
 
   doc.setFontSize(12); doc.setTextColor(100, 100, 100); doc.setFont('helvetica', 'normal')
-  doc.text('Por haber concluido y aprobado con éxito el curso de especialización de:', cx, y, { align: 'center' }); y += 10
+  doc.text('Por haber concluido y aprobado con éxito el curso de:', cx, y, { align: 'center' }); y += 10
 
   doc.setFontSize(20); doc.setTextColor(15, 15, 15); doc.setFont('helvetica', 'bold')
   const cursoLines = doc.splitTextToSize(cursoTitulo, contentW - 34)
@@ -182,7 +182,7 @@ export const generarClasicoResumido: GeneratorFn = async (data) => {
 
   doc.text(descripcionLines, cx, y, { align: 'center' }); y += descripcionLines.length * 6 + 4
 
-  const porcuantoLines = doc.splitTextToSize('Por cuanto: Para que conste y sea reconocido, se otorga el presente diploma en calidad de:', contentW - 40)
+  const porcuantoLines = doc.splitTextToSize('Por cuanto: Para que conste y sea reconocido, se otorga el presente certificado en calidad de:', contentW - 40)
 
   doc.text(porcuantoLines, cx, y, { align: 'center' }); y += porcuantoLines.length * 6 + 5
 
