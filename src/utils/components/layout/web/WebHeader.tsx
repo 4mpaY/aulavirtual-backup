@@ -40,9 +40,6 @@ export default function WebHeader({
 
   void (configs.COLOR_PRIMARIO || '#02115C') // primaryColor reserved
 
-  const rutasHabilitado = configs.WEB_RUTAS_HABILITADO !== 'false'
-  const empresasHabilitado = configs.WEB_EMPRESAS_HABILITADO !== 'false'
-
   // ── Scroll-reveal: oculto en el top, visible al primer scroll ──
   const [visible, setVisible] = useState(false)
   const [hasScrolled, setHasScrolled] = useState(false)
@@ -96,24 +93,6 @@ export default function WebHeader({
         >
           Cursos
         </Link>
-        {rutasHabilitado && (
-          <Link
-            href="/rutas"
-            className="no-underline text-sm font-bold text-slate-600 hover:text-primary transition-all duration-200"
-            style={{ fontFamily: 'Montserrat, sans-serif' }}
-          >
-            Rutas
-          </Link>
-        )}
-        {empresasHabilitado && (
-          <Link
-            href="/empresas"
-            className="no-underline text-sm font-bold text-slate-600 hover:text-primary transition-all duration-200"
-            style={{ fontFamily: 'Montserrat, sans-serif' }}
-          >
-            Empresas
-          </Link>
-        )}
         <Link
           href="/nosotros"
           className="no-underline text-sm font-bold text-slate-600 hover:text-primary transition-all duration-200"
@@ -160,11 +139,11 @@ export default function WebHeader({
                 fontWeight: 700,
                 fontSize: '0.7rem',
                 borderRadius: '8px',
-                backgroundColor: '#2C2C2C',
+                backgroundColor: '#1D71CA',
                 color: '#FFFFFF',
-                border: '1px solid #4A4A4A',
+                border: '1px solid #1D71CA',
                 display: { xs: 'none', sm: 'inline-flex' },
-                '&:hover': { backgroundColor: '#3D3D3D' },
+                '&:hover': { backgroundColor: '#2DA194', borderColor: '#2DA194' },
               }}
             >
               Registrarse

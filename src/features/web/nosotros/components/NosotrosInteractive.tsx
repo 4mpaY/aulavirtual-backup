@@ -94,7 +94,7 @@ function MisionCard() {
       <div
         style={{
           height: '200px',
-          backgroundImage: 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.50)), url("https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80")',
+          backgroundImage: 'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.50)), url("https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=800&q=80")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           display: 'flex',

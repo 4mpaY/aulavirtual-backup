@@ -42,26 +42,13 @@ export default async function NosotrosPage() {
       {/* ── 1. HERO SOBRE NOSOTROS ─────────────────────── */}
       <section
         style={{
-          backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.42) 100%), url("https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=2000&q=80")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
+          backgroundColor: 'var(--web-primary, #1D71CA)',
           padding: '6rem 1.5rem 5rem',
           position: 'relative',
           overflow: 'hidden',
         }}
       >
-        {/* Grid pattern */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
-        {/* Glow */}
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.22) 0%, transparent 65%)', pointerEvents: 'none' }} />
+
 
         <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div
@@ -80,9 +67,9 @@ export default async function NosotrosPage() {
                 <div
                   style={{
                     borderRadius: '20px',
-                    background: 'rgba(255,255,255,0.07)',
-                    border: '1.5px solid rgba(255,255,255,0.12)',
-                    backdropFilter: 'blur(16px)',
+                    background: '#ffffff',
+                    border: '1.5px solid #e2e8f0',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
                     padding: '1.5rem',
                     display: 'flex',
                     alignItems: 'center',
@@ -93,9 +80,9 @@ export default async function NosotrosPage() {
                     📚
                   </div>
                   <div>
-                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Programas académicos</div>
-                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>CEGAE Ribeyro</div>
-                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>Especialización y capacitación profesional</div>
+                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.6875rem', color: '#64748b', fontWeight: 600, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Programas académicos</div>
+                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>CEGAE Ribeyro</div>
+                    <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8125rem', color: 'var(--web-primary, #1D71CA)', fontWeight: 700 }}>Especialización y capacitación profesional</div>
                   </div>
                 </div>
 
@@ -111,15 +98,15 @@ export default async function NosotrosPage() {
                       key={i}
                       style={{
                         borderRadius: '16px',
-                        background: 'rgba(255,255,255,0.06)',
-                        border: '1.5px solid rgba(255,255,255,0.09)',
-                        backdropFilter: 'blur(12px)',
+                        background: '#ffffff',
+                        border: '1.5px solid #e2e8f0',
+                        boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
                         padding: '1.125rem 1.25rem',
                       }}
                     >
                       <span style={{ fontSize: '1.375rem' }}>{s.emoji}</span>
-                      <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1, marginTop: '0.5rem' }}>{s.value}</div>
-                      <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px', lineHeight: 1.3 }}>{s.label}</div>
+                      <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: '#0f172a', lineHeight: 1, marginTop: '0.5rem' }}>{s.value}</div>
+                      <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#64748b', marginTop: '3px', lineHeight: 1.3 }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
@@ -128,8 +115,9 @@ export default async function NosotrosPage() {
                 <div
                   style={{
                     borderRadius: '16px',
-                    background: 'linear-gradient(135deg, rgba(var(--web-light-rgb, 189, 217, 98),0.12) 0%, rgba(var(--web-primary-rgb, 37, 146, 127),0.12) 100%)',
-                    border: '1.5px solid rgba(var(--web-light-rgb, 189, 217, 98),0.25)',
+                    background: '#ffffff',
+                    border: '1.5px solid #e2e8f0',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
                     padding: '1rem 1.25rem',
                     display: 'flex',
                     alignItems: 'center',
@@ -138,8 +126,8 @@ export default async function NosotrosPage() {
                 >
                   <div style={{ fontSize: '1.75rem', flexShrink: 0 }}>🎓</div>
                   <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>Certificados oficiales por programa</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '4px' }}>Reconocidos para nombramiento, ascenso y cargos directivos</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: '#0f172a', lineHeight: 1 }}>Certificados oficiales por programa</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>Reconocidos para nombramiento, ascenso y cargos directivos</div>
                   </div>
                 </div>
 
@@ -154,15 +142,15 @@ export default async function NosotrosPage() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.12)',
-                    border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.25)',
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    border: '1px solid rgba(255,255,255,0.3)',
                     borderRadius: '999px',
                     padding: '0.375rem 1rem',
                     marginBottom: '1.5rem',
                   }}
                 >
-                  <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: 'var(--web-light, #BDD962)', boxShadow: '0 0 6px var(--web-light, #BDD962)' }} />
-                  <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
+                  <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#ffffff', boxShadow: '0 0 6px #ffffff' }} />
+                  <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#ffffff', fontWeight: 600 }}>
                     Sobre nosotros
                   </span>
                 </div>
@@ -179,7 +167,7 @@ export default async function NosotrosPage() {
                   }}
                 >
                   Formación profesional{' '}
-                  <span style={{ color: 'var(--web-light, #BDD962)' }}>que transforma</span>{' '}
+                  <span style={{ color: '#ffffff' }}>que transforma</span>{' '}
                   vidas
                 </h1>
 
@@ -187,7 +175,7 @@ export default async function NosotrosPage() {
                   style={{
                     fontFamily: 'Montserrat, sans-serif',
                     fontSize: '1rem',
-                    color: 'rgba(255,255,255,0.65)',
+                    color: '#ffffff',
                     lineHeight: 1.75,
                     maxWidth: '480px',
                     marginBottom: '2.5rem',
@@ -207,13 +195,13 @@ export default async function NosotrosPage() {
                       gap: '0.5rem',
                       padding: '0.875rem 1.75rem',
                       borderRadius: '12px',
-                      backgroundColor: 'var(--web-light, #BDD962)',
-                      color: '#0A0A0A',
+                      backgroundColor: '#ffffff',
+                      color: 'var(--web-primary, #1D71CA)',
                       fontFamily: 'Montserrat, sans-serif',
                       fontWeight: 700,
                       fontSize: '0.9375rem',
                       textDecoration: 'none',
-                      boxShadow: '0 4px 20px rgba(var(--web-light-rgb, 189, 217, 98),0.35)',
+                      boxShadow: '0 4px 20px rgba(255,255,255,0.15)',
                     }}
                   >
                     Ver cursos <ArrowRight size={18} />

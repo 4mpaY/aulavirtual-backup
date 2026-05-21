@@ -18,9 +18,14 @@ export function ContactList() {
         { icon: Phone, title: 'WhatsApp', info: `+${waNumber}`, href: `https://wa.me/${waNumber}` },
         { icon: Mail, title: 'Email', info: 'cegae.ribeyro@gmail.com', href: 'mailto:cegae.ribeyro@gmail.com' },
       ].map((item, i) => (
-        <ScrollReveal key={i} delay={i * 0.1}>
+        <ScrollReveal key={i} delay={i * 0.1} className="h-full">
           <div
             style={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
               backgroundColor: '#ffffff',
               borderRadius: '16px',
               padding: '2rem',
@@ -33,7 +38,7 @@ export function ContactList() {
               const el = e.currentTarget
 
               el.style.transform = 'translateY(-4px)'
-              el.style.boxShadow = '0 12px 32px rgba(var(--web-primary-rgb, 37, 146, 127),0.12)'
+              el.style.boxShadow = '0 12px 32px rgba(29, 113, 202, 0.15)'
             }}
             onMouseLeave={e => {
               const el = e.currentTarget
@@ -42,14 +47,14 @@ export function ContactList() {
               el.style.boxShadow = '0 2px 12px rgba(0,0,0,0.05)'
             }}
           >
-            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '16px', backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.1)', marginBottom: '1.25rem' }}>
-              <item.icon style={{ width: '28px', height: '28px', color: 'var(--web-primary, #25927F)' }} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '16px', backgroundColor: 'rgba(29, 113, 202, 0.1)', marginBottom: '1.25rem' }}>
+              <item.icon style={{ width: '28px', height: '28px', color: 'var(--web-primary, #1D71CA)' }} />
             </div>
             <h3 style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
               {item.title}
             </h3>
             {item.href ? (
-              <a href={item.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', fontWeight: 600, color: 'var(--web-dark, #025E44)', textDecoration: 'none' }}>
+              <a href={item.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', fontWeight: 600, color: 'var(--web-primary, #1D71CA)', textDecoration: 'none' }}>
                 {item.info}
               </a>
             ) : (
@@ -77,11 +82,11 @@ export function ContactActions() {
           rel="noopener noreferrer"
           style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.875rem 2rem', borderRadius: '9999px',
-            backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff', fontFamily: 'Poppins, sans-serif',
+            backgroundColor: 'var(--web-primary, #1D71CA)', color: '#ffffff', fontFamily: 'Poppins, sans-serif',
             fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none', transition: 'background-color 0.2s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--web-dark, #025E44)' }}
-          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--web-primary, #25927F)' }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--web-light, #2DA194)' }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--web-primary, #1D71CA)' }}
         >
           <Phone size={18} />
           Enviar WhatsApp
@@ -90,16 +95,16 @@ export function ContactActions() {
           href="/"
           style={{
             display: 'inline-flex', alignItems: 'center', padding: '0.875rem 2rem', borderRadius: '9999px',
-            border: '2px solid var(--web-primary, #25927F)', color: 'var(--web-primary, #25927F)',
+            border: '2px solid var(--web-primary, #1D71CA)', color: 'var(--web-primary, #1D71CA)',
             fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', fontWeight: 700, textDecoration: 'none', transition: 'all 0.2s',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.backgroundColor = 'var(--web-primary, #25927F)'
+            e.currentTarget.style.backgroundColor = 'var(--web-primary, #1D71CA)'
             e.currentTarget.style.color = '#ffffff'
           }}
           onMouseLeave={e => {
             e.currentTarget.style.backgroundColor = 'transparent'
-            e.currentTarget.style.color = 'var(--web-primary, #25927F)'
+            e.currentTarget.style.color = 'var(--web-primary, #1D71CA)'
           }}
         >
           Volver al inicio

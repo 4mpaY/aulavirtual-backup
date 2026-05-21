@@ -17,17 +17,16 @@
   --search-z-index: var(--mui-zIndex-tooltip);
   --drawer-z-index: var(--mui-zIndex-drawer);
   --backdrop-color: rgb(var(--mui-mainColorChannels-light) / 0.5);
-
-  /* IPG Design System */
-  --color-1: 170 60% 36%;   /* Primary Teal #25927F */
-  --color-2: 75 63% 62%;    /* Lime Green #BDD962 */
-  --color-3: 167 96% 19%;   /* Deep Teal #025E44 */
-  --color-4: 152 50% 46%;   /* Sage Green #3AB079 */
+  /* IPG Design System - CR Logo Palette */
+  --color-1: 211 75% 45%;   /* Primary Blue #1D71CA */
+  --color-2: 173 56% 40%;   /* Primary Teal #2DA194 */
+  --color-3: 0 0% 4%;       /* Black #0A0A0A */
+  --color-4: 0 0% 100%;     /* White #FFFFFF */
   --color-5: 0 0% 4%;       /* Almost Black #0A0A0A */
 
-  --ipg-primary: var(--web-primary, #25927F);
-  --ipg-primary-dark: var(--web-dark, #025E44);
-  --ipg-primary-light: var(--web-light, #BDD962);
+  --ipg-primary: var(--web-primary, #1D71CA);
+  --ipg-primary-dark: var(--web-dark, #0A0A0A);
+  --ipg-primary-light: var(--web-light, #2DA194);
   --ipg-black: #0A0A0A;
   --ipg-muted: #f1f5f4;
 

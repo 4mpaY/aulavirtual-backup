@@ -14,10 +14,7 @@ export default function ContactoPage() {
       {/* Hero */}
       <section
         style={{
-          backgroundImage: 'linear-gradient(to bottom, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.48) 100%), url("https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2000&q=80")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
+          backgroundColor: 'var(--web-primary, #1D71CA)',
           padding: '6rem 1.5rem 5rem',
           position: 'relative',
           overflow: 'hidden',
@@ -27,7 +24,7 @@ export default function ContactoPage() {
 
         <div style={{ maxWidth: '720px', margin: '0 auto', position: 'relative', zIndex: 1, textAlign: 'center' }}>
           <ScrollReveal>
-            <p style={{ ...eyebrow, display: 'block', textAlign: 'center', color: 'var(--web-light, #BDD962)', marginBottom: '1rem' }}>
+            <p style={{ ...eyebrow, display: 'block', textAlign: 'center', color: '#ffffff', marginBottom: '1rem' }}>
               Estamos aquí para asesorarte
             </p>
             <h1 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(2.25rem, 5vw, 3.5rem)', fontWeight: 900, color: '#ffffff', lineHeight: 1.1, marginBottom: '1.25rem' }}>
