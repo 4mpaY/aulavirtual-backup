@@ -37,6 +37,7 @@ export default function WebHeader({
   const { data: session } = useSession()
   const { openLogin, openRegister } = useAuthModal()
   const configs = useConfig()
+
   void (configs.COLOR_PRIMARIO || '#02115C') // primaryColor reserved
 
   const rutasHabilitado = configs.WEB_RUTAS_HABILITADO !== 'false'
@@ -61,6 +62,7 @@ export default function WebHeader({
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
+
     return () => window.removeEventListener('scroll', onScroll)
   }, [hasScrolled])
 

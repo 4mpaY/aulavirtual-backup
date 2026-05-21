@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+
 import Link from 'next/link'
+
 import {
   ArrowRight,
-  BookOpen,
   Users,
   MessageSquare,
   Sparkles,
-  Layers,
   CheckCircle,
   ChevronRight,
   Map,
@@ -27,24 +27,28 @@ export default function HomePage() {
   const [hasScrolled, setHasScrolled] = useState(false)
 
   // Sincroniza con el scroll-reveal del WebHeader
-  React.useEffect(() => {
+  useEffect(() => {
     if (window.scrollY > 10) {
       setHasScrolled(true)
       setNavbarVisible(true)
     }
+
     const onScroll = () => {
       if (window.scrollY > 10 && !hasScrolled) {
         setHasScrolled(true)
         setNavbarVisible(true)
       }
     }
+
     window.addEventListener('scroll', onScroll, { passive: true })
+
     return () => window.removeEventListener('scroll', onScroll)
   }, [hasScrolled])
 
   const handleVerify = (e: React.FormEvent) => {
     e.preventDefault()
     if (!certCode.trim()) return
+
     if (certCode.toUpperCase() === 'CEGAE-2026') {
       setCertResult('VALIDO: Certificado oficial emitido a favor de Juan Pérez en Neuroeducación.')
     } else {

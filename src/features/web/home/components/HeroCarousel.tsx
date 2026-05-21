@@ -1,8 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import Link from 'next/link'
+
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+
 import HeroVisual from './HeroVisual'
 
 interface HeroCarouselProps {
@@ -18,6 +21,7 @@ export default function HeroCarousel({ heroTitle, heroDescription }: HeroCarouse
     const timer = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % totalSlides)
     }, 6000)
+
     return () => clearInterval(timer)
   }, [])
 

@@ -26,7 +26,6 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
   const platformName = configs.TEMPLATE_NAME || 'CEGAE RIBEYRO'
   const platformSlogan = configs.TEMPLATE_SLOGAN || 'Te acompañamos en tu perfeccionamiento profesional'
   const rutasHabilitado = configs.WEB_RUTAS_HABILITADO !== 'false'
-  const empresasHabilitado = configs.WEB_EMPRESAS_HABILITADO !== 'false'
 
   return (
     <AuthModalProvider>

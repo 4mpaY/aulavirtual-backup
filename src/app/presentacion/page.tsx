@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
+
 import Link from 'next/link'
+
 import {
   Menu,
   X,
@@ -9,13 +11,10 @@ import {
   BookOpen,
   Users,
   MessageSquare,
-  Shield,
-  Award,
   ChevronRight,
   Sparkles,
   Layers,
-  CheckCircle,
-  HelpCircle
+  CheckCircle
 } from 'lucide-react'
 
 export default function PresentacionPage() {
