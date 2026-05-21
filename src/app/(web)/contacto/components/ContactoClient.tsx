@@ -9,14 +9,14 @@ import { useConfig } from '@/contexts/ConfigContext'
 
 export function ContactList() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51943570195'
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
       {[
-        { icon: MapPin, title: 'Ubicación', info: 'Arequipa, Perú' },
+        { icon: MapPin, title: 'Ubicación', info: 'Manuel Segura 206 - Dep. 1201, Lince, Lima' },
         { icon: Phone, title: 'WhatsApp', info: `+${waNumber}`, href: `https://wa.me/${waNumber}` },
-        { icon: Mail, title: 'Email', info: 'arm.confiabilidad@gmail.com', href: 'mailto:arm.confiabilidad@gmail.com' },
+        { icon: Mail, title: 'Email', info: 'cegae.ribeyro@gmail.com', href: 'mailto:cegae.ribeyro@gmail.com' },
       ].map((item, i) => (
         <ScrollReveal key={i} delay={i * 0.1}>
           <div
@@ -66,7 +66,7 @@ export function ContactList() {
 
 export function ContactActions() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51943570195'
 
   return (
     <ScrollReveal>

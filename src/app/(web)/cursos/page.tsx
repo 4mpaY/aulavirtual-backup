@@ -94,21 +94,21 @@ export default async function CursosPage() {
             }}
             component="h1"
           >
-            Catálogo de <span style={{ color: 'var(--web-light, #BDD962)' }}>Especializaciones Legales</span>
+            Catálogo de <span style={{ color: 'var(--web-light, #BDD962)' }}>Programas y Especializaciones</span>
           </Box>
           <Box
             sx={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.75)', maxWidth: 580, lineHeight: 1.7 }}
             component="p"
           >
-            Accede a cursos impartidos por abogados y juristas en ejercicio. Formación especializada en derecho corporativo, compliance, contratos y más.
+            Descubre nuestros programas de especialización, capacitaciones, actualizaciones y diplomados en educación, salud, gestión y tecnología. Clases en vivo y grabadas con certificado oficial.
           </Box>
 
           {/* Stats chips */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 3 }}>
             {[
-              { label: `${courses.length} cursos disponibles`, icon: '⚖️' },
-              { label: `${categories.length} áreas del derecho`, icon: '📜' },
-              { label: 'Impartido por abogados en ejercicio', icon: '🏫' },
+              { label: `${courses.length} programas disponibles`, icon: '📚' },
+              { label: `${categories.length} áreas académicas`, icon: '🏫' },
+              { label: 'Clases en vivo y grabadas', icon: '💻' },
             ].map(chip => (
               <Box
                 key={chip.label}

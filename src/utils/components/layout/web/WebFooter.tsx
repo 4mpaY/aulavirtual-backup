@@ -24,10 +24,10 @@ const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
 )
 
 const staticSocialLinks = [
-  { label: 'Facebook', href: 'https://www.facebook.com/flyup.store', icon: <Facebook size={20} /> },
-  { label: 'TikTok', href: 'https://tiktok.com/@flyupsale', icon: <TikTokIcon size={20} /> },
-  { label: 'Instagram', href: 'https://www.instagram.com/devrocket.software/', icon: <Instagram size={20} /> },
-  { label: 'Youtube', href: 'https://www.youtube.com/@Fly-s9b', icon: <Youtube size={20} /> },
+  { label: 'Facebook', href: 'https://www.facebook.com/cegaeribeyro', icon: <Facebook size={20} /> },
+  { label: 'TikTok', href: 'https://tiktok.com/@cegaeribeyro', icon: <TikTokIcon size={20} /> },
+  { label: 'Instagram', href: 'https://www.instagram.com/cegaeribeyro/', icon: <Instagram size={20} /> },
+  { label: 'Youtube', href: 'https://www.youtube.com/@cegaeribeyro', icon: <Youtube size={20} /> },
 ]
 
 interface WebFooterProps {
@@ -35,9 +35,9 @@ interface WebFooterProps {
   rutasHabilitado?: boolean
 }
 
-const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true }: WebFooterProps) => {
+const WebFooter = async ({ platformName = 'CEGAE RIBEYRO', rutasHabilitado = true }: WebFooterProps) => {
   const configs = await getConfigs()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51943570195'
 
   const socialLinks = [
     ...staticSocialLinks,
@@ -60,15 +60,15 @@ const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true
             <ul className="space-y-3" style={{ opacity: 0.8 }}>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <Phone size={16} className="flex-shrink-0 mt-0.5" />
-                <span>+51 928 510 125</span>
+                <span>+51 943 570 195</span>
               </li>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <Mail size={16} className="flex-shrink-0 mt-0.5" />
-                <span>flyup.sale@gmail.com</span>
+                <span>cegae.ribeyro@gmail.com</span>
               </li>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <MapPin size={16} className="flex-shrink-0 mt-0.5" />
-                <span>Lima, Miraflores</span>
+                <span>Manuel Segura 206 - Dep. 1201, Lince, Lima</span>
               </li>
             </ul>
           </div>
@@ -198,7 +198,7 @@ const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true
                 color: 'rgba(255,255,255,0.5)',
               }}
             >
-              © <HydratedDate date={new Date()} format="year" /> {platformName}. Todos los derechos reservados.
+              © <HydratedDate date={new Date()} format="year" /> {platformName} - RUC: 20608079646. Todos los derechos reservados.
             </p>
           </div>
           <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>

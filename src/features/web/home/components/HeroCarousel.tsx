@@ -69,7 +69,7 @@ export default function HeroCarousel({ heroTitle, heroDescription }: HeroCarouse
             <div style={{ maxWidth: '600px', marginTop: '-3rem' }}>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5" style={{ backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)' }}>
                 <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--web-light, #BDD962)' }} />
-                <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>Academia Legal & Corporativa</span>
+                <span style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>Institución Educativa · CEGAE Ribeyro</span>
               </div>
               <h1 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(2rem, 5vw, 3.25rem)', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.15, marginBottom: '1.25rem' }}>
                 {heroTitle.split('\n')[0]}
@@ -95,10 +95,10 @@ export default function HeroCarousel({ heroTitle, heroDescription }: HeroCarouse
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center', width: '100%', marginTop: '-3rem' }}>
               <div>
                 <h2 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(1.8rem, 4vw, 2.75rem)', fontWeight: 800, color: '#ffffff', marginBottom: '1rem', lineHeight: 1.15 }}>
-                  Plataforma de <br /><span style={{ color: 'var(--web-light, #BDD962)' }}>Aprendizaje Avanzado</span>
+                  Plataforma de <br /><span style={{ color: 'var(--web-light, #BDD962)' }}>Aprendizaje Virtual</span>
                 </h2>
                 <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1.05rem', color: 'rgba(255,255,255,0.8)', marginBottom: '2rem', maxWidth: '500px', lineHeight: 1.7 }}>
-                  Estudia casos reales, analiza jurisprudencia y entiende la normativa actual utilizando nuestro moderno campus virtual diseñado especialmente para profesionales.
+                  Accede a clases en vivo y grabadas, sílabos detallados, certificaciones y seguimiento personalizado desde cualquier dispositivo, cuando quieras.
                 </p>
               </div>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -118,13 +118,13 @@ export default function HeroCarousel({ heroTitle, heroDescription }: HeroCarouse
           }}>
             <div style={{ maxWidth: '700px', marginLeft: 'auto', textAlign: 'right', marginTop: '-3rem' }}>
               <h2 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(2rem, 5vw, 3.25rem)', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem', lineHeight: 1.1 }}>
-                Excelencia en <br /><span style={{ color: 'var(--web-light, #BDD962)' }}>Asesoramiento Jurídico</span>
+                Certificaciones <br /><span style={{ color: 'var(--web-light, #BDD962)' }}>reconocidas y validadas</span>
               </h2>
               <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1.125rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, marginBottom: '2rem', display: 'inline-block' }}>
-                No solo enseñamos derecho; somos una firma legal sólida. Nuestro equipo de abogados y consultores corporativos te brinda el respaldo y la seguridad legal que tu empresa necesita para cada decisión.
+                Al concluir cada programa obtienes un certificado oficial emitido por CEGAE Ribeyro, respaldando tu formación en nombramiento docente, especializaciones y diplomados profesionales.
               </p>
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                <Link href="/contacto" className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-300 hover:scale-105" style={{ fontFamily: 'Montserrat, sans-serif', backgroundColor: '#ffffff', color: 'var(--web-dark, #025E44)', fontSize: '1rem', padding: '0.875rem 2rem', boxShadow: '0 4px 20px rgba(255,255,255,0.2)' }}>Contactar Asesoría</Link>
+                <Link href="/cursos" className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-300 hover:scale-105" style={{ fontFamily: 'Montserrat, sans-serif', backgroundColor: '#ffffff', color: 'var(--web-dark, #025E44)', fontSize: '1rem', padding: '0.875rem 2rem', boxShadow: '0 4px 20px rgba(255,255,255,0.2)' }}>Ver programas</Link>
               </div>
             </div>
           </div>

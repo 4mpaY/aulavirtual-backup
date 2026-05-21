@@ -12,8 +12,8 @@ import '@assets/iconify-icons/generated-icons.css'
 
 export async function generateMetadata(): Promise<Metadata> {
   const configs = await getConfigs()
-  const title = configs.TEMPLATE_NAME || 'Aula Virtual'
-  const slogan = configs.TEMPLATE_SLOGAN || ''
+  const title = configs.TEMPLATE_NAME || 'CEGAE RIBEYRO'
+  const slogan = configs.TEMPLATE_SLOGAN || 'Te acompañamos en tu perfeccionamiento profesional'
   const logo = configs.TEMPLATE_LOGO || '/favicon.ico'
 
   return {

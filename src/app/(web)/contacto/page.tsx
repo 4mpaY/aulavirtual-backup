@@ -4,8 +4,8 @@ import { eyebrow, sectionDesc } from '@/features/web/home/components/typography'
 import { ContactList, ContactActions } from './components/ContactoClient'
 
 export const metadata = {
-  title: 'Contacto - ARM',
-  description: 'Ponte en contacto con nosotros',
+  title: 'Contacto - CEGAE RIBEYRO',
+  description: 'Ponte en contacto con nosotros para mayor información',
 }
 
 export default function ContactoPage() {
@@ -31,10 +31,10 @@ export default function ContactoPage() {
               Estamos aquí para asesorarte
             </p>
             <h1 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: 'clamp(2.25rem, 5vw, 3.5rem)', fontWeight: 900, color: '#ffffff', lineHeight: 1.1, marginBottom: '1.25rem' }}>
-              Consulta Legal
+              Consultas y Soporte
             </h1>
             <p style={{ ...sectionDesc, color: 'rgba(255,255,255,0.75)', textAlign: 'center', maxWidth: '480px', margin: '0 auto' }}>
-              Nuestro equipo de abogados y asesores está disponible para atender tu consulta. Escríbenos y te responderemos a la brevedad.
+              Nuestro equipo de coordinadores y asesores académicos está disponible para atender tus dudas e inscripciones. Escríbenos y te responderemos a la brevedad.
             </p>
           </ScrollReveal>
         </div>

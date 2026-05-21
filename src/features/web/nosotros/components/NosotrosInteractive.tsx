@@ -9,27 +9,27 @@ const valores = [
   {
     icon: ShieldCheck,
     title: 'Integridad',
-    desc: 'Actuamos con transparencia, honestidad y rigor jurídico en cada asesoría, decisición y relación con nuestros clientes.',
+    desc: 'Actuamos con transparencia y honestidad en cada programa educativo, garantizando contenidos actualizados y docentes calificados.',
   },
   {
     icon: Lightbulb,
     title: 'Excelencia',
-    desc: 'Buscamos los más altos estándares en formación legal, actualizando nuestros contenidos con la normativa y jurisprudencia vigente.',
+    desc: 'Buscamos los más altos estándares académicos, actualizando permanentemente nuestros contenidos según las necesidades del mercado educativo.',
   },
   {
     icon: Users,
     title: 'Compromiso',
-    desc: 'Nos dedicamos plenamente a cada profesional y empresa, acompañándolos en su desarrollo legal y corporativo.',
+    desc: 'Nos dedicamos plenamente a cada participante, acompañándolos en su crecimiento profesional con soporte continuo.',
   },
   {
     icon: TrendingUp,
     title: 'Innovación',
-    desc: 'Aplicamos metodologías modernas al derecho para hacer la formación jurídica más accesible, práctica y efectiva.',
+    desc: 'Aplicamos metodologías modernas y tecnología educativa para hacer la formación más accesible, práctica y efectiva.',
   },
   {
     icon: Heart,
-    title: 'Confianza',
-    desc: 'Construimos relaciones sólidas basadas en el respeto, la confidencialidad y la responsabilidad profesional.',
+    title: 'Vocación de Servicio',
+    desc: 'Creemos en la educación como motor de transformación; por eso cada programa está diseñado con dedicación y enfoque en el éxito del participante.',
   },
 ]
 
@@ -121,10 +121,8 @@ function MisionCard() {
         <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--web-dark, #025E44)' }}>
           Nuestra Misión
         </h3>
-        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Brindar formación jurídica y corporativa de alta calidad, dictada por abogados en ejercicio,
-          que impulse el desarrollo profesional de nuestros estudiantes y la solidez legal de las
-          organizaciones que atendemos.&quot;
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75 }}>
+          Brindar programas de capacitación, actualización y especialización de alta calidad, orientados al desarrollo profesional y académico de docentes y profesionales del Perú, mediante una enseñanza innovadora, accesible y práctica, apoyada en herramientas virtuales, docentes especializados y metodologías enfocadas en resultados reales.
         </p>
       </div>
     </div>
@@ -185,10 +183,8 @@ function VisionCard() {
         <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--web-dark, #025E44)' }}>
           Nuestra Visión
         </h3>
-        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Ser la firma legal y academia de referencia en Latinoamérica, reconocida por la excelencia
-          de su equipo jurídico, la solidez de sus certificaciones y su compromiso con la transformación
-          del ejercicio del derecho corporativo.&quot;
+        <p style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75 }}>
+          Ser una institución educativa líder a nivel nacional en formación y capacitación profesional, reconocida por su excelencia académica, innovación educativa y compromiso con el crecimiento de miles de estudiantes y docentes, contribuyendo al fortalecimiento de la educación y el desarrollo profesional en el Perú.
         </p>
       </div>
     </div>

@@ -11,18 +11,18 @@ import { useEffect, useState } from 'react'
 import { Play, CheckCircle, Lock, Clock } from 'lucide-react'
 
 const MODULES = [
-  { title: 'Introducción al Derecho Corporativo', duration: '12:40', done: true },
-  { title: 'Marco Legal y Normativa', duration: '28:15', done: true },
-  { title: 'Análisis de Jurisprudencia', duration: '35:08', done: false, active: true },
-  { title: 'Redacción de Contratos', duration: '22:50', done: false },
-  { title: 'Resolución de Conflictos', duration: '18:00', done: false, locked: true },
+  { title: 'Introducción a la Planificación Curricular', duration: '12:40', done: true },
+  { title: 'Estrategias de Enseñanza Efectiva', duration: '28:15', done: true },
+  { title: 'Neuroeducación Aplicada', duration: '35:08', done: false, active: true },
+  { title: 'Evaluación y Retroalimentación', duration: '22:50', done: false },
+  { title: 'Educación Inclusiva', duration: '18:00', done: false, locked: true },
 ]
 
 const COMMENTS = [
-  { name: 'Dr. Silva', msg: 'Excelente análisis de la jurisprudencia ⚖️', avatar: 'AS', color: 'var(--web-primary, #25927F)' },
-  { name: 'Carlos R.', msg: 'El material sobre contratos es muy completo.', avatar: 'CR', color: '#3AB079' },
-  { name: 'Luis M.', msg: 'Las plantillas legales ahorran mucho tiempo.', avatar: 'LM', color: 'var(--web-dark, #025E44)' },
-  { name: 'Valeria P.', msg: 'Muy clara la explicación sobre compliance.', avatar: 'VP', color: 'var(--web-light, #BDD962)' },
+  { name: 'Prof. García', msg: 'Excelente clase sobre neuroeducación 🧠', avatar: 'PG', color: 'var(--web-primary, #25927F)' },
+  { name: 'María T.', msg: 'El material de planificación es muy completo.', avatar: 'MT', color: '#3AB079' },
+  { name: 'Luis M.', msg: 'Me ayudó mucho para el nombramiento docente.', avatar: 'LM', color: 'var(--web-dark, #025E44)' },
+  { name: 'Valeria P.', msg: 'Muy clara la explicación sobre educación inclusiva.', avatar: 'VP', color: 'var(--web-light, #BDD962)' },
 ]
 
 export default function HeroVisual() {
@@ -68,11 +68,11 @@ export default function HeroVisual() {
         <div style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'linear-gradient(135deg,var(--web-dark, #025E44),var(--web-primary, #25927F))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '1rem' }}>⚖️</span>
+              <span style={{ fontSize: '1rem' }}>📚</span>
             </div>
             <div>
-              <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>Asesoría Legal Corporativa</div>
-              <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Módulo 3 · Análisis de Jurisprudencia</div>
+              <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>CEGAE Ribeyro · Área Educación</div>
+              <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Módulo 3 · Neuroeducación Aplicada</div>
             </div>
           </div>
           {/* Badge GRABADO */}
@@ -189,8 +189,8 @@ export default function HeroVisual() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.125rem', flexShrink: 0 }}>📜</div>
           <div>
-            <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8125rem', fontWeight: 800, color: '#0A0A0A', lineHeight: 1 }}>Certificación Legal</div>
-            <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: '#64748b', marginTop: '2px' }}>Al completar el curso</div>
+            <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.8125rem', fontWeight: 800, color: '#0A0A0A', lineHeight: 1 }}>Certificado Oficial</div>
+            <div style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.5625rem', color: '#64748b', marginTop: '2px' }}>Al completar el programa</div>
           </div>
         </div>
       </div>
