@@ -286,7 +286,7 @@ return r !== null ? (r > 20 ? r / 5 : r) : null })()
   const btmLimit = H - 16
 
   for (const mod of modulos) {
-    const mt = `${mod.orden}. ${mod.titulo}`.toUpperCase()
+    const mt = `${mod.orden + 1}. ${mod.titulo}`.toUpperCase()
     const ml = doc.splitTextToSize(mt, colW2 - 8)
     const mh = ml.length * 4 + 3
 
@@ -298,7 +298,7 @@ return r !== null ? (r > 20 ? r / 5 : r) : null })()
     doc.text(ml, colR + 3, yR + 3.5); yR += mh + 1.5
 
     for (const lec of mod.lecciones) {
-      const lt = `${mod.orden}.${lec.orden}  ${lec.titulo}`
+      const lt = `${mod.orden + 1}.${lec.orden + 1}  ${lec.titulo}`
       const ll = doc.splitTextToSize(lt, colW2 - 12)
       const lh = ll.length * 3.5 + 1
 
