@@ -123,7 +123,7 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                         />
                         <CustomTextField
                             type='number'
-                            label='Precio Falso'
+                            label='Precio Falso (Opcional)'
                             value={precioFalso}
                             onChange={e => setPrecioFalso(Number(e.target.value))}
                             sx={{ width: 200 }}

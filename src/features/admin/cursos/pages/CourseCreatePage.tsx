@@ -302,7 +302,7 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                             />
                             <CustomTextField
                               type='number'
-                              label='Precio Falso'
+                              label='Precio Falso (Opcional)'
                               name='precio_falso'
                               value={values.precio_falso}
                               onChange={handleChange}
