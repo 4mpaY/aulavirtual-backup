@@ -201,8 +201,10 @@ export async function POST(request: Request) {
     // 5. Generar código de verificación único: {CODIGO_CURSO}-{YYYYMMDD}-{DNI}-{NN}
     const fechaEmision = new Date().toISOString().slice(0, 10).replace(/-/g, '')
     const dni = usuarioData?.numero_documento?.replace(/\D/g, '') || 'SINDNI'
+
     const codigoCurso =
       cursoData?.codigo || cursoData?.slug?.slice(0, 12).toUpperCase() || cursoId.slice(0, 8).toUpperCase()
+
     const numeroIntento = 1
     const codigoVerificacion = `${codigoCurso}-${fechaEmision}-${dni}-${String(numeroIntento).padStart(2, '0')}`
 

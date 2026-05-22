@@ -159,6 +159,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     cursoTitulo,
     cursoDuracion,
     cursoModalidad,
+
     // se usa como respaldo para certificados antiguos o inscripciones previas a la migración
     modulos: certificado.curso.modulos,
     fechaEmisionVal,

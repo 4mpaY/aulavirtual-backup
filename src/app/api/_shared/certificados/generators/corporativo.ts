@@ -240,6 +240,7 @@ export const generarCorporativo: GeneratorFn = async data => {
   doc.setTextColor(200, 200, 200)
   doc.text(`Código: ${codigoVerificacion}`, margin, H - 4)
   doc.text(`Emitido: ${fechaFirmadaTxt}`, W / 2, H - 4, { align: 'center' })
+
   // Vigencia a la derecha, misma altura que el código
   doc.text(
     `Vigencia de acceso: ${vigenciaHastaVal ? formatDateLong(vigenciaHastaVal) : 'sin caducidad'}`,
