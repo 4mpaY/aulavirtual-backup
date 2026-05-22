@@ -427,21 +427,22 @@ export const generarClasico: GeneratorFn = async data => {
   doc.line(margin, zoneAY + avatarSize + 5, pageWidth - margin, zoneAY + avatarSize + 5)
 
   // Zona B: columnas
-  const zoneB_Y = zoneAY + avatarSize + 10
-  const colGap = 6
-  const colW = (pageWidth - margin * 2 - colGap) / 2
-  const colLeft = margin
-  const colRight = margin + colW + colGap
+  const colW = (pageWidth - margin * 2 - 6) / 2
 
-  // Columna izquierda: Rendimiento
+  // Rendimiento académico — movido al lado derecho a la altura del alumno
+  const perfX = pageWidth - margin - colW
+
+  // Ajuste vertical general para los elementos de rendimiento (puedes modificar este valor)
+  const rendimientoYOffset = -6
+
   doc.setFillColor(pr, pg, pb)
-  doc.roundedRect(colLeft, zoneB_Y, colW, 8, 1, 1, 'F')
+  doc.roundedRect(perfX, zoneAY, colW, 8, 1, 1, 'F')
   doc.setFontSize(T.sectionTitle)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(255, 255, 255)
-  doc.text('RENDIMIENTO ACADÉMICO', colLeft + colW / 2, zoneB_Y + 5.5, { align: 'center' })
+  doc.text('RENDIMIENTO ACADÉMICO', perfX + colW / 2, zoneAY + 5.5, { align: 'center' })
 
-  let yLeft = zoneB_Y + 13
+  let yLeft = zoneAY + 13
 
   const promediosPorModulo = Object.values(notasPorModulo).map(e => {
     const raw = e.puntaje / e.count
@@ -461,80 +462,41 @@ export const generarClasico: GeneratorFn = async data => {
         })()
 
   const notaDisplay = notaFinal !== null ? notaFinal.toFixed(2) : '---'
-  const porcentaje = notaFinal !== null ? Math.min(notaFinal / notaMax, 1) : 0
 
   doc.setFontSize(T.score)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(pr, pg, pb)
-  doc.text(notaDisplay, colLeft + colW / 2, yLeft + 10, { align: 'center' })
+  doc.text(notaDisplay, perfX + colW / 2, yLeft + 10 + rendimientoYOffset, { align: 'center' })
   doc.setFontSize(T.small)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(150, 150, 150)
-  doc.text(`/ ${notaMax}.00`, colLeft + colW / 2 + 8, yLeft + 10)
+  doc.text(`/ ${notaMax}.00`, perfX + colW / 2 + 8, yLeft + 10 + rendimientoYOffset)
   doc.setFontSize(T.label)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(120, 120, 120)
-  doc.text('Promedio Ponderado Final', colLeft + colW / 2, yLeft + 16, { align: 'center' })
-  yLeft += 22
-
-  const barW = colW - 16
-  const barX = colLeft + 8
-
-  doc.setFillColor(230, 230, 230)
-  doc.roundedRect(barX, yLeft, barW, 4, 2, 2, 'F')
-  doc.setFillColor(pr, pg, pb)
-  doc.roundedRect(barX, yLeft, barW * porcentaje, 4, 2, 2, 'F')
-  doc.setFontSize(T.small)
-  doc.setFont('helvetica', 'bold')
-  doc.setTextColor(pr, pg, pb)
-  doc.text(`${Math.round(porcentaje * 100)}%`, barX + barW + 2, yLeft + 3.5)
+  doc.text('Promedio Ponderado Final', perfX + colW / 2, yLeft + 16 + rendimientoYOffset, { align: 'center' })
   yLeft += 10
 
-  const modulosConNota = modulos.filter(m => notasPorModulo[m.id])
-
-  if (modulosConNota.length > 0) {
-    doc.setDrawColor(220, 220, 220)
-    doc.setLineWidth(0.2)
-    doc.line(colLeft + 4, yLeft, colLeft + colW - 4, yLeft)
-    yLeft += 5
-    doc.setFontSize(T.label)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(80, 80, 80)
-    doc.text('Calificaciones por Módulo', colLeft + 4, yLeft)
-    yLeft += 6
-
-    for (const mod of modulosConNota) {
-      if (yLeft > 168) break
-      const entry = notasPorModulo[mod.id]
-      const rawMod = entry.puntaje / entry.count
-      const promMod = (rawMod > 20 ? rawMod / 5 : rawMod).toFixed(1)
-      const tituloMod = doc.splitTextToSize(mod.titulo, colW - 22)
-
-      doc.setFontSize(T.body)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(60, 60, 60)
-      doc.text(tituloMod, colLeft + 4, yLeft)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(pr, pg, pb)
-      doc.text(promMod, colLeft + colW - 4, yLeft, { align: 'right' })
-      doc.setDrawColor(210, 210, 210)
-      doc.setLineWidth(0.15)
-      doc.line(colLeft + 4 + doc.getTextWidth(tituloMod[0]) + 2, yLeft + 0.5, colLeft + colW - 10, yLeft + 0.5)
-      yLeft += tituloMod.length * 4.5 + 2
-    }
-  }
+  // Clasificación por módulo removida (no mostrar desglose por módulo)
 
   // Columna derecha: Contenido del programa
+  const contenidoStartY = yLeft + 6
+  const contentColGap = 6
+  const contentColW = (pageWidth - margin * 2 - contentColGap) / 2
+  const contentColLeft = margin
+  const contentColRight = margin + contentColW + contentColGap
+
   doc.setFillColor(pr, pg, pb)
-  doc.roundedRect(colRight, zoneB_Y, colW, 8, 1, 1, 'F')
+  doc.roundedRect(margin, contenidoStartY, pageWidth - margin * 2, 8, 1, 1, 'F')
   doc.setFontSize(T.sectionTitle)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(255, 255, 255)
-  doc.text('CONTENIDO DEL PROGRAMA', colRight + colW / 2, zoneB_Y + 5.5, { align: 'center' })
+  doc.text('CONTENIDO DEL PROGRAMA', pageWidth / 2, contenidoStartY + 5.5, { align: 'center' })
 
-  let yRight = zoneB_Y + 13
+  let leftContentY = contenidoStartY + 13
+  let rightContentY = contenidoStartY + 13
+  let useRightColumn = false
   const contentBottomLimit = pageHeight - 22
-  let onExtraPage = false
 
   const startNewModulosPage = () => {
     doc.addPage()
@@ -546,54 +508,80 @@ export const generarClasico: GeneratorFn = async data => {
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(255, 255, 255)
     doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO (continuación)', margin, 5.5)
-    onExtraPage = true
 
     return 14
   }
 
   for (const modulo of modulos) {
     const modTxt = `${modulo.orden + 1}. ${modulo.titulo}`.toUpperCase()
-    const modLines = doc.splitTextToSize(modTxt, colW - 8)
+    const modLines = doc.splitTextToSize(modTxt, contentColW - 8)
     const modH = modLines.length * 4.5 + 4
 
-    if (yRight + modH > contentBottomLimit) {
-      yRight = startNewModulosPage()
-    }
+    const modX = useRightColumn ? contentColRight : contentColLeft
+    const modWd = contentColW
+    let currentY = useRightColumn ? rightContentY : leftContentY
 
-    const modX = onExtraPage ? margin : colRight
-    const modWd = onExtraPage ? pageWidth - margin * 2 : colW
+    if (currentY + modH > contentBottomLimit) {
+      if (!useRightColumn) {
+        useRightColumn = true
+        currentY = rightContentY
+      }
+
+      if (currentY + modH > contentBottomLimit) {
+        leftContentY = startNewModulosPage()
+        rightContentY = leftContentY
+        useRightColumn = false
+        currentY = leftContentY
+      }
+    }
 
     doc.setFillColor(
       Math.round(pr * 0.12 + 255 * 0.88),
       Math.round(pg * 0.12 + 255 * 0.88),
       Math.round(pb * 0.12 + 255 * 0.88)
     )
-    doc.roundedRect(modX, yRight, modWd, modH, 1, 1, 'F')
+    doc.roundedRect(modX, currentY, modWd, modH, 1, 1, 'F')
     doc.setFontSize(T.sectionTitle)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(pr, pg, pb)
-    doc.text(modLines, modX + 4, yRight + 4.5)
-    yRight += modH + 2
+    doc.text(modLines, modX + 4, currentY + 4.5)
+    currentY += modH + 2
 
     for (const leccion of modulo.lecciones) {
       const lecTxt = `${modulo.orden + 1}.${leccion.orden + 1}  ${leccion.titulo}`
       const lecLines = doc.splitTextToSize(lecTxt, modWd - 14)
       const lecH = lecLines.length * 4 + 1.5
 
-      if (yRight + lecH > contentBottomLimit) {
-        yRight = startNewModulosPage()
+      if (currentY + lecH > contentBottomLimit) {
+        if (!useRightColumn) {
+          useRightColumn = true
+          currentY = rightContentY
+        }
+
+        if (currentY + lecH > contentBottomLimit) {
+          leftContentY = startNewModulosPage()
+          rightContentY = leftContentY
+          useRightColumn = false
+          currentY = leftContentY
+        }
       }
 
       doc.setFillColor(pr, pg, pb)
-      doc.circle(modX + 4, yRight + 1.5, 0.9, 'F')
+      doc.circle(modX + 4, currentY + 1.5, 0.9, 'F')
       doc.setFontSize(T.body)
       doc.setFont('helvetica', 'normal')
       doc.setTextColor(60, 60, 60)
-      doc.text(lecLines, modX + 7, yRight + 2.5)
-      yRight += lecH
+      doc.text(lecLines, modX + 7, currentY + 2.5)
+      currentY += lecH
     }
 
-    yRight += 3
+    currentY += 3
+
+    if (useRightColumn) {
+      rightContentY = currentY
+    } else {
+      leftContentY = currentY
+    }
   }
 
   // Pie de página 2
