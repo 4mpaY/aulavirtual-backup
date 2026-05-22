@@ -28,6 +28,7 @@ export const crearCursoSchema = z.object({
   brochure: z.string().optional().nullable(),
   fecha_inicio: z.string().optional().nullable(),
   fecha_fin: z.string().optional().nullable(),
+  vigencia_meses: z.coerce.number().int().positive().optional().nullable(),
   nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).default('BASICO')
 })
 
@@ -61,6 +62,7 @@ export const actualizarCursoSchema = z.object({
   brochure: z.string().optional().nullable(),
   fecha_inicio: z.string().optional().nullable(),
   fecha_fin: z.string().optional().nullable(),
+  vigencia_meses: z.coerce.number().int().positive().optional().nullable(),
   objetivos: z.array(z.string()).optional(),
   metodologia: z.array(z.any()).optional(),
   beneficios: z.array(z.any()).optional(),

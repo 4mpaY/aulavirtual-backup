@@ -37,6 +37,7 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
     const [precioFalso, setPrecioFalso] = useState(curso.precio_falso)
     const [moneda, setMoneda] = useState(curso.moneda)
     const [precioCertificado, setPrecioCertificado] = useState<number | ''>(curso.precio_certificado ?? '')
+    const [vigenciaMeses, setVigenciaMeses] = useState<number | ''>((curso as any).vigencia_meses ?? '')
 
     const handleSavePrice = async () => {
         try {
@@ -149,6 +150,35 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                     >
                         Guardar Precio
                     </Button>
+                </Box>
+                <Box sx={{ mt: 3 }}>
+                    <Typography variant='subtitle2' sx={{ mb: 1 }}>Vigencia de Acceso</Typography>
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mt: 1 }}>
+                        <CustomTextField
+                            type='number'
+                            label='Vigencia (meses)'
+                            value={vigenciaMeses}
+                            onChange={e => setVigenciaMeses(e.target.value === '' ? '' : Number(e.target.value))}
+                            sx={{ width: 200 }}
+                            inputProps={{ min: 1 }}
+                            helperText='Dejar vacío para sin caducidad'
+                        />
+                        <Button
+                            variant='outlined'
+                            onClick={async () => {
+                                try {
+                                    await editMutation.mutateAsync({ id: curso.id, data: { vigencia_meses: vigenciaMeses === '' ? null : Number(vigenciaMeses) } })
+                                    enqueueSnackbar('Vigencia actualizada', { variant: 'success' })
+                                    onSuccess()
+                                } catch (error: any) {
+                                    enqueueSnackbar(error?.message || 'Error al actualizar vigencia', { variant: 'error' })
+                                }
+                            }}
+                            disabled={editMutation.isPending}
+                        >
+                            Guardar Vigencia
+                        </Button>
+                    </Box>
                 </Box>
             </Grid>
 

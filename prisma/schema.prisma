@@ -99,6 +99,7 @@ model Curso {
   objetivos          Json?             @default("[]")
   fecha_inicio       DateTime?
   fecha_fin          DateTime?
+  vigencia_meses     Int?
   precio_oferta      Decimal?          @db.Decimal(10, 2)
   brochure           String?
   certificados       Certificado[]
@@ -254,6 +255,7 @@ model Inscripcion {
   id                     String            @id @default(uuid())
   estado                 EstadoInscripcion @default(ACTIVO)
   inscrito_en            DateTime          @default(now())
+  acceso_hasta           DateTime?
   completado_en          DateTime?
   nota_final             Float?
   estado_nota            EstadoNota?

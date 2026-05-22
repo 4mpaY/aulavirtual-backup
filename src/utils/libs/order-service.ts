@@ -1,5 +1,6 @@
 import prisma from '@/utils/libs/prisma'
 import { sendOrderConfirmationEmail } from './order-notifications'
+import { calcularFechaCaducidadCurso } from '@/utils/functions/calcularFechaCaducidadCurso'
 
 interface OrderCompletionData {
   metodo_pago: 'PAYPAL' | 'IZIPAY' | 'CULQI' | 'MERCADOPAGO' | 'YAPE' | 'PLIN' | 'TRANSFERENCIA' | 'OTRO'
@@ -17,7 +18,16 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
     // 1. Verificar si el pedido ya fue completado (para evitar duplicados por webhooks concurrentes)
     const pedidoInit = await prisma.pedido.findUnique({
       where: { id: pedidoId },
-      include: { detalles: true, usuario: true }
+      include: {
+        detalles: {
+          include: {
+            curso: {
+              select: { id: true, vigencia_meses: true }
+            }
+          }
+        },
+        usuario: true
+      }
     })
 
     if (!pedidoInit) throw new Error(`Pedido ${pedidoId} no encontrado.`)
@@ -59,6 +69,8 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
         const inscripciones = []
 
         for (const detalle of pedidoInit.detalles) {
+          const fechaInscripcion = new Date()
+
           const ins = await tx.inscripcion.upsert({
             where: {
               usuario_id_curso_id: {
@@ -68,13 +80,16 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
             },
             update: {
               estado: 'ACTIVO',
-              pedido_id: pedidoId
+              pedido_id: pedidoId,
+              acceso_hasta: calcularFechaCaducidadCurso(fechaInscripcion, detalle.curso?.vigencia_meses ?? null)
             },
             create: {
               usuario_id: pedidoInit.usuario_id,
               curso_id: detalle.curso_id,
               pedido_id: pedidoId,
-              estado: 'ACTIVO'
+              estado: 'ACTIVO',
+              inscrito_en: fechaInscripcion,
+              acceso_hasta: calcularFechaCaducidadCurso(fechaInscripcion, detalle.curso?.vigencia_meses ?? null)
             }
           })
 

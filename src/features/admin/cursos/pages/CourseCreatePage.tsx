@@ -69,7 +69,8 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
     miniatura: null,
     video_presentacion: null,
     brochure: null,
-    fecha_inicio: null
+    fecha_inicio: null,
+    vigencia_meses: null
   }
 
   const handleSubmit = async (values: CrearCursoDto, { setSubmitting }: FormikHelpers<CrearCursoDto>) => {
@@ -341,6 +342,21 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                               </InputAdornment>
                             )
                           }}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <CustomTextField
+                          type='number'
+                          fullWidth
+                          label='Vigencia (meses)'
+                          name='vigencia_meses'
+                          placeholder='Dejar vacío para sin caducidad'
+                          value={values.vigencia_meses ?? ''}
+                          onChange={handleChange}
+                          disabled={isSubmitting}
+                          InputProps={{ inputProps: { min: 1 } }}
+                          helperText='Si indicas un número, los alumnos tendrán acceso por esa cantidad de meses desde su inscripción.'
                         />
                       </Grid>
                     </Grid>

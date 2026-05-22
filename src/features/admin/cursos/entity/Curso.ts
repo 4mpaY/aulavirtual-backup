@@ -97,4 +97,5 @@ export interface Curso {
     valoraciones: number
   }
   promedio_valoracion: number
+  vigencia_meses?: number | null
 }

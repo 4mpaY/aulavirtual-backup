@@ -10,6 +10,7 @@ import prisma from '@/utils/libs/prisma'
 
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { handleApiError } from '@/utils/libs/validation'
+import { esAccesoCursoVigente } from '@/utils/functions/calcularFechaCaducidadCurso'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
@@ -103,12 +104,15 @@ export async function GET(request: Request, { params }: { params: { slug: string
         }
       })
 
-      if (!inscription || inscription.estado !== 'ACTIVO') {
+      if (!inscription || inscription.estado !== 'ACTIVO' || !esAccesoCursoVigente(inscription.acceso_hasta)) {
         return NextResponse.json(
           {
             status: false,
             code: 'UNCISCRIBED',
-            message: 'Usuario no matriculado',
+            message:
+              !inscription || inscription.estado !== 'ACTIVO'
+                ? 'Usuario no matriculado'
+                : 'Tu acceso a este curso ha caducado',
             statusCode: 403,
             timestamp: new Date().toISOString()
           },
@@ -127,7 +131,10 @@ export async function GET(request: Request, { params }: { params: { slug: string
       select: { examen_id: true, esta_aprobado: true, puntaje: true }
     })
 
-    const intentosPorExamen: Record<string, { intentos_realizados: number; ya_aprobado: boolean; mejor_puntaje: number | null }> = {}
+    const intentosPorExamen: Record<
+      string,
+      { intentos_realizados: number; ya_aprobado: boolean; mejor_puntaje: number | null }
+    > = {}
 
     intentosUsuario.forEach(intento => {
       if (!intentosPorExamen[intento.examen_id]) {
@@ -182,10 +189,13 @@ export async function GET(request: Request, { params }: { params: { slug: string
         ya_aprobado: intentosPorExamen[ex.id]?.ya_aprobado ?? false,
         mejor_puntaje: intentosPorExamen[ex.id]?.mejor_puntaje ?? null
       })),
-      inscripcion: inscription ? {
-        estado_nota: inscription.estado_nota,
-        nota_final: inscription.nota_final
-      } : null
+      inscripcion: inscription
+        ? {
+            estado_nota: inscription.estado_nota,
+            nota_final: inscription.nota_final,
+            acceso_hasta: inscription.acceso_hasta
+          }
+        : null
     }
 
     return ApiResponse.success(request, { course: formattedCourse })

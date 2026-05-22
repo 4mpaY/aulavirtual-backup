@@ -35,10 +35,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
               duracion: true,
               nivel: true,
               fecha_inicio: true,
+              vigencia_meses: true,
               tipo_emision: true,
               profesor: {
                 select: { nombre: true, apellido: true, cargo: true, firma: true }
-              },
+              }
             }
           },
           usuario: { select: { nombre: true, apellido: true } }
@@ -60,7 +61,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
             curso_id: certificado.curso_id
           }
         },
-        select: { completado_en: true, inscrito_en: true, nota_final: true }
+        select: { completado_en: true, inscrito_en: true, nota_final: true, acceso_hasta: true }
       }),
       prisma.usuario.findUnique({
         where: { id: certificado.usuario_id },
@@ -79,7 +80,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
         where: { curso_id: certificado.curso_id },
         orderBy: { orden: 'asc' },
         select: {
-          id: true, titulo: true, orden: true,
+          id: true,
+          titulo: true,
+          orden: true,
           lecciones: {
             orderBy: { orden: 'asc' },
             select: { id: true, titulo: true, orden: true, duracion: true }
@@ -114,7 +117,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       intentosExamen,
       cursoFechaFin,
       reqUrl,
-      previewFlag,
+      previewFlag
     })
 
     // Inyectar gerente (requiere query adicional que hacemos aquí)

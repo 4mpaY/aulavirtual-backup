@@ -26,6 +26,7 @@ export const generarClasico: GeneratorFn = async data => {
     fechaEmisionVal,
     fechaInicioVal,
     fechaFinVal,
+    vigenciaHastaVal,
     gerenteGeneral,
     profesorSnapshot,
     mostrarFirmaDocente,
@@ -294,6 +295,12 @@ export const generarClasico: GeneratorFn = async data => {
   doc.setFont('helvetica', 'normal')
   doc.text(`Código de Registro: ${codigoVerificacion}`, 16, pageHeight - 12)
   doc.text(`Fecha de Emisión: ${fechaFirmadaTxt}`, 16, pageHeight - 7)
+  doc.text(
+    `Vigencia de acceso: ${vigenciaHastaVal ? formatDateLong(vigenciaHastaVal) : 'sin caducidad'}`,
+    pageWidth - 80,
+    pageHeight - 7,
+    { align: 'right' }
+  )
 
   void previewFlag
 
