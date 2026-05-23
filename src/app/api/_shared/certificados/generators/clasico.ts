@@ -429,10 +429,8 @@ export const generarClasico: GeneratorFn = async data => {
   // Zona B: columnas
   const colW = (pageWidth - margin * 2 - 6) / 2
 
-  // Rendimiento académico — movido al lado derecho a la altura del alumno
+  // Rendimiento académico — lado derecho a la altura del alumno
   const perfX = pageWidth - margin - colW
-
-  // Ajuste vertical general para los elementos de rendimiento (puedes modificar este valor)
   const rendimientoYOffset = -6
 
   doc.setFillColor(pr, pg, pb)
@@ -477,14 +475,13 @@ export const generarClasico: GeneratorFn = async data => {
   doc.text('Promedio Ponderado Final', perfX + colW / 2, yLeft + 16 + rendimientoYOffset, { align: 'center' })
   yLeft += 10
 
-  // Clasificación por módulo removida (no mostrar desglose por módulo)
-
-  // Columna derecha: Contenido del programa
+  // ── Contenido del programa ────────────────────────────────────────────
   const contenidoStartY = yLeft + 6
   const contentColGap = 6
   const contentColW = (pageWidth - margin * 2 - contentColGap) / 2
   const contentColLeft = margin
   const contentColRight = margin + contentColW + contentColGap
+  const contentBottomLimit = pageHeight - 22
 
   doc.setFillColor(pr, pg, pb)
   doc.roundedRect(margin, contenidoStartY, pageWidth - margin * 2, 8, 1, 1, 'F')
@@ -493,12 +490,9 @@ export const generarClasico: GeneratorFn = async data => {
   doc.setTextColor(255, 255, 255)
   doc.text('CONTENIDO DEL PROGRAMA', pageWidth / 2, contenidoStartY + 5.5, { align: 'center' })
 
-  let leftContentY = contenidoStartY + 13
-  let rightContentY = contenidoStartY + 13
-  let useRightColumn = false
-  const contentBottomLimit = pageHeight - 22
+  const contentStartY = contenidoStartY + 13
 
-  const startNewModulosPage = () => {
+  const startNewModulosPage = (): number => {
     doc.addPage()
     doc.setFillColor(255, 255, 255)
     doc.rect(0, 0, pageWidth, pageHeight, 'F')
@@ -512,79 +506,91 @@ export const generarClasico: GeneratorFn = async data => {
     return 14
   }
 
-  for (const modulo of modulos) {
+  // ── Pre-calcular altura de cada módulo ────────────────────────────────
+  const calcModuloHeight = (modulo: any): number => {
     const modTxt = `${modulo.orden + 1}. ${modulo.titulo}`.toUpperCase()
     const modLines = doc.splitTextToSize(modTxt, contentColW - 8)
-    const modH = modLines.length * 4.5 + 4
-
-    const modX = useRightColumn ? contentColRight : contentColLeft
-    const modWd = contentColW
-    let currentY = useRightColumn ? rightContentY : leftContentY
-
-    if (currentY + modH > contentBottomLimit) {
-      if (!useRightColumn) {
-        useRightColumn = true
-        currentY = rightContentY
-      }
-
-      if (currentY + modH > contentBottomLimit) {
-        leftContentY = startNewModulosPage()
-        rightContentY = leftContentY
-        useRightColumn = false
-        currentY = leftContentY
-      }
-    }
-
-    doc.setFillColor(
-      Math.round(pr * 0.12 + 255 * 0.88),
-      Math.round(pg * 0.12 + 255 * 0.88),
-      Math.round(pb * 0.12 + 255 * 0.88)
-    )
-    doc.roundedRect(modX, currentY, modWd, modH, 1, 1, 'F')
-    doc.setFontSize(T.sectionTitle)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(pr, pg, pb)
-    doc.text(modLines, modX + 4, currentY + 4.5)
-    currentY += modH + 2
+    let h = modLines.length * 4.5 + 4 + 2 // cabecera + gap inferior
 
     for (const leccion of modulo.lecciones) {
       const lecTxt = `${modulo.orden + 1}.${leccion.orden + 1}  ${leccion.titulo}`
-      const lecLines = doc.splitTextToSize(lecTxt, modWd - 14)
-      const lecH = lecLines.length * 4 + 1.5
+      const lecLines = doc.splitTextToSize(lecTxt, contentColW - 14)
 
-      if (currentY + lecH > contentBottomLimit) {
-        if (!useRightColumn) {
-          useRightColumn = true
-          currentY = rightContentY
-        }
-
-        if (currentY + lecH > contentBottomLimit) {
-          leftContentY = startNewModulosPage()
-          rightContentY = leftContentY
-          useRightColumn = false
-          currentY = leftContentY
-        }
-      }
-
-      doc.setFillColor(pr, pg, pb)
-      doc.circle(modX + 4, currentY + 1.5, 0.9, 'F')
-      doc.setFontSize(T.body)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(60, 60, 60)
-      doc.text(lecLines, modX + 7, currentY + 2.5)
-      currentY += lecH
+      h += lecLines.length * 4 + 1.5
     }
 
-    currentY += 3
+    h += 3 // espaciado final del módulo
 
-    if (useRightColumn) {
-      rightContentY = currentY
+    return h
+  }
+
+  // ── Distribuir módulos en dos columnas balanceadas por altura ─────────
+  const totalH = modulos.reduce((sum: number, m: any) => sum + calcModuloHeight(m), 0)
+  const leftTarget = totalH / 2
+  let leftFilled = 0
+  const leftModulos: any[] = []
+  const rightModulos: any[] = []
+
+  for (const modulo of modulos) {
+    if (leftFilled < leftTarget || leftModulos.length === 0) {
+      leftModulos.push(modulo)
+      leftFilled += calcModuloHeight(modulo)
     } else {
-      leftContentY = currentY
+      rightModulos.push(modulo)
     }
   }
 
-  // Pie de página 2
+  // ── Función de render para una columna ───────────────────────────────
+  const renderColumn = async (lista: any[], startX: number, startY: number): Promise<void> => {
+    let currentY = startY
+
+    for (const modulo of lista) {
+      const modTxt = `${modulo.orden + 1}. ${modulo.titulo}`.toUpperCase()
+      const modLines = doc.splitTextToSize(modTxt, contentColW - 8)
+      const modH = modLines.length * 4.5 + 4
+
+      if (currentY + modH > contentBottomLimit) {
+        currentY = startNewModulosPage()
+      }
+
+      doc.setFillColor(
+        Math.round(pr * 0.12 + 255 * 0.88),
+        Math.round(pg * 0.12 + 255 * 0.88),
+        Math.round(pb * 0.12 + 255 * 0.88)
+      )
+      doc.roundedRect(startX, currentY, contentColW, modH, 1, 1, 'F')
+      doc.setFontSize(T.sectionTitle)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(pr, pg, pb)
+      doc.text(modLines, startX + 4, currentY + 4.5)
+      currentY += modH + 2
+
+      for (const leccion of modulo.lecciones) {
+        const lecTxt = `${modulo.orden + 1}.${leccion.orden + 1}  ${leccion.titulo}`
+        const lecLines = doc.splitTextToSize(lecTxt, contentColW - 14)
+        const lecH = lecLines.length * 4 + 1.5
+
+        if (currentY + lecH > contentBottomLimit) {
+          currentY = startNewModulosPage()
+        }
+
+        doc.setFillColor(pr, pg, pb)
+        doc.circle(startX + 4, currentY + 1.5, 0.9, 'F')
+        doc.setFontSize(T.body)
+        doc.setFont('helvetica', 'normal')
+        doc.setTextColor(60, 60, 60)
+        doc.text(lecLines, startX + 7, currentY + 2.5)
+        currentY += lecH
+      }
+
+      currentY += 3
+    }
+  }
+
+  await renderColumn(leftModulos, contentColLeft, contentStartY)
+  await renderColumn(rightModulos, contentColRight, contentStartY)
+
+  // ── Pie de página 2 ───────────────────────────────────────────────────
   const footerTopY = pageHeight - 20
 
   doc.setFillColor(245, 245, 245)
