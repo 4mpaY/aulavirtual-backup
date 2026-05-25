@@ -5,16 +5,14 @@ import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import { esAccesoCursoVigente } from '@/utils/functions/calcularFechaCaducidadCurso'
 
 /**
  * GET /api/estudiante/examen/[examenId]
  * Obtiene las preguntas de un examen (sin revelar respuestas correctas)
  * Valida que el estudiante esté inscrito y tenga 100% de progreso
  */
-export async function GET(
-  request: Request,
-  { params }: { params: { examenId: string } }
-) {
+export async function GET(request: Request, { params }: { params: { examenId: string } }) {
   try {
     const auth = await requireAuth(request)
 
@@ -87,10 +85,18 @@ export async function GET(
       }
     })
 
-    if (!inscripcion || inscripcion.estado !== 'ACTIVO') {
-      console.log(`[EXAMEN DEBUG] Usuario ${auth.user.id} no está inscrito o activo en curso ${examen.curso.id}. Estado: ${inscripcion?.estado}`)
+    if (!inscripcion || inscripcion.estado !== 'ACTIVO' || !esAccesoCursoVigente(inscripcion.acceso_hasta)) {
+      console.log(
+        `[EXAMEN DEBUG] Usuario ${auth.user.id} no está inscrito, activo o vigente en curso ${examen.curso.id}. Estado: ${inscripcion?.estado}`
+      )
 
-      return ApiResponse.error(request, 'No estás inscrito en este curso', 403)
+      return ApiResponse.error(
+        request,
+        !inscripcion || inscripcion.estado !== 'ACTIVO'
+          ? 'No estás inscrito en este curso'
+          : 'Tu acceso a este curso ha caducado',
+        403
+      )
     }
 
     // 3. Verificar progreso mínimo requerido
@@ -104,7 +110,9 @@ export async function GET(
     })
 
     if (!progresoCurso || progresoCurso.porcentaje_progreso < examen.progreso_minimo) {
-      console.log(`[EXAMEN DEBUG] Usuario ${auth.user.id} tiene progreso insuficiente: ${progresoCurso?.porcentaje_progreso ?? 0}% (requerido: ${examen.progreso_minimo}%)`)
+      console.log(
+        `[EXAMEN DEBUG] Usuario ${auth.user.id} tiene progreso insuficiente: ${progresoCurso?.porcentaje_progreso ?? 0}% (requerido: ${examen.progreso_minimo}%)`
+      )
 
       return ApiResponse.error(
         request,
@@ -161,7 +169,7 @@ export async function GET(
         detallesRespuestas: ultimoIntento.respuestas.map((r: any) => {
           const preg = examen.preguntas.find(p => p.id === r.pregunta_id)
           const correcta = preg?.opciones.find(o => o.es_correcta)
-          
+
           return {
             preguntaId: r.pregunta_id,
             opcionSeleccionadaId: r.opcion_seleccionada_id,

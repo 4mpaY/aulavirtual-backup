@@ -3,18 +3,17 @@
 import { useMemo, useState } from 'react'
 
 import {
+  Avatar,
+  Box,
+  Button,
   Card,
   CardHeader,
-  Typography,
-  Box,
-  Avatar,
-  Button,
   IconButton,
-  Tooltip,
+  MenuItem,
   TablePagination,
-  MenuItem
+  Tooltip,
+  Typography
 } from '@mui/material'
-
 import {
   createColumnHelper,
   flexRender,
@@ -22,19 +21,21 @@ import {
   useReactTable
 } from '@tanstack/react-table'
 
-import { toast } from 'react-toastify'
 import { getSession } from 'next-auth/react'
 
-import tableStyles from '@core/styles/table.module.css'
+import { toast } from 'react-toastify'
+
+import { AxiosCertificado } from '../http/axiosCertificado'
+import type { Certificado } from '../entity/Certificado'
+import { CreateCertificadoModal } from './CreateCertificadoModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
-import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
-
-import type { Certificado } from '../entity/Certificado'
-import { useCertificados } from '../hooks/useCertificados'
-import { AxiosCertificado } from '../http/axiosCertificado'
 import HydratedDate from '@/utils/components/HydratedDate'
-import { CreateCertificadoModal } from './CreateCertificadoModal'
+import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
+import tableStyles from '@core/styles/table.module.css'
+
+
+import { useCertificados } from '../hooks/useCertificados'
 
 const columnHelper = createColumnHelper<Certificado>()
 
@@ -179,6 +180,21 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         pageIndex: params.page - 1,
         pageSize: params.limit
       }
+    },
+    onPaginationChange: updater => {
+      const nextPagination =
+        typeof updater === 'function'
+          ? updater({
+            pageIndex: params.page - 1,
+            pageSize: params.limit
+          })
+          : updater
+
+      setParams(prev => ({
+        ...prev,
+        page: nextPagination.pageIndex + 1,
+        limit: nextPagination.pageSize
+      }))
     },
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,

@@ -5,6 +5,7 @@ import { validateRequest, handleApiError } from '@/utils/libs/validation'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { updatePedidoSchema } from '@/schemas/pedido.schema'
+import { calcularFechaCaducidadCurso } from '@/utils/functions/calcularFechaCaducidadCurso'
 
 /**
  * GET /api/pedidos/[id]
@@ -68,7 +69,15 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     const pedidoAnterior = await prisma.pedido.findUnique({
       where: { id },
-      include: { detalles: true }
+      include: {
+        detalles: {
+          include: {
+            curso: {
+              select: { id: true, vigencia_meses: true }
+            }
+          }
+        }
+      }
     })
 
     if (!pedidoAnterior) {
@@ -123,19 +132,26 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         const inscritosIds = yaInscritos.map(i => i.curso_id)
         const cursosAInscribir = cursosIds.filter(cid => !inscritosIds.includes(cid))
 
+        const vigenciaPorCurso = new Map(
+          pedidoAnterior.detalles.map(detalle => [detalle.curso_id, detalle.curso?.vigencia_meses ?? null])
+        )
+
         if (cursosAInscribir.length > 0) {
           await Promise.all(
-            cursosAInscribir.map(cid =>
-              tx.inscripcion.create({
+            cursosAInscribir.map(cid => {
+              const fechaInscripcion = new Date()
+
+              return tx.inscripcion.create({
                 data: {
                   usuario_id: pedidoAnterior.usuario_id,
                   curso_id: cid,
                   pedido_id: id,
                   estado: 'ACTIVO',
-                  inscrito_en: new Date()
+                  inscrito_en: fechaInscripcion,
+                  acceso_hasta: calcularFechaCaducidadCurso(fechaInscripcion, vigenciaPorCurso.get(cid) ?? null)
                 }
               })
-            )
+            })
           )
         }
       }

@@ -76,6 +76,7 @@ export interface Curso {
   es_privado: boolean
   precio_certificado: number | null
   precio: number
+  precio_falso: number
   moneda: string
   creado_en: string
   actualizado_en: string
@@ -96,4 +97,5 @@ export interface Curso {
     valoraciones: number
   }
   promedio_valoracion: number
+  vigencia_meses?: number | null
 }

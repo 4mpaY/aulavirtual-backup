@@ -7,39 +7,39 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import {
-  Container,
-  Grid,
-  Typography,
-  Box,
-  Stack,
-  Chip,
-  Avatar,
-  Button,
   Accordion,
-  AccordionSummary,
   AccordionDetails,
+  AccordionSummary,
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Container,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
-  CircularProgress
+  Stack,
+  Typography
 } from '@mui/material'
-
-import { ChevronRight, CheckCircle, XCircle, Download, Play } from 'lucide-react'
+import { CheckCircle, ChevronRight, Download, Play, XCircle } from 'lucide-react'
 
 import { useSession } from 'next-auth/react'
 
-import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
-import UserAvatar from '@/utils/components/UserAvatar'
-import HydratedDate from '@/utils/components/HydratedDate'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
+import HydratedDate from '@/utils/components/HydratedDate'
+import UserAvatar from '@/utils/components/UserAvatar'
+import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
 import { useAuthModal } from '@/contexts/AuthModalContext'
+
 
 interface Leccion {
   id: string
@@ -61,6 +61,7 @@ interface CourseDetailProps {
     descripcion?: string
     miniatura?: string
     precio: number
+    precio_falso: number
     moneda: string
     es_gratis: boolean
     es_comprado?: boolean
@@ -349,7 +350,10 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                   </Typography>
                   {!course.es_gratis && !course.es_comprado && (
                     <Typography sx={{ fontFamily: FONT, fontSize: '1rem', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>
-                      {course.moneda} {(course.precio * 1.5).toFixed(2)}
+                      {course.moneda}{' '}
+                      {Number(course.precio_falso) !== 0
+                        ? Number(course.precio_falso)
+                        : (course.precio * 1.5).toFixed(2)}
                     </Typography>
                   )}
                 </Box>
