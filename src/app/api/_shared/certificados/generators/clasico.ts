@@ -1,4 +1,4 @@
-import { fetchImageBuffer, formatDateLong } from './utils'
+import { fetchImageBuffer, compressImageForPdf, formatDateLong } from './utils'
 
 import type { GeneratorFn } from './types'
 
@@ -39,7 +39,7 @@ export const generarClasico: GeneratorFn = async data => {
   } = data
 
   const { jsPDF } = await import('jspdf')
-  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true })
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
 
@@ -63,9 +63,9 @@ export const generarClasico: GeneratorFn = async data => {
         const signatureBuffer = await fetchImageBuffer(user.firma)
 
         if (signatureBuffer) {
-          const sigExt = user.firma.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+          const { buffer: compressed, jsPdfFormat } = await compressImageForPdf(signatureBuffer, { maxWidth: 300, format: 'png' })
 
-          doc.addImage(signatureBuffer, sigExt.toUpperCase(), x - 17, lineY - 34, 34, 34)
+          doc.addImage(compressed, jsPdfFormat, x - 17, lineY - 34, 34, 34)
         }
       } catch {
         /* skip */
@@ -201,7 +201,7 @@ export const generarClasico: GeneratorFn = async data => {
     try {
       const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
 
-      doc.addImage(base64Logo, ext, cx - logoDisplayW / 2, y, logoDisplayW, logoDisplayH)
+      doc.addImage(base64Logo, ext, cx - logoDisplayW / 2, y, logoDisplayW, logoDisplayH, 'LOGO')
     } catch {
       /* skip */
     }
@@ -348,7 +348,7 @@ export const generarClasico: GeneratorFn = async data => {
     try {
       const ext = logoUrl.split('.').pop()?.split('?')[0]?.toUpperCase() ?? 'PNG'
 
-      doc.addImage(base64Logo, ext, margin, (bandH - logoP2H) / 2, logoP2W, logoP2H)
+      doc.addImage(base64Logo, ext, margin, (bandH - logoP2H) / 2, logoP2W, logoP2H, 'LOGO')
     } catch {
       /* skip */
     }
@@ -377,15 +377,11 @@ export const generarClasico: GeneratorFn = async data => {
 
   if (avatarBuffer) {
     try {
-      const avatarUrl = data.avatarBuffer ? '' : ''
-
-      void avatarUrl
-      const ext = 'PNG'
-      const base64Avatar = `data:image/png;base64,${avatarBuffer.toString('base64')}`
+      const base64Avatar = `data:image/jpeg;base64,${avatarBuffer.toString('base64')}`
 
       doc.setFillColor(240, 240, 240)
       doc.circle(avatarX + avatarSize / 2, zoneAY + avatarSize / 2, avatarSize / 2, 'F')
-      doc.addImage(base64Avatar, ext, avatarX, zoneAY, avatarSize, avatarSize)
+      doc.addImage(base64Avatar, 'JPEG', avatarX, zoneAY, avatarSize, avatarSize)
     } catch {
       /* skip */
     }
