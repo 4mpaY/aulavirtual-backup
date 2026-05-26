@@ -2,7 +2,7 @@
 
 echo "📦 Build de imagen Aula Virtual - Fly"
 echo ""
-read -p "Ingresa la versión (ej: 1.0.3): " VERSION
+read -p "Ingresa la versión (ej: 1.0.1-[nombre-aula]): " VERSION
 
 if [ -z "$VERSION" ]; then
     echo "❌ Error: Debes ingresar una versión"

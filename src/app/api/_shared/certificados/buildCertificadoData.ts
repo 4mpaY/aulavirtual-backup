@@ -1,7 +1,7 @@
 import * as QRCode from 'qrcode'
 
 import { calcularFechaCaducidadCurso } from '@/utils/functions/calcularFechaCaducidadCurso'
-import { hexToRgb, fetchImageBuffer } from './generators/utils'
+import { hexToRgb, fetchImageBuffer, compressImageForPdf } from './generators/utils'
 import type { CertificadoData } from './generators/types'
 
 type CertificadoConRelaciones = {
@@ -115,21 +115,35 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     color: { dark: colorPrimario, light: '#ffffff' }
   })
 
-  // ── Imágenes ──
+  // ── Imágenes (comprimidas para reducir peso del PDF) ──
   const logoBuffer = await fetchImageBuffer(logoUrl)
   let base64Logo: string | null = null
 
   if (logoBuffer) {
     try {
-      const ext = logoUrl.split('.').pop()?.split('?')[0]?.toLowerCase() ?? 'png'
+      const { default: sharp } = await import('sharp')
+      const meta = await sharp(logoBuffer).metadata()
+      const logoFormat: 'png' | 'jpeg' = meta.hasAlpha ? 'png' : 'jpeg'
+      const { buffer: compressedLogo, mimeType } = await compressImageForPdf(logoBuffer, { maxWidth: 400, format: logoFormat, quality: 85 })
 
-      base64Logo = `data:image/${ext};base64,${logoBuffer.toString('base64')}`
+      base64Logo = `data:${mimeType};base64,${compressedLogo.toString('base64')}`
     } catch {
       /* skip */
     }
   }
 
-  const avatarBuffer = usuarioAvatar ? await fetchImageBuffer(usuarioAvatar) : null
+  const rawAvatarBuffer = usuarioAvatar ? await fetchImageBuffer(usuarioAvatar) : null
+  let avatarBuffer: Buffer | null = null
+
+  if (rawAvatarBuffer) {
+    try {
+      const { buffer: compressedAvatar } = await compressImageForPdf(rawAvatarBuffer, { maxWidth: 150, format: 'jpeg', quality: 78 })
+
+      avatarBuffer = compressedAvatar
+    } catch {
+      avatarBuffer = rawAvatarBuffer
+    }
+  }
 
   // ── Rendimiento: calcula notas por módulo ──
   const notasPorModulo: Record<string, { puntaje: number; count: number }> = {}
