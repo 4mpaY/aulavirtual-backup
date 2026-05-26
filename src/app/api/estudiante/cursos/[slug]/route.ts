@@ -189,6 +189,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
         ya_aprobado: intentosPorExamen[ex.id]?.ya_aprobado ?? false,
         mejor_puntaje: intentosPorExamen[ex.id]?.mejor_puntaje ?? null
       })),
+      completar_automatico: course.completar_automatico,
       inscripcion: inscription
         ? {
             estado_nota: inscription.estado_nota,
