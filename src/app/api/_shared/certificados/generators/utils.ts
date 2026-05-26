@@ -64,7 +64,7 @@ export async function compressImageForPdf(
   try {
     const { default: sharp } = await import('sharp')
 
-    let pipeline = sharp(buffer).resize(opts.maxWidth, undefined, { withoutEnlargement: true, fit: 'inside' })
+    const pipeline = sharp(buffer).resize(opts.maxWidth, undefined, { withoutEnlargement: true, fit: 'inside' })
 
     if (opts.format === 'jpeg') {
       const out = await pipeline.flatten({ background: '#ffffff' }).jpeg({ quality: opts.quality ?? 75, mozjpeg: false }).toBuffer()
