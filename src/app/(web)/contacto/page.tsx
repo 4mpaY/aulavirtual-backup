@@ -1,52 +1,154 @@
-import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import { eyebrow, sectionDesc } from '@/features/web/home/components/typography'
+import Link from 'next/link'
 
-import { ContactList, ContactActions } from './components/ContactoClient'
+import { MessageCircle, Phone, Mail, MapPin, ArrowRight, Instagram, Linkedin } from 'lucide-react'
+
+import { getConfigs } from '@/utils/libs/config'
 
 export const metadata = {
-  title: 'Contacto - ARM',
-  description: 'Ponte en contacto con nosotros',
+  title: 'Contacto — Estamos aquí para ayudarte',
+  description: 'Ponte en contacto con nosotros por WhatsApp, llamada o correo electrónico.',
 }
 
-export default function ContactoPage() {
+const TikTokIcon = ({ size = 20 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" />
+  </svg>
+)
+
+export default async function ContactoPage() {
+  const configs = await getConfigs()
+  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const phone = configs.TELEFONO || `+${waNumber}`
+  const email = configs.EMAIL_CONTACTO || 'contacto@agendaperu.com'
+  const address = configs.DIRECCION || 'Lima, Perú'
+  const WA = `https://wa.me/${waNumber}?text=Hola%2C%20quiero%20información%20sobre%20las%20capacitaciones`
+
   return (
-    <>
-      {/* Hero */}
-      <section
-        style={{
-          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
-          padding: '6rem 1.5rem 5rem',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.22) 0%, transparent 65%)', pointerEvents: 'none' }} />
+    <main className="bg-circuit" style={{ paddingTop: '5rem', paddingBottom: '8rem' }}>
+      <section className="container-page">
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+          <span className="eyebrow-agenda">Contacto</span>
+          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.03em', marginTop: '2rem', color: '#1A1A1A', lineHeight: 1.15 }}>
+            Estamos aquí para <span style={{ color: 'var(--agenda-primary)' }}>ayudarte</span>
+          </h1>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.1rem', color: '#666', lineHeight: 1.7, maxWidth: '600px', margin: '1.5rem auto 0' }}>
+            ¿Tienes dudas sobre las capacitaciones, certificaciones o el proceso de matrícula? Elige el canal que prefieras.
+          </p>
+        </div>
 
-        <div style={{ maxWidth: '720px', margin: '0 auto', position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <ScrollReveal>
-            <p style={{ ...eyebrow, display: 'block', textAlign: 'center', color: 'var(--web-light, #BDD962)', marginBottom: '1rem' }}>
-              Estamos aquí para ayudarte
+        {/* Cards de contacto */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem', marginBottom: '5rem' }}>
+          {/* WhatsApp */}
+          <a
+            href={WA}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group"
+            style={{ padding: '2.5rem', borderRadius: '3rem', background: '#ffffff', border: '1px solid #e5e5e5', transition: 'all 0.4s', textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          >
+            <div style={{ width: '60px', height: '60px', borderRadius: '1.25rem', background: 'rgba(37,211,102,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#25D366', transition: 'all 0.4s' }}>
+              <MessageCircle size={30} />
+            </div>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.25rem', color: '#1A1A1A' }}>WhatsApp</h3>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: '#666', lineHeight: 1.65 }}>
+              Atención inmediata y personalizada para consultas rápidas y matrículas.
             </p>
-            <h1 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(2.25rem, 5vw, 3.5rem)', fontWeight: 900, color: '#ffffff', lineHeight: 1.1, marginBottom: '1.25rem' }}>
-              Ponte en Contacto
-            </h1>
-            <p style={{ ...sectionDesc, color: 'rgba(255,255,255,0.75)', textAlign: 'center', maxWidth: '480px', margin: '0 auto' }}>
-              Contáctanos por cualquiera de estos medios y te responderemos a la brevedad.
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: 'var(--agenda-primary)', marginTop: 'auto' }}>
+              Ir a WhatsApp <ArrowRight size={18} />
+            </div>
+          </a>
+
+          {/* Llamada */}
+          <Link
+            href="/llamadas"
+            className="group"
+            style={{ padding: '2.5rem', borderRadius: '3rem', background: '#ffffff', border: '1px solid #e5e5e5', transition: 'all 0.4s', textDecoration: 'none', display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          >
+            <div style={{ width: '60px', height: '60px', borderRadius: '1.25rem', background: 'rgba(0,111,101,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary)', transition: 'all 0.4s' }}>
+              <Phone size={30} />
+            </div>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.25rem', color: '#1A1A1A' }}>Llamada Directa</h3>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: '#666', lineHeight: 1.65 }}>
+              Habla directamente con nuestro equipo académico para una asesoría detallada.
             </p>
-          </ScrollReveal>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: 'var(--agenda-primary)', marginTop: 'auto' }}>
+              Ver número <ArrowRight size={18} />
+            </div>
+          </Link>
+
+          {/* Email */}
+          <div style={{ padding: '2.5rem', borderRadius: '3rem', background: '#ffffff', border: '1px solid #e5e5e5', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ width: '60px', height: '60px', borderRadius: '1.25rem', background: 'var(--agenda-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary-dark)' }}>
+              <Mail size={30} />
+            </div>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.25rem', color: '#1A1A1A' }}>Correo Electrónico</h3>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: '#666', lineHeight: 1.65 }}>
+              Envíanos tus propuestas o consultas corporativas de forma oficial.
+            </p>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: 'var(--agenda-primary)', marginTop: 'auto' }}>{email}</p>
+          </div>
+        </div>
+
+        {/* Ubicación */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', alignItems: 'start' }}>
+          <div style={{ background: '#fafafa', borderRadius: '3rem', padding: '3rem', border: '1px solid #e5e5e5' }}>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.5rem', color: '#1A1A1A', marginBottom: '2rem' }}>Nuestra Ubicación</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', gap: '1.25rem' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e5e5e5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary)', flexShrink: 0 }}>
+                  <MapPin size={20} />
+                </div>
+                <div>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#1A1A1A' }}>Sede Central</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: '#666', lineHeight: 1.6 }}>{address}</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '1.25rem' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e5e5e5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary)', flexShrink: 0 }}>
+                  <Phone size={20} />
+                </div>
+                <div>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#1A1A1A' }}>Teléfono</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: '#666' }}>{phone}</p>
+                </div>
+              </div>
+
+              <div style={{ paddingTop: '1.5rem', borderTop: '1px solid #e5e5e5' }}>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: '#1A1A1A', marginBottom: '1rem' }}>Redes Oficiales</p>
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  {[
+                    { href: '#', icon: <Instagram size={20} />, label: 'Instagram' },
+                    { href: '#', icon: <Linkedin size={20} />, label: 'LinkedIn' },
+                    { href: '#', icon: <TikTokIcon size={20} />, label: 'TikTok' },
+                  ].map(s => (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      aria-label={s.label}
+                      style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#ffffff', border: '1px solid #e5e5e5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555', textDecoration: 'none', transition: 'all 0.2s' }}
+                    >
+                      {s.icon}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mapa */}
+          <div style={{ borderRadius: '3rem', overflow: 'hidden', boxShadow: 'var(--agenda-shadow-premium)', border: '1px solid #e5e5e5', aspectRatio: '1 / 1', position: 'relative' }}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.123456789!2d-76.971!3d-12.085!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDA1JzA2LjAiUyA3Niw1OCcxNS42Ilc!5e0!3m2!1ses!2spe!4v1234567890123"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', filter: 'grayscale(1)' }}
+              allowFullScreen
+              loading="lazy"
+              title="Mapa de ubicación"
+            />
+          </div>
         </div>
       </section>
-
-      {/* Cards + CTA */}
-      <section style={{ backgroundColor: '#f8fafc', padding: '5rem 1.5rem' }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-
-          <ContactList />
-
-          <ContactActions />
-        </div>
-      </section>
-    </>
+    </main>
   )
 }

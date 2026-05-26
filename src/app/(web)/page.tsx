@@ -1,340 +1,226 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+
 import Link from 'next/link'
+import Image from 'next/image'
 
-import { ArrowRight, CheckCircle, Map } from 'lucide-react'
+import { GraduationCap, Video, Monitor, PlayCircle, BadgeCheck, Briefcase, ArrowRight } from 'lucide-react'
 
-import prisma from '@/utils/libs/prisma'
-import { getConfigs } from '@/utils/libs/config'
-import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
-import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
-import RutasSection from '@/features/web/home/components/RutasSection'
-import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
-import HeroVisual from '@/features/web/home/components/HeroVisual'
-import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSection'
-import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
-import CompaniesSection from '@/features/web/home/components/CompaniesSection'
-import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
-
-export const metadata = {
-  title: 'Aula Virtual - Aprende sin límites',
-  description: 'Plataforma de aprendizaje online con cursos especializados, rutas de aprendizaje y certificados.',
+export default function HomePage() {
+  return (
+    <main style={{ background: '#ffffff' }}>
+      <Hero />
+      <Benefits />
+      <Stats />
+      <section style={{ padding: '6rem 0', textAlign: 'center' }}>
+        <div className="container-page">
+          <h2
+            data-animate="fade-up"
+            style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', letterSpacing: '-0.03em', marginBottom: '2rem', color: '#1A1A1A' }}
+          >
+            ¿Listo para empezar?
+          </h2>
+          <div data-animate="fade-up" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
+            <Link href="/cursos" className="btn-primary-agenda" style={{ fontSize: '1rem', padding: '1rem 2.5rem' }}>
+              Explorar Capacitaciones <ArrowRight size={20} />
+            </Link>
+            <Link href="/contacto" className="btn-outline-agenda" style={{ fontSize: '1rem', padding: '1rem 2.5rem' }}>
+              Hablar con un asesor
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
+  )
 }
 
-async function getHomeData() {
-  try {
-    const [coursesRaw, rutasRaw, teachersRaw, configs] = await Promise.all([
-      // Cursos
-      prisma.curso.findMany({
-        where: { estado: 'PUBLICADO' },
-        include: {
-          profesor: { select: { nombre: true, apellido: true, avatar: true } },
-          categoria: { select: { id: true, nombre: true } },
-          _count: { select: { modulos: true, inscripciones: true } },
-        },
-        orderBy: { creado_en: 'desc' },
-        take: 6,
-      }),
+const HERO_SLIDES = [
+  {
+    image: '/images/agenda/hero.jpg',
+    eyebrow: 'Liderazgo & Tecnología',
+    title: 'AGENDA',
+    subtitle: '2050',
+    description: 'Forjando los expertos tecnológicos del mañana con formación práctica y visión empresarial.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1920&auto=format&fit=crop',
+    eyebrow: 'Formación Práctica',
+    title: 'APRENDE',
+    subtitle: 'HACIENDO',
+    description: 'Cursos diseñados con un enfoque en el mercado laboral real y proyectos prácticos que te preparan para el éxito.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1920&auto=format&fit=crop',
+    eyebrow: 'Comunidad Tech',
+    title: 'CONECTA',
+    subtitle: 'Y CRECE',
+    description: 'Únete a más de 500 profesionales y expande tu red de contactos estratégicos en el mundo de la tecnología.',
+  },
+]
 
-      // Rutas
-      prisma.rutaAprendizaje.findMany({
-        where: { esta_activo: true },
-        include: {
-          cursos: {
-            take: 4,
-            include: { curso: { select: { miniatura: true, titulo: true } } },
-          },
-        },
-        take: 3,
-      }),
+function Hero() {
+  const [current, setCurrent] = useState(0)
 
-      // Profesores
-      prisma.usuario.findMany({
-        where: { rol: 'PROFESOR' },
-        select: {
-          id: true,
-          nombre: true,
-          apellido: true,
-          slug: true,
-          avatar: true,
-          cargo: true,
-          biografia: true,
-          _count: { select: { cursos_dictados: true } },
-        },
-        orderBy: { cursos_dictados: { _count: 'desc' } },
-        take: 8,
-      }),
-      getConfigs(),
-    ])
-
-    const courses = await Promise.all(
-      coursesRaw.map(async course => {
-        const leccionesCount = await prisma.leccion.count({ where: { modulo: { curso_id: course.id } } })
-
-        return { ...course, _count: { ...course._count, lecciones: leccionesCount } }
-      })
-    )
-
-    const rutas = rutasRaw.map(r => ({
-      ...r,
-      total_cursos: r.cursos.length,
-      cursos: r.cursos.map(c => ({ miniatura: c.curso.miniatura, titulo: c.curso.titulo })),
-    }))
-
-    const heroTitle = configs.HOME_HERO_TITLE || 'Aprende sin límites,\ncrece sin fronteras'
-    const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.'
-    let logos: { label: string; url: string }[] = []
-
-    try { logos = configs.HOME_LOGOS ? JSON.parse(configs.HOME_LOGOS) : [] } catch { logos = [] }
-
-    return {
-      courses: JSON.parse(JSON.stringify(courses)),
-      rutas: JSON.parse(JSON.stringify(rutas)),
-      teachers: JSON.parse(JSON.stringify(teachersRaw)),
-      heroTitle,
-      heroDescription,
-      logos,
-    }
-  } catch {
-    return {
-      courses: [], rutas: [], teachers: [],
-      heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
-      heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
-      logos: [],
-    }
-  }
-}
-
-export default async function HomePage() {
-  const { courses, rutas, teachers, heroTitle, heroDescription, logos } = await getHomeData()
+  useEffect(() => {
+    const t = setInterval(() => setCurrent(p => (p + 1) % HERO_SLIDES.length), 5000)
+    return () => clearInterval(t)
+  }, [])
 
   return (
-    <>
-      {/* ── 1. HERO ─────────────────────────────────── */}
-      <section
-        style={{
-          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Patrón de grid decorativo */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
-        {/* Glow derecho */}
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
-
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '5rem 1.5rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
-
-            {/* ── Izquierda: texto ── */}
-            <div style={{ position: 'relative', zIndex: 2 }}>
-              {/* Eyebrow */}
-              <div
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5"
-                style={{ backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.15)', border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.3)' }}
-              >
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--web-light, #BDD962)' }} />
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
-                  Plataforma educativa online
-                </span>
-              </div>
-
-              {/* H1 */}
-              <h1
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: 'clamp(2rem, 5vw, 3.25rem)',
-                  fontWeight: 800,
-                  color: '#ffffff',
-                  letterSpacing: '-0.025em',
-                  lineHeight: 1.15,
-                  marginBottom: '1.25rem',
-                }}
-              >
-                {heroTitle.split('\n')[0]}
-                {heroTitle.split('\n')[1] && (
-                  <>
-                    <br />
-                    <span style={{ color: 'var(--web-light, #BDD962)' }}>{heroTitle.split('\n')[1]}</span>
-                  </>
-                )}
-              </h1>
-
-              {/* Descripción */}
-              <p
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: '1rem',
-                  color: 'rgba(255,255,255,0.7)',
-                  lineHeight: 1.75,
-                  maxWidth: '480px',
-                  marginBottom: '2.5rem',
-                }}
-              >
-                {heroDescription}
-              </p>
-
-              {/* Botones */}
-              <div className="flex flex-wrap gap-4" style={{ marginBottom: '2.5rem' }}>
-                <Link
-                  href="/cursos"
-                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', boxShadow: '0 4px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.45)' }}
-                >
-                  Ver Cursos <ArrowRight size={18} />
-                </Link>
-                <Link
-                  href="/nosotros"
-                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-200"
-                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', border: '1.5px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
-                >
-                  Saber más
-                </Link>
-              </div>
-
-              {/* Mini stats */}
-              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                {[
-                  { value: '+1,200', label: 'Estudiantes' },
-                  { value: '+80', label: 'Cursos' },
-                  { value: '98%', label: 'Satisfacción' },
-                ].map(stat => (
-                  <div key={stat.label}>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>{stat.value}</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px' }}>{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ── Derecha: visual interactivo ── */}
-            <HeroVisual />
-          </div>
+    <section style={{ position: 'relative', height: 'calc(100vh - var(--navbar-height))', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
+      {HERO_SLIDES.map((slide, idx) => (
+        <div key={idx} style={{ position: 'absolute', inset: 0, opacity: current === idx ? 1 : 0, transition: 'opacity 1s ease' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.58)', zIndex: 1 }} />
+          <Image
+            src={slide.image}
+            alt={slide.title}
+            fill
+            style={{ objectFit: 'cover', transform: current === idx ? 'scale(1.06)' : 'scale(1)', transition: 'transform 10s linear' }}
+            priority={idx === 0}
+          />
         </div>
-      </section>
+      ))}
 
-      {/* ── 2. LOGO MARQUEE ─────────────────────────── */}
-      <ClientLogosMarquee logos={logos} />
+      <div style={{ position: 'absolute', inset: 0, zIndex: 2, backgroundImage: "url('https://www.transparenttextures.com/patterns/carbon-fibre.png')", opacity: 0.08 }} />
 
-      {/* ── 3. CURSOS DESTACADOS ────────────────────── */}
-      <section className="section-container">
-        <ScrollReveal>
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="section-title">Cursos destacados</h2>
-              <p className="section-subtitle">Descubre nuestros cursos más recientes</p>
-            </div>
-            <Link
-              href="/cursos"
-              className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-            >
-              Ver todos <ArrowRight size={16} />
-            </Link>
-          </div>
-        </ScrollReveal>
-        <ScrollReveal delay={0.1}>
-          <HomeCoursesSection courses={courses} />
-          <div className="flex justify-center mt-8 sm:hidden">
-            <Link
-              href="/cursos"
-              className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff' }}
-            >
-              Ver todos los cursos <ArrowRight size={16} />
-            </Link>
-          </div>
-        </ScrollReveal>
-      </section>
-
-      {/* ── 4. CARACTERÍSTICAS DE CLASES ────────────── */}
-      <ClassFeaturesSection />
-
-      {/* ── 5. RUTAS DE APRENDIZAJE ─────────────────── */}
-      {rutas.length > 0 && (
-        <section style={{ backgroundColor: 'hsl(210, 15%, 97%)', borderTop: '1px solid hsl(214, 20%, 92%)' }}>
-          <div className="section-container">
-            <ScrollReveal>
-              <div className="flex items-end justify-between mb-2">
-                <div>
-                  <div
-                    className="inline-flex items-center gap-2 mb-3"
-                    style={{ color: 'var(--web-primary, #25927F)', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
-                  >
-                    <Map size={14} /> Especialízate
-                  </div>
-                  <h2 className="section-title" style={{ marginBottom: '0.25rem' }}>Rutas de Aprendizaje</h2>
-                  <p className="section-subtitle">Colecciones curadas para llevarte de principiante a experto.</p>
-                </div>
-                <Link
-                  href="/rutas"
-                  className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-                >
-                  Ver todas <ArrowRight size={16} />
-                </Link>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={0.1}>
-              <RutasSection rutas={rutas} embedded />
-            </ScrollReveal>
-          </div>
-        </section>
-      )}
-
-      {/* ── 6. PROFESORES ───────────────────────────── */}
-      <ProfessorsCarousel teachers={teachers} />
-
-      {/* ── 7. EMPRESAS (B2B informativo) ───────────── */}
-      <CompaniesSection />
-
-      {/* ── 8. CTA AGENDAR REUNIÓN ──────────────────── */}
-      <EnterpriseCTASection />
-
-      {/* ── 9. VERIFICAR CERTIFICADO ────────────────── */}
-      <SearchCertificateSection />
-
-      {/* ── 10. CTA INSCRIPCIÓN ─────────────────────── */}
-      <section className="bg-white py-16 text-center" style={{ borderTop: '1px solid hsl(214, 20%, 88%)' }}>
-        <div className="max-w-3xl mx-auto px-4">
-          <ScrollReveal>
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-              style={{ backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.08)', color: 'var(--web-dark, #025E44)' }}
-            >
-              <CheckCircle size={16} />
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 600 }}>
-                Únete a miles de estudiantes
-              </span>
-            </div>
-            <h2
-              className="mb-4"
-              style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 700, color: '#0A0A0A', letterSpacing: '-0.02em' }}
-            >
-              ¿Listo para transformar tu carrera?
-            </h2>
-            <p
-              className="mb-8 max-w-xl mx-auto"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'hsl(215, 16%, 47%)', lineHeight: 1.7 }}
-            >
-              Inscríbete hoy y comienza a aprender con los mejores profesionales del sector.
+      <div className="container-page" style={{ position: 'relative', zIndex: 3, width: '100%' }}>
+        {HERO_SLIDES.map((slide, idx) => (
+          <div
+            key={idx}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: '50%',
+              transform: `translateY(-50%) translateX(${current === idx ? 0 : 32}px)`,
+              opacity: current === idx ? 1 : 0,
+              transition: 'opacity 1s ease, transform 1s ease',
+              maxWidth: '640px',
+              pointerEvents: current === idx ? 'auto' : 'none',
+            }}
+          >
+            <span style={{ display: 'inline-block', fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', padding: '0.4rem 1rem', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.2)', marginBottom: '2rem' }}>
+              {slide.eyebrow}
+            </span>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, letterSpacing: '-0.04em', color: '#ffffff', lineHeight: 0.9, display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
+              <span style={{ fontSize: 'clamp(3.5rem, 8vw, 6rem)' }}>{slide.title}</span>
+              <span style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', opacity: 0.8, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{slide.subtitle}</span>
+            </h1>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(1rem, 2vw, 1.25rem)', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, marginBottom: '3rem' }}>
+              {slide.description}
             </p>
-            <Link
-              href="/cursos"
-              className="no-underline inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.35)' }}
-            >
-              Inscribirse ahora <ArrowRight size={18} />
-            </Link>
-          </ScrollReveal>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
+              <Link href="/cursos" className="btn-primary-agenda" style={{ fontSize: '1rem', padding: '1rem 2.5rem', color: '#fff' }}>
+                Comenzar ahora <ArrowRight size={20} />
+              </Link>
+              <Link href="/nosotros" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2.5rem', borderRadius: '9999px', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '1rem', color: '#ffffff', border: '2px solid rgba(255,255,255,0.6)', background: 'transparent', textDecoration: 'none' }}>
+                Conócenos
+              </Link>
+            </div>
+          </div>
+        ))}
+        <div style={{ height: '400px' }} />
+      </div>
+
+      {/* Bottom bar */}
+      <div style={{ position: 'absolute', bottom: '2.5rem', left: 0, right: 0, zIndex: 4 }}>
+        <div className="container-page" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <div style={{ display: 'flex' }}>
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', background: 'rgba(0,111,101,0.3)', backdropFilter: 'blur(4px)', overflow: 'hidden', marginLeft: i > 1 ? '-12px' : 0 }}>
+                  <Image src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" width={42} height={42} />
+                </div>
+              ))}
+            </div>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>
+              +500 Alumnos inscritos
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {HERO_SLIDES.map((_, idx) => (
+              <button key={idx} onClick={() => setCurrent(idx)} style={{ height: '8px', borderRadius: '9999px', border: 'none', cursor: 'pointer', transition: 'all 0.3s', width: current === idx ? '32px' : '8px', background: current === idx ? 'var(--agenda-primary)' : 'rgba(255,255,255,0.35)' }} aria-label={`Diapositiva ${idx + 1}`} />
+            ))}
+          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
+  )
+}
+
+const BENEFITS = [
+  { icon: GraduationCap, title: 'Capacitaciones cortas y prácticas', text: 'Programas progresivos, aplicables y enfocados en resultados.' },
+  { icon: Video, title: 'Clases en vivo por Zoom PRO', text: 'Sesiones con interacción directa y resolución de consultas.' },
+  { icon: Monitor, title: 'Aula virtual', text: 'Materiales, tareas y recursos en una plataforma organizada.' },
+  { icon: PlayCircle, title: 'Grabaciones disponibles', text: 'Repasa cada sesión cuando lo necesites.' },
+  { icon: BadgeCheck, title: 'Certificación digital con QR', text: 'Certificados verificables emitidos por AGENDA PERÚ.' },
+  { icon: Briefcase, title: 'Bono de empleabilidad', text: 'Seminario de LinkedIn, marca profesional y networking.' },
+]
+
+function Benefits() {
+  return (
+    <section className="bg-circuit" style={{ padding: '7rem 0', backgroundColor: '#fafafa' }}>
+      <div className="container-page">
+        {/* Imagen + texto */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', alignItems: 'center', marginBottom: '5rem' }}>
+          <div data-animate="fade-right" style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', inset: '-1.5rem', background: 'rgba(0,111,101,0.08)', borderRadius: '3rem', filter: 'blur(40px)', zIndex: -1 }} />
+            <Image
+              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200&auto=format&fit=crop"
+              alt="Colaboración tecnológica"
+              width={600}
+              height={400}
+              style={{ borderRadius: '3rem', boxShadow: '0 30px 60px -20px rgba(0,111,101,0.15)', border: '1px solid rgba(255,255,255,0.5)', width: '100%', height: 'auto' }}
+            />
+          </div>
+          <div data-animate="fade-left">
+            <span className="eyebrow-agenda">Nuestra Metodología</span>
+            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', letterSpacing: '-0.03em', marginTop: '1.5rem', marginBottom: '1.5rem', color: '#1A1A1A', lineHeight: 1.2 }}>
+              Tu carrera merece un <span style={{ color: 'var(--agenda-primary)' }}>impulso real</span>
+            </h2>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.1rem', color: '#666666', lineHeight: 1.7 }}>
+              Combinamos excelencia académica con herramientas de empleabilidad para asegurar que tu inversión se traduzca en resultados profesionales.
+            </p>
+          </div>
+        </div>
+
+        {/* 6 tarjetas — 3 columnas fijas en desktop */}
+        <div className="benefits-grid stagger-container">
+          {BENEFITS.map((b) => (
+            <div
+              key={b.title}
+              data-animate="zoom-in-sm"
+              style={{ borderRadius: '2rem', background: '#ffffff', border: '1px solid #e5e5e5', padding: '2rem', transition: 'all 0.4s ease' }}
+            >
+              <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'var(--agenda-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary-dark)', marginBottom: '1.5rem' }}>
+                <b.icon size={26} />
+              </div>
+              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.1rem', marginBottom: '0.75rem', color: '#1A1A1A', lineHeight: 1.3 }}>{b.title}</h3>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: '#666666', lineHeight: 1.6 }}>{b.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function Stats() {
+  return (
+    <section style={{ padding: '5rem 0', background: 'var(--agenda-primary)', color: '#ffffff' }}>
+      <div className="container-page stagger-container stats-grid">
+        {[
+          { value: '+500', label: 'Alumnos' },
+          { value: '100%', label: 'Práctico' },
+          { value: '24/7', label: 'Aula Virtual' },
+          { value: 'QR', label: 'Certificado' },
+        ].map(s => (
+          <div key={s.label} data-animate="fade-up">
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', marginBottom: '0.5rem', letterSpacing: '-0.04em' }}>{s.value}</p>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.65 }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }

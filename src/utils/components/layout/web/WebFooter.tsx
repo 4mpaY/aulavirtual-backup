@@ -3,222 +3,166 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
+import { MessageCircle, Mail, MapPin, Instagram, Linkedin, Sparkles } from 'lucide-react'
 
-import { Phone, Mail, MapPin, Facebook, Youtube, Instagram } from 'lucide-react'
-
-import { getConfigs } from '@/utils/libs/config'
 import HydratedDate from '@/utils/components/HydratedDate'
-
-// Simple TikTok SVG icon (not in lucide-react)
-const TikTokIcon = ({ size = 16 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" />
-  </svg>
-)
-
-// Simple WhatsApp SVG icon
-const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z" />
-  </svg>
-)
-
-const staticSocialLinks = [
-  { label: 'Facebook', href: 'https://www.facebook.com/flyup.store', icon: <Facebook size={20} /> },
-  { label: 'TikTok', href: 'https://tiktok.com/@flyupsale', icon: <TikTokIcon size={20} /> },
-  { label: 'Instagram', href: 'https://www.instagram.com/devrocket.software/', icon: <Instagram size={20} /> },
-  { label: 'Youtube', href: 'https://www.youtube.com/@Fly-s9b', icon: <Youtube size={20} /> },
-]
+import { getConfigs } from '@/utils/libs/config'
 
 interface WebFooterProps {
   platformName?: string
   rutasHabilitado?: boolean
 }
 
+const TikTokIcon = ({ size = 20 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z" />
+  </svg>
+)
+
 const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true }: WebFooterProps) => {
   const configs = await getConfigs()
   const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
-
-  const socialLinks = [
-    ...staticSocialLinks,
-    { label: 'WhatsApp', href: `https://wa.me/${waNumber}`, icon: <WhatsAppIcon size={20} /> },
-  ]
+  const phone = configs.TELEFONO || '+51 928 510 125'
+  const email = configs.EMAIL_CONTACTO || 'contacto@agendaperu.com'
+  const address = configs.DIRECCION || 'Lima, Perú'
 
   return (
-    <footer style={{ backgroundColor: '#0A0A0A', color: '#ffffff' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer style={{ backgroundColor: '#1A1A1A', color: '#ffffff', position: 'relative', overflow: 'hidden' }}>
+      {/* Top gradient line */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(0,111,101,0.4), transparent)' }} />
 
-          {/* Contact */}
-          <div>
-            <h4
-              className="mb-4"
-              style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.0625rem', color: '#ffffff' }}
-            >
-              Contacto
-            </h4>
-            <ul className="space-y-3" style={{ opacity: 0.8 }}>
-              <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
-                <Phone size={16} className="flex-shrink-0 mt-0.5" />
-                <span>+51 928 510 125</span>
-              </li>
-              <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
-                <Mail size={16} className="flex-shrink-0 mt-0.5" />
-                <span>flyup.sale@gmail.com</span>
-              </li>
-              <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
-                <MapPin size={16} className="flex-shrink-0 mt-0.5" />
-                <span>Lima, Miraflores</span>
-              </li>
-            </ul>
-          </div>
+      <div className="container-page" style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '4rem' }}>
 
-          {/* Formación */}
-          <div className="pt-4 md:pt-0">
-            <h4
-              className="mb-4"
-              style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.0625rem', color: '#ffffff' }}
-            >
-              Formación
-            </h4>
-            <ul className="space-y-2 list-none pl-0 m-0" style={{ opacity: 0.8 }}>
-              {([
-                { label: 'Cursos', href: '/cursos' },
-                ...(rutasHabilitado ? [{ label: 'Rutas', href: '/rutas' }] : []),
-              ] as { label: string; href: string }[]).map(link => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="no-underline transition-opacity hover:opacity-100"
-                    style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)' }}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Más Información */}
-          <div className="pt-4 md:pt-0">
-            <h4
-              className="mb-4"
-              style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.0625rem', color: '#ffffff' }}
-            >
-              Más Información
-            </h4>
-            <ul className="space-y-2 list-none pl-0 m-0" style={{ opacity: 0.8 }}>
+          {/* Logo + descripción */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <Image
+              src="/images/agenda/logo-sin-fondo.png"
+              alt={platformName}
+              width={120}
+              height={40}
+              style={{ objectFit: 'contain', height: '40px', width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }}
+            />
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, maxWidth: '260px' }}>
+              Formación tecnológica con criterio profesional, diseñada para impulsar la empleabilidad en la era digital.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
               {[
+                { href: '#', icon: <Instagram size={18} />, label: 'Instagram' },
+                { href: '#', icon: <Linkedin size={18} />, label: 'LinkedIn' },
+                { href: '#', icon: <TikTokIcon size={18} />, label: 'TikTok' },
+              ].map(s => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  aria-label={s.label}
+                  style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.6)', transition: 'background 0.2s, color 0.2s', textDecoration: 'none' }}
+                  className="hover:bg-[var(--agenda-primary)] hover:!text-white hover:border-transparent"
+                >
+                  {s.icon}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Contacto */}
+          <div>
+            <h4 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', marginBottom: '2rem' }}>
+              Contacto Oficial
+            </h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {[
+                { icon: <MessageCircle size={16} />, text: phone },
+                { icon: <Mail size={16} />, text: email },
+                { icon: <MapPin size={16} />, text: address },
+              ].map((item, i) => (
+                <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary)', flexShrink: 0 }}>
+                    {item.icon}
+                  </div>
+                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Menú */}
+          <div>
+            <h4 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', marginBottom: '2rem' }}>
+              Menú
+            </h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {[
+                { label: 'Capacitaciones', href: '/cursos' },
+                { label: 'Empleabilidad', href: '/empleabilidad' },
+                { label: 'Certificación', href: '/certificacion' },
                 { label: 'Nosotros', href: '/nosotros' },
-                { label: 'Términos y condiciones', href: '/terminos-y-condiciones' },
-                { label: 'Política de Devoluciones', href: '/politica-de-cambios-y-devoluciones' },
+                { label: 'Contacto', href: '/contacto' },
+                ...(rutasHabilitado ? [{ label: 'Rutas', href: '/rutas' }] : []),
               ].map(link => (
-                <li key={link.label}>
+                <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="no-underline transition-opacity hover:opacity-100 inline-flex items-center gap-1.5"
-                    style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)' }}
+                    style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color 0.2s' }}
+                    className="hover:text-[var(--agenda-primary)]"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-            <div className="mt-6">
-              <Link
-                href="/libro-de-reclamaciones"
-                className="inline-block transition-opacity hover:opacity-80"
-              >
-                <Image
-                  src="/images/libro-reclamaciones.jpg"
-                  alt="Libro de Reclamaciones"
-                  width={160}
-                  height={75}
-                  className="h-auto w-auto max-w-[160px] rounded-lg"
-                  style={{ objectFit: 'contain' }}
-                />
-              </Link>
-            </div>
           </div>
 
-          {/* Síguenos */}
+          {/* Misión */}
           <div>
-            <h4
-              className="mb-4"
-              style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.0625rem', color: '#ffffff' }}
-            >
-              Síguenos
+            <h4 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', marginBottom: '2rem' }}>
+              Nuestra Misión
             </h4>
-
-            {/* Social icons row */}
-            <div className="flex items-center gap-3 mb-5">
-              {socialLinks.map(social => (
-                <Link
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="no-underline transition-opacity hover:opacity-70"
-                  style={{ color: 'rgba(255,255,255,0.85)' }}
-                >
-                  {social.icon}
-                </Link>
-              ))}
+            <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontStyle: 'italic', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7 }}>
+                "La educación abre caminos. La tecnología los multiplica. Nuestra misión es darte las llaves de ese futuro."
+              </p>
+              <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--agenda-primary)', fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                <Sparkles size={14} /> AGENDA
+              </div>
             </div>
 
-            {/* Validar Certificado button */}
-            <Link
-              href="/verificar-certificado"
-              className="no-underline inline-block text-center transition-opacity hover:opacity-90"
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 600,
-                fontSize: '0.875rem',
-                color: '#ffffff',
-                backgroundColor: 'var(--web-dark, #025E44)',
-                borderRadius: '9999px',
-                padding: '0.5rem 1.25rem',
-              }}
+            {/* WhatsApp button */}
+            <a
+              href={`https://wa.me/${waNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary-agenda"
+              style={{ marginTop: '1.5rem', fontSize: '0.8rem', padding: '0.65rem 1.25rem' }}
             >
-              Validar Certificado
-            </Link>
+              <MessageCircle size={16} /> WhatsApp
+            </a>
           </div>
         </div>
       </div>
 
       {/* Bottom bar */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <p
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontSize: '0.8125rem',
-                color: 'rgba(255,255,255,0.5)',
-              }}
-            >
-              © <HydratedDate date={new Date()} format="year" /> {platformName}. Todos los derechos reservados.
-            </p>
-          </div>
-          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
-            Desarrollado con ❤️ por
-            <Link
-              href="https://flyup.pe"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="no-underline hover:opacity-80 inline-flex items-center align-middle"
-              style={{ color: 'var(--web-light, #BDD962)', fontWeight: 600 }}
-            >
-              <Image
-                src="/images/logo.svg"
-                alt="Fly Logo"
-                width={80}
-                height={25}
-                style={{ objectFit: 'contain' }}
-              />
-            </Link>
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="container-page flex flex-col sm:flex-row items-center justify-between gap-3" style={{ paddingTop: '1.25rem', paddingBottom: '1.25rem' }}>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)' }}>
+            © <HydratedDate date={new Date()} format="year" /> {platformName}. Todos los derechos reservados.
           </p>
+          <div style={{ display: 'flex', gap: '2rem' }}>
+            {[
+              { label: 'Términos', href: '/terminos-y-condiciones' },
+              { label: 'Privacidad', href: '/politica-de-cambios-y-devoluciones' },
+              { label: 'Certificado', href: '/verificar-certificado' },
+            ].map(l => (
+              <Link
+                key={l.href}
+                href={l.href}
+                style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
+                className="hover:text-white"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

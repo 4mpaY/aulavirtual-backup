@@ -99,6 +99,10 @@ export default withAuth(
           path.startsWith('/assets') ||
           path.startsWith('/empresas') ||
           path.startsWith('/politica-de-devoluciones') ||
+          path.startsWith('/empleabilidad') ||
+          path.startsWith('/certificacion') ||
+          path.startsWith('/whatsapp') ||
+          path.startsWith('/llamadas') ||
           path === '/'
         ) {
           return true
