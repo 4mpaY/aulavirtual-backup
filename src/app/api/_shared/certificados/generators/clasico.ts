@@ -492,25 +492,11 @@ export const generarClasico: GeneratorFn = async data => {
 
   const contentStartY = contenidoStartY + 13
 
-  const startNewModulosPage = (): number => {
-    doc.addPage()
-    doc.setFillColor(255, 255, 255)
-    doc.rect(0, 0, pageWidth, pageHeight, 'F')
-    doc.setFillColor(pr, pg, pb)
-    doc.rect(0, 0, pageWidth, 8, 'F')
-    doc.setFontSize(T.small)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(255, 255, 255)
-    doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO (continuación)', margin, 5.5)
-
-    return 14
-  }
-
   // ── Pre-calcular altura de cada módulo ────────────────────────────────
   const calcModuloHeight = (modulo: any): number => {
     const modTxt = `${modulo.orden + 1}. ${modulo.titulo}`.toUpperCase()
     const modLines = doc.splitTextToSize(modTxt, contentColW - 8)
-    let h = modLines.length * 4.5 + 4 + 2 // cabecera + gap inferior
+    let h = modLines.length * 4.5 + 4 + 2
 
     for (const leccion of modulo.lecciones) {
       const lecTxt = `${modulo.orden + 1}.${leccion.orden + 1}  ${leccion.titulo}`
@@ -519,7 +505,7 @@ export const generarClasico: GeneratorFn = async data => {
       h += lecLines.length * 4 + 1.5
     }
 
-    h += 3 // espaciado final del módulo
+    h += 3
 
     return h
   }
@@ -540,55 +526,105 @@ export const generarClasico: GeneratorFn = async data => {
     }
   }
 
-  // ── Función de render para una columna ───────────────────────────────
-  const renderColumn = async (lista: any[], startX: number, startY: number): Promise<void> => {
-    let currentY = startY
+  // ── Paginar: agrupar módulos por página (ambas columnas juntas) ───────
+  const paginateColumns = (
+    leftList: any[],
+    rightList: any[]
+  ): Array<{ left: any[]; right: any[] }> => {
+    const pages: Array<{ left: any[]; right: any[] }> = []
+    let li = 0
+    let ri = 0
+    let isFirst = true
+
+    while (li < leftList.length || ri < rightList.length) {
+      const avail = isFirst ? contentBottomLimit - contentStartY : contentBottomLimit - 14
+      const page: { left: any[]; right: any[] } = { left: [], right: [] }
+      let lh = 0
+      let rh = 0
+
+      while (li < leftList.length) {
+        const h = calcModuloHeight(leftList[li])
+
+        if (lh + h > avail && page.left.length > 0) break
+        page.left.push(leftList[li++])
+        lh += h
+      }
+
+      while (ri < rightList.length) {
+        const h = calcModuloHeight(rightList[ri])
+
+        if (rh + h > avail && page.right.length > 0) break
+        page.right.push(rightList[ri++])
+        rh += h
+      }
+
+      pages.push(page)
+      isFirst = false
+    }
+
+    return pages
+  }
+
+  // ── Renderizar una columna en la página actual (sin addPage) ──────────
+  const renderColumnSegment = (lista: any[], startX: number, startY: number): void => {
+    let y = startY
 
     for (const modulo of lista) {
       const modTxt = `${modulo.orden + 1}. ${modulo.titulo}`.toUpperCase()
       const modLines = doc.splitTextToSize(modTxt, contentColW - 8)
       const modH = modLines.length * 4.5 + 4
 
-      if (currentY + modH > contentBottomLimit) {
-        currentY = startNewModulosPage()
-      }
-
       doc.setFillColor(
         Math.round(pr * 0.12 + 255 * 0.88),
         Math.round(pg * 0.12 + 255 * 0.88),
         Math.round(pb * 0.12 + 255 * 0.88)
       )
-      doc.roundedRect(startX, currentY, contentColW, modH, 1, 1, 'F')
+      doc.roundedRect(startX, y, contentColW, modH, 1, 1, 'F')
       doc.setFontSize(T.sectionTitle)
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(pr, pg, pb)
-      doc.text(modLines, startX + 4, currentY + 4.5)
-      currentY += modH + 2
+      doc.text(modLines, startX + 4, y + 4.5)
+      y += modH + 2
 
       for (const leccion of modulo.lecciones) {
         const lecTxt = `${modulo.orden + 1}.${leccion.orden + 1}  ${leccion.titulo}`
         const lecLines = doc.splitTextToSize(lecTxt, contentColW - 14)
         const lecH = lecLines.length * 4 + 1.5
 
-        if (currentY + lecH > contentBottomLimit) {
-          currentY = startNewModulosPage()
-        }
-
         doc.setFillColor(pr, pg, pb)
-        doc.circle(startX + 4, currentY + 1.5, 0.9, 'F')
+        doc.circle(startX + 4, y + 1.5, 0.9, 'F')
         doc.setFontSize(T.body)
         doc.setFont('helvetica', 'normal')
         doc.setTextColor(60, 60, 60)
-        doc.text(lecLines, startX + 7, currentY + 2.5)
-        currentY += lecH
+        doc.text(lecLines, startX + 7, y + 2.5)
+        y += lecH
       }
 
-      currentY += 3
+      y += 3
     }
   }
 
-  await renderColumn(leftModulos, contentColLeft, contentStartY)
-  await renderColumn(rightModulos, contentColRight, contentStartY)
+  // ── Renderizar página por página con ambas columnas sincronizadas ─────
+  const columnPages = paginateColumns(leftModulos, rightModulos)
+
+  for (let pi = 0; pi < columnPages.length; pi++) {
+    if (pi > 0) {
+      doc.addPage()
+      doc.setFillColor(255, 255, 255)
+      doc.rect(0, 0, pageWidth, pageHeight, 'F')
+      doc.setFillColor(pr, pg, pb)
+      doc.rect(0, 0, pageWidth, 8, 'F')
+      doc.setFontSize(T.small)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(255, 255, 255)
+      doc.text('CONTENIDO DEL PROGRAMA ACADÉMICO (continuación)', margin, 5.5)
+    }
+
+    const y0 = pi === 0 ? contentStartY : 14
+
+    renderColumnSegment(columnPages[pi].left, contentColLeft, y0)
+    renderColumnSegment(columnPages[pi].right, contentColRight, y0)
+  }
 
   // ── Pie de página 2 ───────────────────────────────────────────────────
   const footerTopY = pageHeight - 20
