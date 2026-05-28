@@ -1,6 +1,6 @@
 'use client'
 
-import { Heart, Lightbulb, Users, TrendingUp, ShieldCheck } from 'lucide-react'
+import { Heart, Lightbulb, Users, TrendingUp, ShieldCheck, Award } from 'lucide-react'
 
 import { eyebrow, sectionH2, sectionDesc, cardTitle, cardBody } from '@/features/web/home/components/typography'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
@@ -9,27 +9,32 @@ const valores = [
   {
     icon: Heart,
     title: 'Compromiso',
-    desc: 'Nos dedicamos plenamente a la formación de cada estudiante, acompañándolos en cada etapa de su aprendizaje.',
+    desc: 'Nos dedicamos plenamente a la salud y bienestar de cada trabajador, acompañando a las empresas en cada etapa de su gestión.',
+  },
+  {
+    icon: Award,
+    title: 'Calidad',
+    desc: 'Aplicamos los más altos estándares en cada servicio, respaldados por certificaciones ISO y normativas vigentes.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Responsabilidad',
+    desc: 'Asumimos con seriedad el bienestar de los trabajadores y el cumplimiento legal de las empresas que nos confían sus procesos.',
   },
   {
     icon: Lightbulb,
     title: 'Innovación',
-    desc: 'Buscamos constantemente nuevas formas de enseñar y de acercar el conocimiento de manera más efectiva.',
-  },
-  {
-    icon: Users,
-    title: 'Trabajo en Equipo',
-    desc: 'Creemos en la colaboración como motor del aprendizaje y el crecimiento colectivo.',
+    desc: 'Incorporamos tecnología y metodologías modernas para brindar soluciones más eficientes en salud ocupacional y SST.',
   },
   {
     icon: TrendingUp,
     title: 'Mejora Continua',
-    desc: 'Actualizamos nuestros contenidos y metodologías para mantenernos a la vanguardia del sector.',
+    desc: 'Evaluamos y optimizamos constantemente nuestros procesos para superar las expectativas de nuestros clientes.',
   },
   {
-    icon: ShieldCheck,
-    title: 'Integridad',
-    desc: 'Actuamos con transparencia y honestidad, generando confianza en cada relación con nuestros estudiantes y empresas.',
+    icon: Users,
+    title: 'Trabajo en Equipo',
+    desc: 'Contamos con profesionales multidisciplinarios — médicos, psicólogos, nutricionistas y especialistas en SST — trabajando juntos.',
   },
 ]
 
@@ -121,9 +126,9 @@ function MisionCard() {
           Nuestra Misión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Brindar formación profesional de alta calidad, accesible y orientada al sector industrial,
-          impulsando el desarrollo de competencias que generan valor real en las organizaciones y en
-          la carrera de nuestros estudiantes.&quot;
+          &quot;Brindar servicios integrales de salud ocupacional, seguridad y medio ambiente con calidad,
+          compromiso y responsabilidad, contribuyendo al bienestar de los trabajadores y al desarrollo
+          sostenible de las empresas peruanas.&quot;
         </p>
       </div>
     </div>
@@ -184,9 +189,9 @@ function VisionCard() {
           Nuestra Visión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Ser la plataforma de referencia en formación profesional especializada en Latinoamérica,
-          reconocida por la excelencia de sus contenidos, la solidez de sus certificaciones y su
-          compromiso con la transformación del sector industrial.&quot;
+          &quot;Ser la empresa líder en soluciones de salud ocupacional y seguridad en el trabajo a nivel
+          nacional, reconocida por nuestra excelencia en el servicio, innovación constante y compromiso
+          con la salud y el bienestar de las personas.&quot;
         </p>
       </div>
     </div>
@@ -203,7 +208,7 @@ export function ValoresSection() {
             <p style={{ ...eyebrow, display: 'block', textAlign: 'center' }}>Lo que nos define</p>
             <h2 style={{ ...sectionH2, textAlign: 'center' }}>Valores que nos identifican</h2>
             <p style={{ ...sectionDesc, textAlign: 'center', marginTop: '0.75rem' }}>
-              &quot;La excelencia no es un acto, sino un hábito. Cada valor que practicamos a diario define quiénes somos y hacia dónde vamos.&quot;
+              &quot;Cada valor que practicamos a diario define la calidad de nuestros servicios y el bienestar de quienes confían en nosotros.&quot;
             </p>
           </div>
         </ScrollReveal>

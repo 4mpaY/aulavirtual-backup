@@ -16,8 +16,8 @@ import CompaniesSection from '@/features/web/home/components/CompaniesSection'
 import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
 
 export const metadata = {
-  title: 'Aula Virtual - Aprende sin límites',
-  description: 'Plataforma de aprendizaje online con cursos especializados, rutas de aprendizaje y certificados.',
+  title: 'SSMAT - Salud Ocupacional, Seguridad y Medio Ambiente',
+  description: 'Servicios integrales de salud ocupacional, seguridad y medio ambiente para empresas. Exámenes médicos, SST, capacitación, monitoreo ambiental y más.',
 }
 
 async function getHomeData() {
@@ -80,8 +80,8 @@ async function getHomeData() {
       cursos: r.cursos.map(c => ({ miniatura: c.curso.miniatura, titulo: c.curso.titulo })),
     }))
 
-    const heroTitle = configs.HOME_HERO_TITLE || 'Aprende sin límites,\ncrece sin fronteras'
-    const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.'
+    const heroTitle = configs.HOME_HERO_TITLE || 'Por una empresa saludable,\nsegura y productiva'
+    const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Brindamos servicios integrales de salud ocupacional, seguridad y medio ambiente. Exámenes médicos, vigilancia, SST, capacitación y más — para el bienestar de tus trabajadores.'
     let logos: { label: string; url: string }[] = []
 
     try { logos = configs.HOME_LOGOS ? JSON.parse(configs.HOME_LOGOS) : [] } catch { logos = [] }
@@ -97,8 +97,8 @@ async function getHomeData() {
   } catch {
     return {
       courses: [], rutas: [], teachers: [],
-      heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
-      heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
+      heroTitle: 'Por una empresa saludable,\nsegura y productiva',
+      heroDescription: 'Brindamos servicios integrales de salud ocupacional, seguridad y medio ambiente. Exámenes médicos, vigilancia, SST, capacitación y más — para el bienestar de tus trabajadores.',
       logos: [],
     }
   }
@@ -141,7 +141,7 @@ export default async function HomePage() {
               >
                 <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--web-light, #BDD962)' }} />
                 <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
-                  Plataforma educativa online
+                  Salud Ocupacional · Seguridad · Medio Ambiente
                 </span>
               </div>
 
@@ -201,8 +201,8 @@ export default async function HomePage() {
               {/* Mini stats */}
               <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                 {[
-                  { value: '+1,200', label: 'Estudiantes' },
-                  { value: '+80', label: 'Cursos' },
+                  { value: '+500', label: 'Empresas' },
+                  { value: '+10K', label: 'Trabajadores' },
                   { value: '98%', label: 'Satisfacción' },
                 ].map(stat => (
                   <div key={stat.label}>
@@ -310,27 +310,27 @@ export default async function HomePage() {
             >
               <CheckCircle size={16} />
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 600 }}>
-                Únete a miles de estudiantes
+                Protege a tu equipo de trabajo
               </span>
             </div>
             <h2
               className="mb-4"
               style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 700, color: '#0A0A0A', letterSpacing: '-0.02em' }}
             >
-              ¿Listo para transformar tu carrera?
+              ¿Listo para cuidar la salud de tu empresa?
             </h2>
             <p
               className="mb-8 max-w-xl mx-auto"
               style={{ fontFamily: 'Poppins, sans-serif', color: 'hsl(215, 16%, 47%)', lineHeight: 1.7 }}
             >
-              Inscríbete hoy y comienza a aprender con los mejores profesionales del sector.
+              Contáctanos hoy y recibe asesoría personalizada en salud ocupacional, SST y bienestar laboral.
             </p>
             <Link
-              href="/cursos"
+              href="/contacto"
               className="no-underline inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
               style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.35)' }}
             >
-              Inscribirse ahora <ArrowRight size={18} />
+              Contáctanos ahora <ArrowRight size={18} />
             </Link>
           </ScrollReveal>
         </div>

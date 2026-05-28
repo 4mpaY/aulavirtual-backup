@@ -3,12 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Home, BookOpen, Users, Award, Map } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Building2 } from 'lucide-react'
 
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
-  { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
+  { title: 'Empresas', url: '/empresas', icon: Building2, key: 'empresas' },
   { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },
   { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
 ]
@@ -21,7 +21,7 @@ export default function MobileBottomNav({
   const pathname = usePathname()
 
   const navItems = ALL_NAV_ITEMS.filter(item => {
-    if (item.key === 'rutas' && !rutasHabilitado) return false
+    void rutasHabilitado
 
     return true
   })

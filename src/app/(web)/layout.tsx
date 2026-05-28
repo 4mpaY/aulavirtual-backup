@@ -7,7 +7,6 @@ import { getConfigs } from '@/utils/libs/config'
 import prisma from '@/utils/libs/prisma'
 import WebFooter from '@/utils/components/layout/web/WebFooter'
 import WebHeader from '@/utils/components/layout/web/WebHeader'
-import LeftSidebar from '@/utils/components/layout/web/LeftSidebar'
 import MobileBottomNav from '@/utils/components/layout/web/MobileBottomNav'
 
 const getCategorias = unstable_cache(
@@ -33,23 +32,16 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
     <AuthModalProvider>
       <div className="web-layout min-h-screen bg-background flex flex-col">
         <WebHeader initialCategories={categories} platformName={platformName} platformSlogan={platformSlogan} />
-        <div className="flex flex-1" style={{ paddingTop: 'var(--navbar-height)' }}>
-          {/* Sidebar: visible solo en sm+ */}
-          <div className="hidden sm:block">
-            <LeftSidebar rutasHabilitado={rutasHabilitado} empresasHabilitado={empresasHabilitado} />
+        <main
+          className="flex-1 flex flex-col min-w-0"
+          style={{ paddingTop: 'var(--navbar-height)', paddingBottom: '0' }}
+        >
+          <style>{`@media (max-width: 639px) { main { padding-bottom: 64px; } }`}</style>
+          <div className="flex-1">
+            {children}
           </div>
-          <main
-            className="flex-1 flex flex-col min-w-0"
-            style={{ paddingLeft: 'var(--sidebar-width)' }}
-          >
-            {/* padding-left del sidebar solo en sm+ */}
-            <style>{`@media (max-width: 639px) { main { padding-left: 0 !important; padding-bottom: 64px; } }`}</style>
-            <div className="flex-1">
-              {children}
-            </div>
-            <WebFooter platformName={platformName} rutasHabilitado={rutasHabilitado} />
-          </main>
-        </div>
+          <WebFooter platformName={platformName} rutasHabilitado={rutasHabilitado} />
+        </main>
         {/* Bottom nav: visible solo en mobile */}
         <MobileBottomNav rutasHabilitado={rutasHabilitado} />
       </div>

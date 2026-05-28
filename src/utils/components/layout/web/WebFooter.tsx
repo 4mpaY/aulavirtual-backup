@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 
-import { Phone, Mail, MapPin, Facebook, Youtube, Instagram } from 'lucide-react'
+import { Phone, Mail, MapPin, Facebook } from 'lucide-react'
 
 import { getConfigs } from '@/utils/libs/config'
 import HydratedDate from '@/utils/components/HydratedDate'
@@ -24,10 +24,7 @@ const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
 )
 
 const staticSocialLinks = [
-  { label: 'Facebook', href: 'https://www.facebook.com/flyup.store', icon: <Facebook size={20} /> },
-  { label: 'TikTok', href: 'https://tiktok.com/@flyupsale', icon: <TikTokIcon size={20} /> },
-  { label: 'Instagram', href: 'https://www.instagram.com/devrocket.software/', icon: <Instagram size={20} /> },
-  { label: 'Youtube', href: 'https://www.youtube.com/@Fly-s9b', icon: <Youtube size={20} /> },
+  { label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=100070179487780', icon: <Facebook size={20} /> },
 ]
 
 interface WebFooterProps {
@@ -37,7 +34,7 @@ interface WebFooterProps {
 
 const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true }: WebFooterProps) => {
   const configs = await getConfigs()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51943193099'
 
   const socialLinks = [
     ...staticSocialLinks,
@@ -60,31 +57,36 @@ const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true
             <ul className="space-y-3" style={{ opacity: 0.8 }}>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <Phone size={16} className="flex-shrink-0 mt-0.5" />
-                <span>+51 928 510 125</span>
+                <span>+51 943 193 099</span>
               </li>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <Mail size={16} className="flex-shrink-0 mt-0.5" />
-                <span>flyup.sale@gmail.com</span>
+                <span>administracion@ssmat.pe</span>
               </li>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <MapPin size={16} className="flex-shrink-0 mt-0.5" />
-                <span>Lima, Miraflores</span>
+                <span>Lima, La Molina</span>
               </li>
             </ul>
           </div>
 
-          {/* Formación */}
+          {/* Enlaces */}
           <div className="pt-4 md:pt-0">
             <h4
               className="mb-4"
               style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '1.0625rem', color: '#ffffff' }}
             >
-              Formación
+              Enlaces
             </h4>
             <ul className="space-y-2 list-none pl-0 m-0" style={{ opacity: 0.8 }}>
               {([
+                { label: 'Inicio', href: '/' },
                 { label: 'Cursos', href: '/cursos' },
+                { label: 'Empresas', href: '/empresas' },
+                { label: 'Nosotros', href: '/nosotros' },
+                { label: 'Contacto', href: '/contacto' },
                 ...(rutasHabilitado ? [{ label: 'Rutas', href: '/rutas' }] : []),
+                { label: 'Verificar Certificado', href: '/verificar-certificado' },
               ] as { label: string; href: string }[]).map(link => (
                 <li key={link.label}>
                   <Link

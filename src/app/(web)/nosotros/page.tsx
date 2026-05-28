@@ -8,8 +8,8 @@ import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCar
 import { MisionVisionSection, ValoresSection } from '@/features/web/nosotros/components/NosotrosInteractive'
 
 export const metadata = {
-  title: 'Nosotros - Aula Virtual',
-  description: 'Conoce quiénes somos, nuestra misión, visión y los valores que guían nuestra plataforma educativa.',
+  title: 'Nosotros - SSMAT',
+  description: 'Conoce quiénes somos, nuestra misión, visión y los valores que guían a SSMAT en salud ocupacional, seguridad y medio ambiente.',
 }
 
 async function getTeachers() {
@@ -87,21 +87,21 @@ export default async function NosotrosPage() {
                   }}
                 >
                   <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg,var(--web-dark, #025E44),var(--web-primary, #25927F))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.75rem' }}>
-                    🎓
+                    🏥
                   </div>
                   <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Plataforma educativa</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>Formación profesional</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>especializada y certificada</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Salud ocupacional & SST</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>Servicios integrales</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>para empresas y trabajadores</div>
                   </div>
                 </div>
 
                 {/* Stats 2×2 */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   {[
-                    { emoji: '👩‍🎓', value: '+1,200', label: 'Estudiantes formados' },
-                    { emoji: '📚', value: '+80', label: 'Cursos disponibles' },
-                    { emoji: '👨‍🏫', value: '+30', label: 'Docentes expertos' },
+                    { emoji: '🏢', value: '+500', label: 'Empresas atendidas' },
+                    { emoji: '👷', value: '+10K', label: 'Trabajadores evaluados' },
+                    { emoji: '🩺', value: '+15', label: 'Años de experiencia' },
                     { emoji: '🏆', value: '98%', label: 'Tasa de satisfacción' },
                   ].map((s, i) => (
                     <div
@@ -135,8 +135,8 @@ export default async function NosotrosPage() {
                 >
                   <div style={{ fontSize: '1.75rem', flexShrink: 0 }}>📜</div>
                   <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>Certificados con validez empresarial</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '4px' }}>Reconocidos por las principales empresas del sector</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>ISO 9001 · ISO 45001 · ISO 14001</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '4px' }}>Cumplimiento normativo y homologaciones empresariales</div>
                   </div>
                 </div>
 
@@ -160,7 +160,7 @@ export default async function NosotrosPage() {
                 >
                   <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: 'var(--web-light, #BDD962)', boxShadow: '0 0 6px var(--web-light, #BDD962)' }} />
                   <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
-                    Sobre nosotros
+                    SSMAT — Salud, Seguridad y Medio Ambiente
                   </span>
                 </div>
 
@@ -175,9 +175,9 @@ export default async function NosotrosPage() {
                     marginBottom: '1.25rem',
                   }}
                 >
-                  Somos calidad y{' '}
-                  <span style={{ color: 'var(--web-light, #BDD962)' }}>responsabilidad</span>{' '}
-                  a tu servicio
+                  Por una empresa{' '}
+                  <span style={{ color: 'var(--web-light, #BDD962)' }}>saludable, segura</span>{' '}
+                  y productiva
                 </h1>
 
                 <p
@@ -190,14 +190,14 @@ export default async function NosotrosPage() {
                     marginBottom: '2.5rem',
                   }}
                 >
-                  Somos una plataforma educativa especializada en la formación profesional de alto impacto.
-                  Ofrecemos cursos diseñados por expertos del sector, con certificaciones reconocidas
-                  que impulsan tu desarrollo profesional y el de tu equipo.
+                  Somos SSMAT, especialistas en salud ocupacional, seguridad y medio ambiente.
+                  Brindamos servicios integrales con calidad, compromiso y responsabilidad,
+                  contribuyendo al bienestar de los trabajadores y al desarrollo sostenible de las empresas.
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                   <Link
-                    href="/cursos"
+                    href="/contacto"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -213,10 +213,10 @@ export default async function NosotrosPage() {
                       boxShadow: '0 4px 20px rgba(var(--web-light-rgb, 189, 217, 98),0.35)',
                     }}
                   >
-                    Ver cursos <ArrowRight size={18} />
+                    Contactar <ArrowRight size={18} />
                   </Link>
                   <Link
-                    href="/contacto"
+                    href="/cursos"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -233,7 +233,7 @@ export default async function NosotrosPage() {
                       backdropFilter: 'blur(8px)',
                     }}
                   >
-                    Trabaja con nosotros
+                    Ver capacitaciones
                   </Link>
                 </div>
               </div>
