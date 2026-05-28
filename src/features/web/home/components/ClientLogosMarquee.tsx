@@ -41,9 +41,8 @@ export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
   return (
     <section
       style={{
-        backgroundColor: '#f8fafc',
+        backgroundColor: 'var(--web-bg, #eef7f4)',
         borderTop: '1px solid hsl(214,20%,91%)',
-        borderBottom: '1px solid hsl(214,20%,91%)',
         padding: '3rem 0',
         overflow: 'hidden',
       }}
@@ -85,7 +84,7 @@ export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
           aria-hidden
           style={{
             position: 'absolute', left: 0, top: 0, bottom: 0, width: '10rem', zIndex: 2,
-            background: 'linear-gradient(to right, #f8fafc 0%, transparent 100%)',
+            background: 'linear-gradient(to right, var(--web-bg, #eef7f4) 0%, transparent 100%)',
             pointerEvents: 'none',
           }}
         />
@@ -94,7 +93,7 @@ export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
           aria-hidden
           style={{
             position: 'absolute', right: 0, top: 0, bottom: 0, width: '10rem', zIndex: 2,
-            background: 'linear-gradient(to left, #f8fafc 0%, transparent 100%)',
+            background: 'linear-gradient(to left, var(--web-bg, #eef7f4) 0%, transparent 100%)',
             pointerEvents: 'none',
           }}
         />

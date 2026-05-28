@@ -41,8 +41,17 @@ const valores = [
 /* ── Misión / Visión ────────────────────────────────────── */
 export function MisionVisionSection() {
   return (
-    <section style={{ backgroundColor: '#f8fafc', padding: '5rem 1.5rem' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+    <section style={{
+      padding: '5rem 1.5rem',
+      background: 'linear-gradient(180deg, var(--web-bg, #eef7f4) 0%, #e8f5f0 100%)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Decorative blobs */}
+      <div aria-hidden style={{ position: 'absolute', top: '-80px', right: '-80px', width: '360px', height: '360px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb,37,146,127),0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div aria-hidden style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb,37,146,127),0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <ScrollReveal>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <p style={{ ...eyebrow, display: 'block', textAlign: 'center' }}>Quiénes somos</p>
@@ -50,20 +59,11 @@ export function MisionVisionSection() {
           </div>
         </ScrollReveal>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '2rem',
-          }}
-        >
-          {/* Misión */}
-          <ScrollReveal direction="left" delay={0.05}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', alignItems: 'stretch' }}>
+          <ScrollReveal direction="left" delay={0.05} className="h-full">
             <MisionCard />
           </ScrollReveal>
-
-          {/* Visión */}
-          <ScrollReveal direction="right" delay={0.1}>
+          <ScrollReveal direction="right" delay={0.1} className="h-full">
             <VisionCard />
           </ScrollReveal>
         </div>
@@ -82,6 +82,10 @@ function MisionCard() {
         boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
         border: '1.5px solid hsl(214,20%,91%)',
         transition: 'transform 0.3s, box-shadow 0.3s',
+        height: '100%',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
       }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLDivElement
@@ -96,35 +100,20 @@ function MisionCard() {
         el.style.boxShadow = '0 4px 24px rgba(0,0,0,0.06)'
       }}
     >
-      <div
-        style={{
-          height: '200px',
-          background: 'linear-gradient(135deg, var(--web-dark, #025E44) 0%, var(--web-primary, #25927F) 60%, #3AB079 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-        <div
-          style={{
-            width: '80px', height: '80px', borderRadius: '24px',
-            backgroundColor: 'rgba(255,255,255,0.15)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backdropFilter: 'blur(8px)',
-            border: '2px solid rgba(255,255,255,0.2)',
-            position: 'relative', zIndex: 1,
-          }}
-        >
-          <span style={{ fontSize: '2.5rem' }}>🎯</span>
+      {/* Imagen portada */}
+      <div style={{ position: 'relative', height: '220px', overflow: 'hidden', flexShrink: 0 }}>
+        <img
+          src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80"
+          alt="Misión SSMAT"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(2,94,68,0.35) 0%, rgba(2,94,68,0.7) 100%)' }} />
+        <div style={{ position: 'absolute', bottom: '1.25rem', left: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>🎯</div>
+          <h3 style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>Nuestra Misión</h3>
         </div>
       </div>
-      <div style={{ padding: '1.75rem 2rem 2rem' }}>
-        <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--web-dark, #025E44)' }}>
-          Nuestra Misión
-        </h3>
+      <div style={{ padding: '1.5rem 1.75rem 2rem', flex: 1 }}>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
           &quot;Brindar servicios integrales de salud ocupacional, seguridad y medio ambiente con calidad,
           compromiso y responsabilidad, contribuyendo al bienestar de los trabajadores y al desarrollo
@@ -145,12 +134,16 @@ function VisionCard() {
         boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
         border: '1.5px solid hsl(214,20%,91%)',
         transition: 'transform 0.3s, box-shadow 0.3s',
+        height: '100%',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
       }}
       onMouseEnter={e => {
         const el = e.currentTarget as HTMLDivElement
 
         el.style.transform = 'translateY(-6px)'
-        el.style.boxShadow = '0 16px 40px rgba(var(--web-light-rgb, 189, 217, 98),0.18)'
+        el.style.boxShadow = '0 16px 40px rgba(var(--web-primary-rgb, 37, 146, 127),0.14)'
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLDivElement
@@ -159,35 +152,20 @@ function VisionCard() {
         el.style.boxShadow = '0 4px 24px rgba(0,0,0,0.06)'
       }}
     >
-      <div
-        style={{
-          height: '200px',
-          background: 'linear-gradient(135deg, #0A0A0A 0%, #1a2e20 60%, var(--web-dark, #025E44) 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(var(--web-light-rgb, 189, 217, 98),0.06) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-        <div
-          style={{
-            width: '80px', height: '80px', borderRadius: '24px',
-            backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.12)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backdropFilter: 'blur(8px)',
-            border: '2px solid rgba(var(--web-light-rgb, 189, 217, 98),0.25)',
-            position: 'relative', zIndex: 1,
-          }}
-        >
-          <span style={{ fontSize: '2.5rem' }}>🔭</span>
+      {/* Imagen portada */}
+      <div style={{ position: 'relative', height: '220px', overflow: 'hidden', flexShrink: 0 }}>
+        <img
+          src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80"
+          alt="Visión SSMAT"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(2,46,34,0.35) 0%, rgba(2,46,34,0.72) 100%)' }} />
+        <div style={{ position: 'absolute', bottom: '1.25rem', left: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', backgroundColor: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>🔭</div>
+          <h3 style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>Nuestra Visión</h3>
         </div>
       </div>
-      <div style={{ padding: '1.75rem 2rem 2rem' }}>
-        <h3 style={{ ...cardTitle, fontSize: '1.25rem', marginBottom: '1rem', color: 'var(--web-dark, #025E44)' }}>
-          Nuestra Visión
-        </h3>
+      <div style={{ padding: '1.5rem 1.75rem 2rem', flex: 1 }}>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
           &quot;Ser la empresa líder en soluciones de salud ocupacional y seguridad en el trabajo a nivel
           nacional, reconocida por nuestra excelencia en el servicio, innovación constante y compromiso
@@ -201,8 +179,15 @@ function VisionCard() {
 /* ── Valores ─────────────────────────────────────────────── */
 export function ValoresSection() {
   return (
-    <section style={{ backgroundColor: '#ffffff', padding: '5rem 1.5rem', borderTop: '1px solid hsl(214,20%,92%)' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+    <section style={{
+      padding: '5rem 1.5rem',
+      background: 'linear-gradient(135deg, var(--web-bg, #eef7f4) 0%, #e8f5f0 50%, #e4f2ed 100%)',
+      position: 'relative',
+      overflow: 'hidden',
+      borderTop: '1px solid hsl(214,20%,92%)',
+    }}>
+      <div aria-hidden style={{ position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb,37,146,127),0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <ScrollReveal>
           <div style={{ textAlign: 'center', maxWidth: '560px', margin: '0 auto 3.5rem' }}>
             <p style={{ ...eyebrow, display: 'block', textAlign: 'center' }}>Lo que nos define</p>
@@ -216,12 +201,13 @@ export function ValoresSection() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '1.5rem',
+            alignItems: 'stretch',
           }}
         >
           {valores.map((v, i) => (
-            <ScrollReveal key={i} delay={i * 0.06}>
+            <ScrollReveal key={i} delay={i * 0.06} className="h-full">
               <ValorCard v={v} />
             </ScrollReveal>
           ))}
@@ -241,6 +227,8 @@ function ValorCard({ v }: { v: typeof valores[number] }) {
         border: '1.5px solid hsl(214,20%,92%)',
         textAlign: 'center',
         cursor: 'default',
+        height: '100%',
+        boxSizing: 'border-box',
         transition: 'transform 0.3s, box-shadow 0.3s, border-color 0.3s, background-color 0.3s',
       }}
       onMouseEnter={e => {

@@ -30,13 +30,13 @@ const AVATAR_COLORS = [
 ]
 
 function useVisible() {
-  const [visible, setVisible] = useState(4)
+  const [visible, setVisible] = useState(3)
 
   useEffect(() => {
     const update = () => {
       const w = window.innerWidth
 
-      setVisible(w < 640 ? 1 : w < 900 ? 2 : w < 1200 ? 3 : 4)
+      setVisible(w < 640 ? 1 : w < 900 ? 2 : 3)
     }
 
     update()
@@ -67,11 +67,11 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
   if (total === 0) return null
 
   return (
-    <section style={{ backgroundColor: '#f8fafc', padding: '5rem 1.5rem', borderTop: '1px solid hsl(214,20%,92%)' }}>
+    <section style={{ backgroundColor: 'var(--web-bg, #eef7f4)', padding: '2.5rem 1.5rem', borderTop: '1px solid hsl(214,20%,92%)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <p style={{ ...eyebrow, display: 'block', textAlign: 'center' }}>
             Nuestro equipo docente
           </p>
@@ -89,7 +89,7 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: `repeat(${Math.min(visible, total)}, 1fr)`,
+              gridTemplateColumns: `repeat(${visible}, 1fr)`,
               gap: '1.25rem',
             }}
           >
@@ -130,8 +130,8 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                     el.style.borderColor = 'hsl(214,20%,91%)'
                   }}
                 >
-                  {/* Photo — cuadrado perfecto con padding-top hack */}
-                  <div style={{ position: 'relative', width: '100%', paddingTop: '100%', backgroundColor: `${color}14`, overflow: 'hidden' }}>
+                  {/* Photo */}
+                  <div style={{ position: 'relative', width: '100%', height: '160px', backgroundColor: `${color}14`, overflow: 'hidden' }}>
                     {teacher.avatar ? (
                       <Image
                         src={teacher.avatar}
@@ -151,19 +151,19 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                       >
                         <div
                           style={{
-                            width: '80px',
-                            height: '80px',
+                            width: '48px',
+                            height: '48px',
                             borderRadius: '50%',
                             backgroundColor: color,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontFamily: 'Poppins, sans-serif',
-                            fontSize: '1.75rem',
+                            fontSize: '1.1rem',
                             fontWeight: 800,
                             color: '#ffffff',
-                            border: '3px solid rgba(255,255,255,0.5)',
-                            boxShadow: `0 4px 20px ${color}44`,
+                            border: '2px solid rgba(255,255,255,0.5)',
+                            boxShadow: `0 4px 16px ${color}44`,
                           }}
                         >
                           {initials}
@@ -173,15 +173,15 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                   </div>
 
                   {/* Info */}
-                  <div style={{ padding: '1.25rem 1.25rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ padding: '0.875rem 1rem 1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <h3
                       style={{
                         fontFamily: 'Poppins, sans-serif',
-                        fontSize: '0.9375rem',
+                        fontSize: '0.8125rem',
                         fontWeight: 700,
                         color: '#0A0A0A',
                         lineHeight: 1.35,
-                        marginBottom: '0.375rem',
+                        marginBottom: '0.25rem',
                       }}
                     >
                       {teacher.nombre} {teacher.apellido}

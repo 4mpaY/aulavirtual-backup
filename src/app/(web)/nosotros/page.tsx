@@ -1,11 +1,7 @@
-import Link from 'next/link'
-
-import { ArrowRight } from 'lucide-react'
-
 import prisma from '@/utils/libs/prisma'
-import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
 import { MisionVisionSection, ValoresSection } from '@/features/web/nosotros/components/NosotrosInteractive'
+import PageHeader from '@/utils/components/layout/web/PageHeader'
 
 export const metadata = {
   title: 'Nosotros - SSMAT',
@@ -39,208 +35,54 @@ export default async function NosotrosPage() {
 
   return (
     <>
-      {/* ── 1. HERO SOBRE NOSOTROS ─────────────────────── */}
-      <section
-        style={{
-          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
-          padding: '6rem 1.5rem 5rem',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Grid pattern */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
-        {/* Glow */}
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.22) 0%, transparent 65%)', pointerEvents: 'none' }} />
+      <PageHeader
+        label="Quiénes Somos"
+        title="Por una empresa saludable, segura y productiva"
+        imageSrc="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1920&q=80"
+      />
 
-        <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '3.5rem',
-              alignItems: 'center',
-            }}
-          >
-            {/* Left: stats visual */}
-            <ScrollReveal direction="left">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {/* ── Descripción + Stats ─────────────────────────────── */}
+      <section style={{ backgroundColor: 'var(--web-bg, #eef7f4)', borderBottom: '1px solid hsl(214,20%,92%)', padding: '2.5rem 1.5rem' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '2rem' }}>
 
-                {/* Card principal */}
-                <div
-                  style={{
-                    borderRadius: '20px',
-                    background: 'rgba(255,255,255,0.07)',
-                    border: '1.5px solid rgba(255,255,255,0.12)',
-                    backdropFilter: 'blur(16px)',
-                    padding: '1.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                  }}
-                >
-                  <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg,var(--web-dark, #025E44),var(--web-primary, #25927F))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.75rem' }}>
-                    🏥
-                  </div>
-                  <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Salud ocupacional & SST</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>Servicios integrales</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>para empresas y trabajadores</div>
-                  </div>
-                </div>
-
-                {/* Stats 2×2 */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  {[
-                    { emoji: '🏢', value: '+500', label: 'Empresas atendidas' },
-                    { emoji: '👷', value: '+10K', label: 'Trabajadores evaluados' },
-                    { emoji: '🩺', value: '+15', label: 'Años de experiencia' },
-                    { emoji: '🏆', value: '98%', label: 'Tasa de satisfacción' },
-                  ].map((s, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        borderRadius: '16px',
-                        background: 'rgba(255,255,255,0.06)',
-                        border: '1.5px solid rgba(255,255,255,0.09)',
-                        backdropFilter: 'blur(12px)',
-                        padding: '1.125rem 1.25rem',
-                      }}
-                    >
-                      <span style={{ fontSize: '1.375rem' }}>{s.emoji}</span>
-                      <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1, marginTop: '0.5rem' }}>{s.value}</div>
-                      <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px', lineHeight: 1.3 }}>{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Certificado badge */}
-                <div
-                  style={{
-                    borderRadius: '16px',
-                    background: 'linear-gradient(135deg, rgba(var(--web-light-rgb, 189, 217, 98),0.12) 0%, rgba(var(--web-primary-rgb, 37, 146, 127),0.12) 100%)',
-                    border: '1.5px solid rgba(var(--web-light-rgb, 189, 217, 98),0.25)',
-                    padding: '1rem 1.25rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.875rem',
-                  }}
-                >
-                  <div style={{ fontSize: '1.75rem', flexShrink: 0 }}>📜</div>
-                  <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>ISO 9001 · ISO 45001 · ISO 14001</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '4px' }}>Cumplimiento normativo y homologaciones empresariales</div>
-                  </div>
-                </div>
-
-              </div>
-            </ScrollReveal>
-
-            {/* Right: text */}
-            <ScrollReveal direction="right" delay={0.1}>
-              <div>
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.12)',
-                    border: '1px solid rgba(var(--web-light-rgb, 189, 217, 98),0.25)',
-                    borderRadius: '999px',
-                    padding: '0.375rem 1rem',
-                    marginBottom: '1.5rem',
-                  }}
-                >
-                  <div style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: 'var(--web-light, #BDD962)', boxShadow: '0 0 6px var(--web-light, #BDD962)' }} />
-                  <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
-                    SSMAT — Salud, Seguridad y Medio Ambiente
-                  </span>
-                </div>
-
-                <h1
-                  style={{
-                    fontFamily: 'Poppins, sans-serif',
-                    fontSize: 'clamp(1.875rem, 4vw, 2.75rem)',
-                    fontWeight: 800,
-                    color: '#ffffff',
-                    letterSpacing: '-0.025em',
-                    lineHeight: 1.15,
-                    marginBottom: '1.25rem',
-                  }}
-                >
-                  Por una empresa{' '}
-                  <span style={{ color: 'var(--web-light, #BDD962)' }}>saludable, segura</span>{' '}
-                  y productiva
-                </h1>
-
-                <p
-                  style={{
-                    fontFamily: 'Poppins, sans-serif',
-                    fontSize: '1rem',
-                    color: 'rgba(255,255,255,0.65)',
-                    lineHeight: 1.75,
-                    maxWidth: '480px',
-                    marginBottom: '2.5rem',
-                  }}
-                >
-                  Somos SSMAT, especialistas en salud ocupacional, seguridad y medio ambiente.
-                  Brindamos servicios integrales con calidad, compromiso y responsabilidad,
-                  contribuyendo al bienestar de los trabajadores y al desarrollo sostenible de las empresas.
-                </p>
-
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                  <Link
-                    href="/contacto"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.875rem 1.75rem',
-                      borderRadius: '12px',
-                      backgroundColor: 'var(--web-light, #BDD962)',
-                      color: '#0A0A0A',
-                      fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 700,
-                      fontSize: '0.9375rem',
-                      textDecoration: 'none',
-                      boxShadow: '0 4px 20px rgba(var(--web-light-rgb, 189, 217, 98),0.35)',
-                    }}
-                  >
-                    Contactar <ArrowRight size={18} />
-                  </Link>
-                  <Link
-                    href="/cursos"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.875rem 1.75rem',
-                      borderRadius: '12px',
-                      backgroundColor: 'rgba(255,255,255,0.08)',
-                      color: '#ffffff',
-                      fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 600,
-                      fontSize: '0.9375rem',
-                      textDecoration: 'none',
-                      border: '1.5px solid rgba(255,255,255,0.18)',
-                      backdropFilter: 'blur(8px)',
-                    }}
-                  >
-                    Ver capacitaciones
-                  </Link>
-                </div>
-              </div>
-            </ScrollReveal>
+          {/* Descripción + CTA */}
+          <div style={{ maxWidth: '480px' }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: '#475569', lineHeight: 1.75, marginBottom: '1.25rem' }}>
+              Somos especialistas en salud ocupacional, seguridad y medio ambiente. Brindamos servicios integrales con calidad, compromiso y responsabilidad, contribuyendo al bienestar de los trabajadores y al desarrollo sostenible de las empresas.
+            </p>
+            <a
+              href="/contacto"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.625rem 1.25rem', borderRadius: '8px',
+                backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff',
+                fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '0.875rem',
+                textDecoration: 'none',
+              }}
+            >
+              Contáctanos →
+            </a>
           </div>
+
+          {/* Stats */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
+            {[
+              { emoji: '🏢', value: '+500', label: 'Empresas atendidas' },
+              { emoji: '👷', value: '+10K', label: 'Trabajadores evaluados' },
+              { emoji: '🩺', value: '+15', label: 'Años de experiencia' },
+              { emoji: '🏆', value: '98%', label: 'Satisfacción' },
+            ].map(s => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '1.25rem', marginBottom: '0.2rem' }}>{s.emoji}</div>
+                <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.5rem', fontWeight: 800, color: 'var(--web-dark, #025E44)', lineHeight: 1 }}>{s.value}</div>
+                <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#64748b', marginTop: '3px' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
         </div>
       </section>
+
 
       {/* ── 2. BANNER ISO ─────────────────────────────── */}
       {/* <section

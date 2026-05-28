@@ -88,6 +88,7 @@ export default withAuth(
           path.startsWith('/capacitacion') ||
           path.startsWith('/contacto') ||
           path.startsWith('/nosotros') ||
+          path.startsWith('/servicios') ||
           path.startsWith('/docentes') ||
           path.startsWith('/libro-de-reclamaciones') ||
           path.startsWith('/terminos-y-condiciones') ||

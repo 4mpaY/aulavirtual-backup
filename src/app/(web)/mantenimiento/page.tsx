@@ -5,6 +5,7 @@ import { CheckCircle2 } from 'lucide-react'
 
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import { getConfigs } from '@/utils/libs/config'
+import PageHeader from '@/utils/components/layout/web/PageHeader'
 
 export const metadata = {
   title: 'Mantenimiento - ARM',
@@ -52,34 +53,14 @@ export default async function MantenimientoPage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative pt-32 pb-24 lg:pb-36 overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="/assets/services/mantenimiento/mantenimiento-predictivo.jpg"
-            alt="Mantenimiento ARM"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-[#02115C]/88" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#02115C] via-[#02115C]/70 to-transparent" />
-        </div>
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ScrollReveal>
-            <span className="inline-block text-[#E2231A] text-[10px] font-display font-black uppercase tracking-[0.35em] mb-6 border border-[#E2231A]/50 px-4 py-2 rounded-sm">
-              Servicio ARM
-            </span>
-            <h1 className="text-5xl lg:text-7xl font-display font-black text-white mb-8 uppercase leading-[1.1] tracking-tighter">
-              Mantenimiento Predictivo e{' '}
-              <span className="text-[#E2231A]">Ingeniería de Confiabilidad</span>
-            </h1>
-            <p className="text-lg text-white/70 leading-relaxed max-w-3xl font-sans font-medium">
-              Ofrecemos soluciones avanzadas de mantenimiento predictivo y confiabilidad para maximizar la disponibilidad, reducir fallas y optimizar el ciclo de vida de los activos.
-            </p>
-          </ScrollReveal>
-        </div>
-      </section>
+      <PageHeader
+        label="Nuestros Servicios"
+        title="Mantenimiento e Ingeniería de Confiabilidad"
+        description="Soluciones avanzadas de mantenimiento predictivo y confiabilidad para maximizar la disponibilidad y optimizar el ciclo de vida de los activos."
+        ctaText="Solicitar servicio"
+        ctaHref="/contacto"
+        imageSrc="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1920&q=80"
+      />
 
       {/* Sections */}
       <section className="px-4 sm:px-6 lg:px-8 py-20 lg:py-32 bg-slate-50">

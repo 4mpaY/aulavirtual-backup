@@ -1,12 +1,11 @@
 import Link from 'next/link'
 
-import { ArrowRight, CheckCircle, Map } from 'lucide-react'
+import { ArrowRight, CheckCircle } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
 import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
-import RutasSection from '@/features/web/home/components/RutasSection'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
 import HeroVisual from '@/features/web/home/components/HeroVisual'
@@ -22,7 +21,7 @@ export const metadata = {
 
 async function getHomeData() {
   try {
-    const [coursesRaw, rutasRaw, teachersRaw, configs] = await Promise.all([
+    const [coursesRaw, teachersRaw, configs] = await Promise.all([
       // Cursos
       prisma.curso.findMany({
         where: { estado: 'PUBLICADO' },
@@ -33,18 +32,6 @@ async function getHomeData() {
         },
         orderBy: { creado_en: 'desc' },
         take: 6,
-      }),
-
-      // Rutas
-      prisma.rutaAprendizaje.findMany({
-        where: { esta_activo: true },
-        include: {
-          cursos: {
-            take: 4,
-            include: { curso: { select: { miniatura: true, titulo: true } } },
-          },
-        },
-        take: 3,
       }),
 
       // Profesores
@@ -74,12 +61,6 @@ async function getHomeData() {
       })
     )
 
-    const rutas = rutasRaw.map(r => ({
-      ...r,
-      total_cursos: r.cursos.length,
-      cursos: r.cursos.map(c => ({ miniatura: c.curso.miniatura, titulo: c.curso.titulo })),
-    }))
-
     const heroTitle = configs.HOME_HERO_TITLE || 'Por una empresa saludable,\nsegura y productiva'
     const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Brindamos servicios integrales de salud ocupacional, seguridad y medio ambiente. Exámenes médicos, vigilancia, SST, capacitación y más — para el bienestar de tus trabajadores.'
     let logos: { label: string; url: string }[] = []
@@ -88,7 +69,6 @@ async function getHomeData() {
 
     return {
       courses: JSON.parse(JSON.stringify(courses)),
-      rutas: JSON.parse(JSON.stringify(rutas)),
       teachers: JSON.parse(JSON.stringify(teachersRaw)),
       heroTitle,
       heroDescription,
@@ -96,7 +76,7 @@ async function getHomeData() {
     }
   } catch {
     return {
-      courses: [], rutas: [], teachers: [],
+      courses: [], teachers: [],
       heroTitle: 'Por una empresa saludable,\nsegura y productiva',
       heroDescription: 'Brindamos servicios integrales de salud ocupacional, seguridad y medio ambiente. Exámenes médicos, vigilancia, SST, capacitación y más — para el bienestar de tus trabajadores.',
       logos: [],
@@ -105,12 +85,13 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { courses, rutas, teachers, heroTitle, heroDescription, logos } = await getHomeData()
+  const { courses, teachers, heroTitle, heroDescription, logos } = await getHomeData()
 
   return (
     <>
       {/* ── 1. HERO ─────────────────────────────────── */}
       <section
+        className="web-hero"
         style={{
           background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
           position: 'relative',
@@ -129,7 +110,7 @@ export default async function HomePage() {
         {/* Glow derecho */}
         <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '5rem 1.5rem' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '2rem 1.5rem', width: '100%' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
 
             {/* ── Izquierda: texto ── */}
@@ -223,20 +204,12 @@ export default async function HomePage() {
       <ClientLogosMarquee logos={logos} />
 
       {/* ── 3. CURSOS DESTACADOS ────────────────────── */}
+      <div style={{ backgroundColor: 'var(--web-bg, #eef7f4)' }}>
       <section className="section-container">
         <ScrollReveal>
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="section-title">Cursos destacados</h2>
-              <p className="section-subtitle">Descubre nuestros cursos más recientes</p>
-            </div>
-            <Link
-              href="/cursos"
-              className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-            >
-              Ver todos <ArrowRight size={16} />
-            </Link>
+          <div className="text-center mb-8">
+            <h2 className="section-title">Cursos destacados</h2>
+            <p className="section-subtitle">Descubre nuestros cursos más recientes</p>
           </div>
         </ScrollReveal>
         <ScrollReveal delay={0.1}>
@@ -252,41 +225,11 @@ export default async function HomePage() {
           </div>
         </ScrollReveal>
       </section>
+      </div>
 
       {/* ── 4. CARACTERÍSTICAS DE CLASES ────────────── */}
       <ClassFeaturesSection />
 
-      {/* ── 5. RUTAS DE APRENDIZAJE ─────────────────── */}
-      {rutas.length > 0 && (
-        <section style={{ backgroundColor: 'hsl(210, 15%, 97%)', borderTop: '1px solid hsl(214, 20%, 92%)' }}>
-          <div className="section-container">
-            <ScrollReveal>
-              <div className="flex items-end justify-between mb-2">
-                <div>
-                  <div
-                    className="inline-flex items-center gap-2 mb-3"
-                    style={{ color: 'var(--web-primary, #25927F)', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
-                  >
-                    <Map size={14} /> Especialízate
-                  </div>
-                  <h2 className="section-title" style={{ marginBottom: '0.25rem' }}>Rutas de Aprendizaje</h2>
-                  <p className="section-subtitle">Colecciones curadas para llevarte de principiante a experto.</p>
-                </div>
-                <Link
-                  href="/rutas"
-                  className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-                >
-                  Ver todas <ArrowRight size={16} />
-                </Link>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={0.1}>
-              <RutasSection rutas={rutas} embedded />
-            </ScrollReveal>
-          </div>
-        </section>
-      )}
 
       {/* ── 6. PROFESORES ───────────────────────────── */}
       <ProfessorsCarousel teachers={teachers} />
@@ -301,7 +244,7 @@ export default async function HomePage() {
       <SearchCertificateSection />
 
       {/* ── 10. CTA INSCRIPCIÓN ─────────────────────── */}
-      <section className="bg-white py-16 text-center" style={{ borderTop: '1px solid hsl(214, 20%, 88%)' }}>
+      <section className="py-16 text-center" style={{ backgroundColor: 'var(--web-bg, #eef7f4)', borderTop: '1px solid hsl(214, 20%, 88%)' }}>
         <div className="max-w-3xl mx-auto px-4">
           <ScrollReveal>
             <div

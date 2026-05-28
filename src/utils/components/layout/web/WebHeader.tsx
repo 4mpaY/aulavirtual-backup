@@ -28,18 +28,17 @@ interface WebHeaderProps {
 }
 
 const SERVICES = [
-  { title: 'Salud Ocupacional', desc: 'Programas integrales de salud', icon: Stethoscope, href: '/contacto' },
-  { title: 'Exámenes Médicos', desc: 'Preocupacionales y periódicos', icon: ClipboardList, href: '/contacto' },
-  { title: 'Vigilancia Médica', desc: 'Seguimiento continuo de la salud', icon: Eye, href: '/contacto' },
-  { title: 'Seguridad y Salud (SST)', desc: 'Gestión de riesgos laborales', icon: Shield, href: '/contacto' },
-  { title: 'Capacitación', desc: 'Cursos y formación especializada', icon: BookOpen, href: '/cursos' },
-  { title: 'Monitoreo Ambiental', desc: 'Ocupacional y de medio ambiente', icon: Activity, href: '/contacto' },
-  { title: 'Homologaciones', desc: 'ISO 9001 · 45001 · 14001', icon: CheckSquare, href: '/contacto' },
-  { title: 'Gestión Documental', desc: 'Administración y cumplimiento', icon: FileText, href: '/contacto' },
+  { title: 'Salud Ocupacional', desc: 'Programas integrales de salud', icon: Stethoscope, href: '/servicios' },
+  { title: 'Exámenes Médicos', desc: 'Preocupacionales y periódicos', icon: ClipboardList, href: '/servicios' },
+  { title: 'Vigilancia Médica', desc: 'Seguimiento continuo de la salud', icon: Eye, href: '/servicios' },
+  { title: 'Seguridad y Salud (SST)', desc: 'Gestión de riesgos laborales', icon: Shield, href: '/servicios' },
+  { title: 'Capacitación', desc: 'Cursos y formación especializada', icon: BookOpen, href: '/servicios' },
+  { title: 'Monitoreo Ambiental', desc: 'Ocupacional y de medio ambiente', icon: Activity, href: '/servicios' },
+  { title: 'Homologaciones', desc: 'ISO 9001 · 45001 · 14001', icon: CheckSquare, href: '/servicios' },
+  { title: 'Gestión Documental', desc: 'Administración y cumplimiento', icon: FileText, href: '/servicios' },
 ]
 
 const NAV_LINKS = [
-  { title: 'Inicio', href: '/' },
   { title: 'Cursos', href: '/cursos' },
   { title: 'Empresas', href: '/empresas' },
   { title: 'Nosotros', href: '/nosotros' },
@@ -84,6 +83,27 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
 
       {/* Desktop Navigation */}
       <nav className="hidden md:flex items-center gap-1">
+        {/* Inicio */}
+        <Link
+          href="/"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontFamily: 'Poppins, sans-serif',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            color: isActive('/') ? 'var(--web-primary, #25927F)' : '#334155',
+            transition: 'color 0.15s',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--web-primary, #25927F)' }}
+          onMouseLeave={e => { if (!isActive('/')) (e.currentTarget as HTMLAnchorElement).style.color = '#334155' }}
+        >
+          Inicio
+        </Link>
+
         {/* Servicios dropdown */}
         <div ref={dropdownRef} style={{ position: 'relative' }}>
           <button

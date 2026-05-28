@@ -31,9 +31,40 @@
   --ipg-black: #0A0A0A;
   --ipg-muted: #f1f5f4;
 
+  --web-bg: #eef7f4;
   --navbar-height: 88px;
   --sidebar-width: 80px;
   --sidebar-width-expanded: 260px;
+}
+
+.web-layout {
+  background-color: var(--web-bg, #eef7f4);
+}
+
+/* Secciones bg-white dentro del layout web adoptan el fondo mint (excepto el header) */
+.web-layout section.bg-white {
+  background-color: var(--web-bg, #eef7f4) !important;
+}
+
+.web-hero {
+  height: calc(100vh - 88px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.page-header {
+  height: 300px;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    height: auto;
+    min-height: 200px;
+    padding: 3rem 1.5rem !important;
+  }
 }
 
 *,
