@@ -4,13 +4,10 @@ import { NextResponse } from 'next/server'
 
 import { verify } from 'jsonwebtoken'
 
-import { getAuthSession } from '@/utils/libs/auth-helpers'
-
-import prisma from '@/utils/libs/prisma'
-
 import { ApiResponse } from '@/utils/libs/apiResponse'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
-import { esAccesoCursoVigente } from '@/utils/functions/calcularFechaCaducidadCurso'
+import prisma from '@/utils/libs/prisma'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
@@ -104,7 +101,17 @@ export async function GET(request: Request, { params }: { params: { slug: string
         }
       })
 
-      if (!inscription || inscription.estado !== 'ACTIVO' || !esAccesoCursoVigente(inscription.acceso_hasta)) {
+      const vigenciaMeses = course.vigencia_meses ?? 0
+      let accesoVigente = true
+
+      if (vigenciaMeses > 0 && inscription) {
+        const accesHasta = new Date(inscription.inscrito_en)
+
+        accesHasta.setMonth(accesHasta.getMonth() + vigenciaMeses)
+        accesoVigente = accesHasta > new Date()
+      }
+
+      if (!inscription || inscription.estado !== 'ACTIVO' || !accesoVigente) {
         return NextResponse.json(
           {
             status: false,
@@ -193,8 +200,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
       inscripcion: inscription
         ? {
             estado_nota: inscription.estado_nota,
-            nota_final: inscription.nota_final,
-            acceso_hasta: inscription.acceso_hasta
+            nota_final: inscription.nota_final
           }
         : null
     }

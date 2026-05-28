@@ -2,12 +2,12 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 
+import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertificadoData'
+import { getConfigs } from '@/utils/libs/config'
+import { getGenerator } from '@/app/api/_shared/certificados/generators'
+import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
-import { handleApiError } from '@/utils/libs/validation'
-import { getConfigs } from '@/utils/libs/config'
-import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertificadoData'
-import { getGenerator } from '@/app/api/_shared/certificados/generators'
 
 /**
  * GET /api/estudiante/certificado/[certificadoId]/pdf
@@ -66,7 +66,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
             curso_id: certificado.curso_id
           }
         },
-        select: { completado_en: true, inscrito_en: true, nota_final: true, acceso_hasta: true }
+        select: { completado_en: true, inscrito_en: true, nota_final: true }
       }),
       prisma.usuario.findUnique({
         where: { id: certificado.usuario_id },

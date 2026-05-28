@@ -1,10 +1,9 @@
 export const dynamic = 'force-dynamic'
 
-import prisma from '@/utils/libs/prisma'
-
 import { ApiResponse } from '@/utils/libs/apiResponse'
-import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import prisma from '@/utils/libs/prisma'
+import { requireAuth } from '@/utils/libs/auth-helpers'
 
 /** Calcula el promedio ponderado de las evaluaciones del estudiante en un curso.
  *  Los exámenes sin intentar cuentan como 0. */
@@ -75,7 +74,7 @@ export async function GET(request: Request) {
       calcularElegibilidad(auth.user.id, cursoId),
       prisma.inscripcion.findUnique({
         where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } },
-        select: { certificado_habilitado: true, acceso_hasta: true }
+        select: { certificado_habilitado: true }
       }),
       prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true, titulo: true } })
     ])
@@ -226,7 +225,6 @@ export async function POST(request: Request) {
       fechas: {
         inicio_curso: cursoData.tipo_emision === 'SINCRONO' ? cursoData.fecha_inicio : inscripcion.inscrito_en,
         culminacion: inscripcion.completado_en || new Date(),
-        vigencia_hasta: inscripcion.acceso_hasta,
         emision: new Date()
       }
     }

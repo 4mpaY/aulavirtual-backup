@@ -1,8 +1,7 @@
-import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
-import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
-import { calcularFechaCaducidadCurso } from '@/utils/functions/calcularFechaCaducidadCurso'
+import prisma from '@/utils/libs/prisma'
+import { requireAuth } from '@/utils/libs/auth-helpers'
 
 /**
  * POST /api/estudiante/enroll
@@ -53,8 +52,7 @@ export async function POST(request: Request) {
         usuario_id: auth.user.id,
         curso_id: cursoId,
         estado: 'ACTIVO',
-        inscrito_en: fechaInscripcion,
-        acceso_hasta: calcularFechaCaducidadCurso(fechaInscripcion, curso.vigencia_meses)
+        inscrito_en: fechaInscripcion
       }
     })
 
