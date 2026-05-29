@@ -5,13 +5,14 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-import { GraduationCap, Video, Monitor, PlayCircle, BadgeCheck, Briefcase, ArrowRight } from 'lucide-react'
+import { GraduationCap, Video, Monitor, PlayCircle, BadgeCheck, Briefcase, ArrowRight, BookOpen, Clock, Tag } from 'lucide-react'
 
 export default function HomePage() {
   return (
     <main style={{ background: '#ffffff' }}>
       <Hero />
       <Benefits />
+      <CapacitacionesSection />
       <Stats />
       <section style={{ padding: '6rem 0', textAlign: 'center' }}>
         <div className="container-page">
@@ -200,6 +201,154 @@ function Benefits() {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  )
+}
+
+function CapacitacionesSection() {
+  const [courses, setCourses] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/web/catalogo')
+      .then(r => r.json())
+      .then(data => {
+        const list = (data?.result?.courses || data?.courses || [])
+          .filter((c: any) => c.tipo !== 'DIPLOMADO')
+          .slice(0, 3)
+
+        setCourses(list)
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  return (
+    <section style={{ padding: '7rem 0', background: '#ffffff' }}>
+      <div className="container-page">
+        {/* Header */}
+        <div data-animate="fade-up" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem', marginBottom: '3.5rem' }}>
+          <div>
+            <span className="eyebrow-agenda">Capacitaciones</span>
+            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', letterSpacing: '-0.03em', marginTop: '1rem', color: '#1A1A1A', lineHeight: 1.2 }}>
+              Programas diseñados para{' '}
+              <span style={{ color: 'var(--agenda-primary)' }}>tu crecimiento</span>
+            </h2>
+          </div>
+          <Link
+            href="/cursos"
+            className="btn-outline-agenda"
+            style={{ fontSize: '0.9rem', padding: '0.75rem 1.75rem', whiteSpace: 'nowrap' }}
+          >
+            Ver todas <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        {/* Cards */}
+        {loading ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ borderRadius: '2rem', background: '#f5f5f5', height: '360px', animation: 'pulse 1.5s infinite' }} />
+            ))}
+          </div>
+        ) : courses.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '4rem', color: '#999', fontFamily: 'Inter, sans-serif' }}>
+            <BookOpen size={48} style={{ marginBottom: '1rem', opacity: 0.3 }} />
+            <p>No hay capacitaciones disponibles por el momento.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }} className="stagger-container">
+            {courses.map((course: any) => (
+              <Link
+                key={course.id}
+                href={`/cursos/${course.slug}`}
+                style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', borderRadius: '2rem', overflow: 'hidden', background: '#ffffff', border: '1px solid #e5e5e5', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', transition: 'all 0.35s ease', color: 'inherit' }}
+                data-animate="zoom-in-sm"
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.transform = 'translateY(-6px)'
+                  el.style.boxShadow = '0 20px 40px rgba(0,111,101,0.12)'
+                  el.style.borderColor = 'var(--agenda-primary)'
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLElement
+                  el.style.transform = 'translateY(0)'
+                  el.style.boxShadow = '0 4px 20px rgba(0,0,0,0.04)'
+                  el.style.borderColor = '#e5e5e5'
+                }}
+              >
+                {/* Thumbnail */}
+                <div style={{ position: 'relative', height: '180px', background: 'var(--agenda-accent)', overflow: 'hidden', flexShrink: 0 }}>
+                  {course.miniatura ? (
+                    <Image src={course.miniatura} alt={course.titulo} fill style={{ objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <BookOpen size={48} style={{ color: 'var(--agenda-primary)', opacity: 0.4 }} />
+                    </div>
+                  )}
+                  {/* Categoría badge */}
+                  {course.categoria?.nombre && (
+                    <span style={{
+                      position: 'absolute', top: '1rem', left: '1rem',
+                      background: 'var(--agenda-primary)', color: '#fff',
+                      fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', fontWeight: 700,
+                      padding: '0.25rem 0.75rem', borderRadius: '9999px', letterSpacing: '0.05em',
+                    }}>
+                      {course.categoria.nombre}
+                    </span>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <h3 style={{
+                    fontFamily: 'Outfit, sans-serif', fontWeight: 900,
+                    fontSize: '1.1rem', color: '#1A1A1A', lineHeight: 1.3,
+                    marginBottom: '0.75rem',
+                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                  }}>
+                    {course.titulo}
+                  </h3>
+
+                  {/* Meta */}
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+                    {course.duracion && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: '#888' }}>
+                        <Clock size={13} /> {course.duracion}
+                      </span>
+                    )}
+                    {course.nivel && (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: '#888' }}>
+                        <Tag size={13} /> {course.nivel.charAt(0) + course.nivel.slice(1).toLowerCase()}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Price + CTA */}
+                  <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      {course.es_gratis ? (
+                        <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.25rem', color: 'var(--agenda-primary)' }}>Gratis</span>
+                      ) : (
+                        <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.25rem', color: '#1A1A1A' }}>
+                          S/ {Number(course.precio).toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                      background: 'var(--agenda-accent)', color: 'var(--agenda-primary-dark)',
+                      fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.8rem',
+                      padding: '0.5rem 1rem', borderRadius: '9999px',
+                    }}>
+                      Ver más <ArrowRight size={14} />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

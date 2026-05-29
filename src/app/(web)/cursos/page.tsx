@@ -37,8 +37,8 @@ async function getData(token: string | null) {
 }
 
 export const metadata = {
-  title: `${process.env.NEXT_PUBLIC_APP_NAME} | Cursos`,
-  description: 'Explora nuestra amplia variedad de cursos y comienza a aprender hoy mismo.'
+  title: `${process.env.NEXT_PUBLIC_APP_NAME} | Capacitaciones`,
+  description: 'Explora nuestra amplia variedad de capacitaciones y comienza a aprender hoy mismo.'
 }
 
 export default async function CursosPage() {
@@ -50,86 +50,22 @@ export default async function CursosPage() {
   return (
     <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
       {/* Banner */}
-      <Box
-        sx={{
-          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 100%)',
-          py: { xs: 5, md: 7 },
-          px: { xs: 3, md: 6 },
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Decorative circles */}
-        <Box sx={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', backgroundColor: 'rgba(var(--web-light-rgb, 189, 217, 98),0.06)', pointerEvents: 'none' }} />
-        <Box sx={{ position: 'absolute', bottom: -60, right: 80, width: 300, height: 300, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.03)', pointerEvents: 'none' }} />
-
-        <Box sx={{ maxWidth: 1280, mx: 'auto', position: 'relative', zIndex: 1 }}>
-          {/* Breadcrumb */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <Box
-              component="a"
-              href="/"
-              sx={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.55)', textDecoration: 'none', '&:hover': { color: 'var(--web-light, #BDD962)' }, transition: 'color 0.2s' }}
-            >
-              Inicio
-            </Box>
-            <Box component="span" sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>/</Box>
-            <Box component="span" sx={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
-              Cursos
-            </Box>
-          </Box>
-
-          <Box
-            sx={{
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: { xs: '1.75rem', md: '2.25rem' },
-              fontWeight: 800,
-              color: '#ffffff',
-              letterSpacing: '-0.02em',
-              mb: 1,
-              lineHeight: 1.2,
-            }}
-            component="h1"
-          >
-            Catálogo de Cursos
-          </Box>
-          <Box
-            sx={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.7)', maxWidth: 520, lineHeight: 1.6 }}
-            component="p"
-          >
-            Explora nuestra selección de cursos y comienza a aprender hoy.
-          </Box>
-
-          {/* Stats chips */}
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 3 }}>
-            {[
-              { label: `${courses.length} cursos disponibles`, icon: '📚' },
-              { label: `${categories.length} categorías`, icon: '🗂️' },
-            ].map(chip => (
-              <Box
-                key={chip.label}
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 0.75,
-                  px: 2,
-                  py: 0.75,
-                  borderRadius: '999px',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: '0.8125rem',
-                  color: '#ffffff',
-                  fontWeight: 500,
-                }}
-              >
-                <span>{chip.icon}</span>
-                {chip.label}
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      </Box>
+      <section style={{ background: 'linear-gradient(135deg, #012d22 0%, #025E44 50%, #0f4438 100%)', padding: '4rem 1.5rem', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+            <a href="/" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Inicio</a>
+            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>/</span>
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: '#BDD962', fontWeight: 600 }}>Capacitaciones</span>
+          </div>
+          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.2, marginBottom: '1rem' }}>
+            Catálogo de <span style={{ color: '#BDD962' }}>Capacitaciones</span>
+          </h1>
+          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.65)', maxWidth: '520px', lineHeight: 1.7 }}>
+            Explora nuestra selección de capacitaciones, desarrolla nuevas habilidades y potencia tu carrera profesional.
+          </p>
+        </div>
+      </section>
 
       <CourseCatalog courses={courses} categories={categories} />
     </Box>

@@ -110,7 +110,7 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
         <Stack spacing={5}>
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="h3" sx={{ fontWeight: 900, mb: 1.5, color: '#1e293b', letterSpacing: '-0.03em' }}>
-              Nuestros Cursos
+              Nuestras Capacitaciones
             </Typography>
             <Typography variant="h6" sx={{ color: '#475569', fontWeight: 500, maxWidth: 600, mx: 'auto' }}>
               Aprende de expertos y potencia tu carrera profesional con nuestra selección premium.
@@ -379,7 +379,7 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
             <Box>
               <Stack direction="row" spacing={1} sx={{ mb: 3, px: 1 }}>
                 <Chip
-                  label={`${filteredAndSortedCourses.length} cursos disponibles`}
+                  label={`${filteredAndSortedCourses.length} capacitaciones disponibles`}
                   size="small"
                   sx={{ bgcolor: 'white', fontWeight: 700, color: 'text.secondary', border: '1px solid #e2e8f0', px: 1 }}
                 />

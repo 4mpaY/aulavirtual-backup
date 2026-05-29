@@ -23,7 +23,26 @@ export default async function EmpleabilidadPage() {
   const WA = `https://wa.me/${waNumber}?text=Hola%2C%20quiero%20información%20sobre%20el%20bono%20de%20empleabilidad`
 
   return (
-    <main className="bg-circuit" style={{ paddingTop: '5rem', paddingBottom: '8rem' }}>
+    <main>
+      {/* Encabezado */}
+      <section style={{ background: 'linear-gradient(135deg, #012d22 0%, #025E44 50%, #0f4438 100%)', padding: '4rem 1.5rem', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+            <span style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem' }}>Inicio</span>
+            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>/</span>
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: '#BDD962', fontWeight: 600 }}>Empleabilidad</span>
+          </div>
+          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.2, marginBottom: '1rem' }}>
+            Bono de <span style={{ color: '#BDD962' }}>Empleabilidad</span>
+          </h1>
+          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.65)', maxWidth: '520px', lineHeight: 1.7 }}>
+            Potencia tu perfil profesional con LinkedIn, networking y estrategias de marca personal.
+          </p>
+        </div>
+      </section>
+
+      <div className="bg-circuit" style={{ paddingTop: '5rem', paddingBottom: '8rem' }}>
       <section className="container-page" style={{ position: 'relative' }}>
         <div style={{ marginBottom: '4rem' }}>
           <span className="eyebrow-agenda">Bono de Empleabilidad</span>
@@ -139,6 +158,7 @@ export default async function EmpleabilidadPage() {
           </div>
         </div>
       </section>
+      </div>
     </main>
   )
 }

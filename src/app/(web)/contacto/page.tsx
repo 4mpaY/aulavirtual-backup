@@ -24,14 +24,28 @@ export default async function ContactoPage() {
   const WA = `https://wa.me/${waNumber}?text=Hola%2C%20quiero%20información%20sobre%20las%20capacitaciones`
 
   return (
-    <main className="bg-circuit" style={{ paddingTop: '5rem', paddingBottom: '8rem' }}>
-      <section className="container-page">
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-          <span className="eyebrow-agenda">Contacto</span>
-          <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.03em', marginTop: '2rem', color: '#1A1A1A', lineHeight: 1.15 }}>
-            Estamos aquí para <span style={{ color: 'var(--agenda-primary)' }}>ayudarte</span>
+    <main>
+      {/* Encabezado */}
+      <section style={{ background: 'linear-gradient(135deg, #012d22 0%, #025E44 50%, #0f4438 100%)', padding: '4rem 1.5rem', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+            <span style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem' }}>Inicio</span>
+            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>/</span>
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: '#BDD962', fontWeight: 600 }}>Contacto</span>
+          </div>
+          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.2, marginBottom: '1rem' }}>
+            Estamos aquí para <span style={{ color: '#BDD962' }}>ayudarte</span>
           </h1>
+          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.65)', maxWidth: '520px', lineHeight: 1.7 }}>
+            Ponte en contacto con nosotros por WhatsApp, llamada o correo electrónico.
+          </p>
+        </div>
+      </section>
+
+      <div className="bg-circuit" style={{ paddingTop: '5rem', paddingBottom: '8rem' }}>
+      <section className="container-page">
+        <div style={{ marginBottom: '5rem' }}>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.1rem', color: '#666', lineHeight: 1.7, maxWidth: '600px', margin: '1.5rem auto 0' }}>
             ¿Tienes dudas sobre las capacitaciones, certificaciones o el proceso de matrícula? Elige el canal que prefieras.
           </p>
@@ -92,31 +106,32 @@ export default async function ContactoPage() {
 
         {/* Ubicación */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', alignItems: 'start' }}>
-          <div style={{ background: '#fafafa', borderRadius: '3rem', padding: '3rem', border: '1px solid #e5e5e5' }}>
-            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.5rem', color: '#1A1A1A', marginBottom: '2rem' }}>Nuestra Ubicación</h3>
+          {/* Panel izquierdo */}
+          <div style={{ background: 'linear-gradient(135deg, #012d22 0%, #025E44 100%)', borderRadius: '3rem', padding: '3rem', border: 'none', boxShadow: '0 8px 40px rgba(2,94,68,0.25)' }}>
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.5rem', color: '#ffffff', marginBottom: '2rem' }}>Nuestra Ubicación</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', gap: '1.25rem' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e5e5e5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary)', flexShrink: 0 }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDD962', flexShrink: 0 }}>
                   <MapPin size={20} />
                 </div>
                 <div>
-                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#1A1A1A' }}>Sede Central</p>
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: '#666', lineHeight: 1.6 }}>{address}</p>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>Sede Central</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>{address}</p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '1.25rem' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#ffffff', border: '1px solid #e5e5e5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary)', flexShrink: 0 }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDD962', flexShrink: 0 }}>
                   <Phone size={20} />
                 </div>
                 <div>
-                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#1A1A1A' }}>Teléfono</p>
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: '#666' }}>{phone}</p>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>Teléfono</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>{phone}</p>
                 </div>
               </div>
 
-              <div style={{ paddingTop: '1.5rem', borderTop: '1px solid #e5e5e5' }}>
-                <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: '#1A1A1A', marginBottom: '1rem' }}>Redes Oficiales</p>
+              <div style={{ paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: '#BDD962', marginBottom: '1rem' }}>Redes Oficiales</p>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   {[
                     { href: '#', icon: <Instagram size={20} />, label: 'Instagram' },
@@ -127,7 +142,7 @@ export default async function ContactoPage() {
                       key={s.label}
                       href={s.href}
                       aria-label={s.label}
-                      style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#ffffff', border: '1px solid #e5e5e5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555', textDecoration: 'none', transition: 'all 0.2s' }}
+                      style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', textDecoration: 'none', transition: 'all 0.2s' }}
                     >
                       {s.icon}
                     </a>
@@ -138,10 +153,10 @@ export default async function ContactoPage() {
           </div>
 
           {/* Mapa */}
-          <div style={{ borderRadius: '3rem', overflow: 'hidden', boxShadow: 'var(--agenda-shadow-premium)', border: '1px solid #e5e5e5', aspectRatio: '1 / 1', position: 'relative' }}>
+          <div style={{ borderRadius: '3rem', overflow: 'hidden', boxShadow: '0 8px 40px rgba(2,94,68,0.2)', border: '3px solid #025E44', aspectRatio: '1 / 1', position: 'relative' }}>
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.123456789!2d-76.971!3d-12.085!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDA1JzA2LjAiUyA3Niw1OCcxNS42Ilc!5e0!3m2!1ses!2spe!4v1234567890123"
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', filter: 'grayscale(1)' }}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
               allowFullScreen
               loading="lazy"
               title="Mapa de ubicación"
@@ -149,6 +164,7 @@ export default async function ContactoPage() {
           </div>
         </div>
       </section>
+      </div>
     </main>
   )
 }

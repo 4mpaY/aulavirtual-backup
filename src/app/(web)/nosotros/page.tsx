@@ -6,6 +6,30 @@ import { Linkedin, Mail, Globe, Award, Briefcase, GraduationCap, Sparkles } from
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
 
+const stripHtml = (html: string) =>
+  html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+function parseBioSections(html: string): { title: string; content: string }[] {
+  const sections: { title: string; content: string }[] = []
+  const parts = html.split(/<h[1-3][^>]*>/i)
+
+  for (const part of parts) {
+    const closeMatch = part.match(/^(.*?)<\/h[1-3]>([\s\S]*)/i)
+    if (closeMatch) {
+      const title = stripHtml(closeMatch[1])
+      const content = stripHtml(closeMatch[2])
+      if (content) sections.push({ title, content })
+    }
+  }
+
+  if (sections.length === 0) {
+    const text = stripHtml(html)
+    if (text) sections.push({ title: '', content: text })
+  }
+
+  return sections
+}
+
 export const metadata = {
   title: 'Nosotros — Dirección Académica',
   description: 'Conoce a nuestro equipo directivo, nuestra misión, visión y los valores que guían nuestra plataforma educativa.',
@@ -15,7 +39,7 @@ async function getTeachers() {
   try {
     return await prisma.usuario.findMany({
       where: { rol: 'PROFESOR' },
-      select: { id: true, nombre: true, apellido: true, slug: true, avatar: true, cargo: true },
+      select: { id: true, nombre: true, apellido: true, slug: true, avatar: true, cargo: true, biografia: true, _count: { select: { cursos_dictados: true } } },
       orderBy: { cursos_dictados: { _count: 'desc' } },
       take: 8,
     })
@@ -30,18 +54,42 @@ export default async function NosotrosPage() {
 
   return (
     <main>
+      {/* Encabezado */}
+      <section style={{
+        background: 'linear-gradient(135deg, #012d22 0%, #025E44 50%, #0f4438 100%)',
+        padding: '4rem 1.5rem',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        <div style={{ maxWidth: '1280px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+            <span style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem' }}>Inicio</span>
+            <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>/</span>
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: '#BDD962', fontWeight: 600 }}>Nosotros</span>
+          </div>
+          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.025em', lineHeight: 1.2, marginBottom: '1rem' }}>
+            Conoce quiénes <span style={{ color: '#BDD962' }}>somos</span>
+          </h1>
+          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.65)', maxWidth: '520px', lineHeight: 1.7 }}>
+            Más de 10 años formando profesionales con excelencia, innovación y compromiso con el desarrollo del país.
+          </p>
+        </div>
+      </section>
+
       {/* Hero: Dirección */}
-      <section className="bg-circuit" style={{ paddingTop: '6rem', paddingBottom: '5rem', background: '#fafafa' }}>
+      <section className="bg-circuit" style={{ paddingTop: '3rem', paddingBottom: '3rem', background: '#fafafa' }}>
         <div className="container-page">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', alignItems: 'center' }}>
-            <div data-animate="fade-right" style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: '-1.5rem', background: 'rgba(0,111,101,0.15)', borderRadius: '3rem', filter: 'blur(40px)', animation: 'agenda-float 4s ease-in-out infinite', zIndex: -1 }} />
-              <div style={{ borderRadius: '3rem', overflow: 'hidden', boxShadow: 'var(--agenda-shadow-premium)', border: '4px solid #ffffff', aspectRatio: '4/5', position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '3rem', alignItems: 'center' }}>
+            <div data-animate="fade-right" style={{ position: 'relative', maxWidth: '300px', margin: '0 auto' }}>
+              <div style={{ position: 'absolute', inset: '-1rem', background: 'rgba(0,111,101,0.15)', borderRadius: '2rem', filter: 'blur(30px)', zIndex: -1 }} />
+              <div style={{ borderRadius: '2rem', overflow: 'hidden', boxShadow: 'var(--agenda-shadow-premium)', border: '4px solid #ffffff' }}>
                 <Image
                   src="/images/agenda/roberto.jpg"
                   alt="Dirección Académica"
-                  fill
-                  style={{ objectFit: 'cover' }}
+                  width={300}
+                  height={400}
+                  style={{ objectFit: 'cover', width: '100%', height: 'auto', display: 'block' }}
                 />
               </div>
             </div>
@@ -140,34 +188,74 @@ export default async function NosotrosPage() {
       {teachers.length > 0 && (
         <section style={{ padding: '5rem 0', background: '#fafafa', borderTop: '1px solid #e5e5e5' }}>
           <div className="container-page">
-            <div data-animate="fade-up" style={{ marginBottom: '3rem', textAlign: 'center' }}>
-              <span className="eyebrow-agenda">Nuestros Docentes</span>
-              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(1.5rem, 3vw, 2rem)', letterSpacing: '-0.03em', marginTop: '1rem', color: '#1A1A1A' }}>
-                Equipo de Instructores
+            <div data-animate="fade-up" style={{ marginBottom: '3rem' }}>
+              <span className="eyebrow-agenda">Nuestro Equipo</span>
+              <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', letterSpacing: '-0.03em', marginTop: '1rem', color: '#1A1A1A' }}>
+                Equipo de <span style={{ color: 'var(--agenda-primary)' }}>Docentes</span>
               </h2>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1.5rem' }} className="stagger-container">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.75rem' }} className="stagger-container">
               {teachers.map((t) => (
-                <Link
+                <div
                   key={t.id}
-                  href={`/docentes/${t.slug || t.id}`}
                   data-animate="zoom-in-sm"
-                  style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '2rem 1rem', borderRadius: '2rem', background: '#ffffff', border: '1px solid #e5e5e5', transition: 'all 0.3s', gap: '1rem' }}
+                  style={{ display: 'flex', flexDirection: 'column', borderRadius: '2rem', background: '#ffffff', border: '1px solid #e5e5e5', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}
                 >
-                  <div style={{ width: '72px', height: '72px', borderRadius: '50%', overflow: 'hidden', background: 'var(--agenda-accent)', position: 'relative' }}>
-                    {t.avatar ? (
-                      <Image src={t.avatar} alt={`${t.nombre} ${t.apellido}`} fill style={{ objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--agenda-primary)', fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.5rem' }}>
-                        {t.nombre[0]}
+                  {/* Header con avatar */}
+                  <div style={{ background: 'linear-gradient(135deg, #012d22 0%, #025E44 100%)', padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                    <div style={{ width: '72px', height: '72px', borderRadius: '50%', overflow: 'hidden', background: 'rgba(255,255,255,0.15)', border: '3px solid rgba(255,255,255,0.3)', flexShrink: 0, position: 'relative' }}>
+                      {t.avatar ? (
+                        <Image src={t.avatar} alt={`${t.nombre} ${t.apellido}`} fill style={{ objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDD962', fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.75rem' }}>
+                          {t.nombre[0]}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1rem', color: '#ffffff', lineHeight: 1.2 }}>{t.nombre} {t.apellido}</p>
+                      {t.cargo && (
+                        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: '#BDD962', marginTop: '0.375rem', fontWeight: 500 }}>{t.cargo}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Cuerpo */}
+                  <div style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', flex: 1, gap: '0.75rem' }}>
+
+                    {/* Stat: capacitaciones */}
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,111,101,0.07)', borderRadius: '999px', padding: '0.3rem 0.85rem', alignSelf: 'flex-start' }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--agenda-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                      <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.78rem', fontWeight: 700, color: 'var(--agenda-primary)' }}>
+                        {t._count.cursos_dictados} {t._count.cursos_dictados === 1 ? 'capacitación' : 'capacitaciones'}
+                      </span>
+                    </div>
+
+                    {/* Secciones de la biografía */}
+                    {t.biografia && parseBioSections(t.biografia).map((sec, i) => (
+                      <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        {sec.title && (
+                          <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', fontWeight: 700, color: '#025E44', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
+                            {sec.title}
+                          </p>
+                        )}
+                        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', color: '#555', lineHeight: 1.6, margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {sec.content}
+                        </p>
                       </div>
-                    )}
+                    ))}
+
+                    {/* Link */}
+                    <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #f0f0f0' }}>
+                      <Link
+                        href={`/docentes/${t.slug || t.id}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.83rem', color: 'var(--agenda-primary)', textDecoration: 'none' }}
+                      >
+                        Ver perfil completo →
+                      </Link>
+                    </div>
                   </div>
-                  <div>
-                    <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#1A1A1A' }}>{t.nombre} {t.apellido}</p>
-                    {t.cargo && <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: '#888', marginTop: '0.25rem' }}>{t.cargo}</p>}
-                  </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
