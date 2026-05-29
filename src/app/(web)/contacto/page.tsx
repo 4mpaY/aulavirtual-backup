@@ -43,13 +43,8 @@ export default async function ContactoPage() {
         </div>
       </section>
 
-      <div className="bg-circuit" style={{ paddingTop: '5rem', paddingBottom: '8rem' }}>
+      <div className="bg-circuit" style={{ paddingTop: '2.5rem', paddingBottom: '5rem' }}>
       <section className="container-page">
-        <div style={{ marginBottom: '5rem' }}>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '1.1rem', color: '#666', lineHeight: 1.7, maxWidth: '600px', margin: '1.5rem auto 0' }}>
-            ¿Tienes dudas sobre las capacitaciones, certificaciones o el proceso de matrícula? Elige el canal que prefieras.
-          </p>
-        </div>
 
         {/* Cards de contacto */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem', marginBottom: '5rem' }}>
