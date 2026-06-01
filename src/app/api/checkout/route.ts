@@ -358,11 +358,11 @@ export async function POST(request: Request) {
         return ApiResponse.error(request, 'La pasarela Mercado Pago no está configurada', 500)
       }
 
-      const appUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '')
-
-      if (!appUrl) {
-        return ApiResponse.error(request, 'NEXT_PUBLIC_APP_URL no está configurado', 500)
-      }
+      const appUrl = (
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.APP_URL ||
+        new URL(request.url).origin
+      ).replace(/\/$/, '')
 
       const preference: Record<string, any> = {
         external_reference: pedido.id,
@@ -400,6 +400,9 @@ export async function POST(request: Request) {
       }
 
       const mpData = await mpResponse.json()
+
+      console.log('[MP_CHECKOUT] init_point:', mpData.init_point)
+      console.log('[MP_CHECKOUT] sandbox_init_point:', mpData.sandbox_init_point)
 
       await prisma.pedido.update({
         where: { id: pedido.id },
