@@ -108,6 +108,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
       setRecursos([])
       setContenido('')
     }
+
     setErrors({})
   }, [lessonData])
 
@@ -133,12 +134,14 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
 
       if (!fechaProgramada) newErrors.fechaProgramada = 'La fecha de inicio es obligatoria para clases en vivo'
       if (!fechaFin) newErrors.fechaFin = 'La fecha de fin es obligatoria para clases en vivo'
+
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors)
 
         return
       }
     }
+
     setErrors({})
     onSave({
       titulo: title,
