@@ -35,6 +35,7 @@ model Usuario {
   progreso_cursos    ProgresoCurso[]
   progreso_lecciones ProgresoLeccion[]
   valoraciones       ValoracionCurso[]
+  suscripciones      Suscripcion[]
 
   @@index([rol])
   @@map("usuarios")
@@ -116,6 +117,7 @@ model Curso {
   progreso             ProgresoCurso[]
   cupones              CuponCurso[]
   valoraciones         ValoracionCurso[]
+  planes               CursoEnPlan[]
 
   @@index([profesor_id])
   @@index([categoria_id])
@@ -715,4 +717,104 @@ enum EstadoNota {
   APROBADO
   DESAPROBADO
   EN_PROGRESO
+}
+
+enum IntervaloSuscripcion {
+  MENSUAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+}
+
+enum EstadoSuscripcion {
+  ACTIVA
+  CANCELADA
+  VENCIDA
+  PENDIENTE
+  EN_PRUEBA
+}
+
+enum EstadoPagoSuscripcion {
+  PENDIENTE
+  COMPLETADO
+  FALLIDO
+  REEMBOLSADO
+}
+
+model PlanSuscripcion {
+  id                   String               @id @default(uuid())
+  nombre               String
+  descripcion          String?
+  precio               Decimal              @db.Decimal(10, 2)
+  moneda               String               @default("PEN")
+  intervalo            IntervaloSuscripcion
+  culqi_interval_unit  Int                  @default(1)
+  culqi_interval_count Int                  @default(1)
+  dias_prueba          Int                  @default(0)
+  esta_activo          Boolean              @default(true)
+  culqi_plan_id        String?              @unique
+  culqi_short_name     String?              @unique
+  creado_en            DateTime             @default(now())
+  actualizado_en       DateTime             @updatedAt
+  cursos               CursoEnPlan[]
+  suscripciones        Suscripcion[]
+
+  @@index([esta_activo])
+  @@map("planes_suscripcion")
+}
+
+model CursoEnPlan {
+  plan_id  String
+  curso_id String
+  plan     PlanSuscripcion @relation(fields: [plan_id], references: [id], onDelete: Cascade)
+  curso    Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  @@id([plan_id, curso_id])
+  @@index([plan_id])
+  @@index([curso_id])
+  @@map("cursos_en_plan")
+}
+
+model Suscripcion {
+  id                   String            @id @default(uuid())
+  usuario_id           String
+  plan_id              String
+  estado               EstadoSuscripcion @default(PENDIENTE)
+  culqi_suscripcion_id String?           @unique
+  culqi_customer_id    String?
+  culqi_card_id        String?
+  fecha_inicio         DateTime?
+  fecha_fin            DateTime?
+  fecha_proximo_cobro  DateTime?
+  fecha_cancelacion    DateTime?
+  cancelado_por_usuario Boolean          @default(false)
+  creado_en            DateTime          @default(now())
+  actualizado_en       DateTime          @updatedAt
+  usuario              Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  plan                 PlanSuscripcion   @relation(fields: [plan_id], references: [id])
+  pagos                PagoSuscripcion[]
+
+  @@index([usuario_id])
+  @@index([plan_id])
+  @@index([estado])
+  @@map("suscripciones")
+}
+
+model PagoSuscripcion {
+  id             String                @id @default(uuid())
+  suscripcion_id String
+  monto          Decimal               @db.Decimal(10, 2)
+  moneda         String                @default("PEN")
+  estado         EstadoPagoSuscripcion @default(PENDIENTE)
+  culqi_cargo_id String?               @unique
+  periodo_inicio DateTime?
+  periodo_fin    DateTime?
+  intentos       Int                   @default(0)
+  creado_en      DateTime              @default(now())
+  actualizado_en DateTime              @updatedAt
+  suscripcion    Suscripcion           @relation(fields: [suscripcion_id], references: [id], onDelete: Cascade)
+
+  @@index([suscripcion_id])
+  @@index([estado])
+  @@map("pagos_suscripcion")
 }

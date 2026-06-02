@@ -8,6 +8,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
+import { puedeAccederCurso } from '@/utils/libs/subscription-access'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
@@ -92,40 +93,25 @@ export async function GET(request: Request, { params }: { params: { slug: string
     let inscription = null
 
     if (!isAdmin && !isCourseProfessor) {
-      inscription = await prisma.inscripcion.findUnique({
-        where: {
-          usuario_id_curso_id: {
-            usuario_id: user.id,
-            curso_id: course.id
-          }
-        }
-      })
+      const { acceso } = await puedeAccederCurso(user.id, course.id, user.rol, course.profesor_id)
 
-      const vigenciaMeses = course.vigencia_meses ?? 0
-      let accesoVigente = true
-
-      if (vigenciaMeses > 0 && inscription) {
-        const accesHasta = new Date(inscription.inscrito_en)
-
-        accesHasta.setMonth(accesHasta.getMonth() + vigenciaMeses)
-        accesoVigente = accesHasta > new Date()
-      }
-
-      if (!inscription || inscription.estado !== 'ACTIVO' || !accesoVigente) {
+      if (!acceso) {
         return NextResponse.json(
           {
             status: false,
             code: 'UNCISCRIBED',
-            message:
-              !inscription || inscription.estado !== 'ACTIVO'
-                ? 'Usuario no matriculado'
-                : 'Tu acceso a este curso ha caducado',
+            message: 'No tienes acceso a este curso',
             statusCode: 403,
             timestamp: new Date().toISOString()
           },
           { status: 403 }
         )
       }
+
+      // Cargar inscripción para el resto de la lógica (progreso, etc.)
+      inscription = await prisma.inscripcion.findUnique({
+        where: { usuario_id_curso_id: { usuario_id: user.id, curso_id: course.id } }
+      })
     }
 
     // Obtener intentos del usuario para todos los exámenes del curso (una sola query)

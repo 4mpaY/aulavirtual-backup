@@ -37,10 +37,10 @@ export async function GET(request: Request) {
       }
     })
 
-    const courses = inscriptions.map(ins => {
-      const ahora = new Date()
-      const vigenciaMeses = ins.curso.vigencia_meses ?? 0
+    const ahora = new Date()
 
+    const cursosInscritos = inscriptions.map(ins => {
+      const vigenciaMeses = ins.curso.vigencia_meses ?? 0
       let tieneAcceso = true
 
       if (vigenciaMeses > 0) {
@@ -58,9 +58,52 @@ export async function GET(request: Request) {
         profesor: ins.curso.profesor,
         categoria: ins.curso.categoria?.nombre,
         progreso: ins.curso.progreso[0]?.porcentaje_progreso || 0,
-        tieneAcceso
+        tieneAcceso,
+        origen: 'COMPRA' as const
       }
     })
+
+    // Incluir cursos de suscripción activa
+    const suscripcionActiva = await prisma.suscripcion.findFirst({
+      where: {
+        usuario_id: user.id,
+        estado: { in: ['ACTIVA', 'EN_PRUEBA'] }
+      },
+      include: {
+        plan: {
+          include: {
+            cursos: {
+              include: {
+                curso: {
+                  include: {
+                    profesor: { select: { nombre: true, apellido: true } },
+                    categoria: { select: { nombre: true } },
+                    progreso: { where: { usuario_id: user.id } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+
+    const cursosSuscripcion = suscripcionActiva?.plan.cursos.map(cp => ({
+      id: cp.curso.id,
+      titulo: cp.curso.titulo,
+      slug: cp.curso.slug,
+      miniatura: cp.curso.miniatura ?? undefined,
+      profesor: cp.curso.profesor,
+      categoria: cp.curso.categoria?.nombre,
+      progreso: cp.curso.progreso[0]?.porcentaje_progreso || 0,
+      tieneAcceso: true,
+      origen: 'SUSCRIPCION' as const
+    })) ?? []
+
+    // Combinar y deduplicar por id (compra tiene prioridad sobre suscripción)
+    const idsInscritos = new Set(cursosInscritos.map(c => c.id))
+    const cursosSoloSub = cursosSuscripcion.filter(c => !idsInscritos.has(c.id))
+    const courses = [...cursosInscritos, ...cursosSoloSub]
 
     return ApiResponse.success(request, { courses })
   } catch (error) {
