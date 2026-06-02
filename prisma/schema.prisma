@@ -173,6 +173,10 @@ model Curso {
   fecha_fin            DateTime?
   vigencia_meses       Int?
   precio_oferta        Decimal?          @db.Decimal(10, 2)
+  precio_falso       Decimal?        @db.Decimal(10, 2)
+  tipo               TipoCurso       @default(CURSO)
+  vigencia_meses     Int?
+  completar_automatico Boolean       @default(false)
   brochure             String?
   orden                Int               @default(0)
   certificados         Certificado[]
@@ -935,5 +939,43 @@ model EntregaTrabajo {
   @@index([trabajo_id])
   @@index([usuario_id])
   @@map("entregas_trabajo")
+}
+
+
+enum TipoCurso {
+  CURSO
+  DIPLOMADO
+}
+
+enum EstadoSimulacro {
+  BORRADOR
+  PUBLICADO
+  ARCHIVADO
+}
+
+enum NivelSimulacro {
+  BASICO
+  INTERMEDIO
+  AVANZADO
+}
+
+model Simulacro {
+  id               String           @id @default(uuid())
+  titulo           String
+  slug             String           @unique
+  descripcion      String?
+  miniatura        String?
+  estado           EstadoSimulacro  @default(BORRADOR)
+  nivel            NivelSimulacro   @default(BASICO)
+  duracion         String?
+  numero_preguntas Int              @default(0)
+  area_tematica    String?
+  es_gratis        Boolean          @default(false)
+  precio           Decimal          @default(0) @db.Decimal(10, 2)
+  moneda           String           @default("PEN")
+  creado_en        DateTime         @default(now())
+  actualizado_en   DateTime         @updatedAt
+
+  @@index([estado])
 }
 
