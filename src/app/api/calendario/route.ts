@@ -18,15 +18,6 @@ export async function GET(request: Request) {
 
     if (!auth.authorized) return auth.error
 
-    const { searchParams } = new URL(request.url)
-    const ahora = new Date()
-    const desde = searchParams.get('desde')
-      ? new Date(searchParams.get('desde')!)
-      : new Date(ahora.getFullYear(), ahora.getMonth() - 1, 1)
-    const hasta = searchParams.get('hasta')
-      ? new Date(searchParams.get('hasta')!)
-      : new Date(ahora.getFullYear(), ahora.getMonth() + 4, 0)
-
     const userId = auth.user.id
     const rol = auth.user.rol
     const eventos: any[] = []
@@ -41,11 +32,13 @@ export async function GET(request: Request) {
 
       cursoIds = inscripciones.map(i => i.curso_id)
     } else {
-      const whereClause = rol === 'ADMIN' ? {} : { profesor_id: userId }
-      const cursos = await prisma.curso.findMany({
-        where: whereClause,
-        select: { id: true }
-      })
+      
+    const whereClause = rol === 'ADMIN' ? {} : { profesor_id: userId }
+    
+    const cursos = await prisma.curso.findMany({
+      where: whereClause,
+      select: { id: true }
+    })
 
       cursoIds = cursos.map(c => c.id)
     }
@@ -87,6 +80,8 @@ export async function GET(request: Request) {
       where: { curso_id: { in: cursoIds } },
       select: { id: true }
     })
+    
+
     const moduloIds = modulos.map(m => m.id)
 
     if (moduloIds.length > 0) {
