@@ -111,6 +111,7 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
   }
 
   const isPending = createPlan.isPending || updatePlan.isPending
+  const isEditing = !!planToEdit
 
   return (
     <AppModal open={open} handleClose={handleClose}>
@@ -150,6 +151,8 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
               value={formData.precio}
               onChange={e => setFormData({ ...formData, precio: e.target.value })}
               required
+              disabled={isEditing}
+              helperText={isEditing ? 'El precio no se puede modificar en Culqi' : undefined}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -159,6 +162,7 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
               label='Moneda'
               value={formData.moneda}
               onChange={e => setFormData({ ...formData, moneda: e.target.value })}
+              disabled={isEditing}
             >
               <MenuItem value='PEN'>PEN (Soles)</MenuItem>
               <MenuItem value='USD'>USD (Dólares)</MenuItem>
@@ -172,6 +176,8 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
               value={formData.intervalo}
               onChange={e => setFormData({ ...formData, intervalo: e.target.value as IntervaloSuscripcion })}
               required
+              disabled={isEditing}
+              helperText={isEditing ? 'El intervalo no se puede modificar en Culqi' : undefined}
             >
               {INTERVALOS.map(i => (
                 <MenuItem key={i.value} value={i.value}>{i.label}</MenuItem>

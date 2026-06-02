@@ -4,7 +4,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
-import { culqiSuscripcion } from '@/utils/libs/culqi-suscripcion'
+import { culqiSuscripcion, mapearEstadoCulqi } from '@/utils/libs/culqi-suscripcion'
 
 /**
  * GET /api/estudiante/suscripciones
@@ -104,14 +104,23 @@ export async function POST(request: Request) {
     })
 
     // Paso 3: Crear suscripción recurrente en Culqi
-    const culqiSub = await culqiSuscripcion.crearSuscripcion({
+    // La respuesta de create solo devuelve { id, customer_id, plan_id, status, created_at }
+    const culqiSubCreada = await culqiSuscripcion.crearSuscripcion({
       card_id: tarjeta.id,
       plan_id: plan.culqi_plan_id,
       tyc: true,
       metadata: { usuario_id: auth.user.id, plan_id: planId }
     })
 
-    // Guardar en DB
+    // Paso 4: Consultar suscripción para obtener next_billing_date y status completo
+    let culqiSub = culqiSubCreada
+    try {
+      culqiSub = await culqiSuscripcion.consultarSuscripcion(culqiSubCreada.id)
+    } catch {
+      // Si falla el GET, usamos la respuesta del create
+    }
+
+    const estadoInicial = mapearEstadoCulqi(culqiSub.status ?? culqiSubCreada.status ?? 1)
     const fechaProximoCobro = culqiSub.next_billing_date
       ? new Date(culqiSub.next_billing_date * 1000)
       : null
@@ -121,8 +130,8 @@ export async function POST(request: Request) {
         data: {
           usuario_id: auth.user.id,
           plan_id: planId,
-          estado: 'ACTIVA',
-          culqi_suscripcion_id: culqiSub.id,
+          estado: estadoInicial,
+          culqi_suscripcion_id: culqiSubCreada.id,
           culqi_customer_id: cliente.id,
           culqi_card_id: tarjeta.id,
           fecha_inicio: new Date(),
@@ -137,13 +146,13 @@ export async function POST(request: Request) {
         }
       })
 
-      // Registrar el primer pago
+      // Registrar el primer período (estado según Culqi)
       await tx.pagoSuscripcion.create({
         data: {
           suscripcion_id: sub.id,
           monto: plan.precio,
           moneda: plan.moneda,
-          estado: 'COMPLETADO',
+          estado: estadoInicial === 'ACTIVA' ? 'COMPLETADO' : 'PENDIENTE',
           periodo_inicio: new Date(),
           periodo_fin: fechaProximoCobro
         }

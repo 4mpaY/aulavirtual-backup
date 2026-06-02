@@ -83,17 +83,20 @@ export async function POST(request: Request) {
     // Sincronizar con Culqi: crear el plan recurrente
     try {
       const shortName = `plan-${plan.id.slice(0, 8)}`
-      const culqiPlan = await culqiSuscripcion.crearPlan({
+      const culqiPayload = {
         name: plan.nombre,
         short_name: shortName,
-        description: plan.descripcion ?? undefined,
+        description: plan.descripcion || plan.nombre, // description es requerida en Culqi (mín 5 chars)
         amount: Math.round(Number(plan.precio) * 100),
         currency: plan.moneda,
         interval_unit_time: plan.culqi_interval_unit,
         interval_count: plan.culqi_interval_count,
         initial_cycles: { count: 0, amount: 0, has_initial_charge: false, interval_unit_time: plan.culqi_interval_unit },
-        metadata: { plan_id: plan.id }
-      })
+        metadata: {}
+      }
+
+      console.log('[Culqi] Payload plan:', JSON.stringify(culqiPayload))
+      const culqiPlan = await culqiSuscripcion.crearPlan(culqiPayload)
 
       await prisma.planSuscripcion.update({
         where: { id: plan.id },

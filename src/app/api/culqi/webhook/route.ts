@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 
 import { culqi } from '@/lib/culqi'
 import prisma from '@/utils/libs/prisma'
+import { mapearEstadoCulqi } from '@/utils/libs/culqi-suscripcion'
 
 export async function POST(req: Request) {
   try {
@@ -16,9 +17,11 @@ export async function POST(req: Request) {
     const tipo: string = event?.type ?? ''
     const objeto = event?.data?.object ?? {}
 
+    console.log('[CULQI_WEBHOOK] Evento recibido:', tipo)
+
+    // Renovación exitosa: cargo generado por la suscripción
     if (tipo === 'charge.creation.succeeded') {
-      // Renovación pagada: buscar suscripción por culqi_suscripcion_id en metadata
-      const suscripcionCulqiId = objeto?.subscription_id ?? objeto?.metadata?.subscription_id
+      const suscripcionCulqiId = objeto?.subscription_id
 
       if (suscripcionCulqiId) {
         const suscripcion = await prisma.suscripcion.findFirst({
@@ -27,7 +30,7 @@ export async function POST(req: Request) {
 
         if (suscripcion) {
           const periodoFin = objeto?.next_billing_date
-            ? new Date(objeto.next_billing_date * 1000)
+            ? new Date(Number(objeto.next_billing_date) * 1000)
             : null
 
           await prisma.$transaction([
@@ -35,7 +38,7 @@ export async function POST(req: Request) {
               data: {
                 suscripcion_id: suscripcion.id,
                 monto: (objeto.amount ?? 0) / 100,
-                moneda: objeto.currency_code ?? suscripcion.id,
+                moneda: objeto.currency_code ?? 'PEN',
                 estado: 'COMPLETADO',
                 culqi_cargo_id: objeto.id ?? null,
                 periodo_inicio: new Date(),
@@ -51,8 +54,9 @@ export async function POST(req: Request) {
       }
     }
 
+    // Cargo fallido en renovación
     if (tipo === 'charge.creation.failed') {
-      const suscripcionCulqiId = objeto?.subscription_id ?? objeto?.metadata?.subscription_id
+      const suscripcionCulqiId = objeto?.subscription_id
 
       if (suscripcionCulqiId) {
         const suscripcion = await prisma.suscripcion.findFirst({
@@ -74,6 +78,7 @@ export async function POST(req: Request) {
             }
           })
 
+          // Culqi marca como Finalizada (status 6) después de reintentos agotados
           if (intentosFallidos >= 3) {
             await prisma.suscripcion.update({
               where: { id: suscripcion.id },
@@ -84,6 +89,7 @@ export async function POST(req: Request) {
       }
     }
 
+    // Suscripción cancelada desde Culqi o por agotamiento de intentos
     if (tipo === 'subscription.canceled') {
       const culqiSubId = objeto?.id
 
@@ -91,6 +97,27 @@ export async function POST(req: Request) {
         await prisma.suscripcion.updateMany({
           where: { culqi_suscripcion_id: culqiSubId, estado: { not: 'CANCELADA' } },
           data: { estado: 'CANCELADA', fecha_cancelacion: new Date() }
+        })
+      }
+    }
+
+    // Cambio de estado general en la suscripción (status actualizado desde Culqi)
+    if (tipo === 'subscription.update') {
+      const culqiSubId = objeto?.id
+      const culqiStatus = objeto?.status
+
+      if (culqiSubId && culqiStatus) {
+        const estadoNuevo = mapearEstadoCulqi(culqiStatus)
+        const fechaProximo = objeto?.next_billing_date
+          ? new Date(Number(objeto.next_billing_date) * 1000)
+          : undefined
+
+        await prisma.suscripcion.updateMany({
+          where: { culqi_suscripcion_id: culqiSubId },
+          data: {
+            estado: estadoNuevo,
+            ...(fechaProximo && { fecha_proximo_cobro: fechaProximo })
+          }
         })
       }
     }

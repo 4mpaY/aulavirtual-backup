@@ -9,7 +9,7 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
-import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, Repeat2 } from 'lucide-react'
 
 import { useAuthModal } from '@/contexts/AuthModalContext'
 
@@ -18,6 +18,7 @@ const ALL_NAV_ITEMS = [
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
   { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
   { title: 'Empresas', url: '/empresas', icon: Building2, key: 'empresas' },
+  { title: 'Suscripciones', url: '/suscripciones', icon: Repeat2, key: 'suscripciones' },
   { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },
   { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
 ]

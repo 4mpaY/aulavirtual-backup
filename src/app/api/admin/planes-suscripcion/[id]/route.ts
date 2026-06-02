@@ -78,15 +78,20 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       })
     })
 
-    // Sincronizar cambios de nombre/descripción con Culqi si el plan tiene culqi_plan_id
-    if (planActualizado.culqi_plan_id && (rest.nombre !== undefined || rest.descripcion !== undefined)) {
-      try {
-        await culqiSuscripcion.actualizarPlan(planActualizado.culqi_plan_id, {
-          name: planActualizado.nombre,
-          description: planActualizado.descripcion ?? undefined
-        })
-      } catch (culqiError: any) {
-        console.error('Error actualizando plan en Culqi:', culqiError?.message)
+    // Sincronizar con Culqi: nombre, descripción y estado (precio/intervalo no se pueden cambiar en Culqi)
+    if (planActualizado.culqi_plan_id) {
+      const culqiUpdate: Record<string, any> = {}
+
+      if (rest.nombre !== undefined) culqiUpdate.name = planActualizado.nombre
+      if (rest.descripcion !== undefined) culqiUpdate.description = planActualizado.descripcion || planActualizado.nombre
+      if (rest.esta_activo !== undefined) culqiUpdate.status = planActualizado.esta_activo ? 1 : 2
+
+      if (Object.keys(culqiUpdate).length > 0) {
+        try {
+          await culqiSuscripcion.actualizarPlan(planActualizado.culqi_plan_id, culqiUpdate)
+        } catch (culqiError: any) {
+          console.error('Error actualizando plan en Culqi:', culqiError?.message)
+        }
       }
     }
 
