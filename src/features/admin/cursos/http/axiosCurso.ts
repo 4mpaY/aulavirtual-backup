@@ -84,6 +84,16 @@ export class AxiosCurso extends AxiosInternalHttpClient {
     }
   }
 
+  async reorderCursos(items: { id: string; orden: number }[]): Promise<any> {
+    try {
+      const payload = await this.iPatch(`/reordenar`, { items })
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
   // ===================== MÓDULOS =====================
 
   async createModulo(cursoId: string, data: { titulo: string; descripcion?: string | null }): Promise<any> {

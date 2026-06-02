@@ -121,6 +121,15 @@ export function useCambiarEstadoCurso() {
   })
 }
 
+export function useReorderCursos() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { items: { id: string; orden: number }[] }>({
+    mutationFn: async ({ items }) => await axiosCurso.reorderCursos(items),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
 // ===================== MÓDULOS =====================
 
 export function useCreateModulo() {
