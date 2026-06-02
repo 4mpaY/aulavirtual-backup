@@ -4,7 +4,7 @@ import { AxiosPlayer } from '@/features/estudiante/player/http/axiosPlayer'
 import CoursePlayerView from '@/features/estudiante/player/components/CoursePlayerView'
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 
-export default async function LearningPage({ params }: { params: { slug: string } }) {
+export default async function LearningPage({ params, searchParams }: { params: { slug: string }; searchParams: { leccion?: string; examen?: string } }) {
   const session = await getAuthSession()
 
   if (!session) {
@@ -22,7 +22,7 @@ export default async function LearningPage({ params }: { params: { slug: string 
 
     console.log(data)
 
-    return <CoursePlayerView course={data.course} />
+    return <CoursePlayerView course={data.course} initialLessonId={searchParams.leccion} initialExamenId={searchParams.examen} />
   } catch (err: any) {
     const code = err?.code || err?.error
 

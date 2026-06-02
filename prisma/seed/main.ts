@@ -309,6 +309,173 @@ async function main() {
 
   console.log('✅ Cursos creados')
 
+  // ─── DATOS DE CALENDARIO ─────────────────────────────────────────────────────
+
+  // Actualizar fechas de inicio/fin de cursos
+  await prisma.curso.update({
+    where: { slug: 'introduccion-programacion-python' },
+    data: { fecha_inicio: new Date('2026-06-01'), fecha_fin: new Date('2026-08-31') }
+  })
+
+  await prisma.curso.update({
+    where: { slug: 'marketing-digital-redes-sociales' },
+    data: { fecha_inicio: new Date('2026-06-15'), fecha_fin: new Date('2026-09-30') }
+  })
+
+  await prisma.curso.update({
+    where: { slug: 'diseno-ux-ui-figma' },
+    data: { fecha_inicio: new Date('2026-07-01'), fecha_fin: new Date('2026-10-31') }
+  })
+
+  // Obtener módulos para añadir clases en vivo
+  const moduloPython = await prisma.modulo.findFirst({
+    where: { curso: { slug: 'introduccion-programacion-python' } }
+  })
+
+  const moduloMarketing = await prisma.modulo.findFirst({
+    where: { curso: { slug: 'marketing-digital-redes-sociales' } }
+  })
+
+  const moduloFigma = await prisma.modulo.findFirst({
+    where: { curso: { slug: 'diseno-ux-ui-figma' } }
+  })
+
+  // Clases en vivo — Python
+  if (moduloPython) {
+    const clasesPython = [
+      { titulo: 'Sesión en vivo: Fundamentos de Python', fecha: new Date('2026-06-03T09:00:00'), fin: new Date('2026-06-03T10:30:00'), orden: 10 },
+      { titulo: 'Sesión en vivo: Estructuras de datos', fecha: new Date('2026-06-10T09:00:00'), fin: new Date('2026-06-10T10:30:00'), orden: 11 },
+      { titulo: 'Sesión en vivo: Funciones avanzadas', fecha: new Date('2026-06-17T09:00:00'), fin: new Date('2026-06-17T10:30:00'), orden: 12 }
+    ]
+
+    for (const clase of clasesPython) {
+      await prisma.leccion.upsert({
+        where: { modulo_id_orden: { modulo_id: moduloPython.id, orden: clase.orden } },
+        update: { fecha_programada: clase.fecha, fecha_fin: clase.fin },
+        create: {
+          modulo_id: moduloPython.id,
+          titulo: clase.titulo,
+          orden: clase.orden,
+          duracion: 90,
+          es_en_vivo: true,
+          fecha_programada: clase.fecha,
+          fecha_fin: clase.fin,
+          enlace_reunion: 'https://zoom.us/j/123456789'
+        }
+      })
+    }
+  }
+
+  // Clases en vivo — Marketing
+  if (moduloMarketing) {
+    const clasesMarketing = [
+      { titulo: 'Sesión en vivo: Estrategia de contenido', fecha: new Date('2026-06-05T15:00:00'), fin: new Date('2026-06-05T16:30:00'), orden: 10 },
+      { titulo: 'Sesión en vivo: Campañas de ads', fecha: new Date('2026-06-19T15:00:00'), fin: new Date('2026-06-19T16:30:00'), orden: 11 }
+    ]
+
+    for (const clase of clasesMarketing) {
+      await prisma.leccion.upsert({
+        where: { modulo_id_orden: { modulo_id: moduloMarketing.id, orden: clase.orden } },
+        update: { fecha_programada: clase.fecha, fecha_fin: clase.fin },
+        create: {
+          modulo_id: moduloMarketing.id,
+          titulo: clase.titulo,
+          orden: clase.orden,
+          duracion: 90,
+          es_en_vivo: true,
+          fecha_programada: clase.fecha,
+          fecha_fin: clase.fin,
+          enlace_reunion: 'https://zoom.us/j/987654321'
+        }
+      })
+    }
+  }
+
+  // Clases en vivo — Figma
+  if (moduloFigma) {
+    await prisma.leccion.upsert({
+      where: { modulo_id_orden: { modulo_id: moduloFigma.id, orden: 10 } },
+      update: { fecha_programada: new Date('2026-07-02T11:00:00'), fecha_fin: new Date('2026-07-02T12:30:00') },
+      create: {
+        modulo_id: moduloFigma.id,
+        titulo: 'Sesión en vivo: Componentes y Design System',
+        orden: 10,
+        duracion: 90,
+        es_en_vivo: true,
+        fecha_programada: new Date('2026-07-02T11:00:00'),
+        fecha_fin: new Date('2026-07-02T12:30:00'),
+        enlace_reunion: 'https://meet.google.com/abc-defg-hij'
+      }
+    })
+  }
+
+  // Exámenes con fechas
+  const cursoPython = await prisma.curso.findUnique({ where: { slug: 'introduccion-programacion-python' } })
+  const cursoMarketing = await prisma.curso.findUnique({ where: { slug: 'marketing-digital-redes-sociales' } })
+  const cursoFigma = await prisma.curso.findUnique({ where: { slug: 'diseno-ux-ui-figma' } })
+
+  if (cursoPython) {
+    await prisma.examen.upsert({
+      where: { id: 'examen-python-final' },
+      update: {},
+      create: {
+        id: 'examen-python-final',
+        titulo: 'Examen Final — Python',
+        descripcion: 'Evaluación de todos los fundamentos de Python vistos en el curso.',
+        tipo: 'FINAL',
+        peso: 100,
+        puntaje_aprobacion: 60,
+        intentos_maximos: 2,
+        esta_publicado: true,
+        fecha_inicio: new Date('2026-06-20T10:00:00'),
+        fecha_fin: new Date('2026-06-20T11:00:00'),
+        curso_id: cursoPython.id
+      }
+    })
+  }
+
+  if (cursoMarketing) {
+    await prisma.examen.upsert({
+      where: { id: 'examen-marketing-final' },
+      update: {},
+      create: {
+        id: 'examen-marketing-final',
+        titulo: 'Examen Final — Marketing Digital',
+        descripcion: 'Evalúa tu dominio en estrategias de marketing y redes sociales.',
+        tipo: 'FINAL',
+        peso: 100,
+        puntaje_aprobacion: 70,
+        intentos_maximos: 1,
+        esta_publicado: true,
+        fecha_inicio: new Date('2026-06-25T14:00:00'),
+        fecha_fin: new Date('2026-06-25T15:00:00'),
+        curso_id: cursoMarketing.id
+      }
+    })
+  }
+
+  if (cursoFigma) {
+    await prisma.examen.upsert({
+      where: { id: 'examen-figma-final' },
+      update: {},
+      create: {
+        id: 'examen-figma-final',
+        titulo: 'Examen Final — UX/UI con Figma',
+        descripcion: 'Demuestra tu conocimiento en diseño de interfaces y principios UX.',
+        tipo: 'FINAL',
+        peso: 100,
+        puntaje_aprobacion: 65,
+        intentos_maximos: 2,
+        esta_publicado: true,
+        fecha_inicio: new Date('2026-07-15T10:00:00'),
+        fecha_fin: new Date('2026-07-15T11:30:00'),
+        curso_id: cursoFigma.id
+      }
+    })
+  }
+
+  console.log('✅ Datos de calendario creados')
+
   // ─── CUPONES ─────────────────────────────────────────────────────────────────
 
   await prisma.cupon.upsert({

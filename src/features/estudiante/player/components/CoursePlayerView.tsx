@@ -31,9 +31,10 @@ interface CoursePlayerViewProps {
         examenes?: any[]
     }
     initialLessonId?: string
+    initialExamenId?: string
 }
 
-const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) => {
+const CoursePlayerView = ({ course, initialLessonId, initialExamenId }: CoursePlayerViewProps) => {
     const configs = useConfig()
     const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
     const theme = useTheme()
@@ -90,6 +91,10 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
     useEffect(() => {
         if (initialLessonId && mounted) setCurrentLessonId(initialLessonId)
     }, [initialLessonId, setCurrentLessonId, mounted])
+
+    useEffect(() => {
+        if (initialExamenId && mounted) openExam(initialExamenId)
+    }, [initialExamenId, mounted, openExam])
 
     const flatLessons = useMemo(
         () => storeCourse?.modulos.flatMap(m => m.lecciones) || [],
