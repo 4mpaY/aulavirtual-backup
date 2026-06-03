@@ -196,6 +196,31 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
             />
           </Grid>
           <Grid item xs={12}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant='body2' color='text.secondary'>
+                Cursos incluidos en el plan *
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  size='small'
+                  variant='tonal'
+                  onClick={() => setCursosSeleccionados([...cursosDisponibles])}
+                  disabled={cursosDisponibles.length === 0 || cursosSeleccionados.length === cursosDisponibles.length}
+                >
+                  Seleccionar todos ({cursosDisponibles.length})
+                </Button>
+                {cursosSeleccionados.length > 0 && (
+                  <Button
+                    size='small'
+                    variant='tonal'
+                    color='secondary'
+                    onClick={() => setCursosSeleccionados([])}
+                  >
+                    Limpiar
+                  </Button>
+                )}
+              </Box>
+            </Box>
             <Autocomplete
               multiple
               options={cursosDisponibles}
@@ -209,7 +234,10 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
                 ))
               }
               renderInput={params => (
-                <TextField {...params} label='Cursos incluidos en el plan *' placeholder='Selecciona cursos' />
+                <TextField
+                  {...params}
+                  placeholder={cursosSeleccionados.length === 0 ? 'Selecciona cursos o usa "Seleccionar todos"' : ''}
+                />
               )}
               noOptionsText='No hay cursos disponibles'
             />

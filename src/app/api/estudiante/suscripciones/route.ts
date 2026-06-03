@@ -5,6 +5,7 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
 import { culqiSuscripcion, mapearEstadoCulqi } from '@/utils/libs/culqi-suscripcion'
+import { enviarEmailSuscripcionActiva } from '@/utils/libs/suscripcion-emails'
 
 /**
  * GET /api/estudiante/suscripciones
@@ -188,6 +189,18 @@ export async function POST(request: Request) {
 
       return sub
     })
+
+    // Enviar email de confirmación (async, no bloquea la respuesta)
+    enviarEmailSuscripcionActiva({
+      nombreUsuario: `${usuarioDb?.nombre ?? ''} ${usuarioDb?.apellido ?? ''}`.trim() || 'Estudiante',
+      correoUsuario: emailCliente,
+      nombrePlan: plan.nombre,
+      precio: Number(plan.precio),
+      moneda: plan.moneda,
+      intervalo: plan.intervalo,
+      fechaProximoCobro,
+      cursos: suscripcion.plan.cursos.map(c => c.curso.titulo)
+    }).catch(err => console.error('Error enviando email suscripción:', err))
 
     return ApiResponse.success(request, { suscripcion }, 201)
   } catch (error: any) {

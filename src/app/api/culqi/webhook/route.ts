@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import { culqi } from '@/lib/culqi'
 import prisma from '@/utils/libs/prisma'
 import { mapearEstadoCulqi } from '@/utils/libs/culqi-suscripcion'
+import { enviarEmailRenovacion, enviarEmailCobroFallido, enviarEmailSuscripcionCancelada } from '@/utils/libs/suscripcion-emails'
 
 export async function POST(req: Request) {
   try {
@@ -33,7 +34,7 @@ export async function POST(req: Request) {
             ? new Date(Number(objeto.next_billing_date) * 1000)
             : null
 
-          await prisma.$transaction([
+          const [, suscripcionActualizada] = await prisma.$transaction([
             prisma.pagoSuscripcion.create({
               data: {
                 suscripcion_id: suscripcion.id,
@@ -47,9 +48,21 @@ export async function POST(req: Request) {
             }),
             prisma.suscripcion.update({
               where: { id: suscripcion.id },
-              data: { estado: 'ACTIVA', fecha_proximo_cobro: periodoFin }
+              data: { estado: 'ACTIVA', fecha_proximo_cobro: periodoFin },
+              include: { plan: true, usuario: { select: { nombre: true, apellido: true, correo: true } } }
             })
           ])
+
+          // Email de renovación exitosa
+          enviarEmailRenovacion({
+            nombreUsuario: `${suscripcionActualizada.usuario.nombre} ${suscripcionActualizada.usuario.apellido ?? ''}`.trim(),
+            correoUsuario: suscripcionActualizada.usuario.correo,
+            nombrePlan: suscripcionActualizada.plan.nombre,
+            precio: Number(suscripcionActualizada.plan.precio),
+            moneda: suscripcionActualizada.plan.moneda,
+            intervalo: suscripcionActualizada.plan.intervalo,
+            fechaProximoCobro: periodoFin
+          }).catch(e => console.error('Email renovación:', e))
         }
       }
     }
@@ -78,12 +91,29 @@ export async function POST(req: Request) {
             }
           })
 
-          // Culqi marca como Finalizada (status 6) después de reintentos agotados
           if (intentosFallidos >= 3) {
             await prisma.suscripcion.update({
               where: { id: suscripcion.id },
               data: { estado: 'VENCIDA' }
             })
+          }
+
+          // Email de cobro fallido
+          const sub = await prisma.suscripcion.findUnique({
+            where: { id: suscripcion.id },
+            include: { plan: true, usuario: { select: { nombre: true, apellido: true, correo: true } } }
+          })
+
+          if (sub) {
+            enviarEmailCobroFallido({
+              nombreUsuario: `${sub.usuario.nombre} ${sub.usuario.apellido ?? ''}`.trim(),
+              correoUsuario: sub.usuario.correo,
+              nombrePlan: sub.plan.nombre,
+              precio: Number(sub.plan.precio),
+              moneda: sub.plan.moneda,
+              intervalo: sub.plan.intervalo,
+              intentos: intentosFallidos
+            }).catch(e => console.error('Email cobro fallido:', e))
           }
         }
       }
@@ -94,10 +124,26 @@ export async function POST(req: Request) {
       const culqiSubId = objeto?.id
 
       if (culqiSubId) {
-        await prisma.suscripcion.updateMany({
+        const sub = await prisma.suscripcion.findFirst({
           where: { culqi_suscripcion_id: culqiSubId, estado: { not: 'CANCELADA' } },
-          data: { estado: 'CANCELADA', fecha_cancelacion: new Date() }
+          include: { plan: true, usuario: { select: { nombre: true, apellido: true, correo: true } } }
         })
+
+        if (sub) {
+          await prisma.suscripcion.update({
+            where: { id: sub.id },
+            data: { estado: 'CANCELADA', fecha_cancelacion: new Date() }
+          })
+
+          enviarEmailSuscripcionCancelada({
+            nombreUsuario: `${sub.usuario.nombre} ${sub.usuario.apellido ?? ''}`.trim(),
+            correoUsuario: sub.usuario.correo,
+            nombrePlan: sub.plan.nombre,
+            precio: Number(sub.plan.precio),
+            moneda: sub.plan.moneda,
+            intervalo: sub.plan.intervalo
+          }).catch(e => console.error('Email cancelación:', e))
+        }
       }
     }
 

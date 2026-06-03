@@ -5,6 +5,7 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
 import { culqiSuscripcion } from '@/utils/libs/culqi-suscripcion'
+import { enviarEmailSuscripcionCancelada } from '@/utils/libs/suscripcion-emails'
 
 /**
  * DELETE /api/estudiante/suscripciones/[id]
@@ -17,7 +18,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     if (!auth.authorized) return auth.error
 
     const suscripcion = await prisma.suscripcion.findUnique({
-      where: { id: params.id }
+      where: { id: params.id },
+      include: { plan: true, usuario: { select: { nombre: true, apellido: true, correo: true } } }
     })
 
     if (!suscripcion) return ApiResponse.error(request, 'Suscripción no encontrada', 404)
@@ -47,6 +49,16 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         cancelado_por_usuario: true
       }
     })
+
+    // Email de cancelación (async)
+    enviarEmailSuscripcionCancelada({
+      nombreUsuario: `${suscripcion.usuario.nombre} ${suscripcion.usuario.apellido ?? ''}`.trim(),
+      correoUsuario: suscripcion.usuario.correo,
+      nombrePlan: suscripcion.plan.nombre,
+      precio: Number(suscripcion.plan.precio),
+      moneda: suscripcion.plan.moneda,
+      intervalo: suscripcion.plan.intervalo
+    }).catch(e => console.error('Email cancelación:', e))
 
     return ApiResponse.success(request, { message: 'Suscripción cancelada correctamente' })
   } catch (error) {
