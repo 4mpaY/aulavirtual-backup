@@ -88,14 +88,37 @@ export async function POST(request: Request) {
       select: { nombre: true, apellido: true, correo: true, celular: true }
     })
 
-    // Paso 1: Crear cliente en Culqi
-    const cliente = await culqiSuscripcion.crearCliente({
-      first_name: usuarioDb?.nombre ?? 'Cliente',
-      last_name: usuarioDb?.apellido ?? '',
-      email: usuarioDb?.correo ?? (auth.user.email ?? ''),
-      address: 'Lima, Perú',
-      phone_number: usuarioDb?.celular ?? '999999999'
-    })
+    // Paso 1: Crear o recuperar cliente en Culqi
+    const emailCliente = usuarioDb?.correo ?? (auth.user.email ?? '')
+    let cliente: { id: string }
+
+    try {
+      cliente = await culqiSuscripcion.crearCliente({
+        first_name: (usuarioDb?.nombre ?? 'Cliente').slice(0, 50),
+        last_name: (usuarioDb?.apellido ?? 'Usuario').slice(0, 50),
+        email: emailCliente,
+        address: 'Av. Principal 123',
+        address_city: 'Lima',
+        country_code: 'PE',
+        phone_number: (usuarioDb?.celular ?? '999999999').slice(0, 15)
+      })
+    } catch (err: any) {
+      // Si el email ya existe en Culqi, recuperamos el cliente existente
+      const esDuplicado = err?.message?.toLowerCase().includes('registrado') ||
+        err?.message?.toLowerCase().includes('email')
+
+      if (esDuplicado) {
+        const clienteExistente = await culqiSuscripcion.buscarClientePorEmail(emailCliente)
+
+        if (!clienteExistente) {
+          return ApiResponse.error(request, 'No se pudo recuperar el cliente de Culqi. Contacta soporte.', 422)
+        }
+
+        cliente = clienteExistente
+      } else {
+        throw err
+      }
+    }
 
     // Paso 2: Asociar token de tarjeta al cliente
     const tarjeta = await culqiSuscripcion.crearTarjeta({
@@ -120,7 +143,12 @@ export async function POST(request: Request) {
       // Si falla el GET, usamos la respuesta del create
     }
 
-    const estadoInicial = mapearEstadoCulqi(culqiSub.status ?? culqiSubCreada.status ?? 1)
+    const culqiStatus = culqiSub.status ?? culqiSubCreada.status ?? 1
+
+    // Culqi status 3 = Activa (cobro exitoso confirmado)
+    // Cualquier otro estado inicial queda PENDIENTE hasta que el webhook confirme el pago.
+    // El webhook charge.creation.succeeded actualizará a ACTIVA cuando Culqi confirme el cobro.
+    const estadoInicial = culqiStatus === 3 ? 'ACTIVA' : culqiStatus === 4 ? 'CANCELADA' : culqiStatus === 6 ? 'VENCIDA' : 'PENDIENTE'
     const fechaProximoCobro = culqiSub.next_billing_date
       ? new Date(culqiSub.next_billing_date * 1000)
       : null

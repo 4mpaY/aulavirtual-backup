@@ -1,22 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { Grid, Typography, Box, Alert, CircularProgress } from '@mui/material'
 
 import { useMiSuscripcion, usePlanesPublicos } from '../hooks/useSuscripcion'
 import PlanCard from '../components/PlanCard'
 import SuscripcionCard from '../components/SuscripcionCard'
-import PlanCheckoutModal from '../components/PlanCheckoutModal'
 import type { PlanPublico } from '../entity/Suscripcion'
 
 export function SuscripcionPage() {
+  const router = useRouter()
   const { data: suscripcion, isLoading: loadingSub } = useMiSuscripcion()
   const { data: planes = [], isLoading: loadingPlanes } = usePlanesPublicos()
-  const [planSeleccionado, setPlanSeleccionado] = useState<PlanPublico | null>(null)
+  const planActualId = suscripcion?.plan?.id
 
   const isLoading = loadingSub || loadingPlanes
-  const planActualId = suscripcion?.plan?.id
 
   if (isLoading) {
     return (
@@ -60,7 +59,7 @@ export function SuscripcionPage() {
               <Grid item xs={12} sm={6} md={4} key={plan.id}>
                 <PlanCard
                   plan={plan}
-                  onSuscribirse={setPlanSeleccionado}
+                  onSuscribirse={p => router.push(`/suscripciones/checkout/${p.id}`)}
                   suscritoActualmente={planActualId === plan.id && suscripcion?.estado === 'ACTIVA'}
                 />
               </Grid>
@@ -69,11 +68,6 @@ export function SuscripcionPage() {
         </Box>
       )}
 
-      <PlanCheckoutModal
-        open={!!planSeleccionado}
-        handleClose={() => setPlanSeleccionado(null)}
-        plan={planSeleccionado}
-      />
     </Box>
   )
 }

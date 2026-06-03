@@ -81,7 +81,7 @@ const SuscripcionCard = ({ suscripcion }: SuscripcionCardProps) => {
               </Typography>
             </Box>
           )}
-          {suscripcion.fecha_proximo_cobro && suscripcion.estado === 'ACTIVA' && (
+          {suscripcion.fecha_proximo_cobro && ['ACTIVA', 'EN_PRUEBA', 'PENDIENTE'].includes(suscripcion.estado) && (
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant='body2' color='text.secondary'>Próximo cobro:</Typography>
               <Typography variant='body2'>

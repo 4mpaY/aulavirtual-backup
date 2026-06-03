@@ -77,8 +77,23 @@ export const culqiSuscripcion = {
     last_name: string
     email: string
     address: string
+    address_city: string
+    country_code: string
     phone_number: string
   }) => req('POST', `${BASE}/customers`, payload),
+
+  buscarClientePorEmail: async (email: string): Promise<{ id: string } | null> => {
+    try {
+      const data = await req('GET', `${BASE}/customers?email=${encodeURIComponent(email)}`)
+
+      // Culqi devuelve { data: [...] } o { items: [...] }
+      const items = data?.data ?? data?.items ?? []
+
+      return items.length > 0 ? items[0] : null
+    } catch {
+      return null
+    }
+  },
 
   crearTarjeta: (payload: { customer_id: string; token_id: string }) =>
     req('POST', `${BASE}/cards`, payload),

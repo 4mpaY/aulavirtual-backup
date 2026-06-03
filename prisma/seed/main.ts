@@ -42,7 +42,7 @@ async function main() {
     }
   })
 
-  const alumnoPassword = await bcrypt.hash('Alumno123!', 10)
+  const alumnoPassword = await bcrypt.hash('Alumno123@', 10)
 
   await prisma.usuario.upsert({
     where: { correo: 'alumno@gmail.com' },

@@ -24,12 +24,13 @@ export function PlanesPublicos({ planes }: PlanesPublicosProps) {
 
   const handleSuscribirse = (plan: PlanPublico) => {
     if (!session?.user) {
-      openLogin()
+      // Guardar destino para redirigir tras login
+      router.push(`/suscripciones/checkout/${plan.id}`)
 
       return
     }
 
-    router.push('/estudiante/suscripcion')
+    router.push(`/suscripciones/checkout/${plan.id}`)
   }
 
   if (planes.length === 0) {
