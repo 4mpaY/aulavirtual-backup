@@ -3,7 +3,11 @@ import { NextResponse } from 'next/server'
 import { culqi } from '@/lib/culqi'
 import prisma from '@/utils/libs/prisma'
 import { mapearEstadoCulqi } from '@/utils/libs/culqi-suscripcion'
-import { enviarEmailRenovacion, enviarEmailCobroFallido, enviarEmailSuscripcionCancelada } from '@/utils/libs/suscripcion-emails'
+import {
+  enviarEmailRenovacion,
+  enviarEmailCobroFallido,
+  enviarEmailSuscripcionCancelada
+} from '@/utils/libs/suscripcion-emails'
 
 export async function POST(req: Request) {
   try {
@@ -20,11 +24,17 @@ export async function POST(req: Request) {
 
     console.log('[CULQI_WEBHOOK] Evento recibido:', tipo)
 
-    // Renovación exitosa: cargo generado por la suscripción
+    // ── charge.creation.succeeded ───────────────────────────────────────────────
+    // Cargo genérico con subscription_id → registra PagoSuscripcion + actualiza estado
     if (tipo === 'charge.creation.succeeded') {
       const suscripcionCulqiId = objeto?.subscription_id
+      const cargoId = objeto?.id
 
-      if (suscripcionCulqiId) {
+      if (suscripcionCulqiId && cargoId) {
+        // Idempotencia: ignorar si este cargo ya fue registrado
+        const yaExiste = await prisma.pagoSuscripcion.findUnique({ where: { culqi_cargo_id: cargoId } })
+        if (yaExiste) return NextResponse.json({ ok: true })
+
         const suscripcion = await prisma.suscripcion.findFirst({
           where: { culqi_suscripcion_id: suscripcionCulqiId }
         })
@@ -41,7 +51,7 @@ export async function POST(req: Request) {
                 monto: (objeto.amount ?? 0) / 100,
                 moneda: objeto.currency_code ?? 'PEN',
                 estado: 'COMPLETADO',
-                culqi_cargo_id: objeto.id ?? null,
+                culqi_cargo_id: cargoId,
                 periodo_inicio: new Date(),
                 periodo_fin: periodoFin
               }
@@ -53,7 +63,6 @@ export async function POST(req: Request) {
             })
           ])
 
-          // Email de renovación exitosa
           enviarEmailRenovacion({
             nombreUsuario: `${suscripcionActualizada.usuario.nombre} ${suscripcionActualizada.usuario.apellido ?? ''}`.trim(),
             correoUsuario: suscripcionActualizada.usuario.correo,
@@ -67,11 +76,19 @@ export async function POST(req: Request) {
       }
     }
 
-    // Cargo fallido en renovación
+    // ── charge.creation.failed ──────────────────────────────────────────────────
+    // Cargo genérico fallido con subscription_id → registra PagoSuscripcion fallido
     if (tipo === 'charge.creation.failed') {
       const suscripcionCulqiId = objeto?.subscription_id
+      const cargoId = objeto?.id
 
       if (suscripcionCulqiId) {
+        // Idempotencia: ignorar si este cargo fallido ya fue registrado
+        if (cargoId) {
+          const yaExiste = await prisma.pagoSuscripcion.findUnique({ where: { culqi_cargo_id: cargoId } })
+          if (yaExiste) return NextResponse.json({ ok: true })
+        }
+
         const suscripcion = await prisma.suscripcion.findFirst({
           where: { culqi_suscripcion_id: suscripcionCulqiId },
           include: { _count: { select: { pagos: { where: { estado: 'FALLIDO' } } } } }
@@ -86,7 +103,7 @@ export async function POST(req: Request) {
               monto: (objeto.amount ?? 0) / 100,
               moneda: objeto.currency_code ?? 'PEN',
               estado: 'FALLIDO',
-              culqi_cargo_id: objeto.id ?? null,
+              culqi_cargo_id: cargoId ?? null,
               intentos: intentosFallidos
             }
           })
@@ -98,7 +115,6 @@ export async function POST(req: Request) {
             })
           }
 
-          // Email de cobro fallido
           const sub = await prisma.suscripcion.findUnique({
             where: { id: suscripcion.id },
             include: { plan: true, usuario: { select: { nombre: true, apellido: true, correo: true } } }
@@ -119,8 +135,47 @@ export async function POST(req: Request) {
       }
     }
 
-    // Suscripción cancelada desde Culqi o por agotamiento de intentos
-    if (tipo === 'subscription.canceled') {
+    // ── subscription.charge.succeeded ───────────────────────────────────────────
+    // Evento específico de cargo exitoso de suscripción → sincroniza estado
+    if (tipo === 'subscription.charge.succeeded') {
+      const culqiSubId = objeto?.id
+      if (culqiSubId) {
+        const fechaProximo = objeto?.next_billing_date
+          ? new Date(Number(objeto.next_billing_date) * 1000)
+          : undefined
+
+        await prisma.suscripcion.updateMany({
+          where: { culqi_suscripcion_id: culqiSubId },
+          data: {
+            estado: 'ACTIVA',
+            ...(fechaProximo && { fecha_proximo_cobro: fechaProximo })
+          }
+        })
+      }
+    }
+
+    // ── subscription.charge.failed ──────────────────────────────────────────────
+    // Evento específico de cargo fallido de suscripción → cancela si supera 3 intentos
+    if (tipo === 'subscription.charge.failed') {
+      const culqiSubId = objeto?.id
+      if (culqiSubId) {
+        const suscripcion = await prisma.suscripcion.findFirst({
+          where: { culqi_suscripcion_id: culqiSubId },
+          include: { _count: { select: { pagos: { where: { estado: 'FALLIDO' } } } } }
+        })
+
+        if (suscripcion && suscripcion._count.pagos >= 3) {
+          await prisma.suscripcion.update({
+            where: { id: suscripcion.id },
+            data: { estado: 'VENCIDA' }
+          })
+        }
+      }
+    }
+
+    // ── subscription.cancel.succeeded ───────────────────────────────────────────
+    // Suscripción cancelada exitosamente en Culqi → sincroniza estado y envía email
+    if (tipo === 'subscription.cancel.succeeded') {
       const culqiSubId = objeto?.id
 
       if (culqiSubId) {
@@ -147,24 +202,48 @@ export async function POST(req: Request) {
       }
     }
 
-    // Cambio de estado general en la suscripción (status actualizado desde Culqi)
-    if (tipo === 'subscription.update') {
+    // ── subscription.trial.end ──────────────────────────────────────────────────
+    // Período de prueba finalizado → activa la suscripción
+    if (tipo === 'subscription.trial.end') {
+      const culqiSubId = objeto?.id
+      if (culqiSubId) {
+        await prisma.suscripcion.updateMany({
+          where: { culqi_suscripcion_id: culqiSubId, estado: 'EN_PRUEBA' },
+          data: { estado: 'ACTIVA' }
+        })
+      }
+    }
+
+    // ── subscription.creation.succeeded ────────────────────────────────────────
+    // Culqi confirmó la creación de la suscripción → actualiza estado desde PENDIENTE
+    if (tipo === 'subscription.creation.succeeded') {
       const culqiSubId = objeto?.id
       const culqiStatus = objeto?.status
 
       if (culqiSubId && culqiStatus) {
         const estadoNuevo = mapearEstadoCulqi(culqiStatus)
-
         const fechaProximo = objeto?.next_billing_date
           ? new Date(Number(objeto.next_billing_date) * 1000)
           : undefined
 
         await prisma.suscripcion.updateMany({
-          where: { culqi_suscripcion_id: culqiSubId },
+          where: { culqi_suscripcion_id: culqiSubId, estado: 'PENDIENTE' },
           data: {
             estado: estadoNuevo,
             ...(fechaProximo && { fecha_proximo_cobro: fechaProximo })
           }
+        })
+      }
+    }
+
+    // ── subscription.creation.failed ────────────────────────────────────────────
+    // Culqi no pudo crear la suscripción → marca como cancelada
+    if (tipo === 'subscription.creation.failed') {
+      const culqiSubId = objeto?.id
+      if (culqiSubId) {
+        await prisma.suscripcion.updateMany({
+          where: { culqi_suscripcion_id: culqiSubId },
+          data: { estado: 'CANCELADA', fecha_cancelacion: new Date() }
         })
       }
     }
