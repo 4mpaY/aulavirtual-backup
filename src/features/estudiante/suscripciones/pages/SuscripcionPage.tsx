@@ -26,21 +26,24 @@ export function SuscripcionPage() {
   }
 
   return (
-    <Box>
-      <Typography variant='h5' fontWeight={700} mb={1}>
-        Suscripciones
-      </Typography>
-      <Typography variant='body2' color='text.secondary' mb={4}>
-        Accede a múltiples cursos con un plan de suscripción recurrente
-      </Typography>
+    <Box sx={{ py: 1 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant='h5' sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', mb: 0.5 }}>
+          Suscripciones
+        </Typography>
+        <Typography variant='body2' color='text.secondary' sx={{ fontWeight: 500 }}>
+          Accede a múltiples cursos con un plan de suscripción recurrente
+        </Typography>
+      </Box>
 
       {suscripcion && (
-        <Box mb={5}>
-          <Typography variant='h6' fontWeight={600} mb={2}>
+        <Box mb={5.5}>
+          <Typography variant='subtitle1' sx={{ fontWeight: 700, color: '#1e293b', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <i className='tabler-shield-check' style={{ color: 'var(--web-primary,#25927F)', fontSize: 20 }} />
             Tu suscripción actual
           </Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={10} lg={9}>
               <SuscripcionCard suscripcion={suscripcion} />
             </Grid>
           </Grid>
@@ -48,10 +51,11 @@ export function SuscripcionPage() {
       )}
 
       {planes.length === 0 ? (
-        <Alert severity='info'>No hay planes de suscripción disponibles en este momento.</Alert>
+        <Alert severity='info' sx={{ borderRadius: '16px' }}>No hay planes de suscripción disponibles en este momento.</Alert>
       ) : (
         <Box>
-          <Typography variant='h6' fontWeight={600} mb={2}>
+          <Typography variant='subtitle1' sx={{ fontWeight: 700, color: '#1e293b', mb: 2.5, mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <i className='tabler-layout-grid' style={{ color: 'var(--web-primary,#25927F)', fontSize: 20 }} />
             {suscripcion ? 'Otros planes disponibles' : 'Planes disponibles'}
           </Typography>
           <Grid container spacing={3}>

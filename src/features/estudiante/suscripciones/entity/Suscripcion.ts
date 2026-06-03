@@ -8,6 +8,7 @@ export interface PlanResumen {
   moneda: string
   intervalo: 'MENSUAL' | 'TRIMESTRAL' | 'SEMESTRAL' | 'ANUAL'
   dias_prueba: number
+  beneficios: string[]
   cursos: {
     plan_id: string
     curso_id: string
@@ -50,6 +51,7 @@ export interface PlanPublico {
   intervalo: 'MENSUAL' | 'TRIMESTRAL' | 'SEMESTRAL' | 'ANUAL'
   dias_prueba: number
   esta_activo: boolean
+  beneficios: string[]
   cursos: {
     plan_id: string
     curso_id: string

@@ -130,8 +130,8 @@ function CertificadosSettings({ config, onInputChange }: { config: any; onInputC
           {PLANTILLAS_CERTIFICADO.map((p) => {
             const isSelected = plantillaActiva === p.id
 
-            
-return (
+
+            return (
               <Box
                 key={p.id}
                 onClick={() => onInputChange('CERTIFICADO_PLANTILLA', p.id)}
@@ -389,7 +389,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     PRIMARY_COLOR_DARK: '#9196F2',
     PAYPAL_ENABLED: 'true',
     PAYPAL_CLIENT_ID: '',
-    PAYPAL_CLIENT_SECRET: '',
     PAYPAL_API_URL: 'https://api-m.sandbox.paypal.com',
     PAYPAL_PUBLIC_CLIENT_ID: '',
     PAYPAL_EXCHANGE_RATE: '3.80',
@@ -397,13 +396,11 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     GOOGLE_CLIENT_SECRET: '',
     IZIPAY_ENABLED: 'true',
     IZIPAY_MERCHANT_CODE: '',
-    IZIPAY_API_KEY: '',
     IZIPAY_RSA_KEY: '',
     IZIPAY_ENDPOINT: 'https://sandbox-api-pw.izipay.pe',
     IZIPAY_SDK_URL: 'https://sandbox-checkout.izipay.pe/payments/v1/js/index.js',
     CULQI_ENABLED: 'true',
     CULQI_PUBLIC_KEY: '',
-    CULQI_PRIVATE_KEY: '',
     CULQI_RSA_ID: '',
     CULQI_RSA_PUBLIC_KEY: '',
     CERTIFICADO_GERENTE_GENERAL_ID: '',
@@ -412,7 +409,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     PAGO_MANUAL_WHATSAPP_NUMERO: '',
     PAGO_MANUAL_WHATSAPP_MENSAJE: '',
     MP_ENABLED: 'true',
-    MP_ACCESS_TOKEN: '',
     MP_PUBLIC_KEY: '',
     PEDIDOS_SOLICITAR_COMPROBANTE: 'true',
     COMENTARIOS_REQUIERE_APROBACION: 'false',
@@ -847,6 +843,21 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       icon: 'tabler-credit-card',
       content: (
         <Stack spacing={1.5}>
+          <Paper
+            variant='outlined'
+            sx={{
+              p: 2, borderRadius: 2, borderLeft: '4px solid',
+              borderLeftColor: 'info.main', bgcolor: 'action.hover'
+            }}
+          >
+            <Stack direction='row' spacing={1.5} alignItems='center'>
+              <i className='tabler-info-circle' style={{ fontSize: 20, color: 'var(--mui-palette-info-main)' }} />
+              <Typography variant='body2' color='text.secondary'>
+                Las claves <strong>privadas/secretas</strong> (Secret Key, API Key, Access Token) se gestionan de forma segura en el servidor y no se muestran aquí.
+              </Typography>
+            </Stack>
+          </Paper>
+
           <GatewayAccordion
             icon='tabler-building-bank'
             title='Culqi'
@@ -865,13 +876,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   helperText='pk_test_... o pk_live_... — usada en el frontend para tokenizar'
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <SecretField
-                  label='Private Key'
-                  configKey='CULQI_PRIVATE_KEY'
-                  helperText='sk_test_... o sk_live_... — usada en el backend para el cargo'
-                />
-              </Grid>
+
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
@@ -912,9 +917,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   onChange={(e) => handleInputChange('IZIPAY_MERCHANT_CODE', e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <SecretField label='API Key' configKey='IZIPAY_API_KEY' />
-              </Grid>
+
               <Grid item xs={12}>
                 <TextField
                   fullWidth
@@ -962,9 +965,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   onChange={(e) => handleInputChange('PAYPAL_CLIENT_ID', e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} md={6}>
-                <SecretField label='Client Secret' configKey='PAYPAL_CLIENT_SECRET' />
-              </Grid>
+
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
@@ -1005,13 +1006,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
             onInputChange={handleInputChange}
           >
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <SecretField
-                  label='Access Token'
-                  configKey='MP_ACCESS_TOKEN'
-                  helperText='TEST-... (sandbox) o APP_USR-... (producción)'
-                />
-              </Grid>
+
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth

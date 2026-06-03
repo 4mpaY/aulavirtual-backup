@@ -752,6 +752,7 @@ model PlanSuscripcion {
   culqi_interval_count Int                  @default(1)
   dias_prueba          Int                  @default(0)
   esta_activo          Boolean              @default(true)
+  beneficios           Json?                @default("[]")
   culqi_plan_id        String?              @unique
   culqi_short_name     String?              @unique
   creado_en            DateTime             @default(now())

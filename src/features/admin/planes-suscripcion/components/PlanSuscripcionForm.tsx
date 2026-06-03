@@ -12,7 +12,11 @@ import {
   Chip,
   TextField,
   Typography,
-  Box
+  Box,
+  IconButton,
+  Stack,
+  Paper,
+  Divider
 } from '@mui/material'
 
 import { toast } from 'react-toastify'
@@ -56,6 +60,8 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
   const { createPlan, updatePlan } = usePlanSuscripcionMutation()
   const [formData, setFormData] = useState(initialForm)
   const [cursosSeleccionados, setCursosSeleccionados] = useState<CursoOpcion[]>([])
+  const [beneficios, setBeneficios] = useState<string[]>([])
+  const [nuevoBeneficio, setNuevoBeneficio] = useState('')
 
   useEffect(() => {
     if (planToEdit) {
@@ -69,11 +75,37 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
         esta_activo: planToEdit.esta_activo
       })
       setCursosSeleccionados(planToEdit.cursos?.map(c => c.curso) ?? [])
+
+      const parsed = Array.isArray(planToEdit.beneficios) ? planToEdit.beneficios : []
+
+      setBeneficios(parsed.filter((b): b is string => typeof b === 'string'))
     } else {
       setFormData(initialForm)
       setCursosSeleccionados([])
+      setBeneficios([])
     }
+
+    setNuevoBeneficio('')
   }, [planToEdit, open])
+
+  const handleAddBeneficio = () => {
+    const texto = nuevoBeneficio.trim()
+
+    if (!texto) return
+
+    if (beneficios.includes(texto)) {
+      toast.warning('Este beneficio ya existe')
+
+      return
+    }
+
+    setBeneficios(prev => [...prev, texto])
+    setNuevoBeneficio('')
+  }
+
+  const handleRemoveBeneficio = (index: number) => {
+    setBeneficios(prev => prev.filter((_, i) => i !== index))
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -92,6 +124,7 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
       intervalo: formData.intervalo,
       dias_prueba: Number(formData.dias_prueba),
       esta_activo: formData.esta_activo,
+      beneficios,
       cursoIds: cursosSeleccionados.map(c => c.id)
     }
 
@@ -195,7 +228,10 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
               onChange={e => setFormData({ ...formData, dias_prueba: e.target.value })}
             />
           </Grid>
+
+          {/* ── CURSOS INCLUIDOS ──────────────────────────── */}
           <Grid item xs={12}>
+            <Divider sx={{ mb: 1 }} />
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
               <Typography variant='body2' color='text.secondary'>
                 Cursos incluidos en el plan *
@@ -242,6 +278,63 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
               noOptionsText='No hay cursos disponibles'
             />
           </Grid>
+
+          {/* ── BENEFICIOS DEL PLAN ───────────────────────── */}
+          <Grid item xs={12}>
+            <Divider sx={{ mb: 1 }} />
+            <Typography variant='subtitle2' sx={{ mb: 0.5 }}>
+              Beneficios del Plan
+            </Typography>
+            <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
+              Estos beneficios se mostrarán en la página pública de suscripciones. Ej: "Acceso a +50 cursos", "Certificados incluidos", etc.
+            </Typography>
+
+            {/* Lista de beneficios actuales */}
+            {beneficios.length > 0 && (
+              <Paper variant='outlined' sx={{ p: 1.5, mb: 2, borderRadius: 2 }}>
+                <Stack spacing={0.5}>
+                  {beneficios.map((beneficio, index) => (
+                    <Stack key={index} direction='row' alignItems='center' spacing={1}>
+                      <i className='tabler-check' style={{ fontSize: 14, color: 'var(--mui-palette-success-main)', flexShrink: 0 }} />
+                      <Typography variant='body2' sx={{ flex: 1 }}>
+                        {beneficio}
+                      </Typography>
+                      <IconButton size='small' color='error' onClick={() => handleRemoveBeneficio(index)}>
+                        <i className='tabler-x' style={{ fontSize: 14 }} />
+                      </IconButton>
+                    </Stack>
+                  ))}
+                </Stack>
+              </Paper>
+            )}
+
+            {/* Input para agregar nuevo beneficio */}
+            <Stack direction='row' spacing={1} alignItems='flex-start'>
+              <CustomTextField
+                fullWidth
+                size='small'
+                placeholder='Ej: Acceso ilimitado a todos los cursos'
+                value={nuevoBeneficio}
+                onChange={e => setNuevoBeneficio(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleAddBeneficio()
+                  }
+                }}
+              />
+              <Button
+                variant='tonal'
+                size='small'
+                onClick={handleAddBeneficio}
+                disabled={!nuevoBeneficio.trim()}
+                sx={{ whiteSpace: 'nowrap', minWidth: 'auto', px: 2 }}
+              >
+                <i className='tabler-plus' style={{ fontSize: 16 }} />
+              </Button>
+            </Stack>
+          </Grid>
+
           <Grid item xs={12}>
             <FormControlLabel
               control={
@@ -269,3 +362,4 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
 }
 
 export default PlanSuscripcionForm
+

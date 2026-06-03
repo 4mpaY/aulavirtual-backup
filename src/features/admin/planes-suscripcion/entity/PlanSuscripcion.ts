@@ -21,6 +21,7 @@ export interface PlanSuscripcion {
   culqi_interval_count: number
   dias_prueba: number
   esta_activo: boolean
+  beneficios: string[]
   culqi_plan_id: string | null
   culqi_short_name: string | null
   creado_en: string
@@ -40,6 +41,7 @@ export interface PlanPayload {
   intervalo: IntervaloSuscripcion
   dias_prueba: number
   esta_activo: boolean
+  beneficios?: string[]
   cursoIds: string[]
 }
 

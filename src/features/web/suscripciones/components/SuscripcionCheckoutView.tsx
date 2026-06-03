@@ -8,8 +8,8 @@ import Link from 'next/link'
 
 import Script from 'next/script'
 
-import { Container, Box, Typography, Grid } from '@mui/material'
-import { ChevronRight, Repeat2, Check, ShieldCheck, RefreshCw, CreditCard, Loader2 } from 'lucide-react'
+import { Container, Box, Typography, Grid, Checkbox, FormControlLabel } from '@mui/material'
+import { ChevronRight, Repeat2, Check, ShieldCheck, RefreshCw, CreditCard, Loader2, BookOpen, Lock, ArrowLeft } from 'lucide-react'
 
 import { useSession } from 'next-auth/react'
 
@@ -41,11 +41,15 @@ export function SuscripcionCheckoutView({ plan, culqiPublicKey }: SuscripcionChe
   const [procesando, setProcesando] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [exito, setExito] = useState(false)
+  const [aceptaTerminos, setAceptaTerminos] = useState(false)
 
   const precio = Number(plan.precio)
   const monedaSimbolo = plan.moneda === 'PEN' ? 'S/' : '$'
   const amount = Math.round(precio * 100)
   const email = session?.user?.email ?? ''
+
+  const beneficios: string[] = Array.isArray(plan.beneficios) ? plan.beneficios : []
+  const tieneBeneficios = beneficios.length > 0
 
   const handleTokenReceived = useCallback(async (tokenId: string) => {
     setProcesando(true)
@@ -79,6 +83,12 @@ export function SuscripcionCheckoutView({ plan, culqiPublicKey }: SuscripcionChe
       return
     }
 
+    if (!aceptaTerminos) {
+      toast.warning('Debes aceptar los términos y condiciones para continuar.')
+
+      return
+    }
+
     if (!window.CulqiCheckout) {
       toast.error('El sistema de pagos se está cargando. Espera un momento e intenta de nuevo.')
 
@@ -90,7 +100,7 @@ export function SuscripcionCheckoutView({ plan, culqiPublicKey }: SuscripcionChe
     // Inicializar Culqi en el momento del click (garantiza timing correcto)
     try {
       if (window.Culqi) {
-        try { window.Culqi.close() } catch {}
+        try { window.Culqi.close() } catch { }
       }
 
       const config = {
@@ -205,103 +215,120 @@ export function SuscripcionCheckoutView({ plan, culqiPublicKey }: SuscripcionChe
       <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
         <Grid container spacing={4}>
 
-          {/* Resumen del plan */}
-          <Grid item xs={12} lg={4} sx={{ order: { xs: 1, lg: 2 } }}>
-            <Box sx={{ borderRadius: '20px', bgcolor: '#fff', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
-              <Box sx={{ p: 3, borderBottom: '1px solid #f1f5f9', bgcolor: '#fafafa' }}>
-                <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.5 }}>
-                  Resumen del plan
-                </Typography>
-                <Typography sx={{ fontFamily: FONT, fontSize: '1.125rem', fontWeight: 700, color: '#0f172a' }}>
-                  {plan.nombre}
-                </Typography>
-                {plan.descripcion && (
-                  <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b', mt: 0.5 }}>
-                    {plan.descripcion}
-                  </Typography>
-                )}
-              </Box>
-
-              <Box sx={{ p: 3, borderBottom: '1px solid #f1f5f9' }}>
-                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5 }}>
-                  <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', fontWeight: 600, color: '#64748b' }}>{monedaSimbolo}</Typography>
-                  <Typography sx={{ fontFamily: FONT, fontSize: '2.25rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
-                    {precio.toFixed(2)}
-                  </Typography>
-                  <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#94a3b8' }}>
-                    /{INTERVALO_LABELS[plan.intervalo]?.toLowerCase()}
-                  </Typography>
-                </Box>
-                {plan.dias_prueba > 0 && (
-                  <Box sx={{ mt: 1, display: 'inline-flex', bgcolor: '#f0fdf4', borderRadius: '20px', px: 1.5, py: 0.5 }}>
-                    <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 700, color: '#16a34a' }}>
-                      {plan.dias_prueba} días gratis incluidos
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-
-              <Box sx={{ p: 3, borderBottom: '1px solid #f1f5f9' }}>
-                <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 1.5 }}>
-                  Incluye {plan.cursos.length} curso{plan.cursos.length !== 1 ? 's' : ''}
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {plan.cursos.map(c => (
-                    <Box key={c.curso_id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                      <Check size={15} color="#25927F" strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 2 }} />
-                      <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#334155', lineHeight: 1.4 }}>
-                        {c.curso.titulo}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-
-              <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: '#f8fafc' }}>
-                <ShieldCheck size={18} color="#25927F" />
-                <Typography sx={{ fontFamily: FONT, fontSize: '0.8rem', color: '#475569', fontWeight: 500 }}>
-                  Pago seguro. Cancela en cualquier momento.
-                </Typography>
-              </Box>
-            </Box>
-          </Grid>
-
           {/* Formulario de pago */}
           <Grid item xs={12} lg={8} sx={{ order: { xs: 2, lg: 1 } }}>
-            <Box sx={{ borderRadius: '20px', bgcolor: '#fff', border: '1px solid #e2e8f0', p: { xs: 3, md: 4 }, boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
-              <Typography sx={{ fontFamily: FONT, fontSize: '1.125rem', fontWeight: 700, color: '#0f172a', mb: 3 }}>
-                Datos de pago
-              </Typography>
+            <Box sx={{
+              borderRadius: '24px', bgcolor: '#fff',
+              border: '1px solid #e2e8f0', p: { xs: 3, md: 5 },
+              boxShadow: '0 10px 30px -10px rgba(2, 94, 68, 0.05), 0 1px 3px rgba(0,0,0,0.02)'
+            }}>
+              
+              {/* Encabezado de sección */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3.5 }}>
+                <Box sx={{
+                  width: 38, height: 38, borderRadius: '12px',
+                  bgcolor: 'rgba(37,146,127,0.08)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <Lock size={18} color="var(--web-primary,#25927F)" />
+                </Box>
+                <Box>
+                  <Typography sx={{ fontFamily: FONT, fontSize: '1.125rem', fontWeight: 800, color: '#0f172a' }}>
+                    Datos de pago
+                  </Typography>
+                  <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#94a3b8' }}>
+                    Transacción encriptada y segura con Culqi
+                  </Typography>
+                </Box>
+              </Box>
 
               {session?.user && (
-                <Box sx={{ mb: 3, p: 2, borderRadius: '12px', bgcolor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                  <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 600, color: '#64748b', mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Suscripción para
-                  </Typography>
-                  <Typography sx={{ fontFamily: FONT, fontSize: '0.9375rem', fontWeight: 700, color: '#0f172a' }}>
-                    {(session.user as any)?.nombre
-                      ? `${(session.user as any).nombre} ${(session.user as any).apellido || ''}`.trim()
-                      : session.user.name}
-                  </Typography>
-                  <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b' }}>
-                    {session.user.email}
-                  </Typography>
+                <Box sx={{
+                  mb: 3.5, p: 2.5, borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex', alignItems: 'center', gap: 2
+                }}>
+                  <Box sx={{
+                    width: 44, height: 44, borderRadius: '50%',
+                    bgcolor: 'var(--web-primary,#25927F)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#fff', fontWeight: 700, fontSize: '1rem',
+                    boxShadow: '0 4px 12px rgba(37,146,127,0.2)'
+                  }}>
+                    {((session.user as any)?.nombre?.[0] || session.user.name?.[0] || 'U').toUpperCase()}
+                  </Box>
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 700, color: 'var(--web-primary,#25927F)', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 0.25 }}>
+                      Suscripción para
+                    </Typography>
+                    <Typography sx={{ fontFamily: FONT, fontSize: '0.9375rem', fontWeight: 700, color: '#0f172a', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                      {(session.user as any)?.nombre
+                        ? `${(session.user as any).nombre} ${(session.user as any).apellido || ''}`.trim()
+                        : session.user.name}
+                    </Typography>
+                    <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                      {session.user.email}
+                    </Typography>
+                  </Box>
                 </Box>
               )}
 
               {error && (
-                <Box sx={{ mb: 3, p: 2, borderRadius: '12px', bgcolor: '#fef2f2', border: '1px solid #fecaca' }}>
+                <Box sx={{ mb: 3.5, p: 2, borderRadius: '12px', bgcolor: '#fef2f2', border: '1px solid #fecaca' }}>
                   <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#dc2626', fontWeight: 500 }}>
                     {error}
                   </Typography>
                 </Box>
               )}
 
-              <Box sx={{ mb: 3, p: 2.5, borderRadius: '12px', border: '1px dashed #cbd5e1', bgcolor: '#fafafa' }}>
+              <Box sx={{
+                mb: 3.5, p: 2.5, borderRadius: '16px',
+                bgcolor: 'rgba(37,146,127,0.03)', border: '1px dashed rgba(37,146,127,0.2)'
+              }}>
                 <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#475569', lineHeight: 1.6 }}>
                   Al hacer click en <strong>Activar suscripción</strong> se abrirá la ventana segura de Culqi para ingresar los datos de tu tarjeta.
-                  El primer cobro se realizará hoy y luego de forma automática cada <strong>{INTERVALO_LABELS[plan.intervalo]?.toLowerCase()}</strong>.
+                  {plan.dias_prueba > 0 ? (
+                    <> Los primeros <strong>{plan.dias_prueba} días son gratis</strong>, luego se cobrará automáticamente cada <strong>{INTERVALO_LABELS[plan.intervalo]?.toLowerCase()}</strong>.</>
+                  ) : (
+                    <> El primer cobro se realizará hoy y luego de forma automática cada <strong>{INTERVALO_LABELS[plan.intervalo]?.toLowerCase()}</strong>.</>
+                  )}
                 </Typography>
+              </Box>
+
+              {/* Checkbox de términos y condiciones */}
+              <Box sx={{ mb: 3.5 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={aceptaTerminos}
+                      onChange={(e) => setAceptaTerminos(e.target.checked)}
+                      sx={{
+                        color: '#cbd5e1',
+                        '&.Mui-checked': { color: 'var(--web-primary,#25927F)' },
+                        p: 0.75
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#475569', lineHeight: 1.5 }}>
+                      Acepto los{' '}
+                      <Link
+                        href="/terminos-y-condiciones"
+                        target="_blank"
+                        style={{
+                          color: 'var(--web-primary,#25927F)',
+                          fontWeight: 600,
+                          textDecoration: 'underline',
+                          textUnderlineOffset: '2px'
+                        }}
+                      >
+                        Términos y Condiciones
+                      </Link>
+                    </Typography>
+                  }
+                  sx={{ alignItems: 'flex-start', mx: 0 }}
+                />
               </Box>
 
               <button
@@ -309,21 +336,24 @@ export function SuscripcionCheckoutView({ plan, culqiPublicKey }: SuscripcionChe
                 disabled={procesando}
                 style={{
                   width: '100%',
-                  padding: '1rem',
-                  borderRadius: '14px',
+                  padding: '1.1rem 1.5rem',
+                  borderRadius: '16px',
                   border: 'none',
-                  cursor: procesando ? 'not-allowed' : 'pointer',
+                  cursor: (!aceptaTerminos && session?.user) || procesando ? 'not-allowed' : 'pointer',
                   fontFamily: FONT,
                   fontSize: '1rem',
                   fontWeight: 700,
-                  backgroundColor: procesando ? '#94a3b8' : 'var(--web-primary,#25927F)',
+                  background: procesando
+                    ? '#cbd5e1'
+                    : 'linear-gradient(135deg, var(--web-primary,#25927F) 0%, var(--web-dark,#025E44) 100%)',
                   color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '10px',
-                  transition: 'background-color 0.2s',
-                  marginBottom: '1rem'
+                  gap: '12px',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: procesando || (!aceptaTerminos && session?.user) ? 'none' : '0 4px 20px rgba(37,146,127,0.25)',
+                  opacity: (!aceptaTerminos && session?.user && !procesando) ? 0.65 : 1
                 }}
               >
                 {procesando ? (
@@ -340,18 +370,158 @@ export function SuscripcionCheckoutView({ plan, culqiPublicKey }: SuscripcionChe
               </button>
 
               {!session?.user && (
-                <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#94a3b8', textAlign: 'center' }}>
+                <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#94a3b8', textAlign: 'center', mt: 2 }}>
                   Necesitas{' '}
-                  <button onClick={() => openLogin()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--web-primary,#25927F)', fontWeight: 600, fontFamily: FONT, fontSize: '0.8125rem', padding: 0 }}>
+                  <button onClick={() => openLogin()} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--web-primary,#25927F)', fontWeight: 600, fontFamily: FONT, fontSize: '0.8125rem', padding: 0, textDecoration: 'underline', textUnderlineOffset: '2px' }}>
                     iniciar sesión
                   </button>
                   {' '}para suscribirte.
                 </Typography>
               )}
 
-              <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center', mt: 1.5 }}>
-                Al suscribirte aceptas los términos y condiciones. Puedes cancelar desde tu perfil cuando quieras.
-              </Typography>
+              {/* Badges de confianza */}
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, mt: 4, pt: 3, borderTop: '1px solid #f1f5f9' }}>
+                {[
+                  { icon: <ShieldCheck size={16} />, text: 'Pago seguro' },
+                  { icon: <RefreshCw size={16} />, text: 'Cancela cuando quieras' },
+                  { icon: <Lock size={16} />, text: 'Datos encriptados' },
+                ].map((badge, i) => (
+                  <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 0.75, color: '#94a3b8' }}>
+                    {badge.icon}
+                    <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 600 }}>
+                      {badge.text}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+
+            {/* Enlace para volver */}
+            <Box sx={{ mt: 3, textAlign: 'center' }}>
+              <Link href="/suscripciones" style={{
+                fontFamily: FONT, fontSize: '0.8125rem', fontWeight: 600,
+                color: '#64748b', textDecoration: 'none',
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--web-primary,#25927F)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
+              >
+                <ArrowLeft size={14} />
+                Volver a los planes
+              </Link>
+            </Box>
+          </Grid>
+
+          {/* Resumen del plan */}
+          <Grid item xs={12} lg={4} sx={{ order: { xs: 1, lg: 2 } }}>
+            <Box sx={{
+              borderRadius: '24px', bgcolor: '#fff',
+              border: '1px solid #e2e8f0', overflow: 'hidden',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02)',
+              position: { lg: 'sticky' }, top: { lg: 90 }
+            }}>
+              <Box sx={{
+                p: 3.5, borderBottom: '1px solid #f1f5f9',
+                background: 'linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%)'
+              }}>
+                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: '6px', bgcolor: 'rgba(37,146,127,0.08)', borderRadius: '20px', px: 1.5, py: 0.5, mb: 1.5 }}>
+                  <Repeat2 size={13} color="var(--web-primary,#25927F)" />
+                  <Typography sx={{ fontFamily: FONT, fontSize: '0.6875rem', fontWeight: 700, color: 'var(--web-primary,#25927F)', textTransform: 'uppercase' }}>
+                    {INTERVALO_LABELS[plan.intervalo]}
+                  </Typography>
+                </Box>
+                <Typography sx={{ fontFamily: FONT, fontSize: '1.35rem', fontWeight: 800, color: '#0f172a', mb: 0.5 }}>
+                  {plan.nombre}
+                </Typography>
+                {plan.descripcion && (
+                  <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.5 }}>
+                    {plan.descripcion}
+                  </Typography>
+                )}
+              </Box>
+
+              <Box sx={{ p: 3.5, borderBottom: '1px solid #f1f5f9' }}>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5 }}>
+                  <Typography sx={{ fontFamily: FONT, fontSize: '0.9rem', fontWeight: 600, color: '#64748b' }}>{monedaSimbolo}</Typography>
+                  <Typography sx={{ fontFamily: FONT, fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+                    {precio.toFixed(2)}
+                  </Typography>
+                  <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#94a3b8' }}>
+                    /{INTERVALO_LABELS[plan.intervalo]?.toLowerCase()}
+                  </Typography>
+                </Box>
+                {plan.dias_prueba > 0 && (
+                  <Box sx={{ mt: 1.5, display: 'inline-flex', alignItems: 'center', gap: '6px', bgcolor: '#f0fdf4', borderRadius: '20px', px: 1.5, py: 0.5, border: '1px solid #bbf7d0' }}>
+                    <Check size={12} color="#16a34a" strokeWidth={3} />
+                    <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 700, color: '#16a34a' }}>
+                      {plan.dias_prueba} días gratis incluidos
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+
+              <Box sx={{ p: 3.5 }}>
+                {tieneBeneficios ? (
+                  <>
+                    <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 2 }}>
+                      ¿Qué incluye?
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                      {beneficios.map((beneficio, i) => (
+                        <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25 }}>
+                          <Box sx={{
+                            width: 18, height: 18, borderRadius: '50%',
+                            bgcolor: 'rgba(37,146,127,0.1)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, mt: 0.15
+                          }}>
+                            <Check size={11} color="var(--web-primary,#25927F)" strokeWidth={3} />
+                          </Box>
+                          <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#334155', lineHeight: 1.4 }}>
+                            {beneficio}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                    {plan.cursos.length > 0 && (
+                      <Box sx={{
+                        display: 'flex', alignItems: 'center', gap: 1,
+                        mt: 2.5, p: 1.5, borderRadius: '12px',
+                        bgcolor: '#f8fafc', border: '1px solid #f1f5f9'
+                      }}>
+                        <BookOpen size={15} color="#64748b" />
+                        <Typography sx={{ fontFamily: FONT, fontSize: '0.8125rem', color: '#475569', fontWeight: 600 }}>
+                          {plan.cursos.length} curso{plan.cursos.length !== 1 ? 's' : ''} incluido{plan.cursos.length !== 1 ? 's' : ''}
+                        </Typography>
+                      </Box>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', mb: 2 }}>
+                      Incluye {plan.cursos.length} curso{plan.cursos.length !== 1 ? 's' : ''}
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                      {plan.cursos.map(c => (
+                        <Box key={c.curso_id} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25 }}>
+                          <Box sx={{
+                            width: 18, height: 18, borderRadius: '50%',
+                            bgcolor: 'rgba(37,146,127,0.1)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, mt: 0.15
+                          }}>
+                            <Check size={11} color="var(--web-primary,#25927F)" strokeWidth={3} />
+                          </Box>
+                          <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#334155', lineHeight: 1.4 }}>
+                            {c.curso.titulo}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  </>
+                )}
+              </Box>
             </Box>
           </Grid>
         </Grid>

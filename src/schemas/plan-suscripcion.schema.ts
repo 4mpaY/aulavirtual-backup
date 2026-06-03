@@ -17,6 +17,10 @@ export const crearPlanSchema = z.object({
   intervalo: z.enum(['MENSUAL', 'TRIMESTRAL', 'SEMESTRAL', 'ANUAL']),
   dias_prueba: z.coerce.number().int().min(0).default(0),
   esta_activo: z.boolean().default(true),
+  beneficios: z
+    .array(z.string().trim().min(1, 'El beneficio no puede estar vacío'))
+    .optional()
+    .default([]),
   cursoIds: z
     .array(z.string().uuid('ID de curso inválido'))
     .min(1, 'Se requiere al menos un curso')
@@ -42,6 +46,9 @@ export const actualizarPlanSchema = z.object({
   intervalo: z.enum(['MENSUAL', 'TRIMESTRAL', 'SEMESTRAL', 'ANUAL']).optional(),
   dias_prueba: z.coerce.number().int().min(0).optional(),
   esta_activo: z.boolean().optional(),
+  beneficios: z
+    .array(z.string().trim().min(1, 'El beneficio no puede estar vacío'))
+    .optional(),
   cursoIds: z.array(z.string().uuid('ID de curso inválido')).optional()
 })
 
