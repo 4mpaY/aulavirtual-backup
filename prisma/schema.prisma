@@ -29,6 +29,7 @@ model Usuario {
   comentarios        Comentario[]
   cursos_dictados    Curso[]           @relation("ProfesorCursos")
   inscripciones      Inscripcion[]
+  inscripciones_simulacro InscripcionSimulacro[]
   intentos_examen    IntentoExamen[]
   notificaciones     Notificacion[]
   pedidos            Pedido[]
@@ -173,10 +174,6 @@ model Curso {
   fecha_fin            DateTime?
   vigencia_meses       Int?
   precio_oferta        Decimal?          @db.Decimal(10, 2)
-  precio_falso       Decimal?        @db.Decimal(10, 2)
-  tipo               TipoCurso       @default(CURSO)
-  vigencia_meses     Int?
-  completar_automatico Boolean       @default(false)
   brochure             String?
   orden                Int               @default(0)
   certificados         Certificado[]
@@ -941,12 +938,6 @@ model EntregaTrabajo {
   @@map("entregas_trabajo")
 }
 
-
-enum TipoCurso {
-  CURSO
-  DIPLOMADO
-}
-
 enum EstadoSimulacro {
   BORRADOR
   PUBLICADO
@@ -975,7 +966,52 @@ model Simulacro {
   moneda           String           @default("PEN")
   creado_en        DateTime         @default(now())
   actualizado_en   DateTime         @updatedAt
+  preguntas        PreguntaSimulacro[]
+  inscripciones    InscripcionSimulacro[]
 
   @@index([estado])
+}
+
+model InscripcionSimulacro {
+  id           String    @id @default(uuid())
+  usuario_id   String
+  simulacro_id String
+  estado       EstadoInscripcion @default(ACTIVO)
+  inscrito_en  DateTime  @default(now())
+  intentos     Int       @default(0)
+  mejor_puntaje Float?
+
+  usuario      Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  simulacro    Simulacro @relation(fields: [simulacro_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, simulacro_id])
+  @@index([usuario_id])
+  @@index([simulacro_id])
+  @@map("inscripciones_simulacro")
+}
+
+model PreguntaSimulacro {
+  id           String    @id @default(uuid())
+  simulacro_id String
+  simulacro    Simulacro @relation(fields: [simulacro_id], references: [id], onDelete: Cascade)
+  enunciado    String
+  tema         String?
+  fundamento   String?
+  orden        Int       @default(0)
+  creado_en    DateTime  @default(now())
+  opciones     OpcionPreguntaSimulacro[]
+
+  @@index([simulacro_id])
+}
+
+model OpcionPreguntaSimulacro {
+  id          String            @id @default(uuid())
+  pregunta_id String
+  pregunta    PreguntaSimulacro @relation(fields: [pregunta_id], references: [id], onDelete: Cascade)
+  texto       String
+  es_correcta Boolean           @default(false)
+  orden       Int               @default(0)
+
+  @@index([pregunta_id])
 }
 

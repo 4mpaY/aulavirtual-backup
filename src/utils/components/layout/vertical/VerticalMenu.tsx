@@ -101,6 +101,9 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             <MenuItem href='/estudiante/calendario' icon={<i className='tabler-calendar' />}>
               Calendario
             </MenuItem>
+            <MenuItem href='/estudiante/mis-simulacros' icon={<i className='tabler-clipboard-list' />}>
+              Mis Simulacros
+            </MenuItem>
             <MenuItem href='/estudiante/mis-certificados' icon={<i className='tabler-certificate' />}>
               Mis Certificados
             </MenuItem>
@@ -133,7 +136,7 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             </MenuItem>
             <MenuItem href='/admin/rutas' icon={<i className='tabler-route' />}>
               Rutas Aprendizaje
-            </MenuItem> */}
+            </MenuItem>
             <MenuItem href='/admin/pedidos' icon={<i className='tabler-shopping-cart' />}>
               Pedidos
             </MenuItem>

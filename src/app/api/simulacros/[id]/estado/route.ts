@@ -12,7 +12,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (!auth.authorized) return auth.error
 
     const simulacro = await prisma.simulacro.findUnique({ where: { id: params.id } })
-    if (!simulacro) return ApiResponse.notFound('Simulacro no encontrado')
+    if (!simulacro) return ApiResponse.error(request, 'Simulacro no encontrado', 404)
 
     const body = await request.json()
     const validation = validateRequest(cambiarEstadoSimulacroSchema, body, request)
@@ -23,8 +23,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       data: { estado: validation.data.estado },
     })
 
-    return ApiResponse.success(updated)
+    return ApiResponse.success(request, updated)
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }

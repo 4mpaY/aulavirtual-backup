@@ -21,6 +21,13 @@ const ALLOWED_MIMES: Record<string, string> = {
   'video/x-matroska': 'mkv',
   'video/mkv': 'mkv',
 
+  // Audio
+  'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+  'audio/mp4': 'mp4',
+  'audio/mpeg': 'mp3',
+  'audio/wav': 'wav',
+
   // Documentos de Office
   'application/msword': 'doc',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
@@ -168,6 +175,8 @@ export async function POST(request: Request) {
 
     // 🔐 SEGURIDAD: Verificar magic bytes (contenido real del archivo)
     if (!verifyMagicBytes(buffer, detectedMime)) {
+    // Los tipos de audio se omiten de la verificación de magic bytes (formatos variables)
+    if (!file.type.startsWith('audio/') && !verifyMagicBytes(buffer, file.type)) {
       return ApiResponse.error(request, 'El contenido del archivo no coincide con su tipo declarado', 400)
     }
 
@@ -179,7 +188,7 @@ export async function POST(request: Request) {
     const nombreOriginal = file.name.replace(/[^a-zA-Z0-9._-]/g, '_') // Sanitizar nombre original
 
     // Ruta relativa para la URL y ruta absoluta para guardar
-    const folder = isSignature ? 'firmas' : 'cursos'
+    const folder = isSignature ? 'firmas' : file.type.startsWith('audio/') ? 'audios' : 'cursos'
     const relativePath = `/uploads/${folder}/${nombreArchivo}`
     const uploadDir = join(process.cwd(), 'public', 'uploads', folder)
     const absolutePath = join(uploadDir, nombreArchivo)

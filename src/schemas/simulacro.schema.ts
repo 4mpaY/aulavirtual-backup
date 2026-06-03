@@ -5,7 +5,7 @@ export const crearSimulacroSchema = z.object({
   descripcion: z.string().max(5000).optional().nullable(),
   miniatura: z.string().url('URL inválida').optional().nullable(),
   nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).default('BASICO'),
-  duracion: z.string().max(50).optional().nullable(),
+  duracion: z.coerce.number().int().min(0).optional().nullable(),
   numero_preguntas: z.number().int().min(0).default(0),
   area_tematica: z.string().max(100).optional().nullable(),
   es_gratis: z.boolean().default(false),

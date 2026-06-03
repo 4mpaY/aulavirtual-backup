@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Box, Button, Card, CardContent, CardHeader, Chip, Divider,
-  FormControlLabel, Grid, MenuItem, Switch, TextField, Typography
+  FormControlLabel, Grid, MenuItem, Switch, Tab, Tabs, TextField, Typography
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { Icon } from '@iconify/react'
 import { useSimulacro, useCreateSimulacro, useEditSimulacro, useCambiarEstadoSimulacro } from '../hooks/useSimulacros'
 import type { EstadoSimulacro, NivelSimulacro } from '../entity/Simulacro'
+import PreguntasTab from '../components/PreguntasTab'
 
 const estadoColor: Record<EstadoSimulacro, 'warning' | 'success' | 'secondary'> = {
   BORRADOR: 'warning', PUBLICADO: 'success', ARCHIVADO: 'secondary'
@@ -30,6 +31,7 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
   const router = useRouter()
   const { enqueueSnackbar } = useSnackbar()
   const isEdit = mode === 'edit'
+  const [activeTab, setActiveTab] = useState(0)
 
   const { data: simulacro, isLoading } = useSimulacro(simulacroId ?? '')
   const createMutation = useCreateSimulacro()
@@ -38,7 +40,7 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
 
   const [form, setForm] = useState({
     titulo: '', descripcion: '', miniatura: '', nivel: 'BASICO' as NivelSimulacro,
-    duracion: '', numero_preguntas: 0, area_tematica: '',
+    duracion: 0, numero_preguntas: 0, area_tematica: '',
     es_gratis: false, precio: 0, moneda: 'PEN',
   })
 
@@ -49,7 +51,7 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
         descripcion: simulacro.descripcion ?? '',
         miniatura: simulacro.miniatura ?? '',
         nivel: simulacro.nivel,
-        duracion: simulacro.duracion ?? '',
+        duracion: simulacro.duracion ? Number(simulacro.duracion) : 0,
         numero_preguntas: simulacro.numero_preguntas ?? 0,
         area_tematica: simulacro.area_tematica ?? '',
         es_gratis: simulacro.es_gratis,
@@ -64,14 +66,18 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
 
   const handleSubmit = async () => {
     if (!form.titulo.trim()) { enqueueSnackbar('El título es requerido', { variant: 'error' }); return }
+    if (!form.es_gratis && Number(form.precio) <= 0) {
+      enqueueSnackbar('El precio debe ser mayor a 0. Si es gratuito activa el interruptor correspondiente.', { variant: 'error' })
+      return
+    }
     try {
       const payload = {
         ...form,
         numero_preguntas: Number(form.numero_preguntas),
         precio: Number(form.precio),
+        duracion: form.duracion > 0 ? form.duracion : null,
         descripcion: form.descripcion || null,
         miniatura: form.miniatura || null,
-        duracion: form.duracion || null,
         area_tematica: form.area_tematica || null,
       }
       if (isEdit && simulacroId) {
@@ -129,6 +135,23 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
         </Box>
       </Box>
 
+      {/* Tabs — solo en modo edición */}
+      {isEdit && (
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
+          <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}>
+            <Tab label='Información' icon={<i className='tabler-info-circle' />} iconPosition='start' />
+            <Tab label='Preguntas' icon={<i className='tabler-clipboard-list' />} iconPosition='start' />
+          </Tabs>
+        </Box>
+      )}
+
+      {/* Tab: Preguntas */}
+      {isEdit && activeTab === 1 && simulacroId && (
+        <PreguntasTab simulacroId={simulacroId} numeroPreguntasSimulacro={form.numero_preguntas} />
+      )}
+
+      {/* Tab: Información (siempre visible en create, condicional en edit) */}
+      {(!isEdit || activeTab === 0) && (
       <Grid container spacing={4}>
         {/* Columna principal */}
         <Grid item xs={12} md={8}>
@@ -147,7 +170,11 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
                   <TextField fullWidth label='Área Temática' placeholder='ej. Matemáticas, Historia, IA' value={form.area_tematica} onChange={set('area_tematica')} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField fullWidth label='Duración' placeholder='ej. 90 minutos' value={form.duracion} onChange={set('duracion')} />
+                  <TextField fullWidth type='number' label='Duración (minutos)' value={form.duracion || ''}
+                    onChange={e => setForm(p => ({ ...p, duracion: Number(e.target.value) }))}
+                    inputProps={{ min: 0, step: 1 }}
+                    InputProps={{ endAdornment: <span style={{ color: 'rgba(0,0,0,0.4)', whiteSpace: 'nowrap', paddingRight: 8 }}>min</span> }}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField fullWidth select label='Nivel' value={form.nivel}
@@ -212,6 +239,7 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
           </Card>
         </Grid>
       </Grid>
+      )}
     </Box>
   )
 }

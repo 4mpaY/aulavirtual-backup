@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 
+import { NextResponse } from 'next/server'
 import prisma from '@/utils/libs/prisma'
 import { actualizarSimulacroSchema } from '@/schemas/simulacro.schema'
 import { validateRequest, handleApiError } from '@/utils/libs/validation'
@@ -7,13 +8,13 @@ import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { generateUniqueSlug } from '@/utils/libs/slug'
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const simulacro = await prisma.simulacro.findUnique({ where: { id: params.id } })
-    if (!simulacro) return ApiResponse.notFound('Simulacro no encontrado')
-    return ApiResponse.success(simulacro)
+    if (!simulacro) return ApiResponse.error(request, 'Simulacro no encontrado', 404)
+    return ApiResponse.success(request, simulacro)
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }
 
@@ -23,13 +24,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     if (!auth.authorized) return auth.error
 
     const existing = await prisma.simulacro.findUnique({ where: { id: params.id } })
-    if (!existing) return ApiResponse.notFound('Simulacro no encontrado')
+    if (!existing) return ApiResponse.error(request, 'Simulacro no encontrado', 404)
 
     const body = await request.json()
     const validation = validateRequest(actualizarSimulacroSchema, body, request)
     if (!validation.success) return validation.error
 
-    const { titulo, ...rest } = validation.data
+    const { titulo, duracion, ...rest } = validation.data
 
     let slug = existing.slug
     if (titulo && titulo !== existing.titulo) {
@@ -38,12 +39,16 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     const simulacro = await prisma.simulacro.update({
       where: { id: params.id },
-      data: { ...(titulo ? { titulo, slug } : {}), ...rest },
+      data: {
+        ...(titulo ? { titulo, slug } : {}),
+        ...(duracion !== undefined ? { duracion: duracion != null ? String(duracion) : null } : {}),
+        ...rest,
+      },
     })
 
-    return ApiResponse.success(simulacro)
+    return ApiResponse.success(request, simulacro)
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }
 
@@ -53,14 +58,14 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     if (!auth.authorized) return auth.error
 
     const simulacro = await prisma.simulacro.findUnique({ where: { id: params.id } })
-    if (!simulacro) return ApiResponse.notFound('Simulacro no encontrado')
+    if (!simulacro) return ApiResponse.error(request, 'Simulacro no encontrado', 404)
     if (simulacro.estado !== 'BORRADOR') {
-      return ApiResponse.badRequest('Solo se pueden eliminar simulacros en estado BORRADOR')
+      return ApiResponse.error(request, 'Solo se pueden eliminar simulacros en estado BORRADOR', 400)
     }
 
     await prisma.simulacro.delete({ where: { id: params.id } })
-    return ApiResponse.success({ message: 'Simulacro eliminado correctamente' })
+    return ApiResponse.success(request, { message: 'Simulacro eliminado correctamente' })
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }

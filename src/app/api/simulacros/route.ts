@@ -17,7 +17,6 @@ export async function GET(request: Request) {
     const { page, limit, buscar, estado, nivel } = validation.data
     const skip = (page - 1) * limit
 
-    // Si no viene estado explícito, mostrar solo PUBLICADO para acceso público
     const authHeader = request.headers.get('authorization')
     const estadoFiltro = estado ?? (authHeader ? undefined : 'PUBLICADO')
 
@@ -33,21 +32,13 @@ export async function GET(request: Request) {
     }
 
     const [simulacros, total] = await Promise.all([
-      prisma.simulacro.findMany({
-        where,
-        orderBy: { creado_en: 'desc' },
-        skip,
-        take: limit,
-      }),
+      prisma.simulacro.findMany({ where, orderBy: { creado_en: 'desc' }, skip, take: limit }),
       prisma.simulacro.count({ where }),
     ])
 
-    return ApiResponse.success({
-      simulacros,
-      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
-    })
+    return ApiResponse.success(request, { simulacros, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } })
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }
 
@@ -60,8 +51,7 @@ export async function POST(request: Request) {
     const validation = validateRequest(crearSimulacroSchema, body, request)
     if (!validation.success) return validation.error
 
-    const { titulo, precio, ...rest } = validation.data
-
+    const { titulo, precio, duracion, ...rest } = validation.data
     const slug = await generateUniqueSlug(titulo, prisma.simulacro)
 
     const simulacro = await prisma.simulacro.create({
@@ -69,12 +59,13 @@ export async function POST(request: Request) {
         titulo,
         slug,
         precio,
+        duracion: duracion != null ? String(duracion) : null,
         ...rest,
       },
     })
 
-    return ApiResponse.created(simulacro)
+    return ApiResponse.success(request, simulacro, 201)
   } catch (error) {
-    return handleApiError(error)
+    return handleApiError(error, request)
   }
 }
