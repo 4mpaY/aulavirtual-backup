@@ -1,5 +1,3 @@
-import crypto from 'crypto'
-
 const BASE = 'https://api.culqi.com/v2'
 const KEY = process.env.CULQI_SECRET_KEY!
 
@@ -29,9 +27,9 @@ export const culqi = {
       phone_number: '999999999'
     }),
 
-  verificarFirma: (payload: string, firma: string) => {
-    const expected = crypto.createHmac('sha256', process.env.CULQI_WEBHOOK_SECRET!).update(payload).digest('hex')
+  verificarBasicAuth: (authHeader: string) => {
+    const expected = 'Basic ' + Buffer.from(`${process.env.CULQI_WEBHOOK_USER}:${process.env.CULQI_WEBHOOK_SECRET}`).toString('base64')
 
-    return expected === firma
+    return authHeader === expected
   }
 }

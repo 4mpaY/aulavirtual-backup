@@ -12,10 +12,10 @@ import {
 export async function POST(req: Request) {
   try {
     const payload = await req.text()
-    const signature = req.headers.get('x-culqi-signature') ?? ''
+    const authHeader = req.headers.get('authorization') ?? ''
 
-    if (!culqi.verificarFirma(payload, signature)) {
-      return NextResponse.json({ error: 'Firma inválida' }, { status: 401 })
+    if (!culqi.verificarBasicAuth(authHeader)) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
     const event = JSON.parse(payload)
