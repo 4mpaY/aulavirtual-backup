@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, useMemo } from 'react'
+
 import { usePathname } from 'next/navigation'
 
 import FullCalendar from '@fullcalendar/react'
@@ -135,13 +136,16 @@ export function CalendarioView() {
     : pathname.includes('/profesor')
       ? '/profesor/mis-cursos'
       : '/cursos'
+
   const [eventoSeleccionado, setEventoSeleccionado] = useState<any>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [vistaActiva, setVistaActiva] = useState('dayGridMonth')
   const [tituloMes, setTituloMes] = useState('')
+
   const [filtrosActivos, setFiltrosActivos] = useState<Set<string>>(
     new Set(FILTROS.map(f => f.tipo))
   )
+
   const [rango, setRango] = useState<{ desde: string; hasta: string }>(() => {
     const hoy = new Date()
 

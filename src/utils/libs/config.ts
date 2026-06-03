@@ -15,10 +15,13 @@ const ENV_OVERRIDES: Record<string, string> = {
   // Culqi
   CULQI_PRIVATE_KEY:     process.env.CULQI_SECRET_KEY      ?? '',
   CULQI_WEBHOOK_SECRET:  process.env.CULQI_WEBHOOK_SECRET  ?? '',
+
   // IziPay
   IZIPAY_API_KEY:        process.env.IZIPAY_API_KEY        ?? '',
+
   // PayPal
   PAYPAL_CLIENT_SECRET:  process.env.PAYPAL_CLIENT_SECRET  ?? '',
+
   // Mercado Pago
   MP_ACCESS_TOKEN:       process.env.MP_ACCESS_TOKEN       ?? '',
 }

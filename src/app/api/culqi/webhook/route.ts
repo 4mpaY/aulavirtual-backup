@@ -154,6 +154,7 @@ export async function POST(req: Request) {
 
       if (culqiSubId && culqiStatus) {
         const estadoNuevo = mapearEstadoCulqi(culqiStatus)
+
         const fechaProximo = objeto?.next_billing_date
           ? new Date(Number(objeto.next_billing_date) * 1000)
           : undefined

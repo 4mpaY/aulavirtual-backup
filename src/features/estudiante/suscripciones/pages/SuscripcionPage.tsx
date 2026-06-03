@@ -7,7 +7,6 @@ import { Grid, Typography, Box, Alert, CircularProgress } from '@mui/material'
 import { useMiSuscripcion, usePlanesPublicos } from '../hooks/useSuscripcion'
 import PlanCard from '../components/PlanCard'
 import SuscripcionCard from '../components/SuscripcionCard'
-import type { PlanPublico } from '../entity/Suscripcion'
 
 export function SuscripcionPage() {
   const router = useRouter()

@@ -286,7 +286,7 @@ const PlanSuscripcionForm = ({ open, handleClose, planToEdit, cursosDisponibles 
               Beneficios del Plan
             </Typography>
             <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 2 }}>
-              Estos beneficios se mostrarán en la página pública de suscripciones. Ej: "Acceso a +50 cursos", "Certificados incluidos", etc.
+              Estos beneficios se mostrarán en la página pública de suscripciones. Ej: &quot;Acceso a +50 cursos&quot;, &quot;Certificados incluidos&quot;, etc.
             </Typography>
 
             {/* Lista de beneficios actuales */}

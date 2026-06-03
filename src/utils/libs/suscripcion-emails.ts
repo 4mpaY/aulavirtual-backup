@@ -126,6 +126,7 @@ export async function enviarEmailCobroFallido(datos: DatosSuscripcion & { intent
   const { nombreUsuario, correoUsuario, nombrePlan, intentos } = datos
 
   const urgente = intentos >= 2
+
   const contenido = `
     <p style="color:#334155;font-size:15px;">Hola <strong>${nombreUsuario}</strong>,</p>
     <p style="color:#334155;font-size:15px;">No pudimos procesar el cobro de tu suscripción <strong>${nombrePlan}</strong>.</p>

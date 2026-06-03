@@ -83,6 +83,7 @@ export async function POST(request: Request) {
     // Sincronizar con Culqi: crear el plan recurrente
     try {
       const shortName = `plan-${plan.id.slice(0, 8)}`
+
       const culqiPayload = {
         name: plan.nombre,
         short_name: shortName,
@@ -107,6 +108,7 @@ export async function POST(request: Request) {
       plan.culqi_short_name = shortName
     } catch (culqiError: any) {
       console.error('Error sincronizando plan con Culqi:', culqiError?.message)
+
       // No fallar: el plan queda creado en DB, culqi_plan_id será null hasta sincronizar
     }
 

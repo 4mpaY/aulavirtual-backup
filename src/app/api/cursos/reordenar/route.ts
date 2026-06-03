@@ -38,6 +38,7 @@ export async function PATCH(request: Request) {
     // Si es PROFESOR, verificar que todos los cursos le pertenecen
     if (user.rol === 'PROFESOR') {
       const ids = items.map(i => i.id)
+
       const cursos = await prisma.curso.findMany({
         where: { id: { in: ids } },
         select: { id: true, profesor_id: true }

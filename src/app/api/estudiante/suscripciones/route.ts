@@ -4,7 +4,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
-import { culqiSuscripcion, mapearEstadoCulqi } from '@/utils/libs/culqi-suscripcion'
+import { culqiSuscripcion } from '@/utils/libs/culqi-suscripcion'
 import { enviarEmailSuscripcionActiva } from '@/utils/libs/suscripcion-emails'
 
 /**
@@ -66,6 +66,7 @@ export async function POST(request: Request) {
     })
 
     if (!plan) return ApiResponse.error(request, 'Plan no encontrado o inactivo', 404)
+
     if (!plan.culqi_plan_id) {
       return ApiResponse.error(request, 'El plan no está sincronizado con el procesador de pagos', 422)
     }
@@ -138,6 +139,7 @@ export async function POST(request: Request) {
 
     // Paso 4: Consultar suscripción para obtener next_billing_date y status completo
     let culqiSub = culqiSubCreada
+
     try {
       culqiSub = await culqiSuscripcion.consultarSuscripcion(culqiSubCreada.id)
     } catch {
@@ -150,6 +152,7 @@ export async function POST(request: Request) {
     // Cualquier otro estado inicial queda PENDIENTE hasta que el webhook confirme el pago.
     // El webhook charge.creation.succeeded actualizará a ACTIVA cuando Culqi confirme el cobro.
     const estadoInicial = culqiStatus === 3 ? 'ACTIVA' : culqiStatus === 4 ? 'CANCELADA' : culqiStatus === 6 ? 'VENCIDA' : 'PENDIENTE'
+
     const fechaProximoCobro = culqiSub.next_billing_date
       ? new Date(culqiSub.next_billing_date * 1000)
       : null
