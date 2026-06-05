@@ -63,9 +63,11 @@ export default function SimulacroDetailView({ simulacro, preguntas, tieneAcceso,
     // 3. Autenticado pero no comprado
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }}>
-        <button style={btnStyle('#dc2626')}>
-          Comprar acceso — {precio}
-        </button>
+        <Link href={`/checkout/simulacros/${simulacro.slug}`} style={{ textDecoration: 'none' }}>
+          <button style={btnStyle('#dc2626')}>
+            Comprar acceso — {precio}
+          </button>
+        </Link>
         <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.35)' }}>
           Acceso de por vida · Sin mensualidades
         </span>

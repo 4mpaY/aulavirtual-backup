@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 
 interface Opcion { id: string; texto: string; es_correcta: boolean; orden: number }
-interface Pregunta { id: string; enunciado: string; tema: string | null; fundamento: string | null; audio_url?: string | null; orden: number; opciones: Opcion[] }
+interface Pregunta { id: string; enunciado: string; tema: string | null; fundamento: string | null; audio_url?: string | null; imagen_url?: string | null; orden: number; opciones: Opcion[] }
 
 const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -160,8 +160,19 @@ export default function SimulacroPlayer({ preguntas, duracionMin, titulo }: {
 }) {
   const [idx, setIdx] = useState(0)
   const [respuestas, setRespuestas] = useState<Record<string, string>>({})
+  const [seleccionPendiente, setSeleccionPendiente] = useState<string | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [finished, setFinished] = useState(false)
+
+  // Aviso al recargar/cerrar mientras el simulacro está en progreso
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [])
 
   const pregunta = preguntas[idx]
   const opcionElegidaId = pregunta ? respuestas[pregunta.id] : undefined
@@ -173,14 +184,21 @@ export default function SimulacroPlayer({ preguntas, duracionMin, titulo }: {
 
   const handleSeleccionar = (opcionId: string) => {
     if (revealed) return
-    setRespuestas(prev => ({ ...prev, [pregunta.id]: opcionId }))
+    setSeleccionPendiente(opcionId)
+  }
+
+  const handleConfirmar = () => {
+    if (!seleccionPendiente || revealed) return
+    setRespuestas(prev => ({ ...prev, [pregunta.id]: seleccionPendiente }))
     setRevealed(true)
+    setSeleccionPendiente(null)
   }
 
   const handleSiguiente = () => {
     if (idx + 1 >= preguntas.length) { setFinished(true); return }
     setIdx(i => i + 1)
     setRevealed(false)
+    setSeleccionPendiente(null)
   }
 
   if (preguntas.length === 0) return (
@@ -237,19 +255,30 @@ export default function SimulacroPlayer({ preguntas, duracionMin, titulo }: {
           )}
 
           {/* Enunciado */}
-          <p style={{ margin: '0 0 22px', fontSize: '0.92rem', color: ATD.muted, lineHeight: 1.6 }}>
+          <p style={{ margin: '0 0 16px', fontSize: '0.92rem', color: ATD.muted, lineHeight: 1.6 }}>
             <strong style={{ color: ATD.text }}>{idx + 1}.-</strong> {pregunta.enunciado}
           </p>
+
+          {/* Imagen de la pregunta */}
+          {pregunta.imagen_url && (
+            <div style={{ marginBottom: 20, borderRadius: 8, overflow: 'hidden', border: `1px solid ${ATD.border}`, maxWidth: 560 }}>
+              <img src={pregunta.imagen_url} alt='Imagen de la pregunta'
+                style={{ width: '100%', maxHeight: 280, objectFit: 'contain', display: 'block', background: 'rgba(0,0,0,0.3)' }} />
+            </div>
+          )}
 
           {/* Opciones */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {pregunta.opciones.map((op, i) => {
+              const esPendiente = !revealed && seleccionPendiente === op.id
               const elegida = opcionElegidaId === op.id
-              const bg = !revealed ? (elegida ? ATD.primaryLt : 'transparent')
+              const bg = !revealed
+                ? (esPendiente ? ATD.primaryLt : 'transparent')
                 : op.es_correcta ? ATD.greenBg
                 : elegida ? ATD.redBg
                 : 'transparent'
-              const borderCol = !revealed ? (elegida ? ATD.primary : ATD.border)
+              const borderCol = !revealed
+                ? (esPendiente ? ATD.primary : ATD.border)
                 : op.es_correcta ? ATD.greenBd
                 : elegida ? ATD.redBd
                 : ATD.border
@@ -268,14 +297,13 @@ export default function SimulacroPlayer({ preguntas, duracionMin, titulo }: {
                     fontSize: '0.9rem', color: ATD.text,
                   }}
                 >
-                  {/* Radio */}
                   <span style={{
                     width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
                     border: `2px solid ${borderCol}`,
-                    background: elegida || (revealed && op.es_correcta) ? borderCol : 'transparent',
+                    background: esPendiente || elegida || (revealed && op.es_correcta) ? borderCol : 'transparent',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
-                    {(elegida || (revealed && op.es_correcta)) && (
+                    {(esPendiente || elegida || (revealed && op.es_correcta)) && (
                       <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff', display: 'block' }} />
                     )}
                   </span>
@@ -290,6 +318,27 @@ export default function SimulacroPlayer({ preguntas, duracionMin, titulo }: {
               )
             })}
           </div>
+
+          {/* Botón confirmar respuesta */}
+          {!revealed && (
+            <div style={{ marginTop: 18, display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={handleConfirmar}
+                disabled={!seleccionPendiente}
+                style={{
+                  padding: '10px 28px', borderRadius: 8, border: 'none',
+                  background: seleccionPendiente ? ATD.primary : 'rgba(255,255,255,0.08)',
+                  color: seleccionPendiente ? '#fff' : 'rgba(255,255,255,0.3)',
+                  fontSize: '0.9rem', fontWeight: 700,
+                  cursor: seleccionPendiente ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s',
+                  boxShadow: seleccionPendiente ? '0 4px 14px rgba(220,38,38,0.3)' : 'none',
+                }}
+              >
+                Confirmar respuesta
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Reveal: resultado + fundamento */}

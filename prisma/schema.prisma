@@ -313,23 +313,26 @@ model MetodoPagoManual {
 }
 
 model DetallePedido {
-  id              String  @id @default(uuid())
+  id              String    @id @default(uuid())
   tipo_item       String  @default("CURSO")
-  cantidad        Int     @default(1)
-  descuento       Decimal @default(0) @db.Decimal(10, 2)
-  precio_unitario Decimal @db.Decimal(10, 2)
-  subtotal        Decimal @db.Decimal(10, 2)
-  total           Decimal @db.Decimal(10, 2)
+  cantidad        Int       @default(1)
+  descuento       Decimal   @default(0) @db.Decimal(10, 2)
+  precio_unitario Decimal   @db.Decimal(10, 2)
+  subtotal        Decimal   @db.Decimal(10, 2)
+  total           Decimal   @db.Decimal(10, 2)
   pedido_id       String
   curso_id        String?
   ebook_id        String?
-  curso           Curso?  @relation(fields: [curso_id], references: [id])
+  simulacro_id    String?
+  curso           Curso?    @relation(fields: [curso_id], references: [id])
   ebook           Ebook?  @relation(fields: [ebook_id], references: [id])
-  pedido          Pedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  simulacro       Simulacro? @relation(fields: [simulacro_id], references: [id])
+  pedido          Pedido    @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
 
   @@index([pedido_id])
   @@index([curso_id])
   @@index([ebook_id])
+  @@index([simulacro_id])
   @@map("detalles_pedido")
 }
 
@@ -968,6 +971,7 @@ model Simulacro {
   actualizado_en   DateTime         @updatedAt
   preguntas        PreguntaSimulacro[]
   inscripciones    InscripcionSimulacro[]
+  detalles_pedido  DetallePedido[]
 
   @@index([estado])
 }

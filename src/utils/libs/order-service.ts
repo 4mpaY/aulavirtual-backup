@@ -28,6 +28,11 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
       }
     })
 
+    // Fetch raw detalles to get simulacro_id (Prisma client may not know about this column yet)
+    const detallesRaw: any[] = await prisma.$queryRaw`
+      SELECT id, curso_id, simulacro_id FROM detalles_pedido WHERE pedido_id = ${pedidoId}`
+    const simulacroDetallesMap = new Map(detallesRaw.map(d => [d.id, d.simulacro_id]))
+
     if (!pedidoInit) throw new Error(`Pedido ${pedidoId} no encontrado.`)
 
     if (pedidoInit.estado === 'COMPLETADO') {
@@ -71,7 +76,7 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
           })
         }
 
-        // c) Crear inscripciones activas para cursos
+        // c) Crear inscripciones activas para cursos (cursos y simulacros)
         const inscripciones = []
 
         for (const detalle of pedidoInit.detalles) {

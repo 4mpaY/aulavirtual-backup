@@ -13,9 +13,13 @@ import { getBaseURL } from '@/utils/env'
 import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
 import AudioRecorder from './AudioRecorder'
+import MediaLibrary from '@/features/admin/cursos/components/MediaLibrary'
 
 interface Opcion { id?: string; texto: string; es_correcta: boolean; orden: number }
-interface Pregunta { id: string; enunciado: string; tema: string | null; fundamento: string | null; audio_url?: string | null; orden: number; opciones: Opcion[] }
+interface Pregunta {
+  id: string; enunciado: string; tema: string | null; fundamento: string | null
+  audio_url?: string | null; imagen_url?: string | null; orden: number; opciones: Opcion[]
+}
 
 const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -33,8 +37,10 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
   const [tema, setTema] = useState(initial?.tema ?? '')
   const [fundamento, setFundamento] = useState(initial?.fundamento ?? '')
   const [audioUrl, setAudioUrl] = useState<string | null>(initial?.audio_url ?? null)
+  const [imagenUrl, setImagenUrl] = useState<string | null>(initial?.imagen_url ?? null)
   const [opciones, setOpciones] = useState<Opcion[]>(initial?.opciones ?? emptyOpciones())
   const [saving, setSaving] = useState(false)
+  const [mediaOpen, setMediaOpen] = useState(false)
 
   const base = `${getBaseURL()}/api/simulacros/${simulacroId}/preguntas`
   const headers = token ? { Authorization: `Bearer ${token}` } : {}
@@ -47,14 +53,13 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
 
   const addOpcion = () => {
     if (opciones.length >= 6) return
-    setOpciones(prev => [...prev, { texto: '', es_correcta: false, orden: prev.length, audio_url: '' }])
+    setOpciones(prev => [...prev, { texto: '', es_correcta: false, orden: prev.length }])
   }
 
   const removeOpcion = (i: number) => {
     if (opciones.length <= 2) return
     setOpciones(prev => {
       const next = prev.filter((_, idx) => idx !== i).map((o, idx) => ({ ...o, orden: idx }))
-      // Si la eliminada era la correcta, marcar la primera
       if (!next.some(o => o.es_correcta)) next[0].es_correcta = true
       return next
     })
@@ -72,6 +77,7 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
         tema: tema || null,
         fundamento: fundamento || null,
         audio_url: audioUrl || null,
+        imagen_url: imagenUrl || null,
         opciones: opciones.map((o, i) => ({ texto: o.texto, es_correcta: o.es_correcta, orden: i })),
       }
       if (initial) {
@@ -102,6 +108,34 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
           <TextField fullWidth multiline minRows={2} label='Fundamento (explicación de la respuesta correcta)'
             value={fundamento} onChange={e => setFundamento(e.target.value)} />
         </Grid>
+
+        {/* Imagen de la pregunta */}
+        <Grid item xs={12}>
+          <Typography variant='caption' color='text.secondary' fontWeight={600} sx={{ display: 'block', mb: 0.75 }}>
+            Imagen de la pregunta (opcional)
+          </Typography>
+          {imagenUrl ? (
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+              <Box sx={{ borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
+                <img src={imagenUrl} alt='Imagen pregunta' style={{ width: 120, height: 80, objectFit: 'cover', display: 'block' }} />
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Button size='small' variant='outlined' onClick={() => setMediaOpen(true)} startIcon={<Icon icon='mdi:image-edit' />}>
+                  Cambiar imagen
+                </Button>
+                <Button size='small' color='error' variant='outlined' onClick={() => setImagenUrl(null)} startIcon={<Icon icon='mdi:image-off' />}>
+                  Quitar imagen
+                </Button>
+              </Box>
+            </Box>
+          ) : (
+            <Button variant='outlined' size='small' onClick={() => setMediaOpen(true)} startIcon={<Icon icon='mdi:image-plus' />}>
+              Agregar imagen
+            </Button>
+          )}
+        </Grid>
+
+        {/* Audio de sustento */}
         <Grid item xs={12}>
           <Typography variant='caption' color='text.secondary' fontWeight={600} sx={{ display: 'block', mb: 0.5 }}>
             Audio de sustento (para la respuesta correcta)
@@ -109,34 +143,41 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
           <AudioRecorder token={token} value={audioUrl} onChange={setAudioUrl} />
         </Grid>
 
+        {/* Alternativas */}
         <Grid item xs={12}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography variant='subtitle2'>Opciones — marca la correcta</Typography>
-            {opciones.length < 6 && (
-              <Button size='small' startIcon={<Icon icon='mdi:plus' />} onClick={addOpcion}>
-                Agregar opción
-              </Button>
-            )}
+            <Box>
+              <Typography variant='subtitle2'>Alternativas</Typography>
+              <Typography variant='caption' color='text.secondary'>
+                Marca el radio de la respuesta correcta · {opciones.length}/6 alternativas
+              </Typography>
+            </Box>
+            <Button size='small' variant='outlined' startIcon={<Icon icon='mdi:plus' />}
+              onClick={addOpcion} disabled={opciones.length >= 6}>
+              Agregar alternativa
+            </Button>
           </Box>
 
           {opciones.map((op, i) => (
-            <Box key={i} sx={{ mb: 2, p: 1.5, borderRadius: 1, border: '1px solid', borderColor: op.es_correcta ? 'success.light' : 'divider' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Radio size='small' checked={op.es_correcta} onChange={() => setCorrecta(i)} color='success' />
-                <Chip label={LETRAS[i]} size='small' color={op.es_correcta ? 'success' : 'default'} variant='tonal' sx={{ minWidth: 28 }} />
+            <Box key={i} sx={{ mb: 1.5, p: 1.5, borderRadius: 1, border: '1px solid', borderColor: op.es_correcta ? 'success.light' : 'divider', bgcolor: op.es_correcta ? 'success.lighter' : 'transparent' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Tooltip title='Marcar como correcta'>
+                  <Radio size='small' checked={op.es_correcta} onChange={() => setCorrecta(i)} color='success' />
+                </Tooltip>
+                <Chip label={LETRAS[i]} size='small' color={op.es_correcta ? 'success' : 'default'} variant='tonal' sx={{ minWidth: 28, flexShrink: 0 }} />
                 <TextField
                   fullWidth size='small'
-                  placeholder={`Texto opción ${LETRAS[i]}`}
+                  placeholder={`Texto alternativa ${LETRAS[i]}${op.es_correcta ? ' (correcta)' : ''}`}
                   value={op.texto}
                   onChange={e => setOpcionField(i, 'texto', e.target.value)}
                 />
-                {opciones.length > 2 && (
-                  <Tooltip title='Eliminar opción'>
-                    <IconButton size='small' color='error' onClick={() => removeOpcion(i)}>
+                <Tooltip title={opciones.length <= 2 ? 'Mínimo 2 alternativas' : 'Eliminar alternativa'}>
+                  <span>
+                    <IconButton size='small' color='error' onClick={() => removeOpcion(i)} disabled={opciones.length <= 2}>
                       <Icon icon='mdi:close' fontSize={16} />
                     </IconButton>
-                  </Tooltip>
-                )}
+                  </span>
+                </Tooltip>
               </Box>
             </Box>
           ))}
@@ -152,6 +193,14 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
           </Box>
         </Grid>
       </Grid>
+
+      <MediaLibrary
+        open={mediaOpen}
+        onClose={() => setMediaOpen(false)}
+        onSelect={(url) => { setImagenUrl(url); setMediaOpen(false) }}
+        title='Seleccionar imagen para la pregunta'
+        acceptType='IMAGEN'
+      />
     </Card>
   )
 }
@@ -185,11 +234,14 @@ function PreguntaItem({ pregunta, simulacroId, token, onRefresh }: {
       onSaved={() => { setEditing(false); onRefresh() }} onCancel={() => setEditing(false)} />
   )
 
-  const correcta = pregunta.opciones.find(o => o.es_correcta)
-
   return (
     <Card variant='outlined' sx={{ mb: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, gap: 1 }}>
+        {pregunta.imagen_url && (
+          <Box sx={{ flexShrink: 0, borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+            <img src={pregunta.imagen_url} alt='' style={{ width: 48, height: 32, objectFit: 'cover', display: 'block' }} />
+          </Box>
+        )}
         <Box sx={{ flex: 1, minWidth: 0 }}>
           {pregunta.tema && <Typography variant='caption' color='primary' fontWeight={700}>{pregunta.tema}</Typography>}
           <Typography variant='body2' fontWeight={500} noWrap={!expanded}>{pregunta.enunciado}</Typography>
@@ -216,6 +268,11 @@ function PreguntaItem({ pregunta, simulacroId, token, onRefresh }: {
       <Collapse in={expanded}>
         <Divider />
         <CardContent sx={{ pt: 1.5 }}>
+          {pregunta.imagen_url && (
+            <Box sx={{ mb: 2, borderRadius: 1, overflow: 'hidden', maxWidth: 400, border: '1px solid', borderColor: 'divider' }}>
+              <img src={pregunta.imagen_url} alt='Imagen de la pregunta' style={{ width: '100%', maxHeight: 200, objectFit: 'contain', display: 'block' }} />
+            </Box>
+          )}
           {pregunta.opciones.map((op, i) => (
             <Box key={op.id ?? i} sx={{ mb: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -228,11 +285,6 @@ function PreguntaItem({ pregunta, simulacroId, token, onRefresh }: {
                   {op.es_correcta && <Icon icon='mdi:check-circle' color='green' fontSize={14} style={{ marginLeft: 4 }} />}
                 </Typography>
               </Box>
-              {op.audio_url && (
-                <Box sx={{ pl: 4.5, mt: 0.75 }}>
-                  <audio controls src={op.audio_url} style={{ height: 28, maxWidth: 280 }} />
-                </Box>
-              )}
             </Box>
           ))}
           {(pregunta.fundamento || pregunta.audio_url) && (
@@ -277,7 +329,8 @@ export default function PreguntasTab({ simulacroId, numeroPreguntasSimulacro }: 
     enabled: !!simulacroId,
   })
 
-  const mostradas = numeroPreguntasSimulacro ?? preguntas.length
+  const pool = numeroPreguntasSimulacro ?? 0
+  const faltantes = pool > 0 ? Math.max(0, pool - preguntas.length) : 0
 
   return (
     <Box>
@@ -286,8 +339,8 @@ export default function PreguntasTab({ simulacroId, numeroPreguntasSimulacro }: 
           <Typography variant='h6'>Banco de preguntas</Typography>
           <Typography variant='caption' color='text.secondary'>
             {preguntas.length} pregunta{preguntas.length !== 1 ? 's' : ''} en el banco
-            {mostradas > 0 && preguntas.length > mostradas && (
-              <> · Se mostrarán <strong>{mostradas}</strong> aleatorias por intento</>
+            {pool > 0 && preguntas.length > pool && (
+              <> · Se mostrarán <strong>{pool}</strong> aleatorias por intento</>
             )}
           </Typography>
         </Box>
@@ -298,11 +351,18 @@ export default function PreguntasTab({ simulacroId, numeroPreguntasSimulacro }: 
         )}
       </Box>
 
-      {/* Aviso pool > número de preguntas */}
-      {preguntas.length > mostradas && mostradas > 0 && (
+      {/* Aviso: banco insuficiente */}
+      {faltantes > 0 && (
+        <Alert severity='warning' sx={{ mb: 2 }}>
+          El simulacro requiere <strong>{pool}</strong> preguntas por intento, pero el banco solo tiene <strong>{preguntas.length}</strong>.
+          Faltan <strong>{faltantes}</strong> pregunta{faltantes !== 1 ? 's' : ''} para poder publicar.
+        </Alert>
+      )}
+
+      {/* Aviso: pool mayor que banco (pool aleatorio) */}
+      {pool > 0 && preguntas.length > pool && (
         <Alert severity='info' sx={{ mb: 2 }}>
-          El banco tiene <strong>{preguntas.length}</strong> preguntas pero el simulacro muestra solo <strong>{mostradas}</strong> por intento.
-          Cada vez que un alumno rinda el examen se seleccionarán {mostradas} al azar con sus alternativas barajadas.
+          El banco tiene <strong>{preguntas.length}</strong> preguntas · Se seleccionarán <strong>{pool}</strong> aleatoriamente por intento con alternativas barajadas.
         </Alert>
       )}
 

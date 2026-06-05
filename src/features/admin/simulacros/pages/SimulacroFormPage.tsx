@@ -11,6 +11,7 @@ import { Icon } from '@iconify/react'
 import { useSimulacro, useCreateSimulacro, useEditSimulacro, useCambiarEstadoSimulacro } from '../hooks/useSimulacros'
 import type { EstadoSimulacro, NivelSimulacro } from '../entity/Simulacro'
 import PreguntasTab from '../components/PreguntasTab'
+import MediaLibrary from '@/features/admin/cursos/components/MediaLibrary'
 
 const estadoColor: Record<EstadoSimulacro, 'warning' | 'success' | 'secondary'> = {
   BORRADOR: 'warning', PUBLICADO: 'success', ARCHIVADO: 'secondary'
@@ -32,6 +33,7 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
   const { enqueueSnackbar } = useSnackbar()
   const isEdit = mode === 'edit'
   const [activeTab, setActiveTab] = useState(0)
+  const [mediaOpen, setMediaOpen] = useState(false)
 
   const { data: simulacro, isLoading } = useSimulacro(simulacroId ?? '')
   const createMutation = useCreateSimulacro()
@@ -81,10 +83,10 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
         area_tematica: form.area_tematica || null,
       }
       if (isEdit && simulacroId) {
-        await editMutation.mutateAsync({ id: simulacroId, dto: payload })
+        await editMutation.mutateAsync({ id: simulacroId, dto: payload as any })
         enqueueSnackbar('Simulacro actualizado', { variant: 'success' })
       } else {
-        const created = await createMutation.mutateAsync(payload)
+        const created = await createMutation.mutateAsync(payload as any)
         enqueueSnackbar('Simulacro creado', { variant: 'success' })
         router.push(`/admin/simulacros/${created.id}`)
       }
@@ -229,10 +231,25 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
             <CardHeader title='Miniatura' />
             <Divider />
             <CardContent>
-              <TextField fullWidth label='URL de imagen' placeholder='https://...' value={form.miniatura} onChange={set('miniatura')} />
-              {form.miniatura && (
-                <Box sx={{ mt: 2, borderRadius: 2, overflow: 'hidden', aspectRatio: '16/9', bgcolor: 'action.hover' }}>
-                  <img src={form.miniatura} alt='preview' style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {form.miniatura ? (
+                <Box>
+                  <Box sx={{ borderRadius: 2, overflow: 'hidden', aspectRatio: '16/9', bgcolor: 'action.hover', mb: 1.5 }}>
+                    <img src={form.miniatura} alt='preview' style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button fullWidth size='small' variant='outlined' onClick={() => setMediaOpen(true)} startIcon={<Icon icon='mdi:image-edit' />}>
+                      Cambiar
+                    </Button>
+                    <Button size='small' color='error' variant='outlined' onClick={() => setForm(p => ({ ...p, miniatura: '' }))} startIcon={<Icon icon='mdi:image-off' />}>
+                      Quitar
+                    </Button>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={{ border: '2px dashed', borderColor: 'divider', borderRadius: 2, p: 3, textAlign: 'center', cursor: 'pointer', '&:hover': { borderColor: 'primary.main', bgcolor: 'primary.lighter' } }}
+                  onClick={() => setMediaOpen(true)}>
+                  <Icon icon='mdi:image-plus' fontSize={36} style={{ color: 'var(--mui-palette-text-disabled)' }} />
+                  <Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>Seleccionar imagen</Typography>
                 </Box>
               )}
             </CardContent>
@@ -240,6 +257,14 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
         </Grid>
       </Grid>
       )}
+
+      <MediaLibrary
+        open={mediaOpen}
+        onClose={() => setMediaOpen(false)}
+        onSelect={(url) => { setForm(p => ({ ...p, miniatura: url })); setMediaOpen(false) }}
+        title='Seleccionar miniatura del simulacro'
+        acceptType='IMAGEN'
+      />
     </Box>
   )
 }

@@ -13,6 +13,7 @@ const updateSchema = z.object({
   fundamento: z.string().optional().nullable(),
   orden: z.number().int().optional(),
   audio_url: z.string().optional().nullable(),
+  imagen_url: z.string().optional().nullable(),
   opciones: z.array(z.object({
     texto: z.string().min(1),
     es_correcta: z.boolean().default(false),
@@ -34,7 +35,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const parsed = updateSchema.safeParse(body)
     if (!parsed.success) return ApiResponse.error(request, 'Datos inválidos', 400)
 
-    const { enunciado, tema, fundamento, audio_url, orden, opciones } = parsed.data
+    const { enunciado, tema, fundamento, audio_url, imagen_url, orden, opciones } = parsed.data
 
     if (enunciado !== undefined) {
       await prisma.$executeRaw`
@@ -43,6 +44,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
             tema       = ${tema ?? null},
             fundamento = ${fundamento ?? null},
             audio_url  = ${audio_url ?? null},
+            imagen_url = ${imagen_url ?? null},
             orden      = ${orden ?? 0}
         WHERE id = ${params.preguntaId}
       `
@@ -59,7 +61,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 
     const [pregunta]: any[] = await prisma.$queryRaw`
-      SELECT id, enunciado, tema, fundamento, orden FROM "PreguntaSimulacro" WHERE id = ${params.preguntaId}
+      SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden FROM "PreguntaSimulacro" WHERE id = ${params.preguntaId}
     `
     const opcionesRes: any[] = await prisma.$queryRaw`
       SELECT id, texto, es_correcta, orden FROM "OpcionPreguntaSimulacro" WHERE pregunta_id = ${params.preguntaId} ORDER BY orden

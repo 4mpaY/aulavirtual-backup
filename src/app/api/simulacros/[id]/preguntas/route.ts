@@ -18,6 +18,7 @@ const preguntaSchema = z.object({
   tema: z.string().optional().nullable(),
   fundamento: z.string().optional().nullable(),
   audio_url: z.string().optional().nullable(),
+  imagen_url: z.string().optional().nullable(),
   orden: z.number().int().default(0),
   opciones: z.array(opcionSchema).min(2).max(6),
 })
@@ -25,7 +26,7 @@ const preguntaSchema = z.object({
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const preguntas: any[] = await prisma.$queryRaw`
-      SELECT id, enunciado, tema, fundamento, audio_url, orden
+      SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden
       FROM "PreguntaSimulacro"
       WHERE simulacro_id = ${params.id}
       ORDER BY orden ASC
@@ -63,12 +64,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const parsed = preguntaSchema.safeParse(body)
     if (!parsed.success) return ApiResponse.error(request, 'Datos inválidos', 400)
 
-    const { enunciado, tema, fundamento, audio_url, orden, opciones } = parsed.data
+    const { enunciado, tema, fundamento, audio_url, imagen_url, orden, opciones } = parsed.data
     const preguntaId = randomUUID()
 
     await prisma.$executeRaw`
-      INSERT INTO "PreguntaSimulacro" (id, simulacro_id, enunciado, tema, fundamento, audio_url, orden, creado_en)
-      VALUES (${preguntaId}, ${params.id}, ${enunciado}, ${tema ?? null}, ${fundamento ?? null}, ${audio_url ?? null}, ${orden}, NOW())
+      INSERT INTO "PreguntaSimulacro" (id, simulacro_id, enunciado, tema, fundamento, audio_url, imagen_url, orden, creado_en)
+      VALUES (${preguntaId}, ${params.id}, ${enunciado}, ${tema ?? null}, ${fundamento ?? null}, ${audio_url ?? null}, ${imagen_url ?? null}, ${orden}, NOW())
     `
 
     for (const op of opciones) {
@@ -78,15 +79,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
       `
     }
 
-    // Actualizar contador de preguntas
-    const [{ total }]: any[] = await prisma.$queryRaw`
-      SELECT COUNT(*)::int AS total FROM "PreguntaSimulacro" WHERE simulacro_id = ${params.id}
-    `
-    await prisma.simulacro.update({ where: { id: params.id }, data: { numero_preguntas: total } })
-
     // Devolver la pregunta creada con sus opciones
     const [pregunta]: any[] = await prisma.$queryRaw`
-      SELECT id, enunciado, tema, fundamento, orden FROM "PreguntaSimulacro" WHERE id = ${preguntaId}
+      SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden FROM "PreguntaSimulacro" WHERE id = ${preguntaId}
     `
     const opcionesCreadas: any[] = await prisma.$queryRaw`
       SELECT id, texto, es_correcta, orden FROM "OpcionPreguntaSimulacro" WHERE pregunta_id = ${preguntaId} ORDER BY orden

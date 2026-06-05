@@ -25,7 +25,7 @@ async function getData(slug: string, userId?: string) {
   let preguntas: any[] = []
   if (tieneAcceso) {
     const rows: any[] = await prisma.$queryRaw`
-      SELECT id, enunciado, tema, fundamento, audio_url, orden
+      SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden
       FROM "PreguntaSimulacro"
       WHERE simulacro_id = ${simulacro.id}
       ORDER BY RANDOM()
