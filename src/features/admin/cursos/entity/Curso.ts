@@ -99,4 +99,5 @@ export interface Curso {
   }
   promedio_valoracion: number
   vigencia_meses?: number | null
+  orden: number
 }
