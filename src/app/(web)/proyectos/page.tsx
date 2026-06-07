@@ -7,7 +7,7 @@ import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import { getConfigs } from '@/utils/libs/config'
 
 export const metadata = {
-  title: 'Proyectos - ARM',
+  title: 'Proyectos',
   description: 'Gerencia y supervisión de proyectos industriales',
 }
 
@@ -73,7 +73,7 @@ export default async function ProyectosPage() {
         <div className="absolute inset-0">
           <Image
             src="/assets/services/proyectos/gerencia-de-proyectos.png"
-            alt="Proyectos ARM"
+            alt="Proyectos"
             fill
             className="object-cover"
             priority
@@ -84,14 +84,14 @@ export default async function ProyectosPage() {
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <ScrollReveal>
             <span className="inline-block text-[#E2231A] text-[10px] font-display font-black uppercase tracking-[0.35em] mb-6 border border-[#E2231A]/50 px-4 py-2 rounded-sm">
-              Servicio ARM
+              Servicio
             </span>
             <h1 className="text-5xl lg:text-7xl font-display font-black text-white mb-8 uppercase leading-[1.1] tracking-tighter">
               Gerencia y Supervisión de{' '}
               <span className="text-[#E2231A]">Proyectos Industriales</span>
             </h1>
             <p className="text-lg text-white/70 leading-relaxed max-w-3xl font-sans font-medium">
-              En ARM Ingeniería de Confiabilidad gestionamos y supervisamos proyectos industriales con un enfoque técnico, metodológico y orientado a resultados.
+              En Ingeniería de Confiabilidad gestionamos y supervisamos proyectos industriales con un enfoque técnico, metodológico y orientado a resultados.
             </p>
           </ScrollReveal>
         </div>

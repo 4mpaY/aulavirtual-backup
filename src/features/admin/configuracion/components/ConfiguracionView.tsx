@@ -130,8 +130,8 @@ function CertificadosSettings({ config, onInputChange }: { config: any; onInputC
           {PLANTILLAS_CERTIFICADO.map((p) => {
             const isSelected = plantillaActiva === p.id
 
-            
-return (
+
+            return (
               <Box
                 key={p.id}
                 onClick={() => onInputChange('CERTIFICADO_PLANTILLA', p.id)}
@@ -198,7 +198,7 @@ return (
               label='Nombre de la Institución'
               value={config.CERTIFICADO_INSTITUTION_NAME || ''}
               onChange={(e) => onInputChange('CERTIFICADO_INSTITUTION_NAME', e.target.value)}
-              placeholder='Ej: Instituto Tecnológico ARM'
+              placeholder='Ej: Instituto Tecnológico'
             />
           </Grid>
           <Grid item xs={12} md={6}>

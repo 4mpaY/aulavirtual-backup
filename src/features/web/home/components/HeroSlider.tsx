@@ -115,16 +115,7 @@ export default function HeroSlider() {
                   />
                   {/* Gradient to darken/tint the video slightly */}
                   <div className="absolute inset-0 bg-gradient-to-br from-[#02115C]/30 via-white/40 to-[#E2231A]/30 backdrop-blur-[2px] z-10 pointer-events-none mix-blend-overlay" />
-                  
-                  {/* Original Text content centered over the video */}
-                  <div className="relative z-20 text-center p-12">
-                    <div className="text-7xl font-display font-black text-[#02115C] uppercase tracking-tighter leading-none mb-4 shadow-sm mix-blend-multiply drop-shadow-lg">
-                      ARM
-                    </div>
-                    <div className="text-xs text-[#02115C] font-black uppercase tracking-[0.4em] drop-shadow-md">
-                      Asset Reliability Management
-                    </div>
-                  </div>
+
                 </div>
                 <div className="absolute top-8 right-8 flex flex-col gap-2 opacity-30 group-hover:opacity-100 transition-opacity">
                   <div className="w-10 h-[2px] bg-[#E2231A]" />
