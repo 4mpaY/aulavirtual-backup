@@ -43,8 +43,16 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
-  reactStrictMode: true, // 🔐 SEGURIDAD: Habilitado para detectar problemas en desarrollo
+  reactStrictMode: true,
   output: 'standalone',
+  transpilePackages: [
+    '@fullcalendar/core',
+    '@fullcalendar/react',
+    '@fullcalendar/daygrid',
+    '@fullcalendar/timegrid',
+    '@fullcalendar/list',
+    '@fullcalendar/interaction'
+  ],
   async headers() {
     return [
       {

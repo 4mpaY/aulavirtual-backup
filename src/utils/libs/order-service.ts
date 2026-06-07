@@ -1,6 +1,5 @@
 import prisma from '@/utils/libs/prisma'
 import { sendOrderConfirmationEmail } from './order-notifications'
-import { calcularFechaCaducidadCurso } from '@/utils/functions/calcularFechaCaducidadCurso'
 
 interface OrderCompletionData {
   metodo_pago: 'PAYPAL' | 'IZIPAY' | 'CULQI' | 'MERCADOPAGO' | 'YAPE' | 'PLIN' | 'TRANSFERENCIA' | 'OTRO'
@@ -80,16 +79,14 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
             },
             update: {
               estado: 'ACTIVO',
-              pedido_id: pedidoId,
-              acceso_hasta: calcularFechaCaducidadCurso(fechaInscripcion, detalle.curso?.vigencia_meses ?? null)
+              pedido_id: pedidoId
             },
             create: {
               usuario_id: pedidoInit.usuario_id,
               curso_id: detalle.curso_id,
               pedido_id: pedidoId,
               estado: 'ACTIVO',
-              inscrito_en: fechaInscripcion,
-              acceso_hasta: calcularFechaCaducidadCurso(fechaInscripcion, detalle.curso?.vigencia_meses ?? null)
+              inscrito_en: fechaInscripcion
             }
           })
 

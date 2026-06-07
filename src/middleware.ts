@@ -100,6 +100,7 @@ export default withAuth(
           path.startsWith('/empresas') ||
           path.startsWith('/politica-de-devoluciones') ||
           path.startsWith('/servicios') ||
+          path.startsWith('/suscripciones') ||
           path === '/'
         ) {
           return true

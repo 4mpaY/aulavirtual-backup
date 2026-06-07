@@ -5,6 +5,7 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import { sendMail } from '@/utils/libs/mailer'
 import { getOrderConfirmationTemplate } from '@/utils/libs/email-templates'
+import { completeOrder } from '@/utils/libs/order-service'
 
 /**
  * POST /api/checkout
@@ -175,7 +176,25 @@ export async function POST(request: Request) {
       console.error('[Checkout-Mail] Error al enviar correo de confirmación:', mailError)
     }
 
-    // 5. Si el gateway es MANUAL, retornar datos para el mensaje de WhatsApp
+    // 5. Si el total es 0 (cupón cubre el 100%), completar el pedido directamente
+    if (total === 0) {
+      await completeOrder(pedido.id, {
+        metodo_pago: 'OTRO',
+        respuesta_pago: { origen: 'cupon_100_pct', cupon_id: cuponId }
+      })
+
+      return ApiResponse.success(
+        request,
+        {
+          message: '¡Inscripción gratuita completada! Ya tienes acceso al curso.',
+          pedidoId: pedido.id,
+          gratuito: true
+        },
+        201
+      )
+    }
+
+    // 6. Si el gateway es MANUAL, retornar datos para el mensaje de WhatsApp
     if (gateway === 'MANUAL') {
       return ApiResponse.success(
         request,
@@ -358,9 +377,13 @@ export async function POST(request: Request) {
         return ApiResponse.error(request, 'La pasarela Mercado Pago no está configurada', 500)
       }
 
-      const appUrl = new URL(request.url).origin
+      const appUrl = (
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.APP_URL ||
+        new URL(request.url).origin
+      ).replace(/\/$/, '')
 
-      const preference = {
+      const preference: Record<string, any> = {
         external_reference: pedido.id,
         items: pedido.detalles.map((d: any) => ({
           id: d.curso_id,
@@ -374,7 +397,9 @@ export async function POST(request: Request) {
           failure: `${appUrl}/checkout/mercadopago/failure?pedidoId=${pedido.id}`,
           pending: `${appUrl}/checkout/mercadopago/pending?pedidoId=${pedido.id}`
         },
-        auto_return: 'approved',
+
+        // auto_return solo funciona con URLs HTTPS públicas (no localhost)
+        ...(appUrl.startsWith('https://') ? { auto_return: 'approved' } : {}),
         notification_url: `${appUrl}/api/mercadopago/webhook`
       }
 
@@ -394,6 +419,9 @@ export async function POST(request: Request) {
       }
 
       const mpData = await mpResponse.json()
+
+      console.log('[MP_CHECKOUT] init_point:', mpData.init_point)
+      console.log('[MP_CHECKOUT] sandbox_init_point:', mpData.sandbox_init_point)
 
       await prisma.pedido.update({
         where: { id: pedido.id },

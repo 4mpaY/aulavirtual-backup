@@ -334,6 +334,12 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pago')
 
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
+
+        return
+      }
+
       const { iziConfig, token, keyRSA, pedidoId } = dataRaw.result
 
       if (!window.Izipay) throw new Error('El SDK de Izipay no se ha cargado.')
@@ -377,6 +383,12 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const dataRaw = await response.json()
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pedido')
+
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
+
+        return
+      }
 
       const { pedidoId, culqiOrderId, rsaId, rsaPublicKey } = dataRaw.result
 
@@ -519,9 +531,15 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pago con Mercado Pago')
 
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
+
+        return
+      }
+
       const { mpSandboxInitPoint, mpInitPoint } = dataRaw.result
 
-      window.location.href = mpSandboxInitPoint || mpInitPoint
+      window.location.href = mpInitPoint || mpSandboxInitPoint
     } catch (error: any) {
       setPaymentError(error.message || 'Ocurrió un error inesperado')
     } finally {
