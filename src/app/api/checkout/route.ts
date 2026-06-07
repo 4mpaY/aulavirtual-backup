@@ -358,9 +358,13 @@ export async function POST(request: Request) {
         return ApiResponse.error(request, 'La pasarela Mercado Pago no está configurada', 500)
       }
 
-      const appUrl = new URL(request.url).origin
+      const appUrl = (
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.APP_URL ||
+        new URL(request.url).origin
+      ).replace(/\/$/, '')
 
-      const preference = {
+      const preference: Record<string, any> = {
         external_reference: pedido.id,
         items: pedido.detalles.map((d: any) => ({
           id: d.curso_id,
@@ -374,7 +378,9 @@ export async function POST(request: Request) {
           failure: `${appUrl}/checkout/mercadopago/failure?pedidoId=${pedido.id}`,
           pending: `${appUrl}/checkout/mercadopago/pending?pedidoId=${pedido.id}`
         },
-        auto_return: 'approved',
+
+        // auto_return solo funciona con URLs HTTPS públicas (no localhost)
+        ...(appUrl.startsWith('https://') ? { auto_return: 'approved' } : {}),
         notification_url: `${appUrl}/api/mercadopago/webhook`
       }
 
@@ -394,6 +400,9 @@ export async function POST(request: Request) {
       }
 
       const mpData = await mpResponse.json()
+
+      console.log('[MP_CHECKOUT] init_point:', mpData.init_point)
+      console.log('[MP_CHECKOUT] sandbox_init_point:', mpData.sandbox_init_point)
 
       await prisma.pedido.update({
         where: { id: pedido.id },

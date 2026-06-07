@@ -45,12 +45,13 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
     profesor_id: curso.profesor_id,
     tipo_emision: curso.tipo_emision,
     duracion: curso.duracion || '',
+    codigo: curso.codigo || '',
     miniatura: curso.miniatura || '',
     video_presentacion: curso.video_presentacion || '',
     brochure: curso.brochure || '',
     fecha_inicio: curso.fecha_inicio ? toLocalDateInputValue(curso.fecha_inicio) : '',
     fecha_fin: curso.fecha_fin ? toLocalDateInputValue(curso.fecha_fin) : '',
-    nivel: curso.nivel || 'BASICO'
+    nivel: curso.nivel || ''
   })
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -68,12 +69,13 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
           profesor_id: form.profesor_id,
           tipo_emision: form.tipo_emision as 'SINCRONO' | 'ASINCRONO' | 'MIXTO',
           duracion: form.duracion || null,
+          codigo: form.codigo?.trim().toUpperCase() || null,
           miniatura: form.miniatura || null,
           video_presentacion: form.video_presentacion || null,
           brochure: form.brochure || null,
           fecha_inicio: form.fecha_inicio ? sanitizeDatetimeInput(form.fecha_inicio) : null,
           fecha_fin: form.fecha_fin ? sanitizeDatetimeInput(form.fecha_fin) : null,
-          nivel: form.nivel as 'BASICO' | 'INTERMEDIO' | 'AVANZADO'
+          nivel: (form.nivel || null) as 'BASICO' | 'INTERMEDIO' | 'AVANZADO' | null
         }
       })
       enqueueSnackbar('Curso actualizado exitosamente', { variant: 'success' })
@@ -146,6 +148,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
           value={form.nivel}
           onChange={handleChange}
         >
+          <MenuItem value=''>Sin nivel</MenuItem>
           <MenuItem value='BASICO'>Básico</MenuItem>
           <MenuItem value='INTERMEDIO'>Intermedio</MenuItem>
           <MenuItem value='AVANZADO'>Avanzado</MenuItem>
@@ -222,6 +225,21 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
           onChange={handleChange}
           InputProps={{
             startAdornment: <InputAdornment position='start'><i className='tabler-clock text-xl text-textSecondary' /></InputAdornment>
+          }}
+        />
+      </Grid>
+      <Grid item xs={12} sm={6}>
+        <CustomTextField
+          fullWidth
+          label='Código del Curso'
+          name='codigo'
+          placeholder='Ej: MKTG01'
+          value={form.codigo}
+          onChange={handleChange}
+          inputProps={{ maxLength: 20 }}
+          helperText='Se usa en el código del certificado. Máx. 20 caracteres.'
+          InputProps={{
+            startAdornment: <InputAdornment position='start'><i className='tabler-certificate text-xl text-textSecondary' /></InputAdornment>
           }}
         />
       </Grid>

@@ -53,7 +53,7 @@ export async function GET(request: Request) {
           categoria: { select: { id: true, nombre: true, slug: true } },
           _count: { select: { modulos: true } }
         },
-        orderBy: { creado_en: 'desc' }
+        orderBy: { orden: 'asc' }
       }),
       prisma.categoria.findMany({
         where: { esta_activo: true },

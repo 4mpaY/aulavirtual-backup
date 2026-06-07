@@ -114,6 +114,7 @@ export async function POST(request: Request) {
       fecha_inicio_curso,
       fecha_culminacion,
       nota_final,
+      duracion_override,
       docente_nombre_override,
       docente_cargo_override,
       reemplazar = false
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
     // Verificar que el usuario existe
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuario_id },
-      select: { id: true, nombre: true, apellido: true, correo: true }
+      select: { id: true, nombre: true, apellido: true, correo: true, numero_documento: true }
     })
 
     if (!usuario) {
@@ -169,19 +170,22 @@ export async function POST(request: Request) {
     }
 
     // Construir el snapshot de datos
-    const fechaEmision = fecha_emision ? new Date(fecha_emision) : new Date()
+    // Las fechas de solo-día se parsean como mediodía UTC para que en cualquier
+    // zona horaria (UTC-11 a UTC+11) se muestre el día correcto sin retroceder.
+    const parseDateOnly = (s: string) => new Date(`${s}T12:00:00.000Z`)
+    const fechaEmision = fecha_emision ? parseDateOnly(fecha_emision) : new Date()
 
     const snapshot = {
       usuario: { nombre: usuario.nombre, apellido: usuario.apellido },
       curso: {
         titulo: curso.titulo,
         tipo_emision: curso.tipo_emision,
-        duracion: curso.duracion
+        duracion: duracion_override || curso.duracion
       },
       fechas: {
         emision: fechaEmision.toISOString(),
-        inicio_curso: fecha_inicio_curso ? new Date(fecha_inicio_curso).toISOString() : null,
-        culminacion: fecha_culminacion ? new Date(fecha_culminacion).toISOString() : null
+        inicio_curso: fecha_inicio_curso ? parseDateOnly(fecha_inicio_curso).toISOString() : null,
+        culminacion: fecha_culminacion ? parseDateOnly(fecha_culminacion).toISOString() : null
       },
       nota_final: nota_final !== undefined && nota_final !== '' ? parseFloat(nota_final) : null,
       profesor: {
@@ -209,10 +213,11 @@ export async function POST(request: Request) {
         }
       })
     } else {
-      // Generar código de verificación único
-      const timestamp = Date.now().toString(36).toUpperCase()
-      const random = Math.random().toString(36).substring(2, 6).toUpperCase()
-      const codigoVerificacion = `CERT-${timestamp}-${random}`
+      // Generar código de verificación: {CODIGO_CURSO}-{YYYYMMDD}-{DNI}-{NN}
+      const fechaStr = fechaEmision.toISOString().slice(0, 10).replace(/-/g, '')
+      const dni = usuario.numero_documento?.replace(/\D/g, '') || 'SINDNI'
+      const codigoCurso = curso.codigo || curso.slug.slice(0, 12).toUpperCase()
+      const codigoVerificacion = `${codigoCurso}-${fechaStr}-${dni}-01`
 
       certificado = await prisma.certificado.create({
         data: {

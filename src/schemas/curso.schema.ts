@@ -17,8 +17,10 @@ export const crearCursoSchema = z.object({
   // Paso 2: Configuración y precio (opcional al crear)
   es_gratis: z.boolean().default(false),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').default(0),
+  precio_falso: z.coerce.number().min(0, 'El precio falso no puede ser negativo').default(0),
   moneda: z.string().max(3).default('PEN'),
   duracion: z.string().max(50).optional().nullable(),
+  codigo: z.string().max(20).optional().nullable(),
 
   // Paso 3: Media (opcional al crear)
   miniatura: z.string().optional().nullable(),
@@ -26,7 +28,8 @@ export const crearCursoSchema = z.object({
   brochure: z.string().optional().nullable(),
   fecha_inicio: z.string().optional().nullable(),
   fecha_fin: z.string().optional().nullable(),
-  nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).default('BASICO')
+  vigencia_meses: z.coerce.number().int().positive().optional().nullable(),
+  nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).optional().nullable()
 })
 
 export type CrearCursoDto = z.infer<typeof crearCursoSchema>
@@ -45,17 +48,22 @@ export const actualizarCursoSchema = z.object({
   categoria_id: z.string().uuid('ID de categoría inválido').optional().nullable(),
   profesor_id: z.string().uuid('ID de profesor inválido').optional(),
   tipo_emision: z.enum(['SINCRONO', 'ASINCRONO', 'MIXTO']).optional(),
-  nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).optional(),
+  nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).optional().nullable(),
   es_gratis: z.boolean().optional(),
   es_privado: z.boolean().optional(),
+  completar_automatico: z.boolean().optional(),
+  precio_certificado: z.coerce.number().min(0).optional().nullable(),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').optional(),
+  precio_falso: z.coerce.number().min(0, 'El precio falso no puede ser negativo').optional(),
   moneda: z.string().max(3).optional(),
   duracion: z.string().max(50).optional().nullable(),
+  codigo: z.string().max(20).optional().nullable(),
   miniatura: z.string().optional().nullable(),
   video_presentacion: z.string().optional().nullable(),
   brochure: z.string().optional().nullable(),
   fecha_inicio: z.string().optional().nullable(),
   fecha_fin: z.string().optional().nullable(),
+  vigencia_meses: z.coerce.number().int().positive().optional().nullable(),
   objetivos: z.array(z.string()).optional(),
   metodologia: z.array(z.any()).optional(),
   beneficios: z.array(z.any()).optional(),

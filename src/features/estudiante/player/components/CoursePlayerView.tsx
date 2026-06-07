@@ -31,9 +31,10 @@ interface CoursePlayerViewProps {
         examenes?: any[]
     }
     initialLessonId?: string
+    initialExamenId?: string
 }
 
-const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) => {
+const CoursePlayerView = ({ course, initialLessonId, initialExamenId }: CoursePlayerViewProps) => {
     const configs = useConfig()
     const waNumber = configs.WHATSAPP_NUMERO || '51970495316'
     const theme = useTheme()
@@ -90,6 +91,10 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
     useEffect(() => {
         if (initialLessonId && mounted) setCurrentLessonId(initialLessonId)
     }, [initialLessonId, setCurrentLessonId, mounted])
+
+    useEffect(() => {
+        if (initialExamenId && mounted) openExam(initialExamenId)
+    }, [initialExamenId, mounted, openExam])
 
     const flatLessons = useMemo(
         () => storeCourse?.modulos.flatMap(m => m.lecciones) || [],
@@ -215,7 +220,15 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
         if (currentView === 'certificate' && storeCourse) {
             return (
                 <Grid item xs={12} key="certificate-section">
-                    <CertificateSection cursoId={storeCourse.id} />
+                    <CertificateSection
+                                        cursoId={storeCourse.id}
+                                        completarAutomatico={(course as any).completar_automatico ?? false}
+                                        onAllLessonsCompleted={() => {
+                                            const allLessons = storeCourse.modulos?.flatMap((m: any) => m.lecciones) ?? []
+
+                                            allLessons.forEach((l: any) => updateLessonProgress(l.id, true, 100))
+                                        }}
+                                    />
                 </Grid>
             )
         }
@@ -313,6 +326,7 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
                                 titulo={currentLesson.titulo}
                                 esEnVivo={true}
                                 fechaProgramada={currentLesson.fecha_programada}
+                                fechaFin={currentLesson.fecha_fin}
                                 enlaceReunion={currentLesson.enlace_reunion}
                             />
                         ) : (
@@ -720,7 +734,15 @@ const CoursePlayerView = ({ course, initialLessonId }: CoursePlayerViewProps) =>
 
                     {/* Certificación */}
                     {activeTab === 3 && storeCourse && (
-                        <CertificateSection cursoId={storeCourse.id} />
+                        <CertificateSection
+                                        cursoId={storeCourse.id}
+                                        completarAutomatico={(course as any).completar_automatico ?? false}
+                                        onAllLessonsCompleted={() => {
+                                            const allLessons = storeCourse.modulos?.flatMap((m: any) => m.lecciones) ?? []
+
+                                            allLessons.forEach((l: any) => updateLessonProgress(l.id, true, 100))
+                                        }}
+                                    />
                     )}
 
                     {/* Comentarios */}

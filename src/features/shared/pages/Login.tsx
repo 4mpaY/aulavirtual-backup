@@ -22,6 +22,9 @@ import classnames from 'classnames'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
+// Component Imports
+import GoogleButton from '@/features/shared/components/GoogleButton'
+
 // Type Imports
 import type { SystemMode } from '@core/types'
 import { loginSchema, type LoginDto } from '@/schemas/auth.schema'
@@ -334,16 +337,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
             <Divider className='gap-2'>o</Divider>
 
             <div className='flex justify-center items-center gap-1.5'>
-              <Button
-                fullWidth
-                variant='outlined'
-                color='secondary'
-                startIcon={<i className='tabler-brand-google-filled' />}
-                onClick={handleGoogleLogin}
-                disabled={isLoading}
-              >
-                Continuar con Google
-              </Button>
+              <GoogleButton onClick={handleGoogleLogin} disabled={isLoading} label='Continuar con Google' />
             </div>
           </form>
         </div>

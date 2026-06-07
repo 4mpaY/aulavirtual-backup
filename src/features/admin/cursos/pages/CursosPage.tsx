@@ -1,8 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
+  Avatar,
+  Box,
   Button,
   Card,
   CardHeader,
@@ -10,39 +12,54 @@ import {
   IconButton,
   MenuItem,
   TablePagination,
-  Typography,
-  Box,
-  Avatar,
-  Tooltip
+  Tooltip,
+  Typography
 } from '@mui/material'
 import {
   createColumnHelper,
   flexRender,
   getCoreRowModel,
-  useReactTable,
-  getFilteredRowModel,
+  getFacetedMinMaxValues,
   getFacetedRowModel,
   getFacetedUniqueValues,
-  getFacetedMinMaxValues,
+  getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel
+  getSortedRowModel,
+  useReactTable
 } from '@tanstack/react-table'
+
 import type { ColumnDef } from '@tanstack/react-table'
+
 import classnames from 'classnames'
 
-import tableStyles from '@core/styles/table.module.css'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
-import CustomTextField from '@/@core/components/mui/TextField'
-import type { ThemeColor } from '@/@core/types'
-
-import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
-import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
-import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
-
-import type { Curso } from '../entity/Curso'
-import { useCursos } from '../hooks/useCursos'
-import { CursosActions } from '../components/CursosActions'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
+import type { Curso } from '../entity/Curso'
+import { CursosActions } from '../components/CursosActions'
+import CustomTextField from '@/@core/components/mui/TextField'
+import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
+import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
+import type { ThemeColor } from '@/@core/types'
+import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
+import tableStyles from '@core/styles/table.module.css'
+import { useCursos, useReorderCursos } from '../hooks/useCursos'
 
 type EstadoColorMap = {
   [key: string]: ThemeColor
@@ -66,6 +83,45 @@ interface CursosPageProps {
   initialDataCursos: Curso[]
 }
 
+// ─── Fila sortable ────────────────────────────────────────────────────────────
+
+function SortableRow({
+  id,
+  children,
+  isDragDisabled,
+  isSelected
+}: {
+  id: string
+  children: (dragHandleProps: any) => React.ReactNode
+  isDragDisabled: boolean
+  isSelected: boolean
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled: isDragDisabled
+  })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    opacity: isDragging ? 0.6 : 1,
+    position: isDragging ? 'relative' : undefined
+  }
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={classnames({ selected: isSelected })}
+    >
+      {children({ attributes, listeners })}
+    </tr>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export function CursosPage({ initialDataCursos }: CursosPageProps) {
   const [cursoToDelete, setCursoToDelete] = useState<Curso | null>(null)
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
@@ -74,8 +130,8 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
   const [estadoFilter, setEstadoFilter] = useState<string>('all')
+  const [orderedCursos, setOrderedCursos] = useState<Curso[]>([])
 
-  // Estado para paginación manual
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10
@@ -88,8 +144,38 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
     estado: estadoFilter === 'all' ? '' : estadoFilter
   })
 
+  const reorderMutation = useReorderCursos()
+
   const cursos = useMemo(() => data?.cursos ?? (pagination.pageIndex === 0 ? initialDataCursos : []), [data, initialDataCursos, pagination.pageIndex])
   const totalCursos = useMemo(() => data?.paginacion?.total ?? initialDataCursos.length, [data, initialDataCursos.length])
+
+  useEffect(() => {
+    setOrderedCursos([...cursos])
+  }, [cursos])
+
+  const isDragDisabled = globalFilter.trim().length > 0 || estadoFilter !== 'all'
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) return
+
+    const oldIndex = orderedCursos.findIndex(c => c.id === active.id)
+    const newIndex = orderedCursos.findIndex(c => c.id === over.id)
+    const reordered = arrayMove(orderedCursos, oldIndex, newIndex)
+
+    setOrderedCursos(reordered)
+
+    const baseIndex = pagination.pageIndex * pagination.pageSize
+    const items = reordered.map((c, i) => ({ id: c.id, orden: baseIndex + i }))
+
+    await reorderMutation.mutateAsync({ items })
+  }
 
   const handleDeleteClick = (curso: Curso) => {
     setCursoToDelete(curso)
@@ -97,12 +183,17 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   }
 
   const handleViewStudentsClick = (curso: Curso) => {
-    setCursoToDelete(curso) // Reutilizamos el estado para no crear otro
+    setCursoToDelete(curso)
     setOpenStudentsModal(true)
   }
 
   const columns = useMemo<ColumnDef<Curso, any>[]>(
     () => [
+      columnHelper.display({
+        id: 'drag-handle',
+        header: () => null,
+        cell: () => null
+      }),
       columnHelper.display({
         id: 'numero',
         header: '#',
@@ -116,12 +207,12 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
         header: 'Curso',
         cell: ({ row }) => (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, maxWidth: 300 }}>
-              <CourseThumbnail
-                src={row.original.miniatura}
-                title={row.original.titulo}
-                variant='simple'
-                sx={{ width: 44, height: 32, flexShrink: 0, borderRadius: '8px' }}
-              />
+            <CourseThumbnail
+              src={row.original.miniatura}
+              title={row.original.titulo}
+              variant='simple'
+              sx={{ width: 44, height: 32, flexShrink: 0, borderRadius: '8px' }}
+            />
             <Box sx={{ minWidth: 0 }}>
               <Typography
                 variant='body2'
@@ -288,7 +379,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   )
 
   const table = useReactTable({
-    data: cursos,
+    data: orderedCursos,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter
@@ -313,7 +404,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
     getFacetedMinMaxValues: getFacetedMinMaxValues()
   })
 
-
+  const rows = table.getRowModel().rows
 
   return (
     <>
@@ -377,7 +468,10 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
-                    <th key={header.id}>
+                    <th
+                      key={header.id}
+                      style={header.id === 'drag-handle' ? { width: 40, padding: '0 8px' } : undefined}
+                    >
                       {header.isPlaceholder ? null : (
                         <div
                           className={classnames({
@@ -400,30 +494,58 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                 </tr>
               ))}
             </thead>
-            {cursos.length === 0 ? (
-              <tbody>
-                <tr>
-                  <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
-                    No hay cursos disponibles
-                  </td>
-                </tr>
-              </tbody>
-            ) : (
-              <tbody>
-                {table
-                  .getRowModel()
-                  .rows
-                  .map(row => (
-                    <tr key={row.id} className={classnames({ selected: row.getIsSelected() })}>
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={rows.map(r => r.original.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {orderedCursos.length === 0 ? (
+                  <tbody>
+                    <tr>
+                      <td colSpan={table.getVisibleFlatColumns().length} className='text-center'>
+                        No hay cursos disponibles
+                      </td>
                     </tr>
-                  ))}
-              </tbody>
-            )}
+                  </tbody>
+                ) : (
+                  <tbody>
+                    {rows.map(row => (
+                      <SortableRow
+                        key={row.id}
+                        id={row.original.id}
+                        isDragDisabled={isDragDisabled}
+                        isSelected={row.getIsSelected()}
+                      >
+                        {(dragHandleProps) => (
+                          <>
+                            <td style={{ width: 40, padding: '0 8px', textAlign: 'center' }}>
+                              {!isDragDisabled && (
+                                <span
+                                  {...dragHandleProps.attributes}
+                                  {...dragHandleProps.listeners}
+                                  style={{ cursor: 'grab', touchAction: 'none', display: 'inline-flex', alignItems: 'center' }}
+                                >
+                                  <i className='tabler-grip-vertical text-[20px] text-textDisabled' />
+                                </span>
+                              )}
+                            </td>
+                            {row.getVisibleCells().filter(c => c.column.id !== 'drag-handle').map(cell => (
+                              <td key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </td>
+                            ))}
+                          </>
+                        )}
+                      </SortableRow>
+                    ))}
+                  </tbody>
+                )}
+              </SortableContext>
+            </DndContext>
           </table>
         </div>
         <TablePagination

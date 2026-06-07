@@ -521,7 +521,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
       const { mpSandboxInitPoint, mpInitPoint } = dataRaw.result
 
-      window.location.href = mpSandboxInitPoint || mpInitPoint
+      window.location.href = mpInitPoint || mpSandboxInitPoint
     } catch (error: any) {
       setPaymentError(error.message || 'Ocurrió un error inesperado')
     } finally {
