@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       if (suscripcionCulqiId && cargoId) {
         // Idempotencia: ignorar si este cargo ya fue registrado
         const yaExiste = await prisma.pagoSuscripcion.findUnique({ where: { culqi_cargo_id: cargoId } })
+
         if (yaExiste) return NextResponse.json({ ok: true })
 
         const suscripcion = await prisma.suscripcion.findFirst({
@@ -86,6 +87,7 @@ export async function POST(req: Request) {
         // Idempotencia: ignorar si este cargo fallido ya fue registrado
         if (cargoId) {
           const yaExiste = await prisma.pagoSuscripcion.findUnique({ where: { culqi_cargo_id: cargoId } })
+
           if (yaExiste) return NextResponse.json({ ok: true })
         }
 
@@ -139,6 +141,7 @@ export async function POST(req: Request) {
     // Evento específico de cargo exitoso de suscripción → sincroniza estado
     if (tipo === 'subscription.charge.succeeded') {
       const culqiSubId = objeto?.id
+
       if (culqiSubId) {
         const fechaProximo = objeto?.next_billing_date
           ? new Date(Number(objeto.next_billing_date) * 1000)
@@ -158,6 +161,7 @@ export async function POST(req: Request) {
     // Evento específico de cargo fallido de suscripción → cancela si supera 3 intentos
     if (tipo === 'subscription.charge.failed') {
       const culqiSubId = objeto?.id
+
       if (culqiSubId) {
         const suscripcion = await prisma.suscripcion.findFirst({
           where: { culqi_suscripcion_id: culqiSubId },
@@ -206,6 +210,7 @@ export async function POST(req: Request) {
     // Período de prueba finalizado → activa la suscripción
     if (tipo === 'subscription.trial.end') {
       const culqiSubId = objeto?.id
+
       if (culqiSubId) {
         await prisma.suscripcion.updateMany({
           where: { culqi_suscripcion_id: culqiSubId, estado: 'EN_PRUEBA' },
@@ -222,6 +227,7 @@ export async function POST(req: Request) {
 
       if (culqiSubId && culqiStatus) {
         const estadoNuevo = mapearEstadoCulqi(culqiStatus)
+
         const fechaProximo = objeto?.next_billing_date
           ? new Date(Number(objeto.next_billing_date) * 1000)
           : undefined
@@ -240,6 +246,7 @@ export async function POST(req: Request) {
     // Culqi no pudo crear la suscripción → marca como cancelada
     if (tipo === 'subscription.creation.failed') {
       const culqiSubId = objeto?.id
+
       if (culqiSubId) {
         await prisma.suscripcion.updateMany({
           where: { culqi_suscripcion_id: culqiSubId },

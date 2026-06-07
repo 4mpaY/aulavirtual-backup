@@ -5,6 +5,7 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import { sendMail } from '@/utils/libs/mailer'
 import { getOrderConfirmationTemplate } from '@/utils/libs/email-templates'
+import { completeOrder } from '@/utils/libs/order-service'
 
 /**
  * POST /api/checkout
@@ -175,7 +176,25 @@ export async function POST(request: Request) {
       console.error('[Checkout-Mail] Error al enviar correo de confirmación:', mailError)
     }
 
-    // 5. Si el gateway es MANUAL, retornar datos para el mensaje de WhatsApp
+    // 5. Si el total es 0 (cupón cubre el 100%), completar el pedido directamente
+    if (total === 0) {
+      await completeOrder(pedido.id, {
+        metodo_pago: 'OTRO',
+        respuesta_pago: { origen: 'cupon_100_pct', cupon_id: cuponId }
+      })
+
+      return ApiResponse.success(
+        request,
+        {
+          message: '¡Inscripción gratuita completada! Ya tienes acceso al curso.',
+          pedidoId: pedido.id,
+          gratuito: true
+        },
+        201
+      )
+    }
+
+    // 6. Si el gateway es MANUAL, retornar datos para el mensaje de WhatsApp
     if (gateway === 'MANUAL') {
       return ApiResponse.success(
         request,
