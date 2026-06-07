@@ -14,6 +14,8 @@ export default async function Page() {
 
   if (!session) redirect('/login')
 
+  redirect('/admin/dashboard')
+
   const token = session.user?.accessToken ?? null
   const axiosPlan = new AxiosPlanSuscripcion({ getAuthToken: () => token })
   const axiosCurso = new AxiosCursoAdmin({ getAuthToken: () => token })
