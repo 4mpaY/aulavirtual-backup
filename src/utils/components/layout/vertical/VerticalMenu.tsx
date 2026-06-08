@@ -117,11 +117,11 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
               Categorías
             </MenuItem>
             <MenuItem href='/admin/cursos' icon={<i className='tabler-book' />}>
-              Gestión Cursos
+              Cursos
             </MenuItem>
-            <MenuItem href='/admin/rutas' icon={<i className='tabler-route' />}>
+            {/* <MenuItem href='/admin/rutas' icon={<i className='tabler-route' />}>
               Rutas Aprendizaje
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem href='/admin/pedidos' icon={<i className='tabler-shopping-cart' />}>
               Pedidos
             </MenuItem>
@@ -131,12 +131,12 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             <MenuItem href='/admin/certificados' icon={<i className='tabler-certificate' />}>
               Certificados
             </MenuItem>
-            <MenuItem href='/admin/planes-suscripcion' icon={<i className='tabler-repeat' />}>
+            {/* <MenuItem href='/admin/planes-suscripcion' icon={<i className='tabler-repeat' />}>
               Planes de Suscripción
-            </MenuItem>
-            <MenuItem href='/admin/suscripciones' icon={<i className='tabler-users-group' />}>
+            </MenuItem> */}
+            {/* <MenuItem href='/admin/suscripciones' icon={<i className='tabler-users-group' />}>
               Suscripciones
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem href='/admin/reclamaciones' icon={<i className='tabler-book-2' />}>
               Reclamaciones
             </MenuItem>
