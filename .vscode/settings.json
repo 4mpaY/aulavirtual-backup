@@ -57,8 +57,12 @@
   "explorer.fileNesting.patterns": {
     "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, tsconfig.json, .eslintrc.json, .hintrc, esbuild.config.mjs",
     "next.config.js": "next-env.d.ts, turbo.json",
-    "Dockerfile": "compose.prod.yml, compose.dev.yml, .dockerignore, *.dockerfile, entrypoint.sh",
+    "Dockerfile": "compose.production.yml, compose.yml",
+    "Dockerfile.new": "compose.prod.yml, compose.dev.yml, compose.cert.yml, .dockerignore",
     "*.css": "*.css.map",
     ".env": ".env.example"
   },
+  "material-icon-theme.files.associations": {
+    "compose.cert.yml": "docker",
+  }
 }
