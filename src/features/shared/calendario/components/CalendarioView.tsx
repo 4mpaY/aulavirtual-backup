@@ -1,37 +1,47 @@
 'use client'
 
-import { useRef, useState, useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import { usePathname } from 'next/navigation'
 
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import listPlugin from '@fullcalendar/list'
-import interactionPlugin from '@fullcalendar/interaction'
-import esLocale from '@fullcalendar/core/locales/es'
-import type { EventClickArg, DatesSetArg } from '@fullcalendar/core'
-
 import {
-  Box, Card, Checkbox, Chip, CircularProgress,
-  Divider, FormControlLabel, IconButton, Typography
+  Box,
+  Card,
+  Checkbox,
+  Chip,
+  CircularProgress,
+  Divider,
+  FormControlLabel,
+  IconButton,
+  Typography
 } from '@mui/material'
+import type { DatesSetArg, EventClickArg } from '@fullcalendar/core'
 
-import { useCalendario } from '../hooks/useCalendario'
+import FullCalendar from '@fullcalendar/react'
+
+import dayGridPlugin from '@fullcalendar/daygrid'
+import esLocale from '@fullcalendar/core/locales/es'
+import interactionPlugin from '@fullcalendar/interaction'
+import listPlugin from '@fullcalendar/list'
+import timeGridPlugin from '@fullcalendar/timegrid'
+
 import { EventoModal } from './EventoModal'
 
+import { useCalendario } from '../hooks/useCalendario'
+
+
 const FILTROS = [
-  { tipo: 'CLASE_VIVO',   label: 'Clase en vivo',   color: '#1565C0', icon: 'tabler-video' },
-  { tipo: 'EXAMEN',       label: 'Examen',           color: '#C62828', icon: 'tabler-file-text' },
-  { tipo: 'CURSO_INICIO', label: 'Inicio de curso',  color: '#2E7D32', icon: 'tabler-book-open' },
-  { tipo: 'CURSO_FIN',    label: 'Fin de curso',     color: '#E65100', icon: 'tabler-flag' }
+  { tipo: 'CLASE_VIVO', label: 'Clase en vivo', color: '#1565C0', icon: 'tabler-video' },
+  { tipo: 'EXAMEN', label: 'Examen', color: '#C62828', icon: 'tabler-file-text' },
+  { tipo: 'CURSO_INICIO', label: 'Inicio de curso', color: '#2E7D32', icon: 'tabler-book-open' },
+  { tipo: 'CURSO_FIN', label: 'Fin de curso', color: '#E65100', icon: 'tabler-flag' }
 ]
 
 const VISTAS = [
-  { key: 'dayGridMonth',  label: 'Mes' },
-  { key: 'timeGridWeek',  label: 'Semana' },
-  { key: 'timeGridDay',   label: 'Día' },
-  { key: 'listMonth',     label: 'Lista' }
+  { key: 'dayGridMonth', label: 'Mes' },
+  { key: 'timeGridWeek', label: 'Semana' },
+  { key: 'timeGridDay', label: 'Día' },
+  { key: 'listMonth', label: 'Lista' }
 ]
 
 const FC_STYLES = {
