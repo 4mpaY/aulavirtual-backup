@@ -235,7 +235,12 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     const curso = await prisma.curso.findUnique({
       where: { id },
       include: {
-        _count: { select: { inscripciones: true } }
+        _count: {
+          select: {
+            inscripciones: true,
+            detalles_pedido: true
+          }
+        }
       }
     })
 
@@ -259,7 +264,15 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     if (curso._count.inscripciones > 0) {
       return ApiResponse.error(
         request,
-        `No se puede eliminar: este curso tiene ${curso._count.inscripciones} inscripción(es)`,
+        `No se puede eliminar: este curso tiene ${curso._count.inscripciones} inscripción(es) activa(s).`,
+        409
+      )
+    }
+
+    if (curso._count.detalles_pedido > 0) {
+      return ApiResponse.error(
+        request,
+        `No se puede eliminar: este curso aparece en ${curso._count.detalles_pedido} pedido(s).`,
         409
       )
     }

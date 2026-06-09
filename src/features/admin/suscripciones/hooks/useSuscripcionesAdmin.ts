@@ -33,3 +33,12 @@ export function useCancelarSuscripcionAdmin() {
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY })
   })
 }
+
+export function useSyncSuscripciones() {
+  const qc = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => factory().sync(),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY })
+  })
+}

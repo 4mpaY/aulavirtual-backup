@@ -39,4 +39,12 @@ export class AxiosSuscripcionAdmin extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  async sync(): Promise<{ revisadas: number; pagosNuevos: number; estadosActualizados: number; errores: number }> {
+    try {
+      return await this.iPost('/sync')
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

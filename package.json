@@ -17,6 +17,7 @@
     "db:client:push": "prisma db push & prisma generate",
     "db:migration:deploy": "prisma migrate deploy",
     "db:main:seed": "dotenv -- tsx ./prisma/seed/main",
+    "db:seed:suscripciones": "dotenv -- tsx ./prisma/seed/suscripciones",
     "db:reset": "dotenv -e .env -- npx prisma migrate reset"
   },
   "prisma": {

@@ -10,7 +10,9 @@ import {
   Chip,
   Box,
   MenuItem,
-  TablePagination
+  TablePagination,
+  Button,
+  Tooltip
 } from '@mui/material'
 
 import {
@@ -28,7 +30,7 @@ import tableStyles from '@core/styles/table.module.css'
 import CustomTextField from '@/@core/components/mui/TextField'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import HydratedDate from '@/utils/components/HydratedDate'
-import { useSuscripcionesAdmin, useCancelarSuscripcionAdmin } from '../hooks/useSuscripcionesAdmin'
+import { useSuscripcionesAdmin, useCancelarSuscripcionAdmin, useSyncSuscripciones } from '../hooks/useSuscripcionesAdmin'
 import type { SuscripcionAdmin, EstadoSuscripcion } from '../entity/Suscripcion'
 import { INTERVALO_LABELS } from '@/features/admin/planes-suscripcion/entity/PlanSuscripcion'
 
@@ -46,6 +48,7 @@ export function SuscripcionesAdminPage() {
   const [estadoFiltro, setEstadoFiltro] = useState('')
   const { data, isLoading } = useSuscripcionesAdmin(estadoFiltro ? { estado: estadoFiltro } : {})
   const cancelar = useCancelarSuscripcionAdmin()
+  const sync = useSyncSuscripciones()
 
   const suscripciones = data?.suscripciones ?? []
 
@@ -104,13 +107,16 @@ export function SuscripcionesAdminPage() {
     }),
     columnHelper.accessor('fecha_proximo_cobro', {
       header: 'Próximo Cobro',
-      cell: ({ row }) => (
-        <Typography variant='body2' color='text.secondary'>
-          {row.original.fecha_proximo_cobro
-            ? <HydratedDate date={row.original.fecha_proximo_cobro} format='date' />
-            : '—'}
-        </Typography>
-      )
+      cell: ({ row }) => {
+        const { estado, fecha_proximo_cobro } = row.original
+        const mostrar = ['ACTIVA', 'EN_PRUEBA'].includes(estado) && fecha_proximo_cobro
+
+        return (
+          <Typography variant='body2' color='text.secondary'>
+            {mostrar ? <HydratedDate date={fecha_proximo_cobro!} format='date' /> : '—'}
+          </Typography>
+        )
+      }
     }),
     columnHelper.accessor('_count', {
       header: 'Pagos',
@@ -149,9 +155,42 @@ export function SuscripcionesAdminPage() {
 
   if (isLoading) return <Card><Box p={6}>Cargando suscripciones...</Box></Card>
 
+  if (isError) {
+    const msg = (error as any)?.message || JSON.stringify(error) || 'Error desconocido'
+
+    return (
+      <Card>
+        <Box p={6}>
+          <Typography color='error' fontWeight={600} mb={1}>Error al cargar suscripciones</Typography>
+          <Typography variant='body2' color='text.secondary' sx={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>{msg}</Typography>
+        </Box>
+      </Card>
+    )
+  }
+
   return (
     <Card>
-      <CardHeader title='Suscripciones' className='pbe-4' />
+      <CardHeader
+        title='Suscripciones'
+        className='pbe-4'
+        action={
+          <Tooltip title='Consulta Culqi y registra pagos nuevos'>
+            <Button
+              variant='outlined'
+              size='small'
+              startIcon={<i className='tabler-refresh' />}
+              onClick={() =>
+                sync.mutateAsync()
+                  .then(r => toast.success(`Sincronizado: ${r.pagosNuevos} pagos nuevos, ${r.estadosActualizados} estados actualizados`))
+                  .catch(e => toast.error(e?.message || 'Error al sincronizar'))
+              }
+              disabled={sync.isPending}
+            >
+              {sync.isPending ? 'Sincronizando...' : 'Sincronizar con Culqi'}
+            </Button>
+          </Tooltip>
+        }
+      />
       <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
         <CustomTextField
           select

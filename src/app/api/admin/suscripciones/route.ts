@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
     if (estado) where.estado = estado
 
-    const [suscripciones, total] = await Promise.all([
+    const [raw, total] = await Promise.all([
       prisma.suscripcion.findMany({
         where,
         skip,
@@ -37,6 +37,9 @@ export async function GET(request: Request) {
       }),
       prisma.suscripcion.count({ where })
     ])
+
+    // Serialización explícita para evitar problemas con Prisma Decimal / BigInt
+    const suscripciones = JSON.parse(JSON.stringify(raw))
 
     return ApiResponse.success(request, { suscripciones, total })
   } catch (error) {

@@ -132,7 +132,7 @@ const SuscripcionCard = ({ suscripcion }: SuscripcionCardProps) => {
             </Grid>
           )}
 
-          {suscripcion.fecha_proximo_cobro && ['ACTIVA', 'EN_PRUEBA', 'PENDIENTE'].includes(suscripcion.estado) && (
+          {suscripcion.fecha_proximo_cobro && ['ACTIVA', 'EN_PRUEBA'].includes(suscripcion.estado) && (
             <Grid item xs={12} sm={4}>
               <Box sx={{
                 p: 2,
