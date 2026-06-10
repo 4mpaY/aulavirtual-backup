@@ -4,7 +4,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./docker/www/certificate/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./docker.new/www/certificate/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
       - certbot-etc:/etc/letsencrypt:ro
       - certbot-webroot:/var/www/html
     environment:

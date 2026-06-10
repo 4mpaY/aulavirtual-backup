@@ -37,7 +37,7 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./docker/www/production/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./docker.new/www/production/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
       - certbot-etc:/etc/letsencrypt:ro
       - certbot-webroot:/var/www/html
     environment:
@@ -49,7 +49,7 @@ services:
     ports:
       - ${DB_PORT}:5432
     volumes:
-      - ./docker/database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./docker.new/database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - dbdata:/var/lib/postgresql/data
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     environment:
