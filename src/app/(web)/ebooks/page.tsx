@@ -1,99 +1,111 @@
 export const dynamic = 'force-dynamic'
 
-import { Box, Container, Grid, Typography, Card, CardActionArea, CardContent, CardMedia, Chip } from '@mui/material'
-import Link from 'next/link'
+import { Box, Typography } from '@mui/material'
 
 import prisma from '@/utils/libs/prisma'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
+import EbookCatalog from '@/features/web/ebooks/components/EbookCatalog'
 
 export const metadata = {
   title: `${process.env.NEXT_PUBLIC_APP_NAME} | Ebooks`,
+  description: 'Explora nuestra colección de ebooks especializados.',
 }
 
 export default async function EbooksPage() {
+  const session = await getAuthSession()
+
   const ebooks = await prisma.ebook.findMany({
     where: { estado: 'PUBLICADO' },
     orderBy: { creado_en: 'desc' },
     select: {
       id: true, titulo: true, slug: true, descripcion: true,
       autor: true, miniatura: true, precio: true, precio_falso: true,
-      moneda: true, es_gratis: true, paginas: true,
+      moneda: true, es_gratis: true, paginas: true, genero: true,
+      categoria: { select: { nombre: true } },
     },
   })
 
-  return (
-    <Box sx={{ py: { xs: 6, md: 10 } }}>
-      <Container maxWidth='xl'>
-        <Typography variant='h3' fontWeight={800} mb={1} textAlign='center'>
-          Catálogo de Ebooks
-        </Typography>
-        <Typography variant='body1' color='text.secondary' textAlign='center' mb={6}>
-          Amplía tu conocimiento con nuestra colección de ebooks especializados.
-        </Typography>
+  let adquiridosIds: string[] = []
 
-        {ebooks.length === 0 ? (
-          <Box textAlign='center' py={10}>
-            <Typography variant='h6' color='text.secondary'>
-              No hay ebooks disponibles por el momento.
-            </Typography>
+  if (session?.user?.id) {
+    const accesos = await prisma.ebookAcceso.findMany({
+      where: { usuario_id: session.user.id },
+      select: { ebook_id: true },
+    })
+
+    adquiridosIds = accesos.map(a => a.ebook_id)
+  }
+
+  const ebooksSerializados = ebooks.map(e => ({
+    ...e,
+    precio: Number(e.precio),
+    precio_falso: Number(e.precio_falso),
+  }))
+
+  return (
+    <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
+      {/* Banner */}
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 100%)',
+          py: { xs: 5, md: 7 },
+          px: { xs: 3, md: 6 },
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Decorative circles */}
+        <Box sx={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, borderRadius: '50%', backgroundColor: 'rgba(var(--web-light-rgb, 189,217,98),0.06)', pointerEvents: 'none' }} />
+        <Box sx={{ position: 'absolute', bottom: -60, right: 80, width: 300, height: 300, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.03)', pointerEvents: 'none' }} />
+
+        <Box sx={{ maxWidth: 1280, mx: 'auto', position: 'relative', zIndex: 1 }}>
+          {/* Breadcrumb */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Box
+              component='a'
+              href='/'
+              sx={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.55)', textDecoration: 'none', '&:hover': { color: 'var(--web-light, #BDD962)' }, transition: 'color 0.2s' }}
+            >
+              Inicio
+            </Box>
+            <Box component='span' sx={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>/</Box>
+            <Box component='span' sx={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>
+              Ebooks
+            </Box>
           </Box>
-        ) : (
-          <Grid container spacing={4}>
-            {ebooks.map(ebook => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={ebook.id}>
-                <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <CardActionArea
-                    component={Link}
-                    href={`/ebooks/${ebook.slug}`}
-                    sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}
-                  >
-                    <CardMedia
-                      component='img'
-                      height={180}
-                      image={ebook.miniatura ?? '/images/ebook-placeholder.png'}
-                      alt={ebook.titulo}
-                      sx={{ objectFit: 'cover' }}
-                    />
-                    <CardContent sx={{ flex: 1 }}>
-                      <Typography variant='subtitle1' fontWeight={700} mb={0.5} noWrap>
-                        {ebook.titulo}
-                      </Typography>
-                      {ebook.autor && (
-                        <Typography variant='caption' color='text.secondary' display='block' mb={1}>
-                          {ebook.autor}
-                        </Typography>
-                      )}
-                      {ebook.descripcion && (
-                        <Typography
-                          variant='body2'
-                          color='text.secondary'
-                          mb={1}
-                          sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-                        >
-                          {ebook.descripcion}
-                        </Typography>
-                      )}
-                      <Box display='flex' alignItems='center' justifyContent='space-between' mt={1} flexWrap='wrap' gap={1}>
-                        {ebook.es_gratis ? (
-                          <Chip label='Gratis' color='success' size='small' />
-                        ) : (
-                          <Typography variant='subtitle2' fontWeight={700} color='primary'>
-                            {ebook.moneda} {Number(ebook.precio).toFixed(2)}
-                          </Typography>
-                        )}
-                        {ebook.paginas && (
-                          <Typography variant='caption' color='text.disabled'>
-                            {ebook.paginas} págs.
-                          </Typography>
-                        )}
-                      </Box>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
+
+          <Typography
+            component='h1'
+            sx={{ fontFamily: 'Poppins, sans-serif', fontSize: { xs: '1.75rem', md: '2.25rem' }, fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em', mb: 1, lineHeight: 1.2 }}
+          >
+            Catálogo de Ebooks
+          </Typography>
+          <Typography
+            component='p'
+            sx={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: 'rgba(255,255,255,0.7)', maxWidth: 520, lineHeight: 1.6 }}
+          >
+            Amplía tu conocimiento con nuestra colección de ebooks especializados.
+          </Typography>
+
+          {/* Stats chips */}
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 3 }}>
+            {[
+              { label: `${ebooks.length} ebooks disponibles`, icon: '📖' },
+              ...(adquiridosIds.length > 0 ? [{ label: `${adquiridosIds.length} adquiridos`, icon: '✅' }] : []),
+            ].map(chip => (
+              <Box
+                key={chip.label}
+                sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, px: 2, py: 0.75, borderRadius: '999px', backgroundColor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: '#ffffff', fontWeight: 500 }}
+              >
+                <span>{chip.icon}</span>
+                {chip.label}
+              </Box>
             ))}
-          </Grid>
-        )}
-      </Container>
+          </Box>
+        </Box>
+      </Box>
+
+      <EbookCatalog ebooks={ebooksSerializados} adquiridosIds={adquiridosIds} />
     </Box>
   )
 }

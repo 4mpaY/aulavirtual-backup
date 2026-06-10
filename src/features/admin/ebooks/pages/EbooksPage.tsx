@@ -26,7 +26,6 @@ import {
 } from '@tanstack/react-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import Swal from 'sweetalert2'
-import axios from 'axios'
 
 import tableStyles from '@core/styles/table.module.css'
 import CustomTextField from '@core/components/mui/TextField'
@@ -34,7 +33,7 @@ import TablePaginationComponent from '@/utils/components/others/TablePaginationC
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 
 import type { Ebook } from '../entity/Ebook'
-import { useAdminEbooks, useDeleteEbook } from '../hooks/useEbooks'
+import { useAdminEbooks, useDeleteEbook, useUpdateEbook } from '../hooks/useEbooks'
 import { EbookFormModal } from '../components/EbookFormModal'
 
 const columnHelper = createColumnHelper<Ebook>()
@@ -48,6 +47,7 @@ const ESTADO_COLORS: Record<string, 'warning' | 'success' | 'default'> = {
 export const EbooksPage = () => {
   const { data: ebooks = [], isLoading } = useAdminEbooks()
   const deleteEbook = useDeleteEbook()
+  const updateEbook = useUpdateEbook()
 
   const [openModal, setOpenModal] = useState(false)
   const [selected, setSelected] = useState<Ebook | null>(null)
@@ -87,12 +87,12 @@ export const EbooksPage = () => {
     const nuevoEstado = ebook.estado === 'PUBLICADO' ? 'BORRADOR' : 'PUBLICADO'
 
     try {
-      await axios.put(`/api/admin/ebooks/${ebook.id}`, { estado: nuevoEstado })
+      await updateEbook.mutateAsync({ id: ebook.id, payload: { estado: nuevoEstado } })
       Swal.fire({ title: `Ebook ${nuevoEstado === 'PUBLICADO' ? 'publicado' : 'pasado a borrador'}`, icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 })
     } catch {
       Swal.fire({ title: 'Error', text: 'No se pudo cambiar el estado', icon: 'error' })
     }
-  }, [])
+  }, [updateEbook])
 
   const columns = useMemo<ColumnDef<Ebook, any>[]>(
     () => [

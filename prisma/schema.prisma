@@ -75,25 +75,26 @@ model Categoria {
 }
 
 model Ebook {
-  id             String        @id @default(uuid())
+  id             String          @id @default(uuid())
   titulo         String
-  slug           String        @unique
+  slug           String          @unique
   descripcion    String?
   autor          String?
   miniatura      String?
   archivo_pdf    String
-  precio         Decimal       @default(0) @db.Decimal(10, 2)
-  precio_falso   Decimal       @default(0) @db.Decimal(10, 2)
-  moneda         String        @default("PEN")
-  estado         EstadoEbook   @default(BORRADOR)
-  es_gratis      Boolean       @default(false)
+  precio         Decimal         @default(0) @db.Decimal(10, 2)
+  precio_falso   Decimal         @default(0) @db.Decimal(10, 2)
+  moneda         String          @default("PEN")
+  estado         EstadoEbook     @default(BORRADOR)
+  es_gratis      Boolean         @default(false)
   paginas        Int?
   genero         String?
   categoria_id   String?
-  creado_en      DateTime      @default(now())
-  actualizado_en DateTime      @updatedAt
-  categoria      Categoria?    @relation(fields: [categoria_id], references: [id])
+  creado_en      DateTime        @default(now())
+  actualizado_en DateTime        @updatedAt
+  categoria      Categoria?      @relation(fields: [categoria_id], references: [id])
   accesos        EbookAcceso[]
+  detalles       DetallePedido[]
 
   @@index([categoria_id])
   @@index([estado])
@@ -285,18 +286,22 @@ model MetodoPagoManual {
 
 model DetallePedido {
   id              String  @id @default(uuid())
+  tipo_item       String  @default("CURSO")
   cantidad        Int     @default(1)
   descuento       Decimal @default(0) @db.Decimal(10, 2)
   precio_unitario Decimal @db.Decimal(10, 2)
   subtotal        Decimal @db.Decimal(10, 2)
   total           Decimal @db.Decimal(10, 2)
   pedido_id       String
-  curso_id        String
-  curso           Curso   @relation(fields: [curso_id], references: [id])
+  curso_id        String?
+  ebook_id        String?
+  curso           Curso?  @relation(fields: [curso_id], references: [id])
+  ebook           Ebook?  @relation(fields: [ebook_id], references: [id])
   pedido          Pedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
 
   @@index([pedido_id])
   @@index([curso_id])
+  @@index([ebook_id])
   @@map("detalles_pedido")
 }
 

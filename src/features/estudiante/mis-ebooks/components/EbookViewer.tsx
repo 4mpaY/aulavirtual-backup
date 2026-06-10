@@ -27,11 +27,11 @@ export const EbookViewer = ({ ebookId }: Props) => {
         return res.blob()
       })
       .then(blob => {
-        // Ensure the blob is typed as PDF so the browser renders it correctly
         const pdfBlob = new Blob([blob], { type: 'application/pdf' })
 
         objectUrl = URL.createObjectURL(pdfBlob)
-        setBlobUrl(objectUrl)
+        // #toolbar=0 oculta la barra con el botón de descarga en Chrome/Edge
+        setBlobUrl(`${objectUrl}#toolbar=0&navpanes=0&scrollbar=1`)
         setLoading(false)
       })
       .catch(() => {
@@ -94,13 +94,29 @@ export const EbookViewer = ({ ebookId }: Props) => {
       )}
 
       {blobUrl && (
-        <iframe
-          src={blobUrl}
-          title='Visor de Ebook'
-          width='100%'
-          height='100%'
-          style={{ border: 'none', display: 'block' }}
-        />
+        <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+          <iframe
+            src={blobUrl}
+            title='Visor de Ebook'
+            width='100%'
+            height='100%'
+            style={{ border: 'none', display: 'block' }}
+          />
+          {/* Capa transparente sobre el toolbar del PDF (Firefox/Safari no respetan #toolbar=0) */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 40,
+              zIndex: 10,
+              bgcolor: 'transparent',
+              pointerEvents: 'none',
+            }}
+            aria-hidden
+          />
+        </Box>
       )}
     </Box>
   )

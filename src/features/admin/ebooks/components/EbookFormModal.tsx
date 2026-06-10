@@ -212,7 +212,7 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
               name='descripcion'
               control={control}
               render={({ field }) => (
-                <CustomTextField {...field} fullWidth multiline rows={3} label='Descripción' />
+                <CustomTextField {...field} fullWidth multiline rows={3} label='Reseña' />
               )}
             />
           </Grid>
