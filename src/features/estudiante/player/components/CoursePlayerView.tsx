@@ -29,6 +29,7 @@ import LessonContent from './LessonContent'
 import LiveLessonPlaceholder from './LiveLessonPlaceholder'
 import RatingModal from './RatingModal'
 import VideoPlayer from './VideoPlayer'
+import { LessonTrabajo } from './LessonTrabajo'
 
 import { useCourseStore } from '../store/useCourseStore'
 
@@ -124,6 +125,18 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
         if (!mounted) return
         setSidebarOpen(!isMobile)
     }, [isMobile, mounted])
+
+    const refetchCourse = async () => {
+        try {
+            const res = await axios.get(`/api/estudiante/cursos/${course.slug}`)
+
+            if (res.data.status && res.data.result.course) {
+                useCourseStore.setState({ course: res.data.result.course })
+            }
+        } catch (err) {
+            console.error('Error al recargar el curso:', err)
+        }
+    }
 
     const handleLessonSelect = (lessonId: string) => {
         setCurrentLessonId(lessonId)
@@ -505,6 +518,15 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
                                         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Contenido de esta lección</Typography>
                                     </Box>
                                     <LessonContent titulo="" descripcion={currentLesson.contenido} recursos={[]} />
+                                </Box>
+                            )}
+                            {currentLesson?.trabajo && (
+                                <Box sx={{ mt: 5 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                        <Box sx={{ width: 3, height: 18, bgcolor: '#025E44', borderRadius: 2 }} />
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Trabajo de la lección</Typography>
+                                    </Box>
+                                    <LessonTrabajo trabajo={currentLesson.trabajo} onUploadSuccess={refetchCourse} />
                                 </Box>
                             )}
                             {!(course as any).descripcion && !(course as any).que_aprenderas && !currentLesson?.contenido && (

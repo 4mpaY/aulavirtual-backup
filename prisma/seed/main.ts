@@ -506,6 +506,42 @@ async function main() {
 
   console.log('✅ Cupones creados')
 
+  // ─── INSCRIPCIÓN DE PRUEBA ───────────────────────────────────────────────────
+  const estudiante = await prisma.usuario.findUnique({ where: { correo: 'alumno@gmail.com' } })
+  if (estudiante && cursoMarketing) {
+    await prisma.inscripcion.upsert({
+      where: {
+        usuario_id_curso_id: {
+          usuario_id: estudiante.id,
+          curso_id: cursoMarketing.id
+        }
+      },
+      update: {},
+      create: {
+        usuario_id: estudiante.id,
+        curso_id: cursoMarketing.id,
+        estado: 'ACTIVO'
+      }
+    })
+
+    await prisma.progresoCurso.upsert({
+      where: {
+        usuario_id_curso_id: {
+          usuario_id: estudiante.id,
+          curso_id: cursoMarketing.id
+        }
+      },
+      update: {},
+      create: {
+        usuario_id: estudiante.id,
+        curso_id: cursoMarketing.id,
+        porcentaje_progreso: 0
+      }
+    })
+
+    console.log('✅ Alumno inscrito en Marketing Digital y Redes Sociales')
+  }
+
   // ─── RESUMEN ─────────────────────────────────────────────────────────────────
 
   console.log('')

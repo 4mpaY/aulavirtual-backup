@@ -36,6 +36,7 @@ model Usuario {
   progreso_lecciones ProgresoLeccion[]
   valoraciones       ValoracionCurso[]
   suscripciones      Suscripcion[]
+  entregas_trabajo   EntregaTrabajo[]
 
   @@index([rol])
   @@map("usuarios")
@@ -164,6 +165,7 @@ model Leccion {
   contenidos       ContenidoLeccion[]
   modulo           Modulo             @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
   progreso         ProgresoLeccion[]
+  trabajo          Trabajo?
 
   @@unique([modulo_id, orden])
   @@index([modulo_id])
@@ -819,3 +821,41 @@ model PagoSuscripcion {
   @@index([estado])
   @@map("pagos_suscripcion")
 }
+
+model Trabajo {
+  id             String           @id @default(uuid())
+  titulo         String
+  descripcion    String?          @db.Text
+  archivo_url    String?
+  archivo_nombre String?
+  fecha_inicio   DateTime?
+  fecha_fin      DateTime?
+  creado_en      DateTime         @default(now())
+  actualizado_en DateTime         @updatedAt
+  leccion_id     String           @unique
+  leccion        Leccion          @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+  entregas       EntregaTrabajo[]
+
+  @@map("trabajos")
+}
+
+model EntregaTrabajo {
+  id                   String    @id @default(uuid())
+  archivo_url          String
+  archivo_nombre       String
+  comentario_estudiante String?   @db.Text
+  nota                 Float?
+  comentario_docente   String?   @db.Text
+  creado_en            DateTime  @default(now())
+  actualizado_en       DateTime  @updatedAt
+  trabajo_id           String
+  trabajo              Trabajo   @relation(fields: [trabajo_id], references: [id], onDelete: Cascade)
+  usuario_id           String
+  usuario              Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([trabajo_id, usuario_id])
+  @@index([trabajo_id])
+  @@index([usuario_id])
+  @@map("entregas_trabajo")
+}
+

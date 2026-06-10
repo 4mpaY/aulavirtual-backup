@@ -65,7 +65,18 @@ const cursoInclude = {
           es_en_vivo: true,
           fecha_programada: true,
           fecha_fin: true,
-          enlace_reunion: true
+          enlace_reunion: true,
+          trabajo: {
+            select: {
+              id: true,
+              titulo: true,
+              descripcion: true,
+              archivo_url: true,
+              archivo_nombre: true,
+              fecha_inicio: true,
+              fecha_fin: true
+            }
+          }
         }
       },
       examenes: {
