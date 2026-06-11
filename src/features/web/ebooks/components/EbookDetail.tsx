@@ -53,7 +53,7 @@ const defaultIncluye = [
   { text: 'Acceso permanente', active: true },
   { text: 'Formato PDF de alta calidad', active: true },
   { text: 'Lectura en cualquier dispositivo', active: true },
-  { text: 'Actualizaciones incluidas', active: true },
+  { text: 'Sin fecha de expiración', active: true },
   { text: 'Certificado de lectura', active: false },
 ]
 
@@ -94,7 +94,7 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
     { title: 'Acceso permanente', desc: 'Disponible en tu biblioteca 24/7.', icon: 'tabler-infinity' },
     ...(ebook._count?.accesos
       ? [{ title: `${ebook._count.accesos} lectores`, desc: 'Ya lo están leyendo.', icon: 'tabler-users' }]
-      : [{ title: 'Descarga inmediata', desc: 'Disponible tras la compra.', icon: 'tabler-download' }]),
+      : [{ title: 'Lectura en línea', desc: 'Lee desde cualquier dispositivo sin descargar nada.', icon: 'tabler-device-laptop' }]),
   ]
 
   const renderCTA = (size: 'small' | 'large' = 'large') => {
@@ -174,17 +174,19 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
           <Grid container spacing={{ xs: 4, md: 6 }} alignItems='center'>
 
             {/* Portada */}
-            <Grid item xs={12} md={6}>
-              <Box sx={{ borderRadius: '20px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.5)', aspectRatio: '16/9', position: 'relative', bgcolor: 'rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                {ebook.miniatura ? (
-                  <Box component='img' src={ebook.miniatura} alt={ebook.titulo}
-                    sx={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, color: 'rgba(255,255,255,0.3)' }}>
-                    <i className='tabler-book' style={{ fontSize: '5rem' }} />
-                    <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: 'rgba(255,255,255,0.4)' }}>Sin portada</Typography>
-                  </Box>
-                )}
+            <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Box sx={{ position: 'relative', width: '100%', maxWidth: 300 }}>
+                <Box sx={{ borderRadius: '20px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.5)', aspectRatio: '2/3', position: 'relative', bgcolor: 'rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {ebook.miniatura ? (
+                    <Box component='img' src={ebook.miniatura} alt={ebook.titulo}
+                      sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  ) : (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, color: 'rgba(255,255,255,0.3)' }}>
+                      <i className='tabler-book' style={{ fontSize: '5rem' }} />
+                      <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: 'rgba(255,255,255,0.4)' }}>Sin portada</Typography>
+                    </Box>
+                  )}
+                </Box>
                 {(ebook.es_gratis || ebook.tieneAcceso) && (
                   <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
                     {ebook.tieneAcceso
@@ -314,7 +316,7 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
                     { icon: 'tabler-device-laptop', title: 'Multiplataforma', desc: 'Lee en PC, tablet o móvil.' },
                     { icon: 'tabler-clock', title: 'A tu ritmo', desc: 'Sin fechas límite ni horarios.' },
                     { icon: 'tabler-lock-open', title: 'Acceso de por vida', desc: 'Sin caducidad de ningún tipo.' },
-                    { icon: 'tabler-refresh', title: 'Actualizaciones', desc: 'Recibes mejoras futuras sin costo.' },
+                    { icon: 'tabler-infinity', title: 'Sin expiración', desc: 'Tu acceso no caduca nunca.' },
                   ].map((m, i) => (
                     <Grid item xs={12} md={6} key={i}>
                       <Box sx={{ p: 3, bgcolor: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-start', gap: 2 }}>

@@ -81,7 +81,7 @@ export default function EbookCard({
     <StyledCard onClick={() => router.push(`/ebooks/${slug}`)}>
 
       {/* Portada */}
-      <Box sx={{ position: 'relative', overflow: 'hidden', aspectRatio: '16/10.5', bgcolor: '#f1f5f9', flexShrink: 0 }}>
+      <Box sx={{ position: 'relative', overflow: 'hidden', aspectRatio: '2/3', bgcolor: '#f1f5f9', flexShrink: 0 }}>
         {miniatura ? (
           <Box
             component='img'

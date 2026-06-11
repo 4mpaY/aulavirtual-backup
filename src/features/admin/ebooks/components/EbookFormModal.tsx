@@ -220,14 +220,27 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
           {/* Miniatura */}
           <Grid item xs={12}>
             <Typography variant='subtitle2' mb={1}>Miniatura (portada)</Typography>
-            {miniatura && (
-              <Box mb={2}>
-                <img src={miniatura} alt='portada' style={{ height: 80, borderRadius: 8, objectFit: 'cover' }} />
+            {miniatura ? (
+              <Box mb={2} display='flex' alignItems='flex-end' gap={2}>
+                <img
+                  src={miniatura}
+                  alt='portada'
+                  style={{ width: 60, aspectRatio: '2/3', borderRadius: 8, objectFit: 'cover', display: 'block', border: '1px solid #e2e8f0' }}
+                />
+                <Button variant='outlined' size='small' onClick={() => setOpenMedia(true)}>
+                  Cambiar imagen
+                </Button>
+              </Box>
+            ) : (
+              <Box mb={1}>
+                <Button variant='outlined' size='small' onClick={() => setOpenMedia(true)}>
+                  Seleccionar imagen
+                </Button>
               </Box>
             )}
-            <Button variant='outlined' size='small' onClick={() => setOpenMedia(true)}>
-              {miniatura ? 'Cambiar imagen' : 'Seleccionar imagen'}
-            </Button>
+            <Typography variant='caption' color='text.secondary'>
+              Tamaño recomendado: 800 × 1200 px (proporción 2:3, igual que la portada de un libro)
+            </Typography>
           </Grid>
 
           {/* Archivo PDF */}

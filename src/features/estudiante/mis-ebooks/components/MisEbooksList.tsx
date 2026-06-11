@@ -55,7 +55,7 @@ function EbookCard({ ebook }: { ebook: MiEbook }) {
   return (
     <StyledCard onClick={() => router.push(`/estudiante/mis-ebooks/${ebook.id}`)}>
       {/* Portada */}
-      <Box sx={{ position: 'relative', overflow: 'hidden', aspectRatio: '16/9', bgcolor: '#f1f5f9', flexShrink: 0 }}>
+      <Box sx={{ position: 'relative', overflow: 'hidden', aspectRatio: '2/3', bgcolor: '#f1f5f9', flexShrink: 0 }}>
         {ebook.miniatura ? (
           <Box
             component='img'

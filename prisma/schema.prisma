@@ -37,6 +37,7 @@ model Usuario {
   valoraciones       ValoracionCurso[]
   suscripciones      Suscripcion[]
   ebook_accesos      EbookAcceso[]
+  ebook_annotaciones EbookAnnotacion[]
 
   @@index([rol])
   @@map("usuarios")
@@ -94,6 +95,7 @@ model Ebook {
   actualizado_en DateTime        @updatedAt
   categoria      Categoria?      @relation(fields: [categoria_id], references: [id])
   accesos        EbookAcceso[]
+  annotaciones   EbookAnnotacion[]
   detalles       DetallePedido[]
 
   @@index([categoria_id])
@@ -113,6 +115,24 @@ model EbookAcceso {
   @@index([usuario_id])
   @@index([ebook_id])
   @@map("ebook_accesos")
+}
+
+model EbookAnnotacion {
+  id         String   @id @default(uuid())
+  usuario_id String
+  ebook_id   String
+  pagina     Int
+  tipo       String   // "highlight" | "underline" | "note"
+  texto      String?
+  color      String   @default("#fbbf24")
+  posicion   Json
+  creado_en  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  ebook   Ebook   @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id, ebook_id])
+  @@map("ebook_annotaciones")
 }
 
 model Curso {

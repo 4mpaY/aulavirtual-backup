@@ -103,7 +103,7 @@ export const EbooksPage = () => {
             <Avatar
               variant='rounded'
               src={row.original.miniatura ?? ''}
-              sx={{ width: 44, height: 58, bgcolor: 'action.hover' }}
+              sx={{ width: 44, height: 66, bgcolor: 'action.hover' }}
             >
               <i className='tabler-book text-xl' />
             </Avatar>

@@ -45,6 +45,12 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  webpack: (config) => {
+    config.resolve.alias.canvas = false
+    config.resolve.alias.encoding = false
+
+    return config
+  },
   transpilePackages: [
     '@fullcalendar/core',
     '@fullcalendar/react',

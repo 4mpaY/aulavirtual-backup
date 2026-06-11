@@ -4,7 +4,7 @@ import { Box, Typography, Button } from '@mui/material'
 import Link from 'next/link'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-import { EbookViewer } from '@/features/estudiante/mis-ebooks/components/EbookViewer'
+import EbookViewerClient from '@/features/estudiante/mis-ebooks/components/EbookViewerClient'
 import prisma from '@/utils/libs/prisma'
 
 interface Props {
@@ -40,7 +40,7 @@ export default async function Page({ params }: Props) {
 
   return (
     <Box>
-      <Box display='flex' alignItems='center' gap={2} mb={3}>
+      <Box display='flex' alignItems='center' justifyContent='space-between' mb={2}>
         <Button
           component={Link}
           href='/estudiante/mis-ebooks'
@@ -50,18 +50,20 @@ export default async function Page({ params }: Props) {
         >
           Mis Ebooks
         </Button>
+
+        <Box sx={{ textAlign: 'right' }}>
+          <Typography variant='h6' fontWeight={700} lineHeight={1.2}>
+            {ebook.titulo}
+          </Typography>
+          {ebook.autor && (
+            <Typography variant='caption' color='text.secondary'>
+              {ebook.autor}{ebook.paginas ? ` · ${ebook.paginas} páginas` : ''}
+            </Typography>
+          )}
+        </Box>
       </Box>
 
-      <Typography variant='h5' fontWeight={700} mb={0.5}>
-        {ebook.titulo}
-      </Typography>
-      {ebook.autor && (
-        <Typography variant='body2' color='text.secondary' mb={3}>
-          {ebook.autor} {ebook.paginas ? `· ${ebook.paginas} páginas` : ''}
-        </Typography>
-      )}
-
-      <EbookViewer ebookId={ebook.id} />
+      <EbookViewerClient ebookId={ebook.id} />
     </Box>
   )
 }
