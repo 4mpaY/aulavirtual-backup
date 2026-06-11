@@ -34,23 +34,12 @@ import AppModal from '@/utils/components/AppModal'
 
 interface TabTrabajosProps {
   cursoId: string
+  curso: any
 }
 
-export function TabTrabajos({ cursoId }: TabTrabajosProps) {
+export function TabTrabajos({ cursoId, curso }: TabTrabajosProps) {
   const { enqueueSnackbar } = useSnackbar()
   const queryClient = useQueryClient()
-
-  // 1. Obtener la información del curso mediante react-query
-  // (para extraer las lecciones que tienen trabajo habilitado)
-  const { data: curso, isLoading: isCursoLoading } = useQuery<any>({
-    queryKey: ['cursos', cursoId],
-    queryFn: async () => {
-      const res = await axios.get(`/api/cursos/${cursoId}`)
-
-      
-return res.data.result
-    }
-  })
 
   // Obtener la lista de lecciones con trabajos
   const leccionesConTrabajo = useMemo(() => {
@@ -174,14 +163,6 @@ return
       nota: notaNum,
       comentario_docente: gradingItem.comentarioDocente
     })
-  }
-
-  if (isCursoLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
-        <CircularProgress />
-      </Box>
-    )
   }
 
   // Si no hay lecciones con trabajos, mostrar estado vacío

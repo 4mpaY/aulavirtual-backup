@@ -36,15 +36,24 @@ interface CourseBuilderPageProps {
 }
 
 export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProps) {
-    const { data: curso, isLoading, refetch } = useCurso(cursoId)
+    const { data: curso, isLoading, isError, refetch } = useCurso(cursoId)
     const [activeTab, setActiveTab] = useState('1')
     const router = useRouter()
     const { data: session } = useSession()
 
-    if (isLoading || !curso) {
+    if (isLoading) {
         return (
             <Box display='flex' justifyContent='center' p={8}>
                 <CircularProgress />
+            </Box>
+        )
+    }
+
+    if (isError || !curso) {
+        return (
+            <Box display='flex' justifyContent='center' alignItems='center' flexDirection='column' gap={2} p={8}>
+                <Typography color='error'>No se pudo cargar el curso. Verifica que existe o intenta recargar la página.</Typography>
+                <Button variant='outlined' onClick={() => refetch()}>Reintentar</Button>
             </Box>
         )
     }
@@ -121,7 +130,7 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                     </TabPanel>
 
                     <TabPanel value='8' sx={{ p: 5 }}>
-                        <TabTrabajos cursoId={curso.id} />
+                        <TabTrabajos cursoId={curso.id} curso={curso} />
                     </TabPanel>
                 </Card>
             </TabContext>
