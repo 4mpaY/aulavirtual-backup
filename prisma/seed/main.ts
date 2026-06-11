@@ -508,6 +508,7 @@ async function main() {
 
   // ─── INSCRIPCIÓN DE PRUEBA ───────────────────────────────────────────────────
   const estudiante = await prisma.usuario.findUnique({ where: { correo: 'alumno@gmail.com' } })
+
   if (estudiante && cursoMarketing) {
     await prisma.inscripcion.upsert({
       where: {

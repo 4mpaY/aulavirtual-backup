@@ -64,5 +64,8 @@
   },
   "material-icon-theme.files.associations": {
     "compose.cert.yml": "docker",
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   }
 }
