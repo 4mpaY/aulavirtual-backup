@@ -1,7 +1,5 @@
 export const dynamic = 'force-dynamic'
 
-import { NextResponse } from 'next/server'
-
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
@@ -58,7 +56,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     // genero se actualiza con raw SQL hasta que el cliente Prisma sea regenerado
     if (genero !== undefined) {
       const generoVal = genero?.trim() || null
+
       await prisma.$executeRaw`UPDATE ebooks SET genero = ${generoVal} WHERE id = ${params.id}`
+
       return ApiResponse.success(request, { ebook: { ...ebook, genero: generoVal } })
     }
 

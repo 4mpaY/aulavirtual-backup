@@ -67,7 +67,12 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
   const precioFalso = ebook.precio_falso
 
   const handleObtenerGratis = async () => {
-    if (!session) { openLogin(undefined, handleObtenerGratis); return }
+    if (!session) {
+      openLogin(undefined, handleObtenerGratis)
+
+      return
+    }
+
     setObtaining(true)
 
     try {
@@ -84,7 +89,12 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
   const handleComprar = () => {
     const goToCheckout = () => router.push(`/checkout/ebook/${ebook.id}`)
 
-    if (!session) { openLogin(undefined, goToCheckout); return }
+    if (!session) {
+      openLogin(undefined, goToCheckout)
+
+      return
+    }
+
     goToCheckout()
   }
 

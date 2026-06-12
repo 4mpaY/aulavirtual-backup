@@ -106,7 +106,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
       // Lógica de revocación si pasa de completado a otro estado
       if (pedidoAnterior.estado === 'COMPLETADO' && estado !== 'COMPLETADO') {
-        const cursosIds = pedidoAnterior.detalles.map(d => d.curso_id)
+        const cursosIds = pedidoAnterior.detalles.map(d => d.curso_id).filter((id): id is string => id != null)
 
         await tx.inscripcion.deleteMany({
           where: {
@@ -119,7 +119,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
       // Lógica de aprobación manual si pasa a COMPLETADO
       if (pedidoAnterior.estado !== 'COMPLETADO' && estado === 'COMPLETADO') {
-        const cursosIds = pedidoAnterior.detalles.map(d => d.curso_id)
+        const cursosIds = pedidoAnterior.detalles.map(d => d.curso_id).filter((id): id is string => id != null)
 
         // Evitar duplicados
         const yaInscritos = await tx.inscripcion.findMany({

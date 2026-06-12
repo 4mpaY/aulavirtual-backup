@@ -141,8 +141,8 @@ export async function POST(request: Request) {
               total: Number(pedidoCompleto.total),
               moneda: pedidoCompleto.moneda,
               metodoPago: metodo_pago || 'Manual',
-              cursos: pedidoCompleto.detalles.map(d => ({
-                titulo: d.curso.titulo,
+              cursos: pedidoCompleto.detalles.filter(d => d.curso != null).map(d => ({
+                titulo: d.curso!.titulo,
                 precio: Number(d.total)
               })),
               appUrl

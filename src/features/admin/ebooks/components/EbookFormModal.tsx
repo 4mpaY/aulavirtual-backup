@@ -63,11 +63,13 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
 
       reader.onload = e => {
         const content = e.target?.result as string
+
         // Cada página individual tiene /Type /Page (sin 's')
         const matches = content.match(/\/Type\s*\/Page[^s]/g)
 
         resolve(matches ? matches.length : 0)
       }
+
       reader.readAsText(file, 'latin1')
     })
 
@@ -291,6 +293,7 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
                       checked={field.value}
                       onChange={e => {
                         field.onChange(e.target.checked)
+
                         if (e.target.checked) {
                           setValue('precio', 0)
                           setValue('precio_falso', 0)

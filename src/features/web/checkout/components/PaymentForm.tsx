@@ -238,6 +238,7 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
   const handlePaymentSuccess = useCallback(() => {
     setPaymentSuccess(true)
     clearCart()
+
     const dest = courses.length === 0 && ebooks.length > 0
       ? '/estudiante/mis-ebooks'
       : '/estudiante/mis-cursos'

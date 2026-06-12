@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic'
 
-import { NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import path from 'path'
+
+import { NextResponse } from 'next/server'
 
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
@@ -55,7 +56,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       pdfBuffer = await readFile(absPath)
     }
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

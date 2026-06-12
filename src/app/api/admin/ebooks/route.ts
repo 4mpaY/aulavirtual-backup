@@ -13,6 +13,7 @@ import { generateUniqueSlug } from '@/utils/libs/slug'
 export async function GET(request: Request) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const { searchParams } = new URL(request.url)
@@ -20,7 +21,9 @@ export async function GET(request: Request) {
     const estado = searchParams.get('estado') ?? undefined
 
     const where: any = {}
+
     if (estado) where.estado = estado
+
     if (buscar) {
       where.OR = [
         { titulo: { contains: buscar, mode: 'insensitive' } },
@@ -48,6 +51,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const body = await request.json()
@@ -78,6 +82,7 @@ export async function POST(request: Request) {
 
     // genero se setea con raw SQL hasta que el cliente Prisma sea regenerado
     const generoVal = genero?.trim() || null
+
     await prisma.$executeRaw`UPDATE ebooks SET genero = ${generoVal} WHERE id = ${ebook.id}`
 
     return NextResponse.json({ ebook: { ...ebook, genero: generoVal } }, { status: 201 })

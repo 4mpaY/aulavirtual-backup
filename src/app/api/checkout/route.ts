@@ -104,6 +104,7 @@ export async function POST(request: Request) {
         const limiteAlcanzado = cupon.limite_uso !== null && cupon.usos_actuales >= cupon.limite_uso
         const cursosPermitidos = cupon.cursos.map(c => c.curso_id)
         const tieneRestriccion = cursosPermitidos.length > 0
+
         const cubreTodasLosCursos = tieneRestriccion
           ? cursoIds.every((id: string) => cursosPermitidos.includes(id))
           : true
@@ -170,7 +171,7 @@ export async function POST(request: Request) {
 
     // 4. Construir lista de items para email (cursos + ebooks)
     const emailItems = [
-      ...pedido.detalles.map(d => ({ titulo: d.curso.titulo, precio: Number(d.total) })),
+      ...pedido.detalles.filter(d => d.curso != null).map(d => ({ titulo: d.curso!.titulo, precio: Number(d.total) })),
       ...ebooks.map(e => ({ titulo: e.titulo, precio: Number(e.precio) }))
     ]
 
@@ -232,7 +233,7 @@ export async function POST(request: Request) {
           total: pedido.total,
           moneda: pedido.moneda,
           cursos: [
-            ...pedido.detalles.map(d => d.curso.titulo),
+            ...pedido.detalles.filter(d => d.curso != null).map(d => d.curso!.titulo),
             ...ebooks.map(e => e.titulo)
           ]
         },

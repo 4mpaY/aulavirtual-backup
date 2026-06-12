@@ -161,7 +161,7 @@ export async function POST(request: Request) {
         moneda: pedido.moneda,
         metodoPago: 'PayPal',
         cursos: [
-          ...pedido.detalles.map(d => ({ titulo: d.curso.titulo, precio: Number(d.total) })),
+          ...pedido.detalles.filter(d => d.curso != null).map(d => ({ titulo: d.curso!.titulo, precio: Number(d.total) })),
           ...ebooks.map(e => ({ titulo: e.titulo, precio: Number(e.precio) }))
         ],
         appUrl
