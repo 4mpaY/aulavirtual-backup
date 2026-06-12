@@ -9,13 +9,14 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
-import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, Repeat2 } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, Repeat2, BookText } from 'lucide-react'
 
 import { useAuthModal } from '@/contexts/AuthModalContext'
 
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
+  { title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' },
   { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
   { title: 'Empresas', url: '/empresas', icon: Building2, key: 'empresas' },
   { title: 'Suscripciones', url: '/suscripciones', icon: Repeat2, key: 'suscripciones' },

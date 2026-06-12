@@ -37,6 +37,8 @@ model Usuario {
   valoraciones       ValoracionCurso[]
   suscripciones      Suscripcion[]
   entregas_trabajo   EntregaTrabajo[]
+  ebook_accesos      EbookAcceso[]
+  ebook_annotaciones EbookAnnotacion[]
 
   @@index([rol])
   @@map("usuarios")
@@ -68,9 +70,70 @@ model Categoria {
   padre              Categoria?  @relation("JerarquiaCategoria", fields: [categoria_padre_id], references: [id])
   hijos              Categoria[] @relation("JerarquiaCategoria")
   cursos             Curso[]
+  ebooks             Ebook[]
 
   @@index([categoria_padre_id])
   @@map("categorias")
+}
+
+model Ebook {
+  id             String          @id @default(uuid())
+  titulo         String
+  slug           String          @unique
+  descripcion    String?
+  autor          String?
+  miniatura      String?
+  archivo_pdf    String
+  precio         Decimal         @default(0) @db.Decimal(10, 2)
+  precio_falso   Decimal         @default(0) @db.Decimal(10, 2)
+  moneda         String          @default("PEN")
+  estado         EstadoEbook     @default(BORRADOR)
+  es_gratis      Boolean         @default(false)
+  paginas        Int?
+  genero         String?
+  categoria_id   String?
+  creado_en      DateTime        @default(now())
+  actualizado_en DateTime        @updatedAt
+  categoria      Categoria?      @relation(fields: [categoria_id], references: [id])
+  accesos        EbookAcceso[]
+  annotaciones   EbookAnnotacion[]
+  detalles       DetallePedido[]
+
+  @@index([categoria_id])
+  @@index([estado])
+  @@map("ebooks")
+}
+
+model EbookAcceso {
+  id         String   @id @default(uuid())
+  usuario_id String
+  ebook_id   String
+  creado_en  DateTime @default(now())
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  ebook      Ebook    @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, ebook_id])
+  @@index([usuario_id])
+  @@index([ebook_id])
+  @@map("ebook_accesos")
+}
+
+model EbookAnnotacion {
+  id         String   @id @default(uuid())
+  usuario_id String
+  ebook_id   String
+  pagina     Int
+  tipo       String   // "highlight" | "underline" | "note"
+  texto      String?
+  color      String   @default("#fbbf24")
+  posicion   Json
+  creado_en  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  ebook   Ebook   @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id, ebook_id])
+  @@map("ebook_annotaciones")
 }
 
 model Curso {
@@ -245,18 +308,22 @@ model MetodoPagoManual {
 
 model DetallePedido {
   id              String  @id @default(uuid())
+  tipo_item       String  @default("CURSO")
   cantidad        Int     @default(1)
   descuento       Decimal @default(0) @db.Decimal(10, 2)
   precio_unitario Decimal @db.Decimal(10, 2)
   subtotal        Decimal @db.Decimal(10, 2)
   total           Decimal @db.Decimal(10, 2)
   pedido_id       String
-  curso_id        String
-  curso           Curso   @relation(fields: [curso_id], references: [id])
+  curso_id        String?
+  ebook_id        String?
+  curso           Curso?  @relation(fields: [curso_id], references: [id])
+  ebook           Ebook?  @relation(fields: [ebook_id], references: [id])
   pedido          Pedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
 
   @@index([pedido_id])
   @@index([curso_id])
+  @@index([ebook_id])
   @@map("detalles_pedido")
 }
 
@@ -607,6 +674,12 @@ enum Rol {
 }
 
 enum EstadoCurso {
+  BORRADOR
+  PUBLICADO
+  ARCHIVADO
+}
+
+enum EstadoEbook {
   BORRADOR
   PUBLICADO
   ARCHIVADO

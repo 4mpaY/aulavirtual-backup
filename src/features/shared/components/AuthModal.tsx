@@ -33,11 +33,12 @@ interface AuthModalProps {
   open: boolean
   mode: Mode
   callbackUrl?: string
+  onSuccess?: () => void
   onClose: () => void
   onSwitchMode: (mode: Mode) => void
 }
 
-const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModalProps) => {
+const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }: AuthModalProps) => {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [registerSuccess, setRegisterSuccess] = useState(false)
@@ -92,7 +93,9 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
   const handleLoginSuccess = () => {
     onClose()
 
-    if (callbackUrl) {
+    if (onSuccess) {
+      onSuccess()
+    } else if (callbackUrl) {
       window.location.href = callbackUrl
     } else {
       router.refresh()

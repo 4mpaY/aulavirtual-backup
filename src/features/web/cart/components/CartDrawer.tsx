@@ -1,6 +1,5 @@
 'use client'
 
-
 import { useRouter } from 'next/navigation'
 
 import {
@@ -14,7 +13,8 @@ import {
     ListItemAvatar,
     Button,
     Divider,
-    Stack
+    Stack,
+    Chip
 } from '@mui/material'
 
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
@@ -34,6 +34,8 @@ const CartDrawer = () => {
             router.push('/checkout')
         }
     }
+
+    const moneda = cart[0]?.moneda || 'PEN'
 
     return (
         <Drawer anchor="right" open={isCartDrawerOpen} onClose={onClose}>
@@ -57,7 +59,7 @@ const CartDrawer = () => {
                             <i className="tabler-shopping-cart-off text-6xl text-textDisabled" />
                             <Typography variant="h6" color="text.secondary">Tu carrito está vacío</Typography>
                             <Button variant="outlined" onClick={onClose} sx={{ borderRadius: '10px' }}>
-                                Explorar Cursos
+                                Explorar Catálogo
                             </Button>
                         </Box>
                     ) : (
@@ -81,8 +83,19 @@ const CartDrawer = () => {
                                         />
                                     </ListItemAvatar>
                                     <ListItemText
-                                        primary={<Typography fontWeight={700} noWrap>{item.titulo}</Typography>}
-                                        secondary={`${item.moneda} ${item.precio}`}
+                                        primary={
+                                            <Box display='flex' alignItems='center' gap={0.75} flexWrap='wrap'>
+                                                <Typography fontWeight={700} noWrap sx={{ maxWidth: 180 }}>{item.titulo}</Typography>
+                                                <Chip
+                                                    label={item.type === 'EBOOK' ? 'Ebook' : 'Curso'}
+                                                    size='small'
+                                                    color={item.type === 'EBOOK' ? 'info' : 'default'}
+                                                    variant='tonal'
+                                                    sx={{ fontSize: '0.65rem', height: 18 }}
+                                                />
+                                            </Box>
+                                        }
+                                        secondary={`${item.moneda} ${Number(item.precio).toFixed(2)}`}
                                     />
                                 </ListItem>
                             ))}
@@ -98,7 +111,7 @@ const CartDrawer = () => {
                         <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
                             <Typography variant="h6" fontWeight={700}>Total</Typography>
                             <Typography variant="h6" fontWeight={900} color="primary.main">
-                                {cart[0]?.moneda} {cartTotal}
+                                {moneda} {cartTotal.toFixed(2)}
                             </Typography>
                         </Stack>
                         <Button

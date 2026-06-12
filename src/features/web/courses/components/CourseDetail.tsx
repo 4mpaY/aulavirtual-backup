@@ -102,7 +102,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
 
   const handleFreeEnroll = async () => {
     if (!session) {
-      openLogin()
+      openLogin(undefined, handleFreeEnroll)
 
       return
     }
@@ -133,7 +133,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
 
   const handleEnroll = () => {
     if (!session) {
-      openLogin()
+      openLogin(undefined, () => router.push(`/checkout/${course.slug}`))
 
       return
     }
