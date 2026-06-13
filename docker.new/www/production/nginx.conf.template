@@ -32,6 +32,28 @@ server {
   # Tamaño máximo del body (archivos)
   client_max_body_size 10m;
 
+  # Videos protegidos con token firmado
+  location /private-videos/ {
+    secure_link $arg_token,$arg_expires;
+    secure_link_md5 "$secure_link_expires$uri ${NGINX_VIDEO_SECRET}";
+
+    if ($secure_link = "") { return 403; }       # token inválido
+    if ($secure_link = "0") { return 410; }      # token expirado
+
+    alias /app/private/videos/;
+
+    # ✅ Soporte de range requests (seek) nativo
+    add_header Accept-Ranges bytes;
+    add_header Cache-Control "no-cache, no-store";
+
+    # Tipos de video
+    types {
+        video/mp4  mp4;
+        video/webm webm;
+        video/ogg  ogg;
+    }
+  }
+
   location / {
     # Configuraciones comunes de proxy
     proxy_set_header Host $host;

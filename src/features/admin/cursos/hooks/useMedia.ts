@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getSession } from 'next-auth/react'
+import axios from 'axios'
 
 import { AxiosMedia } from '../http/axiosMedia'
 
@@ -40,6 +41,37 @@ export function useUploadMedia() {
 
   return useMutation<any, any, File>({
     mutationFn: async file => await axiosMedia.upload(file),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.MEDIA })
+  })
+}
+
+/**
+ * Hook para subir un video privado
+ */
+export function useUploadPrivateVideo() {
+  const qc = useQueryClient()
+  const axiosMedia = axiosMediaFactory()
+
+  return useMutation<any, any, File>({
+    mutationFn: async file => {
+      const formData = new FormData()
+
+      formData.append('file', file)
+
+      const token = typeof axiosMedia['getAuthToken'] === 'function' ? await axiosMedia['getAuthToken']() : null
+
+      const headers: any = {
+        'Content-Type': 'multipart/form-data'
+      }
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`
+      }
+
+      const res = await axios.post('/api/videos/upload', formData, { headers })
+
+      return res.data?.result !== undefined ? res.data.result : res.data
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.MEDIA })
   })
 }

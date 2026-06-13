@@ -8,6 +8,7 @@ services:
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
     volumes:
       - ./public:/app/public
+      - ./private:/app/private
     ports:
       - 3000:3000
     environment:
@@ -41,9 +42,11 @@ services:
       - ./docker.new/www/production/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
       - certbot-etc:/etc/letsencrypt:ro
       - certbot-webroot:/var/www/html
+      - ./private:/app/private:ro
     environment:
       - SSL_DOMAIN_1=${SSL_DOMAIN_1}
       - SSL_DOMAIN_2=${SSL_DOMAIN_2}
+      - NGINX_VIDEO_SECRET=${NGINX_VIDEO_SECRET}
   db:
     image: postgres:17-alpine
     restart: unless-stopped

@@ -1,0 +1,38 @@
+server {
+    listen 80;
+    server_name localhost;
+
+    # Desactivar sendfile en desarrollo para evitar problemas con volúmenes montados en WSL2/Windows
+    sendfile off;
+
+    # Videos protegidos con token firmado
+    location /private-videos/ {
+        # Configuración de CORS para desarrollo (permitir acceso desde localhost:3000)
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "*" always;
+        add_header Access-Control-Expose-Headers "Content-Length, Content-Range" always;
+
+        # Preflight OPTIONS requests
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin "*" always;
+            add_header Access-Control-Allow-Methods "GET, HEAD, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "*" always;
+            add_header Content-Length 0;
+            add_header Content-Type text/plain;
+            return 204;
+        }
+
+        secure_link $arg_token,$arg_expires;
+        secure_link_md5 "$secure_link_expires$uri ${NGINX_VIDEO_SECRET}";
+
+        if ($secure_link = "") { return 403; }       # token inválido
+        if ($secure_link = "0") { return 410; }      # token expirado
+
+        alias /app/private/videos/;
+
+        # ✅ Soporte de range requests (seek) nativo
+        add_header Accept-Ranges bytes;
+        add_header Cache-Control "no-cache, no-store";
+    }
+}

@@ -11,5 +11,15 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+  nginx:
+    image: nginx:1.29-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker.new/www/development/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./private:/app/private:ro
+    environment:
+      - NGINX_VIDEO_SECRET=${NGINX_VIDEO_SECRET}
 volumes:
   dbdata:
