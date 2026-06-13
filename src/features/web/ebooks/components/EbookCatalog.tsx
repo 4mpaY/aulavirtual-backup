@@ -37,9 +37,9 @@ export default function EbookCatalog({ ebooks, adquiridosIds }: Props) {
             </Typography>
           </Box>
         ) : (
-          <Grid container spacing={2}>
+          <Grid container spacing={5}>
             {ebooks.map(ebook => (
-              <Grid item xs={6} sm={4} md={3} lg={2} key={ebook.id}>
+              <Grid item xs={6} sm={4} md={3} lg={2.4} key={ebook.id}>
                 <EbookCard
                   {...ebook}
                   adquirido={adquiridosSet.has(ebook.id)}

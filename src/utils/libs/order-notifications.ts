@@ -53,7 +53,7 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
     const cursosHtml = pedido.detalles.map(d => `
       <tr>
         <td style="padding: 12px 0; border-bottom: 1px solid #eee;">
-          <span style="display: block; font-weight: 600; color: #333;">${d.curso.titulo}</span>
+          <span style="display: block; font-weight: 600; color: #333;">${d.curso?.titulo ?? 'Curso'}</span>
         </td>
         <td style="padding: 12px 0; border-bottom: 1px solid #eee; text-align: right; color: #666;">
           ${pedido.moneda} ${Number(d.total).toFixed(2)}

@@ -14,6 +14,7 @@ import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSe
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
 import CompaniesSection from '@/features/web/home/components/CompaniesSection'
 import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
+import HomeEbooksSection from '@/features/web/home/components/HomeEbooksSection'
 
 export const metadata = {
   title: 'Aula Virtual - Aprende sin límites',
@@ -22,7 +23,7 @@ export const metadata = {
 
 async function getHomeData() {
   try {
-    const [coursesRaw, rutasRaw, teachersRaw, configs] = await Promise.all([
+    const [coursesRaw, rutasRaw, teachersRaw, configs, ebooksRaw] = await Promise.all([
       // Cursos
       prisma.curso.findMany({
         where: { estado: 'PUBLICADO' },
@@ -64,6 +65,19 @@ async function getHomeData() {
         take: 8,
       }),
       getConfigs(),
+
+      // Ebooks destacados
+      prisma.ebook.findMany({
+        where: { estado: 'PUBLICADO' },
+        select: {
+          id: true, titulo: true, slug: true, miniatura: true,
+          autor: true, precio: true, precio_falso: true, moneda: true,
+          es_gratis: true, paginas: true, genero: true,
+          categoria: { select: { nombre: true } },
+        },
+        orderBy: { creado_en: 'desc' },
+        take: 5,
+      }),
     ])
 
     const courses = await Promise.all(
@@ -86,17 +100,24 @@ async function getHomeData() {
 
     try { logos = configs.HOME_LOGOS ? JSON.parse(configs.HOME_LOGOS) : [] } catch { logos = [] }
 
+    const ebooks = ebooksRaw.map(e => ({
+      ...e,
+      precio: Number(e.precio),
+      precio_falso: Number(e.precio_falso),
+    }))
+
     return {
       courses: JSON.parse(JSON.stringify(courses)),
       rutas: JSON.parse(JSON.stringify(rutas)),
       teachers: JSON.parse(JSON.stringify(teachersRaw)),
+      ebooks: JSON.parse(JSON.stringify(ebooks)),
       heroTitle,
       heroDescription,
       logos,
     }
   } catch {
     return {
-      courses: [], rutas: [], teachers: [],
+      courses: [], rutas: [], teachers: [], ebooks: [],
       heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
       heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
       logos: [],
@@ -105,7 +126,7 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { courses, rutas, teachers, heroTitle, heroDescription, logos } = await getHomeData()
+  const { courses, rutas, teachers, ebooks, heroTitle, heroDescription, logos } = await getHomeData()
 
   return (
     <>
@@ -253,7 +274,10 @@ export default async function HomePage() {
         </ScrollReveal>
       </section>
 
-      {/* ── 4. CARACTERÍSTICAS DE CLASES ────────────── */}
+      {/* ── 4. EBOOKS DESTACADOS ────────────────────── */}
+      <HomeEbooksSection ebooks={ebooks} />
+
+      {/* ── 5. CARACTERÍSTICAS DE CLASES ────────────── */}
       <ClassFeaturesSection />
 
       {/* ── 5. RUTAS DE APRENDIZAJE ─────────────────── */}
