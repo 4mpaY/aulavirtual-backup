@@ -72,14 +72,14 @@ server {
   # Cache de archivos estáticos para máximo rendimiento
   location /_next/static {
       proxy_cache_bypass $http_upgrade;
-      proxy_pass http://nextjs_upstream;
+      proxy_pass http://app:3000;
       expires 365d;
       access_log off;
   }
 
   location /static {
       proxy_cache_bypass $http_upgrade;
-      proxy_pass http://nextjs_upstream;
+      proxy_pass http://app:3000;
       expires 365d;
       access_log off;
   }
