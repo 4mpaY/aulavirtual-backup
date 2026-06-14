@@ -1,7 +1,5 @@
 'use client'
 
-import Link from 'next/link'
-
 import { useConfig } from '@/contexts/ConfigContext'
 
 const WhatsAppSVG = () => (

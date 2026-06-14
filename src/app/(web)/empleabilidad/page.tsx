@@ -1,6 +1,5 @@
-import Link from 'next/link'
-
 import { Linkedin, CheckCircle2, MessageCircle, Sparkles } from 'lucide-react'
+
 
 import { getConfigs } from '@/utils/libs/config'
 

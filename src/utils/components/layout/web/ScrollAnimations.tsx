@@ -25,6 +25,7 @@ export default function ScrollAnimations() {
     observe()
 
     const mutationObserver = new MutationObserver(observe)
+
     mutationObserver.observe(document.body, { childList: true, subtree: true })
 
     return () => {

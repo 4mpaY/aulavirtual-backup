@@ -15,15 +15,18 @@ function parseBioSections(html: string): { title: string; content: string }[] {
 
   for (const part of parts) {
     const closeMatch = part.match(/^(.*?)<\/h[1-3]>([\s\S]*)/i)
+
     if (closeMatch) {
       const title = stripHtml(closeMatch[1])
       const content = stripHtml(closeMatch[2])
+
       if (content) sections.push({ title, content })
     }
   }
 
   if (sections.length === 0) {
     const text = stripHtml(html)
+
     if (text) sections.push({ title: '', content: text })
   }
 
@@ -270,8 +273,8 @@ export default async function NosotrosPage() {
             <div style={{ position: 'absolute', top: 0, right: 0, width: '50%', height: '100%', background: 'rgba(0,111,101,0.15)', filter: 'blur(80px)' }} />
             <div style={{ position: 'relative' }}>
               <h2 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: 'clamp(1.5rem, 4vw, 3rem)', letterSpacing: '-0.04em', color: '#ffffff', lineHeight: 1.15 }}>
-                "La tecnología sin criterio es solo ruido; nosotros te damos el{' '}
-                <span style={{ color: 'var(--agenda-primary)' }}>conocimiento para liderar</span>"
+                &ldquo;La tecnología sin criterio es solo ruido; nosotros te damos el{' '}
+                <span style={{ color: 'var(--agenda-primary)' }}>conocimiento para liderar</span>&rdquo;
               </h2>
               <div style={{ marginTop: '3rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
                 <div style={{ width: '60px', height: '1px', background: 'rgba(255,255,255,0.2)' }} />

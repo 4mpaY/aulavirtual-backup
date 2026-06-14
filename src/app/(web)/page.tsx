@@ -65,6 +65,7 @@ function Hero() {
 
   useEffect(() => {
     const t = setInterval(() => setCurrent(p => (p + 1) % HERO_SLIDES.length), 5000)
+
     return () => clearInterval(t)
   }, [])
 
@@ -266,12 +267,14 @@ function CapacitacionesSection() {
                 data-animate="zoom-in-sm"
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLElement
+
                   el.style.transform = 'translateY(-6px)'
                   el.style.boxShadow = '0 20px 40px rgba(0,111,101,0.12)'
                   el.style.borderColor = 'var(--agenda-primary)'
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLElement
+
                   el.style.transform = 'translateY(0)'
                   el.style.boxShadow = '0 4px 20px rgba(0,0,0,0.04)'
                   el.style.borderColor = '#e5e5e5'

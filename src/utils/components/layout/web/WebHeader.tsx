@@ -64,6 +64,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
           <nav className="hidden lg:flex items-center gap-7" style={{ fontSize: '0.8rem', fontFamily: 'Outfit, sans-serif', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             {NAV.map((n) => {
               const active = pathname === n.href || (n.href === '/cursos' && pathname.startsWith('/cursos'))
+
               return (
                 <Link
                   key={n.href}

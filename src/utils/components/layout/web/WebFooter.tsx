@@ -120,7 +120,7 @@ const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true
             </h4>
             <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.08)' }}>
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontStyle: 'italic', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7 }}>
-                "La educación abre caminos. La tecnología los multiplica. Nuestra misión es darte las llaves de ese futuro."
+                &ldquo;La educación abre caminos. La tecnología los multiplica. Nuestra misión es darte las llaves de ese futuro.&rdquo;
               </p>
               <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--agenda-primary)', fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                 <Sparkles size={14} /> AGENDA

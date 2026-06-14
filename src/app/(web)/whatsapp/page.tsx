@@ -15,6 +15,7 @@ export default function WhatsAppPage() {
     const t = setTimeout(() => {
       window.open(waUrl, '_blank')
     }, 2000)
+
     return () => clearTimeout(t)
   }, [waUrl])
 
