@@ -1,25 +1,17 @@
 'use client'
 
-import { Box, Typography, Stack, Divider, Paper } from '@mui/material'
+import { Box, Typography, Stack, Divider, Paper, Chip } from '@mui/material'
 import { ShieldCheck } from 'lucide-react'
 
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
 import CouponInput from './CouponInput'
+import type { CourseCheckoutItem, EbookCheckoutItem } from './CheckoutView'
 
 const FONT = 'Poppins, sans-serif'
 
 interface OrderSummaryProps {
-    courses: {
-        id: string
-        titulo: string
-        miniatura?: string
-        precio: number
-        moneda: string
-        profesor: {
-            nombre: string
-            apellido: string
-        }
-    }[]
+    courses: CourseCheckoutItem[]
+    ebooks: EbookCheckoutItem[]
     appliedCoupon?: {
         codigo: string
         descuento: number
@@ -28,11 +20,12 @@ interface OrderSummaryProps {
     onCouponApplied: (data: any) => void
 }
 
-const OrderSummary = ({ courses, appliedCoupon, onCouponApplied }: OrderSummaryProps) => {
-    const subtotal = courses.reduce((acc, c) => acc + Number(c.precio), 0)
+const OrderSummary = ({ courses, ebooks = [], appliedCoupon, onCouponApplied }: OrderSummaryProps) => {
+    const subtotal = [...courses, ...ebooks].reduce((acc, i) => acc + Number(i.precio), 0)
     const total = appliedCoupon ? appliedCoupon.total : subtotal
     const descuento = appliedCoupon ? appliedCoupon.descuento : 0
-    const moneda = courses[0]?.moneda || 'PEN'
+    const moneda = (courses[0] || ebooks[0])?.moneda || 'PEN'
+    const allItems = [...courses.map(c => ({ ...c, tipo: 'CURSO' as const })), ...ebooks.map(e => ({ ...e, tipo: 'EBOOK' as const }))]
 
     return (
         <Paper
@@ -54,31 +47,26 @@ const OrderSummary = ({ courses, appliedCoupon, onCouponApplied }: OrderSummaryP
             <Stack spacing={3}>
                 <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 1 }}>
                     <Stack spacing={2}>
-                        {courses.map((course) => (
-                            <Stack key={course.id} direction="row" spacing={2} alignItems="center">
-                                <Box
-                                    sx={{
-                                        width: 80,
-                                        height: 50,
-                                        borderRadius: '10px',
-                                        overflow: 'hidden',
-                                        flexShrink: 0,
-                                        border: '1px solid',
-                                        borderColor: 'divider'
-                                    }}
-                                >
-                                    <CourseThumbnail
-                                        src={course.miniatura}
-                                        title={course.titulo}
-                                        variant='simple'
-                                    />
+                        {allItems.map((item) => (
+                            <Stack key={item.id} direction="row" spacing={2} alignItems="center">
+                                <Box sx={{ width: 80, height: 50, borderRadius: '10px', overflow: 'hidden', flexShrink: 0, border: '1px solid', borderColor: 'divider' }}>
+                                    <CourseThumbnail src={item.miniatura} title={item.titulo} variant='simple' />
                                 </Box>
-                                <Box sx={{ minWidth: 0 }}>
-                                    <Typography noWrap sx={{ fontFamily: FONT, fontWeight: 700, fontSize: '0.8125rem', lineHeight: 1.2, mb: 0.25, color: '#0A0A0A' }}>
-                                        {course.titulo}
-                                    </Typography>
+                                <Box sx={{ minWidth: 0, flex: 1 }}>
+                                    <Box display='flex' alignItems='center' gap={0.5} flexWrap='wrap' mb={0.25}>
+                                        <Typography noWrap sx={{ fontFamily: FONT, fontWeight: 700, fontSize: '0.8125rem', lineHeight: 1.2, color: '#0A0A0A' }}>
+                                            {item.titulo}
+                                        </Typography>
+                                        <Chip
+                                            label={item.tipo === 'EBOOK' ? 'Ebook' : 'Curso'}
+                                            size='small'
+                                            color={item.tipo === 'EBOOK' ? 'info' : 'default'}
+                                            variant='tonal'
+                                            sx={{ fontSize: '0.6rem', height: 16 }}
+                                        />
+                                    </Box>
                                     <Typography sx={{ fontFamily: FONT, fontSize: '0.75rem', color: '#64748b', display: 'block' }}>
-                                        {course.moneda} {Number(course.precio).toFixed(2)}
+                                        {item.moneda} {Number(item.precio).toFixed(2)}
                                     </Typography>
                                 </Box>
                             </Stack>
@@ -90,7 +78,7 @@ const OrderSummary = ({ courses, appliedCoupon, onCouponApplied }: OrderSummaryP
 
                 <Stack spacing={1.5}>
                     <Stack direction="row" justifyContent="space-between">
-                        <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b' }}>Precio de los cursos</Typography>
+                        <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b' }}>Subtotal</Typography>
                         <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', fontWeight: 600, color: '#0A0A0A' }}>{moneda} {subtotal.toFixed(2)}</Typography>
                     </Stack>
                     <Stack direction="row" justifyContent="space-between">
@@ -101,10 +89,12 @@ const OrderSummary = ({ courses, appliedCoupon, onCouponApplied }: OrderSummaryP
                     </Stack>
                 </Stack>
 
-                <CouponInput 
-                    cursoIds={courses.map(c => c.id)} 
-                    onApplied={onCouponApplied} 
-                />
+                {courses.length > 0 && (
+                    <CouponInput
+                        cursoIds={courses.map(c => c.id)}
+                        onApplied={onCouponApplied}
+                    />
+                )}
 
                 <Divider />
 

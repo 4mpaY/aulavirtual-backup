@@ -9,8 +9,10 @@ export interface Lesson {
     enlace_reunion?: string
     es_en_vivo?: boolean
     fecha_programada?: string | Date | null
+    fecha_fin?: string | Date | null
     completada: boolean
     recursos?: any[]
+    trabajo?: any
 }
 
 export interface Module {

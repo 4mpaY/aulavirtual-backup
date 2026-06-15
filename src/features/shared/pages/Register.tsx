@@ -25,6 +25,9 @@ import classnames from 'classnames'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
+// Component Imports
+import GoogleButton from '@/features/shared/components/GoogleButton'
+
 // Type Imports
 import type { SystemMode } from '@core/types'
 import { registerSchema, type RegisterDto } from '@/schemas/auth.schema'
@@ -424,16 +427,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
             <Divider className='gap-2'>o</Divider>
 
             <div className='flex justify-center items-center gap-1.5'>
-              <Button
-                fullWidth
-                variant='outlined'
-                color='secondary'
-                startIcon={<i className='tabler-brand-google-filled' />}
-                onClick={handleGoogleRegister}
-                disabled={isLoading || success}
-              >
-                Registrarse con Google
-              </Button>
+              <GoogleButton onClick={handleGoogleRegister} disabled={isLoading || success} label='Registrarse con Google' />
             </div>
           </form>
         </div>

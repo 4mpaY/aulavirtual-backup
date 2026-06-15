@@ -16,6 +16,7 @@ import {
   Box,
   Typography,
   CircularProgress,
+  LinearProgress,
   TextField,
   InputAdornment,
   IconButton
@@ -23,7 +24,7 @@ import {
 
 import { useSnackbar } from 'notistack'
 
-import { useMedia, useUploadMedia, useDeleteMedia } from '../hooks/useMedia'
+import { useMedia, useUploadMedia, useDeleteMedia, useUploadPrivateVideo } from '../hooks/useMedia'
 import CustomAlertDialog from '../../../../components/CustomAlertDialog'
 
 interface MediaLibraryProps {
@@ -38,22 +39,53 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
   const [search, setSearch] = useState('')
   const { data: media = [], isLoading } = useMedia()
   const uploadMutation = useUploadMedia()
+  const uploadVideoMutation = useUploadPrivateVideo()
   const deleteMutation = useDeleteMedia()
   const { enqueueSnackbar } = useSnackbar()
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
 
     if (!file) return
 
+    // Validación de tamaño máximo del lado del cliente
+    const limit = acceptType === 'VIDEO' ? 3 * 1024 * 1024 * 1024 : 50 * 1024 * 1024
+
+    if (file.size > limit) {
+      enqueueSnackbar(
+        `El archivo supera el tamaño máximo permitido (${acceptType === 'VIDEO' ? '3 GB' : '50 MB'})`,
+        { variant: 'error' }
+      )
+
+      return
+    }
+
     try {
-      const result = await uploadMutation.mutateAsync(file)
+      let result
+
+      setUploadProgress(0)
+
+      if (acceptType === 'VIDEO') {
+        result = await uploadVideoMutation.mutateAsync({
+          file,
+          onProgress: (p) => setUploadProgress(p)
+        })
+      } else {
+        result = await uploadMutation.mutateAsync({
+          file,
+          onProgress: (p) => setUploadProgress(p)
+        })
+      }
 
       onSelect(result.url, result.nombre)
       onClose()
     } catch (error) {
       console.error('Error al subir archivo', error)
+      enqueueSnackbar('Error al subir archivo. Verifique el tamaño o el formato.', { variant: 'error' })
+    } finally {
+      setUploadProgress(null)
     }
   }
 
@@ -93,21 +125,26 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
               )
             }}
           />
-          <Button
-            component="label"
-            variant="contained"
-            startIcon={uploadMutation.isPending ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-upload" />}
-            disabled={uploadMutation.isPending}
-            sx={{ whiteSpace: 'nowrap' }}
-          >
-            {uploadMutation.isPending ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : 'Subir Recurso')}
-            <input
-              type="file"
-              hidden
-              accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
-              onChange={handleFileUpload}
-            />
-          </Button>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-end' }}>
+            <Button
+              component="label"
+              variant="contained"
+              startIcon={(uploadMutation.isPending || uploadVideoMutation.isPending) ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-upload" />}
+              disabled={uploadMutation.isPending || uploadVideoMutation.isPending}
+              sx={{ whiteSpace: 'nowrap' }}
+            >
+              {(uploadMutation.isPending || uploadVideoMutation.isPending) ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : acceptType === 'VIDEO' ? 'Subir Video' : 'Subir Recurso')}
+              <input
+                type="file"
+                hidden
+                accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
+                onChange={handleFileUpload}
+              />
+            </Button>
+            <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', pr: 1, fontSize: '0.7rem', fontWeight: 500 }}>
+              {acceptType === 'VIDEO' ? 'Máx: 3 GB' : 'Máx: 50 MB'}
+            </Typography>
+          </Box>
         </Box>
 
         {isLoading ? (
@@ -147,7 +184,10 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                   >
                     <i className="tabler-plus text-3xl text-primary" />
                     <Typography variant="body2" color="primary" sx={{ mt: 1, fontWeight: 600 }}>
-                      {acceptType === 'IMAGEN' ? 'Nueva Imagen' : 'Nuevo Recurso'}
+                      {acceptType === 'IMAGEN' ? 'Nueva Imagen' : acceptType === 'VIDEO' ? 'Nuevo Video' : 'Nuevo Recurso'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.7rem' }}>
+                      {acceptType === 'VIDEO' ? '(Máx: 3 GB)' : '(Máx: 50 MB)'}
                     </Typography>
                     <input
                       type="file"
@@ -165,7 +205,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                 <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'action.hover', borderRadius: 4 }}>
                   <i className="tabler-photo-off text-5xl text-textDisabled" />
                   <Typography sx={{ mt: 2 }} color="text.secondary">
-                    {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : 'No se encontraron recursos'}
+                    {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : acceptType === 'VIDEO' ? 'No se encontraron videos' : 'No se encontraron recursos'}
                   </Typography>
                 </Box>
               </Grid>
@@ -299,6 +339,73 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
         }}
         loading={deleteMutation.isPending}
       />
+
+      {/* Dialog de progreso de subida premium */}
+      <Dialog
+        open={uploadProgress !== null}
+        disableEscapeKeyDown
+        onClose={() => { }}
+        PaperProps={{
+          sx: {
+            borderRadius: '20px',
+            p: 4,
+            textAlign: 'center',
+            maxWidth: '400px',
+            width: '100%',
+            overflow: 'hidden'
+          }
+        }}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+          <Box sx={{
+            width: 70,
+            height: 70,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: 'primary.lightOpacity',
+            color: 'primary.main',
+            mb: 1
+          }}>
+            <i className="tabler-upload text-4xl animate-bounce" />
+          </Box>
+
+          <Typography variant="h6" sx={{ fontWeight: 800 }}>
+            {acceptType === 'VIDEO' ? 'Subiendo Video...' : 'Subiendo Archivo...'}
+          </Typography>
+
+          <Box sx={{ width: '100%' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
+              <Typography variant="h4" sx={{ fontWeight: 800, color: 'primary.main' }}>
+                {uploadProgress}%
+              </Typography>
+            </Box>
+            <LinearProgress
+              variant="determinate"
+              value={uploadProgress ?? 0}
+              sx={{
+                height: 10,
+                borderRadius: 5,
+                [`& .MuiLinearProgress-bar`]: {
+                  borderRadius: 5,
+                  backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent)',
+                  backgroundSize: '1rem 1rem',
+                  animation: 'progressBarStripes 1s linear infinite',
+                  '@keyframes progressBarStripes': {
+                    'from': { backgroundPosition: '1rem 0' },
+                    'to': { backgroundPosition: '0 0' }
+                  }
+                }
+              }}
+            />
+          </Box>
+
+          <Typography variant="body2" color="text.secondary">
+            Este archivo es pesado y puede tardar unos minutos. Por favor, no cierres esta pestaña ni recargues la página.
+          </Typography>
+        </Box>
+      </Dialog>
     </Dialog>
   )
 }

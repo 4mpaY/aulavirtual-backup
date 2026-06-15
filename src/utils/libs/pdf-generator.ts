@@ -45,7 +45,7 @@ export async function generateOrderPDF(pedido: any): Promise<Buffer> {
 
   // Detalle de cursos
   pedido.detalles.forEach((det: any) => {
-    const cursoTitulo = det.curso.titulo
+    const cursoTitulo = det.curso?.titulo || det.ebook?.titulo || 'Item'
     const precio = `${pedido.moneda} ${Number(det.total).toFixed(2)}`
 
     // Si el título es muy largo, lo cortamos o lo envolvemos (aquí cortamos por simplicidad)

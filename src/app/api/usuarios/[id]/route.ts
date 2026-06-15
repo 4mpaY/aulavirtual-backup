@@ -204,6 +204,28 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return ApiResponse.error(request, 'No puedes eliminar tu propia cuenta', 400)
     }
 
+    // Verificar que no tenga pedidos ni inscripciones activas
+    const [pedidosCount, inscripcionesCount] = await Promise.all([
+      prisma.pedido.count({ where: { usuario_id: id } }),
+      prisma.inscripcion.count({ where: { usuario_id: id } })
+    ])
+
+    if (pedidosCount > 0) {
+      return ApiResponse.error(
+        request,
+        `No se puede eliminar este usuario porque tiene ${pedidosCount} pedido(s) registrado(s).`,
+        409
+      )
+    }
+
+    if (inscripcionesCount > 0) {
+      return ApiResponse.error(
+        request,
+        `No se puede eliminar este usuario porque está inscrito en ${inscripcionesCount} curso(s).`,
+        409
+      )
+    }
+
     // Eliminar usuario
     await prisma.usuario.delete({
       where: { id }

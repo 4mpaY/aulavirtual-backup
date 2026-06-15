@@ -1,9 +1,7 @@
-import prisma from '@/utils/libs/prisma'
-
 import { ApiResponse } from '@/utils/libs/apiResponse'
-import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
-import { esAccesoCursoVigente } from '@/utils/functions/calcularFechaCaducidadCurso'
+import prisma from '@/utils/libs/prisma'
+import { requireAuth } from '@/utils/libs/auth-helpers'
 
 /**
  * POST /api/estudiante/examen/[examenId]/enviar
@@ -60,7 +58,7 @@ export async function POST(request: Request, { params }: { params: { examenId: s
       }
     })
 
-    if (!inscripcion || inscripcion.estado !== 'ACTIVO' || !esAccesoCursoVigente(inscripcion.acceso_hasta)) {
+    if (!inscripcion || inscripcion.estado !== 'ACTIVO') {
       return ApiResponse.error(
         request,
         !inscripcion || inscripcion.estado !== 'ACTIVO'

@@ -36,7 +36,7 @@ export default async function CheckoutPage({ params }: { params: { slug: string 
         redirect(`/cursos/${params.slug}`)
     }
 
-    return <CheckoutView courses={[course]} />
+    return <CheckoutView courses={[course]} ebooks={[]} />
 }
 
 export async function generateMetadata() {

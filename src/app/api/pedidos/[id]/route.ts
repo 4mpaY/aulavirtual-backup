@@ -1,11 +1,11 @@
 export const dynamic = 'force-dynamic'
 
-import prisma from '@/utils/libs/prisma'
-import { validateRequest, handleApiError } from '@/utils/libs/validation'
-import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { handleApiError, validateRequest } from '@/utils/libs/validation'
+
 import { ApiResponse } from '@/utils/libs/apiResponse'
+import prisma from '@/utils/libs/prisma'
+import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { updatePedidoSchema } from '@/schemas/pedido.schema'
-import { calcularFechaCaducidadCurso } from '@/utils/functions/calcularFechaCaducidadCurso'
 
 /**
  * GET /api/pedidos/[id]
@@ -106,7 +106,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
       // Lógica de revocación si pasa de completado a otro estado
       if (pedidoAnterior.estado === 'COMPLETADO' && estado !== 'COMPLETADO') {
-        const cursosIds = pedidoAnterior.detalles.map(d => d.curso_id)
+        const cursosIds = pedidoAnterior.detalles.map(d => d.curso_id).filter((id): id is string => id != null)
 
         await tx.inscripcion.deleteMany({
           where: {
@@ -119,7 +119,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
       // Lógica de aprobación manual si pasa a COMPLETADO
       if (pedidoAnterior.estado !== 'COMPLETADO' && estado === 'COMPLETADO') {
-        const cursosIds = pedidoAnterior.detalles.map(d => d.curso_id)
+        const cursosIds = pedidoAnterior.detalles.map(d => d.curso_id).filter((id): id is string => id != null)
 
         // Evitar duplicados
         const yaInscritos = await tx.inscripcion.findMany({
@@ -132,10 +132,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         const inscritosIds = yaInscritos.map(i => i.curso_id)
         const cursosAInscribir = cursosIds.filter(cid => !inscritosIds.includes(cid))
 
-        const vigenciaPorCurso = new Map(
-          pedidoAnterior.detalles.map(detalle => [detalle.curso_id, detalle.curso?.vigencia_meses ?? null])
-        )
-
         if (cursosAInscribir.length > 0) {
           await Promise.all(
             cursosAInscribir.map(cid => {
@@ -147,8 +143,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
                   curso_id: cid,
                   pedido_id: id,
                   estado: 'ACTIVO',
-                  inscrito_en: fechaInscripcion,
-                  acceso_hasta: calcularFechaCaducidadCurso(fechaInscripcion, vigenciaPorCurso.get(cid) ?? null)
+                  inscrito_en: fechaInscripcion
                 }
               })
             })

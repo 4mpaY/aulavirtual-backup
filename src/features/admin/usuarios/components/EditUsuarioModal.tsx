@@ -14,7 +14,9 @@ import {
   IconButton,
   Avatar,
   Divider,
-  Stack
+  Stack,
+  Switch,
+  FormControlLabel
 } from '@mui/material'
 import { Formik, type FormikHelpers } from 'formik'
 import { toFormikValidationSchema } from 'zod-formik-adapter'
@@ -441,6 +443,49 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                           )
                         }}
                       />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          px: 2,
+                          py: 1.5,
+                          borderRadius: 2,
+                          border: '1px solid',
+                          borderColor: values.esta_activo ? 'success.light' : 'divider',
+                          bgcolor: values.esta_activo ? 'success.lighterOpacity' : 'action.hover',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <Box>
+                          <Typography variant='body2' fontWeight={600}>
+                            Estado de la cuenta
+                          </Typography>
+                          <Typography variant='caption' color='text.secondary'>
+                            {values.esta_activo
+                              ? 'El usuario puede iniciar sesión normalmente.'
+                              : 'El usuario no podrá iniciar sesión en la plataforma.'}
+                          </Typography>
+                        </Box>
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={values.esta_activo}
+                              onChange={e => setFieldValue('esta_activo', e.target.checked)}
+                              disabled={isSubmitting}
+                              color='success'
+                            />
+                          }
+                          label={
+                            <Typography variant='body2' fontWeight={500} color={values.esta_activo ? 'success.main' : 'text.secondary'}>
+                              {values.esta_activo ? 'Activo' : 'Inactivo'}
+                            </Typography>
+                          }
+                          sx={{ mr: 0 }}
+                        />
+                      </Box>
                     </Grid>
                   </Grid>
                 </FormWrapper>

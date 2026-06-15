@@ -45,3 +45,7 @@ src/assets/iconify-icons/generated-icons.css
 
 # uploads
 /public/uploads
+
+# videos
+/private/*
+!/private/**/.gitkeep

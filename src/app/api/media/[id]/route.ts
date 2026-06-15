@@ -28,11 +28,19 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return ApiResponse.error(request, 'Archivo no encontrado', 404)
     }
 
+
     // 2. Eliminar el archivo físico
-    // La URL es algo como /uploads/cursos/uuid.png
-    // Eliminamos el primer slash para que join funcione correctamente con process.cwd()
-    const relativePath = media.url.startsWith('/') ? media.url.substring(1) : media.url
-    const absolutePath = join(process.cwd(), 'public', relativePath)
+    let absolutePath = ''
+
+    if (media.url.startsWith('/api/videos/stream/')) {
+      const filename = media.url.split('/').pop()
+
+      absolutePath = join(process.cwd(), 'private', 'videos', filename || '')
+    } else {
+      const relativePath = media.url.startsWith('/') ? media.url.substring(1) : media.url
+
+      absolutePath = join(process.cwd(), 'public', relativePath)
+    }
 
     try {
       await unlink(absolutePath)

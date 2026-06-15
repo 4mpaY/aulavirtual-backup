@@ -1,12 +1,12 @@
-import prisma from '@/utils/libs/prisma'
-import { crearPedidoManualSchema } from '@/schemas/pedido.schema'
-import { validateRequest, handleApiError } from '@/utils/libs/validation'
-import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { handleApiError, validateRequest } from '@/utils/libs/validation'
+
 import { ApiResponse } from '@/utils/libs/apiResponse'
-import { sendMail } from '@/utils/libs/mailer'
+import { crearPedidoManualSchema } from '@/schemas/pedido.schema'
 import { getConfigs } from '@/utils/libs/config'
 import { getOrderConfirmationTemplate } from '@/utils/libs/email-templates'
-import { calcularFechaCaducidadCurso } from '@/utils/functions/calcularFechaCaducidadCurso'
+import prisma from '@/utils/libs/prisma'
+import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { sendMail } from '@/utils/libs/mailer'
 
 /**
  * POST /api/pedidos/manual
@@ -111,8 +111,7 @@ export async function POST(request: Request) {
                     curso_id: c.id,
                     pedido_id: pedido.id,
                     estado: 'ACTIVO',
-                    inscrito_en: fechaInscripcion,
-                    acceso_hasta: calcularFechaCaducidadCurso(fechaInscripcion, c.vigencia_meses)
+                    inscrito_en: fechaInscripcion
                   }
                 })
               })
@@ -142,8 +141,8 @@ export async function POST(request: Request) {
               total: Number(pedidoCompleto.total),
               moneda: pedidoCompleto.moneda,
               metodoPago: metodo_pago || 'Manual',
-              cursos: pedidoCompleto.detalles.map(d => ({
-                titulo: d.curso.titulo,
+              cursos: pedidoCompleto.detalles.filter(d => d.curso != null).map(d => ({
+                titulo: d.curso!.titulo,
                 precio: Number(d.total)
               })),
               appUrl

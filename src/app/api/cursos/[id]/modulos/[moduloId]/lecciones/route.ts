@@ -58,10 +58,23 @@ export async function POST(request: Request, { params }: { params: { id: string;
         enlace_reunion: validation.data.enlace_reunion || null,
         video_url: validation.data.video_url || null,
         es_vista_previa: validation.data.es_vista_previa || false,
+        es_en_vivo: validation.data.es_en_vivo || false,
+        fecha_programada: validation.data.fecha_programada ? new Date(validation.data.fecha_programada) : null,
+        fecha_fin: validation.data.fecha_fin ? new Date(validation.data.fecha_fin) : null,
         recursos: validation.data.recursos || [],
         orden,
         estado: 'PUBLICADO',
-        modulo_id: moduloId
+        modulo_id: moduloId,
+        trabajo: validation.data.trabajo ? {
+          create: {
+            titulo: validation.data.trabajo.titulo,
+            descripcion: validation.data.trabajo.descripcion || null,
+            archivo_url: validation.data.trabajo.archivo_url || null,
+            archivo_nombre: validation.data.trabajo.archivo_nombre || null,
+            fecha_inicio: validation.data.trabajo.fecha_inicio ? new Date(validation.data.trabajo.fecha_inicio) : null,
+            fecha_fin: validation.data.trabajo.fecha_fin ? new Date(validation.data.trabajo.fecha_fin) : null,
+          }
+        } : undefined
       }
     })
 

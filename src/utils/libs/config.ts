@@ -9,6 +9,23 @@ let configCache: Record<string, string> | null = null
 let lastFetch = 0
 const CACHE_TTL = 1000 * 60 * 5 // 5 minutos
 
+// Claves privadas/secretas que SIEMPRE deben venir del .env (nunca de la BD)
+// El .env tiene prioridad absoluta sobre la BD para estas claves.
+const ENV_OVERRIDES: Record<string, string> = {
+  // Culqi
+  CULQI_PRIVATE_KEY:     process.env.CULQI_SECRET_KEY      ?? '',
+  CULQI_WEBHOOK_SECRET:  process.env.CULQI_WEBHOOK_SECRET  ?? '',
+
+  // IziPay
+  IZIPAY_API_KEY:        process.env.IZIPAY_API_KEY        ?? '',
+
+  // PayPal
+  PAYPAL_CLIENT_SECRET:  process.env.PAYPAL_CLIENT_SECRET  ?? '',
+
+  // Mercado Pago
+  MP_ACCESS_TOKEN:       process.env.MP_ACCESS_TOKEN       ?? '',
+}
+
 export async function getConfigs(): Promise<Record<string, string>> {
   const now = Date.now()
 
@@ -24,14 +41,17 @@ export async function getConfigs(): Promise<Record<string, string>> {
       map[c.clave] = c.valor
     })
 
+    // Las claves privadas del .env sobreescriben siempre lo que haya en BD
+    Object.entries(ENV_OVERRIDES).forEach(([key, value]) => {
+      if (value) map[key] = value
+    })
+
     configCache = map
     lastFetch = now
 
     return map
   } catch {
-    // Durante el build time, la DB puede no estar disponible.
-    // Se retorna un objeto vacío y los valores por defecto del código aplican como fallback.
-    return {}
+    return { ...ENV_OVERRIDES }
   }
 }
 

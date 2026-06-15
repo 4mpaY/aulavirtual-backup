@@ -116,6 +116,11 @@ export const getAuthOptions = async (): Promise<NextAuthOptions> => {
             })
 
             if (usuarioExistente) {
+              // Bloquear acceso si la cuenta está inactiva
+              if (!usuarioExistente.esta_activo) {
+                return false
+              }
+
               // Sincronizar google_id y avatar (asegurar que tenga la foto más reciente de Google)
               const usuarioActualizado = await prisma.usuario.update({
                 where: { id: usuarioExistente.id },
