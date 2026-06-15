@@ -47,5 +47,5 @@ src/assets/iconify-icons/generated-icons.css
 /public/uploads
 
 # videos
-/private/videos/*.mp4
-/private/videos/*.webm
+/private/*
+!/private/**/.gitkeep
