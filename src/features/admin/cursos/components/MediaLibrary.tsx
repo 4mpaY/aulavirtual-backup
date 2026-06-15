@@ -27,6 +27,43 @@ import { useSnackbar } from 'notistack'
 import { useMedia, useUploadMedia, useDeleteMedia, useUploadPrivateVideo } from '../hooks/useMedia'
 import CustomAlertDialog from '../../../../components/CustomAlertDialog'
 
+const ALLOWED_VIDEO_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/ogg',
+  'video/quicktime',
+  'video/x-matroska',
+  'video/mkv'
+]
+
+const ALLOWED_VIDEO_EXT = ['.mp4', '.webm', '.ogg', '.mov', '.mkv']
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const ALLOWED_IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+
+const ALLOWED_OTHER_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ...ALLOWED_IMAGE_TYPES,
+  'video/mp4',
+  'video/webm',
+  'video/x-matroska',
+  'video/mkv'
+]
+
+const ALLOWED_OTHER_EXT = [
+  '.pdf', '.doc', '.docx', '.xls', '.xlsx',
+  ...ALLOWED_IMAGE_EXT,
+  '.mp4', '.webm', '.mkv'
+]
+
+const ACCEPT_IMAGE = 'image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif'
+const ACCEPT_VIDEO = 'video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/mkv,.mp4,.webm,.ogg,.mov,.mkv'
+const ACCEPT_OTHER = '.pdf,.doc,.docx,.xls,.xlsx,image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/x-matroska,video/mkv,.jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mkv'
+
 interface MediaLibraryProps {
   open: boolean
   onClose: () => void
@@ -49,6 +86,35 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
     const file = event.target.files?.[0]
 
     if (!file) return
+
+    // Validación de formato del lado del cliente
+    const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+
+    if (acceptType === 'VIDEO') {
+      const isValid = ALLOWED_VIDEO_TYPES.includes(file.type) || ALLOWED_VIDEO_EXT.includes(extension)
+
+      if (!isValid) {
+        enqueueSnackbar('Formato de video no permitido. Solo se aceptan (.mp4, .webm, .ogg, .mov, .mkv)', { variant: 'error' })
+
+        return
+      }
+    } else if (acceptType === 'IMAGEN') {
+      const isValid = ALLOWED_IMAGE_TYPES.includes(file.type) || ALLOWED_IMAGE_EXT.includes(extension)
+
+      if (!isValid) {
+        enqueueSnackbar('Formato de imagen no permitido. Solo se aceptan (.jpg, .jpeg, .png, .webp, .gif)', { variant: 'error' })
+
+        return
+      }
+    } else {
+      const isValid = ALLOWED_OTHER_TYPES.includes(file.type) || ALLOWED_OTHER_EXT.includes(extension)
+
+      if (!isValid) {
+        enqueueSnackbar('Formato de archivo no permitido. Solo se aceptan PDF, Word, Excel, imágenes y videos (.mp4, .webm, .mkv)', { variant: 'error' })
+
+        return
+      }
+    }
 
     // Validación de tamaño máximo del lado del cliente
     const limit = acceptType === 'VIDEO' ? 3 * 1024 * 1024 * 1024 : 50 * 1024 * 1024
@@ -137,7 +203,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
               <input
                 type="file"
                 hidden
-                accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
+                accept={acceptType === 'IMAGEN' ? ACCEPT_IMAGE : acceptType === 'VIDEO' ? ACCEPT_VIDEO : ACCEPT_OTHER}
                 onChange={handleFileUpload}
               />
             </Button>
@@ -192,7 +258,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                     <input
                       type="file"
                       hidden
-                      accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
+                      accept={acceptType === 'IMAGEN' ? ACCEPT_IMAGE : acceptType === 'VIDEO' ? ACCEPT_VIDEO : ACCEPT_OTHER}
                       onChange={handleFileUpload}
                     />
                   </CardActionArea>

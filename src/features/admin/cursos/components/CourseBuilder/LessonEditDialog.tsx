@@ -33,7 +33,7 @@ function inferTipo(r: Recurso): 'enlace' | 'archivo' {
 
 function getFileExt(url: string): string {
   const ext = url.split('?')[0].split('.').pop()?.toUpperCase() ?? ''
-  const known = ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'ZIP', 'PNG', 'JPG', 'JPEG', 'MP4', 'WEBM', 'PPT', 'PPTX']
+  const known = ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'ZIP', 'PNG', 'JPG', 'JPEG', 'MP4', 'WEBM', 'MKV', 'PPT', 'PPTX']
 
   return known.includes(ext) ? ext : 'FILE'
 }
@@ -338,7 +338,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                 />
               ) : (
                 <Box>
-                  <Typography variant='caption' sx={{ mb: 1, display: 'block', fontWeight: 600 }}>Archivo de Video Privado (.mp4, .webm)</Typography>
+                  <Typography variant='caption' sx={{ mb: 1, display: 'block', fontWeight: 600 }}>Archivo de Video Privado (.mp4, .webm, .mkv)</Typography>
                   {videoUrl && videoUrl.includes('/api/videos/stream/') ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                       <i className='tabler-video text-xl text-primary' />

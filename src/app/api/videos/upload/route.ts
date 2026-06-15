@@ -15,7 +15,9 @@ const ALLOWED_MIMES: Record<string, string> = {
   'video/mp4': 'mp4',
   'video/webm': 'webm',
   'video/ogg': 'ogg',
-  'video/quicktime': 'mov'
+  'video/quicktime': 'mov',
+  'video/x-matroska': 'mkv',
+  'video/mkv': 'mkv'
 }
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024 * 1024 // 3 GB max for private videos
@@ -58,7 +60,7 @@ export async function POST(request: Request) {
     if (!ALLOWED_MIMES[file.type]) {
       return ApiResponse.error(
         request,
-        `Tipo de archivo no permitido. Solo se aceptan formatos de video (.mp4, .webm, .ogg, .mov)`,
+        `Tipo de archivo no permitido. Solo se aceptan formatos de video (.mp4, .webm, .ogg, .mov, .mkv)`,
         400
       )
     }

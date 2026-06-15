@@ -18,6 +18,8 @@ const ALLOWED_MIMES: Record<string, string> = {
   'application/pdf': 'pdf',
   'video/mp4': 'mp4',
   'video/webm': 'webm',
+  'video/x-matroska': 'mkv',
+  'video/mkv': 'mkv',
 
   // Documentos de Office
   'application/msword': 'doc',
@@ -126,7 +128,7 @@ export async function POST(request: Request) {
     if (!ALLOWED_MIMES[file.type]) {
       return ApiResponse.error(
         request,
-        `Tipo de archivo no permitido. Tipos aceptados: imágenes (jpg, png, webp, gif), PDF, video (mp4, webm)`,
+        `Tipo de archivo no permitido. Tipos aceptados: imágenes (jpg, png, webp, gif), PDF, video (mp4, webm, mkv)`,
         400
       )
     }
