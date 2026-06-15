@@ -97,6 +97,12 @@ sudo chmod -R 775 public/uploads
 sudo chmod -R 775 private
 ```
 
+> [!TIP]
+> Si tras ejecutar los comandos de permisos (`chmod`), Git detecta cambios de modo de archivo (filemode changes) en los archivos internos, puedes indicarle a Git que ignore la diferencia de permisos ejecutando:
+> ```bash
+> git config core.fileMode false
+> ```
+
 ### Paso 4: Levantar la aplicación en producción
 Con los certificados generados y los permisos de las carpetas correctamente configurados, inicia todos los servicios productivos (Next.js, PostgreSQL y Nginx con SSL en el puerto 443):
 
