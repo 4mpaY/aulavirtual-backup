@@ -90,10 +90,10 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copiar carpeta public entera (para que Coolify la mantenga a salvo)
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# Crear el directorio uploads y asignar permisos para subir imgs y pdfs
-RUN mkdir -p /app/public/uploads && chown nextjs:nodejs /app/public/uploads
+# Crear el directorio uploads y private/videos y asignar permisos para subir imgs, pdfs y videos
+RUN mkdir -p /app/public/uploads /app/private/videos && chown -R nextjs:nodejs /app/public/uploads /app/private
 
 # Configurar permisos para la caché de pre-renderizado de Next.js
 RUN mkdir .next
