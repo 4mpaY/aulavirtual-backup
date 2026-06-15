@@ -9,8 +9,9 @@ export COMPOSE_IGNORE_ORPHANS=True
 
 echo "=== Iniciando comprobación de renovación: $(date) ==="
 
-# 1. Ejecutar el contenedor de certbot (validará contra Let's Encrypt si está por expirar)
-docker compose -f compose.cert.yml up certbot
+# 1. Ejecutar ÚNICAMENTE el contenedor de certbot sin levantar el nginx temporal de certificación.
+# Usamos --no-deps para no recrear el Nginx en producción y --rm para no dejar contenedores huérfanos.
+docker compose -f compose.cert.yml run --no-deps --rm certbot
 
 # 2. Recargar Nginx en producción para cargar el nuevo certificado (si es que se renovó)
 # Usamos -T para evitar errores de TTY cuando el script corre en un Cronjob
