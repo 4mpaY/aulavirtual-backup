@@ -16,8 +16,8 @@ import CompaniesSection from '@/features/web/home/components/CompaniesSection'
 import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
 
 export const metadata = {
-  title: 'Aula Virtual - Aprende sin límites',
-  description: 'Plataforma de aprendizaje online con cursos especializados, rutas de aprendizaje y certificados.',
+  title: 'Abeja Smart - Aprende inteligente, vende mejor.',
+  description: 'Capacitación y consultoría en marketing digital. Aprende TikTok Ads, Meta Ads, Inteligencia Artificial y ventas digitales para hacer crecer tu negocio.',
 }
 
 async function getHomeData() {

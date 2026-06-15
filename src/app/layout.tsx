@@ -12,7 +12,7 @@ import '@assets/iconify-icons/generated-icons.css'
 
 export async function generateMetadata(): Promise<Metadata> {
   const configs = await getConfigs()
-  const title = configs.TEMPLATE_NAME || 'Aula Virtual'
+  const title = configs.TEMPLATE_NAME || 'Abeja Smart'
   const slogan = configs.TEMPLATE_SLOGAN || ''
   const logo = configs.TEMPLATE_LOGO || '/favicon.ico'
 

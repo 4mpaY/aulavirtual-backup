@@ -47,6 +47,7 @@ async function getRutas() {
 }
 
 export default async function RutasIndexPage() {
+  notFound()
   const habilitado = await getConfig('WEB_RUTAS_HABILITADO', 'true')
 
   if (habilitado !== 'true') notFound()

@@ -3,7 +3,7 @@ import React from 'react'
 import { Box, Container, Typography, Divider } from '@mui/material'
 
 export const metadata = {
-  title: 'Política de Cambios y Devoluciones | ARM Asset Reliability Management',
+  title: 'Política de Cambios y Devoluciones | Abeja Smart',
 }
 
 export default function PoliticaCambiosYDevolucionesPage() {
@@ -21,8 +21,8 @@ export default function PoliticaCambiosYDevolucionesPage() {
 
           <Typography paragraph>
             La presente política regula las condiciones de reembolso y cambios aplicables a los
-            servicios educativos ofrecidos por <strong>[NOMBRE DE EMPRESA]</strong>,
-            con RUC <strong>[RUC]</strong>, con domicilio en [DIRECCIÓN] — a través de su Aula Virtual. Al adquirir cualquier curso,
+            servicios educativos ofrecidos por <strong>Abeja Smart</strong>,
+            con domicilio en Pasaje Quebranta Mz B Lote 13, Urb. Telefónica, Surco, Lima — a través de su plataforma digital. Al adquirir cualquier curso,
             el usuario declara haber leído y aceptado los términos aquí descritos.
           </Typography>
 
@@ -72,7 +72,7 @@ export default function PoliticaCambiosYDevolucionesPage() {
             Para iniciar un proceso de devolución (si aplica), el usuario debe:
           </Typography>
           <Typography paragraph>
-            1. Enviar un correo a <strong>correo@gmail.com</strong> con el asunto:{' '}
+            1. Enviar un correo a <strong>ebeecorp@gmail.com</strong> con el asunto:{' '}
             <em>&quot;Solicitud de Reembolso — [Nombre del Curso]&quot;</em>.
           </Typography>
           <Typography paragraph>
@@ -90,14 +90,14 @@ export default function PoliticaCambiosYDevolucionesPage() {
             entre <strong>15 y 30 días hábiles</strong>.
           </Typography>
           <Typography paragraph>
-            Visiona Perú Safety Solutions S.A.C se reserva el derecho de descontar las comisiones operativas
+            Abeja Smart se reserva el derecho de descontar las comisiones operativas
             cobradas por la pasarela de pago que no sean reembolsables por la misma.
           </Typography>
 
           <Typography variant="h4">6. Contacto y Atención al Cliente</Typography>
           <Typography paragraph>
             Para consultas relacionadas con esta política, comuníquese con nosotros a través de{' '}
-            <strong>correo@gmail.com</strong>. De acuerdo con la legislación de protección
+            <strong>ebeecorp@gmail.com</strong>. De acuerdo con la legislación de protección
             al consumidor vigente, también ponemos a su disposición nuestro{' '}
             <a href="/libro-de-reclamaciones" style={{ color: 'var(--web-dark, #025E44)', textDecoration: 'underline' }}>
               Libro de Reclamaciones

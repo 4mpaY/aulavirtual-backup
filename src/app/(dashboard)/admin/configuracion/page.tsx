@@ -9,7 +9,7 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 import prisma from '@/utils/libs/prisma'
 
 export const metadata = {
-  title: 'Configuración del Sistema | Aula Virtual'
+  title: 'Configuración del Sistema | Abeja Smart'
 }
 
 export default async function Page() {

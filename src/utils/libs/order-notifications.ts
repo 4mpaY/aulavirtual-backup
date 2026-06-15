@@ -35,7 +35,7 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
 
     // 2. Obtener configuraciones básicas (Logo, Nombre sitio)
     const configs = await getConfigs()
-    const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const platformName = configs.TEMPLATE_NAME || 'Abeja Smart'
     let platformLogo = configs.TEMPLATE_LOGO || ''
 
     // 🔐 SEGURIDAD: Convertir ruta relativa a absoluta para correos

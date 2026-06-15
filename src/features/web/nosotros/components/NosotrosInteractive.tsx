@@ -7,29 +7,29 @@ import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 
 const valores = [
   {
-    icon: Heart,
-    title: 'Compromiso',
-    desc: 'Nos dedicamos plenamente a la formación de cada estudiante, acompañándolos en cada etapa de su aprendizaje.',
+    icon: TrendingUp,
+    title: 'Resultados Reales',
+    desc: 'Cada estrategia que enseñamos está diseñada para generar ventas y crecimiento tangible en tu negocio desde el primer día.',
   },
   {
     icon: Lightbulb,
-    title: 'Innovación',
-    desc: 'Buscamos constantemente nuevas formas de enseñar y de acercar el conocimiento de manera más efectiva.',
+    title: 'Innovación Constante',
+    desc: 'Nos mantenemos a la vanguardia de TikTok Ads, Meta Ads e Inteligencia Artificial para ofrecerte siempre lo más actual y efectivo.',
   },
   {
     icon: Users,
-    title: 'Trabajo en Equipo',
-    desc: 'Creemos en la colaboración como motor del aprendizaje y el crecimiento colectivo.',
+    title: 'Comunidad',
+    desc: 'Creemos en el poder de los emprendedores conectados. Juntos aprendemos, crecemos y nos impulsamos mutuamente hacia el éxito.',
   },
   {
-    icon: TrendingUp,
-    title: 'Mejora Continua',
-    desc: 'Actualizamos nuestros contenidos y metodologías para mantenernos a la vanguardia del sector.',
+    icon: Heart,
+    title: 'Educación Práctica',
+    desc: 'No teoría vacía: cada curso y asesoría está enfocado en aplicar, ejecutar y obtener resultados concretos en tu negocio.',
   },
   {
     icon: ShieldCheck,
-    title: 'Integridad',
-    desc: 'Actuamos con transparencia y honestidad, generando confianza en cada relación con nuestros estudiantes y empresas.',
+    title: 'Acompañamiento',
+    desc: 'Estamos contigo en cada paso, desde el aprendizaje hasta la implementación de tu estrategia digital con soporte personalizado.',
   },
 ]
 
@@ -121,9 +121,9 @@ function MisionCard() {
           Nuestra Misión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Brindar formación profesional de alta calidad, accesible y orientada al sector industrial,
-          impulsando el desarrollo de competencias que generan valor real en las organizaciones y en
-          la carrera de nuestros estudiantes.&quot;
+          &quot;Ayudar a emprendedores y dueños de negocios a crecer mediante capacitación práctica,
+          asesorías personalizadas y estrategias digitales efectivas, utilizando herramientas como
+          TikTok Ads, Meta Ads, inteligencia artificial y ventas digitales para generar resultados reales.&quot;
         </p>
       </div>
     </div>
@@ -184,9 +184,9 @@ function VisionCard() {
           Nuestra Visión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Ser la plataforma de referencia en formación profesional especializada en Latinoamérica,
-          reconocida por la excelencia de sus contenidos, la solidez de sus certificaciones y su
-          compromiso con la transformación del sector industrial.&quot;
+          &quot;Ser la empresa líder en capacitación y consultoría de marketing digital en Perú y
+          Latinoamérica, reconocida por transformar emprendedores en negocios rentables mediante
+          la innovación, la educación práctica y el uso estratégico de la tecnología.&quot;
         </p>
       </div>
     </div>
@@ -271,5 +271,68 @@ function ValorCard({ v }: { v: typeof valores[number] }) {
       </h3>
       <p style={{ ...cardBody, textAlign: 'center' }}>{v.desc}</p>
     </div>
+  )
+}
+
+/* ── Historia ─────────────────────────────────────────────── */
+export function HistoriaSection() {
+  const hitos = [
+    { emoji: '🎓', title: 'Raíces Académicas', desc: 'Nació del conocimiento y la visión compartida de un grupo de profesionales con formación MBA.' },
+    { emoji: '🚀', title: 'Evolución a Agencia', desc: 'De la idea al siguiente nivel: de reuniones entre amigos a una agencia con impacto real en negocios.' },
+    { emoji: '🤝', title: 'Compromiso con el Emprendedor', desc: 'Cada servicio está diseñado para generar resultados reales para emprendedores y dueños de negocios.' },
+  ]
+
+  return (
+    <section style={{ backgroundColor: '#ffffff', padding: '5rem 1.5rem', borderTop: '1px solid hsl(214,20%,92%)' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '3.5rem',
+            alignItems: 'center',
+          }}
+        >
+          <ScrollReveal direction="left">
+            <div>
+              <p style={{ ...eyebrow, display: 'block' }}>Nuestra historia</p>
+              <h2 style={{ ...sectionH2, marginBottom: '1.25rem' }}>¿Cómo nació Abeja Smart?</h2>
+              <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: '#334155', lineHeight: 1.75, marginBottom: '1.25rem' }}>
+                Abeja Smart nació de una conversación entre amigos durante una maestría MBA. Entre ideas, visiones y la pasión compartida por el marketing digital, un miembro del equipo tomó la decisión de dar el siguiente paso: llevar ese conocimiento al siguiente nivel como agencia.
+              </p>
+              <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', color: '#334155', lineHeight: 1.75 }}>
+                Hoy, esa conversación se ha convertido en una plataforma que capacita y acompaña a cientos de emprendedores y dueños de negocios en su camino hacia el éxito digital.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal direction="right" delay={0.1}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {hitos.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '1rem',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '16px',
+                    padding: '1.25rem 1.5rem',
+                    border: '1.5px solid hsl(214,20%,91%)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+                  }}
+                >
+                  <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>{item.emoji}</span>
+                  <div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '0.9375rem', color: '#0A0A0A', marginBottom: '0.25rem' }}>{item.title}</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.5 }}>{item.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
+        </div>
+      </div>
+    </section>
   )
 }

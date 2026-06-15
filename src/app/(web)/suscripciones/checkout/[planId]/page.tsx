@@ -33,6 +33,7 @@ async function getCulqiPublicKey(): Promise<string> {
 }
 
 export default async function SuscripcionCheckoutPage({ params }: { params: { planId: string } }) {
+  notFound()
   const [plan, culqiPublicKey] = await Promise.all([
     getPlan(params.planId),
     getCulqiPublicKey()
@@ -47,6 +48,6 @@ export async function generateMetadata({ params }: { params: { planId: string } 
   const plan = await getPlan(params.planId)
 
   return {
-    title: plan ? `Suscribirse a ${plan.nombre} | Aula Virtual` : 'Checkout Suscripción',
+    title: plan ? `Suscribirse a ${plan.nombre} | Abeja Smart` : 'Checkout Suscripción',
   }
 }

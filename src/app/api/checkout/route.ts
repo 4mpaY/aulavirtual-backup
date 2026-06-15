@@ -178,7 +178,7 @@ export async function POST(request: Request) {
     // 5. Enviar correo de confirmación
     try {
       const configs = await getConfigs()
-      const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+      const platformName = configs.TEMPLATE_NAME || 'Abeja Smart'
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
       const emailHtml = getOrderConfirmationTemplate({
@@ -356,7 +356,7 @@ export async function POST(request: Request) {
         body: JSON.stringify({
           amount: Math.round(Number(total) * 100),
           currency_code: moneda,
-          description: `Pedido #${pedido.numero_pedido} - Aula Virtual`,
+          description: `Pedido #${pedido.numero_pedido} - Abeja Smart`,
           order_number: `ORD-${pedido.numero_pedido}-${Date.now()}`,
           client_details: {
             first_name: auth.user.nombre?.split(' ')[0] || auth.user.name?.split(' ')[0] || 'User',

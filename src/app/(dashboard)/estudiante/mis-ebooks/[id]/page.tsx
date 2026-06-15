@@ -17,10 +17,11 @@ export async function generateMetadata({ params }: Props) {
     select: { titulo: true },
   })
 
-  return { title: ebook ? `${ebook.titulo} | Mis Ebooks` : 'Ebook | Aula Virtual' }
+  return { title: ebook ? `${ebook.titulo} | Mis Ebooks` : 'Ebook | Abeja Smart' }
 }
 
 export default async function Page({ params }: Props) {
+  notFound()
   const session = await getAuthSession()
 
   if (!session) redirect('/login')

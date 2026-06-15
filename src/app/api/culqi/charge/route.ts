@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         currency_code: currency,
         email: email || auth.user.email,
         source_id: tokenId,
-        description: `Pedido #${pedido.numero_pedido} - Aula Virtual`,
+        description: `Pedido #${pedido.numero_pedido} - Abeja Smart`,
         antifraud_details: {
           first_name: auth.user.nombre?.split(' ')[0] || auth.user.name?.split(' ')[0] || 'User',
           last_name: auth.user.nombre?.split(' ').slice(1).join(' ') || auth.user.apellido || auth.user.name?.split(' ').slice(1).join(' ') || 'User',
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
           pedido_id: pedido.id,
           numero_pedido: pedido.numero_pedido,
           usuario_id: auth.user.id,
-          plataforma: 'Aula Virtual'
+          plataforma: 'Abeja Smart'
         }
       })
     })

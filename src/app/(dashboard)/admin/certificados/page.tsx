@@ -9,7 +9,7 @@ import { AxiosCertificado } from '@/features/admin/certificados/http/axiosCertif
 import type { CertificadosResponse } from '@/features/admin/certificados/entity/Certificado'
 
 export const metadata = {
-  title: 'Gestión de Certificados | Aula Virtual'
+  title: 'Gestión de Certificados | Abeja Smart'
 }
 
 export default async function Page() {

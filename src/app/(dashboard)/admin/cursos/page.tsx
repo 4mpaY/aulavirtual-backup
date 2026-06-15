@@ -9,7 +9,7 @@ import type { Curso } from '@/features/admin/cursos/entity/Curso'
 
 export const metadata: Metadata = {
     title: 'Gestión de Cursos',
-    description: 'Administra los cursos del aula virtual'
+    description: 'Administra los cursos del Abeja Smart'
 }
 
 export default async function Page() {

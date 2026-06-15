@@ -9,7 +9,7 @@ import { AxiosCursoAdmin } from '@/features/admin/cursos/http/axiosCursoAdmin'
 
 
 export const metadata = {
-  title: 'Gestión de Cupones | Aula Virtual'
+  title: 'Gestión de Cupones | Abeja Smart'
 }
 
 export default async function Page() {

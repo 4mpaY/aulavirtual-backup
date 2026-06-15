@@ -137,9 +137,9 @@ export default function LibroReclamacionesForm() {
           esta institución cuenta con un Libro de Reclamaciones Virtual a su disposición.
         </Typography>
         <Box sx={{ mt: 2, textAlign: 'left', bgcolor: 'white', p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-          <Typography variant="caption" display="block"><strong>PROVEEDOR:</strong> NOMBRE DE TU EMPRESA</Typography>
-          <Typography variant="caption" display="block"><strong>RUC:</strong> 20600000000 </Typography>
-          <Typography variant="caption" display="block"><strong>DOMICILIO:</strong> [DIRECCIÓN]</Typography>
+          <Typography variant="caption" display="block"><strong>PROVEEDOR:</strong> Abeja Smart</Typography>
+          <Typography variant="caption" display="block"><strong>CORREO:</strong> ebeecorp@gmail.com</Typography>
+          <Typography variant="caption" display="block"><strong>DOMICILIO:</strong> Pasaje Quebranta Mz B Lote 13, Urb. Telefónica, Surco, Lima</Typography>
         </Box>
       </Box>
 

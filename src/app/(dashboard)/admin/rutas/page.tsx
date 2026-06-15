@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 
@@ -9,10 +9,11 @@ import { AxiosRuta } from '@/features/admin/rutas/http/axiosRuta'
 import type { Ruta } from '@/features/admin/rutas/entity/Ruta'
 
 export const metadata = {
-  title: 'Gestión de Rutas | Aula Virtual'
+  title: 'Gestión de Rutas | Abeja Smart'
 }
 
 export default async function Page() {
+  notFound()
   const session = await getAuthSession()
 
   if (!session) {

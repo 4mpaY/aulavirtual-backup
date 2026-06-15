@@ -8,7 +8,7 @@ import { CourseCreatePage } from '@/features/admin/cursos/pages/CourseCreatePage
 
 export const metadata = {
   title: 'Crear Nuevo Curso',
-  description: 'Configura un nuevo curso para el aula virtual'
+  description: 'Configura un nuevo curso para el Abeja Smart'
 }
 
 export default async function Page() {

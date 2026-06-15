@@ -4,7 +4,7 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 import MetodosPagoPage from '@/features/admin/metodos-pago/pages/MetodosPagoPage'
 
 export const metadata = {
-  title: 'Métodos de Pago Manual | Aula Virtual'
+  title: 'Métodos de Pago Manual | Abeja Smart'
 }
 
 export default async function Page() {

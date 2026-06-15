@@ -20,10 +20,11 @@ export async function generateMetadata({ params }: Props) {
 
   return ebook
     ? { title: `${ebook.titulo} | Ebooks`, description: ebook.descripcion ?? undefined }
-    : { title: 'Ebook | Aula Virtual' }
+    : { title: 'Ebook | Abeja Smart' }
 }
 
 export default async function EbookDetailPage({ params }: Props) {
+  notFound()
   const ebook = await prisma.ebook.findFirst({
     where: { OR: [{ id: params.slug }, { slug: params.slug }], estado: 'PUBLICADO' },
     select: {

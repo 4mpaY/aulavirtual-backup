@@ -23,7 +23,7 @@ export default async function LearningPage({ params, searchParams }: { params: {
     }
   })
 
-  let phoneNumberProfesor = "51959436827"
+  let phoneNumberProfesor = "51918424922"
 
   if (profesorByCurso && profesorByCurso.profesor && profesorByCurso.profesor.celular) {
     phoneNumberProfesor = profesorByCurso.profesor.celular

@@ -68,7 +68,7 @@ export async function generateOrderPDF(pedido: any): Promise<Buffer> {
   y += 20
   doc.setFontSize(10)
   doc.setTextColor(100, 100, 100)
-  doc.text('Gracias por confiar en nuestra Aula Virtual.', margin, y)
+  doc.text('Gracias por confiar en Abeja Smart.', margin, y)
   doc.text('Puedes acceder a tus cursos desde tu panel de estudiante.', margin, y + 5)
 
   // Convertir a Buffer (usando arraybuffer en Node)

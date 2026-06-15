@@ -11,7 +11,7 @@ import { AxiosCategoria } from '@/features/admin/categorias/http/axiosCategoria'
 
 export const metadata: Metadata = {
   title: 'Gestión de Categorías',
-  description: 'Administra las categorías del aula virtual'
+  description: 'Administra las categorías del Abeja Smart'
 }
 
 export default async function Page() {

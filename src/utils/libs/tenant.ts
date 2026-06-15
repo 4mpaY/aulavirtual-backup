@@ -13,14 +13,14 @@ export const getTenantConfig = () => {
   const tenantConfigs: Record<string, any> = {
     'localhost:3000': {
       id: 'default-tenant',
-      name: 'Aula Virtual Demo',
+      name: 'Abeja Smart',
       domain: 'localhost:3000',
       color_primario: '#2e7d32', // Verde original
       color_secundario: '#0284c7',
     },
     'aulavirtual.pro': {
       id: 'pro-tenant',
-      name: 'Aula Virtual Pro',
+      name: 'Abeja Smart Pro',
       domain: 'aulavirtual.pro',
       color_primario: '#c2410c', // Naranja para distinguir
       color_secundario: '#1e293b',

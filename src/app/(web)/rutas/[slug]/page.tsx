@@ -8,6 +8,7 @@ import RutaDetail from '@/features/web/rutas/components/RutaDetail'
 const axiosRuta = new AxiosRuta()
 
 export default async function RutaDetailPage({ params }: { params: { slug: string } }) {
+  notFound()
   try {
     const ruta = await axiosRuta.getBySlug(params.slug)
 
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     if (!ruta) return { title: 'Ruta no encontrada' }
 
     return {
-      title: `${ruta.titulo} | Aula Virtual`,
+      title: `${ruta.titulo} | Abeja Smart`,
       description: ruta.descripcion || 'Detalles de la ruta de aprendizaje en nuestra plataforma EdTech.'
     }
   } catch {

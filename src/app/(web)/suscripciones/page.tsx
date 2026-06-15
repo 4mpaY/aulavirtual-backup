@@ -1,10 +1,12 @@
+import { notFound } from 'next/navigation'
+
 import { Repeat2 } from 'lucide-react'
 
 import { PlanesPublicos } from '@/features/web/suscripciones/components/PlanesPublicos'
 import type { PlanPublico } from '@/features/estudiante/suscripciones/entity/Suscripcion'
 
 export const metadata = {
-  title: 'Planes de Suscripción | Aula Virtual',
+  title: 'Planes de Suscripción | Abeja Smart',
   description: 'Accede a todos nuestros cursos con un plan de suscripción mensual, trimestral, semestral o anual.'
 }
 
@@ -23,6 +25,7 @@ async function getPlanes(): Promise<PlanPublico[]> {
 }
 
 export default async function SuscripcionesPage() {
+  notFound()
   const planes = await getPlanes()
 
   return (

@@ -35,7 +35,7 @@ export const sendMail = async ({ to, subject, html, attachments }: SendMailOptio
     }
 
     const mailOptions = {
-      from: process.env.SMTP_FROM || `"Aula Virtual" <${process.env.SMTP_USER}>`,
+      from: process.env.SMTP_FROM || `"Abeja Smart" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html,

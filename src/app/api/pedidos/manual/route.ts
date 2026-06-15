@@ -130,7 +130,7 @@ export async function POST(request: Request) {
 
           if (pedidoCompleto) {
             const configs = await getConfigs()
-            const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+            const platformName = configs.TEMPLATE_NAME || 'Abeja Smart'
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
             const emailHtml = getOrderConfirmationTemplate({

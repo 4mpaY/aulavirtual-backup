@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 
 import { Box, Button, Container, Stack, Typography } from '@mui/material'
 
@@ -7,10 +7,11 @@ import { MisEbooksList } from '@/features/estudiante/mis-ebooks/components/MisEb
 import prisma from '@/utils/libs/prisma'
 
 export const metadata = {
-  title: 'Mis Ebooks | Aula Virtual',
+  title: 'Mis Ebooks | Abeja Smart',
 }
 
 export default async function Page() {
+  notFound()
   const session = await getAuthSession()
 
   if (!session) redirect('/login')

@@ -21,7 +21,7 @@ interface WebHeaderProps {
   platformSlogan?: string
 }
 
-export default function WebHeader({ initialCategories = [], platformName = 'Aula Virtual', platformSlogan = 'Aprende sin límites' }: WebHeaderProps) {
+export default function WebHeader({ initialCategories = [], platformName = 'Abeja Smart', platformSlogan = 'Aprende inteligente, vende mejor.' }: WebHeaderProps) {
   void initialCategories
   void platformName
   void platformSlogan

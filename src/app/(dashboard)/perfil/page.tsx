@@ -9,7 +9,7 @@ import { AxiosPerfil } from '@/features/perfil/http/axiosPerfil'
 import UserProfileForm from '@/features/perfil/components/UserProfileForm'
 
 export const metadata = {
-  title: 'Mi Perfil | Aula Virtual',
+  title: 'Mi Perfil | Abeja Smart',
   description: 'Gestiona tu perfil personal'
 }
 

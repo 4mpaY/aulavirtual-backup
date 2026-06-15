@@ -5,8 +5,8 @@ import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASe
 import { getConfig } from '@/utils/libs/config'
 
 export const metadata = {
-  title: 'Soluciones Corporativas - Aula Virtual',
-  description: 'Descubre nuestros planes corporativos y capacita a tu equipo con los mejores profesionales del sector.',
+  title: 'Soluciones Corporativas - Abeja Smart',
+  description: 'Descubre nuestros planes corporativos y capacita a tu equipo en marketing digital, TikTok Ads, Meta Ads e Inteligencia Artificial.',
 }
 
 export default async function EmpresasPage() {

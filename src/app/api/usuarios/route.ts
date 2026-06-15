@@ -198,7 +198,7 @@ export async function POST(request: Request) {
     // 📧 Enviar correo de bienvenida con credenciales
     try {
       const configs = await getConfigs()
-      const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+      const platformName = configs.TEMPLATE_NAME || 'Abeja Smart'
       
       const emailHtml = getWelcomeTemplate({
         platformName,

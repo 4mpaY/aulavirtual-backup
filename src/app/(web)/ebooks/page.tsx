@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
 
+import { notFound } from 'next/navigation'
+
 import { Box, Typography } from '@mui/material'
 
 import prisma from '@/utils/libs/prisma'
@@ -12,6 +14,7 @@ export const metadata = {
 }
 
 export default async function EbooksPage() {
+  notFound()
   const session = await getAuthSession()
 
   const ebooks = await prisma.ebook.findMany({

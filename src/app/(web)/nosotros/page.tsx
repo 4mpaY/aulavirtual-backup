@@ -5,11 +5,11 @@ import { ArrowRight } from 'lucide-react'
 import prisma from '@/utils/libs/prisma'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
-import { MisionVisionSection, ValoresSection } from '@/features/web/nosotros/components/NosotrosInteractive'
+import { MisionVisionSection, ValoresSection, HistoriaSection } from '@/features/web/nosotros/components/NosotrosInteractive'
 
 export const metadata = {
-  title: 'Nosotros - Aula Virtual',
-  description: 'Conoce quiénes somos, nuestra misión, visión y los valores que guían nuestra plataforma educativa.',
+  title: 'Nosotros - Abeja Smart',
+  description: 'Conoce quiénes somos, nuestra misión, visión y los valores que nos impulsan a transformar emprendedores en negocios rentables mediante marketing digital.',
 }
 
 async function getTeachers() {
@@ -90,9 +90,9 @@ export default async function NosotrosPage() {
                     🎓
                   </div>
                   <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Plataforma educativa</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>Formación profesional</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>especializada y certificada</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Marketing Digital</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>Capacitación y Asesoría</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'var(--web-light, #BDD962)', fontWeight: 600 }}>para emprendedores</div>
                   </div>
                 </div>
 
@@ -135,8 +135,8 @@ export default async function NosotrosPage() {
                 >
                   <div style={{ fontSize: '1.75rem', flexShrink: 0 }}>📜</div>
                   <div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>Certificados con validez empresarial</div>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '4px' }}>Reconocidos por las principales empresas del sector</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem', fontWeight: 700, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>Aprende inteligente, vende mejor.</div>
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '4px' }}>Tu éxito digital es nuestro propósito</div>
                   </div>
                 </div>
 
@@ -175,9 +175,9 @@ export default async function NosotrosPage() {
                     marginBottom: '1.25rem',
                   }}
                 >
-                  Somos calidad y{' '}
-                  <span style={{ color: 'var(--web-light, #BDD962)' }}>responsabilidad</span>{' '}
-                  a tu servicio
+                  Impulsamos tu negocio{' '}
+                  <span style={{ color: 'var(--web-light, #BDD962)' }}>con marketing digital</span>{' '}
+                  de alto impacto
                 </h1>
 
                 <p
@@ -190,9 +190,9 @@ export default async function NosotrosPage() {
                     marginBottom: '2.5rem',
                   }}
                 >
-                  Somos una plataforma educativa especializada en la formación profesional de alto impacto.
-                  Ofrecemos cursos diseñados por expertos del sector, con certificaciones reconocidas
-                  que impulsan tu desarrollo profesional y el de tu equipo.
+                  Somos Abeja Smart, una agencia de capacitación y consultoría en marketing digital.
+                  Ayudamos a emprendedores y dueños de negocios a vender más con TikTok Ads, Meta Ads,
+                  Inteligencia Artificial y estrategias digitales efectivas.
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -286,13 +286,16 @@ export default async function NosotrosPage() {
         </div>
       </section> */}
 
-      {/* ── 3. MISIÓN / VISIÓN (client component) ─────── */}
+      {/* ── 3. HISTORIA ───────────────────────────────── */}
+      <HistoriaSection />
+
+      {/* ── 4. MISIÓN / VISIÓN (client component) ─────── */}
       <MisionVisionSection />
 
-      {/* ── 4. VALORES (client component) ─────────────── */}
+      {/* ── 5. VALORES (client component) ─────────────── */}
       <ValoresSection />
 
-      {/* ── 5. PROFESORES ─────────────────────────────── */}
+      {/* ── 6. PROFESORES ─────────────────────────────── */}
       <ProfessorsCarousel teachers={JSON.parse(JSON.stringify(teachers))} />
     </>
   )

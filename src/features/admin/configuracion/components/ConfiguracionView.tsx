@@ -377,7 +377,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     WHATSAPP_NUMERO: '',
     WHATSAPP_NUMERO_EMPRESAS: '',
     HOME_LOGOS: '[]',
-    TEMPLATE_NAME: 'Aula Virtual',
+    TEMPLATE_NAME: 'Abeja Smart',
     TEMPLATE_SLOGAN: '',
     CERTIFICADO_INSTITUTION_NAME: '',
     CERTIFICADO_SLOGAN: '',
@@ -1034,7 +1034,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   label='Número de WhatsApp'
                   value={config.PAGO_MANUAL_WHATSAPP_NUMERO || ''}
                   onChange={(e) => handleInputChange('PAGO_MANUAL_WHATSAPP_NUMERO', e.target.value)}
-                  helperText='Sin + ni espacios. Ej: 51959436827'
+                  helperText='Sin + ni espacios. Ej: 51918424922'
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>

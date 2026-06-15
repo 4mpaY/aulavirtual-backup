@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     // 4. Enviar correo con OTP
     const configs = await getConfigs()
-    const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const platformName = configs.TEMPLATE_NAME || 'Abeja Smart'
 
     const emailHtml = getOTPTemplate({
       platformName,

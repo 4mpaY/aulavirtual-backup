@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { PlanesSuscripcionPage } from '@/features/admin/planes-suscripcion/pages/PlanesSuscripcionPage'
@@ -6,10 +6,11 @@ import { AxiosPlanSuscripcion } from '@/features/admin/planes-suscripcion/http/a
 import { AxiosCursoAdmin } from '@/features/admin/cursos/http/axiosCursoAdmin'
 
 export const metadata = {
-  title: 'Planes de Suscripción | Aula Virtual'
+  title: 'Planes de Suscripción | Abeja Smart'
 }
 
 export default async function Page() {
+  notFound()
   const session = await getAuthSession()
 
   if (!session) redirect('/login')
