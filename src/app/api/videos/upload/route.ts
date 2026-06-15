@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
 
 import { join } from 'path'
-import { writeFile, mkdir } from 'fs/promises'
+import { mkdir } from 'fs/promises'
+import { createWriteStream } from 'fs'
+import { Readable } from 'stream'
 import { randomUUID } from 'crypto'
 
 import prisma from '@/utils/libs/prisma'
@@ -16,7 +18,7 @@ const ALLOWED_MIMES: Record<string, string> = {
   'video/quicktime': 'mov'
 }
 
-const MAX_FILE_SIZE = 200 * 1024 * 1024 // 200 MB max for private videos
+const MAX_FILE_SIZE = 3 * 1024 * 1024 * 1024 // 3 GB max for private videos
 
 export async function POST(request: Request) {
   try {
@@ -61,9 +63,6 @@ export async function POST(request: Request) {
       )
     }
 
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
     const safeExtension = ALLOWED_MIMES[file.type]
     const id = randomUUID()
     const nombreArchivo = `${id}.${safeExtension}`
@@ -77,12 +76,22 @@ export async function POST(request: Request) {
       // Asegurar que el directorio existe
       await mkdir(uploadDir, { recursive: true })
 
-      // Escribir el archivo en la ruta privada
-      await writeFile(absolutePath, buffer)
+      // Escribir el archivo usando Web Streams para ahorrar memoria RAM
+      const writeStream = createWriteStream(absolutePath)
+      const fileStream = Readable.fromWeb(file.stream() as any)
+
+      await new Promise<void>((resolve, reject) => {
+        fileStream.pipe(writeStream)
+        writeStream.on('finish', resolve)
+        writeStream.on('error', (err) => {
+          writeStream.close()
+          reject(err)
+        })
+      })
     } catch (fsError: any) {
       console.error('❌ Error de sistema de archivos en subida de video privado:', fsError)
       
-return ApiResponse.error(request, 'No se pudo guardar el archivo en el servidor', 500)
+      return ApiResponse.error(request, 'No se pudo guardar el archivo en el servidor', 500)
     }
 
     // Crear registro en la tabla Media

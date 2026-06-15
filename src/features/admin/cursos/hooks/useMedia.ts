@@ -39,8 +39,8 @@ export function useUploadMedia() {
   const qc = useQueryClient()
   const axiosMedia = axiosMediaFactory()
 
-  return useMutation<any, any, File>({
-    mutationFn: async file => await axiosMedia.upload(file),
+  return useMutation<any, any, { file: File; onProgress?: (progress: number) => void }>({
+    mutationFn: async ({ file, onProgress }) => await axiosMedia.upload(file, onProgress),
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.MEDIA })
   })
 }
@@ -52,8 +52,8 @@ export function useUploadPrivateVideo() {
   const qc = useQueryClient()
   const axiosMedia = axiosMediaFactory()
 
-  return useMutation<any, any, File>({
-    mutationFn: async file => {
+  return useMutation<any, any, { file: File; onProgress?: (progress: number) => void }>({
+    mutationFn: async ({ file, onProgress }) => {
       const formData = new FormData()
 
       formData.append('file', file)
@@ -68,7 +68,16 @@ export function useUploadPrivateVideo() {
         headers.Authorization = `Bearer ${token}`
       }
 
-      const res = await axios.post('/api/videos/upload', formData, { headers })
+      const res = await axios.post('/api/videos/upload', formData, {
+        headers,
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total && onProgress) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+
+            onProgress(percentCompleted)
+          }
+        }
+      })
 
       return res.data?.result !== undefined ? res.data.result : res.data
     },
