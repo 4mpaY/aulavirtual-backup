@@ -134,9 +134,19 @@ Para configurarlo en tu servidor de producción Linux VPS:
    ```
 
 3. **Añadir la tarea automática diaria:**
-   Agrega la siguiente línea al final del archivo de configuración (esto programará la ejecución diaria a las 3:00 AM, guardando un registro en el directorio `logs`):
+   Asegúrate primero de que la carpeta de logs exista en tu servidor ejecutando `mkdir -p logs` desde la raíz del proyecto.
+   
+   Luego, agrega la siguiente línea al final del archivo de configuración (esto programará la ejecución diaria a las 3:00 AM, guardando un registro en el directorio `logs`):
    ```cron
    0 3 * * * /ruta/absoluta/a/tu/aulavirtual/renew-certs.sh >> /ruta/absoluta/a/tu/aulavirtual/logs/certbot-renew.log 2>&1
    ```
    *Nota: Reemplaza `/ruta/absoluta/a/tu/aulavirtual` por la ruta real de la carpeta del proyecto en tu servidor (ej. `/var/www/aulavirtual`).*
+
+   > [!IMPORTANT]
+   > **Permisos y Carpeta de Logs:**
+   > - **Crear la carpeta**: Si la carpeta `logs/` no existe, la redirección `>>` del cron fallará. Créala con `mkdir -p /ruta/absoluta/a/tu/aulavirtual/logs`.
+   > - **Si usas el usuario `root`** (ej. usando `sudo crontab -e`): No necesitas configurar nada extra; el sistema tiene permisos totales para escribir allí.
+   > - **Si usas un usuario común** (ej. `ubuntu` o `deploy` usando `crontab -e`): Asegúrate de que dicho usuario sea el propietario de la carpeta de logs ejecutando:
+   >   `sudo chown -R usuario:usuario /ruta/absoluta/a/tu/aulavirtual/logs`
+
 

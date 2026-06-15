@@ -4,6 +4,9 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+# Silenciar advertencias de contenedores huérfanos en los logs
+export COMPOSE_IGNORE_ORPHANS=True
+
 echo "=== Iniciando comprobación de renovación: $(date) ==="
 
 # 1. Ejecutar el contenedor de certbot (validará contra Let's Encrypt si está por expirar)
