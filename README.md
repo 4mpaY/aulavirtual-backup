@@ -12,20 +12,38 @@ Plataforma de e-learning (LMS) para gestión de cursos, estudiantes, profesores,
 
 ### Primeros pasos
 
-1. Instalar las dependencias:
+1. **Instalar las dependencias:**
    ```bash
    pnpm install
    ```
 
-2. Configurar variables de entorno:
+2. **Configurar variables de entorno:**
    Crea un archivo `.env` en la raíz basado en `.env.example`.
 
-3. Iniciar el servidor de desarrollo:
+3. **Levantar base de datos local (Opcional - Docker):**
+   Si no cuentas con una base de datos PostgreSQL instalada en tu sistema local, puedes levantar la base de datos de desarrollo usando Docker Compose:
+   ```bash
+   docker compose -f compose.dev.yml up -d db
+   ```
+   *(Esto creará e iniciará una base de datos PostgreSQL en el puerto especificado en tu archivo `.env`).*
+
+4. **Preparar la base de datos (Prisma Migrations & Seeds):**
+   Una vez que tu base de datos esté corriendo, ejecuta las migraciones de Prisma para crear las tablas e inserta los datos iniciales (seed):
+   ```bash
+   # Aplicar y crear migraciones de base de datos
+   pnpm db:migration:dev
+
+   # Ejecutar el seed para poblar datos iniciales
+   pnpm db:seed
+   ```
+
+5. **Iniciar el servidor de desarrollo:**
    ```bash
    pnpm dev
    ```
 
-4. Abrir [http://localhost:3000](http://localhost:3000) en el navegador.
+6. **Abrir la aplicación:**
+   Accede a [http://localhost:3000](http://localhost:3000) en el navegador.
 
 ---
 
@@ -63,8 +81,24 @@ Utilizaremos una configuración temporal de Nginx y Certbot para realizar la val
    docker compose -f compose.cert.yml down
    ```
 
-### Paso 3: Levantar la aplicación en producción
-Con los certificados ya descargados e instalados en los volúmenes correspondientes, inicia todos los servicios productivos (Next.js, PostgreSQL y Nginx con SSL activo en puerto 443):
+### Paso 3: Configurar permisos de carpetas en el Host (Paso Crítico)
+Por motivos de seguridad, la aplicación corre dentro del contenedor bajo el usuario no-root `nextjs` (con UID `1001` y GID `1001`). Por lo tanto, los volúmenes compartidos del servidor host para subidas de archivos (`public/uploads` y `private`) deben ser legibles y escribibles por este usuario:
+
+```bash
+# Crear directorios en el servidor host si no existen
+mkdir -p public/uploads private
+
+# Cambiar el propietario al UID/GID del contenedor (1001)
+sudo chown -R 1001:1001 public/uploads
+sudo chown -R 1001:1001 private
+
+# Asignar permisos de lectura y escritura correctos
+sudo chmod -R 775 public/uploads
+sudo chmod -R 775 private
+```
+
+### Paso 4: Levantar la aplicación en producción
+Con los certificados generados y los permisos de las carpetas correctamente configurados, inicia todos los servicios productivos (Next.js, PostgreSQL y Nginx con SSL en el puerto 443):
 
 ```bash
 docker compose -f compose.prod.yml up -d
@@ -99,3 +133,4 @@ Para configurarlo en tu servidor de producción Linux VPS:
    0 3 * * * /ruta/absoluta/a/tu/aulavirtual/renew-certs.sh >> /ruta/absoluta/a/tu/aulavirtual/logs/certbot-renew.log 2>&1
    ```
    *Nota: Reemplaza `/ruta/absoluta/a/tu/aulavirtual` por la ruta real de la carpeta del proyecto en tu servidor (ej. `/var/www/aulavirtual`).*
+
