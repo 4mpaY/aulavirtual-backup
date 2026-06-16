@@ -69,7 +69,8 @@ interface LessonEditDialogProps {
 export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }: LessonEditDialogProps) {
   const [title, setTitle] = useState('')
   const [duration, setDuration] = useState<number | string>('')
-  const [videoUrl, setVideoUrl] = useState('')
+  const [videoUrlEnlace, setVideoUrlEnlace] = useState('')
+  const [videoUrlPrivado, setVideoUrlPrivado] = useState('')
   const [videoSource, setVideoSource] = useState<'enlace' | 'privado'>('enlace')
   const [openMediaVideo, setOpenMediaVideo] = useState(false)
   const [esEnVivo, setEsEnVivo] = useState(false)
@@ -99,11 +100,23 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     if (lessonData) {
       setTitle(lessonData.titulo || '')
       setDuration(lessonData.duracion || '')
-      setVideoUrl(lessonData.video_url || '')
 
       const isPrivadoVideo = !!lessonData.video_url && lessonData.video_url.includes('/api/videos/stream/')
 
       setVideoSource(isPrivadoVideo ? 'privado' : 'enlace')
+
+      if (lessonData.video_url) {
+        if (isPrivadoVideo) {
+          setVideoUrlPrivado(lessonData.video_url)
+          setVideoUrlEnlace('')
+        } else {
+          setVideoUrlEnlace(lessonData.video_url)
+          setVideoUrlPrivado('')
+        }
+      } else {
+        setVideoUrlEnlace('')
+        setVideoUrlPrivado('')
+      }
 
       setEsEnVivo(lessonData.es_en_vivo || false)
 
@@ -124,7 +137,8 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     } else {
       setTitle('')
       setDuration('')
-      setVideoUrl('')
+      setVideoUrlEnlace('')
+      setVideoUrlPrivado('')
       setVideoSource('enlace')
       setEsEnVivo(false)
       setFechaProgramada('')
@@ -186,7 +200,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     onSave({
       titulo: title,
       duracion: duration ? Number(duration) : null,
-      video_url: videoUrl || null,
+      video_url: (videoSource === 'enlace' ? videoUrlEnlace : videoUrlPrivado) || null,
       es_en_vivo: esEnVivo,
       fecha_programada: sanitizeDatetimeInput(fechaProgramada),
       fecha_fin: sanitizeDatetimeInput(fechaFin),
@@ -292,18 +306,6 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                     key={source}
                     onClick={() => {
                       setVideoSource(source)
-
-
-                      // Si cambia a privado y el video actual no es de stream, limpiar
-                      if (source === 'privado' && !videoUrl.includes('/api/videos/stream/')) {
-                        setVideoUrl('')
-                      }
-
-
-                      // Si cambia a enlace y es privado, limpiar
-                      if (source === 'enlace' && videoUrl.includes('/api/videos/stream/')) {
-                        setVideoUrl('')
-                      }
                     }}
                     fullWidth
                     disableRipple
@@ -330,8 +332,8 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                   fullWidth
                   label='URL del Video (Vimeo / Youtube)'
                   placeholder='https://vimeo.com/...'
-                  value={videoUrl}
-                  onChange={e => setVideoUrl(e.target.value)}
+                  value={videoUrlEnlace}
+                  onChange={e => setVideoUrlEnlace(e.target.value)}
                   InputProps={{
                     startAdornment: <InputAdornment position='start'><i className='tabler-brand-vimeo text-xl text-textSecondary' /></InputAdornment>
                   }}
@@ -339,14 +341,14 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
               ) : (
                 <Box>
                   <Typography variant='caption' sx={{ mb: 1, display: 'block', fontWeight: 600 }}>Archivo de Video Privado (.mp4, .webm, .mkv)</Typography>
-                  {videoUrl && videoUrl.includes('/api/videos/stream/') ? (
+                  {videoUrlPrivado && videoUrlPrivado.includes('/api/videos/stream/') ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                       <i className='tabler-video text-xl text-primary' />
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant='body2' fontWeight={600} noWrap>{videoUrl.split('/').pop()}</Typography>
-                        <Typography variant='caption' color='text.secondary' noWrap>{videoUrl}</Typography>
+                        <Typography variant='body2' fontWeight={600} noWrap>{videoUrlPrivado.split('/').pop()}</Typography>
+                        <Typography variant='caption' color='text.secondary' noWrap>{videoUrlPrivado}</Typography>
                       </Box>
-                      <IconButton size='small' color='error' onClick={() => setVideoUrl('')}>
+                      <IconButton size='small' color='error' onClick={() => setVideoUrlPrivado('')}>
                         <i className='tabler-trash text-base' />
                       </IconButton>
                     </Box>
@@ -711,7 +713,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
             open={openMediaVideo}
             onClose={() => setOpenMediaVideo(false)}
             onSelect={(url: string) => {
-              setVideoUrl(url)
+              setVideoUrlPrivado(url)
               setOpenMediaVideo(false)
             }}
             title='Seleccionar o Subir Video Privado'
