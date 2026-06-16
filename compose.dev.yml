@@ -11,6 +11,7 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
   nginx:
     image: nginx:1.29-alpine
     restart: unless-stopped
