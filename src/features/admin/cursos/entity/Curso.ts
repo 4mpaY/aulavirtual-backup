@@ -24,6 +24,7 @@ export interface CursoLeccionResumen {
   video_url: string | null
   enlace_reunion: string | null
   es_en_vivo: boolean
+  es_pdf: boolean
   fecha_programada: string | Date | null
   recursos: any[]
   estado: 'BORRADOR' | 'PUBLICADO'
@@ -56,6 +57,17 @@ export interface CursoExamenResumen {
   _count?: { preguntas: number }
 }
 
+export interface CursoActividadResumen {
+  id: string
+  titulo: string
+  tipo: 'ARCHIVO' | 'FORMULARIO'
+  orden: number | null
+  puntaje_maximo: number
+  esta_publicado: boolean
+  modulo_id: string | null
+  _count?: { preguntas: number; entregas: number }
+}
+
 export interface CursoModulo {
   id: string
   titulo: string
@@ -65,6 +77,7 @@ export interface CursoModulo {
   actualizado_en: string
   lecciones: CursoLeccionResumen[]
   examenes: CursoExamenResumen[]
+  actividades: CursoActividadResumen[]
 }
 
 export interface Curso {

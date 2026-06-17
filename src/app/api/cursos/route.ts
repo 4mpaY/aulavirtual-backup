@@ -62,7 +62,7 @@ export async function GET(request: Request) {
         where,
         skip,
         take: limit,
-        orderBy: { orden: 'asc' },
+        orderBy: { creado_en: 'desc' },
         include: {
           profesor: {
             select: { id: true, nombre: true, apellido: true, avatar: true }

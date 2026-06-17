@@ -130,6 +130,112 @@ export function useReorderCursos() {
   })
 }
 
+// ===================== ACTIVIDADES =====================
+
+export function useActividadById(cursoId: string, actId: string) {
+  return useQuery<{ actividad: any }, any>({
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId],
+    queryFn: async () => await axiosCurso.getActividadById(cursoId, actId),
+    enabled: !!cursoId && !!actId,
+    staleTime: 30_000
+  })
+}
+
+export function useCreateActividad() {
+  const qc = useQueryClient()
+
+  return useMutation<{ actividad: any }, any, { cursoId: string; data: any }>({
+    mutationFn: async ({ cursoId, data }) => await axiosCurso.createActividad(cursoId, data),
+    onSuccess: (_, { cursoId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId] })
+      qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+    }
+  })
+}
+
+export function useUpdateActividad() {
+  const qc = useQueryClient()
+
+  return useMutation<{ actividad: any }, any, { cursoId: string; actId: string; data: any }>({
+    mutationFn: async ({ cursoId, actId, data }) => await axiosCurso.updateActividad(cursoId, actId, data),
+    onSuccess: (_, { cursoId, actId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId] })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId] })
+    }
+  })
+}
+
+export function useDeleteActividad() {
+  const qc = useQueryClient()
+
+  return useMutation<{ message: string }, any, { cursoId: string; actId: string }>({
+    mutationFn: async ({ cursoId, actId }) => await axiosCurso.deleteActividad(cursoId, actId),
+    onSuccess: (_, { cursoId }) => qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId] })
+  })
+}
+
+export function useCreatePreguntaActividad() {
+  const qc = useQueryClient()
+
+  return useMutation<{ pregunta: any }, any, { cursoId: string; actId: string; data: any }>({
+    mutationFn: async ({ cursoId, actId, data }) => await axiosCurso.createPreguntaActividad(cursoId, actId, data),
+    onSuccess: (_, { cursoId, actId }) =>
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId] })
+  })
+}
+
+export function useUpdatePreguntaActividad() {
+  const qc = useQueryClient()
+
+  return useMutation<{ pregunta: any }, any, { cursoId: string; actId: string; pregId: string; data: any }>({
+    mutationFn: async ({ cursoId, actId, pregId, data }) =>
+      await axiosCurso.updatePreguntaActividad(cursoId, actId, pregId, data),
+    onSuccess: (_, { cursoId, actId }) =>
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId] })
+  })
+}
+
+export function useDeletePreguntaActividad() {
+  const qc = useQueryClient()
+
+  return useMutation<{ message: string }, any, { cursoId: string; actId: string; pregId: string }>({
+    mutationFn: async ({ cursoId, actId, pregId }) =>
+      await axiosCurso.deletePreguntaActividad(cursoId, actId, pregId),
+    onSuccess: (_, { cursoId, actId }) =>
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId] })
+  })
+}
+
+export function useEntregasActividad(cursoId: string, actId: string) {
+  return useQuery<{ entregas: any[]; pendientes: any[] }, any>({
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId, 'entregas'],
+    queryFn: async () => await axiosCurso.getEntregasActividad(cursoId, actId),
+    enabled: !!cursoId && !!actId,
+    staleTime: 0
+  })
+}
+
+export function useCalificarEntregaActividad() {
+  const qc = useQueryClient()
+
+  return useMutation<{ entrega: any }, any, { cursoId: string; actId: string; entId: string; data: any }>({
+    mutationFn: async ({ cursoId, actId, entId, data }) =>
+      await axiosCurso.calificarEntregaActividad(cursoId, actId, entId, data),
+    onSuccess: (_, { cursoId, actId }) =>
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId, 'entregas'] })
+  })
+}
+
+export function useReorderActividadesModulo() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { cursoId: string; moduloId: string; items: { id: string; orden: number }[] }>({
+    mutationFn: async ({ cursoId, moduloId, items }) =>
+      await axiosCurso.reorderActividadesModulo(cursoId, moduloId, items),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
 // ===================== MÓDULOS =====================
 
 export function useCreateModulo() {

@@ -27,6 +27,7 @@ import CourseContentSidebar from './CourseContentSidebar'
 import ExamSection from './ExamSection'
 import LessonContent from './LessonContent'
 import LiveLessonPlaceholder from './LiveLessonPlaceholder'
+import PdfViewer from './PdfViewer'
 import RatingModal from './RatingModal'
 import VideoPlayer from './VideoPlayer'
 import { LessonTrabajo } from './LessonTrabajo'
@@ -351,6 +352,8 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
                                 fechaFin={currentLesson.fecha_fin}
                                 enlaceReunion={currentLesson.enlace_reunion}
                             />
+                        ) : currentLesson?.es_pdf ? (
+                            <PdfViewer url={currentLesson?.video_url} />
                         ) : (
                             <VideoPlayer url={currentLesson?.video_url || undefined} tipo="VIDEO" onEnded={handleVideoEnded} />
                         )}
