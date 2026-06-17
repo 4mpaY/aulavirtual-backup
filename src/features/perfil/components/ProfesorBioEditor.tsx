@@ -167,7 +167,7 @@ export default function ProfesorBioEditor({ value, onChange, rol }: Props) {
         </Stack>
         <TextField
           fullWidth
-          placeholder="Ej: Especialista en gestión y cumplimiento ambiental en minería e hidrocarburos"
+          placeholder="Ej: Especialista en marketing digital y growth con foco en Meta Ads y TikTok Ads"
           value={data.titulo}
           onChange={e => update({ titulo: e.target.value })}
           size="small"

@@ -196,7 +196,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
     { text: 'Evaluación programada', active: true },
     { text: 'Evaluación en cualquier momento', active: false },
     { text: 'Recuperación de evaluación', active: false },
-    { text: 'Certificado por Ecoambiental o CIP', active: false },
+    { text: 'Certificado verificable Abeja Smart', active: false },
   ]
 
   return (

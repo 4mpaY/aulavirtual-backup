@@ -141,7 +141,7 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                           fullWidth
                           label='Título del Curso *'
                           name='titulo'
-                          placeholder='Ej: Especialización en Gestión Ambiental'
+                          placeholder='Ej: Especialización en Marketing Digital y Meta Ads'
                           value={values.titulo}
                           onChange={handleChange}
                           onBlur={handleBlur}

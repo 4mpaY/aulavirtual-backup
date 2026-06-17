@@ -118,7 +118,7 @@ function PhoneMockup() {
 
           {/* Header de la clase */}
           <div style={{ padding: '4px 14px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>Gestión Ambiental</span>
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>Marketing Digital</span>
             {/* Live badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: '999px', padding: '2px 7px' }}>
               <div style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#ef4444', animation: 'pulse 1.5s infinite' }} />
@@ -145,7 +145,7 @@ function PhoneMockup() {
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.15)', border: '2px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: '1.125rem' }}>👨‍🏫</span>
               </div>
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Ing. Carlos Mendoza</span>
+              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.5625rem', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>Carlos Mendoza</span>
             </div>
 
             {/* Controles video */}

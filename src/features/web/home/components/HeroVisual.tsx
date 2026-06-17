@@ -71,7 +71,7 @@ export default function HeroVisual() {
               <span style={{ fontSize: '1rem' }}>🎓</span>
             </div>
             <div>
-              <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>Gestión Ambiental</div>
+              <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, color: '#fff', lineHeight: 1 }}>Marketing Digital</div>
               <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Módulo 3 · Aplicación práctica</div>
             </div>
           </div>

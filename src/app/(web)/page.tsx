@@ -10,6 +10,8 @@ import RutasSection from '@/features/web/home/components/RutasSection'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
 import HeroVisual from '@/features/web/home/components/HeroVisual'
+import HeroBackgroundEffects from '@/features/web/home/components/HeroBackgroundEffects'
+import AnimatedCounter from '@/features/web/home/components/AnimatedCounter'
 import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSection'
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
 import CompaniesSection from '@/features/web/home/components/CompaniesSection'
@@ -126,8 +128,8 @@ export default async function HomePage() {
             backgroundSize: '48px 48px',
           }}
         />
-        {/* Glow derecho */}
-        <div aria-hidden style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.25) 0%, transparent 65%)', pointerEvents: 'none' }} />
+        {/* Glow con parallax al mouse + partículas flotantes */}
+        <HeroBackgroundEffects />
 
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '5rem 1.5rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
@@ -201,12 +203,14 @@ export default async function HomePage() {
               {/* Mini stats */}
               <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                 {[
-                  { value: '+1,200', label: 'Estudiantes' },
-                  { value: '+80', label: 'Cursos' },
-                  { value: '98%', label: 'Satisfacción' },
+                  { value: 1200, prefix: '+', label: 'Estudiantes' },
+                  { value: 80, prefix: '+', label: 'Cursos' },
+                  { value: 98, suffix: '%', label: 'Satisfacción' },
                 ].map(stat => (
-                  <div key={stat.label}>
-                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>{stat.value}</div>
+                  <div key={stat.label} className="transition-transform duration-300 hover:scale-110 cursor-default">
+                    <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>
+                      <AnimatedCounter value={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
+                    </div>
                     <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px' }}>{stat.label}</div>
                   </div>
                 ))}
