@@ -49,7 +49,7 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
 
   const loginForm = useForm<LoginDto>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { correo: 'prueba@gmail.com', contrasena: 'Prueba123@' }
+    defaultValues: { correo: 'alumno@gmail.com', contrasena: 'Alumno123@' }
   })
 
   const registerForm = useForm<RegisterDto>({
@@ -312,7 +312,7 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
 
         {mode === 'login' && (
           <Alert severity="info" sx={{ mb: 2, fontSize: '0.8rem' }}>
-            <strong>Cuenta de prueba:</strong> prueba@gmail.com &nbsp;|&nbsp; <strong>Contraseña:</strong> Prueba123@
+            <strong>Cuenta de prueba:</strong> alumno@gmail.com &nbsp;|&nbsp; <strong>Contraseña:</strong> Alumno123@
           </Alert>
         )}
 
