@@ -16,6 +16,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import HydratedDate from '@/utils/components/HydratedDate'
 import { usePedido, useUpdatePedido } from '../hooks/usePedidos'
 import type { Pedido } from '../entity/Pedido'
+import { getDetalleInfo } from '../entity/Pedido'
 
 const ESTADOS = [
   { value: 'PENDIENTE', label: 'Pendiente', color: 'warning' },
@@ -168,30 +169,43 @@ export function PedidoEditPage() {
               </CardContent>
             </Card>
 
-            {/* Cursos */}
+            {/* Ítems adquiridos */}
             <Card>
               <CardContent>
                 <Typography variant='overline' color='text.secondary' fontWeight={700} sx={{ letterSpacing: 1, mb: 2, display: 'block' }}>
-                  Cursos Adquiridos
+                  Ítems Adquiridos
                 </Typography>
                 <Stack spacing={2}>
-                  {pedido?.detalles?.map((d: any) => (
-                    <Stack key={d.id} direction='row' alignItems='center' spacing={2}>
-                      <Avatar
-                        src={d.curso?.miniatura || ''}
-                        variant='rounded'
-                        sx={{ width: 48, height: 36, bgcolor: 'action.selected' }}
-                      >
-                        <i className='tabler-book' style={{ fontSize: 16 }} />
-                      </Avatar>
-                      <Box flex={1}>
-                        <Typography variant='body2' fontWeight={600}>{d.curso?.titulo}</Typography>
-                      </Box>
-                      <Typography variant='body2' fontWeight={700} color='primary.main'>
-                        {pedido.moneda} {Number(d.subtotal).toFixed(2)}
-                      </Typography>
-                    </Stack>
-                  ))}
+                  {pedido?.detalles?.map(d => {
+                    const { titulo, miniatura, esEbook } = getDetalleInfo(d)
+
+                    return (
+                      <Stack key={d.id} direction='row' alignItems='center' spacing={2}>
+                        <Avatar
+                          src={miniatura || ''}
+                          variant='rounded'
+                          sx={{ width: 48, height: 36, bgcolor: 'action.selected' }}
+                        >
+                          <i className={esEbook ? 'tabler-book' : 'tabler-school'} style={{ fontSize: 16 }} />
+                        </Avatar>
+                        <Box flex={1}>
+                          <Stack direction='row' alignItems='center' spacing={1}>
+                            <Typography variant='body2' fontWeight={600}>{titulo}</Typography>
+                            <Chip
+                              label={esEbook ? 'Ebook' : 'Curso'}
+                              size='small'
+                              color={esEbook ? 'info' : 'default'}
+                              variant='tonal'
+                              sx={{ height: 18, fontSize: '0.625rem' }}
+                            />
+                          </Stack>
+                        </Box>
+                        <Typography variant='body2' fontWeight={700} color='primary.main'>
+                          {pedido.moneda} {Number(d.subtotal).toFixed(2)}
+                        </Typography>
+                      </Stack>
+                    )
+                  })}
                   <Divider />
                   <Stack direction='row' justifyContent='space-between'>
                     <Typography variant='subtitle2' color='text.secondary'>Total del pedido</Typography>
@@ -403,7 +417,7 @@ export function PedidoEditPage() {
                 <Chip label={ESTADOS.find(e => e.value === pedido?.estado)?.label || pedido?.estado} color={estadoColor[pedido?.estado] || 'default'} size='small' variant='tonal' />
               </Stack>
               <Stack direction='row' justifyContent='space-between'>
-                <Typography variant='body2' color='text.secondary'>Cursos</Typography>
+                <Typography variant='body2' color='text.secondary'>Ítems</Typography>
                 <Typography variant='body2' fontWeight={600}>{pedido?.detalles?.length || 0}</Typography>
               </Stack>
               {pedido?.cupon && (

@@ -41,6 +41,7 @@ import CustomTextField from '@core/components/mui/TextField'
 
 import type { ThemeColor } from '@/@core/types'
 import type { Pedido } from '../entity/Pedido'
+import { getDetalleInfo } from '../entity/Pedido'
 import { usePedidos, useDeletePedido } from '../hooks/usePedidos'
 import { AxiosPedido } from '../http/axiosPedido'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
@@ -91,7 +92,11 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
         '# Pedido': `#${String(p.numero_pedido).padStart(6, '0')}`,
         Estudiante: `${p.usuario?.nombre ?? ''} ${p.usuario?.apellido ?? ''}`.trim(),
         Correo: p.usuario?.correo ?? '',
-        'Curso(s)': p.detalles?.map(d => d.curso?.titulo).join(' | ') ?? '',
+        'Ítem(s)': p.detalles?.map(d => {
+          const { titulo, esEbook } = getDetalleInfo(d)
+
+          return esEbook ? `${titulo} (Ebook)` : titulo
+        }).join(' | ') ?? '',
         Total: `${p.moneda} ${Number(p.total).toFixed(2)}`,
         Cupón: p.cupon?.codigo ?? '',
         'Método de pago': p.metodo_pago?.toLowerCase().replace('_', ' ') ?? '',
@@ -181,14 +186,27 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
         )
       }),
       columnHelper.accessor('detalles', {
-        header: 'Curso(s)',
+        header: 'Ítem(s)',
         cell: ({ row }) => (
-          <div className='flex flex-col'>
-            {row.original.detalles?.map((detalle, index) => (
-              <Typography key={index} variant='body2' color='text.primary'>
-                {detalle.curso?.titulo}
-              </Typography>
-            ))}
+          <div className='flex flex-col gap-1'>
+            {row.original.detalles?.map((detalle, index) => {
+              const { titulo, esEbook } = getDetalleInfo(detalle)
+
+              return (
+                <div key={index} className='flex items-center gap-2'>
+                  <Typography variant='body2' color='text.primary'>
+                    {titulo}
+                  </Typography>
+                  <Chip
+                    label={esEbook ? 'Ebook' : 'Curso'}
+                    size='small'
+                    color={esEbook ? 'info' : 'default'}
+                    variant='tonal'
+                    sx={{ height: 20, fontSize: '0.65rem' }}
+                  />
+                </div>
+              )
+            })}
           </div>
         )
       }),

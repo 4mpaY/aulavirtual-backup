@@ -31,7 +31,7 @@ interface MediaLibraryProps {
   onClose: () => void
   onSelect: (url: string, nombre?: string) => void
   title?: string
-  acceptType?: 'IMAGEN' | 'VIDEO' | 'OTRO'
+  acceptType?: 'IMAGEN' | 'VIDEO' | 'OTRO' | 'PDF'
 }
 
 const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios', acceptType = 'IMAGEN' }: MediaLibraryProps) => {
@@ -57,10 +57,13 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
     }
   }
 
-  const filteredMedia = media.filter(m =>
-    m.nombre.toLowerCase().includes(search.toLowerCase()) &&
-    (acceptType ? m.tipo === acceptType : true)
-  )
+  const filteredMedia = media.filter(m => {
+    if (!m.nombre.toLowerCase().includes(search.toLowerCase())) return false
+
+    if (acceptType === 'PDF') return m.mimetype === 'application/pdf'
+
+    return acceptType ? m.tipo === acceptType : true
+  })
 
   return (
     <Dialog
@@ -82,7 +85,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
           <TextField
             fullWidth
             size="small"
-            placeholder={acceptType === 'IMAGEN' ? "Buscar imágenes..." : "Buscar recursos..."}
+            placeholder={acceptType === 'IMAGEN' ? "Buscar imágenes..." : acceptType === 'PDF' ? "Buscar PDFs..." : "Buscar recursos..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{
@@ -100,11 +103,11 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
             disabled={uploadMutation.isPending}
             sx={{ whiteSpace: 'nowrap' }}
           >
-            {uploadMutation.isPending ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : 'Subir Recurso')}
+            {uploadMutation.isPending ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : acceptType === 'PDF' ? 'Subir PDF' : 'Subir Recurso')}
             <input
               type="file"
               hidden
-              accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
+              accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : acceptType === 'PDF' ? '.pdf' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
               onChange={handleFileUpload}
             />
           </Button>
@@ -147,12 +150,12 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                   >
                     <i className="tabler-plus text-3xl text-primary" />
                     <Typography variant="body2" color="primary" sx={{ mt: 1, fontWeight: 600 }}>
-                      {acceptType === 'IMAGEN' ? 'Nueva Imagen' : 'Nuevo Recurso'}
+                      {acceptType === 'IMAGEN' ? 'Nueva Imagen' : acceptType === 'PDF' ? 'Nuevo PDF' : 'Nuevo Recurso'}
                     </Typography>
                     <input
                       type="file"
                       hidden
-                      accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
+                      accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : acceptType === 'PDF' ? '.pdf' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
                       onChange={handleFileUpload}
                     />
                   </CardActionArea>
@@ -165,7 +168,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                 <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'action.hover', borderRadius: 4 }}>
                   <i className="tabler-photo-off text-5xl text-textDisabled" />
                   <Typography sx={{ mt: 2 }} color="text.secondary">
-                    {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : 'No se encontraron recursos'}
+                    {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : acceptType === 'PDF' ? 'No se encontraron PDFs' : 'No se encontraron recursos'}
                   </Typography>
                 </Box>
               </Grid>

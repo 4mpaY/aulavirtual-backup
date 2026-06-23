@@ -15,7 +15,6 @@ import {
 } from '@mui/material'
 import { useForm, Controller } from 'react-hook-form'
 import Swal from 'sweetalert2'
-import axios from 'axios'
 
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
@@ -51,7 +50,7 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
   const updateEbook = useUpdateEbook()
 
   const [openMedia, setOpenMedia] = useState(false)
-  const [uploading, setUploading] = useState(false)
+  const [openPdfMedia, setOpenPdfMedia] = useState(false)
 
   const [opcionesAvanzadas, setOpcionesAvanzadas] = useState(false)
 
@@ -81,20 +80,19 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
   const miniatura = watch('miniatura')
   const archivoPdf = watch('archivo_pdf')
 
-  const contarPaginasPdf = (file: File): Promise<number> =>
-    new Promise(resolve => {
-      const reader = new FileReader()
+  // Cada página individual del PDF tiene /Type /Page (sin 's')
+  const contarPaginasPdf = async (url: string): Promise<number> => {
+    try {
+      const res = await fetch(url)
+      const buffer = await res.arrayBuffer()
+      const content = new TextDecoder('latin1').decode(buffer)
+      const matches = content.match(/\/Type\s*\/Page[^s]/g)
 
-      // Cada página individual tiene /Type /Page (sin 's')
-      reader.onload = e => {
-        const content = e.target?.result as string
-        const matches = content.match(/\/Type\s*\/Page[^s]/g)
-
-        resolve(matches ? matches.length : 0)
-      }
-
-      reader.readAsText(file, 'latin1')
-    })
+      return matches ? matches.length : 0
+    } catch {
+      return 0
+    }
+  }
 
   useEffect(() => {
     if (ebook) {
@@ -142,31 +140,13 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
     }
   }, [ebook, open, reset])
 
-  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleSelectPdf = async (url: string) => {
+    setValue('archivo_pdf', url, { shouldValidate: true })
+    setOpenPdfMedia(false)
 
-    if (!file || file.type !== 'application/pdf') return
+    const paginas = await contarPaginasPdf(url)
 
-    setUploading(true)
-
-    try {
-      // Contar páginas antes de subir
-      const paginas = await contarPaginasPdf(file)
-
-      if (paginas > 0) setValue('paginas', paginas)
-
-      const formData = new FormData()
-
-      formData.append('file', file)
-
-      const { data } = await axios.post('/api/media', formData)
-
-      setValue('archivo_pdf', data.result?.url ?? data.url, { shouldValidate: true })
-    } catch {
-      Swal.fire({ title: 'Error', text: 'No se pudo subir el PDF', icon: 'error' })
-    } finally {
-      setUploading(false)
-    }
+    if (paginas > 0) setValue('paginas', paginas)
   }
 
   const onSubmit = async (values: CreateEbookDto) => {
@@ -282,100 +262,42 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
           </Grid>
 
           {/* ── Contenido ───────────────────────────────────────── */}
-          <SectionHeader title='Contenido' subtitle='Portada y archivo que verá el lector' />
+          <SectionHeader title='Contenido' subtitle='Archivo que verá el lector' />
 
-          <Grid item xs={12} sm={5}>
-            <Typography variant='subtitle2' mb={1}>Miniatura (portada)</Typography>
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                border: '1px solid',
-                borderColor: 'divider',
-                bgcolor: 'action.hover',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
-                height: '100%',
-              }}
-            >
-              <Box
-                sx={{
-                  width: 56,
-                  aspectRatio: '2/3',
-                  borderRadius: 1.5,
-                  overflow: 'hidden',
-                  flexShrink: 0,
-                  border: '1px solid #e2e8f0',
-                  bgcolor: 'background.paper',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {miniatura ? (
-                  <img
-                    src={miniatura}
-                    alt='portada'
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                  />
-                ) : (
-                  <Typography variant='caption' color='text.disabled' textAlign='center' sx={{ px: 0.5 }}>
-                    Sin imagen
-                  </Typography>
-                )}
-              </Box>
-              <Box>
-                <Button variant='outlined' size='small' onClick={() => setOpenMedia(true)}>
-                  {miniatura ? 'Cambiar imagen' : 'Seleccionar imagen'}
-                </Button>
-                <Typography variant='caption' color='text.secondary' display='block' sx={{ mt: 1 }}>
-                  800 × 1200 px (proporción 2:3)
-                </Typography>
-              </Box>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} sm={7}>
+          <Grid item xs={12}>
             <Typography variant='subtitle2' mb={1}>Archivo PDF *</Typography>
-            <Box
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                border: '1px solid',
-                borderColor: 'divider',
-                bgcolor: 'action.hover',
-                height: '100%',
-              }}
-            >
-              <Box display='flex' gap={2} alignItems='center' flexWrap='wrap'>
-                <Button variant='outlined' component='label' size='small' disabled={uploading}>
-                  {uploading ? 'Subiendo...' : 'Subir PDF'}
-                  <input type='file' accept='application/pdf' hidden onChange={handlePdfUpload} />
-                </Button>
-                <Typography variant='caption' color='text.secondary'>o pegar URL:</Typography>
-                <Controller
-                  name='archivo_pdf'
-                  control={control}
-                  rules={{ required: 'El archivo PDF es requerido' }}
-                  render={({ field, fieldState }) => (
-                    <CustomTextField
-                      {...field}
-                      size='small'
-                      placeholder='https://...'
-                      sx={{ flex: 1, minWidth: 200 }}
-                      error={!!fieldState.error}
-                      helperText={fieldState.error?.message}
-                    />
+            <Controller
+              name='archivo_pdf'
+              control={control}
+              rules={{ required: 'El archivo PDF es requerido' }}
+              render={({ fieldState }) => (
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: fieldState.error ? 'error.main' : 'divider',
+                    bgcolor: 'action.hover',
+                  }}
+                >
+                  <Box display='flex' gap={2} alignItems='center' flexWrap='wrap'>
+                    <Button variant='outlined' size='small' onClick={() => setOpenPdfMedia(true)}>
+                      {archivoPdf ? 'Cambiar PDF' : 'Seleccionar PDF'}
+                    </Button>
+                    {archivoPdf && (
+                      <Typography variant='caption' color='success.main'>
+                        PDF cargado: {archivoPdf.split('/').pop()}
+                      </Typography>
+                    )}
+                  </Box>
+                  {fieldState.error && (
+                    <Typography variant='caption' color='error.main' display='block' sx={{ mt: 1 }}>
+                      {fieldState.error.message}
+                    </Typography>
                   )}
-                />
-              </Box>
-              {archivoPdf && (
-                <Typography variant='caption' color='success.main' display='block' sx={{ mt: 1.5 }}>
-                  PDF cargado: {archivoPdf.split('/').pop()}
-                </Typography>
+                </Box>
               )}
-            </Box>
+            />
           </Grid>
 
           <Grid item xs={12} sm={6}>
@@ -478,6 +400,60 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
               </Grid>
             </>
           )}
+          {/* ── Portada (al final) ──────────────────────────────── */}
+          <SectionHeader title='Portada' subtitle='Imagen de portada del ebook' />
+
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'action.hover',
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: 'center',
+                gap: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  width: '100%',
+                  maxWidth: 280,
+                  aspectRatio: '2/3',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  border: '1px solid #e2e8f0',
+                  bgcolor: 'background.paper',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {miniatura ? (
+                  <img
+                    src={miniatura}
+                    alt='portada'
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                ) : (
+                  <Typography variant='caption' color='text.disabled' textAlign='center' sx={{ px: 1 }}>
+                    Sin imagen
+                  </Typography>
+                )}
+              </Box>
+              <Box sx={{ width: '100%', flex: 1 }}>
+                <Button fullWidth variant='outlined' onClick={() => setOpenMedia(true)}>
+                  {miniatura ? 'Cambiar imagen' : 'Seleccionar imagen'}
+                </Button>
+                <Typography variant='caption' color='text.secondary' display='block' sx={{ mt: 1.5 }}>
+                  Tamaño recomendado: 800 × 1200 px (proporción 2:3, igual que la portada de un libro)
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
 
           {/* ── Opciones avanzadas ──────────────────────────────── */}
           <Grid item xs={12}>
@@ -601,6 +577,14 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
         }}
         acceptType='IMAGEN'
         title='Seleccionar portada'
+      />
+
+      <MediaLibrary
+        open={openPdfMedia}
+        onClose={() => setOpenPdfMedia(false)}
+        onSelect={handleSelectPdf}
+        acceptType='PDF'
+        title='Seleccionar PDF'
       />
     </AppModal>
   )
