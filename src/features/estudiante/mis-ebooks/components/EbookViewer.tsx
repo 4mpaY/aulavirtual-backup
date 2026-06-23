@@ -116,6 +116,7 @@ function PageItem({ pageNumber, pageWidth, tool, color, ebookId, annotations, on
     const el = ref.current
 
     if (!el) return
+
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting && entry.intersectionRatio >= 0.4) onVisible(pageNumber) },
       { threshold: 0.4 }
@@ -198,7 +199,11 @@ export const EbookViewer = ({ ebookId }: Props) => {
   useEffect(() => {
     setLoadingPdf(true); setErrorPdf(false); setPdfData(null)
     fetch(`/api/estudiante/ebooks/${ebookId}/pdf`)
-      .then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer() })
+      .then(r => {
+        if (!r.ok) throw new Error()
+
+        return r.arrayBuffer()
+      })
       .then(buf => { setPdfData({ data: buf }); setLoadingPdf(false) })
       .catch(() => { setLoadingPdf(false); setErrorPdf(true) })
   }, [ebookId])
@@ -207,7 +212,7 @@ export const EbookViewer = ({ ebookId }: Props) => {
     fetch(`/api/estudiante/ebooks/${ebookId}/anotaciones`)
       .then(r => r.ok ? r.json() : [])
       .then((data: Annotation[]) => setAnnotations(data))
-      .catch(() => {})
+      .catch(() => { })
   }, [ebookId])
 
   useEffect(() => {
@@ -233,8 +238,10 @@ export const EbookViewer = ({ ebookId }: Props) => {
     const el = wrapperRef.current
 
     if (!el) return
+
     const onWheel = (e: WheelEvent) => {
       if (!e.ctrlKey) return
+
       e.preventDefault()
       setZoom(z => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, +(z + (e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP)).toFixed(2))))
     }

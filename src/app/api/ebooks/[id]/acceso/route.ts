@@ -12,9 +12,11 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAuth(request)
+
     if (!auth.authorized) return auth.error
 
     const ebook = await prisma.ebook.findUnique({ where: { id: params.id } })
+
     if (!ebook) return NextResponse.json({ error: 'Ebook no encontrado' }, { status: 404 })
     if (ebook.estado !== 'PUBLICADO') return NextResponse.json({ error: 'Ebook no disponible' }, { status: 400 })
 
@@ -40,6 +42,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAuth(request)
+
     if (!auth.authorized) return auth.error
 
     const acceso = await prisma.ebookAcceso.findUnique({

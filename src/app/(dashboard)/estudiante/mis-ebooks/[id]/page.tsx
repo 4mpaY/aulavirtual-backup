@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
+import Link from 'next/link'
 
 import { Box, Typography, Button } from '@mui/material'
-import Link from 'next/link'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import EbookViewerClient from '@/features/estudiante/mis-ebooks/components/EbookViewerClient'

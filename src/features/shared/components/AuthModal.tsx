@@ -18,7 +18,7 @@ import {
   Divider,
   InputAdornment
 } from '@mui/material'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -93,7 +93,9 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
 
   const handleLoginSuccess = async () => {
     onClose()
+
     await updateSession()
+
     if (onSuccess) {
       onSuccess()
     } else if (callbackUrl) {

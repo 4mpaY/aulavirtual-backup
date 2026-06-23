@@ -15,7 +15,9 @@ export async function GET(request: Request) {
     const categoria_id = searchParams.get('categoria_id') ?? undefined
 
     const where: any = { estado: 'PUBLICADO' }
+
     if (categoria_id) where.categoria_id = categoria_id
+
     if (buscar) {
       where.OR = [
         { titulo: { contains: buscar, mode: 'insensitive' } },

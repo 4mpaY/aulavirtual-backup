@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic'
 
-import { NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import path from 'path'
+
+import { NextResponse } from 'next/server'
 
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'

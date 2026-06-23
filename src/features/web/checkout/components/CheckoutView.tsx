@@ -46,6 +46,7 @@ const CheckoutView = ({ courses, ebooks }: CheckoutViewProps) => {
     const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null)
 
     const hasOnlyEbooks = courses.length === 0 && ebooks.length > 0
+
     const breadcrumbBack = hasOnlyEbooks
         ? { label: 'Ebooks', href: '/ebooks' }
         : { label: 'Cursos', href: courses[0] ? `/cursos/${courses[0].slug}` : '/cursos' }
