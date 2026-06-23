@@ -37,8 +37,10 @@ model Usuario {
   valoraciones       ValoracionCurso[]
   suscripciones      Suscripcion[]
   entregas_trabajo   EntregaTrabajo[]
-  ebook_accesos      EbookAcceso[]
-  ebook_annotaciones EbookAnnotacion[]
+  ebook_accesos        EbookAcceso[]
+  ebook_annotaciones   EbookAnnotacion[]
+  participaciones_chat ParticipanteConversacion[]
+  mensajes_enviados    MensajeChat[]              @relation("MensajesEnviados")
 
   @@index([rol])
   @@map("usuarios")
@@ -524,14 +526,15 @@ model Tenant {
 }
 
 model Media {
-  id             String   @id @default(uuid())
-  nombre         String
-  url            String
-  tipo           String
-  mimetype       String
-  peso           Int
-  creado_en      DateTime @default(now())
-  actualizado_en DateTime @updatedAt
+  id              String        @id @default(uuid())
+  nombre          String
+  url             String
+  tipo            String
+  mimetype        String
+  peso            Int
+  creado_en       DateTime      @default(now())
+  actualizado_en  DateTime      @updatedAt
+  mensajes_chat   MensajeChat[]
 
   @@map("media")
 }
@@ -932,3 +935,45 @@ model EntregaTrabajo {
   @@map("entregas_trabajo")
 }
 
+
+model Conversacion {
+  id             String                     @id @default(uuid())
+  creado_en      DateTime                   @default(now())
+  actualizado_en DateTime                   @updatedAt
+  participantes  ParticipanteConversacion[]
+  mensajes       MensajeChat[]
+
+  @@map("conversaciones")
+}
+
+model ParticipanteConversacion {
+  id              String       @id @default(uuid())
+  conversacion_id String
+  usuario_id      String
+  unido_en        DateTime     @default(now())
+  conversacion    Conversacion @relation(fields: [conversacion_id], references: [id], onDelete: Cascade)
+  usuario         Usuario      @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([conversacion_id, usuario_id])
+  @@index([conversacion_id])
+  @@index([usuario_id])
+  @@map("participantes_conversacion")
+}
+
+model MensajeChat {
+  id              String       @id @default(uuid())
+  contenido       String       @db.Text
+  leido           Boolean      @default(false)
+  creado_en       DateTime     @default(now())
+  conversacion_id String
+  remitente_id    String
+  adjunto_id      String?
+  conversacion    Conversacion @relation(fields: [conversacion_id], references: [id], onDelete: Cascade)
+  remitente       Usuario      @relation("MensajesEnviados", fields: [remitente_id], references: [id], onDelete: Cascade)
+  adjunto         Media?       @relation(fields: [adjunto_id], references: [id], onDelete: SetNull)
+
+  @@index([conversacion_id])
+  @@index([remitente_id])
+  @@index([conversacion_id, creado_en])
+  @@map("mensajes_chat")
+}

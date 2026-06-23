@@ -538,6 +538,20 @@ async function main() {
     console.log('✅ Alumno inscrito en: Costos y Presupuestos de Obra, Valorización y Liquidación de Obras')
   }
 
+  // ─── CONFIGURACIONES DEL SISTEMA ────────────────────────────────────────────
+
+  await prisma.configuracion.upsert({
+    where: { clave: 'chat_entre_alumnos' },
+    update: {},
+    create: {
+      clave: 'chat_entre_alumnos',
+      valor: 'false',
+      descripcion: 'Permitir mensajes directos entre alumnos'
+    }
+  })
+
+  console.log('✅ Configuración de chat creada')
+
   // ─── RESUMEN ─────────────────────────────────────────────────────────────────
 
   console.log('')
