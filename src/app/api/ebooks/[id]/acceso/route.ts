@@ -20,7 +20,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     if (!ebook) return NextResponse.json({ error: 'Ebook no encontrado' }, { status: 404 })
     if (ebook.estado !== 'PUBLICADO') return NextResponse.json({ error: 'Ebook no disponible' }, { status: 400 })
 
-    if (!ebook.es_gratis) {
+    if (!ebook.es_gratis && Number(ebook.precio) > 0) {
       return NextResponse.json({ error: 'Este ebook requiere pago' }, { status: 403 })
     }
 

@@ -90,6 +90,11 @@ model Ebook {
   es_gratis      Boolean         @default(false)
   paginas        Int?
   genero         String?
+  resena         String?
+  editorial      String?
+  anio_edicion   Int?
+  saga           String?
+  idioma         String?         @default("Español")
   categoria_id   String?
   creado_en      DateTime        @default(now())
   actualizado_en DateTime        @updatedAt

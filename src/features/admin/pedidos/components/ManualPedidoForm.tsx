@@ -26,17 +26,21 @@ import { crearPedidoManualSchema, type CrearPedidoManualDto } from '@/schemas/pe
 import { useCreatePedidoManual } from '../hooks/usePedidos'
 import { useUsuarios } from '@/features/admin/usuarios/hooks/useUsuarios'
 import { useCursos } from '@/features/admin/cursos/hooks/useCursos'
+import { useAdminEbooks } from '@/features/admin/ebooks/hooks/useEbooks'
 
 export function ManualPedidoForm() {
     const router = useRouter()
     const { enqueueSnackbar } = useSnackbar()
     const [selectedCoursePrice, setSelectedCoursePrice] = useState<number>(0)
+    const [selectedEbookPrice, setSelectedEbookPrice] = useState<number>(0)
 
     const { data: usuariosData, isLoading: isLoadingUsuarios } = useUsuarios({ limit: '1000' })
     const { data: cursosData, isLoading: isLoadingCursos } = useCursos()
+    const { data: ebooksData, isLoading: isLoadingEbooks } = useAdminEbooks({ estado: 'PUBLICADO' })
 
     const usuarios = (usuariosData?.usuarios || []).filter(u => u.rol === 'ESTUDIANTE')
     const cursos = (cursosData?.cursos || []).filter(c => c.estado === 'PUBLICADO')
+    const ebooks = ebooksData || []
 
     const {
         control,
@@ -48,6 +52,7 @@ export function ManualPedidoForm() {
         defaultValues: {
             usuarios_ids: [],
             cursos_ids: [],
+            ebooks_ids: [],
             estado: 'COMPLETADO' as const,
             metodo_pago: MetodoPago.TRANSFERENCIA,
             precio: 0,
@@ -128,7 +133,7 @@ export function ManualPedidoForm() {
 
                                             const totalPrice = newValue.reduce((acc, curr) => acc + Number(curr.precio), 0)
 
-                                            setValue('precio', totalPrice)
+                                            setValue('precio', totalPrice + selectedEbookPrice)
                                             setSelectedCoursePrice(totalPrice)
                                         }}
                                         renderInput={(params) => (
@@ -154,6 +159,49 @@ export function ManualPedidoForm() {
                             />
                         </Grid>
 
+                        <Grid item xs={12} md={6}>
+                            <Controller
+                                name='ebooks_ids'
+                                control={control}
+                                render={({ field: { value, onChange } }) => (
+                                    <Autocomplete
+                                        fullWidth
+                                        multiple
+                                        options={ebooks}
+                                        getOptionLabel={(option) => option.titulo}
+                                        loading={isLoadingEbooks}
+                                        value={ebooks.filter((e) => value.includes(e.id))}
+                                        onChange={(_, newValue) => {
+                                            onChange(newValue.map(e => e.id))
+
+                                            const totalPrice = newValue.reduce((acc, curr) => acc + Number(curr.precio), 0)
+
+                                            setValue('precio', selectedCoursePrice + totalPrice)
+                                            setSelectedEbookPrice(totalPrice)
+                                        }}
+                                        renderInput={(params) => (
+                                            <CustomTextField
+                                                {...params}
+                                                label='Seleccionar Ebooks'
+                                                placeholder='Busca ebooks publicados'
+                                                error={!!errors.ebooks_ids}
+                                                helperText={(errors.ebooks_ids as any)?.message}
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    endAdornment: (
+                                                        <Fragment>
+                                                            {isLoadingEbooks ? <CircularProgress color="inherit" size={20} /> : null}
+                                                            {params.InputProps.endAdornment}
+                                                        </Fragment>
+                                                    ),
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                )}
+                            />
+                        </Grid>
+
                         <Grid item xs={12} md={4}>
                             <Controller
                                 name='precio'
@@ -166,7 +214,7 @@ export function ManualPedidoForm() {
                                         label='Precio del Pedido'
                                         placeholder='0.00'
                                         error={!!errors.precio}
-                                        helperText={errors.precio ? errors.precio.message : `Precio total sugerido: ${selectedCoursePrice}`}
+                                        helperText={errors.precio ? errors.precio.message : `Precio total sugerido: ${selectedCoursePrice + selectedEbookPrice}`}
                                         InputProps={{
                                             startAdornment: <Typography sx={{ mr: 2, color: 'text.secondary' }}>PEN</Typography>
                                         }}

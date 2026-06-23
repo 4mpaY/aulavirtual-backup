@@ -30,6 +30,7 @@ export default async function EbookDetailPage({ params }: Props) {
       id: true, titulo: true, slug: true, descripcion: true,
       autor: true, miniatura: true, precio: true, precio_falso: true,
       moneda: true, es_gratis: true, paginas: true, genero: true,
+      resena: true, editorial: true, anio_edicion: true, saga: true, idioma: true,
       categoria: { select: { nombre: true } },
       _count: { select: { accesos: true } },
     },
