@@ -4,6 +4,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
+import { getIO } from '@/utils/libs/socket-server'
 
 async function verificarParticipante(conversacionId: string, userId: string) {
   return prisma.participanteConversacion.findUnique({
@@ -79,6 +80,24 @@ export async function POST(request: Request, { params }: { params: { id: string 
         data: { actualizado_en: new Date() }
       })
     ])
+
+    // Notificar en tiempo real a todos los participantes de la conversación
+    const io = getIO()
+
+    if (io) {
+      // Enviar el mensaje a todos en la sala de la conversación
+      io.to(`conversacion:${params.id}`).emit('nuevo_mensaje', mensaje)
+
+      // Notificar a las salas personales de los otros participantes (para actualizar el badge y la lista)
+      const participantes = await prisma.participanteConversacion.findMany({
+        where: { conversacion_id: params.id, usuario_id: { not: auth.user.id } },
+        select: { usuario_id: true }
+      })
+
+      participantes.forEach(p => {
+        io.to(`usuario:${p.usuario_id}`).emit('conversacion_actualizada', { conversacion_id: params.id })
+      })
+    }
 
     return ApiResponse.success(request, mensaje, 201)
   } catch (error) {

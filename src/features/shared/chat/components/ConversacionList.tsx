@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 import {
-  Box, CircularProgress, Divider, IconButton,
+  Box, Button, CircularProgress, Divider, IconButton,
   InputAdornment, List, TextField, Tooltip, Typography
 } from '@mui/material'
 
@@ -43,8 +43,12 @@ export default function ConversacionList({ conversacionSeleccionada, onSeleccion
             Mensajes
           </Typography>
           <Tooltip title='Nueva conversación'>
-            <IconButton size='small' onClick={() => setModalOpen(true)}>
-              <Icon icon='tabler:edit' />
+            <IconButton
+              size='small'
+              onClick={() => setModalOpen(true)}
+              sx={{ bgcolor: 'action.selected', '&:hover': { bgcolor: 'action.focus' } }}
+            >
+              <Icon icon='tabler:edit' width={18} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -73,11 +77,22 @@ export default function ConversacionList({ conversacionSeleccionada, onSeleccion
             <CircularProgress size={24} />
           </Box>
         ) : filtradas.length === 0 ? (
-          <Box display='flex' flexDirection='column' alignItems='center' pt={6} gap={1}>
-            <Icon icon='tabler:messages-off' width={40} color='text.disabled' />
-            <Typography variant='body2' color='text.disabled' textAlign='center' px={2}>
-              {busqueda ? 'Sin resultados' : 'Sin conversaciones. Inicia una nueva.'}
+          <Box display='flex' flexDirection='column' alignItems='center' pt={6} gap={2} px={2}>
+            <Icon icon={busqueda ? 'tabler:search-off' : 'tabler:message-plus'} width={40} color='text.disabled' />
+            <Typography variant='body2' color='text.disabled' textAlign='center'>
+              {busqueda ? 'Sin resultados' : 'Aún no tienes conversaciones'}
             </Typography>
+            {!busqueda && (
+              <Button
+                variant='contained'
+                size='small'
+                startIcon={<Icon icon='tabler:edit' width={16} />}
+                onClick={() => setModalOpen(true)}
+                fullWidth
+              >
+                Nueva conversación
+              </Button>
+            )}
           </Box>
         ) : (
           <List disablePadding>

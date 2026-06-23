@@ -44,5 +44,6 @@ export interface ContactoDisponible {
   apellido: string
   avatar: string | null
   rol: 'ADMIN' | 'PROFESOR' | 'ESTUDIANTE'
+  cursos: { id: string; titulo: string }[]
   conversacion_id: string | null
 }

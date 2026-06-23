@@ -55,7 +55,6 @@ export function useMensajes(conversacionId: string | null) {
     queryKey: KEYS.MENSAJES(conversacionId ?? ''),
     queryFn: () => buildClient().getMensajes(conversacionId!),
     enabled: !!conversacionId,
-    refetchInterval: 5_000,
     staleTime: 0
   })
 }

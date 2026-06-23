@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   Avatar, Box, Chip, CircularProgress, Divider,
@@ -11,7 +11,9 @@ import { Icon } from '@iconify/react'
 import { useSession } from 'next-auth/react'
 
 import MensajeBurbuja from './MensajeBurbuja'
-import { useMensajes, useEnviarMensaje, useMarcarLeidos } from '../hooks/useChat'
+import PerfilContactoModal from './PerfilContactoModal'
+import { useMensajes, useEnviarMensaje, useMarcarLeidos, useContactos } from '../hooks/useChat'
+import { useConversacionSocket } from '../hooks/useChatSocket'
 import type { ConversacionResumen } from '../entity/Chat'
 
 interface Props {
@@ -31,14 +33,24 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
   const [adjuntoFile, setAdjuntoFile] = useState<File | null>(null)
   const [adjuntoPreview, setAdjuntoPreview] = useState<{ nombre: string; url: string | null } | null>(null)
   const [subiendoAdjunto, setSubiendoAdjunto] = useState(false)
+  const [perfilOpen, setPerfilOpen] = useState(false)
   const inputFileRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const { data: mensajes = [], isLoading } = useMensajes(conversacion.id)
+  const { data: contactos = [] } = useContactos(true)
+
+  const { data: mensajes = [], isLoading, refetch: refetchMensajes } = useMensajes(conversacion.id)
   const enviar = useEnviarMensaje()
   const marcarLeidos = useMarcarLeidos()
 
   const otro = conversacion.otroParticipante
+
+  const handleNuevoMensaje = useCallback(() => {
+    refetchMensajes()
+    marcarLeidos.mutate(conversacion.id)
+  }, [refetchMensajes, marcarLeidos, conversacion.id])
+
+  useConversacionSocket(conversacion.id, handleNuevoMensaje)
 
   useEffect(() => {
     marcarLeidos.mutate(conversacion.id)
@@ -110,11 +122,17 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
     }
   }
 
+  const contactoActual = otro ? (contactos.find(c => c.id === otro.id) ?? null) : null
+
   return (
     <Box display='flex' flexDirection='column' height='100%' minWidth={0}>
       {/* Header */}
       <Box display='flex' alignItems='center' gap={1.5} px={2} py={1.5} borderBottom='1px solid' borderColor='divider'>
-        <Avatar src={otro?.avatar ?? undefined} sx={{ width: 36, height: 36 }}>
+        <Avatar
+          src={otro?.avatar ?? undefined}
+          sx={{ width: 36, height: 36, cursor: otro ? 'pointer' : 'default' }}
+          onClick={() => otro && setPerfilOpen(true)}
+        >
           {otro?.nombre?.[0]}
         </Avatar>
         <Box flex={1} minWidth={0}>
@@ -125,10 +143,28 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
             <Chip label={ROL_LABELS[otro.rol] ?? otro.rol} size='small' sx={{ height: 18, fontSize: 10 }} />
           )}
         </Box>
-        <IconButton size='small' onClick={onCerrar}>
-          <Icon icon='tabler:chevron-left' />
-        </IconButton>
+        {otro && (
+          <Tooltip title='Ver perfil'>
+            <IconButton size='small' onClick={() => setPerfilOpen(true)}>
+              <Icon icon='tabler:user-circle' />
+            </IconButton>
+          </Tooltip>
+        )}
+        <Tooltip title='Cerrar'>
+          <IconButton size='small' onClick={onCerrar}>
+            <Icon icon='tabler:chevron-left' />
+          </IconButton>
+        </Tooltip>
       </Box>
+
+      {otro && (
+        <PerfilContactoModal
+          open={perfilOpen}
+          handleClose={() => setPerfilOpen(false)}
+          usuario={otro}
+          cursos={contactoActual?.cursos ?? []}
+        />
+      )}
 
       {/* Mensajes */}
       <Box flex={1} overflow='auto' px={2} py={1.5}>

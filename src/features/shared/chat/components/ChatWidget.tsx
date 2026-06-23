@@ -1,23 +1,33 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Badge, Box, Drawer, Fab, Tooltip } from '@mui/material'
 
 import { Icon } from '@iconify/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 
 import ConversacionList from './ConversacionList'
 import MensajePanel from './MensajePanel'
 import { useUnreadCount, useConversaciones } from '../hooks/useChat'
+import { useChatSocket } from '../hooks/useChatSocket'
 
 export default function ChatWidget() {
   const { data: session } = useSession()
+  const qc = useQueryClient()
   const [open, setOpen] = useState(false)
   const [conversacionId, setConversacionId] = useState<string | null>(null)
 
   const { data: unread } = useUnreadCount()
   const { data: conversaciones = [] } = useConversaciones()
+
+  const handleConversacionActualizada = useCallback(() => {
+    qc.invalidateQueries({ queryKey: ['chat', 'conversaciones'] })
+    qc.invalidateQueries({ queryKey: ['chat', 'unread'] })
+  }, [qc])
+
+  useChatSocket(session?.user?.id, handleConversacionActualizada)
 
   if (!session?.user) return null
 

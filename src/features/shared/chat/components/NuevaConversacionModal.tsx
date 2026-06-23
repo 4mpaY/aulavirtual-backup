@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   Avatar, Box, Chip, CircularProgress, InputAdornment,
-  List, ListItemAvatar, ListItemButton, ListItemText, TextField, Typography
+  List, ListItemAvatar, ListItemButton, ListItemText,
+  MenuItem, TextField, Typography
 } from '@mui/material'
 
 import { Icon } from '@iconify/react'
@@ -34,14 +35,31 @@ const ROL_COLORS: Record<string, 'default' | 'primary' | 'secondary' | 'error' |
 
 export default function NuevaConversacionModal({ open, handleClose, onConversacionIniciada }: Props) {
   const [busqueda, setBusqueda] = useState('')
+  const [cursoFiltro, setCursoFiltro] = useState('')
   const { data: contactos = [], isLoading } = useContactos(open)
   const iniciar = useIniciarConversacion()
 
-  const filtrados = contactos.filter(c => {
-    const nombre = `${c.nombre} ${c.apellido}`.toLowerCase()
+  const cursosDisponibles = useMemo(() => {
+    const mapa = new Map<string, string>()
 
-    return nombre.includes(busqueda.toLowerCase())
-  })
+    for (const c of contactos) {
+      for (const curso of c.cursos) {
+        mapa.set(curso.id, curso.titulo)
+      }
+    }
+
+    return Array.from(mapa.entries()).map(([id, titulo]) => ({ id, titulo }))
+  }, [contactos])
+
+  const filtrados = useMemo(() => {
+    return contactos.filter(c => {
+      const nombre = `${c.nombre} ${c.apellido}`.toLowerCase()
+      const matchNombre = nombre.includes(busqueda.toLowerCase())
+      const matchCurso = !cursoFiltro || c.cursos.some(cur => cur.id === cursoFiltro)
+
+      return matchNombre && matchCurso
+    })
+  }, [contactos, busqueda, cursoFiltro])
 
   async function handleSeleccionar(contacto: ContactoDisponible) {
     if (contacto.conversacion_id) {
@@ -64,21 +82,39 @@ export default function NuevaConversacionModal({ open, handleClose, onConversaci
       <Typography variant='h6' fontWeight={600} mb={2}>
         Nueva conversación
       </Typography>
-      <TextField
-        fullWidth
-        size='small'
-        placeholder='Buscar persona...'
-        value={busqueda}
-        onChange={e => setBusqueda(e.target.value)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position='start'>
-              <Icon icon='tabler:search' width={18} />
-            </InputAdornment>
-          )
-        }}
-        sx={{ mb: 1 }}
-      />
+
+      <Box display='flex' gap={1} mb={1}>
+        <TextField
+          fullWidth
+          size='small'
+          placeholder='Buscar persona...'
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position='start'>
+                <Icon icon='tabler:search' width={18} />
+              </InputAdornment>
+            )
+          }}
+        />
+
+        {cursosDisponibles.length > 0 && (
+          <TextField
+            select
+            size='small'
+            value={cursoFiltro}
+            onChange={e => setCursoFiltro(e.target.value)}
+            sx={{ minWidth: 160 }}
+            SelectProps={{ displayEmpty: true }}
+          >
+            <MenuItem value=''>Todos los cursos</MenuItem>
+            {cursosDisponibles.map(c => (
+              <MenuItem key={c.id} value={c.id}>{c.titulo}</MenuItem>
+            ))}
+          </TextField>
+        )}
+      </Box>
 
       {isLoading ? (
         <Box display='flex' justifyContent='center' py={4}>
@@ -95,14 +131,15 @@ export default function NuevaConversacionModal({ open, handleClose, onConversaci
               key={c.id}
               onClick={() => handleSeleccionar(c)}
               disabled={iniciar.isPending}
-              sx={{ borderRadius: 1 }}
+              sx={{ borderRadius: 1, gap: 1 }}
             >
               <ListItemAvatar>
                 <Avatar src={c.avatar ?? undefined}>{c.nombre[0]}</Avatar>
               </ListItemAvatar>
               <ListItemText
                 primary={`${c.nombre} ${c.apellido}`}
-                secondary={null}
+                secondary={c.cursos.length > 0 ? c.cursos.map(cur => cur.titulo).join(', ') : null}
+                secondaryTypographyProps={{ noWrap: true, sx: { maxWidth: 220 } }}
               />
               <Chip
                 label={ROL_LABELS[c.rol] ?? c.rol}
