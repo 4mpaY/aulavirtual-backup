@@ -53,10 +53,6 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       genero,
       categoria_id,
       estado,
-      editorial,
-      anio_edicion,
-      saga,
-      idioma,
     } = validation.data
 
     const ebook = await prisma.ebook.update({

@@ -54,8 +54,6 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
     const baseURL = getBaseURL().replace(/\/$/, '')
     
     const cursosHtml = pedido.detalles.map(d => {
-      const itemTitulo = d.curso?.titulo || d.ebook?.titulo || 'Item'
-
       return `
       <tr>
         <td style="padding: 12px 0; border-bottom: 1px solid #eee;">

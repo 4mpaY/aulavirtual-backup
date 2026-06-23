@@ -60,9 +60,7 @@ const ALLOWED_OTHER_EXT = [
   '.mp4', '.webm', '.mkv'
 ]
 
-const ACCEPT_IMAGE = 'image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif'
-const ACCEPT_VIDEO = 'video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/mkv,.mp4,.webm,.ogg,.mov,.mkv'
-const ACCEPT_OTHER = '.pdf,.doc,.docx,.xls,.xlsx,image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/x-matroska,video/mkv,.jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mkv'
+
 
 interface MediaLibraryProps {
   open: boolean

@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
-import Link from 'next/link'
 
 import { Box, Typography, Button } from '@mui/material'
 
