@@ -12,6 +12,7 @@ export interface Lesson {
     fecha_fin?: string | Date | null
     completada: boolean
     recursos?: any[]
+    trabajo?: any
 }
 
 export interface Module {

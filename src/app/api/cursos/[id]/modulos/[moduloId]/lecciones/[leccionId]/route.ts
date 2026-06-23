@@ -48,9 +48,46 @@ export async function PATCH(
       return ApiResponse.error(request, 'No tienes permiso para gestionar este curso', 403)
     }
 
-    const leccionActualizada = await prisma.leccion.update({
-      where: { id: leccionId },
-      data: validation.data
+    const { trabajo, ...restData } = validation.data
+
+    const leccionActualizada = await prisma.$transaction(async (tx) => {
+      const updated = await tx.leccion.update({
+        where: { id: leccionId },
+        data: restData
+      })
+
+      if (trabajo === null) {
+        try {
+          await tx.trabajo.delete({
+            where: { leccion_id: leccionId }
+          })
+        } catch {
+          // Ignorar si no existía
+        }
+      } else if (trabajo) {
+        await tx.trabajo.upsert({
+          where: { leccion_id: leccionId },
+          create: {
+            titulo: trabajo.titulo,
+            descripcion: trabajo.descripcion || null,
+            archivo_url: trabajo.archivo_url || null,
+            archivo_nombre: trabajo.archivo_nombre || null,
+            fecha_inicio: trabajo.fecha_inicio ? new Date(trabajo.fecha_inicio) : null,
+            fecha_fin: trabajo.fecha_fin ? new Date(trabajo.fecha_fin) : null,
+            leccion_id: leccionId
+          },
+          update: {
+            titulo: trabajo.titulo,
+            descripcion: trabajo.descripcion || null,
+            archivo_url: trabajo.archivo_url || null,
+            archivo_nombre: trabajo.archivo_nombre || null,
+            fecha_inicio: trabajo.fecha_inicio ? new Date(trabajo.fecha_inicio) : null,
+            fecha_fin: trabajo.fecha_fin ? new Date(trabajo.fecha_fin) : null,
+          }
+        })
+      }
+
+      return updated
     })
 
     return ApiResponse.success(request, { leccion: leccionActualizada })

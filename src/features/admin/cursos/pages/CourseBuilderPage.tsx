@@ -26,6 +26,7 @@ import { TabDetallesPremium } from '../components/CourseBuilder/TabDetallesPremi
 import { TabComentarios } from '../components/CourseBuilder/TabComentarios'
 import { TabEvaluacion } from '../components/CourseBuilder/TabEvaluacion'
 import { TabValoraciones } from '../components/CourseBuilder/TabValoraciones'
+import { TabTrabajos } from '../components/CourseBuilder/TabTrabajos'
 
 import { useCurso } from '../hooks/useCursos'
 
@@ -35,15 +36,24 @@ interface CourseBuilderPageProps {
 }
 
 export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProps) {
-    const { data: curso, isLoading, refetch } = useCurso(cursoId)
+    const { data: curso, isLoading, isError, refetch } = useCurso(cursoId)
     const [activeTab, setActiveTab] = useState('1')
     const router = useRouter()
     const { data: session } = useSession()
 
-    if (isLoading || !curso) {
+    if (isLoading) {
         return (
             <Box display='flex' justifyContent='center' p={8}>
                 <CircularProgress />
+            </Box>
+        )
+    }
+
+    if (isError || !curso) {
+        return (
+            <Box display='flex' justifyContent='center' alignItems='center' flexDirection='column' gap={2} p={8}>
+                <Typography color='error'>No se pudo cargar el curso. Verifica que existe o intenta recargar la página.</Typography>
+                <Button variant='outlined' onClick={() => refetch()}>Reintentar</Button>
             </Box>
         )
     }
@@ -88,6 +98,7 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                         <Tab icon={<i className='tabler-settings' />} iconPosition='start' label='Configuración' value='3' />
                         <Tab icon={<i className='tabler-message' />} iconPosition='start' label='Comentarios' value='5' />
                         <Tab icon={<i className='tabler-star-filled' />} iconPosition='start' label='Valoraciones' value='7' />
+                        <Tab icon={<i className='tabler-file-analytics' />} iconPosition='start' label='Revisar Trabajos' value='8' />
                     </TabList>
 
                     <TabPanel value='1' sx={{ p: 5 }}>
@@ -116,6 +127,10 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
 
                     <TabPanel value='7' sx={{ p: 5 }}>
                         <TabValoraciones cursoId={curso.id} />
+                    </TabPanel>
+
+                    <TabPanel value='8' sx={{ p: 5 }}>
+                        <TabTrabajos cursoId={curso.id} curso={curso} />
                     </TabPanel>
                 </Card>
             </TabContext>

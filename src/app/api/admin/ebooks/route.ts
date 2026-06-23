@@ -15,6 +15,7 @@ export async function GET(request: Request) {
   try {
     const auth = await requireAdmin(request)
 
+
     if (!auth.authorized) return auth.error
 
     const { searchParams } = new URL(request.url)
@@ -23,7 +24,9 @@ export async function GET(request: Request) {
 
     const where: any = {}
 
+
     if (estado) where.estado = estado
+
 
     if (buscar) {
       where.OR = [
@@ -52,6 +55,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const auth = await requireAdmin(request)
+
 
     if (!auth.authorized) return auth.error
 

@@ -5,11 +5,22 @@ services:
     ports:
       - ${DB_PORT}:5432
     volumes:
-      - ./docker/database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./docker.new/database/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - dbdata:/var/lib/postgresql/data
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+  nginx:
+    image: nginx:1.29-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker.new/www/development/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./private:/app/private:ro
+    environment:
+      - NGINX_VIDEO_SECRET=${NGINX_VIDEO_SECRET}
 volumes:
   dbdata:

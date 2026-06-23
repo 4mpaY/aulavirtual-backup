@@ -18,6 +18,9 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
           include: {
             curso: {
               select: { titulo: true }
+            },
+            ebook: {
+              select: { titulo: true }
             }
           }
         }
@@ -50,7 +53,10 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
     const secondaryColor = '#f9f9f9'
     const baseURL = getBaseURL().replace(/\/$/, '')
     
-    const cursosHtml = pedido.detalles.map(d => `
+    const cursosHtml = pedido.detalles.map(d => {
+      const itemTitulo = d.curso?.titulo || d.ebook?.titulo || 'Item'
+
+      return `
       <tr>
         <td style="padding: 12px 0; border-bottom: 1px solid #eee;">
           <span style="display: block; font-weight: 600; color: #333;">${d.curso?.titulo ?? 'Curso'}</span>
@@ -59,7 +65,8 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
           ${pedido.moneda} ${Number(d.total).toFixed(2)}
         </td>
       </tr>
-    `).join('')
+      `
+    }).join('')
 
     const emailHtml = `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;">

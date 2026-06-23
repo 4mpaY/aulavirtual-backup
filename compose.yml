@@ -27,5 +27,6 @@ services:
       - .env
     volumes:
       - ./public/uploads:/app/public/uploads
+      - ./private:/app/private
     depends_on:
       - database

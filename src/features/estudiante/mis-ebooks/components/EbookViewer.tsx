@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -151,7 +152,12 @@ function PageItem({ pageNumber, pageWidth, tool, color, ebookId, annotations, on
 
   return (
     <Box
-      ref={el => { (ref as React.MutableRefObject<HTMLDivElement | null>).current = el; externalRef(el) }}
+      ref={el => {
+        const div = el as HTMLDivElement | null
+
+          ; (ref as React.MutableRefObject<HTMLDivElement | null>).current = div
+        externalRef(div)
+      }}
       sx={{
         position: 'relative',
         cursor: cursorMap[tool],

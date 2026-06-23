@@ -56,7 +56,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       pdfBuffer = await readFile(absPath)
     }
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

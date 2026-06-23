@@ -61,41 +61,45 @@ async function main() {
 
   console.log('✅ Usuarios creados')
 
+  // ─── LIMPIEZA DE CATÁLOGO ANTERIOR ────────────────────────────────────────────
+
+  await prisma.curso.deleteMany({
+    where: {
+      slug: {
+        in: ['introduccion-programacion-python', 'marketing-digital-redes-sociales', 'diseno-ux-ui-figma']
+      }
+    }
+  })
+
+  await prisma.categoria.deleteMany({
+    where: { slug: { in: ['programacion', 'marketing-digital', 'diseno'] } }
+  })
+
+  console.log('✅ Catálogo anterior eliminado')
+
   // ─── CATEGORÍAS ──────────────────────────────────────────────────────────────
 
-  const catProgramacion = await prisma.categoria.upsert({
-    where: { slug: 'programacion' },
+  const catCivil = await prisma.categoria.upsert({
+    where: { slug: 'ingenieria-civil' },
     update: {},
     create: {
-      nombre: 'Programación',
-      slug: 'programacion',
-      descripcion: 'Cursos de desarrollo de software y programación',
+      nombre: 'Ingeniería Civil',
+      slug: 'ingenieria-civil',
+      descripcion: 'Cursos de gestión, costos y construcción de obras civiles',
       esta_activo: true,
       orden: 1
     }
   })
 
-  const catMarketing = await prisma.categoria.upsert({
-    where: { slug: 'marketing-digital' },
+  const catIndustrial = await prisma.categoria.upsert({
+    where: { slug: 'ingenieria-industrial' },
     update: {},
     create: {
-      nombre: 'Marketing Digital',
-      slug: 'marketing-digital',
-      descripcion: 'Cursos de marketing, redes sociales y publicidad digital',
+      nombre: 'Ingeniería Industrial',
+      slug: 'ingenieria-industrial',
+      descripcion: 'Cursos de seguridad, salud ocupacional y gestión industrial',
       esta_activo: true,
       orden: 2
-    }
-  })
-
-  const catDiseno = await prisma.categoria.upsert({
-    where: { slug: 'diseno' },
-    update: {},
-    create: {
-      nombre: 'Diseño',
-      slug: 'diseno',
-      descripcion: 'Cursos de diseño gráfico, UX/UI y multimedia',
-      esta_activo: true,
-      orden: 3
     }
   })
 
@@ -104,68 +108,74 @@ async function main() {
   // ─── CURSOS ──────────────────────────────────────────────────────────────────
 
   await prisma.curso.upsert({
-    where: { slug: 'introduccion-programacion-python' },
+    where: { slug: 'costos-presupuestos-obra-s10' },
     update: {},
     create: {
-      titulo: 'Introducción a la Programación con Python',
-      slug: 'introduccion-programacion-python',
-      descripcion: 'Aprende los fundamentos de la programación usando Python desde cero.',
-      precio: 99.00,
-      precio_falso: 149.00,
+      titulo: 'Elaboración de Costos y Presupuestos de Obra con S10 y MS Project',
+      slug: 'costos-presupuestos-obra-s10',
+      descripcion: 'Aprende a elaborar presupuestos de obra, análisis de precios unitarios y programación de proyectos usando S10 y MS Project.',
+      precio: 179.00,
+      precio_falso: 249.00,
       moneda: 'PEN',
-      nivel: 'BASICO',
+      nivel: 'INTERMEDIO',
       estado: 'PUBLICADO',
       tipo_emision: 'ASINCRONO',
-      duracion: '20 horas',
+      duracion: '24 horas',
       profesor_id: profesor.id,
-      categoria_id: catProgramacion.id,
-      objetivos: ['Entender la lógica de programación', 'Escribir scripts en Python', 'Crear proyectos básicos'],
-      beneficios: ['Acceso de por vida', 'Certificado al completar', 'Material descargable'],
+      categoria_id: catCivil.id,
+      objetivos: ['Elaborar presupuestos de obra', 'Calcular precios unitarios (APU)', 'Programar obras con MS Project'],
+      beneficios: ['Acceso de por vida', 'Certificado al completar', 'Plantillas de S10 y MS Project'],
       modulos: {
         create: [
           {
-            titulo: 'Fundamentos de Python',
+            titulo: 'Fundamentos de Costos y Presupuestos',
             orden: 0,
             lecciones: {
               create: [
                 {
-                  titulo: 'Instalación y configuración del entorno',
+                  titulo: 'Introducción a la gestión de costos en obras',
                   orden: 0,
-                  duracion: 15,
+                  duracion: 20,
                   video_url: 'https://www.youtube.com/watch?v=example1',
                   es_vista_previa: true
                 },
                 {
-                  titulo: 'Variables y tipos de datos',
+                  titulo: 'Análisis de precios unitarios (APU)',
                   orden: 1,
-                  duracion: 20,
+                  duracion: 25,
                   video_url: 'https://www.youtube.com/watch?v=example2'
                 },
                 {
-                  titulo: 'Estructuras de control',
+                  titulo: 'Metrados y partidas según norma técnica',
                   orden: 2,
-                  duracion: 25,
+                  duracion: 30,
                   video_url: 'https://www.youtube.com/watch?v=example3'
                 }
               ]
             }
           },
           {
-            titulo: 'Funciones y Módulos',
+            titulo: 'Manejo de S10 y MS Project',
             orden: 1,
             lecciones: {
               create: [
                 {
-                  titulo: 'Definición de funciones',
+                  titulo: 'Configuración de proyectos en S10 Presupuestos',
                   orden: 0,
-                  duracion: 20,
+                  duracion: 25,
                   video_url: 'https://www.youtube.com/watch?v=example4'
                 },
                 {
-                  titulo: 'Importando módulos',
+                  titulo: 'Programación de obra con MS Project',
                   orden: 1,
-                  duracion: 15,
+                  duracion: 30,
                   video_url: 'https://www.youtube.com/watch?v=example5'
+                },
+                {
+                  titulo: 'Control de costos y curva S',
+                  orden: 2,
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=example6'
                 }
               ]
             }
@@ -176,128 +186,272 @@ async function main() {
   })
 
   await prisma.curso.upsert({
-    where: { slug: 'marketing-digital-redes-sociales' },
+    where: { slug: 'valorizacion-liquidacion-obras-contrata' },
     update: {},
     create: {
-      titulo: 'Marketing Digital y Redes Sociales',
-      slug: 'marketing-digital-redes-sociales',
-      descripcion: 'Domina las estrategias de marketing digital para hacer crecer tu negocio.',
-      precio: 149.00,
-      precio_falso: 199.00,
+      titulo: 'Valorización y Liquidación de Obras Públicas por Contrata',
+      slug: 'valorizacion-liquidacion-obras-contrata',
+      descripcion: 'Domina el proceso de valorización mensual y liquidación técnico-financiera de obras públicas ejecutadas por contrata.',
+      precio: 169.00,
+      precio_falso: 219.00,
       moneda: 'PEN',
       nivel: 'INTERMEDIO',
       estado: 'PUBLICADO',
       tipo_emision: 'ASINCRONO',
-      duracion: '30 horas',
+      duracion: '20 horas',
       profesor_id: profesor.id,
-      categoria_id: catMarketing.id,
-      objetivos: ['Crear estrategias de contenido', 'Gestionar campañas de ads', 'Analizar métricas'],
-      beneficios: ['Acceso de por vida', 'Certificado al completar', 'Plantillas incluidas'],
+      categoria_id: catCivil.id,
+      objetivos: ['Elaborar valorizaciones mensuales', 'Aplicar fórmulas polinómicas de reajuste', 'Liquidar obras técnica y financieramente'],
+      beneficios: ['Acceso de por vida', 'Certificado al completar', 'Casos prácticos resueltos'],
       modulos: {
         create: [
           {
-            titulo: 'Fundamentos del Marketing Digital',
+            titulo: 'Valorización de Obras',
             orden: 0,
             lecciones: {
               create: [
                 {
-                  titulo: 'Introducción al marketing digital',
+                  titulo: 'Marco normativo de contrataciones del Estado',
                   orden: 0,
                   duracion: 20,
-                  video_url: 'https://www.youtube.com/watch?v=example6',
+                  video_url: 'https://www.youtube.com/watch?v=example7',
                   es_vista_previa: true
                 },
                 {
-                  titulo: 'El embudo de ventas',
+                  titulo: 'Elaboración de valorizaciones mensuales',
                   orden: 1,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example7'
+                  video_url: 'https://www.youtube.com/watch?v=example8'
+                },
+                {
+                  titulo: 'Reajuste de precios y fórmulas polinómicas',
+                  orden: 2,
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=example9'
                 }
               ]
             }
           },
           {
-            titulo: 'Redes Sociales',
+            titulo: 'Liquidación de Obras',
             orden: 1,
             lecciones: {
               create: [
                 {
-                  titulo: 'Estrategia en Instagram',
+                  titulo: 'Liquidación técnica y financiera de obra',
                   orden: 0,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example8'
+                  video_url: 'https://www.youtube.com/watch?v=example10'
                 },
                 {
-                  titulo: 'Facebook Ads desde cero',
-                  orden: 1,
-                  duracion: 35,
-                  video_url: 'https://www.youtube.com/watch?v=example9'
-                }
-              ]
-            }
-          }
-        ]
-      }
-    }
-  })
-
-  await prisma.curso.upsert({
-    where: { slug: 'diseno-ux-ui-figma' },
-    update: {},
-    create: {
-      titulo: 'Diseño UX/UI con Figma',
-      slug: 'diseno-ux-ui-figma',
-      descripcion: 'Aprende a diseñar interfaces profesionales y experiencias de usuario con Figma.',
-      precio: 129.00,
-      precio_falso: 179.00,
-      moneda: 'PEN',
-      nivel: 'BASICO',
-      estado: 'PUBLICADO',
-      tipo_emision: 'ASINCRONO',
-      duracion: '25 horas',
-      profesor_id: profesor.id,
-      categoria_id: catDiseno.id,
-      objetivos: ['Dominar Figma', 'Crear wireframes y prototipos', 'Aplicar principios UX'],
-      beneficios: ['Acceso de por vida', 'Certificado al completar', 'Proyectos prácticos'],
-      modulos: {
-        create: [
-          {
-            titulo: 'Introducción a Figma',
-            orden: 0,
-            lecciones: {
-              create: [
-                {
-                  titulo: 'Interfaz y herramientas básicas',
-                  orden: 0,
-                  duracion: 20,
-                  video_url: 'https://www.youtube.com/watch?v=example10',
-                  es_vista_previa: true
-                },
-                {
-                  titulo: 'Componentes y Auto Layout',
+                  titulo: 'Resolución de controversias y ampliaciones de plazo',
                   orden: 1,
                   duracion: 25,
                   video_url: 'https://www.youtube.com/watch?v=example11'
                 }
               ]
             }
+          }
+        ]
+      }
+    }
+  })
+
+  await prisma.curso.upsert({
+    where: { slug: 'lean-construction-gestion-proyectos' },
+    update: {},
+    create: {
+      titulo: 'Lean Construction: Gestión Eficiente de Proyectos de Construcción',
+      slug: 'lean-construction-gestion-proyectos',
+      descripcion: 'Aplica la filosofía Lean y sus herramientas para eliminar pérdidas y optimizar la planificación de proyectos de construcción.',
+      precio: 199.00,
+      precio_falso: 259.00,
+      moneda: 'PEN',
+      nivel: 'AVANZADO',
+      estado: 'PUBLICADO',
+      tipo_emision: 'ASINCRONO',
+      duracion: '18 horas',
+      profesor_id: profesor.id,
+      categoria_id: catCivil.id,
+      objetivos: ['Aplicar los principios de Lean Construction', 'Implementar el Last Planner System', 'Reducir pérdidas en obra'],
+      beneficios: ['Acceso de por vida', 'Certificado al completar', 'Casos de implementación real'],
+      modulos: {
+        create: [
+          {
+            titulo: 'Fundamentos de Lean Construction',
+            orden: 0,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Principios de la filosofía Lean aplicada a construcción',
+                  orden: 0,
+                  duracion: 20,
+                  video_url: 'https://www.youtube.com/watch?v=example12',
+                  es_vista_previa: true
+                },
+                {
+                  titulo: 'Identificación de pérdidas y restricciones',
+                  orden: 1,
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=example13'
+                }
+              ]
+            }
           },
           {
-            titulo: 'Principios UX',
+            titulo: 'Herramientas Lean',
             orden: 1,
             lecciones: {
               create: [
                 {
-                  titulo: 'Investigación de usuarios',
+                  titulo: 'Last Planner System (LPS)',
                   orden: 0,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example12'
+                  video_url: 'https://www.youtube.com/watch?v=example14'
                 },
                 {
-                  titulo: 'Wireframes y prototipado',
+                  titulo: 'Value Stream Mapping en obra',
                   orden: 1,
-                  duracion: 35,
-                  video_url: 'https://www.youtube.com/watch?v=example13'
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=example15'
+                },
+                {
+                  titulo: 'Implementación de Lean en proyectos reales',
+                  orden: 2,
+                  duracion: 30,
+                  video_url: 'https://www.youtube.com/watch?v=example16'
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  })
+
+  await prisma.curso.upsert({
+    where: { slug: 'construccion-mantenimiento-rehabilitacion-carreteras' },
+    update: {},
+    create: {
+      titulo: 'Construcción, Mantenimiento y Rehabilitación de Carreteras',
+      slug: 'construccion-mantenimiento-rehabilitacion-carreteras',
+      descripcion: 'Conoce el diseño, construcción, mantenimiento y rehabilitación de vías, pavimentos y estructuras viales.',
+      precio: 189.00,
+      precio_falso: 239.00,
+      moneda: 'PEN',
+      nivel: 'INTERMEDIO',
+      estado: 'PUBLICADO',
+      tipo_emision: 'ASINCRONO',
+      duracion: '22 horas',
+      profesor_id: profesor.id,
+      categoria_id: catCivil.id,
+      objetivos: ['Diseñar estructuras de pavimento', 'Aplicar técnicas de mantenimiento vial', 'Diagnosticar patologías del pavimento'],
+      beneficios: ['Acceso de por vida', 'Certificado al completar', 'Fichas técnicas descargables'],
+      modulos: {
+        create: [
+          {
+            titulo: 'Diseño y Construcción Vial',
+            orden: 0,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Geometría y diseño de pavimentos',
+                  orden: 0,
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=example17',
+                  es_vista_previa: true
+                },
+                {
+                  titulo: 'Materiales y capas estructurales del pavimento',
+                  orden: 1,
+                  duracion: 30,
+                  video_url: 'https://www.youtube.com/watch?v=example18'
+                }
+              ]
+            }
+          },
+          {
+            titulo: 'Mantenimiento y Rehabilitación',
+            orden: 1,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Técnicas de mantenimiento vial preventivo y correctivo',
+                  orden: 0,
+                  duracion: 30,
+                  video_url: 'https://www.youtube.com/watch?v=example19'
+                },
+                {
+                  titulo: 'Patologías del pavimento y métodos de rehabilitación',
+                  orden: 1,
+                  duracion: 30,
+                  video_url: 'https://www.youtube.com/watch?v=example20'
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  })
+
+  await prisma.curso.upsert({
+    where: { slug: 'seguridad-salud-ocupacional-obras' },
+    update: {},
+    create: {
+      titulo: 'Seguridad y Salud Ocupacional en Obras de Construcción',
+      slug: 'seguridad-salud-ocupacional-obras',
+      descripcion: 'Aprende a gestionar la seguridad y salud en el trabajo en obras de construcción conforme a la normativa vigente.',
+      precio: 149.00,
+      precio_falso: 199.00,
+      moneda: 'PEN',
+      nivel: 'BASICO',
+      estado: 'PUBLICADO',
+      tipo_emision: 'ASINCRONO',
+      duracion: '16 horas',
+      profesor_id: profesor.id,
+      categoria_id: catIndustrial.id,
+      objetivos: ['Aplicar la Ley 29783 en obra', 'Elaborar un Plan de Seguridad y Salud en el Trabajo', 'Investigar accidentes e incidentes laborales'],
+      beneficios: ['Acceso de por vida', 'Certificado al completar', 'Formatos de gestión SST'],
+      modulos: {
+        create: [
+          {
+            titulo: 'Marco Normativo SST',
+            orden: 0,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Ley 29783 y su reglamento aplicado a construcción',
+                  orden: 0,
+                  duracion: 20,
+                  video_url: 'https://www.youtube.com/watch?v=example21',
+                  es_vista_previa: true
+                },
+                {
+                  titulo: 'Identificación de peligros y evaluación de riesgos (IPER)',
+                  orden: 1,
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=example22'
+                }
+              ]
+            }
+          },
+          {
+            titulo: 'Gestión de la Seguridad en Obra',
+            orden: 1,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Elaboración del Plan de Seguridad y Salud en el Trabajo',
+                  orden: 0,
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=example23'
+                },
+                {
+                  titulo: 'Investigación de accidentes e incidentes laborales',
+                  orden: 1,
+                  duracion: 20,
+                  video_url: 'https://www.youtube.com/watch?v=example24'
                 }
               ]
             }
@@ -308,173 +462,6 @@ async function main() {
   })
 
   console.log('✅ Cursos creados')
-
-  // ─── DATOS DE CALENDARIO ─────────────────────────────────────────────────────
-
-  // Actualizar fechas de inicio/fin de cursos
-  await prisma.curso.update({
-    where: { slug: 'introduccion-programacion-python' },
-    data: { fecha_inicio: new Date('2026-06-01'), fecha_fin: new Date('2026-08-31') }
-  })
-
-  await prisma.curso.update({
-    where: { slug: 'marketing-digital-redes-sociales' },
-    data: { fecha_inicio: new Date('2026-06-15'), fecha_fin: new Date('2026-09-30') }
-  })
-
-  await prisma.curso.update({
-    where: { slug: 'diseno-ux-ui-figma' },
-    data: { fecha_inicio: new Date('2026-07-01'), fecha_fin: new Date('2026-10-31') }
-  })
-
-  // Obtener módulos para añadir clases en vivo
-  const moduloPython = await prisma.modulo.findFirst({
-    where: { curso: { slug: 'introduccion-programacion-python' } }
-  })
-
-  const moduloMarketing = await prisma.modulo.findFirst({
-    where: { curso: { slug: 'marketing-digital-redes-sociales' } }
-  })
-
-  const moduloFigma = await prisma.modulo.findFirst({
-    where: { curso: { slug: 'diseno-ux-ui-figma' } }
-  })
-
-  // Clases en vivo — Python
-  if (moduloPython) {
-    const clasesPython = [
-      { titulo: 'Sesión en vivo: Fundamentos de Python', fecha: new Date('2026-06-03T09:00:00'), fin: new Date('2026-06-03T10:30:00'), orden: 10 },
-      { titulo: 'Sesión en vivo: Estructuras de datos', fecha: new Date('2026-06-10T09:00:00'), fin: new Date('2026-06-10T10:30:00'), orden: 11 },
-      { titulo: 'Sesión en vivo: Funciones avanzadas', fecha: new Date('2026-06-17T09:00:00'), fin: new Date('2026-06-17T10:30:00'), orden: 12 }
-    ]
-
-    for (const clase of clasesPython) {
-      await prisma.leccion.upsert({
-        where: { modulo_id_orden: { modulo_id: moduloPython.id, orden: clase.orden } },
-        update: { fecha_programada: clase.fecha, fecha_fin: clase.fin },
-        create: {
-          modulo_id: moduloPython.id,
-          titulo: clase.titulo,
-          orden: clase.orden,
-          duracion: 90,
-          es_en_vivo: true,
-          fecha_programada: clase.fecha,
-          fecha_fin: clase.fin,
-          enlace_reunion: 'https://zoom.us/j/123456789'
-        }
-      })
-    }
-  }
-
-  // Clases en vivo — Marketing
-  if (moduloMarketing) {
-    const clasesMarketing = [
-      { titulo: 'Sesión en vivo: Estrategia de contenido', fecha: new Date('2026-06-05T15:00:00'), fin: new Date('2026-06-05T16:30:00'), orden: 10 },
-      { titulo: 'Sesión en vivo: Campañas de ads', fecha: new Date('2026-06-19T15:00:00'), fin: new Date('2026-06-19T16:30:00'), orden: 11 }
-    ]
-
-    for (const clase of clasesMarketing) {
-      await prisma.leccion.upsert({
-        where: { modulo_id_orden: { modulo_id: moduloMarketing.id, orden: clase.orden } },
-        update: { fecha_programada: clase.fecha, fecha_fin: clase.fin },
-        create: {
-          modulo_id: moduloMarketing.id,
-          titulo: clase.titulo,
-          orden: clase.orden,
-          duracion: 90,
-          es_en_vivo: true,
-          fecha_programada: clase.fecha,
-          fecha_fin: clase.fin,
-          enlace_reunion: 'https://zoom.us/j/987654321'
-        }
-      })
-    }
-  }
-
-  // Clases en vivo — Figma
-  if (moduloFigma) {
-    await prisma.leccion.upsert({
-      where: { modulo_id_orden: { modulo_id: moduloFigma.id, orden: 10 } },
-      update: { fecha_programada: new Date('2026-07-02T11:00:00'), fecha_fin: new Date('2026-07-02T12:30:00') },
-      create: {
-        modulo_id: moduloFigma.id,
-        titulo: 'Sesión en vivo: Componentes y Design System',
-        orden: 10,
-        duracion: 90,
-        es_en_vivo: true,
-        fecha_programada: new Date('2026-07-02T11:00:00'),
-        fecha_fin: new Date('2026-07-02T12:30:00'),
-        enlace_reunion: 'https://meet.google.com/abc-defg-hij'
-      }
-    })
-  }
-
-  // Exámenes con fechas
-  const cursoPython = await prisma.curso.findUnique({ where: { slug: 'introduccion-programacion-python' } })
-  const cursoMarketing = await prisma.curso.findUnique({ where: { slug: 'marketing-digital-redes-sociales' } })
-  const cursoFigma = await prisma.curso.findUnique({ where: { slug: 'diseno-ux-ui-figma' } })
-
-  if (cursoPython) {
-    await prisma.examen.upsert({
-      where: { id: 'examen-python-final' },
-      update: {},
-      create: {
-        id: 'examen-python-final',
-        titulo: 'Examen Final — Python',
-        descripcion: 'Evaluación de todos los fundamentos de Python vistos en el curso.',
-        tipo: 'FINAL',
-        peso: 100,
-        puntaje_aprobacion: 60,
-        intentos_maximos: 2,
-        esta_publicado: true,
-        fecha_inicio: new Date('2026-06-20T10:00:00'),
-        fecha_fin: new Date('2026-06-20T11:00:00'),
-        curso_id: cursoPython.id
-      }
-    })
-  }
-
-  if (cursoMarketing) {
-    await prisma.examen.upsert({
-      where: { id: 'examen-marketing-final' },
-      update: {},
-      create: {
-        id: 'examen-marketing-final',
-        titulo: 'Examen Final — Marketing Digital',
-        descripcion: 'Evalúa tu dominio en estrategias de marketing y redes sociales.',
-        tipo: 'FINAL',
-        peso: 100,
-        puntaje_aprobacion: 70,
-        intentos_maximos: 1,
-        esta_publicado: true,
-        fecha_inicio: new Date('2026-06-25T14:00:00'),
-        fecha_fin: new Date('2026-06-25T15:00:00'),
-        curso_id: cursoMarketing.id
-      }
-    })
-  }
-
-  if (cursoFigma) {
-    await prisma.examen.upsert({
-      where: { id: 'examen-figma-final' },
-      update: {},
-      create: {
-        id: 'examen-figma-final',
-        titulo: 'Examen Final — UX/UI con Figma',
-        descripcion: 'Demuestra tu conocimiento en diseño de interfaces y principios UX.',
-        tipo: 'FINAL',
-        peso: 100,
-        puntaje_aprobacion: 65,
-        intentos_maximos: 2,
-        esta_publicado: true,
-        fecha_inicio: new Date('2026-07-15T10:00:00'),
-        fecha_fin: new Date('2026-07-15T11:30:00'),
-        curso_id: cursoFigma.id
-      }
-    })
-  }
-
-  console.log('✅ Datos de calendario creados')
 
   // ─── CUPONES ─────────────────────────────────────────────────────────────────
 
@@ -506,6 +493,51 @@ async function main() {
 
   console.log('✅ Cupones creados')
 
+  // ─── INSCRIPCIÓN DE PRUEBA ───────────────────────────────────────────────────
+  const estudiante = await prisma.usuario.findUnique({ where: { correo: 'alumno@gmail.com' } })
+
+  const cursosInscripcionAlumno = await prisma.curso.findMany({
+    where: {
+      slug: { in: ['costos-presupuestos-obra-s10', 'valorizacion-liquidacion-obras-contrata'] }
+    }
+  })
+
+  if (estudiante) {
+    for (const curso of cursosInscripcionAlumno) {
+      await prisma.inscripcion.upsert({
+        where: {
+          usuario_id_curso_id: {
+            usuario_id: estudiante.id,
+            curso_id: curso.id
+          }
+        },
+        update: {},
+        create: {
+          usuario_id: estudiante.id,
+          curso_id: curso.id,
+          estado: 'ACTIVO'
+        }
+      })
+
+      await prisma.progresoCurso.upsert({
+        where: {
+          usuario_id_curso_id: {
+            usuario_id: estudiante.id,
+            curso_id: curso.id
+          }
+        },
+        update: {},
+        create: {
+          usuario_id: estudiante.id,
+          curso_id: curso.id,
+          porcentaje_progreso: 0
+        }
+      })
+    }
+
+    console.log('✅ Alumno inscrito en: Costos y Presupuestos de Obra, Valorización y Liquidación de Obras')
+  }
+
   // ─── RESUMEN ─────────────────────────────────────────────────────────────────
 
   console.log('')
@@ -515,6 +547,13 @@ async function main() {
   console.log('   Admin:    admin@gmail.com     / Admin123@')
   console.log('   Profesor: profesor@gmail.com  / Profesor123!')
   console.log('   Alumno:   alumno@gmail.com    / Alumno123!')
+  console.log('')
+  console.log('📚 Cursos:')
+  console.log('   1. Elaboración de Costos y Presupuestos de Obra con S10 y MS Project')
+  console.log('   2. Valorización y Liquidación de Obras Públicas por Contrata')
+  console.log('   3. Lean Construction: Gestión Eficiente de Proyectos de Construcción')
+  console.log('   4. Construcción, Mantenimiento y Rehabilitación de Carreteras')
+  console.log('   5. Seguridad y Salud Ocupacional en Obras de Construcción')
   console.log('')
   console.log('🎟️  Cupones:')
   console.log('   BIENVENIDO20 → 20% descuento')

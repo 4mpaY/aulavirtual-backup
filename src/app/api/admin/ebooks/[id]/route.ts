@@ -68,20 +68,24 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         autor: autor !== undefined ? autor?.trim() || null : undefined,
         miniatura: miniatura !== undefined ? miniatura || null : undefined,
         ...(archivo_pdf && { archivo_pdf }),
-        precio,
-        precio_falso,
-        moneda,
-        es_gratis,
-        paginas: paginas !== undefined ? paginas ?? null : undefined,
-        genero: genero !== undefined ? genero?.trim() || null : undefined,
-        categoria_id: categoria_id !== undefined ? categoria_id || null : undefined,
-        estado,
-        editorial: editorial !== undefined ? editorial?.trim() || null : undefined,
-        anio_edicion: anio_edicion !== undefined ? anio_edicion ?? null : undefined,
-        saga: saga !== undefined ? saga?.trim() || null : undefined,
-        idioma: idioma !== undefined ? idioma?.trim() || null : undefined,
+        precio: precio !== undefined ? precio : undefined,
+        precio_falso: precio_falso !== undefined ? precio_falso : undefined,
+        moneda: moneda || undefined,
+        es_gratis: es_gratis !== undefined ? es_gratis : undefined,
+        paginas: paginas !== undefined ? (paginas ? Number(paginas) : null) : undefined,
+        categoria_id: categoria_id !== undefined ? (categoria_id || null) : undefined,
+        estado: estado || undefined,
       },
     })
+
+    // genero se actualiza con raw SQL hasta que el cliente Prisma sea regenerado
+    if (genero !== undefined) {
+      const generoVal = genero?.trim() || null
+
+      await prisma.$executeRaw`UPDATE ebooks SET genero = ${generoVal} WHERE id = ${params.id}`
+
+      return ApiResponse.success(request, { ebook: { ...ebook, genero: generoVal } })
+    }
 
     return ApiResponse.success(request, { ebook })
   } catch (error) {

@@ -29,6 +29,15 @@ export interface CursoLeccionResumen {
   estado: 'BORRADOR' | 'PUBLICADO'
   es_vista_previa: boolean
   contenido: string | null
+  trabajo?: {
+    id: string
+    titulo: string
+    descripcion: string | null
+    archivo_url: string | null
+    archivo_nombre: string | null
+    fecha_inicio: string | Date | null
+    fecha_fin: string | Date | null
+  } | null
 }
 
 export interface CursoExamenResumen {

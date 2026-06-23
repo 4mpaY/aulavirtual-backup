@@ -1,10 +1,11 @@
+import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 
 import { Box, Typography, Button } from '@mui/material'
 
-import { getAuthSession } from '@/utils/libs/auth-helpers'
 import EbookViewerClient from '@/features/estudiante/mis-ebooks/components/EbookViewerClient'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import prisma from '@/utils/libs/prisma'
 
 interface Props {

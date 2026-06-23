@@ -1,26 +1,37 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-import axios from 'axios'
-import { toast } from 'react-toastify'
 import {
-    Box, Grid, useMediaQuery, useTheme,
-    Tabs, Tab, Button, Stack, Typography, Chip, Tooltip
+    Box,
+    Button,
+    Chip,
+    Grid,
+    Stack,
+    Tab,
+    Tabs,
+    Tooltip,
+    Typography,
+    useMediaQuery,
+    useTheme
 } from '@mui/material'
 
-import VideoPlayer from './VideoPlayer'
-import CourseContentSidebar from './CourseContentSidebar'
-import LessonContent from './LessonContent'
-import CommentsSection from './CommentsSection'
-import ExamSection from './ExamSection'
+import axios from 'axios'
+
+import { toast } from 'react-toastify'
+
 import CertificateSection from './CertificateSection'
+import CommentsSection from './CommentsSection'
 import CompletionSummary from './CompletionSummary'
+import CourseContentSidebar from './CourseContentSidebar'
+import ExamSection from './ExamSection'
+import LessonContent from './LessonContent'
 import LiveLessonPlaceholder from './LiveLessonPlaceholder'
 import RatingModal from './RatingModal'
+import VideoPlayer from './VideoPlayer'
+import { LessonTrabajo } from './LessonTrabajo'
 
 import { useCourseStore } from '../store/useCourseStore'
-import { useConfig } from '@/contexts/ConfigContext'
 
 interface CoursePlayerViewProps {
     course: {
@@ -30,13 +41,12 @@ interface CoursePlayerViewProps {
         modulos: any[]
         examenes?: any[]
     }
+    phoneNumberProfesor: string
     initialLessonId?: string
     initialExamenId?: string
 }
 
-const CoursePlayerView = ({ course, initialLessonId, initialExamenId }: CoursePlayerViewProps) => {
-    const configs = useConfig()
-    const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initialExamenId }: CoursePlayerViewProps) => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('lg'))
     const [sidebarOpen, setSidebarOpen] = useState(!isMobile)
@@ -115,6 +125,18 @@ const CoursePlayerView = ({ course, initialLessonId, initialExamenId }: CoursePl
         if (!mounted) return
         setSidebarOpen(!isMobile)
     }, [isMobile, mounted])
+
+    const refetchCourse = async () => {
+        try {
+            const res = await axios.get(`/api/estudiante/cursos/${course.slug}`)
+
+            if (res.data.status && res.data.result.course) {
+                useCourseStore.setState({ course: res.data.result.course })
+            }
+        } catch (err) {
+            console.error('Error al recargar el curso:', err)
+        }
+    }
 
     const handleLessonSelect = (lessonId: string) => {
         setCurrentLessonId(lessonId)
@@ -221,14 +243,14 @@ const CoursePlayerView = ({ course, initialLessonId, initialExamenId }: CoursePl
             return (
                 <Grid item xs={12} key="certificate-section">
                     <CertificateSection
-                                        cursoId={storeCourse.id}
-                                        completarAutomatico={(course as any).completar_automatico ?? false}
-                                        onAllLessonsCompleted={() => {
-                                            const allLessons = storeCourse.modulos?.flatMap((m: any) => m.lecciones) ?? []
+                        cursoId={storeCourse.id}
+                        completarAutomatico={(course as any).completar_automatico ?? false}
+                        onAllLessonsCompleted={() => {
+                            const allLessons = storeCourse.modulos?.flatMap((m: any) => m.lecciones) ?? []
 
-                                            allLessons.forEach((l: any) => updateLessonProgress(l.id, true, 100))
-                                        }}
-                                    />
+                            allLessons.forEach((l: any) => updateLessonProgress(l.id, true, 100))
+                        }}
+                    />
                 </Grid>
             )
         }
@@ -498,6 +520,15 @@ const CoursePlayerView = ({ course, initialLessonId, initialExamenId }: CoursePl
                                     <LessonContent titulo="" descripcion={currentLesson.contenido} recursos={[]} />
                                 </Box>
                             )}
+                            {currentLesson?.trabajo && (
+                                <Box sx={{ mt: 5 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                        <Box sx={{ width: 3, height: 18, bgcolor: '#025E44', borderRadius: 2 }} />
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Trabajo de la lección</Typography>
+                                    </Box>
+                                    <LessonTrabajo trabajo={currentLesson.trabajo} onUploadSuccess={refetchCourse} />
+                                </Box>
+                            )}
                             {!(course as any).descripcion && !(course as any).que_aprenderas && !currentLesson?.contenido && (
                                 <Box sx={{ p: 4, textAlign: 'center', bgcolor: 'action.hover', borderRadius: '16px' }}>
                                     <i className="tabler-book-off text-3xl" style={{ opacity: 0.3 }} />
@@ -735,14 +766,14 @@ const CoursePlayerView = ({ course, initialLessonId, initialExamenId }: CoursePl
                     {/* Certificación */}
                     {activeTab === 3 && storeCourse && (
                         <CertificateSection
-                                        cursoId={storeCourse.id}
-                                        completarAutomatico={(course as any).completar_automatico ?? false}
-                                        onAllLessonsCompleted={() => {
-                                            const allLessons = storeCourse.modulos?.flatMap((m: any) => m.lecciones) ?? []
+                            cursoId={storeCourse.id}
+                            completarAutomatico={(course as any).completar_automatico ?? false}
+                            onAllLessonsCompleted={() => {
+                                const allLessons = storeCourse.modulos?.flatMap((m: any) => m.lecciones) ?? []
 
-                                            allLessons.forEach((l: any) => updateLessonProgress(l.id, true, 100))
-                                        }}
-                                    />
+                                allLessons.forEach((l: any) => updateLessonProgress(l.id, true, 100))
+                            }}
+                        />
                     )}
 
                     {/* Comentarios */}
@@ -815,7 +846,7 @@ const CoursePlayerView = ({ course, initialLessonId, initialExamenId }: CoursePl
                         </Button>
                         <Button
                             variant="contained"
-                            href={`https://wa.me/${waNumber}?text=${encodeURIComponent('Hola, necesito ayuda académica con el curso: ' + storeCourse.titulo)}`}
+                            href={`https://wa.me/${phoneNumberProfesor}?text=${encodeURIComponent('Hola, necesito ayuda académica con el curso: ' + storeCourse.titulo)}`}
                             target="_blank"
                             sx={{
                                 borderRadius: '20px',
