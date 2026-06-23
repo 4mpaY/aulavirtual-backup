@@ -112,6 +112,7 @@ const WebFooter = async ({ platformName = 'CEGAE RIBEYRO', rutasHabilitado = tru
                 { label: 'Nosotros', href: '/nosotros' },
                 { label: 'Términos y condiciones', href: '/terminos-y-condiciones' },
                 { label: 'Política de Devoluciones', href: '/politica-de-cambios-y-devoluciones' },
+                { label: 'Política de Privacidad', href: '/politica-de-privacidad' },
               ].map(link => (
                 <li key={link.label}>
                   <Link
@@ -202,7 +203,7 @@ const WebFooter = async ({ platformName = 'CEGAE RIBEYRO', rutasHabilitado = tru
             </p>
           </div>
           <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
-            Desarrollado con ❤️ por
+            Desarrollado por
             <Link
               href="https://flyup.pe"
               target="_blank"

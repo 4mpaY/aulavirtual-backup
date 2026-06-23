@@ -7,7 +7,7 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 import EbookCatalog from '@/features/web/ebooks/components/EbookCatalog'
 
 export const metadata = {
-  title: `${process.env.NEXT_PUBLIC_APP_NAME} | Ebooks`,
+  title: `${process.env.NEXT_PUBLIC_APP_URL} | Ebooks`,
   description: 'Explora nuestra colección de ebooks especializados.',
 }
 
