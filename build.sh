@@ -2,6 +2,8 @@
 
 echo "📦 Build de imagen Aula Virtual - Fly"
 echo ""
+echo "¡¡NO TE OLVIDES DE CAMBIAR EL .ENV AL DOMINIO CORRECTO!!"
+echo ""
 read -p "Ingresa la versión (ej: 1.0.1-[nombre-aula]): " VERSION
 # Eliminar secuencias de escape (ej: tecla Insert en Git Bash) y caracteres no válidos para tags Docker
 VERSION=$(echo "$VERSION" | sed 's/\x1b\[[0-9;]*[a-zA-Z~]//g' | tr -cd 'a-zA-Z0-9._-')
