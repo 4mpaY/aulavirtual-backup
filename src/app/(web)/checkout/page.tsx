@@ -14,7 +14,6 @@ export default function CartCheckoutPage() {
     const router = useRouter()
 
     useEffect(() => {
-        // Si el carrito está vacío, redirigir al catálogo
         if (itemCount === 0) {
             router.push('/cursos')
         }
@@ -28,19 +27,27 @@ export default function CartCheckoutPage() {
         )
     }
 
-    // Adaptar los items del carrito al formato que espera CheckoutView
-    const courses = cart.map(item => ({
+    const courseItems = cart.filter(item => item.type === 'CURSO' || !item.type)
+    const ebookItems = cart.filter(item => item.type === 'EBOOK')
+
+    const courses = courseItems.map(item => ({
         id: item.id,
         titulo: item.titulo,
         slug: item.slug,
         miniatura: item.miniatura,
         precio: item.precio,
         moneda: item.moneda || 'PEN',
-        profesor: {
-            nombre: 'Instructor',
-            apellido: ''
-        }
+        profesor: { nombre: 'Instructor', apellido: '' }
     }))
 
-    return <CheckoutView courses={courses} />
+    const ebooks = ebookItems.map(item => ({
+        id: item.id,
+        titulo: item.titulo,
+        slug: item.slug,
+        miniatura: item.miniatura,
+        precio: item.precio,
+        moneda: item.moneda || 'PEN',
+    }))
+
+    return <CheckoutView courses={courses} ebooks={ebooks} />
 }

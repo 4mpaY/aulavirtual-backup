@@ -35,6 +35,10 @@ model Usuario {
   progreso_cursos    ProgresoCurso[]
   progreso_lecciones ProgresoLeccion[]
   valoraciones       ValoracionCurso[]
+  suscripciones      Suscripcion[]
+  entregas_trabajo   EntregaTrabajo[]
+  ebook_accesos      EbookAcceso[]
+  ebook_annotaciones EbookAnnotacion[]
 
   @@index([rol])
   @@map("usuarios")
@@ -66,55 +70,123 @@ model Categoria {
   padre              Categoria?  @relation("JerarquiaCategoria", fields: [categoria_padre_id], references: [id])
   hijos              Categoria[] @relation("JerarquiaCategoria")
   cursos             Curso[]
+  ebooks             Ebook[]
 
   @@index([categoria_padre_id])
   @@map("categorias")
 }
 
+model Ebook {
+  id             String          @id @default(uuid())
+  titulo         String
+  slug           String          @unique
+  descripcion    String?
+  autor          String?
+  miniatura      String?
+  archivo_pdf    String
+  precio         Decimal         @default(0) @db.Decimal(10, 2)
+  precio_falso   Decimal         @default(0) @db.Decimal(10, 2)
+  moneda         String          @default("PEN")
+  estado         EstadoEbook     @default(BORRADOR)
+  es_gratis      Boolean         @default(false)
+  paginas        Int?
+  genero         String?
+  categoria_id   String?
+  creado_en      DateTime        @default(now())
+  actualizado_en DateTime        @updatedAt
+  categoria      Categoria?      @relation(fields: [categoria_id], references: [id])
+  accesos        EbookAcceso[]
+  annotaciones   EbookAnnotacion[]
+  detalles       DetallePedido[]
+
+  @@index([categoria_id])
+  @@index([estado])
+  @@map("ebooks")
+}
+
+model EbookAcceso {
+  id         String   @id @default(uuid())
+  usuario_id String
+  ebook_id   String
+  creado_en  DateTime @default(now())
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  ebook      Ebook    @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, ebook_id])
+  @@index([usuario_id])
+  @@index([ebook_id])
+  @@map("ebook_accesos")
+}
+
+model EbookAnnotacion {
+  id         String   @id @default(uuid())
+  usuario_id String
+  ebook_id   String
+  pagina     Int
+  tipo       String   // "highlight" | "underline" | "note"
+  texto      String?
+  color      String   @default("#fbbf24")
+  posicion   Json
+  creado_en  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  ebook   Ebook   @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id, ebook_id])
+  @@map("ebook_annotaciones")
+}
+
 model Curso {
-  id                 String          @id @default(uuid())
-  titulo             String
-  slug               String          @unique
-  codigo             String?         @unique
-  descripcion        String?
-  miniatura          String?
-  video_presentacion String?
-  duracion           String?
-  tipo_emision       TipoEmision     @default(ASINCRONO)
-  estado             EstadoCurso     @default(BORRADOR)
-  es_gratis          Boolean         @default(false)
-  es_privado         Boolean         @default(false)
-  precio_certificado Decimal?        @db.Decimal(10, 2)
-  precio             Decimal         @default(0) @db.Decimal(10, 2)
-  moneda             String          @default("PEN")
-  creado_en          DateTime        @default(now())
-  actualizado_en     DateTime        @updatedAt
-  profesor_id        String
-  categoria_id       String?
-  nivel              NivelCurso      @default(BASICO)
-  beneficios         Json?           @default("[]")
-  incluye            Json?           @default("[]")
-  metodologia        Json?           @default("[]")
-  objetivos          Json?           @default("[]")
-  fecha_inicio       DateTime?
-  fecha_fin          DateTime?
-  precio_oferta      Decimal?        @db.Decimal(10, 2)
-  brochure           String?
-  certificados       Certificado[]
-  categoria          Categoria?      @relation(fields: [categoria_id], references: [id])
-  profesor           Usuario         @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
-  rutas              CursoEnRuta[]
-  detalles_pedido    DetallePedido[]
-  examenes           Examen[]
-  inscripciones      Inscripcion[]
-  modulos            Modulo[]
-  progreso           ProgresoCurso[]
-  cupones            CuponCurso[]
-  valoraciones       ValoracionCurso[]
+  id                   String            @id @default(uuid())
+  titulo               String
+  slug                 String            @unique
+  codigo               String?           @unique
+  descripcion          String?
+  miniatura            String?
+  video_presentacion   String?
+  duracion             String?
+  tipo_emision         TipoEmision       @default(ASINCRONO)
+  estado               EstadoCurso       @default(BORRADOR)
+  es_gratis            Boolean           @default(false)
+  es_privado           Boolean           @default(false)
+  completar_automatico Boolean           @default(false)
+  precio_certificado   Decimal?          @db.Decimal(10, 2)
+  precio               Decimal           @default(0) @db.Decimal(10, 2)
+  precio_falso         Decimal           @default(0) @db.Decimal(10, 2)
+  moneda               String            @default("PEN")
+  creado_en            DateTime          @default(now())
+  actualizado_en       DateTime          @updatedAt
+  profesor_id          String
+  categoria_id         String?
+  nivel                NivelCurso?
+  tipo                 TipoCurso         @default(CURSO)
+  beneficios           Json?             @default("[]")
+  incluye              Json?             @default("[]")
+  metodologia          Json?             @default("[]")
+  objetivos            Json?             @default("[]")
+  fecha_inicio         DateTime?
+  fecha_fin            DateTime?
+  vigencia_meses       Int?
+  precio_oferta        Decimal?          @db.Decimal(10, 2)
+  brochure             String?
+  orden                Int               @default(0)
+  certificados         Certificado[]
+  categoria            Categoria?        @relation(fields: [categoria_id], references: [id])
+  profesor             Usuario           @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
+  rutas                CursoEnRuta[]
+  detalles_pedido      DetallePedido[]
+  examenes             Examen[]
+  inscripciones        Inscripcion[]
+  modulos              Modulo[]
+  progreso             ProgresoCurso[]
+  cupones              CuponCurso[]
+  valoraciones         ValoracionCurso[]
+  planes               CursoEnPlan[]
 
   @@index([profesor_id])
   @@index([categoria_id])
   @@index([estado])
+  @@index([tipo])
   @@map("cursos")
 }
 
@@ -151,10 +223,12 @@ model Leccion {
   es_vista_previa  Boolean            @default(false)
   es_en_vivo       Boolean            @default(false)
   fecha_programada DateTime?
+  fecha_fin        DateTime?
   comentarios      Comentario[]
   contenidos       ContenidoLeccion[]
   modulo           Modulo             @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
   progreso         ProgresoLeccion[]
+  trabajo          Trabajo?
 
   @@unique([modulo_id, orden])
   @@index([modulo_id])
@@ -234,35 +308,39 @@ model MetodoPagoManual {
 
 model DetallePedido {
   id              String  @id @default(uuid())
+  tipo_item       String  @default("CURSO")
   cantidad        Int     @default(1)
   descuento       Decimal @default(0) @db.Decimal(10, 2)
   precio_unitario Decimal @db.Decimal(10, 2)
   subtotal        Decimal @db.Decimal(10, 2)
   total           Decimal @db.Decimal(10, 2)
   pedido_id       String
-  curso_id        String
-  curso           Curso   @relation(fields: [curso_id], references: [id])
+  curso_id        String?
+  ebook_id        String?
+  curso           Curso?  @relation(fields: [curso_id], references: [id])
+  ebook           Ebook?  @relation(fields: [ebook_id], references: [id])
   pedido          Pedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
 
   @@index([pedido_id])
   @@index([curso_id])
+  @@index([ebook_id])
   @@map("detalles_pedido")
 }
 
 model Inscripcion {
-  id            String            @id @default(uuid())
-  estado                  EstadoInscripcion @default(ACTIVO)
-  inscrito_en             DateTime          @default(now())
-  completado_en           DateTime?
-  nota_final              Float?
-  estado_nota             EstadoNota?
-  certificado_habilitado  Boolean           @default(false)
-  usuario_id    String
-  curso_id      String
-  pedido_id     String?
-  curso         Curso             @relation(fields: [curso_id], references: [id], onDelete: Cascade)
-  pedido        Pedido?           @relation(fields: [pedido_id], references: [id])
-  usuario       Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  id                     String            @id @default(uuid())
+  estado                 EstadoInscripcion @default(ACTIVO)
+  inscrito_en            DateTime          @default(now())
+  completado_en          DateTime?
+  nota_final             Float?
+  estado_nota            EstadoNota?
+  certificado_habilitado Boolean           @default(false)
+  usuario_id             String
+  curso_id               String
+  pedido_id              String?
+  curso                  Curso             @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  pedido                 Pedido?           @relation(fields: [pedido_id], references: [id])
+  usuario                Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@unique([usuario_id, curso_id])
   @@index([usuario_id])
@@ -474,17 +552,18 @@ model Notificacion {
 }
 
 model Comentario {
-  id             String       @id @default(uuid())
+  id             String           @id @default(uuid())
   contenido      String
-  creado_en      DateTime     @default(now())
-  actualizado_en DateTime     @updatedAt
+  estado         EstadoComentario @default(PENDIENTE)
+  creado_en      DateTime         @default(now())
+  actualizado_en DateTime         @updatedAt
   usuario_id     String
   leccion_id     String
   respuesta_a_id String?
-  leccion        Leccion      @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
-  padre          Comentario?  @relation("Respuestas", fields: [respuesta_a_id], references: [id], onDelete: Cascade)
-  respuestas     Comentario[] @relation("Respuestas")
-  usuario        Usuario      @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  leccion        Leccion          @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+  padre          Comentario?      @relation("Respuestas", fields: [respuesta_a_id], references: [id], onDelete: Cascade)
+  respuestas     Comentario[]     @relation("Respuestas")
+  usuario        Usuario          @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@index([usuario_id])
   @@index([leccion_id])
@@ -510,10 +589,10 @@ model Cupon {
 }
 
 model CuponCurso {
-  cupon_id  String
-  curso_id  String
-  cupon     Cupon  @relation(fields: [cupon_id], references: [id], onDelete: Cascade)
-  curso     Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  cupon_id String
+  curso_id String
+  cupon    Cupon  @relation(fields: [cupon_id], references: [id], onDelete: Cascade)
+  curso    Curso  @relation(fields: [curso_id], references: [id], onDelete: Cascade)
 
   @@id([cupon_id, curso_id])
   @@map("cupon_cursos")
@@ -600,6 +679,12 @@ enum EstadoCurso {
   ARCHIVADO
 }
 
+enum EstadoEbook {
+  BORRADOR
+  PUBLICADO
+  ARCHIVADO
+}
+
 enum EstadoInscripcion {
   PENDIENTE
   ACTIVO
@@ -660,6 +745,11 @@ enum NivelCurso {
   AVANZADO
 }
 
+enum TipoCurso {
+  CURSO
+  DIPLOMADO
+}
+
 enum TipoDescuento {
   PORCENTAJE
   MONTO_FIJO
@@ -687,6 +777,12 @@ enum EstadoReclamacion {
   ATENDIDO
 }
 
+enum EstadoComentario {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
+}
+
 enum TipoExamen {
   FINAL
   INTERMEDIO
@@ -697,3 +793,142 @@ enum EstadoNota {
   DESAPROBADO
   EN_PROGRESO
 }
+
+enum IntervaloSuscripcion {
+  MENSUAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+}
+
+enum EstadoSuscripcion {
+  ACTIVA
+  CANCELADA
+  VENCIDA
+  PENDIENTE
+  EN_PRUEBA
+}
+
+enum EstadoPagoSuscripcion {
+  PENDIENTE
+  COMPLETADO
+  FALLIDO
+  REEMBOLSADO
+}
+
+model PlanSuscripcion {
+  id                   String               @id @default(uuid())
+  nombre               String
+  descripcion          String?
+  precio               Decimal              @db.Decimal(10, 2)
+  moneda               String               @default("PEN")
+  intervalo            IntervaloSuscripcion
+  culqi_interval_unit  Int                  @default(1)
+  culqi_interval_count Int                  @default(1)
+  dias_prueba          Int                  @default(0)
+  esta_activo          Boolean              @default(true)
+  beneficios           Json?                @default("[]")
+  culqi_plan_id        String?              @unique
+  culqi_short_name     String?              @unique
+  creado_en            DateTime             @default(now())
+  actualizado_en       DateTime             @updatedAt
+  cursos               CursoEnPlan[]
+  suscripciones        Suscripcion[]
+
+  @@index([esta_activo])
+  @@map("planes_suscripcion")
+}
+
+model CursoEnPlan {
+  plan_id  String
+  curso_id String
+  plan     PlanSuscripcion @relation(fields: [plan_id], references: [id], onDelete: Cascade)
+  curso    Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+
+  @@id([plan_id, curso_id])
+  @@index([plan_id])
+  @@index([curso_id])
+  @@map("cursos_en_plan")
+}
+
+model Suscripcion {
+  id                   String            @id @default(uuid())
+  usuario_id           String
+  plan_id              String
+  estado               EstadoSuscripcion @default(PENDIENTE)
+  culqi_suscripcion_id String?           @unique
+  culqi_customer_id    String?
+  culqi_card_id        String?
+  fecha_inicio         DateTime?
+  fecha_fin            DateTime?
+  fecha_proximo_cobro  DateTime?
+  fecha_cancelacion    DateTime?
+  cancelado_por_usuario Boolean          @default(false)
+  creado_en            DateTime          @default(now())
+  actualizado_en       DateTime          @updatedAt
+  usuario              Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  plan                 PlanSuscripcion   @relation(fields: [plan_id], references: [id])
+  pagos                PagoSuscripcion[]
+
+  @@index([usuario_id])
+  @@index([plan_id])
+  @@index([estado])
+  @@map("suscripciones")
+}
+
+model PagoSuscripcion {
+  id             String                @id @default(uuid())
+  suscripcion_id String
+  monto          Decimal               @db.Decimal(10, 2)
+  moneda         String                @default("PEN")
+  estado         EstadoPagoSuscripcion @default(PENDIENTE)
+  culqi_cargo_id String?               @unique
+  periodo_inicio DateTime?
+  periodo_fin    DateTime?
+  intentos       Int                   @default(0)
+  creado_en      DateTime              @default(now())
+  actualizado_en DateTime              @updatedAt
+  suscripcion    Suscripcion           @relation(fields: [suscripcion_id], references: [id], onDelete: Cascade)
+
+  @@index([suscripcion_id])
+  @@index([estado])
+  @@map("pagos_suscripcion")
+}
+
+model Trabajo {
+  id             String           @id @default(uuid())
+  titulo         String
+  descripcion    String?          @db.Text
+  archivo_url    String?
+  archivo_nombre String?
+  fecha_inicio   DateTime?
+  fecha_fin      DateTime?
+  creado_en      DateTime         @default(now())
+  actualizado_en DateTime         @updatedAt
+  leccion_id     String           @unique
+  leccion        Leccion          @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+  entregas       EntregaTrabajo[]
+
+  @@map("trabajos")
+}
+
+model EntregaTrabajo {
+  id                   String    @id @default(uuid())
+  archivo_url          String
+  archivo_nombre       String
+  comentario_estudiante String?   @db.Text
+  nota                 Float?
+  comentario_docente   String?   @db.Text
+  creado_en            DateTime  @default(now())
+  actualizado_en       DateTime  @updatedAt
+  trabajo_id           String
+  trabajo              Trabajo   @relation(fields: [trabajo_id], references: [id], onDelete: Cascade)
+  usuario_id           String
+  usuario              Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([trabajo_id, usuario_id])
+  @@index([trabajo_id])
+  @@index([usuario_id])
+  @@map("entregas_trabajo")
+}
+

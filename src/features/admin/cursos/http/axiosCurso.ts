@@ -84,6 +84,16 @@ export class AxiosCurso extends AxiosInternalHttpClient {
     }
   }
 
+  async reorderCursos(items: { id: string; orden: number }[]): Promise<any> {
+    try {
+      const payload = await this.iPatch(`/reordenar`, { items })
+
+      return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
   // ===================== MÓDULOS =====================
 
   async createModulo(cursoId: string, data: { titulo: string; descripcion?: string | null }): Promise<any> {
@@ -186,11 +196,28 @@ export class AxiosCurso extends AxiosInternalHttpClient {
     }
   }
 
-  async getComentarios(cursoId: string): Promise<{ comentarios: any[] }> {
+  async getComentarios(cursoId: string, estado?: string): Promise<{ comentarios: any[] }> {
     try {
-      const payload = await this.iGet<{ comentarios: any[] }>(`/${cursoId}/comentarios`)
+      const qs = estado ? `?estado=${estado}` : ''
+      const payload = await this.iGet<{ comentarios: any[] }>(`/${cursoId}/comentarios${qs}`)
 
       return payload
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async moderarComentario(comentarioId: string, estado: 'APROBADO' | 'RECHAZADO'): Promise<void> {
+    try {
+      await axios.patch(`/api/admin/comentarios/${comentarioId}`, { estado })
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async eliminarComentario(comentarioId: string): Promise<void> {
+    try {
+      await axios.delete(`/api/admin/comentarios/${comentarioId}`)
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

@@ -7,8 +7,8 @@ import AuthModal from '@/features/shared/components/AuthModal'
 type Mode = 'login' | 'register' | 'forgot-password' | 'reset-password'
 
 type AuthModalContextType = {
-  openLogin: (callbackUrl?: string) => void
-  openRegister: (callbackUrl?: string) => void
+  openLogin: (callbackUrl?: string, onSuccess?: () => void) => void
+  openRegister: (callbackUrl?: string, onSuccess?: () => void) => void
   close: () => void
 }
 
@@ -18,16 +18,19 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<Mode>('login')
   const [callbackUrl, setCallbackUrl] = useState<string | undefined>()
+  const [onSuccess, setOnSuccess] = useState<(() => void) | undefined>()
 
-  const openLogin = (url?: string) => {
+  const openLogin = (url?: string, successCb?: () => void) => {
     setMode('login')
     setCallbackUrl(url)
+    setOnSuccess(successCb ? () => successCb : undefined)
     setOpen(true)
   }
 
-  const openRegister = (url?: string) => {
+  const openRegister = (url?: string, successCb?: () => void) => {
     setMode('register')
     setCallbackUrl(url)
+    setOnSuccess(successCb ? () => successCb : undefined)
     setOpen(true)
   }
 
@@ -40,6 +43,7 @@ export function AuthModalProvider({ children }: { children: ReactNode }) {
         open={open}
         mode={mode}
         callbackUrl={callbackUrl}
+        onSuccess={onSuccess}
         onClose={close}
         onSwitchMode={setMode}
       />

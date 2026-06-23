@@ -31,6 +31,7 @@ services:
       - aula-network
     volumes:
       - ./public/uploads:/app/public/uploads
+      - ./private:/app/private
     depends_on:
       - database
  # Nginx temporal SOLO puerto 80 (para obtener certificado SSL)
@@ -57,6 +58,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./letsencrypt/webroot:/var/www/letsencrypt
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./private:/app/private:ro
     depends_on:
       - database
       - web

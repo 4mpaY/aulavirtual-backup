@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
@@ -18,36 +18,122 @@ import {
 } from '@mui/material'
 
 import {
+    DndContext,
+    closestCenter,
+    PointerSensor,
+    KeyboardSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent
+} from '@dnd-kit/core'
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+    arrayMove
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+import {
     createColumnHelper,
     flexRender,
     getCoreRowModel,
     useReactTable,
     getPaginationRowModel,
-    getSortedRowModel,
     getFilteredRowModel
 } from '@tanstack/react-table'
 
 import { useSession } from 'next-auth/react'
 
-import { useCursos } from '@/features/admin/cursos/hooks/useCursos'
+import { useCursos, useReorderCursos } from '@/features/admin/cursos/hooks/useCursos'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
+
+// ─── Fila sortable ────────────────────────────────────────────────────────────
+
+function SortableRow({
+    id,
+    children,
+    isDragDisabled
+}: {
+    id: string
+    children: (dragHandleProps: any) => React.ReactNode
+    isDragDisabled: boolean
+}) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id,
+        disabled: isDragDisabled
+    })
+
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : undefined,
+        opacity: isDragging ? 0.6 : 1,
+        position: isDragging ? 'relative' : undefined
+    }
+
+    return (
+        <tr ref={setNodeRef} style={style} className='border-b border-divider hover:bg-grey-50 transition-colors'>
+            {children({ attributes, listeners })}
+        </tr>
+    )
+}
+
+// ─── Página principal ─────────────────────────────────────────────────────────
 
 const ProfesorCursosPage = () => {
     const { data: session } = useSession()
     const router = useRouter()
     const [globalFilter, setGlobalFilter] = useState('')
+    const [orderedCursos, setOrderedCursos] = useState<any[]>([])
 
-    // Usamos el hook de cursos pero filtrando por el ID del profesor actual
     const { data: cursosData, isLoading } = useCursos({
         profesor_id: session?.user?.id as string,
-        limit: '100' // Para el listado de profesor traemos todos (o paginamos si es necesario)
+        limit: '100'
     })
+
+    const reorderMutation = useReorderCursos()
+
+    useEffect(() => {
+        if (cursosData?.cursos) {
+            setOrderedCursos([...cursosData.cursos].sort((a, b) => a.orden - b.orden))
+        }
+    }, [cursosData])
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    )
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event
+
+        if (!over || active.id === over.id) return
+
+        const oldIndex = orderedCursos.findIndex(c => c.id === active.id)
+        const newIndex = orderedCursos.findIndex(c => c.id === over.id)
+        const reordered = arrayMove(orderedCursos, oldIndex, newIndex)
+
+        setOrderedCursos(reordered)
+
+        const items = reordered.map((c, i) => ({ id: c.id, orden: i }))
+
+        await reorderMutation.mutateAsync({ items })
+    }
+
+    const isDragDisabled = globalFilter.trim().length > 0
 
     const columns = useMemo(() => {
         const columnHelper = createColumnHelper<any>()
 
         return [
+            columnHelper.display({
+                id: 'drag-handle',
+                header: () => null,
+                cell: () => null
+            }),
             columnHelper.accessor('miniatura', {
                 header: 'Curso',
                 cell: ({ row }) => (
@@ -136,17 +222,16 @@ const ProfesorCursosPage = () => {
     }, [router])
 
     const table = useReactTable({
-        data: cursosData?.cursos || [],
+        data: orderedCursos,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        state: {
-            globalFilter
-        },
+        state: { globalFilter },
         onGlobalFilterChange: setGlobalFilter
     })
+
+    const rows = table.getRowModel().rows
 
     return (
         <Box>
@@ -186,6 +271,11 @@ const ProfesorCursosPage = () => {
                             }}
                             sx={{ maxWidth: 350 }}
                         />
+                        {!isDragDisabled && (
+                            <Typography variant='caption' color='text.secondary' sx={{ ml: 3 }}>
+                                Arrastra las filas para cambiar el orden
+                            </Typography>
+                        )}
                     </Box>
                     <Box sx={{ overflowX: 'auto' }}>
                         <table className='w-full border-collapse'>
@@ -193,38 +283,72 @@ const ProfesorCursosPage = () => {
                                 {table.getHeaderGroups().map(headerGroup => (
                                     <tr key={headerGroup.id}>
                                         {headerGroup.headers.map(header => (
-                                            <th key={header.id} className='px-6 py-4 text-left text-xs font-bold text-textSecondary uppercase tracking-wider'>
+                                            <th
+                                                key={header.id}
+                                                className='px-6 py-4 text-left text-xs font-bold text-textSecondary uppercase tracking-wider'
+                                                style={header.id === 'drag-handle' ? { width: 40, padding: '0 8px' } : undefined}
+                                            >
                                                 {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                             </th>
                                         ))}
                                     </tr>
                                 ))}
                             </thead>
-                            <tbody>
-                                {isLoading ? (
-                                    <tr>
-                                        <td colSpan={columns.length} className='px-6 py-10 text-center'>
-                                            Cargando tus cursos...
-                                        </td>
-                                    </tr>
-                                ) : table.getRowModel().rows.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={columns.length} className='px-6 py-10 text-center'>
-                                            Aún no has creado ningún curso. ¡Comienza hoy mismo!
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    table.getRowModel().rows.map(row => (
-                                        <tr key={row.id} className='border-b border-divider hover:bg-grey-50 transition-colors'>
-                                            {row.getVisibleCells().map(cell => (
-                                                <td key={cell.id} className='px-6 py-4'>
-                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={rows.map(r => r.original.id)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    <tbody>
+                                        {isLoading ? (
+                                            <tr>
+                                                <td colSpan={columns.length} className='px-6 py-10 text-center'>
+                                                    Cargando tus cursos...
                                                 </td>
-                                            ))}
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
+                                            </tr>
+                                        ) : rows.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={columns.length} className='px-6 py-10 text-center'>
+                                                    Aún no has creado ningún curso. ¡Comienza hoy mismo!
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            rows.map(row => (
+                                                <SortableRow
+                                                    key={row.id}
+                                                    id={row.original.id}
+                                                    isDragDisabled={isDragDisabled}
+                                                >
+                                                    {(dragHandleProps) => (
+                                                        <>
+                                                            <td style={{ width: 40, padding: '0 8px', textAlign: 'center' }}>
+                                                                {!isDragDisabled && (
+                                                                    <span
+                                                                        {...dragHandleProps.attributes}
+                                                                        {...dragHandleProps.listeners}
+                                                                        style={{ cursor: 'grab', touchAction: 'none', display: 'inline-flex', alignItems: 'center' }}
+                                                                    >
+                                                                        <i className='tabler-grip-vertical text-[20px] text-textDisabled' />
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                            {row.getVisibleCells().filter(c => c.column.id !== 'drag-handle').map(cell => (
+                                                                <td key={cell.id} className='px-6 py-4'>
+                                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                                </td>
+                                                            ))}
+                                                        </>
+                                                    )}
+                                                </SortableRow>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </SortableContext>
+                            </DndContext>
                         </table>
                     </Box>
                     <TablePaginationComponent

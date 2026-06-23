@@ -4,12 +4,11 @@ import { NextResponse } from 'next/server'
 
 import { verify } from 'jsonwebtoken'
 
-import { getAuthSession } from '@/utils/libs/auth-helpers'
-
-import prisma from '@/utils/libs/prisma'
-
 import { ApiResponse } from '@/utils/libs/apiResponse'
+import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import prisma from '@/utils/libs/prisma'
+import { puedeAccederCurso } from '@/utils/libs/subscription-access'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
@@ -57,6 +56,13 @@ export async function GET(request: Request, { params }: { params: { slug: string
               include: {
                 progreso: {
                   where: { usuario_id: user.id }
+                },
+                trabajo: {
+                  include: {
+                    entregas: {
+                      where: { usuario_id: user.id }
+                    }
+                  }
                 }
               },
               orderBy: { orden: 'asc' }
@@ -94,27 +100,25 @@ export async function GET(request: Request, { params }: { params: { slug: string
     let inscription = null
 
     if (!isAdmin && !isCourseProfessor) {
-      inscription = await prisma.inscripcion.findUnique({
-        where: {
-          usuario_id_curso_id: {
-            usuario_id: user.id,
-            curso_id: course.id
-          }
-        }
-      })
+      const { acceso } = await puedeAccederCurso(user.id, course.id, user.rol, course.profesor_id)
 
-      if (!inscription || inscription.estado !== 'ACTIVO') {
+      if (!acceso) {
         return NextResponse.json(
           {
             status: false,
             code: 'UNCISCRIBED',
-            message: 'Usuario no matriculado',
+            message: 'No tienes acceso a este curso',
             statusCode: 403,
             timestamp: new Date().toISOString()
           },
           { status: 403 }
         )
       }
+
+      // Cargar inscripción para el resto de la lógica (progreso, etc.)
+      inscription = await prisma.inscripcion.findUnique({
+        where: { usuario_id_curso_id: { usuario_id: user.id, curso_id: course.id } }
+      })
     }
 
     // Obtener intentos del usuario para todos los exámenes del curso (una sola query)
@@ -127,7 +131,10 @@ export async function GET(request: Request, { params }: { params: { slug: string
       select: { examen_id: true, esta_aprobado: true, puntaje: true }
     })
 
-    const intentosPorExamen: Record<string, { intentos_realizados: number; ya_aprobado: boolean; mejor_puntaje: number | null }> = {}
+    const intentosPorExamen: Record<
+      string,
+      { intentos_realizados: number; ya_aprobado: boolean; mejor_puntaje: number | null }
+    > = {}
 
     intentosUsuario.forEach(intento => {
       if (!intentosPorExamen[intento.examen_id]) {
@@ -171,9 +178,29 @@ export async function GET(request: Request, { params }: { params: { slug: string
             video_url: l.video_url,
             es_en_vivo: (l as any).es_en_vivo,
             fecha_programada: (l as any).fecha_programada,
+            fecha_fin: (l as any).fecha_fin,
             enlace_reunion: (l as any).enlace_reunion,
             completada: l.progreso[0]?.esta_completado || false,
-            recursos: Array.isArray(l.recursos) ? l.recursos : []
+            recursos: Array.isArray(l.recursos) ? l.recursos : [],
+            trabajo: (l as any).trabajo ? {
+              id: (l as any).trabajo.id,
+              titulo: (l as any).trabajo.titulo,
+              descripcion: (l as any).trabajo.descripcion,
+              archivo_url: (l as any).trabajo.archivo_url,
+              archivo_nombre: (l as any).trabajo.archivo_nombre,
+              fecha_inicio: (l as any).trabajo.fecha_inicio,
+              fecha_fin: (l as any).trabajo.fecha_fin,
+              entrega: (l as any).trabajo.entregas[0] ? {
+                id: (l as any).trabajo.entregas[0].id,
+                archivo_url: (l as any).trabajo.entregas[0].archivo_url,
+                archivo_nombre: (l as any).trabajo.entregas[0].archivo_nombre,
+                comentario_estudiante: (l as any).trabajo.entregas[0].comentario_estudiante,
+                nota: (l as any).trabajo.entregas[0].nota,
+                comentario_docente: (l as any).trabajo.entregas[0].comentario_docente,
+                creado_en: (l as any).trabajo.entregas[0].creado_en,
+                actualizado_en: (l as any).trabajo.entregas[0].actualizado_en
+              } : null
+            } : null
           }))
       })),
       examenes: course.examenes.map(ex => ({
@@ -182,10 +209,13 @@ export async function GET(request: Request, { params }: { params: { slug: string
         ya_aprobado: intentosPorExamen[ex.id]?.ya_aprobado ?? false,
         mejor_puntaje: intentosPorExamen[ex.id]?.mejor_puntaje ?? null
       })),
-      inscripcion: inscription ? {
-        estado_nota: inscription.estado_nota,
-        nota_final: inscription.nota_final
-      } : null
+      completar_automatico: course.completar_automatico,
+      inscripcion: inscription
+        ? {
+            estado_nota: inscription.estado_nota,
+            nota_final: inscription.nota_final
+          }
+        : null
     }
 
     return ApiResponse.success(request, { course: formattedCourse })

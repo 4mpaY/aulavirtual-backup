@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto'
+
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
@@ -17,26 +19,24 @@ export async function POST(request: Request) {
 
     if (!auth.authorized) return auth.error
 
-    const { cursoIds, codigoCupon } = await request.json()
+    const { cursoIds = [], ebookIds = [], codigoCupon } = await request.json()
 
-    if (!cursoIds || !Array.isArray(cursoIds) || cursoIds.length === 0) {
-      return ApiResponse.error(request, 'Se requiere al menos un ID de curso', 400)
+    const hasCursos = Array.isArray(cursoIds) && cursoIds.length > 0
+    const hasEbooks = Array.isArray(ebookIds) && ebookIds.length > 0
+
+    if (!hasCursos && !hasEbooks) {
+      return ApiResponse.error(request, 'Se requiere al menos un artículo en el carrito', 400)
     }
 
-    // 1. Obtener cursos y verificar inscripciones
-    const [cursos, inscripcionesExistentes] = await Promise.all([
-      prisma.curso.findMany({
-        where: { id: { in: cursoIds } }
-      }),
-      prisma.inscripcion.findMany({
-        where: {
-          usuario_id: auth.user.id,
-          curso_id: { in: cursoIds }
-        }
-      })
+    // 1. Obtener cursos/ebooks y verificar inscripciones/accesos
+    const [cursos, ebooks, inscripcionesExistentes, accesosExistentes] = await Promise.all([
+      hasCursos ? prisma.curso.findMany({ where: { id: { in: cursoIds } } }) : Promise.resolve([]),
+      hasEbooks ? prisma.ebook.findMany({ where: { id: { in: ebookIds }, estado: 'PUBLICADO', es_gratis: false } }) : Promise.resolve([]),
+      hasCursos ? prisma.inscripcion.findMany({ where: { usuario_id: auth.user.id, curso_id: { in: cursoIds } } }) : Promise.resolve([]),
+      hasEbooks ? prisma.ebookAcceso.findMany({ where: { usuario_id: auth.user.id, ebook_id: { in: ebookIds } } }) : Promise.resolve([]),
     ])
 
-    if (cursos.length === 0) {
+    if (hasCursos && cursos.length === 0) {
       return ApiResponse.error(request, 'No se encontraron los cursos seleccionados', 404)
     }
 
@@ -44,8 +44,14 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'Ya estás inscrito en uno de los cursos seleccionados', 400)
     }
 
+    if (accesosExistentes.length > 0) {
+      return ApiResponse.error(request, 'Ya tienes acceso a uno de los ebooks seleccionados', 400)
+    }
+
     // 2. Calcular total
-    const subtotal = cursos.reduce((acc, c) => acc + Number(c.precio), 0)
+    const subtotalCursos = cursos.reduce((acc, c) => acc + Number(c.precio), 0)
+    const subtotalEbooks = ebooks.reduce((acc, e) => acc + Number(e.precio), 0)
+    const subtotal = subtotalCursos + subtotalEbooks
     let total = subtotal
     let cuponId = null
     let descuentoTotal = 0
@@ -83,7 +89,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Lógica de Moneda para PayPal
-    const monedaOriginal = cursos[0]?.moneda || 'PEN'
+    const monedaOriginal = (cursos[0] || ebooks[0])?.moneda || 'PEN'
     const monedaPaypal = 'USD'
     let totalUSD = total
     let exchangeRate = 1
@@ -108,31 +114,44 @@ export async function POST(request: Request) {
           monedaOriginal === 'PEN'
             ? `Monto convertido a PayPal: $${totalUSD} (TC: ${exchangeRate})`
             : `Pago procesado en USD directamente`,
-        detalles: {
-          create: cursos.map(c => {
-            const precioCurso = Number(c.precio)
-            const proporcion = subtotal > 0 ? precioCurso / subtotal : 0
-            const descuentoCurso = descuentoTotal * proporcion
+        ...(hasCursos ? {
+          detalles: {
+            create: cursos.map(c => {
+              const precioCurso = Number(c.precio)
+              const proporcion = subtotalCursos > 0 ? precioCurso / subtotalCursos : 0
+              const descuentoCurso = descuentoTotal * proporcion
 
-            return {
-              curso_id: c.id,
-              precio_unitario: c.precio,
-              descuento: descuentoCurso,
-              subtotal: c.precio,
-              total: precioCurso - descuentoCurso
-            }
-          })
-        }
+              return {
+                curso_id: c.id,
+                precio_unitario: c.precio,
+                descuento: descuentoCurso,
+                subtotal: c.precio,
+                total: precioCurso - descuentoCurso
+              }
+            })
+          }
+        } : {})
       },
       include: { detalles: { include: { curso: { select: { titulo: true } } } } }
     })
-    
+
+    // Añadir detalles de ebooks via raw SQL
+    for (const ebook of ebooks) {
+      const id = randomUUID()
+      const precioEbook = Number(ebook.precio)
+
+      await prisma.$executeRaw`
+        INSERT INTO detalles_pedido (id, tipo_item, cantidad, precio_unitario, descuento, subtotal, total, pedido_id, ebook_id)
+        VALUES (${id}, 'EBOOK', 1, ${precioEbook}, 0, ${precioEbook}, ${precioEbook}, ${pedido.id}, ${ebook.id})
+      `
+    }
+
     // 📧 Enviar correo de confirmación de pedido
     try {
       const configs = await getConfigs()
       const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
-      
+
       const emailHtml = getOrderConfirmationTemplate({
         platformName,
         customerName: auth.user.nombre || auth.user.name || 'Estudiante',
@@ -141,10 +160,10 @@ export async function POST(request: Request) {
         total: Number(pedido.total),
         moneda: pedido.moneda,
         metodoPago: 'PayPal',
-        cursos: pedido.detalles.map(d => ({
-          titulo: d.curso.titulo,
-          precio: Number(d.total)
-        })),
+        cursos: [
+          ...pedido.detalles.filter(d => d.curso != null).map(d => ({ titulo: d.curso!.titulo, precio: Number(d.total) })),
+          ...ebooks.map(e => ({ titulo: e.titulo, precio: Number(e.precio) }))
+        ],
         appUrl
       })
 

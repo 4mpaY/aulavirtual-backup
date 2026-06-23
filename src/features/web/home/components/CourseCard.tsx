@@ -93,7 +93,7 @@ const CourseCard = ({
 
   const handleAddToCart = (e: MouseEvent) => {
     e.stopPropagation()
-    addToCart({ id, titulo, slug, miniatura, precio, moneda })
+    addToCart({ id, type: 'CURSO', titulo, slug, miniatura, precio, moneda })
   }
 
   // Formatear nivel para mostrar texto amigable

@@ -121,6 +121,15 @@ export function useCambiarEstadoCurso() {
   })
 }
 
+export function useReorderCursos() {
+  const qc = useQueryClient()
+
+  return useMutation<any, any, { items: { id: string; orden: number }[] }>({
+    mutationFn: async ({ items }) => await axiosCurso.reorderCursos(items),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
 // ===================== MÓDULOS =====================
 
 export function useCreateModulo() {
@@ -224,14 +233,12 @@ export function useReorderExamenesModulo() {
 /**
  * Hook para obtener todos los comentarios de un curso
  */
-export function useComentariosCurso(cursoId: string) {
-
-
+export function useComentariosCurso(cursoId: string, estado?: string) {
   return useQuery<{ comentarios: any[] }, any>({
-    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'comentarios'],
-    queryFn: async () => await axiosCurso.getComentarios(cursoId),
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'comentarios', estado],
+    queryFn: async () => await axiosCurso.getComentarios(cursoId, estado),
     enabled: !!cursoId,
-    staleTime: 30_000
+    staleTime: 0
   })
 }
 

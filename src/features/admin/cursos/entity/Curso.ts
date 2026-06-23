@@ -29,6 +29,15 @@ export interface CursoLeccionResumen {
   estado: 'BORRADOR' | 'PUBLICADO'
   es_vista_previa: boolean
   contenido: string | null
+  trabajo?: {
+    id: string
+    titulo: string
+    descripcion: string | null
+    archivo_url: string | null
+    archivo_nombre: string | null
+    fecha_inicio: string | Date | null
+    fecha_fin: string | Date | null
+  } | null
 }
 
 export interface CursoExamenResumen {
@@ -74,8 +83,10 @@ export interface Curso {
   estado: 'BORRADOR' | 'PUBLICADO' | 'ARCHIVADO'
   es_gratis: boolean
   es_privado: boolean
+  completar_automatico: boolean
   precio_certificado: number | null
   precio: number
+  precio_falso: number
   moneda: string
   creado_en: string
   actualizado_en: string
@@ -84,6 +95,7 @@ export interface Curso {
   categoria_id: string | null
   categoria: CursoCategoria | null
   modulos: CursoModulo[]
+  orden: number
   brochure: string | null
   objetivos: string[]
   metodologia: any[]
@@ -96,4 +108,5 @@ export interface Curso {
     valoraciones: number
   }
   promedio_valoracion: number
+  vigencia_meses?: number | null
 }

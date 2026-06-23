@@ -18,7 +18,7 @@ services:
       - ./data/database:/var/lib/postgresql/data
     command: postgres -c config_file=/etc/postgresql/postgresql.conf -p ${DB_PORT}
   web:
-    image: peves/legalizaya:v1.0.39
+    image: patrickrios/aula-virtual:latest
     restart: always
     container_name: aula-virtual-web
     ports:
@@ -27,5 +27,6 @@ services:
       - .env
     volumes:
       - ./public/uploads:/app/public/uploads
+      - ./private:/app/private
     depends_on:
       - database

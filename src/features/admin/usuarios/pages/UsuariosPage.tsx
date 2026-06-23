@@ -27,7 +27,6 @@ import {
 import type { ColumnDef } from '@tanstack/react-table'
 
 import classnames from 'classnames'
-import { Icon } from '@iconify/react/dist/iconify.js'
 import { Rol } from '@prisma/client'
 
 // Core & Custom Components
@@ -219,7 +218,7 @@ export function UsuariosPage({ initialDataUsuarios, initialTotal = 0 }: Usuarios
               <i className='tabler-edit text-[22px] text-textSecondary' />
             </IconButton>
             <IconButton onClick={() => handleDeleteClick(row.original)} title='Eliminar'>
-              <Icon icon='material-symbols:delete' />
+              <i className='tabler-trash text-[22px] text-textSecondary' />
             </IconButton>
           </div>
         )

@@ -61,6 +61,12 @@ interface PaymentFormProps {
     precio: number
     moneda: string
   }[]
+  ebooks: {
+    id: string
+    titulo: string
+    precio: number
+    moneda: string
+  }[]
   appliedCouponCode?: string
   finalTotal?: number
 }
@@ -148,7 +154,7 @@ const CopyRow = ({ label, value, onCopy }: { label: string; value: string; onCop
   </Box>
 )
 
-const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProps) => {
+const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: PaymentFormProps) => {
   const { data: session } = useSession()
   const router = useRouter()
   const { clearCart } = useCart()
@@ -186,9 +192,9 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const [numeroComprobante, setNumeroComprobante] = useState('')
   const [comprobanteError, setComprobanteError] = useState<string | null>(null)
 
-  const subtotal = courses.reduce((acc, c) => acc + Number(c.precio), 0)
+  const subtotal = [...courses, ...ebooks].reduce((acc, i) => acc + Number(i.precio), 0)
   const displayTotal = finalTotal !== undefined ? finalTotal : subtotal
-  const currencySymbol = courses[0]?.moneda === 'USD' ? '$' : 'S/'
+  const currencySymbol = (courses[0] || ebooks[0])?.moneda === 'USD' ? '$' : 'S/'
 
   useEffect(() => {
     if (session?.user) {
@@ -232,8 +238,13 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const handlePaymentSuccess = useCallback(() => {
     setPaymentSuccess(true)
     clearCart()
-    setTimeout(() => router.push('/estudiante/mis-cursos'), 2000)
-  }, [router, clearCart])
+
+    const dest = courses.length === 0 && ebooks.length > 0
+      ? '/estudiante/mis-ebooks'
+      : '/estudiante/mis-cursos'
+
+    setTimeout(() => router.push(dest), 2000)
+  }, [router, clearCart, courses.length, ebooks.length])
 
   const validateComprobante = useCallback(() => {
     if (configs.PEDIDOS_SOLICITAR_COMPROBANTE === 'false') return true
@@ -323,6 +334,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
+          ebookIds: ebooks.map(e => e.id),
           codigoCupon: appliedCouponCode,
           gateway: 'IZIPAY',
           tipoComprobante,
@@ -333,6 +345,12 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const dataRaw = await response.json()
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pago')
+
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
+
+        return
+      }
 
       const { iziConfig, token, keyRSA, pedidoId } = dataRaw.result
 
@@ -367,6 +385,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
+          ebookIds: ebooks.map(e => e.id),
           codigoCupon: appliedCouponCode,
           gateway: 'CULQI',
           tipoComprobante,
@@ -377,6 +396,12 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const dataRaw = await response.json()
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pedido')
+
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
+
+        return
+      }
 
       const { pedidoId, culqiOrderId, rsaId, rsaPublicKey } = dataRaw.result
 
@@ -420,6 +445,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
+          ebookIds: ebooks.map(e => e.id),
           codigoCupon: appliedCouponCode,
           gateway: 'MANUAL',
           metodoPagoManualId: selectedMetodoManualId,
@@ -508,6 +534,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
+          ebookIds: ebooks.map(e => e.id),
           codigoCupon: appliedCouponCode,
           gateway: 'MERCADOPAGO',
           tipoComprobante,
@@ -519,9 +546,15 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pago con Mercado Pago')
 
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
+
+        return
+      }
+
       const { mpSandboxInitPoint, mpInitPoint } = dataRaw.result
 
-      window.location.href = mpSandboxInitPoint || mpInitPoint
+      window.location.href = mpInitPoint || mpSandboxInitPoint
     } catch (error: any) {
       setPaymentError(error.message || 'Ocurrió un error inesperado')
     } finally {
@@ -758,7 +791,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                     <TermsCheck checked={acceptedTerms} onChange={setAcceptedTerms} />
                     {acceptedTerms ? (
                       <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'USD' }}>
-                        <PayPalPaymentButton cursoIds={courses.map(c => c.id)} codigoCupon={appliedCouponCode} onSuccess={handlePaymentSuccess} onError={(err) => setPaymentError(err)} />
+                        <PayPalPaymentButton cursoIds={courses.map(c => c.id)} ebookIds={ebooks.map(e => e.id)} codigoCupon={appliedCouponCode} onSuccess={handlePaymentSuccess} onError={(err) => setPaymentError(err)} />
                       </PayPalScriptProvider>
                     ) : (
                       <Alert severity='info' sx={{ borderRadius: 2 }}>Acepta los términos y condiciones para habilitar el pago con PayPal.</Alert>

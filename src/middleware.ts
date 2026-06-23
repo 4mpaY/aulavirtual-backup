@@ -81,6 +81,7 @@ export default withAuth(
           path.startsWith('/login') ||
           path.startsWith('/register') ||
           path.startsWith('/cursos') ||
+          path.startsWith('/ebooks') ||
           path.startsWith('/rutas') ||
           path.startsWith('/proyectos') ||
           path.startsWith('/mantenimiento') ||
@@ -99,6 +100,7 @@ export default withAuth(
           path.startsWith('/assets') ||
           path.startsWith('/empresas') ||
           path.startsWith('/politica-de-devoluciones') ||
+          path.startsWith('/suscripciones') ||
           path === '/'
         ) {
           return true
@@ -121,6 +123,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.svg|.*\\.mp4|.*\\.webm|.*\\.gif).*)'
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.svg|.*\\.mp4|.*\\.webm|.*\\.mkv|.*\\.gif).*)'
   ]
 }

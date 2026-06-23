@@ -9,13 +9,17 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
-import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, Repeat2, BookText } from 'lucide-react'
+
+import { useAuthModal } from '@/contexts/AuthModalContext'
 
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
+  { title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' },
   { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
   { title: 'Empresas', url: '/empresas', icon: Building2, key: 'empresas' },
+  { title: 'Suscripciones', url: '/suscripciones', icon: Repeat2, key: 'suscripciones' },
   { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },
   { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
 ]
@@ -34,6 +38,7 @@ export default function LeftSidebar({
   const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0 })
   const { data: session } = useSession()
   const userButtonRef = useRef<HTMLButtonElement>(null)
+  const { openLogin, openRegister } = useAuthModal()
 
   const navItems = ALL_NAV_ITEMS.filter(item => {
     if (item.key === 'rutas' && !rutasHabilitado) return false
@@ -67,6 +72,7 @@ export default function LeftSidebar({
   }
 
   return (
+    <>
     <aside
       className="fixed left-0 bottom-0 flex flex-col items-start py-6 gap-1 overflow-hidden shadow-xl transition-all duration-300 ease-in-out"
       style={{
@@ -261,10 +267,10 @@ export default function LeftSidebar({
 
           /* Not logged in — show login + register */
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <Link
-              href="/login"
-              className="no-underline flex items-center w-full rounded-xl px-3 transition-all"
-              style={{ height: '44px', gap: '12px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+            <button
+              onClick={() => openLogin()}
+              className="flex items-center w-full rounded-xl px-3 transition-all"
+              style={{ height: '44px', gap: '12px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.12)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.06)' }}
             >
@@ -274,11 +280,11 @@ export default function LeftSidebar({
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', fontWeight: 600, color: '#ffffff', opacity: expanded ? 1 : 0, maxWidth: expanded ? '160px' : '0px', transition: 'opacity 0.2s, max-width 0.3s', whiteSpace: 'nowrap', overflow: 'hidden' }}>
                 Iniciar Sesión
               </span>
-            </Link>
-            <Link
-              href="/registrarse"
-              className="no-underline flex items-center w-full rounded-xl px-3 transition-all"
-              style={{ height: '44px', gap: '12px', backgroundColor: 'var(--web-light, #BDD962)', border: '1px solid transparent' }}
+            </button>
+            <button
+              onClick={() => openRegister()}
+              className="flex items-center w-full rounded-xl px-3 transition-all"
+              style={{ height: '44px', gap: '12px', backgroundColor: 'var(--web-light, #BDD962)', border: '1px solid transparent', cursor: 'pointer' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--web-primary, #25927F)' }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--web-light, #BDD962)' }}
             >
@@ -288,10 +294,11 @@ export default function LeftSidebar({
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', fontWeight: 700, color: '#0A0A0A', opacity: expanded ? 1 : 0, maxWidth: expanded ? '160px' : '0px', transition: 'opacity 0.2s, max-width 0.3s', whiteSpace: 'nowrap', overflow: 'hidden' }}>
                 Registrarse
               </span>
-            </Link>
+            </button>
           </div>
         )}
       </div>
     </aside>
+    </>
   )
 }
