@@ -24,7 +24,7 @@ echo ""
 # SOLUCIÓN: Agregamos --no-cache para obligar a Docker a leer el Dockerfile actualizado
 docker build \
   --no-cache \
-  -f Dockerfile \
+  -f dockerfile.new \
   --build-arg NEXT_PUBLIC_APP_URL=$(grep NEXT_PUBLIC_APP_URL .env | cut -d '=' -f2) \
   --build-arg APP_URL=$(grep '^APP_URL=' .env | cut -d '=' -f2) \
   -t $IMAGE_NAME \
