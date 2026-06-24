@@ -32,7 +32,7 @@ export default function SimulacroDetailView({ simulacro, preguntas, tieneAcceso,
   const precio = `${simulacro.moneda} ${Number(simulacro.precio).toFixed(2)}`
 
   // ── Botón CTA según estado ────────────────────────────────────────────
-  const CtaButton = () => {
+  const CtaButton = ({ centered = false }: { centered?: boolean }) => {
     // 1. Tiene acceso (gratis o comprado)
     if (tieneAcceso) {
       return (
@@ -48,7 +48,7 @@ export default function SimulacroDetailView({ simulacro, preguntas, tieneAcceso,
     // 2. No autenticado
     if (!estaAutenticado) {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: centered ? 'center' : 'flex-start' }}>
           <button onClick={() => openLogin()} style={btnStyle()}>
             Iniciar sesión para acceder
           </button>
@@ -64,7 +64,7 @@ export default function SimulacroDetailView({ simulacro, preguntas, tieneAcceso,
 
     // 3. Autenticado pero no comprado
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: centered ? 'center' : 'flex-start' }}>
         <Link href={`/checkout/simulacros/${simulacro.slug}`} style={{ textDecoration: 'none' }}>
           <button style={btnStyle()}>
             Comprar acceso — {precio}
@@ -175,6 +175,50 @@ export default function SimulacroDetailView({ simulacro, preguntas, tieneAcceso,
               <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.75)' }}>
                 🔒 Inicia sesión para {simulacro.es_gratis ? 'acceder a este simulacro gratuito' : 'comprar y acceder al examen'}.
               </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Detalle */}
+      <section style={{ padding: '4rem 1.5rem 5rem' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'grid', gap: '3rem' }}>
+          {/* Cómo funciona */}
+          <div>
+            <h2 style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 1.5rem', color: '#0f172a' }}>
+              ¿Cómo funciona?
+            </h2>
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {[
+                'Adquiere acceso al simulacro (o ingresa directo si es gratuito).',
+                'Inicia el examen cuando estés listo: el cronómetro empieza a correr.',
+                'Responde todas las preguntas dentro del tiempo asignado.',
+                'Obtén tu resultado al instante y revisa tu desempeño.',
+              ].map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <span style={{
+                    width: '2rem', height: '2rem', borderRadius: '50%', flexShrink: 0,
+                    background: 'var(--web-primary, #25927F)', color: '#fff', fontWeight: 700,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem',
+                  }}>
+                    {i + 1}
+                  </span>
+                  <span style={{ fontSize: '0.92rem', color: '#334155' }}>{step}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA final */}
+          {!tieneAcceso && (
+            <div style={{
+              padding: '2rem', borderRadius: '1rem', textAlign: 'center',
+              background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 100%)',
+            }}>
+              <p style={{ margin: '0 0 1.25rem', fontSize: '1rem', color: 'rgba(255,255,255,0.85)' }}>
+                ¿Listo para poner a prueba tus conocimientos?
+              </p>
+              <CtaButton centered />
             </div>
           )}
         </div>
