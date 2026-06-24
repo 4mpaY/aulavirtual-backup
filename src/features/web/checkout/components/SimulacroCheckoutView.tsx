@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+
 import { Container, Grid, Box, Typography, Paper, Stack, Divider } from '@mui/material'
 import { ChevronRight, ShoppingCart, ShieldCheck } from 'lucide-react'
+
 import SimulacroPaymentForm from './SimulacroPaymentForm'
 
 const FONT = 'Poppins, sans-serif'
@@ -20,8 +22,6 @@ interface SimulacroCheckoutViewProps {
 }
 
 export default function SimulacroCheckoutView({ simulacro }: SimulacroCheckoutViewProps) {
-  const currencySymbol = simulacro.moneda === 'USD' ? '$' : 'S/'
-
   return (
     <Box sx={{ bgcolor: '#f8fafc', minHeight: 'calc(100vh - 64px)', fontFamily: FONT }}>
       {/* Mini hero */}

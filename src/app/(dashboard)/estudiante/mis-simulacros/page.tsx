@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
+
 import { Container, Typography, Box, Stack, Button } from '@mui/material'
+
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import MySimulacrosList from '@/features/estudiante/mis-simulacros/components/MySimulacrosList'
 import { AxiosMisSimulacros } from '@/features/estudiante/mis-simulacros/http/axiosMisSimulacros'
@@ -8,12 +10,14 @@ export const metadata = { title: 'Mis Simulacros' }
 
 export default async function MisSimulacrosPage() {
   const session = await getAuthSession()
+
   if (!session) redirect('/login')
 
   const token = session.user?.accessToken ?? null
   const client = new AxiosMisSimulacros({ getAuthToken: () => token })
 
   let simulacros: any[] = []
+
   try {
     simulacros = await client.getAll()
   } catch (error) {

@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+
 import { Alert, Box, Button, CircularProgress, IconButton, Tooltip, Typography } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { useSnackbar } from 'notistack'
 import axios from 'axios'
+
 import { getBaseURL } from '@/utils/env'
 
 interface Props {
@@ -45,6 +47,7 @@ export default function AudioRecorder({ token, value, onChange }: Props) {
     chunksRef.current = []
 
     let stream: MediaStream
+
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     } catch (e: any) {
@@ -55,20 +58,25 @@ export default function AudioRecorder({ token, value, onChange }: Props) {
           ? 'No se detectó ningún micrófono.'
           : `Error: ${e.name}`
       )
+
       return
     }
 
     const mr = new MediaRecorder(stream)
+
     mrRef.current = mr
     mr.ondataavailable = e => { if (e.data?.size) chunksRef.current.push(e.data) }
+
     mr.onstop = () => {
       stream.getTracks().forEach(t => t.stop())
       const b = new Blob(chunksRef.current, { type: mr.mimeType || 'audio/webm' })
+
       setPreviewBlob(b)
       setPreviewUrl(URL.createObjectURL(b))
       timerRef.current && clearInterval(timerRef.current)
       setFase('preview')
     }
+
     mr.start(100)
     setFase('rec')
     setSeg(0)
@@ -79,15 +87,21 @@ export default function AudioRecorder({ token, value, onChange }: Props) {
 
   const usar = async () => {
     if (!previewBlob) return
+
     setFase('uploading')
+
     try {
       const ext = previewBlob.type.includes('ogg') ? 'ogg' : previewBlob.type.includes('mp4') ? 'mp4' : 'webm'
       const fd = new FormData()
+
       fd.append('file', previewBlob, `audio-${Date.now()}.${ext}`)
+
       const { data } = await axios.post(`${getBaseURL()}/api/media`, fd, {
         headers: { 'Content-Type': 'multipart/form-data', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       })
+
       const url: string = data?.result?.url ?? data?.url
+
       onChange(url)
       setPreviewUrl(null); setPreviewBlob(null)
       setFase('idle')

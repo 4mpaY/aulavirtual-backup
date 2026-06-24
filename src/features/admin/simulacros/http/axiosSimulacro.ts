@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosStatic } from 'axios'
+
 import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 import type { Simulacro, CrearSimulacroDto, ActualizarSimulacroDto, CambiarEstadoSimulacroDto } from '../entity/Simulacro'
@@ -21,6 +22,7 @@ export class AxiosSimulacro extends AxiosInternalHttpClient {
   async searchAll(query?: Record<string, any>): Promise<{ simulacros: Simulacro[]; pagination: any }> {
     try {
       const qs = query ? '?' + new URLSearchParams(query as any).toString() : ''
+
       return await this.iGet(qs)
     } catch (err: any) {
       throw err?.response?.data ?? err

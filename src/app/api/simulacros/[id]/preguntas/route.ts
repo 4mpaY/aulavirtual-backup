@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic'
 
 import { randomUUID } from 'crypto'
+
+import { z } from 'zod'
+
 import prisma from '@/utils/libs/prisma'
 import { handleApiError } from '@/utils/libs/validation'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
-import { z } from 'zod'
 
 const opcionSchema = z.object({
   texto: z.string().min(1),
@@ -40,6 +42,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
           WHERE pregunta_id = ${pq.id}
           ORDER BY orden ASC
         `
+
         return { ...pq, opciones }
       })
     )
@@ -53,15 +56,18 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const simulacro: any[] = await prisma.$queryRaw`
       SELECT id FROM "Simulacro" WHERE id = ${params.id} LIMIT 1
     `
+
     if (simulacro.length === 0) return ApiResponse.error(request, 'Simulacro no encontrado', 404)
 
     const body = await request.json()
     const parsed = preguntaSchema.safeParse(body)
+
     if (!parsed.success) return ApiResponse.error(request, 'Datos inválidos', 400)
 
     const { enunciado, tema, fundamento, audio_url, imagen_url, orden, opciones } = parsed.data
@@ -83,6 +89,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     const [pregunta]: any[] = await prisma.$queryRaw`
       SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden FROM "PreguntaSimulacro" WHERE id = ${preguntaId}
     `
+
     const opcionesCreadas: any[] = await prisma.$queryRaw`
       SELECT id, texto, es_correcta, orden FROM "OpcionPreguntaSimulacro" WHERE pregunta_id = ${preguntaId} ORDER BY orden
     `

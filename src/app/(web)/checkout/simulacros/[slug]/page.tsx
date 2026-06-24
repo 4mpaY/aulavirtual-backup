@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
+
 import prisma from '@/utils/libs/prisma'
 import SimulacroCheckoutView from '@/features/web/checkout/components/SimulacroCheckoutView'
 
@@ -7,6 +8,7 @@ async function getSimulacroData(slug: string) {
     const rows: any[] = await prisma.$queryRaw`
       SELECT id, titulo, slug, miniatura, precio, moneda, nivel, es_gratis, estado
       FROM "Simulacro" WHERE slug = ${slug} LIMIT 1`
+
     return rows[0] ?? null
   } catch {
     return null
@@ -41,7 +43,7 @@ export default async function CheckoutSimulacroPage({ params }: { params: { slug
   )
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata() {
   return {
     title: `Comprar Simulacro | Aula Virtual`,
     description: 'Adquiere acceso al simulacro y pon a prueba tus conocimientos.'

@@ -31,6 +31,7 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
     // Fetch raw detalles to get simulacro_id (Prisma client may not know about this column yet)
     const detallesRaw: any[] = await prisma.$queryRaw`
       SELECT id, curso_id, simulacro_id FROM detalles_pedido WHERE pedido_id = ${pedidoId}`
+
     const simulacroDetallesMap = new Map(detallesRaw.map(d => [d.id, d.simulacro_id]))
 
     if (!pedidoInit) throw new Error(`Pedido ${pedidoId} no encontrado.`)
@@ -96,12 +97,15 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
                 estado: 'ACTIVO'
               }
             })
+
             inscripciones.push(ins)
           }
 
           const simulacroIdFromMap = simulacroDetallesMap.get(detalle.id)
+
           if (simulacroIdFromMap) {
             const simulacroId = simulacroIdFromMap
+
             const existing = await tx.$queryRaw<any[]>`
               SELECT id FROM inscripciones_simulacro
               WHERE usuario_id = ${pedidoInit.usuario_id} AND simulacro_id = ${simulacroId} LIMIT 1`
@@ -112,10 +116,12 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
                 WHERE usuario_id = ${pedidoInit.usuario_id} AND simulacro_id = ${simulacroId}`
             } else {
               const { randomUUID } = await import('crypto')
+
               await tx.$executeRaw`
                 INSERT INTO inscripciones_simulacro (id, usuario_id, simulacro_id, estado, inscrito_en)
                 VALUES (${randomUUID()}, ${pedidoInit.usuario_id}, ${simulacroId}, 'ACTIVO', NOW())`
             }
+
             inscripciones.push({ simulacro_id: simulacroId })
           }
         }

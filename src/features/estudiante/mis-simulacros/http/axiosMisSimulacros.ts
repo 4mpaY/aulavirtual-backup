@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosStatic } from 'axios'
+
 import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 
@@ -20,6 +21,7 @@ export class AxiosMisSimulacros extends AxiosInternalHttpClient {
   async getAll(): Promise<any[]> {
     try {
       const payload = await this.iGet<{ simulacros: any[] }>('')
+
       return payload?.simulacros || []
     } catch (err: any) {
       throw err?.response?.data ?? err

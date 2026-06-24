@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+
 import {
   Box, Typography, Stack, TextField, Button, Grid, Paper,
   InputAdornment, Alert, CircularProgress, Checkbox, Divider,
@@ -109,7 +111,6 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
   const [voucherPreview, setVoucherPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [whatsappUrl, setWhatsappUrl] = useState('')
-  const [whatsappQr, setWhatsappQr] = useState('')
   const [confirmModalOpen, setConfirmModalOpen] = useState(false)
   const [confirmedOrder, setConfirmedOrder] = useState<{ pedidoId: string; numeroPedido: number; total: number } | null>(null)
 
@@ -119,6 +120,7 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
   useEffect(() => {
     if (session?.user) {
       const u = session.user as any
+
       setFormData({ nombres: u.nombre || u.name || '', apellidos: u.apellido || '', correo: u.email || '' })
     }
   }, [session])
@@ -131,7 +133,7 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
         setWhatsappNumero(d.result.whatsapp_numero || '')
         if (d.result.metodos?.length > 0) setSelectedMetodoManualId(d.result.metodos[0].id)
       }
-    }).catch(() => {})
+    }).catch(() => { })
   }, [])
 
   useEffect(() => {
@@ -148,13 +150,21 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
 
   const validateComprobante = useCallback(() => {
     if (configs.PEDIDOS_SOLICITAR_COMPROBANTE === 'false') return true
+
     setComprobanteError(null)
+
     if (tipoComprobante === 'FACTURA' && !/^\d{11}$/.test(numeroComprobante)) {
-      setComprobanteError('El RUC debe tener 11 dígitos'); return false
+      setComprobanteError('El RUC debe tener 11 dígitos')
+
+      return false
     }
+
     if (tipoComprobante === 'BOLETA' && !/^\d{8}$|^\d{11}$/.test(numeroComprobante)) {
-      setComprobanteError('El documento debe tener 8 u 11 dígitos'); return false
+      setComprobanteError('El documento debe tener 8 u 11 dígitos')
+
+      return false
     }
+
     return true
   }, [configs.PEDIDOS_SOLICITAR_COMPROBANTE, tipoComprobante, numeroComprobante])
 
@@ -169,7 +179,9 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pedidoId, response })
       })
+
       const data = await res.json()
+
       if (response.code === '00') {
         res.ok ? handlePaymentSuccess() : setPaymentError(data.message || 'Error al confirmar')
       } else {
@@ -181,101 +193,165 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
   const handleCulqiToken = useCallback(async (token: string, email: string) => {
     try {
       setIsLoading(true)
+
       const pedidoId = (window as any)._currentPedidoId
+
       const res = await fetch('/api/culqi/charge', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pedidoId, tokenId: token, email })
       })
+
       const data = await res.json()
+
       res.ok ? handlePaymentSuccess() : setPaymentError(data.message || 'Error con Culqi')
     } catch { setPaymentError('Error inesperado') } finally { setIsLoading(false) }
   }, [handlePaymentSuccess])
 
   const checkout = async (gw: string) => {
-    if (!session) { openLogin(); return }
+    if (!session) {
+      openLogin()
+
+      return
+    }
+
     if (!validateComprobante()) return
+
     setPaymentError(null)
     setIsLoading(true)
+
     try {
       const res = await fetch('/api/checkout/simulacro', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ simulacroId: simulacro.id, gateway: gw, tipoComprobante, numeroComprobante })
       })
+
       const data = await res.json()
+
       if (!res.ok) throw new Error(data.message || 'Error al iniciar el pago')
+
       return data.result
     } catch (e: any) {
       setPaymentError(e.message)
+
       return null
     } finally { setIsLoading(false) }
   }
 
   const handleCulqiCheckout = async () => {
     const result = await checkout('CULQI')
+
     if (!result) return
+
     const { pedidoId, culqiOrderId, rsaId, rsaPublicKey } = result
+
     ;(window as any)._currentPedidoId = pedidoId
     setCulqiSettings({ currency: simulacro.moneda || 'PEN', amount: Math.round(displayTotal * 100), order: culqiOrderId, xculqirsaid: rsaId, rsapublickey: rsaPublicKey })
   }
 
   const handleIzipayCheckout = async () => {
     const result = await checkout('IZIPAY')
+
     if (!result) return
+
     const { iziConfig, token, keyRSA, pedidoId } = result
-    if (!window.Izipay) { setPaymentError('SDK de Izipay no cargado'); return }
+
+    if (!window.Izipay) {
+      setPaymentError('SDK de Izipay no cargado')
+
+      return
+    }
+
     const iz = new window.Izipay({ config: iziConfig })
+
     iz.LoadForm({ authorization: token, keyRSA, callbackResponse: (r: any) => handlePaymentResponse(r, pedidoId) })
   }
 
   const handleMercadoPagoCheckout = async () => {
     const result = await checkout('MERCADOPAGO')
+
     if (!result) return
+
     window.location.href = result.mpSandboxInitPoint || result.mpInitPoint
   }
 
   const handleManualCheckout = async () => {
-    if (!session) { openLogin(); return }
-    if (!selectedMetodoManualId) { setPaymentError('Selecciona un método de pago'); return }
-    if (!voucher) { setPaymentError('Debes subir tu comprobante'); return }
+    if (!session) {
+      openLogin()
+
+      return
+    }
+
+    if (!selectedMetodoManualId) {
+      setPaymentError('Selecciona un método de pago')
+
+      return
+    }
+
+    if (!voucher) {
+      setPaymentError('Debes subir tu comprobante')
+
+      return
+    }
+
     if (!validateComprobante()) return
+
     setPaymentError(null)
     setIsLoading(true)
+
     try {
       const res = await fetch('/api/checkout/simulacro', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ simulacroId: simulacro.id, gateway: 'MANUAL', metodoPagoManualId: selectedMetodoManualId, tipoComprobante, numeroComprobante })
       })
+
       const data = await res.json()
+
       if (!res.ok) throw new Error(data.message || 'Error al crear el pedido')
+
       const { pedidoId, numeroPedido, total } = data.result
 
       const fd = new FormData()
+
       fd.append('voucher', voucher)
+
       const vRes = await fetch(`/api/pedidos/${pedidoId}/voucher`, { method: 'POST', body: fd })
-      if (!vRes.ok) { const vd = await vRes.json(); throw new Error(vd.message || 'Error al subir comprobante') }
+
+      if (!vRes.ok) {
+        const vd = await vRes.json()
+
+        throw new Error(vd.message || 'Error al subir comprobante')
+      }
 
       if (whatsappNumero) {
         const nombre = (session.user as any)?.nombre || session.user?.name || ''
         const msg = `Pedido #${numeroPedido} - ${nombre}\n  • ${simulacro.titulo}\nTotal: ${currencySymbol} ${Number(total).toFixed(2)}\nAdjunto comprobante.`
         const url = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(msg)}`
+
         try {
-          const qr = await toDataURL(url, { width: 400, margin: 2, errorCorrectionLevel: 'L', color: { dark: '#000000', light: '#FFFFFF' } })
-          setWhatsappUrl(url); setWhatsappQr(qr)
-        } catch { setWhatsappUrl(url) }
+          await toDataURL(url, { width: 400, margin: 2, errorCorrectionLevel: 'L', color: { dark: '#000000', light: '#FFFFFF' } })
+          setWhatsappUrl(url)
+        } catch {
+          setWhatsappUrl(url)
+        }
       }
 
-      setVoucher(null); setVoucherPreview(null)
+      setVoucher(null)
+      setVoucherPreview(null)
+
       if (fileInputRef.current) fileInputRef.current.value = ''
+
       setConfirmedOrder({ pedidoId, numeroPedido, total: Number(total) })
       setConfirmModalOpen(true)
     } catch (e: any) {
       setPaymentError(e.message)
-    } finally { setIsLoading(false) }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const isGuest = !session
   const selectedMetodo = metodosManual.find(m => m.id === selectedMetodoManualId)
-  const copyToClipboard = (t: string) => navigator.clipboard.writeText(t).catch(() => {})
+  const copyToClipboard = (t: string) => navigator.clipboard.writeText(t).catch(() => { })
 
   if (paymentSuccess) {
     return (
@@ -450,6 +526,7 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
                       <Stack spacing={1.5}>
                         {metodosManual.map(m => {
                           const sel = selectedMetodoManualId === m.id
+
                           return (
                             <Box key={m.id} onClick={() => setSelectedMetodoManualId(m.id)} sx={{
                               border: '2px solid', borderColor: sel ? 'primary.main' : 'divider',
@@ -512,7 +589,14 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
                         <Typography variant='subtitle2' fontWeight={700}>Sube tu comprobante</Typography>
                       </Stack>
                       <input ref={fileInputRef} type='file' accept='image/jpeg,image/png,image/webp' style={{ display: 'none' }}
-                        onChange={e => { const f = e.target.files?.[0]; if (f) { setVoucher(f); setVoucherPreview(URL.createObjectURL(f)) } }} />
+                        onChange={e => {
+                          const f = e.target.files?.[0]
+
+                          if (f) {
+                            setVoucher(f)
+                            setVoucherPreview(URL.createObjectURL(f))
+                          }
+                        }} />
                       {voucherPreview ? (
                         <Box sx={{ position: 'relative' }}>
                           <Box component='img' src={voucherPreview} alt='Comprobante' sx={{ width: '100%', maxHeight: 220, objectFit: 'contain', borderRadius: 2, border: '2px solid', borderColor: 'success.main', display: 'block' }} />

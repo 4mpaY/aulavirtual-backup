@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+
 import { Box, Button, Checkbox, FormControlLabel, styled, Typography } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { Icon } from '@iconify/react'
+
 import AppModal from '@/utils/components/AppModal'
 import { useDeleteSimulacro } from '../hooks/useSimulacros'
 import type { Simulacro } from '../entity/Simulacro'
@@ -34,10 +36,12 @@ export default function DeleteSimulacroModal({ open, handleClose, simulacro, onS
   const deleteMutation = useDeleteSimulacro()
 
   if (!simulacro) return null
+
   const noBorrador = simulacro.estado !== 'BORRADOR'
 
   const handleDelete = async () => {
     if (!confirmed) return
+
     try {
       await deleteMutation.mutateAsync(simulacro.id)
       enqueueSnackbar('Simulacro eliminado exitosamente', { variant: 'success' })

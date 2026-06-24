@@ -5,6 +5,7 @@ import { Icon } from '@iconify/react'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
+
 import { getBaseURL } from '@/utils/env'
 import AppModal from '@/utils/components/AppModal'
 import SimulacroPlayer from '@/features/web/simulacros/components/SimulacroPlayer'
@@ -28,6 +29,7 @@ export default function PreviewSimulacroModal({ open, onClose, simulacroId, titu
         `${getBaseURL()}/api/simulacros/${simulacroId}/preguntas`,
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       )
+
       return data.result ?? []
     },
     enabled: open && !!simulacroId,

@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+
 import Link from 'next/link'
+
 import type { Simulacro } from '@/features/admin/simulacros/entity/Simulacro'
 import SimulacroPlayer from './SimulacroPlayer'
 import { useAuthModal } from '@/contexts/AuthModalContext'

@@ -1,10 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+
 import { Card, CardContent, Typography, Button, Stack, Box, Chip } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 const nivelLabel: Record<string, string> = { BASICO: 'Básico', INTERMEDIO: 'Intermedio', AVANZADO: 'Avanzado' }
+
 const nivelColor: Record<string, 'success' | 'warning' | 'error'> = {
   BASICO: 'success', INTERMEDIO: 'warning', AVANZADO: 'error'
 }

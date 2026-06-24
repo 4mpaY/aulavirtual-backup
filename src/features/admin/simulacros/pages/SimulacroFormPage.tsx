@@ -1,13 +1,16 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
 import { useRouter } from 'next/navigation'
+
 import {
   Box, Button, Card, CardContent, CardHeader, Chip, Divider,
   FormControlLabel, Grid, IconButton, MenuItem, Switch, Tab, Tabs, TextField, Tooltip, Typography
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { Icon } from '@iconify/react'
+
 import { useSimulacro, useCreateSimulacro, useEditSimulacro, useCambiarEstadoSimulacro } from '../hooks/useSimulacros'
 import type { EstadoSimulacro, NivelSimulacro } from '../entity/Simulacro'
 import PreguntasTab from '../components/PreguntasTab'
@@ -17,9 +20,11 @@ import MediaLibrary from '@/features/admin/cursos/components/MediaLibrary'
 const estadoColor: Record<EstadoSimulacro, 'warning' | 'success' | 'secondary'> = {
   BORRADOR: 'warning', PUBLICADO: 'success', ARCHIVADO: 'secondary'
 }
+
 const siguienteEstado: Record<EstadoSimulacro, EstadoSimulacro | null> = {
   BORRADOR: 'PUBLICADO', PUBLICADO: 'ARCHIVADO', ARCHIVADO: null
 }
+
 const estadoLabel: Record<EstadoSimulacro, string> = {
   BORRADOR: 'Borrador', PUBLICADO: 'Publicado', ARCHIVADO: 'Archivado'
 }
@@ -86,11 +91,18 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
     setForm(prev => ({ ...prev, [field]: e.target.value }))
 
   const handleSubmit = async () => {
-    if (!form.titulo.trim()) { enqueueSnackbar('El título es requerido', { variant: 'error' }); return }
-    if (!form.es_gratis && Number(form.precio) <= 0) {
-      enqueueSnackbar('El precio debe ser mayor a 0. Si es gratuito activa el interruptor correspondiente.', { variant: 'error' })
+    if (!form.titulo.trim()) {
+      enqueueSnackbar('El título es requerido', { variant: 'error' })
+
       return
     }
+
+    if (!form.es_gratis && Number(form.precio) <= 0) {
+      enqueueSnackbar('El precio debe ser mayor a 0. Si es gratuito activa el interruptor correspondiente.', { variant: 'error' })
+
+      return
+    }
+
     try {
       const payload = {
         ...form,
@@ -101,11 +113,13 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
         miniatura: form.miniatura || null,
         area_tematica: form.area_tematica || null,
       }
+
       if (isEdit && simulacroId) {
         await editMutation.mutateAsync({ id: simulacroId, dto: payload as any })
         enqueueSnackbar('Simulacro actualizado', { variant: 'success' })
       } else {
         const created = await createMutation.mutateAsync(payload as any)
+
         enqueueSnackbar('Simulacro creado', { variant: 'success' })
         router.push(`/admin/simulacros/${created.id}`)
       }
@@ -116,6 +130,7 @@ export function SimulacroFormPage({ mode, simulacroId }: Props) {
 
   const handleCambiarEstado = async (nuevoEstado: EstadoSimulacro) => {
     if (!simulacroId) return
+
     try {
       await estadoMutation.mutateAsync({ id: simulacroId, dto: { estado: nuevoEstado } })
       enqueueSnackbar(`Estado cambiado a ${estadoLabel[nuevoEstado]}`, { variant: 'success' })

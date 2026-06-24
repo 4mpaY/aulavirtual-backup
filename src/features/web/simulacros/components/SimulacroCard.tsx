@@ -1,14 +1,17 @@
 'use client'
 
 import Link from 'next/link'
+
 import type { Simulacro } from '@/features/admin/simulacros/entity/Simulacro'
 
 const nivelLabel: Record<string, string> = { BASICO: 'Básico', INTERMEDIO: 'Intermedio', AVANZADO: 'Avanzado' }
+
 const nivelColor: Record<string, string> = {
   BASICO: 'rgba(34,197,94,0.12)',
   INTERMEDIO: 'rgba(251,191,36,0.14)',
   AVANZADO: 'rgba(239,68,68,0.12)',
 }
+
 const nivelText: Record<string, string> = {
   BASICO: 'rgb(21,128,61)',
   INTERMEDIO: 'rgb(180,83,9)',
@@ -29,12 +32,14 @@ export default function SimulacroCard({ simulacro }: { simulacro: Simulacro }) {
       }}
         onMouseEnter={e => {
           const el = e.currentTarget as HTMLDivElement
+
           el.style.transform = 'translateY(-6px)'
           el.style.boxShadow = '0 12px 28px rgba(var(--web-primary-rgb,37,146,127),0.18)'
           el.style.borderColor = 'rgba(var(--web-primary-rgb,37,146,127),0.3)'
         }}
         onMouseLeave={e => {
           const el = e.currentTarget as HTMLDivElement
+
           el.style.transform = 'translateY(0)'
           el.style.boxShadow = '0 4px 20px rgba(0,0,0,0.04)'
           el.style.borderColor = 'hsl(214,20%,91%)'

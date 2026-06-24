@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, Children, cloneElement } from 'react'
+
 import {
   Box, Button, Card, CardContent, Chip, Collapse, Divider,
   Grid, IconButton, TextField, Typography, Radio,
@@ -9,7 +10,6 @@ import {
 import { Icon } from '@iconify/react'
 import { useSnackbar } from 'notistack'
 import axios from 'axios'
-import { getBaseURL } from '@/utils/env'
 import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -18,6 +18,8 @@ import {
 } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+
+import { getBaseURL } from '@/utils/env'
 import AudioRecorder from './AudioRecorder'
 import MediaLibrary from '@/features/admin/cursos/components/MediaLibrary'
 import ImportarPreguntasModal from './ImportarPreguntasModal'
@@ -65,19 +67,37 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
 
   const removeOpcion = (i: number) => {
     if (opciones.length <= 2) return
+
     setOpciones(prev => {
       const next = prev.filter((_, idx) => idx !== i).map((o, idx) => ({ ...o, orden: idx }))
+
       if (!next.some(o => o.es_correcta)) next[0].es_correcta = true
+
       return next
     })
   }
 
   const handleSave = async () => {
-    if (!enunciado.trim()) { enqueueSnackbar('El enunciado es requerido', { variant: 'error' }); return }
-    if (!opciones.some(o => o.es_correcta)) { enqueueSnackbar('Marca la opción correcta', { variant: 'error' }); return }
-    if (opciones.some(o => !o.texto.trim())) { enqueueSnackbar('Completa el texto de todas las opciones', { variant: 'error' }); return }
+    if (!enunciado.trim()) {
+      enqueueSnackbar('El enunciado es requerido', { variant: 'error' })
+
+      return
+    }
+
+    if (!opciones.some(o => o.es_correcta)) {
+      enqueueSnackbar('Marca la opción correcta', { variant: 'error' })
+
+      return
+    }
+
+    if (opciones.some(o => !o.texto.trim())) {
+      enqueueSnackbar('Completa el texto de todas las opciones', { variant: 'error' })
+
+      return
+    }
 
     setSaving(true)
+
     try {
       const payload = {
         enunciado,
@@ -87,11 +107,13 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
         imagen_url: imagenUrl || null,
         opciones: opciones.map((o, i) => ({ texto: o.texto, es_correcta: o.es_correcta, orden: i })),
       }
+
       if (initial) {
         await axios.patch(`${base}/${initial.id}`, payload, { headers })
       } else {
         await axios.post(base, payload, { headers })
       }
+
       enqueueSnackbar(initial ? 'Pregunta actualizada' : 'Pregunta creada', { variant: 'success' })
       onSaved()
     } catch {
@@ -225,6 +247,7 @@ function SortablePreguntaItem({ id, children }: { id: string; children: React.Re
 
   return (
     <div ref={setNodeRef} style={style}>
+
       {Children.map(children, (child: any) => cloneElement(child, { dragHandleProps: { ...attributes, ...listeners } }))}
     </div>
   )
@@ -245,6 +268,7 @@ function PreguntaItem({ pregunta, simulacroId, token, onRefresh, dragHandleProps
 
   const handleDelete = async () => {
     setDeleting(true)
+
     try {
       await axios.delete(`${base}/${pregunta.id}`, { headers })
       enqueueSnackbar('Pregunta eliminada', { variant: 'success' })
@@ -255,10 +279,12 @@ function PreguntaItem({ pregunta, simulacroId, token, onRefresh, dragHandleProps
     }
   }
 
-  if (editing) return (
-    <PreguntaForm initial={pregunta} simulacroId={simulacroId} token={token}
-      onSaved={() => { setEditing(false); onRefresh() }} onCancel={() => setEditing(false)} />
-  )
+  if (editing) {
+    return (
+      <PreguntaForm initial={pregunta} simulacroId={simulacroId} token={token}
+        onSaved={() => { setEditing(false); onRefresh() }} onCancel={() => setEditing(false)} />
+    )
+  }
 
   return (
     <Card variant='outlined' sx={{ mb: 1.5 }}>
@@ -352,12 +378,14 @@ export default function PreguntasTab({ simulacroId, numeroPreguntasSimulacro }: 
   const [ordenadas, setOrdenadas] = useState<Pregunta[]>([])
 
   const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
   const base = `${getBaseURL()}/api/simulacros/${simulacroId}/preguntas`
 
   const { data: preguntas = [], isLoading, refetch } = useQuery<Pregunta[]>({
     queryKey: ['simulacro-preguntas', simulacroId],
     queryFn: async () => {
       const { data } = await axios.get(base, { headers })
+
       return data.result ?? []
     },
     enabled: !!simulacroId,
@@ -372,11 +400,13 @@ export default function PreguntasTab({ simulacroId, numeroPreguntasSimulacro }: 
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
+
     if (!over || active.id === over.id) return
 
     const oldIndex = ordenadas.findIndex(p => p.id === active.id)
     const newIndex = ordenadas.findIndex(p => p.id === over.id)
     const reordered = arrayMove(ordenadas, oldIndex, newIndex)
+
     setOrdenadas(reordered)
 
     try {

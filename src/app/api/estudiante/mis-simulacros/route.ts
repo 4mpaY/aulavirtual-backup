@@ -8,6 +8,7 @@ import { handleApiError } from '@/utils/libs/validation'
 export async function GET(request: Request) {
   try {
     const auth = await requireAuth(request)
+
     if (!auth.authorized) return auth.error
 
     const { user } = auth

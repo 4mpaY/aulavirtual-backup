@@ -69,6 +69,7 @@ export async function POST(request: Request) {
     // Insertar detalle con simulacro_id via raw (Prisma client no conoce esta columna aún)
     const { randomUUID } = await import('crypto')
     const detalleId = randomUUID()
+
     await prisma.$executeRaw`
       INSERT INTO detalles_pedido (id, pedido_id, simulacro_id, precio_unitario, descuento, subtotal, total, cantidad)
       VALUES (${detalleId}, ${pedido.id}, ${simulacroId}, ${simulacro.precio}, 0, ${simulacro.precio}, ${simulacro.precio}, 1)`
@@ -118,6 +119,7 @@ export async function POST(request: Request) {
 
       if (!culqiRes.ok) {
         console.error('[CULQI_SIM_ORDER]', culqiData)
+
         return ApiResponse.error(request, culqiData.user_message || 'Error al crear la orden en Culqi', 500)
       }
 
@@ -220,6 +222,7 @@ export async function POST(request: Request) {
       }
 
       const appUrl = new URL(request.url).origin
+
       const preference = {
         external_reference: pedido.id,
         items: [{ id: simulacroId, title: simulacro.titulo, quantity: 1, unit_price: total, currency_id: moneda }],
@@ -243,6 +246,7 @@ export async function POST(request: Request) {
       }
 
       const mpData = await mpRes.json()
+
       await prisma.pedido.update({ where: { id: pedido.id }, data: { token_pago: mpData.id, metodo_pago: 'MERCADOPAGO' } })
 
       return ApiResponse.success(request, {

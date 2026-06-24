@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
+
 import Link from 'next/link'
 
 interface Opcion { id: string; texto: string; es_correcta: boolean; orden: number }
@@ -32,10 +33,12 @@ function AudioBtn({ url }: { url: string }) {
 
   const toggle = (e: React.MouseEvent) => {
     e.stopPropagation()
+
     if (!audioRef.current) {
       audioRef.current = new Audio(url)
       audioRef.current.onended = () => setPlaying(false)
     }
+
     if (playing) {
       audioRef.current.pause()
       audioRef.current.currentTime = 0
@@ -69,16 +72,21 @@ function Timer({ totalSeconds, onExpire }: { totalSeconds: number; onExpire: () 
 
   useEffect(() => {
     if (totalSeconds <= 0) return
+
     const id = setInterval(() => {
       setRemaining(prev => {
         if (prev <= 1) {
           clearInterval(id)
+
           if (!expired.current) { expired.current = true; onExpire() }
+
           return 0
         }
+
         return prev - 1
       })
     }, 1000)
+
     return () => clearInterval(id)
   }, [totalSeconds, onExpire])
 
@@ -170,7 +178,9 @@ export default function SimulacroPlayer({ preguntas, duracionMin, titulo, sticky
       e.preventDefault()
       e.returnValue = ''
     }
+
     window.addEventListener('beforeunload', handler)
+
     return () => window.removeEventListener('beforeunload', handler)
   }, [])
 
@@ -195,7 +205,12 @@ export default function SimulacroPlayer({ preguntas, duracionMin, titulo, sticky
   }
 
   const handleSiguiente = () => {
-    if (idx + 1 >= preguntas.length) { setFinished(true); return }
+    if (idx + 1 >= preguntas.length) {
+      setFinished(true)
+
+      return
+    }
+
     setIdx(i => i + 1)
     setRevealed(false)
     setSeleccionPendiente(null)
@@ -272,11 +287,13 @@ export default function SimulacroPlayer({ preguntas, duracionMin, titulo, sticky
             {pregunta.opciones.map((op, i) => {
               const esPendiente = !revealed && seleccionPendiente === op.id
               const elegida = opcionElegidaId === op.id
+
               const bg = !revealed
                 ? (esPendiente ? T.primaryLt : 'transparent')
                 : op.es_correcta ? T.greenBg
                 : elegida ? T.redBg
                 : 'transparent'
+
               const borderCol = !revealed
                 ? (esPendiente ? T.primary : T.border)
                 : op.es_correcta ? T.greenBd

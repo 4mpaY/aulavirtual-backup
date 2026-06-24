@@ -1,6 +1,7 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
+
 import {
   Button, Card, CardHeader, Chip, IconButton, MenuItem,
   Typography, Box, Tooltip
@@ -11,7 +12,7 @@ import {
 } from '@tanstack/react-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import { useSnackbar } from 'notistack'
-import { Icon } from '@iconify/react'
+
 import tableStyles from '@core/styles/table.module.css'
 import CustomTextField from '@/@core/components/mui/TextField'
 import type { ThemeColor } from '@/@core/types'
@@ -25,9 +26,11 @@ import DeleteSimulacroModal from '../components/DeleteSimulacroModal'
 const estadoColor: Record<string, ThemeColor> = {
   BORRADOR: 'warning', PUBLICADO: 'success', ARCHIVADO: 'secondary'
 }
+
 const estadoLabel: Record<string, string> = {
   BORRADOR: 'Borrador', PUBLICADO: 'Publicado', ARCHIVADO: 'Archivado'
 }
+
 const nivelLabel: Record<string, string> = {
   BASICO: 'Básico', INTERMEDIO: 'Intermedio', AVANZADO: 'Avanzado'
 }
@@ -50,20 +53,23 @@ export function SimulacrosPage({ initialData }: Props) {
   const simulacros: Simulacro[] = data?.simulacros ?? initialData
 
   const filtered = useMemo(() => {
-    if (estadoFilter === 'all') return simulacros
+    if (estadoFilter === 'all') {
+      return simulacros
+    }
+
     return simulacros.filter(s => s.estado === estadoFilter)
   }, [simulacros, estadoFilter])
 
   const handleDeleteClick = (s: Simulacro) => { setToDelete(s); setOpenDelete(true) }
 
-  const handleCambiarEstado = async (id: string, estado: EstadoSimulacro) => {
+  const handleCambiarEstado = useCallback(async (id: string, estado: EstadoSimulacro) => {
     try {
       await cambiarEstadoMutation.mutateAsync({ id, dto: { estado } })
       enqueueSnackbar(`Estado cambiado a ${estadoLabel[estado]}`, { variant: 'success' })
     } catch {
       enqueueSnackbar('Error al cambiar estado', { variant: 'error' })
     }
-  }
+  }, [cambiarEstadoMutation, enqueueSnackbar])
 
   const columns = useMemo<ColumnDef<Simulacro, any>[]>(() => [
     columnHelper.display({
@@ -164,7 +170,7 @@ export function SimulacrosPage({ initialData }: Props) {
         </div>
       ),
     }),
-  ], [pagination.pageIndex, pagination.pageSize, cambiarEstadoMutation.isPending])
+  ], [pagination.pageIndex, pagination.pageSize, handleCambiarEstado])
 
   const table = useReactTable({
     data: filtered,

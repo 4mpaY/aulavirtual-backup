@@ -1,10 +1,12 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+
 import { Box, Button, Chip, CircularProgress, Divider, TextField, Typography } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { useSnackbar } from 'notistack'
 import axios from 'axios'
+
 import { getBaseURL } from '@/utils/env'
 import AppModal from '@/utils/components/AppModal'
 
@@ -40,6 +42,7 @@ function parsearTexto(texto: string): PreguntaParseada[] {
 
     for (const rawLine of bloque.split('\n')) {
       const line = rawLine.trim()
+
       if (!line) continue
 
       if (/^P:/i.test(line)) enunciado = line.replace(/^P:/i, '').trim()
@@ -47,21 +50,30 @@ function parsearTexto(texto: string): PreguntaParseada[] {
       else if (/^F:/i.test(line)) fundamento = line.replace(/^F:/i, '').trim() || null
       else {
         const match = line.match(/^[A-Fa-f]\)\s*(.*)$/)
+
         if (match) {
           let opTexto = match[1].trim()
           const esCorrecta = /\*\s*$/.test(opTexto)
+
           if (esCorrecta) opTexto = opTexto.replace(/\*\s*$/, '').trim()
+
           opciones.push({ texto: opTexto, es_correcta: esCorrecta })
         }
       }
     }
 
     const errores: string[] = []
+
     if (!enunciado) errores.push('Falta el enunciado (línea "P:")')
+
     if (opciones.length < 2) errores.push('Debe tener al menos 2 alternativas')
+
     if (opciones.length > 6) errores.push('Máximo 6 alternativas')
+
     const correctas = opciones.filter(o => o.es_correcta).length
+
     if (correctas === 0) errores.push('Ninguna alternativa marcada como correcta (agrega "*" al final)')
+
     if (correctas > 1) errores.push('Hay más de una alternativa marcada como correcta')
 
     return { enunciado, tema, fundamento, opciones, errores }

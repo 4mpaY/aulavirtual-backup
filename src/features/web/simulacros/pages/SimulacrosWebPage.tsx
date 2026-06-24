@@ -1,12 +1,6 @@
-import type { Simulacro, NivelSimulacro } from '@/features/admin/simulacros/entity/Simulacro'
-import SimulacroCard from '../components/SimulacroCard'
+import type { Simulacro } from '@/features/admin/simulacros/entity/Simulacro'
 
-const NIVELES: { value: NivelSimulacro | 'all'; label: string }[] = [
-  { value: 'all', label: 'Todos' },
-  { value: 'BASICO', label: 'Básico' },
-  { value: 'INTERMEDIO', label: 'Intermedio' },
-  { value: 'AVANZADO', label: 'Avanzado' },
-]
+import SimulacroCard from '../components/SimulacroCard'
 
 // Componente server — el filtro de nivel se puede agregar como search param en el futuro
 export default function SimulacrosWebPage({ simulacros }: { simulacros: Simulacro[] }) {

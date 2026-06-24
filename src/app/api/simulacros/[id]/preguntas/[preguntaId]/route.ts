@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic'
 
 import { randomUUID } from 'crypto'
+
+import { z } from 'zod'
+
 import prisma from '@/utils/libs/prisma'
 import { handleApiError } from '@/utils/libs/validation'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
-import { z } from 'zod'
 
 const updateSchema = z.object({
   enunciado: z.string().min(1).optional(),
@@ -24,15 +26,18 @@ const updateSchema = z.object({
 export async function PATCH(request: Request, { params }: { params: { id: string; preguntaId: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const existing: any[] = await prisma.$queryRaw`
       SELECT id FROM "PreguntaSimulacro" WHERE id = ${params.preguntaId} LIMIT 1
     `
+
     if (existing.length === 0) return ApiResponse.error(request, 'Pregunta no encontrada', 404)
 
     const body = await request.json()
     const parsed = updateSchema.safeParse(body)
+
     if (!parsed.success) return ApiResponse.error(request, 'Datos inválidos', 400)
 
     const { enunciado, tema, fundamento, audio_url, imagen_url, orden, opciones } = parsed.data
@@ -52,6 +57,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
     if (opciones) {
       await prisma.$executeRaw`DELETE FROM "OpcionPreguntaSimulacro" WHERE pregunta_id = ${params.preguntaId}`
+
       for (const op of opciones) {
         await prisma.$executeRaw`
           INSERT INTO "OpcionPreguntaSimulacro" (id, pregunta_id, texto, es_correcta, orden)
@@ -63,6 +69,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const [pregunta]: any[] = await prisma.$queryRaw`
       SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden FROM "PreguntaSimulacro" WHERE id = ${params.preguntaId}
     `
+
     const opcionesRes: any[] = await prisma.$queryRaw`
       SELECT id, texto, es_correcta, orden FROM "OpcionPreguntaSimulacro" WHERE pregunta_id = ${params.preguntaId} ORDER BY orden
     `
@@ -76,6 +83,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 export async function DELETE(request: Request, { params }: { params: { id: string; preguntaId: string } }) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     await prisma.$executeRaw`DELETE FROM "PreguntaSimulacro" WHERE id = ${params.preguntaId}`
@@ -83,6 +91,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     const [{ total }]: any[] = await prisma.$queryRaw`
       SELECT COUNT(*)::int AS total FROM "PreguntaSimulacro" WHERE simulacro_id = ${params.id}
     `
+
     await prisma.simulacro.update({ where: { id: params.id }, data: { numero_preguntas: total } })
 
     return ApiResponse.success(request, { message: 'Pregunta eliminada' })

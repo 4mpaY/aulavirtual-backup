@@ -2,11 +2,12 @@ import { getSimulacrosPublicos } from '@/features/web/simulacros/http/axiosWebSi
 import SimulacrosWebPage from '@/features/web/simulacros/pages/SimulacrosWebPage'
 
 export const metadata = {
-  title: 'Simulacros | ATD Academy',
+  title: 'Simulacros',
   description: 'Pon a prueba tus conocimientos con nuestros simulacros de examen.',
 }
 
 export default async function Page() {
   const simulacros = await getSimulacrosPublicos()
+
   return <SimulacrosWebPage simulacros={simulacros} />
 }

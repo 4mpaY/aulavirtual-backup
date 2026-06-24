@@ -12,6 +12,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const query = Object.fromEntries(searchParams.entries())
     const validation = validateRequest(listarSimulacrosQuerySchema, query, request)
+
     if (!validation.success) return validation.error
 
     const { page, limit, buscar, estado, nivel } = validation.data
@@ -21,8 +22,11 @@ export async function GET(request: Request) {
     const estadoFiltro = estado ?? (authHeader ? undefined : 'PUBLICADO')
 
     const where: any = {}
+
     if (estadoFiltro) where.estado = estadoFiltro
+
     if (nivel) where.nivel = nivel
+
     if (buscar) {
       where.OR = [
         { titulo: { contains: buscar, mode: 'insensitive' } },
@@ -45,10 +49,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const body = await request.json()
     const validation = validateRequest(crearSimulacroSchema, body, request)
+
     if (!validation.success) return validation.error
 
     const { titulo, precio, duracion, ...rest } = validation.data
