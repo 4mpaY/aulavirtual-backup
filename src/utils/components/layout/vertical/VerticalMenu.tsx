@@ -92,27 +92,27 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             <MenuItem href='/estudiante/mis-cursos' icon={<i className='tabler-book' />}>
               Mis Cursos
             </MenuItem>
-            <MenuItem href='/estudiante/mis-ebooks' icon={<i className='tabler-book-2' />}>
+            {/* <MenuItem href='/estudiante/mis-ebooks' icon={<i className='tabler-book-2' />}>
               Mis Ebooks
             </MenuItem>
             <MenuItem href='/estudiante/suscripcion' icon={<i className='tabler-repeat' />}>
               Mi Suscripción
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem href='/estudiante/calendario' icon={<i className='tabler-calendar' />}>
               Calendario
             </MenuItem>
-            <MenuItem href='/estudiante/mis-simulacros' icon={<i className='tabler-clipboard-list' />}>
+            {/* <MenuItem href='/estudiante/mis-simulacros' icon={<i className='tabler-clipboard-list' />}>
               Mis Simulacros
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem href='/estudiante/mis-certificados' icon={<i className='tabler-certificate' />}>
               Mis Certificados
             </MenuItem>
             <MenuItem href='/cursos' icon={<i className='tabler-search' />}>
               Explorar Cursos
             </MenuItem>
-            <MenuItem href='/ebooks' icon={<i className='tabler-books' />}>
+            {/* <MenuItem href='/ebooks' icon={<i className='tabler-books' />}>
               Explorar Ebooks
-            </MenuItem>
+            </MenuItem> */}
           </>
         )}
 
