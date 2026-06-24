@@ -254,7 +254,7 @@ export default function ImportarPreguntasModal({ open, onClose, simulacroId, tok
           </Button>
 
           <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 1 }}>
-            Columnas: <strong>enunciado, tema, fundamento, opcion_a..opcion_f, correcta</strong> (letra de la alternativa correcta, ej. "A").
+            Columnas: <strong>enunciado, tema, fundamento, opcion_a..opcion_f, correcta</strong> (letra de la alternativa correcta, ej. &quot;A&quot;).
           </Typography>
         </Box>
       )}
