@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
-import { Box, Button, Chip, CircularProgress, Divider, TextField, Typography } from '@mui/material'
+import { Box, Button, Chip, CircularProgress, Divider, Tab, Tabs, TextField, Typography } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { useSnackbar } from 'notistack'
 import axios from 'axios'
+import * as XLSX from 'xlsx'
 
 import { getBaseURL } from '@/utils/env'
 import AppModal from '@/utils/components/AppModal'
@@ -23,6 +24,8 @@ D) Opción 4
 P: Siguiente pregunta...
 A) Opción 1 *
 B) Opción 2`
+
+const COLUMNAS_EXCEL = ['enunciado', 'tema', 'fundamento', 'opcion_a', 'opcion_b', 'opcion_c', 'opcion_d', 'opcion_e', 'opcion_f', 'correcta']
 
 interface OpcionParseada { texto: string; es_correcta: boolean }
 interface PreguntaParseada {
@@ -62,22 +65,52 @@ function parsearTexto(texto: string): PreguntaParseada[] {
       }
     }
 
-    const errores: string[] = []
-
-    if (!enunciado) errores.push('Falta el enunciado (línea "P:")')
-
-    if (opciones.length < 2) errores.push('Debe tener al menos 2 alternativas')
-
-    if (opciones.length > 6) errores.push('Máximo 6 alternativas')
-
-    const correctas = opciones.filter(o => o.es_correcta).length
-
-    if (correctas === 0) errores.push('Ninguna alternativa marcada como correcta (agrega "*" al final)')
-
-    if (correctas > 1) errores.push('Hay más de una alternativa marcada como correcta')
-
-    return { enunciado, tema, fundamento, opciones, errores }
+    return validarPregunta(enunciado, tema, fundamento, opciones)
   })
+}
+
+function validarPregunta(enunciado: string, tema: string | null, fundamento: string | null, opciones: OpcionParseada[]): PreguntaParseada {
+  const errores: string[] = []
+
+  if (!enunciado) errores.push('Falta el enunciado')
+  if (opciones.length < 2) errores.push('Debe tener al menos 2 alternativas')
+  if (opciones.length > 6) errores.push('Máximo 6 alternativas')
+
+  const correctas = opciones.filter(o => o.es_correcta).length
+
+  if (correctas === 0) errores.push('Ninguna alternativa marcada como correcta')
+  if (correctas > 1) errores.push('Hay más de una alternativa marcada como correcta')
+
+  return { enunciado, tema, fundamento, opciones, errores }
+}
+
+function parsearExcel(rows: any[]): PreguntaParseada[] {
+  return rows.map(row => {
+    const enunciado = String(row.enunciado || '').trim()
+    const tema = String(row.tema || '').trim() || null
+    const fundamento = String(row.fundamento || '').trim() || null
+    const correctaLetra = String(row.correcta || '').trim().toUpperCase()
+
+    const opciones: OpcionParseada[] = LETRAS
+      .map((letra, i) => ({ letra, texto: String(row[`opcion_${letra.toLowerCase()}`] ?? '').trim(), i }))
+      .filter(o => o.texto)
+      .map(o => ({ texto: o.texto, es_correcta: o.letra === correctaLetra }))
+
+    return validarPregunta(enunciado, tema, fundamento, opciones)
+  })
+}
+
+function descargarPlantillaExcel() {
+  const datos = [
+    COLUMNAS_EXCEL,
+    ['¿Cuál es la capital de Perú?', 'Geografía', 'Lima es la capital desde la fundación virreinal.', 'Lima', 'Cusco', 'Arequipa', 'Trujillo', '', '', 'A'],
+  ]
+
+  const ws = XLSX.utils.aoa_to_sheet(datos)
+  const wb = XLSX.utils.book_new()
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Preguntas')
+  XLSX.writeFile(wb, 'plantilla_preguntas_simulacro.xlsx')
 }
 
 export default function ImportarPreguntasModal({ open, onClose, simulacroId, token, onImported }: {
@@ -85,17 +118,48 @@ export default function ImportarPreguntasModal({ open, onClose, simulacroId, tok
   onImported: () => void
 }) {
   const { enqueueSnackbar } = useSnackbar()
+  const [modo, setModo] = useState<'texto' | 'excel'>('texto')
   const [texto, setTexto] = useState('')
+  const [excelPreguntas, setExcelPreguntas] = useState<PreguntaParseada[]>([])
+  const [archivoNombre, setArchivoNombre] = useState<string | null>(null)
   const [importando, setImportando] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const preguntas = useMemo(() => (texto.trim() ? parsearTexto(texto) : []), [texto])
+  const preguntasTexto = useMemo(() => (texto.trim() ? parsearTexto(texto) : []), [texto])
+  const preguntas = modo === 'texto' ? preguntasTexto : excelPreguntas
   const validas = preguntas.filter(p => p.errores.length === 0)
   const conError = preguntas.length - validas.length
 
   const handleClose = () => {
     if (importando) return
     setTexto('')
+    setExcelPreguntas([])
+    setArchivoNombre(null)
+    setModo('texto')
     onClose()
+  }
+
+  const handleArchivo = (file: File) => {
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+      enqueueSnackbar('Selecciona un archivo .xlsx o .xls', { variant: 'error' })
+
+      return
+    }
+
+    setArchivoNombre(file.name)
+
+    const reader = new FileReader()
+
+    reader.onload = e => {
+      const data = new Uint8Array(e.target?.result as ArrayBuffer)
+      const wb = XLSX.read(data, { type: 'array' })
+      const ws = wb.Sheets[wb.SheetNames[0]]
+      const rows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' })
+
+      setExcelPreguntas(parsearExcel(rows))
+    }
+
+    reader.readAsArrayBuffer(file)
   }
 
   const handleImportar = async () => {
@@ -126,6 +190,8 @@ export default function ImportarPreguntasModal({ open, onClose, simulacroId, tok
       { variant: fallidas === 0 ? 'success' : 'warning' }
     )
     setTexto('')
+    setExcelPreguntas([])
+    setArchivoNombre(null)
     onImported()
   }
 
@@ -133,20 +199,65 @@ export default function ImportarPreguntasModal({ open, onClose, simulacroId, tok
     <AppModal open={open} handleClose={handleClose} sx={{ maxWidth: 760 }}>
       <Typography variant='h6' sx={{ mb: 0.5 }}>Importar preguntas</Typography>
       <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-        Pega varias preguntas a la vez usando el formato de texto. Marca la alternativa correcta con un{' '}
-        <strong>*</strong> al final de la línea.
+        Importa varias preguntas a la vez desde texto o desde un archivo Excel.
       </Typography>
 
-      <TextField
-        fullWidth multiline minRows={8} maxRows={14}
-        placeholder={PLANTILLA}
-        value={texto}
-        onChange={e => setTexto(e.target.value)}
-        sx={{ mb: 1, fontFamily: 'monospace' }}
-      />
-      <Button size='small' onClick={() => setTexto(PLANTILLA)} startIcon={<Icon icon='mdi:file-document-outline' />}>
-        Usar plantilla de ejemplo
-      </Button>
+      <Tabs value={modo} onChange={(_, v) => setModo(v)} sx={{ mb: 2 }}>
+        <Tab value='texto' label='Pegar texto' icon={<Icon icon='mdi:text-box-outline' />} iconPosition='start' />
+        <Tab value='excel' label='Subir Excel' icon={<Icon icon='mdi:file-excel-outline' />} iconPosition='start' />
+      </Tabs>
+
+      {modo === 'texto' && (
+        <>
+          <Typography variant='body2' color='text.secondary' sx={{ mb: 1.5 }}>
+            Marca la alternativa correcta con un <strong>*</strong> al final de la línea.
+          </Typography>
+          <TextField
+            fullWidth multiline minRows={8} maxRows={14}
+            placeholder={PLANTILLA}
+            value={texto}
+            onChange={e => setTexto(e.target.value)}
+            sx={{ mb: 1, fontFamily: 'monospace' }}
+          />
+          <Button size='small' onClick={() => setTexto(PLANTILLA)} startIcon={<Icon icon='mdi:file-document-outline' />}>
+            Usar plantilla de ejemplo
+          </Button>
+        </>
+      )}
+
+      {modo === 'excel' && (
+        <Box>
+          <Box
+            onClick={() => fileInputRef.current?.click()}
+            sx={{
+              border: '2px dashed', borderColor: 'divider', borderRadius: 2, p: 4,
+              textAlign: 'center', cursor: 'pointer', bgcolor: 'action.hover',
+              '&:hover': { borderColor: 'primary.main' },
+            }}
+          >
+            <Icon icon='mdi:file-excel-outline' fontSize={40} color='#25927F' style={{ marginBottom: 8 }} />
+            <Typography variant='subtitle1' fontWeight={600}>
+              {archivoNombre ?? 'Haz clic para seleccionar tu archivo Excel'}
+            </Typography>
+            <Typography variant='body2' color='text.secondary'>.xlsx o .xls</Typography>
+            <input
+              ref={fileInputRef}
+              type='file'
+              accept='.xlsx,.xls'
+              hidden
+              onChange={e => { if (e.target.files?.[0]) handleArchivo(e.target.files[0]) }}
+            />
+          </Box>
+
+          <Button size='small' sx={{ mt: 1 }} onClick={descargarPlantillaExcel} startIcon={<Icon icon='mdi:download' />}>
+            Descargar plantilla Excel
+          </Button>
+
+          <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 1 }}>
+            Columnas: <strong>enunciado, tema, fundamento, opcion_a..opcion_f, correcta</strong> (letra de la alternativa correcta, ej. "A").
+          </Typography>
+        </Box>
+      )}
 
       {preguntas.length > 0 && (
         <>
