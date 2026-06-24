@@ -60,16 +60,14 @@ const ALLOWED_OTHER_EXT = [
   '.mp4', '.webm', '.mkv'
 ]
 
-const ACCEPT_IMAGE = 'image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif'
-const ACCEPT_VIDEO = 'video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska,video/mkv,.mp4,.webm,.ogg,.mov,.mkv'
-const ACCEPT_OTHER = '.pdf,.doc,.docx,.xls,.xlsx,image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/x-matroska,video/mkv,.jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mkv'
+
 
 interface MediaLibraryProps {
   open: boolean
   onClose: () => void
   onSelect: (url: string, nombre?: string) => void
   title?: string
-  acceptType?: 'IMAGEN' | 'VIDEO' | 'OTRO'
+  acceptType?: 'IMAGEN' | 'VIDEO' | 'OTRO' | 'PDF'
 }
 
 const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios', acceptType = 'IMAGEN' }: MediaLibraryProps) => {
@@ -149,16 +147,16 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
       onClose()
     } catch (error) {
       console.error('Error al subir archivo', error)
-      enqueueSnackbar('Error al subir archivo. Verifique el tamaño o el formato.', { variant: 'error' })
-    } finally {
-      setUploadProgress(null)
     }
   }
 
-  const filteredMedia = media.filter(m =>
-    m.nombre.toLowerCase().includes(search.toLowerCase()) &&
-    (acceptType ? m.tipo === acceptType : true)
-  )
+  const filteredMedia = media.filter(m => {
+    if (!m.nombre.toLowerCase().includes(search.toLowerCase())) return false
+
+    if (acceptType === 'PDF') return m.mimetype === 'application/pdf'
+
+    return acceptType ? m.tipo === acceptType : true
+  })
 
   return (
     <Dialog
@@ -180,7 +178,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
           <TextField
             fullWidth
             size="small"
-            placeholder={acceptType === 'IMAGEN' ? "Buscar imágenes..." : "Buscar recursos..."}
+            placeholder={acceptType === 'IMAGEN' ? "Buscar imágenes..." : acceptType === 'PDF' ? "Buscar PDFs..." : "Buscar recursos..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{
@@ -191,26 +189,21 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
               )
             }}
           />
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-end' }}>
-            <Button
-              component="label"
-              variant="contained"
-              startIcon={(uploadMutation.isPending || uploadVideoMutation.isPending) ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-upload" />}
-              disabled={uploadMutation.isPending || uploadVideoMutation.isPending}
-              sx={{ whiteSpace: 'nowrap' }}
-            >
-              {(uploadMutation.isPending || uploadVideoMutation.isPending) ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : acceptType === 'VIDEO' ? 'Subir Video' : 'Subir Recurso')}
-              <input
-                type="file"
-                hidden
-                accept={acceptType === 'IMAGEN' ? ACCEPT_IMAGE : acceptType === 'VIDEO' ? ACCEPT_VIDEO : ACCEPT_OTHER}
-                onChange={handleFileUpload}
-              />
-            </Button>
-            <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', pr: 1, fontSize: '0.7rem', fontWeight: 500 }}>
-              {acceptType === 'VIDEO' ? 'Máx: 3 GB' : 'Máx: 50 MB'}
-            </Typography>
-          </Box>
+          <Button
+            component="label"
+            variant="contained"
+            startIcon={uploadMutation.isPending ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-upload" />}
+            disabled={uploadMutation.isPending}
+            sx={{ whiteSpace: 'nowrap' }}
+          >
+            {uploadMutation.isPending ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : acceptType === 'PDF' ? 'Subir PDF' : 'Subir Recurso')}
+            <input
+              type="file"
+              hidden
+              accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : acceptType === 'PDF' ? '.pdf' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
+              onChange={handleFileUpload}
+            />
+          </Button>
         </Box>
 
         {isLoading ? (
@@ -250,15 +243,12 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                   >
                     <i className="tabler-plus text-3xl text-primary" />
                     <Typography variant="body2" color="primary" sx={{ mt: 1, fontWeight: 600 }}>
-                      {acceptType === 'IMAGEN' ? 'Nueva Imagen' : acceptType === 'VIDEO' ? 'Nuevo Video' : 'Nuevo Recurso'}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.7rem' }}>
-                      {acceptType === 'VIDEO' ? '(Máx: 3 GB)' : '(Máx: 50 MB)'}
+                      {acceptType === 'IMAGEN' ? 'Nueva Imagen' : acceptType === 'PDF' ? 'Nuevo PDF' : 'Nuevo Recurso'}
                     </Typography>
                     <input
                       type="file"
                       hidden
-                      accept={acceptType === 'IMAGEN' ? ACCEPT_IMAGE : acceptType === 'VIDEO' ? ACCEPT_VIDEO : ACCEPT_OTHER}
+                      accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : acceptType === 'PDF' ? '.pdf' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
                       onChange={handleFileUpload}
                     />
                   </CardActionArea>
@@ -271,7 +261,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                 <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'action.hover', borderRadius: 4 }}>
                   <i className="tabler-photo-off text-5xl text-textDisabled" />
                   <Typography sx={{ mt: 2 }} color="text.secondary">
-                    {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : acceptType === 'VIDEO' ? 'No se encontraron videos' : 'No se encontraron recursos'}
+                    {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : acceptType === 'PDF' ? 'No se encontraron PDFs' : 'No se encontraron recursos'}
                   </Typography>
                 </Box>
               </Grid>

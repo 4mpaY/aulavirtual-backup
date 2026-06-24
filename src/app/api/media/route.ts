@@ -21,6 +21,13 @@ const ALLOWED_MIMES: Record<string, string> = {
   'video/x-matroska': 'mkv',
   'video/mkv': 'mkv',
 
+  // Audio
+  'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+  'audio/mp4': 'mp4',
+  'audio/mpeg': 'mp3',
+  'audio/wav': 'wav',
+
   // Documentos de Office
   'application/msword': 'doc',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
@@ -144,7 +151,13 @@ export async function POST(request: Request) {
         'doc': { ext: 'doc', mime: 'application/msword' },
         'docx': { ext: 'docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
         'xls': { ext: 'xls', mime: 'application/vnd.ms-excel' },
-        'xlsx': { ext: 'xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+        'xlsx': { ext: 'xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+        'mp3': { ext: 'mp3', mime: 'audio/mpeg' },
+        'wav': { ext: 'wav', mime: 'audio/wav' },
+        'ogg': { ext: 'ogg', mime: 'audio/ogg' },
+        'oga': { ext: 'ogg', mime: 'audio/ogg' },
+        'm4a': { ext: 'mp4', mime: 'audio/mp4' },
+        'weba': { ext: 'webm', mime: 'audio/webm' }
       }
 
       const matched = extToMime[extension]
@@ -158,7 +171,7 @@ export async function POST(request: Request) {
     if (!safeExtension) {
       return ApiResponse.error(
         request,
-        `Tipo de archivo no permitido. Tipos aceptados: imágenes (jpg, png, webp, gif), PDF, video (mp4, webm, mkv)`,
+        `Tipo de archivo no permitido. Tipos aceptados: imágenes (jpg, png, webp, gif), PDF, video (mp4, webm, mkv), audio (mp3, wav, ogg, m4a)`,
         400
       )
     }
@@ -167,7 +180,8 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes)
 
     // 🔐 SEGURIDAD: Verificar magic bytes (contenido real del archivo)
-    if (!verifyMagicBytes(buffer, detectedMime)) {
+    // Los tipos de audio se omiten de la verificación de magic bytes (formatos variables)
+    if (!detectedMime.startsWith('audio/') && !verifyMagicBytes(buffer, detectedMime)) {
       return ApiResponse.error(request, 'El contenido del archivo no coincide con su tipo declarado', 400)
     }
 
@@ -179,7 +193,7 @@ export async function POST(request: Request) {
     const nombreOriginal = file.name.replace(/[^a-zA-Z0-9._-]/g, '_') // Sanitizar nombre original
 
     // Ruta relativa para la URL y ruta absoluta para guardar
-    const folder = isSignature ? 'firmas' : 'cursos'
+    const folder = isSignature ? 'firmas' : detectedMime.startsWith('audio/') ? 'audios' : 'cursos'
     const relativePath = `/uploads/${folder}/${nombreArchivo}`
     const uploadDir = join(process.cwd(), 'public', 'uploads', folder)
     const absolutePath = join(uploadDir, nombreArchivo)

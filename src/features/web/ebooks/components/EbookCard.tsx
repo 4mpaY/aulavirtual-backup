@@ -228,23 +228,6 @@ export default function EbookCard({
             </Tooltip>
           )}
 
-          {!adquirido && es_gratis && (
-            <Tooltip title='Obtener gratis'>
-              <IconButton
-                component={Link}
-                href={`/ebooks/${slug}`}
-                onClick={e => e.stopPropagation()}
-                sx={{
-                  borderRadius: '12px', bgcolor: 'success.50', color: 'success.main',
-                  width: 50, height: 50, border: '1px solid', borderColor: 'success.200',
-                  '&:hover': { bgcolor: 'success.100', transform: 'translateY(-2px)', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' },
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
-              >
-                <i className='tabler-download' style={{ fontSize: '1.4rem' }} />
-              </IconButton>
-            </Tooltip>
-          )}
         </Box>
       </CardContent>
     </StyledCard>

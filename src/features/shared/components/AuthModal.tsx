@@ -18,7 +18,7 @@ import {
   Divider,
   InputAdornment
 } from '@mui/material'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -46,6 +46,7 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
   const router = useRouter()
+  const { update: updateSession } = useSession()
 
   const loginForm = useForm<LoginDto>({
     resolver: zodResolver(loginSchema),
@@ -90,8 +91,10 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
     }
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = async () => {
     onClose()
+
+    await updateSession()
 
     if (onSuccess) {
       onSuccess()
@@ -126,7 +129,7 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
       }
 
       if (result?.ok) {
-        handleLoginSuccess()
+        await handleLoginSuccess()
       }
     } catch {
       setError('Ocurrió un error inesperado. Intenta nuevamente.')
@@ -164,7 +167,7 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
       })
 
       if (loginResult?.ok) {
-        handleLoginSuccess()
+        await handleLoginSuccess()
       } else {
         // Si falla el auto-login, llevamos al modo login con mensaje de éxito
         onSwitchMode('login')

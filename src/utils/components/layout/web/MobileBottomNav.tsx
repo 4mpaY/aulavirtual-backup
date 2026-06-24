@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Home, BookOpen, Users, Award, Map, BookText } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, BookText, ClipboardList } from 'lucide-react'
 
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
+  { title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' },
   { title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' },
   { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
   { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },

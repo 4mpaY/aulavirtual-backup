@@ -11,10 +11,10 @@ import {
   Switch,
   FormControlLabel,
   InputAdornment,
+  Divider,
 } from '@mui/material'
 import { useForm, Controller } from 'react-hook-form'
 import Swal from 'sweetalert2'
-import axios from 'axios'
 
 import AppModal from '@/utils/components/AppModal'
 import CustomTextField from '@core/components/mui/TextField'
@@ -29,17 +29,36 @@ interface Props {
   ebook?: Ebook | null
 }
 
+function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <Grid item xs={12}>
+      <Typography variant='subtitle1' fontWeight={700}>
+        {title}
+      </Typography>
+      {subtitle && (
+        <Typography variant='caption' color='text.secondary' display='block' sx={{ mt: 0.25 }}>
+          {subtitle}
+        </Typography>
+      )}
+      <Divider sx={{ mt: 1.5 }} />
+    </Grid>
+  )
+}
+
 export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
   const createEbook = useCreateEbook()
   const updateEbook = useUpdateEbook()
 
   const [openMedia, setOpenMedia] = useState(false)
-  const [uploading, setUploading] = useState(false)
+  const [openPdfMedia, setOpenPdfMedia] = useState(false)
+
+  const [opcionesAvanzadas, setOpcionesAvanzadas] = useState(false)
 
   const { control, handleSubmit, reset, setValue, watch } = useForm<CreateEbookDto>({
     defaultValues: {
       titulo: '',
       descripcion: '',
+      resena: '',
       autor: '',
       miniatura: '',
       archivo_pdf: '',
@@ -50,6 +69,10 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
       paginas: undefined,
       genero: '',
       estado: 'BORRADOR',
+      editorial: '',
+      anio_edicion: undefined,
+      saga: '',
+      idioma: 'Español',
     },
   })
 
@@ -57,27 +80,26 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
   const miniatura = watch('miniatura')
   const archivoPdf = watch('archivo_pdf')
 
-  const contarPaginasPdf = (file: File): Promise<number> =>
-    new Promise(resolve => {
-      const reader = new FileReader()
+  // Cada página individual del PDF tiene /Type /Page (sin 's')
+  const contarPaginasPdf = async (url: string): Promise<number> => {
+    try {
+      const res = await fetch(url)
+      const buffer = await res.arrayBuffer()
+      const content = new TextDecoder('latin1').decode(buffer)
+      const matches = content.match(/\/Type\s*\/Page[^s]/g)
 
-      reader.onload = e => {
-        const content = e.target?.result as string
-
-        // Cada página individual tiene /Type /Page (sin 's')
-        const matches = content.match(/\/Type\s*\/Page[^s]/g)
-
-        resolve(matches ? matches.length : 0)
-      }
-
-      reader.readAsText(file, 'latin1')
-    })
+      return matches ? matches.length : 0
+    } catch {
+      return 0
+    }
+  }
 
   useEffect(() => {
     if (ebook) {
       reset({
         titulo: ebook.titulo,
         descripcion: ebook.descripcion ?? '',
+        resena: ebook.resena ?? '',
         autor: ebook.autor ?? '',
         miniatura: ebook.miniatura ?? '',
         archivo_pdf: ebook.archivo_pdf,
@@ -88,11 +110,17 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
         paginas: ebook.paginas ?? undefined,
         genero: ebook.genero ?? '',
         estado: ebook.estado,
+        editorial: ebook.editorial ?? '',
+        anio_edicion: ebook.anio_edicion ?? undefined,
+        saga: ebook.saga ?? '',
+        idioma: ebook.idioma ?? 'Español',
       })
+      setOpcionesAvanzadas(Boolean(ebook.editorial || ebook.anio_edicion || ebook.saga || (ebook.moneda && ebook.moneda !== 'PEN')))
     } else {
       reset({
         titulo: '',
         descripcion: '',
+        resena: '',
         autor: '',
         miniatura: '',
         archivo_pdf: '',
@@ -103,35 +131,22 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
         paginas: undefined,
         genero: '',
         estado: 'BORRADOR',
+        editorial: '',
+        anio_edicion: undefined,
+        saga: '',
+        idioma: 'Español',
       })
+      setOpcionesAvanzadas(false)
     }
   }, [ebook, open, reset])
 
-  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+  const handleSelectPdf = async (url: string) => {
+    setValue('archivo_pdf', url, { shouldValidate: true })
+    setOpenPdfMedia(false)
 
-    if (!file || file.type !== 'application/pdf') return
+    const paginas = await contarPaginasPdf(url)
 
-    setUploading(true)
-
-    try {
-      // Contar páginas antes de subir
-      const paginas = await contarPaginasPdf(file)
-
-      if (paginas > 0) setValue('paginas', paginas)
-
-      const formData = new FormData()
-
-      formData.append('file', file)
-
-      const { data } = await axios.post('/api/media', formData)
-
-      setValue('archivo_pdf', data.result?.url ?? data.url, { shouldValidate: true })
-    } catch {
-      Swal.fire({ title: 'Error', text: 'No se pudo subir el PDF', icon: 'error' })
-    } finally {
-      setUploading(false)
-    }
+    if (paginas > 0) setValue('paginas', paginas)
   }
 
   const onSubmit = async (values: CreateEbookDto) => {
@@ -167,6 +182,9 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={4}>
+          {/* ── Información básica ─────────────────────────────── */}
+          <SectionHeader title='Información básica' />
+
           <Grid item xs={12}>
             <Controller
               name='titulo'
@@ -214,75 +232,110 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
               name='descripcion'
               control={control}
               render={({ field }) => (
-                <CustomTextField {...field} fullWidth multiline rows={3} label='Reseña' />
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label='Detalle (sinopsis)'
+                  helperText='Se muestra en la pestaña "Detalle" de la página del ebook'
+                />
               )}
             />
           </Grid>
 
-          {/* Miniatura */}
           <Grid item xs={12}>
-            <Typography variant='subtitle2' mb={1}>Miniatura (portada)</Typography>
-            {miniatura ? (
-              <Box mb={2} display='flex' alignItems='flex-end' gap={2}>
-                <img
-                  src={miniatura}
-                  alt='portada'
-                  style={{ width: 60, aspectRatio: '2/3', borderRadius: 8, objectFit: 'cover', display: 'block', border: '1px solid #e2e8f0' }}
+            <Controller
+              name='resena'
+              control={control}
+              render={({ field }) => (
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  multiline
+                  rows={3}
+                  label='Reseña'
+                  helperText='Opcional. Se muestra en la pestaña "Reseña"; si se deja vacío, esa pestaña no aparece'
                 />
-                <Button variant='outlined' size='small' onClick={() => setOpenMedia(true)}>
-                  Cambiar imagen
-                </Button>
-              </Box>
-            ) : (
-              <Box mb={1}>
-                <Button variant='outlined' size='small' onClick={() => setOpenMedia(true)}>
-                  Seleccionar imagen
-                </Button>
-              </Box>
-            )}
-            <Typography variant='caption' color='text.secondary'>
-              Tamaño recomendado: 800 × 1200 px (proporción 2:3, igual que la portada de un libro)
-            </Typography>
+              )}
+            />
           </Grid>
 
-          {/* Archivo PDF */}
+          {/* ── Contenido ───────────────────────────────────────── */}
+          <SectionHeader title='Contenido' subtitle='Archivo que verá el lector' />
+
           <Grid item xs={12}>
             <Typography variant='subtitle2' mb={1}>Archivo PDF *</Typography>
-            {archivoPdf && (
-              <Typography variant='caption' color='success.main' display='block' mb={1}>
-                PDF cargado: {archivoPdf.split('/').pop()}
-              </Typography>
-            )}
-            <Box display='flex' gap={2} alignItems='center'>
-              <Button
-                variant='outlined'
-                component='label'
-                size='small'
-                disabled={uploading}
-              >
-                {uploading ? 'Subiendo...' : 'Subir PDF'}
-                <input type='file' accept='application/pdf' hidden onChange={handlePdfUpload} />
-              </Button>
-              <Typography variant='caption' color='text.secondary'>o pegar URL:</Typography>
-              <Controller
-                name='archivo_pdf'
-                control={control}
-                rules={{ required: 'El archivo PDF es requerido' }}
-                render={({ field, fieldState }) => (
-                  <CustomTextField
-                    {...field}
-                    size='small'
-                    placeholder='https://...'
-                    sx={{ flex: 1 }}
-                    error={!!fieldState.error}
-                    helperText={fieldState.error?.message}
-                  />
-                )}
-              />
-            </Box>
+            <Controller
+              name='archivo_pdf'
+              control={control}
+              rules={{ required: 'El archivo PDF es requerido' }}
+              render={({ fieldState }) => (
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: fieldState.error ? 'error.main' : 'divider',
+                    bgcolor: 'action.hover',
+                  }}
+                >
+                  <Box display='flex' gap={2} alignItems='center' flexWrap='wrap'>
+                    <Button variant='outlined' size='small' onClick={() => setOpenPdfMedia(true)}>
+                      {archivoPdf ? 'Cambiar PDF' : 'Seleccionar PDF'}
+                    </Button>
+                    {archivoPdf && (
+                      <Typography variant='caption' color='success.main'>
+                        PDF cargado: {archivoPdf.split('/').pop()}
+                      </Typography>
+                    )}
+                  </Box>
+                  {fieldState.error && (
+                    <Typography variant='caption' color='error.main' display='block' sx={{ mt: 1 }}>
+                      {fieldState.error.message}
+                    </Typography>
+                  )}
+                </Box>
+              )}
+            />
           </Grid>
 
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6}>
+            <Controller
+              name='paginas'
+              control={control}
+              render={({ field }) => (
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  type='number'
+                  label='N° de páginas'
+                  value={field.value ?? ''}
+                  onChange={e => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                  helperText='Se calcula automáticamente al subir el PDF'
+                />
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Controller
+              name='estado'
+              control={control}
+              render={({ field }) => (
+                <CustomTextField {...field} select fullWidth label='Estado'>
+                  <MenuItem value='BORRADOR'>Borrador</MenuItem>
+                  <MenuItem value='PUBLICADO'>Publicado</MenuItem>
+                  <MenuItem value='ARCHIVADO'>Archivado</MenuItem>
+                </CustomTextField>
+              )}
+            />
+          </Grid>
+
+          {/* ── Precio ──────────────────────────────────────────── */}
+          <SectionHeader title='Precio' />
+
+          <Grid item xs={12}>
             <Controller
               name='es_gratis'
               control={control}
@@ -309,19 +362,7 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
 
           {!esGratis && (
             <>
-              <Grid item xs={12} sm={4}>
-                <Controller
-                  name='moneda'
-                  control={control}
-                  render={({ field }) => (
-                    <CustomTextField {...field} select fullWidth label='Moneda'>
-                      <MenuItem value='PEN'>PEN (Soles)</MenuItem>
-                      <MenuItem value='USD'>USD (Dólares)</MenuItem>
-                    </CustomTextField>
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <Controller
                   name='precio'
                   control={control}
@@ -340,7 +381,7 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
                   )}
                 />
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={6}>
                 <Controller
                   name='precio_falso'
                   control={control}
@@ -350,6 +391,7 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
                       fullWidth
                       type='number'
                       label='Precio tachado'
+                      helperText='Opcional. Se muestra tachado junto al precio'
                       InputProps={{ startAdornment: <InputAdornment position='start'>S/</InputAdornment> }}
                       inputProps={{ min: 0, step: 0.01 }}
                     />
@@ -358,37 +400,157 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
               </Grid>
             </>
           )}
+          {/* ── Portada (al final) ──────────────────────────────── */}
+          <SectionHeader title='Portada' subtitle='Imagen de portada del ebook' />
 
-          <Grid item xs={12} sm={4}>
-            <Controller
-              name='paginas'
-              control={control}
-              render={({ field }) => (
-                <CustomTextField
-                  {...field}
-                  fullWidth
-                  type='number'
-                  label='N° de páginas'
-                  value={field.value ?? ''}
-                  onChange={e => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                  helperText='Se calcula automáticamente al subir el PDF'
-                />
-              )}
-            />
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                p: 3,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                bgcolor: 'action.hover',
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: 'center',
+                gap: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  width: '100%',
+                  maxWidth: 280,
+                  aspectRatio: '2/3',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  border: '1px solid #e2e8f0',
+                  bgcolor: 'background.paper',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {miniatura ? (
+                  <img
+                    src={miniatura}
+                    alt='portada'
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                ) : (
+                  <Typography variant='caption' color='text.disabled' textAlign='center' sx={{ px: 1 }}>
+                    Sin imagen
+                  </Typography>
+                )}
+              </Box>
+              <Box sx={{ width: '100%', flex: 1 }}>
+                <Button fullWidth variant='outlined' onClick={() => setOpenMedia(true)}>
+                  {miniatura ? 'Cambiar imagen' : 'Seleccionar imagen'}
+                </Button>
+                <Typography variant='caption' color='text.secondary' display='block' sx={{ mt: 1.5 }}>
+                  Tamaño recomendado: 800 × 1200 px (proporción 2:3, igual que la portada de un libro)
+                </Typography>
+              </Box>
+            </Box>
           </Grid>
 
-          <Grid item xs={12} sm={4}>
-            <Controller
-              name='estado'
-              control={control}
-              render={({ field }) => (
-                <CustomTextField {...field} select fullWidth label='Estado'>
-                  <MenuItem value='BORRADOR'>Borrador</MenuItem>
-                  <MenuItem value='PUBLICADO'>Publicado</MenuItem>
-                  <MenuItem value='ARCHIVADO'>Archivado</MenuItem>
-                </CustomTextField>
+          {/* ── Opciones avanzadas ──────────────────────────────── */}
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                overflow: 'hidden',
+              }}
+            >
+              <Box sx={{ p: 2.5, bgcolor: 'action.hover' }}>
+                <FormControlLabel
+                  sx={{ m: 0 }}
+                  control={
+                    <Switch
+                      checked={opcionesAvanzadas}
+                      onChange={e => setOpcionesAvanzadas(e.target.checked)}
+                    />
+                  }
+                  label={
+                    <Typography variant='subtitle2' fontWeight={700}>
+                      Opciones avanzadas
+                    </Typography>
+                  }
+                />
+                <Typography variant='caption' color='text.secondary' display='block' sx={{ ml: '52px', mt: -0.5 }}>
+                  Moneda y datos editoriales opcionales (editorial, año de edición, saga, idioma)
+                </Typography>
+              </Box>
+
+              {opcionesAvanzadas && (
+                <Grid container spacing={3} sx={{ p: 2.5 }}>
+                  <Grid item xs={12} sm={6}>
+                    <Controller
+                      name='moneda'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField {...field} select fullWidth label='Moneda'>
+                          <MenuItem value='PEN'>PEN (Soles)</MenuItem>
+                          <MenuItem value='USD'>USD (Dólares)</MenuItem>
+                        </CustomTextField>
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Controller
+                      name='editorial'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Editorial' />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Controller
+                      name='saga'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField
+                          {...field}
+                          value={field.value ?? ''}
+                          fullWidth
+                          label='Saga / Colección'
+                          placeholder='Ej: Diario de Greg'
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Controller
+                      name='anio_edicion'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField
+                          {...field}
+                          fullWidth
+                          type='number'
+                          label='Año de edición'
+                          value={field.value ?? ''}
+                          onChange={e => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Controller
+                      name='idioma'
+                      control={control}
+                      render={({ field }) => (
+                        <CustomTextField {...field} value={field.value ?? ''} fullWidth label='Idioma' />
+                      )}
+                    />
+                  </Grid>
+                </Grid>
               )}
-            />
+            </Box>
           </Grid>
 
           <Grid item xs={12} display='flex' justifyContent='flex-end' gap={2}>
@@ -415,6 +577,14 @@ export const EbookFormModal = ({ open, handleClose, ebook }: Props) => {
         }}
         acceptType='IMAGEN'
         title='Seleccionar portada'
+      />
+
+      <MediaLibrary
+        open={openPdfMedia}
+        onClose={() => setOpenPdfMedia(false)}
+        onSelect={handleSelectPdf}
+        acceptType='PDF'
+        title='Seleccionar PDF'
       />
     </AppModal>
   )

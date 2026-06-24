@@ -247,6 +247,7 @@ export const EbookViewer = ({ ebookId }: Props) => {
 
     const onWheel = (e: WheelEvent) => {
       if (!e.ctrlKey) return
+
       e.preventDefault()
       setZoom(z => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, +(z + (e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP)).toFixed(2))))
     }

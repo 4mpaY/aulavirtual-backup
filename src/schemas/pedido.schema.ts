@@ -4,16 +4,22 @@ import { MetodoPago } from '@prisma/client'
 /**
  * Schema para crear un pedido manual (Admin)
  */
-export const crearPedidoManualSchema = z.object({
-  usuarios_ids: z.array(z.string().uuid('ID de usuario inválido')).min(1, 'Selecciona al menos un estudiante'),
-  cursos_ids: z.array(z.string().uuid('ID de curso inválido')).min(1, 'Selecciona al menos un curso'),
-  precio: z.coerce.number().min(0, 'El precio no puede ser negativo').max(1000000, 'El precio es demasiado alto'),
-  estado: z.enum(['PENDIENTE', 'PROCESANDO', 'COMPLETADO', 'CANCELADO', 'REEMBOLSADO']).default('COMPLETADO'),
-  metodo_pago: z.nativeEnum(MetodoPago).default(MetodoPago.TRANSFERENCIA),
-  mensaje: z.string().trim().max(500, 'El mensaje no puede exceder 500 caracteres').optional(),
-  tipo_comprobante: z.string().optional().nullable(),
-  numero_comprobante: z.string().optional().nullable()
-})
+export const crearPedidoManualSchema = z
+  .object({
+    usuarios_ids: z.array(z.string().uuid('ID de usuario inválido')).min(1, 'Selecciona al menos un estudiante'),
+    cursos_ids: z.array(z.string().uuid('ID de curso inválido')).default([]),
+    ebooks_ids: z.array(z.string().uuid('ID de ebook inválido')).default([]),
+    precio: z.coerce.number().min(0, 'El precio no puede ser negativo').max(1000000, 'El precio es demasiado alto'),
+    estado: z.enum(['PENDIENTE', 'PROCESANDO', 'COMPLETADO', 'CANCELADO', 'REEMBOLSADO']).default('COMPLETADO'),
+    metodo_pago: z.nativeEnum(MetodoPago).default(MetodoPago.TRANSFERENCIA),
+    mensaje: z.string().trim().max(500, 'El mensaje no puede exceder 500 caracteres').optional(),
+    tipo_comprobante: z.string().optional().nullable(),
+    numero_comprobante: z.string().optional().nullable()
+  })
+  .refine(data => data.cursos_ids.length > 0 || data.ebooks_ids.length > 0, {
+    message: 'Selecciona al menos un curso o un ebook',
+    path: ['cursos_ids']
+  })
 
 export type CrearPedidoManualDto = z.infer<typeof crearPedidoManualSchema>
 

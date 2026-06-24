@@ -189,9 +189,9 @@ export const MisEbooksList = ({ ebooks }: Props) => {
           </Typography>
         </Box>
       ) : (
-        <Grid container spacing={{ xs: 3, sm: 4, md: 6, lg: 8 }}>
+        <Grid container spacing={5}>
           {filtered.map(ebook => (
-            <Grid item xs={12} sm={6} md={4} key={ebook.id}>
+            <Grid item xs={6} sm={4} md={3} lg={2.4} key={ebook.id}>
               <EbookCard ebook={ebook} />
             </Grid>
           ))}

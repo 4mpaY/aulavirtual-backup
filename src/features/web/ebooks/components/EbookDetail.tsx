@@ -17,6 +17,8 @@ import {
   Grid,
   Paper,
   Stack,
+  Tab,
+  Tabs,
   Typography,
 } from '@mui/material'
 import { CheckCircle, ChevronRight, XCircle } from 'lucide-react'
@@ -43,6 +45,11 @@ interface EbookDetailProps {
     es_gratis: boolean
     paginas?: number | null
     genero?: string | null
+    resena?: string | null
+    editorial?: string | null
+    anio_edicion?: number | null
+    saga?: string | null
+    idioma?: string | null
     categoria?: { nombre: string } | null
     _count?: { accesos: number }
     tieneAcceso: boolean
@@ -62,9 +69,31 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
   const router = useRouter()
   const { openLogin } = useAuthModal()
   const [obtaining, setObtaining] = useState(false)
+  const [tab, setTab] = useState(0)
+
+  const tabs = [
+    ...(ebook.descripcion ? [{ key: 'detalle', label: 'Detalle' }] : []),
+    ...(ebook.resena ? [{ key: 'resena', label: 'Reseña' }] : []),
+    { key: 'producto', label: 'Detalles de producto' },
+  ]
+
+  const detallesProducto = [
+    ...(ebook.autor ? [{ label: 'Autor', value: ebook.autor, icon: 'tabler-user' }] : []),
+    ...(ebook.paginas ? [{ label: 'Páginas', value: `${ebook.paginas} páginas`, icon: 'tabler-file-text' }] : []),
+    { label: 'Formato', value: 'PDF', icon: 'tabler-file-type-pdf' },
+    { label: 'Idioma', value: ebook.idioma || 'Español', icon: 'tabler-language' },
+    ...(ebook.genero ? [{ label: 'Género', value: ebook.genero, icon: 'tabler-tag' }] : []),
+    ...(ebook.categoria ? [{ label: 'Categoría', value: ebook.categoria.nombre, icon: 'tabler-category' }] : []),
+    ...(ebook.editorial ? [{ label: 'Editorial', value: ebook.editorial, icon: 'tabler-building' }] : []),
+    ...(ebook.anio_edicion ? [{ label: 'Año de edición', value: String(ebook.anio_edicion), icon: 'tabler-calendar' }] : []),
+    ...(ebook.saga ? [{ label: 'Saga', value: ebook.saga, icon: 'tabler-books' }] : []),
+  ]
 
   const precio = ebook.precio
   const precioFalso = ebook.precio_falso
+
+  // Un ebook con precio 0 se trata como gratis aunque el flag es_gratis no se haya marcado
+  const esGratisEfectivo = ebook.es_gratis || precio === 0
 
   const handleObtenerGratis = async () => {
     if (!session) {
@@ -123,7 +152,7 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
       )
     }
 
-    if (ebook.es_gratis) {
+    if (esGratisEfectivo) {
       return (
         <Button variant='contained' color='primary' fullWidth size='large'
           onClick={handleObtenerGratis} disabled={obtaining}
@@ -197,7 +226,7 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
                     </Box>
                   )}
                 </Box>
-                {(ebook.es_gratis || ebook.tieneAcceso) && (
+                {(esGratisEfectivo || ebook.tieneAcceso) && (
                   <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
                     {ebook.tieneAcceso
                       ? <Chip icon={<i className='tabler-circle-check-filled' style={{ fontSize: '1rem', color: '#0A0A0A' }} />} label='Tu Ebook' sx={{ fontFamily: FONT, fontWeight: 800, fontSize: '0.7rem', bgcolor: 'var(--web-light, #BDD962)', color: '#0A0A0A' }} />
@@ -263,9 +292,9 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
                 {/* Precio */}
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
                   <Typography sx={{ fontFamily: FONT, fontWeight: 900, fontSize: { xs: '2.5rem', md: '3rem' }, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>
-                    {ebook.tieneAcceso ? 'Adquirido' : ebook.es_gratis ? 'Gratis' : `${ebook.moneda} ${precio.toFixed(2)}`}
+                    {ebook.tieneAcceso ? 'Adquirido' : esGratisEfectivo ? 'Gratis' : `${ebook.moneda} ${precio.toFixed(2)}`}
                   </Typography>
-                  {!ebook.es_gratis && !ebook.tieneAcceso && precioFalso > 0 && (
+                  {!esGratisEfectivo && !ebook.tieneAcceso && precioFalso > 0 && (
                     <Typography sx={{ fontFamily: FONT, fontSize: '1rem', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>
                       {ebook.moneda} {precioFalso.toFixed(2)}
                     </Typography>
@@ -303,15 +332,46 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
           <Grid item xs={12} md={8}>
             <Stack spacing={5}>
 
-              {/* Reseña */}
-              {ebook.descripcion && (
-                <Box>
-                  <SectionTitle>Acerca del ebook</SectionTitle>
-                  <Typography sx={{ fontFamily: FONT, fontSize: '1rem', color: '#475569', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
-                    {ebook.descripcion}
-                  </Typography>
+              {/* Detalle / Reseña / Detalles de producto */}
+              <Box sx={{ bgcolor: '#fff', borderRadius: '20px', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+                <Tabs
+                  value={tab}
+                  onChange={(_, v) => setTab(v)}
+                  sx={{ borderBottom: '1px solid #f1f5f9', px: 2 }}
+                >
+                  {tabs.map((t, i) => (
+                    <Tab key={t.key} label={t.label} sx={{ fontFamily: FONT, fontWeight: 700, textTransform: 'none' }} value={i} />
+                  ))}
+                </Tabs>
+
+                <Box sx={{ p: { xs: 3, md: 4 } }}>
+                  {tabs[tab]?.key === 'detalle' && (
+                    <Typography sx={{ fontFamily: FONT, fontSize: '1rem', color: '#475569', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
+                      {ebook.descripcion}
+                    </Typography>
+                  )}
+
+                  {tabs[tab]?.key === 'resena' && (
+                    <Typography sx={{ fontFamily: FONT, fontSize: '1rem', color: '#475569', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
+                      {ebook.resena}
+                    </Typography>
+                  )}
+
+                  {tabs[tab]?.key === 'producto' && (
+                    <Stack divider={<Divider />}>
+                      {detallesProducto.map((row, i) => (
+                        <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1.75 }}>
+                          <Avatar sx={{ bgcolor: 'rgba(var(--web-primary-rgb,37,146,127),0.08)', color: 'var(--web-primary, #25927F)', width: 36, height: 36 }}>
+                            <i className={row.icon} style={{ fontSize: '1rem' }} />
+                          </Avatar>
+                          <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b', fontWeight: 500, minWidth: 140 }}>{row.label}</Typography>
+                          <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#1e293b', fontWeight: 700 }}>{row.value}</Typography>
+                        </Box>
+                      ))}
+                    </Stack>
+                  )}
                 </Box>
-              )}
+              </Box>
 
               {/* Qué obtienes */}
               <Box sx={{ bgcolor: '#fff', borderRadius: '20px', p: { xs: 3, md: 5 }, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #f1f5f9' }}>
@@ -343,32 +403,6 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
                 </Grid>
               </Box>
 
-              {/* Detalles */}
-              <Box>
-                <SectionTitle>Detalles del ebook</SectionTitle>
-                <Paper sx={{ borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: 'none', overflow: 'hidden' }}>
-                  {[
-                    ...(ebook.autor ? [{ label: 'Autor', value: ebook.autor, icon: 'tabler-user' }] : []),
-                    ...(ebook.paginas ? [{ label: 'Páginas', value: `${ebook.paginas} páginas`, icon: 'tabler-file-text' }] : []),
-                    { label: 'Formato', value: 'PDF', icon: 'tabler-file-type-pdf' },
-                    ...(ebook.genero ? [{ label: 'Género', value: ebook.genero, icon: 'tabler-tag' }] : []),
-                    ...(ebook.categoria ? [{ label: 'Categoría', value: ebook.categoria.nombre, icon: 'tabler-category' }] : []),
-                    { label: 'Idioma', value: 'Español', icon: 'tabler-language' },
-                  ].map((row, i, arr) => (
-                    <Box key={i}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 3, py: 2, bgcolor: i % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                        <Avatar sx={{ bgcolor: 'rgba(var(--web-primary-rgb,37,146,127),0.08)', color: 'var(--web-primary, #25927F)', width: 36, height: 36 }}>
-                          <i className={row.icon} style={{ fontSize: '1rem' }} />
-                        </Avatar>
-                        <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#64748b', fontWeight: 500, minWidth: 100 }}>{row.label}</Typography>
-                        <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: '#1e293b', fontWeight: 700 }}>{row.value}</Typography>
-                      </Box>
-                      {i < arr.length - 1 && <Divider />}
-                    </Box>
-                  ))}
-                </Paper>
-              </Box>
-
             </Stack>
           </Grid>
 
@@ -378,12 +412,12 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
               <Paper sx={{ borderRadius: '20px', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.08)', border: '1px solid #f1f5f9' }}>
                 <Box sx={{ background: 'linear-gradient(135deg, var(--web-dark, #025E44), var(--web-primary, #25927F))', p: 3, textAlign: 'center' }}>
                   <Typography sx={{ fontFamily: FONT, fontWeight: 800, fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.1em', textTransform: 'uppercase', mb: 0.5 }}>
-                    Ebook {ebook.es_gratis ? 'Gratuito' : 'Premium'}
+                    Ebook {esGratisEfectivo ? 'Gratuito' : 'Premium'}
                   </Typography>
                   <Typography sx={{ fontFamily: FONT, fontWeight: 900, fontSize: '2rem', color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>
-                    {ebook.tieneAcceso ? 'Adquirido' : ebook.es_gratis ? 'Gratis' : `${ebook.moneda} ${precio.toFixed(2)}`}
+                    {ebook.tieneAcceso ? 'Adquirido' : esGratisEfectivo ? 'Gratis' : `${ebook.moneda} ${precio.toFixed(2)}`}
                   </Typography>
-                  {!ebook.es_gratis && !ebook.tieneAcceso && precioFalso > 0 && (
+                  {!esGratisEfectivo && !ebook.tieneAcceso && precioFalso > 0 && (
                     <Typography sx={{ fontFamily: FONT, fontSize: '0.875rem', color: 'rgba(255,255,255,0.45)', textDecoration: 'line-through', mt: 0.5 }}>
                       {ebook.moneda} {precioFalso.toFixed(2)}
                     </Typography>
@@ -440,13 +474,5 @@ export default function EbookDetail({ ebook }: EbookDetailProps) {
         </Grid>
       </Container>
     </Box>
-  )
-}
-
-function SectionTitle({ children, sx = {} }: { children: React.ReactNode; sx?: object }) {
-  return (
-    <Typography sx={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '1.375rem', color: '#0A0A0A', letterSpacing: '-0.01em', mb: 2.5, ...sx }}>
-      {children}
-    </Typography>
   )
 }
