@@ -1,20 +1,6 @@
 -- DropForeignKey
 ALTER TABLE "detalles_pedido" DROP CONSTRAINT "detalles_pedido_curso_id_fkey";
 
--- CreateTable
-CREATE TABLE "ebook_annotaciones" (
-    "id" TEXT NOT NULL,
-    "usuario_id" TEXT NOT NULL,
-    "ebook_id" TEXT NOT NULL,
-    "pagina" INTEGER NOT NULL,
-    "tipo" TEXT NOT NULL,
-    "texto" TEXT,
-    "color" TEXT NOT NULL DEFAULT '#fbbf24',
-    "posicion" JSONB NOT NULL,
-    "creado_en" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "ebook_annotaciones_pkey" PRIMARY KEY ("id")
-);
 
 -- CreateTable
 CREATE TABLE "conversaciones" (
@@ -49,9 +35,6 @@ CREATE TABLE "mensajes_chat" (
 );
 
 -- CreateIndex
-CREATE INDEX "ebook_annotaciones_usuario_id_ebook_id_idx" ON "ebook_annotaciones"("usuario_id", "ebook_id");
-
--- CreateIndex
 CREATE INDEX "participantes_conversacion_conversacion_id_idx" ON "participantes_conversacion"("conversacion_id");
 
 -- CreateIndex
@@ -68,12 +51,6 @@ CREATE INDEX "mensajes_chat_remitente_id_idx" ON "mensajes_chat"("remitente_id")
 
 -- CreateIndex
 CREATE INDEX "mensajes_chat_conversacion_id_creado_en_idx" ON "mensajes_chat"("conversacion_id", "creado_en");
-
--- AddForeignKey
-ALTER TABLE "ebook_annotaciones" ADD CONSTRAINT "ebook_annotaciones_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "usuarios"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ebook_annotaciones" ADD CONSTRAINT "ebook_annotaciones_ebook_id_fkey" FOREIGN KEY ("ebook_id") REFERENCES "ebooks"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "detalles_pedido" ADD CONSTRAINT "detalles_pedido_curso_id_fkey" FOREIGN KEY ("curso_id") REFERENCES "cursos"("id") ON DELETE SET NULL ON UPDATE CASCADE;
