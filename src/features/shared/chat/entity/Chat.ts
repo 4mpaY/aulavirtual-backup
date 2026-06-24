@@ -38,12 +38,27 @@ export interface ConversacionResumen {
   mensajesNoLeidos: number
 }
 
+export interface CursoChat {
+  id: string
+  titulo: string
+}
+
 export interface ContactoDisponible {
   id: string
   nombre: string
   apellido: string
   avatar: string | null
   rol: 'ADMIN' | 'PROFESOR' | 'ESTUDIANTE'
-  cursos: { id: string; titulo: string }[]
+  cursos: CursoChat[]
   conversacion_id: string | null
+}
+
+export interface ContactosPaginados {
+  results: ContactoDisponible[]
+  paginacion: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
 }

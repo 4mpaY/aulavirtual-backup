@@ -1,6 +1,4 @@
 // Type Imports
-import dynamic from 'next/dynamic'
-
 import type { Session } from 'next-auth'
 
 import type { ChildrenType, Direction } from '@core/types'
@@ -18,11 +16,6 @@ import { getDemoName, getMode, getSettingsFromCookie, getSystemMode } from '@cor
 
 import { CartProvider } from '@/features/web/cart/context/CartContext'
 import CartDrawer from '@/features/web/cart/components/CartDrawer'
-
-const ChatWidget = dynamic(
-  () => import('@/features/shared/chat/components/ChatWidget'),
-  { ssr: false }
-)
 
 type Props = ChildrenType & {
     direction?: Direction
@@ -58,7 +51,6 @@ export const Providers = (props: Props) => {
                                 <CartProvider>
                                     {children}
                                     <CartDrawer />
-                                    <ChatWidget />
                                 </CartProvider>
                             </ThemeProvider>
                         </SettingsProvider>

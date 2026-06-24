@@ -2,8 +2,9 @@ import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
 
 import type {
   ConversacionResumen,
-  MensajeChatItem,
-  ContactoDisponible
+  ContactosPaginados,
+  CursoChat,
+  MensajeChatItem
 } from '../entity/Chat'
 
 type Params = {
@@ -19,8 +20,26 @@ export class AxiosChat extends AxiosInternalHttpClient {
     return this.iGet('/unread-count')
   }
 
-  async getContactos(): Promise<ContactoDisponible[]> {
-    return this.iGet('/contactos')
+  async getCursos(): Promise<CursoChat[]> {
+    return this.iGet('/cursos')
+  }
+
+  async getContactos(params?: {
+    curso_id?: string
+    buscar?: string
+    page?: number
+    limit?: number
+  }): Promise<ContactosPaginados> {
+    const qs = new URLSearchParams()
+
+    if (params?.curso_id) qs.set('curso_id', params.curso_id)
+    if (params?.buscar) qs.set('buscar', params.buscar)
+    if (params?.page) qs.set('page', String(params.page))
+    if (params?.limit) qs.set('limit', String(params.limit))
+
+    const query = qs.toString()
+
+    return this.iGet(`/contactos${query ? `?${query}` : ''}`)
   }
 
   async getConversaciones(): Promise<ConversacionResumen[]> {

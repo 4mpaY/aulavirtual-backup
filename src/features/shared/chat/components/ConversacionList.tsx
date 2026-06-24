@@ -7,8 +7,6 @@ import {
   InputAdornment, List, TextField, Tooltip, Typography
 } from '@mui/material'
 
-import { Icon } from '@iconify/react'
-
 import ConversacionItem from './ConversacionItem'
 import NuevaConversacionModal from './NuevaConversacionModal'
 import { useConversaciones } from '../hooks/useChat'
@@ -43,12 +41,8 @@ export default function ConversacionList({ conversacionSeleccionada, onSeleccion
             Mensajes
           </Typography>
           <Tooltip title='Nueva conversación'>
-            <IconButton
-              size='small'
-              onClick={() => setModalOpen(true)}
-              sx={{ bgcolor: 'action.selected', '&:hover': { bgcolor: 'action.focus' } }}
-            >
-              <Icon icon='tabler:edit' width={18} />
+            <IconButton onClick={() => setModalOpen(true)} className='text-textPrimary'>
+              <i className='tabler-message-plus text-[22px]' />
             </IconButton>
           </Tooltip>
         </Box>
@@ -61,7 +55,7 @@ export default function ConversacionList({ conversacionSeleccionada, onSeleccion
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <Icon icon='tabler:search' width={16} />
+                <i className='tabler-search text-[16px]' />
               </InputAdornment>
             )
           }}
@@ -78,7 +72,7 @@ export default function ConversacionList({ conversacionSeleccionada, onSeleccion
           </Box>
         ) : filtradas.length === 0 ? (
           <Box display='flex' flexDirection='column' alignItems='center' pt={6} gap={2} px={2}>
-            <Icon icon={busqueda ? 'tabler:search-off' : 'tabler:message-plus'} width={40} color='text.disabled' />
+            <i className={`${busqueda ? 'tabler-search-off' : 'tabler-message-plus'} text-[40px] text-textDisabled`} />
             <Typography variant='body2' color='text.disabled' textAlign='center'>
               {busqueda ? 'Sin resultados' : 'Aún no tienes conversaciones'}
             </Typography>
@@ -86,7 +80,7 @@ export default function ConversacionList({ conversacionSeleccionada, onSeleccion
               <Button
                 variant='contained'
                 size='small'
-                startIcon={<Icon icon='tabler:edit' width={16} />}
+                startIcon={<i className='tabler-message-plus text-[16px]' />}
                 onClick={() => setModalOpen(true)}
                 fullWidth
               >

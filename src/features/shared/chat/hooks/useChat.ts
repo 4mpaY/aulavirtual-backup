@@ -1,14 +1,22 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { getSession } from 'next-auth/react'
 
 import { AxiosChat } from '../http/axiosChat'
 
+type ContactosParams = {
+  curso_id?: string
+  buscar?: string
+  page?: number
+  limit?: number
+}
+
 const KEYS = {
   UNREAD: ['chat', 'unread'],
-  CONTACTOS: ['chat', 'contactos'],
+  CURSOS: ['chat', 'cursos'],
+  CONTACTOS: (params: ContactosParams) => ['chat', 'contactos', params],
   CONVERSACIONES: ['chat', 'conversaciones'],
   MENSAJES: (id: string) => ['chat', 'mensajes', id]
 }
@@ -32,12 +40,22 @@ export function useUnreadCount() {
   })
 }
 
-export function useContactos(enabled = false) {
+export function useCursosChat(enabled = false) {
   return useQuery({
-    queryKey: KEYS.CONTACTOS,
-    queryFn: () => buildClient().getContactos(),
+    queryKey: KEYS.CURSOS,
+    queryFn: () => buildClient().getCursos(),
     enabled,
     staleTime: 5 * 60_000
+  })
+}
+
+export function useContactos(params: ContactosParams = {}, enabled = false) {
+  return useQuery({
+    queryKey: KEYS.CONTACTOS(params),
+    queryFn: () => buildClient().getContactos(params),
+    enabled,
+    staleTime: 0,
+    placeholderData: keepPreviousData
   })
 }
 

@@ -37,7 +37,8 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
   const inputFileRef = useRef<HTMLInputElement>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const { data: contactos = [] } = useContactos(true)
+  const { data: contactosPaginados } = useContactos({}, true)
+  const contactos = contactosPaginados?.results ?? []
 
   const { data: mensajes = [], isLoading, refetch: refetchMensajes } = useMensajes(conversacion.id)
   const enviar = useEnviarMensaje()
@@ -248,11 +249,20 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
         <Tooltip title='Enviar (Enter)'>
           <span>
             <IconButton
-              color='primary'
               onClick={handleEnviar}
               disabled={(!texto.trim() && !adjuntoFile) || enviar.isPending || subiendoAdjunto}
+              sx={{
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                borderRadius: 2,
+                '&:hover': { bgcolor: 'primary.dark' },
+                '&.Mui-disabled': { bgcolor: 'action.disabledBackground', color: 'action.disabled' }
+              }}
             >
-              <Icon icon='tabler:send' />
+              {enviar.isPending
+                ? <CircularProgress size={20} color='inherit' />
+                : <Icon icon='tabler:send' />
+              }
             </IconButton>
           </span>
         </Tooltip>

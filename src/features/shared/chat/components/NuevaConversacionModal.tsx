@@ -1,18 +1,16 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
-  Avatar, Box, Chip, CircularProgress, InputAdornment,
-  List, ListItemAvatar, ListItemButton, ListItemText,
-  MenuItem, TextField, Typography
+  Avatar, Box, Button, Chip, CircularProgress,
+  InputAdornment, List, ListItemAvatar, ListItemButton,
+  ListItemText, MenuItem, TextField, Typography
 } from '@mui/material'
-
-import { Icon } from '@iconify/react'
 
 import AppModal from '@/utils/components/AppModal'
 
-import { useContactos, useIniciarConversacion } from '../hooks/useChat'
+import { useContactos, useCursosChat, useIniciarConversacion } from '../hooks/useChat'
 import type { ContactoDisponible } from '../entity/Chat'
 
 interface Props {
@@ -34,32 +32,46 @@ const ROL_COLORS: Record<string, 'default' | 'primary' | 'secondary' | 'error' |
 }
 
 export default function NuevaConversacionModal({ open, handleClose, onConversacionIniciada }: Props) {
+  const [cursoId, setCursoId] = useState('')
   const [busqueda, setBusqueda] = useState('')
-  const [cursoFiltro, setCursoFiltro] = useState('')
-  const { data: contactos = [], isLoading } = useContactos(open)
+  const [buscarServer, setBuscarServer] = useState('')
+  const [page, setPage] = useState(1)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const { data: cursos = [] } = useCursosChat(open)
+
+  const { data: paginado, isFetching } = useContactos(
+    { curso_id: cursoId || undefined, buscar: buscarServer || undefined, page },
+    open
+  )
+
+  const contactos = paginado?.results ?? []
+  const paginacion = paginado?.paginacion
+
   const iniciar = useIniciarConversacion()
 
-  const cursosDisponibles = useMemo(() => {
-    const mapa = new Map<string, string>()
+  useEffect(() => {
+    setPage(1)
+  }, [cursoId, buscarServer])
 
-    for (const c of contactos) {
-      for (const curso of c.cursos) {
-        mapa.set(curso.id, curso.titulo)
-      }
+  useEffect(() => {
+    if (!open) {
+      setCursoId('')
+      setBusqueda('')
+      setBuscarServer('')
+      setPage(1)
     }
+  }, [open])
 
-    return Array.from(mapa.entries()).map(([id, titulo]) => ({ id, titulo }))
-  }, [contactos])
+  function handleBusqueda(valor: string) {
+    setBusqueda(valor)
 
-  const filtrados = useMemo(() => {
-    return contactos.filter(c => {
-      const nombre = `${c.nombre} ${c.apellido}`.toLowerCase()
-      const matchNombre = nombre.includes(busqueda.toLowerCase())
-      const matchCurso = !cursoFiltro || c.cursos.some(cur => cur.id === cursoFiltro)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
 
-      return matchNombre && matchCurso
-    })
-  }, [contactos, busqueda, cursoFiltro])
+    debounceRef.current = setTimeout(() => {
+      setBuscarServer(valor)
+    }, 300)
+  }
 
   async function handleSeleccionar(contacto: ContactoDisponible) {
     if (contacto.conversacion_id) {
@@ -77,79 +89,116 @@ export default function NuevaConversacionModal({ open, handleClose, onConversaci
     })
   }
 
+  const totalPages = paginacion?.totalPages ?? 1
+  const currentPage = paginacion?.page ?? 1
+
   return (
     <AppModal open={open} handleClose={handleClose}>
       <Typography variant='h6' fontWeight={600} mb={2}>
         Nueva conversación
       </Typography>
 
-      <Box display='flex' gap={1} mb={1}>
+      {/* Filtros */}
+      <Box display='flex' gap={1} mb={1.5}>
+        {cursos.length > 0 && (
+          <TextField
+            select
+            size='small'
+            value={cursoId}
+            onChange={e => setCursoId(e.target.value)}
+            sx={{ minWidth: 170 }}
+            SelectProps={{ displayEmpty: true }}
+          >
+            <MenuItem value=''>Todos los cursos</MenuItem>
+            {cursos.map(c => (
+              <MenuItem key={c.id} value={c.id}>{c.titulo}</MenuItem>
+            ))}
+          </TextField>
+        )}
+
         <TextField
           fullWidth
           size='small'
           placeholder='Buscar persona...'
           value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
+          onChange={e => handleBusqueda(e.target.value)}
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
-                <Icon icon='tabler:search' width={18} />
+                <i className='tabler-search text-[18px]' />
               </InputAdornment>
-            )
+            ),
+            endAdornment: isFetching ? (
+              <InputAdornment position='end'>
+                <CircularProgress size={14} />
+              </InputAdornment>
+            ) : null
           }}
         />
+      </Box>
 
-        {cursosDisponibles.length > 0 && (
-          <TextField
-            select
-            size='small'
-            value={cursoFiltro}
-            onChange={e => setCursoFiltro(e.target.value)}
-            sx={{ minWidth: 160 }}
-            SelectProps={{ displayEmpty: true }}
-          >
-            <MenuItem value=''>Todos los cursos</MenuItem>
-            {cursosDisponibles.map(c => (
-              <MenuItem key={c.id} value={c.id}>{c.titulo}</MenuItem>
+      {/* Lista de contactos */}
+      <Box sx={{ minHeight: 200 }}>
+        {contactos.length === 0 && !isFetching ? (
+          <Typography variant='body2' color='text.disabled' textAlign='center' py={4}>
+            No hay contactos disponibles
+          </Typography>
+        ) : (
+          <List disablePadding sx={{ maxHeight: 340, overflow: 'auto' }}>
+            {contactos.map(c => (
+              <ListItemButton
+                key={c.id}
+                onClick={() => handleSeleccionar(c)}
+                disabled={iniciar.isPending}
+                sx={{ borderRadius: 1 }}
+              >
+                <ListItemAvatar>
+                  <Avatar src={c.avatar ?? undefined}>{c.nombre[0]}</Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={`${c.nombre} ${c.apellido}`}
+                  secondary={c.cursos.length > 0 ? c.cursos.map(cur => cur.titulo).join(', ') : null}
+                  secondaryTypographyProps={{ noWrap: true, sx: { maxWidth: 220 } }}
+                />
+                <Chip
+                  label={ROL_LABELS[c.rol] ?? c.rol}
+                  color={ROL_COLORS[c.rol] ?? 'default'}
+                  size='small'
+                  variant='tonal'
+                />
+              </ListItemButton>
             ))}
-          </TextField>
+          </List>
         )}
       </Box>
 
-      {isLoading ? (
-        <Box display='flex' justifyContent='center' py={4}>
-          <CircularProgress size={28} />
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <Box display='flex' alignItems='center' justifyContent='space-between' mt={1.5}>
+          <Button
+            size='small'
+            variant='outlined'
+            startIcon={<i className='tabler-chevron-left text-[16px]' />}
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={currentPage <= 1 || isFetching}
+          >
+            Anterior
+          </Button>
+
+          <Typography variant='caption' color='text.secondary'>
+            Página {currentPage} de {totalPages}
+          </Typography>
+
+          <Button
+            size='small'
+            variant='outlined'
+            endIcon={<i className='tabler-chevron-right text-[16px]' />}
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages || isFetching}
+          >
+            Siguiente
+          </Button>
         </Box>
-      ) : filtrados.length === 0 ? (
-        <Typography variant='body2' color='text.disabled' textAlign='center' py={4}>
-          No hay contactos disponibles
-        </Typography>
-      ) : (
-        <List disablePadding sx={{ maxHeight: 380, overflow: 'auto' }}>
-          {filtrados.map(c => (
-            <ListItemButton
-              key={c.id}
-              onClick={() => handleSeleccionar(c)}
-              disabled={iniciar.isPending}
-              sx={{ borderRadius: 1, gap: 1 }}
-            >
-              <ListItemAvatar>
-                <Avatar src={c.avatar ?? undefined}>{c.nombre[0]}</Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={`${c.nombre} ${c.apellido}`}
-                secondary={c.cursos.length > 0 ? c.cursos.map(cur => cur.titulo).join(', ') : null}
-                secondaryTypographyProps={{ noWrap: true, sx: { maxWidth: 220 } }}
-              />
-              <Chip
-                label={ROL_LABELS[c.rol] ?? c.rol}
-                color={ROL_COLORS[c.rol] ?? 'default'}
-                size='small'
-                variant='tonal'
-              />
-            </ListItemButton>
-          ))}
-        </List>
       )}
     </AppModal>
   )

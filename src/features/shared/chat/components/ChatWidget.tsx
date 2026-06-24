@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { Badge, Box, Drawer, Fab, Tooltip } from '@mui/material'
 
@@ -29,6 +29,15 @@ export default function ChatWidget() {
 
   useChatSocket(session?.user?.id, handleConversacionActualizada)
 
+  // Escucha el evento del botón del navbar para abrir el chat
+  useEffect(() => {
+    function handleOpen() { setOpen(true) }
+
+    window.addEventListener('chat:open', handleOpen)
+
+    return () => window.removeEventListener('chat:open', handleOpen)
+  }, [])
+
   if (!session?.user) return null
 
   const conversacionActual = conversaciones.find(c => c.id === conversacionId) ?? null
@@ -48,10 +57,18 @@ export default function ChatWidget() {
           color='primary'
           size='medium'
           onClick={() => setOpen(true)}
-          sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: theme => theme.zIndex.speedDial }}
+          sx={{
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            zIndex: theme => theme.zIndex.speedDial,
+            display: open ? 'none' : 'flex'
+          }}
         >
-          <Badge badgeContent={unread?.total ?? 0} color='error' max={99}>
-            <Icon icon='tabler:message-circle' width={24} />
+          <Badge badgeContent={unread?.total ?? 0} color='error' max={99} showZero={false}
+            sx={{ '& .MuiBadge-badge': { top: -4, right: -4 } }}
+          >
+            <i className='tabler-message-circle text-[22px]' />
           </Badge>
         </Fab>
       </Tooltip>
