@@ -538,6 +538,244 @@ async function main() {
     console.log('✅ Alumno inscrito en: Costos y Presupuestos de Obra, Valorización y Liquidación de Obras')
   }
 
+  // ─── SIMULACROS ──────────────────────────────────────────────────────────────
+
+  const opcionesPregunta = (correcta: number, textos: string[]) =>
+    textos.map((texto, i) => ({ texto, es_correcta: i === correcta, orden: i }))
+
+  const simulacros = [
+    {
+      titulo: 'Simulacro General — Aptitud Profesional con IA',
+      slug: 'simulacro-general-aptitud-profesional-ia',
+      descripcion:
+        'Pon a prueba tus conocimientos en IA aplicada a entornos profesionales. Cubre herramientas de IA, prompts efectivos, automatización de tareas y uso estratégico de modelos de lenguaje en el trabajo diario.',
+      estado: 'PUBLICADO' as const,
+      nivel: 'INTERMEDIO' as const,
+      duracion: '90 minutos',
+      area_tematica: 'Inteligencia Artificial',
+      es_gratis: false,
+      precio: 49.0,
+      preguntas: [
+        {
+          enunciado: '¿Qué es un "prompt" en el contexto de los modelos de lenguaje?',
+          tema: 'Fundamentos de IA',
+          opciones: opcionesPregunta(1, [
+            'Un tipo de red neuronal',
+            'La instrucción o texto de entrada que se da al modelo',
+            'Un algoritmo de entrenamiento',
+            'Una base de datos vectorial'
+          ])
+        },
+        {
+          enunciado: '¿Cuál es una ventaja de automatizar tareas repetitivas con IA?',
+          tema: 'Automatización',
+          opciones: opcionesPregunta(2, [
+            'Aumenta el costo operativo',
+            'Reduce la calidad del trabajo',
+            'Libera tiempo para tareas de mayor valor',
+            'Elimina la necesidad de supervisión humana siempre'
+          ])
+        },
+        {
+          enunciado: '¿Qué técnica mejora la precisión de las respuestas de un modelo de lenguaje?',
+          tema: 'Prompts efectivos',
+          opciones: opcionesPregunta(0, [
+            'Dar contexto claro y ejemplos en el prompt',
+            'Usar preguntas ambiguas',
+            'Evitar especificar el formato de salida',
+            'No indicar el rol del modelo'
+          ])
+        },
+        {
+          enunciado: '¿Qué es el "few-shot learning"?',
+          tema: 'Modelos de lenguaje',
+          opciones: opcionesPregunta(3, [
+            'Entrenar un modelo desde cero',
+            'Reducir el tamaño del modelo',
+            'Usar solo datos no etiquetados',
+            'Incluir pocos ejemplos en el prompt para guiar la respuesta'
+          ])
+        },
+        {
+          enunciado: 'En un entorno profesional, ¿qué riesgo debe considerarse al usar IA generativa?',
+          tema: 'Uso estratégico',
+          opciones: opcionesPregunta(1, [
+            'La IA siempre es 100% precisa',
+            'Las respuestas pueden contener errores o sesgos y deben validarse',
+            'No es necesario revisar el contenido generado',
+            'La IA reemplaza por completo el criterio profesional'
+          ])
+        }
+      ]
+    },
+    {
+      titulo: 'Simulacro Básico — Fundamentos de Construcción',
+      slug: 'simulacro-basico-fundamentos-construccion',
+      descripcion: 'Evalúa los conceptos fundamentales de construcción civil: materiales, normativa básica y seguridad en obra.',
+      estado: 'PUBLICADO' as const,
+      nivel: 'BASICO' as const,
+      duracion: '60 minutos',
+      area_tematica: 'Construcción',
+      es_gratis: true,
+      precio: 0,
+      preguntas: [
+        {
+          enunciado: '¿Cuál es la función principal del cemento en el concreto?',
+          tema: 'Materiales',
+          opciones: opcionesPregunta(0, [
+            'Actuar como aglomerante que une los agregados',
+            'Aportar color al concreto',
+            'Reducir el peso de la estructura',
+            'Acelerar el fraguado del agua'
+          ])
+        },
+        {
+          enunciado: '¿Qué norma regula la seguridad y salud en el trabajo en el Perú?',
+          tema: 'Normativa',
+          opciones: opcionesPregunta(2, ['Ley 27444', 'Ley 30225', 'Ley 29783', 'Ley 28611'])
+        },
+        {
+          enunciado: '¿Qué equipo de protección personal es indispensable en toda obra de construcción?',
+          tema: 'Seguridad',
+          opciones: opcionesPregunta(1, ['Guantes de cocina', 'Casco de seguridad', 'Lentes de sol', 'Gorra deportiva'])
+        },
+        {
+          enunciado: '¿Qué significa la sigla "IPER" en seguridad ocupacional?',
+          tema: 'Seguridad',
+          opciones: opcionesPregunta(3, [
+            'Informe de Productividad y Eficiencia en Recursos',
+            'Inspección de Procesos y Equipos de Riesgo',
+            'Índice de Pérdidas Económicas y Riesgos',
+            'Identificación de Peligros y Evaluación de Riesgos'
+          ])
+        }
+      ]
+    },
+    {
+      titulo: 'Simulacro Avanzado — Gestión de Proyectos',
+      slug: 'simulacro-avanzado-gestion-proyectos',
+      descripcion: 'Mide tu dominio en planificación, control de costos y metodologías de gestión de proyectos de construcción.',
+      estado: 'PUBLICADO' as const,
+      nivel: 'AVANZADO' as const,
+      duracion: '120 minutos',
+      area_tematica: 'Gestión de Proyectos',
+      es_gratis: false,
+      precio: 79.0,
+      preguntas: [
+        {
+          enunciado: '¿Qué representa la "ruta crítica" en un cronograma de proyecto?',
+          tema: 'Planificación',
+          opciones: opcionesPregunta(0, [
+            'La secuencia de actividades que determina la duración mínima del proyecto',
+            'Las actividades con mayor holgura',
+            'El presupuesto total del proyecto',
+            'El equipo con más recursos asignados'
+          ])
+        },
+        {
+          enunciado: 'En Lean Construction, ¿qué busca reducir principalmente la metodología?',
+          tema: 'Lean Construction',
+          opciones: opcionesPregunta(1, [
+            'El número de trabajadores',
+            'Los desperdicios y actividades que no agregan valor',
+            'La calidad de los acabados',
+            'El uso de tecnología en obra'
+          ])
+        },
+        {
+          enunciado: '¿Qué herramienta se usa comúnmente para el control de costos y presupuestos en obra?',
+          tema: 'Control de costos',
+          opciones: opcionesPregunta(2, ['AutoCAD', 'Photoshop', 'S10 / MS Project', 'Excel únicamente sin metodología'])
+        },
+        {
+          enunciado: '¿Qué es el "valor ganado" (Earned Value) en gestión de proyectos?',
+          tema: 'Control de proyectos',
+          opciones: opcionesPregunta(3, [
+            'El precio de venta final del proyecto',
+            'La utilidad neta del contratista',
+            'El monto del contrato firmado',
+            'El valor del trabajo realmente completado a una fecha de corte'
+          ])
+        },
+        {
+          enunciado: '¿Cuál es un objetivo clave de la liquidación de obra?',
+          tema: 'Liquidación de obras',
+          opciones: opcionesPregunta(0, [
+            'Determinar el costo final real de la obra ejecutada',
+            'Iniciar un nuevo proyecto',
+            'Contratar más personal',
+            'Diseñar los planos definitivos'
+          ])
+        }
+      ]
+    },
+    {
+      titulo: 'Simulacro Intermedio — Seguridad y Salud Ocupacional',
+      slug: 'simulacro-intermedio-seguridad-salud-ocupacional',
+      descripcion: 'Pon a prueba tu conocimiento sobre gestión de riesgos, normativa SST e investigación de accidentes en obra.',
+      estado: 'BORRADOR' as const,
+      nivel: 'INTERMEDIO' as const,
+      duracion: '75 minutos',
+      area_tematica: 'Seguridad y Salud Ocupacional',
+      es_gratis: false,
+      precio: 59.0,
+      preguntas: [
+        {
+          enunciado: '¿Cuál es el primer paso ante un accidente de trabajo en obra?',
+          tema: 'Investigación de accidentes',
+          opciones: opcionesPregunta(1, [
+            'Limpiar la zona del incidente',
+            'Atender al accidentado y asegurar la zona',
+            'Llamar directamente a un abogado',
+            'Continuar con las labores normalmente'
+          ])
+        },
+        {
+          enunciado: '¿Qué documento establece las medidas preventivas de una obra conforme a la Ley 29783?',
+          tema: 'Normativa SST',
+          opciones: opcionesPregunta(2, [
+            'El expediente técnico',
+            'El cronograma de obra',
+            'El Plan de Seguridad y Salud en el Trabajo',
+            'El presupuesto de obra'
+          ])
+        },
+        {
+          enunciado: '¿Qué se entiende por "incidente" a diferencia de "accidente" en SST?',
+          tema: 'Gestión de riesgos',
+          opciones: opcionesPregunta(0, [
+            'Un evento que pudo causar daño pero no llegó a generarlo',
+            'Un evento que siempre causa lesiones graves',
+            'Un sinónimo exacto de accidente',
+            'Un reporte administrativo sin relevancia'
+          ])
+        }
+      ]
+    }
+  ]
+
+  for (const { preguntas, ...simulacroData } of simulacros) {
+    await prisma.simulacro.upsert({
+      where: { slug: simulacroData.slug },
+      update: {},
+      create: {
+        ...simulacroData,
+        moneda: 'PEN',
+        numero_preguntas: preguntas.length,
+        preguntas: {
+          create: preguntas.map((p, orden) => ({
+            enunciado: p.enunciado,
+            tema: p.tema,
+            orden,
+            opciones: { create: p.opciones }
+          }))
+        }
+      }
+    })
+  }
+
+  console.log(`✅ ${simulacros.length} simulacros de prueba creados`)
+
   // ─── RESUMEN ─────────────────────────────────────────────────────────────────
 
   console.log('')
@@ -558,6 +796,11 @@ async function main() {
   console.log('🎟️  Cupones:')
   console.log('   BIENVENIDO20 → 20% descuento')
   console.log('   DESCUENTO50  → S/. 50 de descuento')
+  console.log('')
+  console.log('📝 Simulacros:')
+  for (const s of simulacros) {
+    console.log(`   - ${s.titulo} (${s.nivel}, ${s.es_gratis ? 'gratis' : 'S/. ' + s.precio})`)
+  }
 }
 
 main()

@@ -174,9 +174,8 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes)
 
     // 🔐 SEGURIDAD: Verificar magic bytes (contenido real del archivo)
-    if (!verifyMagicBytes(buffer, detectedMime)) {
     // Los tipos de audio se omiten de la verificación de magic bytes (formatos variables)
-    if (!file.type.startsWith('audio/') && !verifyMagicBytes(buffer, file.type)) {
+    if (!file.type.startsWith('audio/') && !verifyMagicBytes(buffer, detectedMime)) {
       return ApiResponse.error(request, 'El contenido del archivo no coincide con su tipo declarado', 400)
     }
 

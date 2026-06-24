@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState, Children, cloneElement } from 'react'
 import {
   Box, Button, Card, CardContent, Chip, Collapse, Divider,
   Grid, IconButton, TextField, Typography, Radio,
@@ -12,8 +12,15 @@ import axios from 'axios'
 import { getBaseURL } from '@/utils/env'
 import { useSession } from 'next-auth/react'
 import { useQuery } from '@tanstack/react-query'
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors,
+  type DragEndEvent
+} from '@dnd-kit/core'
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import AudioRecorder from './AudioRecorder'
 import MediaLibrary from '@/features/admin/cursos/components/MediaLibrary'
+import ImportarPreguntasModal from './ImportarPreguntasModal'
 
 interface Opcion { id?: string; texto: string; es_correcta: boolean; orden: number }
 interface Pregunta {
@@ -24,7 +31,7 @@ interface Pregunta {
 const LETRAS = ['A', 'B', 'C', 'D', 'E', 'F']
 
 function emptyOpciones(): Opcion[] {
-  return [0, 1, 2, 3].map(orden => ({ texto: '', es_correcta: orden === 0, orden }))
+  return [0, 1].map(orden => ({ texto: '', es_correcta: orden === 0, orden }))
 }
 
 // ── Formulario de pregunta ────────────────────────────────────────────────
@@ -205,9 +212,28 @@ function PreguntaForm({ initial, simulacroId, token, onSaved, onCancel }: {
   )
 }
 
+// ── Wrapper arrastrable ────────────────────────────────────────────────────
+function SortablePreguntaItem({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.6 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      {Children.map(children, (child: any) => cloneElement(child, { dragHandleProps: { ...attributes, ...listeners } }))}
+    </div>
+  )
+}
+
 // ── Ítem de pregunta ──────────────────────────────────────────────────────
-function PreguntaItem({ pregunta, simulacroId, token, onRefresh }: {
+function PreguntaItem({ pregunta, simulacroId, token, onRefresh, dragHandleProps }: {
   pregunta: Pregunta; simulacroId: string; token: string | null; onRefresh: () => void
+  dragHandleProps?: Record<string, any>
 }) {
   const { enqueueSnackbar } = useSnackbar()
   const [expanded, setExpanded] = useState(false)
@@ -237,6 +263,11 @@ function PreguntaItem({ pregunta, simulacroId, token, onRefresh }: {
   return (
     <Card variant='outlined' sx={{ mb: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', px: 2, py: 1.5, gap: 1 }}>
+        {dragHandleProps && (
+          <Box {...dragHandleProps} sx={{ display: 'flex', alignItems: 'center', cursor: 'grab', flexShrink: 0, color: 'text.disabled', '&:active': { cursor: 'grabbing' } }}>
+            <i className='tabler-grip-vertical text-[18px]' />
+          </Box>
+        )}
         {pregunta.imagen_url && (
           <Box sx={{ flexShrink: 0, borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
             <img src={pregunta.imagen_url} alt='' style={{ width: 48, height: 32, objectFit: 'cover', display: 'block' }} />
@@ -313,56 +344,88 @@ function PreguntaItem({ pregunta, simulacroId, token, onRefresh }: {
 export default function PreguntasTab({ simulacroId, numeroPreguntasSimulacro }: {
   simulacroId: string; numeroPreguntasSimulacro?: number
 }) {
+  const { enqueueSnackbar } = useSnackbar()
   const { data: session } = useSession()
   const token = session?.user?.accessToken ?? null
   const [adding, setAdding] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [ordenadas, setOrdenadas] = useState<Pregunta[]>([])
+
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const base = `${getBaseURL()}/api/simulacros/${simulacroId}/preguntas`
 
   const { data: preguntas = [], isLoading, refetch } = useQuery<Pregunta[]>({
     queryKey: ['simulacro-preguntas', simulacroId],
     queryFn: async () => {
-      const { data } = await axios.get(
-        `${getBaseURL()}/api/simulacros/${simulacroId}/preguntas`,
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
-      )
+      const { data } = await axios.get(base, { headers })
       return data.result ?? []
     },
     enabled: !!simulacroId,
   })
 
+  useEffect(() => { setOrdenadas(preguntas) }, [preguntas])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = ordenadas.findIndex(p => p.id === active.id)
+    const newIndex = ordenadas.findIndex(p => p.id === over.id)
+    const reordered = arrayMove(ordenadas, oldIndex, newIndex)
+    setOrdenadas(reordered)
+
+    try {
+      await axios.patch(`${base}/reordenar`, { items: reordered.map((p, i) => ({ id: p.id, orden: i })) }, { headers })
+    } catch {
+      enqueueSnackbar('Error al reordenar las preguntas', { variant: 'error' })
+      setOrdenadas(preguntas)
+    }
+  }
+
   const pool = numeroPreguntasSimulacro ?? 0
-  const faltantes = pool > 0 ? Math.max(0, pool - preguntas.length) : 0
+  const faltantes = pool > 0 ? Math.max(0, pool - ordenadas.length) : 0
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant='h6'>Banco de preguntas</Typography>
           <Typography variant='caption' color='text.secondary'>
-            {preguntas.length} pregunta{preguntas.length !== 1 ? 's' : ''} en el banco
-            {pool > 0 && preguntas.length > pool && (
+            {ordenadas.length} pregunta{ordenadas.length !== 1 ? 's' : ''} en el banco
+            {pool > 0 && ordenadas.length > pool && (
               <> · Se mostrarán <strong>{pool}</strong> aleatorias por intento</>
             )}
           </Typography>
         </Box>
         {!adding && (
-          <Button variant='contained' startIcon={<Icon icon='mdi:plus' />} onClick={() => setAdding(true)}>
-            Agregar pregunta
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button variant='outlined' startIcon={<Icon icon='mdi:file-upload-outline' />} onClick={() => setImporting(true)}>
+              Importar preguntas
+            </Button>
+            <Button variant='contained' startIcon={<Icon icon='mdi:plus' />} onClick={() => setAdding(true)}>
+              Agregar pregunta
+            </Button>
+          </Box>
         )}
       </Box>
 
       {/* Aviso: banco insuficiente */}
       {faltantes > 0 && (
         <Alert severity='warning' sx={{ mb: 2 }}>
-          El simulacro requiere <strong>{pool}</strong> preguntas por intento, pero el banco solo tiene <strong>{preguntas.length}</strong>.
+          El simulacro requiere <strong>{pool}</strong> preguntas por intento, pero el banco solo tiene <strong>{ordenadas.length}</strong>.
           Faltan <strong>{faltantes}</strong> pregunta{faltantes !== 1 ? 's' : ''} para poder publicar.
         </Alert>
       )}
 
       {/* Aviso: pool mayor que banco (pool aleatorio) */}
-      {pool > 0 && preguntas.length > pool && (
+      {pool > 0 && ordenadas.length > pool && (
         <Alert severity='info' sx={{ mb: 2 }}>
-          El banco tiene <strong>{preguntas.length}</strong> preguntas · Se seleccionarán <strong>{pool}</strong> aleatoriamente por intento con alternativas barajadas.
+          El banco tiene <strong>{ordenadas.length}</strong> preguntas · Se seleccionarán <strong>{pool}</strong> aleatoriamente por intento con alternativas barajadas.
         </Alert>
       )}
 
@@ -374,16 +437,30 @@ export default function PreguntasTab({ simulacroId, numeroPreguntasSimulacro }: 
 
       {isLoading ? (
         <Box sx={{ textAlign: 'center', py: 4 }}><CircularProgress /></Box>
-      ) : preguntas.length === 0 && !adding ? (
+      ) : ordenadas.length === 0 && !adding ? (
         <Box sx={{ textAlign: 'center', py: 6, color: 'text.secondary' }}>
           <Icon icon='mdi:clipboard-text-off' fontSize={40} />
-          <Typography variant='body2' sx={{ mt: 1 }}>No hay preguntas aún. Agrega la primera.</Typography>
+          <Typography variant='body2' sx={{ mt: 1 }}>No hay preguntas aún. Agrega la primera o impórtalas desde un examen existente.</Typography>
         </Box>
       ) : (
-        preguntas.map(p => (
-          <PreguntaItem key={p.id} pregunta={p} simulacroId={simulacroId} token={token} onRefresh={refetch} />
-        ))
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={ordenadas.map(p => p.id)} strategy={verticalListSortingStrategy}>
+            {ordenadas.map(p => (
+              <SortablePreguntaItem key={p.id} id={p.id}>
+                <PreguntaItem pregunta={p} simulacroId={simulacroId} token={token} onRefresh={refetch} />
+              </SortablePreguntaItem>
+            ))}
+          </SortableContext>
+        </DndContext>
       )}
+
+      <ImportarPreguntasModal
+        open={importing}
+        onClose={() => setImporting(false)}
+        simulacroId={simulacroId}
+        token={token}
+        onImported={() => { setImporting(false); refetch() }}
+      />
     </Box>
   )
 }

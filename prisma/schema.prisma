@@ -1001,6 +1001,8 @@ model PreguntaSimulacro {
   enunciado    String
   tema         String?
   fundamento   String?
+  audio_url    String?
+  imagen_url   String?
   orden        Int       @default(0)
   creado_en    DateTime  @default(now())
   opciones     OpcionPreguntaSimulacro[]
