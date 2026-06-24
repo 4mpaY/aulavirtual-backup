@@ -107,6 +107,13 @@ async function main() {
 
   // ─── CURSOS ──────────────────────────────────────────────────────────────────
 
+  const opcionesPregunta = (correcta: number, textos: string[]) =>
+    textos.map((texto, i) => ({ texto, es_correcta: i === correcta, orden: i }))
+
+  const materialDescargable = (id: string, nombre: string) => [
+    { id, nombre, url: '/uploads/cursos/plataforma-educativa.pdf', tipo: 'archivo' }
+  ]
+
   await prisma.curso.upsert({
     where: { slug: 'costos-presupuestos-obra-s10' },
     update: {},
@@ -114,6 +121,7 @@ async function main() {
       titulo: 'Elaboración de Costos y Presupuestos de Obra con S10 y MS Project',
       slug: 'costos-presupuestos-obra-s10',
       descripcion: 'Aprende a elaborar presupuestos de obra, análisis de precios unitarios y programación de proyectos usando S10 y MS Project.',
+      miniatura: '/uploads/cursos/elaboracion-de-costos.jpg',
       precio: 179.00,
       precio_falso: 249.00,
       moneda: 'PEN',
@@ -136,20 +144,21 @@ async function main() {
                   titulo: 'Introducción a la gestión de costos en obras',
                   orden: 0,
                   duracion: 20,
-                  video_url: 'https://www.youtube.com/watch?v=example1',
-                  es_vista_previa: true
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  es_vista_previa: true,
+                  recursos: materialDescargable('mat-costos-1', 'Guía de la plataforma educativa')
                 },
                 {
                   titulo: 'Análisis de precios unitarios (APU)',
                   orden: 1,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example2'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Metrados y partidas según norma técnica',
                   orden: 2,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example3'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 }
               ]
             }
@@ -163,19 +172,93 @@ async function main() {
                   titulo: 'Configuración de proyectos en S10 Presupuestos',
                   orden: 0,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example4'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Programación de obra con MS Project',
                   orden: 1,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example5'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Control de costos y curva S',
                   orden: 2,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example6'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
+                }
+              ]
+            }
+          },
+          {
+            titulo: 'Costos en Edificaciones y Proyectos Especiales',
+            orden: 2,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Presupuesto de obras de edificación',
+                  orden: 0,
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  recursos: materialDescargable('mat-costos-2', 'Guía de la plataforma educativa')
+                },
+                {
+                  titulo: 'Gestión de adicionales y reducciones de obra',
+                  orden: 1,
+                  duracion: 20,
+                  es_en_vivo: true,
+                  fecha_programada: new Date('2026-07-10T19:00:00-05:00'),
+                  fecha_fin: new Date('2026-07-10T21:00:00-05:00'),
+                  enlace_reunion: 'https://meet.google.com/abc-defg-hij'
+                }
+              ]
+            }
+          }
+        ]
+      },
+      examenes: {
+        create: [
+          {
+            titulo: 'Evaluación Final - Costos y Presupuestos de Obra',
+            tipo: 'FINAL',
+            peso: 100,
+            puntaje_aprobacion: 60,
+            intentos_maximos: 2,
+            esta_publicado: true,
+            preguntas: {
+              create: [
+                {
+                  texto: '¿Qué significa la sigla APU en presupuestos de obra?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 0,
+                  opciones: {
+                    create: opcionesPregunta(1, [
+                      'Análisis de Programación Urbana',
+                      'Análisis de Precios Unitarios',
+                      'Aprobación de Presupuesto Único',
+                      'Administración de Proyectos Urbanos'
+                    ])
+                  }
+                },
+                {
+                  texto: '¿Qué software se utiliza junto con S10 para la programación del cronograma de obra?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 1,
+                  opciones: {
+                    create: opcionesPregunta(2, ['AutoCAD', 'Excel sin metodología', 'MS Project', 'Photoshop'])
+                  }
+                },
+                {
+                  texto: '¿Qué representa la curva S en el control de costos de un proyecto?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 2,
+                  opciones: {
+                    create: opcionesPregunta(0, [
+                      'El avance planificado vs. real de costos en el tiempo',
+                      'El número de trabajadores en obra',
+                      'El precio de venta del proyecto',
+                      'La forma física de los elementos estructurales'
+                    ])
+                  }
                 }
               ]
             }
@@ -192,6 +275,7 @@ async function main() {
       titulo: 'Valorización y Liquidación de Obras Públicas por Contrata',
       slug: 'valorizacion-liquidacion-obras-contrata',
       descripcion: 'Domina el proceso de valorización mensual y liquidación técnico-financiera de obras públicas ejecutadas por contrata.',
+      miniatura: '/uploads/cursos/valorizacion.jpg',
       precio: 169.00,
       precio_falso: 219.00,
       moneda: 'PEN',
@@ -214,20 +298,21 @@ async function main() {
                   titulo: 'Marco normativo de contrataciones del Estado',
                   orden: 0,
                   duracion: 20,
-                  video_url: 'https://www.youtube.com/watch?v=example7',
-                  es_vista_previa: true
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  es_vista_previa: true,
+                  recursos: materialDescargable('mat-valorizacion-1', 'Guía de la plataforma educativa')
                 },
                 {
                   titulo: 'Elaboración de valorizaciones mensuales',
                   orden: 1,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example8'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Reajuste de precios y fórmulas polinómicas',
                   orden: 2,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example9'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 }
               ]
             }
@@ -241,13 +326,85 @@ async function main() {
                   titulo: 'Liquidación técnica y financiera de obra',
                   orden: 0,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example10'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Resolución de controversias y ampliaciones de plazo',
                   orden: 1,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example11'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
+                }
+              ]
+            }
+          },
+          {
+            titulo: 'Casos Prácticos de Valorización y Liquidación',
+            orden: 2,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Resolución de un caso integral de valorización',
+                  orden: 0,
+                  duracion: 30,
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  recursos: materialDescargable('mat-valorizacion-2', 'Guía de la plataforma educativa')
+                },
+                {
+                  titulo: 'Resolución de un caso integral de liquidación de obra',
+                  orden: 1,
+                  duracion: 30,
+                  es_en_vivo: true,
+                  fecha_programada: new Date('2026-07-11T19:00:00-05:00'),
+                  fecha_fin: new Date('2026-07-11T21:00:00-05:00'),
+                  enlace_reunion: 'https://meet.google.com/klm-nopq-rst'
+                }
+              ]
+            }
+          }
+        ]
+      },
+      examenes: {
+        create: [
+          {
+            titulo: 'Evaluación Final - Valorización y Liquidación de Obras',
+            tipo: 'FINAL',
+            peso: 100,
+            puntaje_aprobacion: 60,
+            intentos_maximos: 2,
+            esta_publicado: true,
+            preguntas: {
+              create: [
+                {
+                  texto: '¿Con qué periodicidad se elabora una valorización de obra pública por contrata?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 0,
+                  opciones: { create: opcionesPregunta(2, ['Diaria', 'Anual', 'Mensual', 'Trimestral']) }
+                },
+                {
+                  texto: '¿Qué busca corregir el reajuste por fórmula polinómica?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 1,
+                  opciones: {
+                    create: opcionesPregunta(0, [
+                      'La variación de precios de los insumos en el tiempo',
+                      'El número de trabajadores en obra',
+                      'Los errores de diseño estructural',
+                      'El plazo de ejecución contractual'
+                    ])
+                  }
+                },
+                {
+                  texto: '¿Qué tipo de liquidación debe presentarse al finalizar una obra ejecutada por contrata?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 2,
+                  opciones: {
+                    create: opcionesPregunta(1, [
+                      'Solo liquidación administrativa',
+                      'Liquidación técnica y financiera',
+                      'Liquidación de personal',
+                      'Liquidación de garantías únicamente'
+                    ])
+                  }
                 }
               ]
             }
@@ -264,6 +421,7 @@ async function main() {
       titulo: 'Lean Construction: Gestión Eficiente de Proyectos de Construcción',
       slug: 'lean-construction-gestion-proyectos',
       descripcion: 'Aplica la filosofía Lean y sus herramientas para eliminar pérdidas y optimizar la planificación de proyectos de construcción.',
+      miniatura: '/uploads/cursos/lean-construccion.jpg',
       precio: 199.00,
       precio_falso: 259.00,
       moneda: 'PEN',
@@ -286,14 +444,15 @@ async function main() {
                   titulo: 'Principios de la filosofía Lean aplicada a construcción',
                   orden: 0,
                   duracion: 20,
-                  video_url: 'https://www.youtube.com/watch?v=example12',
-                  es_vista_previa: true
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  es_vista_previa: true,
+                  recursos: materialDescargable('mat-lean-1', 'Guía de la plataforma educativa')
                 },
                 {
                   titulo: 'Identificación de pérdidas y restricciones',
                   orden: 1,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example13'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 }
               ]
             }
@@ -307,19 +466,93 @@ async function main() {
                   titulo: 'Last Planner System (LPS)',
                   orden: 0,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example14'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Value Stream Mapping en obra',
                   orden: 1,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example15'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Implementación de Lean en proyectos reales',
                   orden: 2,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example16'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
+                }
+              ]
+            }
+          },
+          {
+            titulo: 'Mejora Continua y Casos de Éxito',
+            orden: 2,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Indicadores de desempeño (PPC) en Lean Construction',
+                  orden: 0,
+                  duracion: 20,
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  recursos: materialDescargable('mat-lean-2', 'Guía de la plataforma educativa')
+                },
+                {
+                  titulo: 'Casos de éxito de implementación Lean en el Perú',
+                  orden: 1,
+                  duracion: 25,
+                  es_en_vivo: true,
+                  fecha_programada: new Date('2026-07-12T19:00:00-05:00'),
+                  fecha_fin: new Date('2026-07-12T21:00:00-05:00'),
+                  enlace_reunion: 'https://meet.google.com/uvw-xyzz-123'
+                }
+              ]
+            }
+          }
+        ]
+      },
+      examenes: {
+        create: [
+          {
+            titulo: 'Evaluación Final - Lean Construction',
+            tipo: 'FINAL',
+            peso: 100,
+            puntaje_aprobacion: 60,
+            intentos_maximos: 2,
+            esta_publicado: true,
+            preguntas: {
+              create: [
+                {
+                  texto: '¿Cuál es el objetivo principal de Lean Construction?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 0,
+                  opciones: {
+                    create: opcionesPregunta(1, [
+                      'Aumentar el número de trabajadores en obra',
+                      'Eliminar pérdidas y maximizar el valor para el cliente',
+                      'Reducir la calidad de los acabados',
+                      'Incrementar el uso de papeleo administrativo'
+                    ])
+                  }
+                },
+                {
+                  texto: '¿Qué herramienta de Lean Construction se usa para la planificación colaborativa de corto plazo?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 1,
+                  opciones: {
+                    create: opcionesPregunta(2, ['AutoCAD', 'Curva S', 'Last Planner System (LPS)', 'Diagrama de Gantt clásico'])
+                  }
+                },
+                {
+                  texto: '¿Qué mide el indicador PPC (Porcentaje de Plan Cumplido)?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 2,
+                  opciones: {
+                    create: opcionesPregunta(0, [
+                      'El porcentaje de actividades planificadas que se completaron según lo programado',
+                      'El presupuesto total ejecutado',
+                      'El número de trabajadores capacitados',
+                      'El tiempo total de retraso de la obra'
+                    ])
+                  }
                 }
               ]
             }
@@ -336,6 +569,7 @@ async function main() {
       titulo: 'Construcción, Mantenimiento y Rehabilitación de Carreteras',
       slug: 'construccion-mantenimiento-rehabilitacion-carreteras',
       descripcion: 'Conoce el diseño, construcción, mantenimiento y rehabilitación de vías, pavimentos y estructuras viales.',
+      miniatura: '/uploads/cursos/constrtuccion-y-mantenimiento.jpg',
       precio: 189.00,
       precio_falso: 239.00,
       moneda: 'PEN',
@@ -358,14 +592,15 @@ async function main() {
                   titulo: 'Geometría y diseño de pavimentos',
                   orden: 0,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example17',
-                  es_vista_previa: true
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  es_vista_previa: true,
+                  recursos: materialDescargable('mat-carreteras-1', 'Guía de la plataforma educativa')
                 },
                 {
                   titulo: 'Materiales y capas estructurales del pavimento',
                   orden: 1,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example18'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 }
               ]
             }
@@ -379,13 +614,85 @@ async function main() {
                   titulo: 'Técnicas de mantenimiento vial preventivo y correctivo',
                   orden: 0,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example19'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Patologías del pavimento y métodos de rehabilitación',
                   orden: 1,
                   duracion: 30,
-                  video_url: 'https://www.youtube.com/watch?v=example20'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
+                }
+              ]
+            }
+          },
+          {
+            titulo: 'Gestión y Conservación Vial',
+            orden: 2,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Sistemas de gestión de conservación vial por niveles de servicio',
+                  orden: 0,
+                  duracion: 25,
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  recursos: materialDescargable('mat-carreteras-2', 'Guía de la plataforma educativa')
+                },
+                {
+                  titulo: 'Evaluación de la condición del pavimento (PCI)',
+                  orden: 1,
+                  duracion: 25,
+                  es_en_vivo: true,
+                  fecha_programada: new Date('2026-07-13T19:00:00-05:00'),
+                  fecha_fin: new Date('2026-07-13T21:00:00-05:00'),
+                  enlace_reunion: 'https://meet.google.com/234-5678-9ab'
+                }
+              ]
+            }
+          }
+        ]
+      },
+      examenes: {
+        create: [
+          {
+            titulo: 'Evaluación Final - Construcción y Mantenimiento de Carreteras',
+            tipo: 'FINAL',
+            peso: 100,
+            puntaje_aprobacion: 60,
+            intentos_maximos: 2,
+            esta_publicado: true,
+            preguntas: {
+              create: [
+                {
+                  texto: '¿Qué tipo de mantenimiento se realiza antes de que aparezcan fallas en el pavimento?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 0,
+                  opciones: { create: opcionesPregunta(2, ['Correctivo', 'De emergencia', 'Preventivo', 'Estructural']) }
+                },
+                {
+                  texto: '¿Qué evalúa el índice PCI en un pavimento?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 1,
+                  opciones: {
+                    create: opcionesPregunta(0, [
+                      'La condición o estado superficial del pavimento',
+                      'El costo total de la obra',
+                      'El tránsito vehicular diario',
+                      'El tipo de suelo de la subrasante'
+                    ])
+                  }
+                },
+                {
+                  texto: '¿Cuál es una causa común de patologías en pavimentos flexibles?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 2,
+                  opciones: {
+                    create: opcionesPregunta(1, [
+                      'Exceso de señalización vial',
+                      'Deficiencias en el drenaje y sobrecarga vehicular',
+                      'Uso de pintura reflectiva',
+                      'Iluminación insuficiente'
+                    ])
+                  }
                 }
               ]
             }
@@ -402,6 +709,7 @@ async function main() {
       titulo: 'Seguridad y Salud Ocupacional en Obras de Construcción',
       slug: 'seguridad-salud-ocupacional-obras',
       descripcion: 'Aprende a gestionar la seguridad y salud en el trabajo en obras de construcción conforme a la normativa vigente.',
+      miniatura: '/uploads/cursos/seguridad-y-salud.jpg',
       precio: 149.00,
       precio_falso: 199.00,
       moneda: 'PEN',
@@ -424,14 +732,15 @@ async function main() {
                   titulo: 'Ley 29783 y su reglamento aplicado a construcción',
                   orden: 0,
                   duracion: 20,
-                  video_url: 'https://www.youtube.com/watch?v=example21',
-                  es_vista_previa: true
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  es_vista_previa: true,
+                  recursos: materialDescargable('mat-sst-1', 'Guía de la plataforma educativa')
                 },
                 {
                   titulo: 'Identificación de peligros y evaluación de riesgos (IPER)',
                   orden: 1,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example22'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 }
               ]
             }
@@ -445,13 +754,85 @@ async function main() {
                   titulo: 'Elaboración del Plan de Seguridad y Salud en el Trabajo',
                   orden: 0,
                   duracion: 25,
-                  video_url: 'https://www.youtube.com/watch?v=example23'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
                 },
                 {
                   titulo: 'Investigación de accidentes e incidentes laborales',
                   orden: 1,
                   duracion: 20,
-                  video_url: 'https://www.youtube.com/watch?v=example24'
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4'
+                }
+              ]
+            }
+          },
+          {
+            titulo: 'Auditoría y Mejora Continua en SST',
+            orden: 2,
+            lecciones: {
+              create: [
+                {
+                  titulo: 'Auditorías internas del sistema de gestión SST',
+                  orden: 0,
+                  duracion: 20,
+                  video_url: 'https://www.youtube.com/watch?v=ZUZif1Ll9u4',
+                  recursos: materialDescargable('mat-sst-2', 'Guía de la plataforma educativa')
+                },
+                {
+                  titulo: 'Indicadores de seguridad y mejora continua',
+                  orden: 1,
+                  duracion: 20,
+                  es_en_vivo: true,
+                  fecha_programada: new Date('2026-07-14T19:00:00-05:00'),
+                  fecha_fin: new Date('2026-07-14T21:00:00-05:00'),
+                  enlace_reunion: 'https://meet.google.com/cde-fghi-jkl'
+                }
+              ]
+            }
+          }
+        ]
+      },
+      examenes: {
+        create: [
+          {
+            titulo: 'Evaluación Final - Seguridad y Salud Ocupacional',
+            tipo: 'FINAL',
+            peso: 100,
+            puntaje_aprobacion: 60,
+            intentos_maximos: 2,
+            esta_publicado: true,
+            preguntas: {
+              create: [
+                {
+                  texto: '¿Qué ley regula la seguridad y salud en el trabajo en el Perú?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 0,
+                  opciones: { create: opcionesPregunta(2, ['Ley 27444', 'Ley 30225', 'Ley 29783', 'Ley 28611']) }
+                },
+                {
+                  texto: '¿Qué documento establece las medidas preventivas de una obra conforme a la Ley 29783?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 1,
+                  opciones: {
+                    create: opcionesPregunta(2, [
+                      'El expediente técnico',
+                      'El cronograma de obra',
+                      'El Plan de Seguridad y Salud en el Trabajo',
+                      'El presupuesto de obra'
+                    ])
+                  }
+                },
+                {
+                  texto: '¿Qué herramienta se usa para identificar peligros y evaluar riesgos en obra?',
+                  tipo: 'OPCION_MULTIPLE',
+                  orden: 2,
+                  opciones: {
+                    create: opcionesPregunta(1, [
+                      'Curva S',
+                      'IPER (Identificación de Peligros y Evaluación de Riesgos)',
+                      'Diagrama de Gantt',
+                      'Análisis de Precios Unitarios'
+                    ])
+                  }
                 }
               ]
             }
@@ -539,9 +920,6 @@ async function main() {
   }
 
   // ─── SIMULACROS ──────────────────────────────────────────────────────────────
-
-  const opcionesPregunta = (correcta: number, textos: string[]) =>
-    textos.map((texto, i) => ({ texto, es_correcta: i === correcta, orden: i }))
 
   const simulacros = [
     {
