@@ -128,12 +128,12 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             <MenuItem href='/admin/cursos' icon={<i className='tabler-book' />}>
               Cursos
             </MenuItem>
-            <MenuItem href='/admin/ebooks' icon={<i className='tabler-book-2' />}>
+            {/* <MenuItem href='/admin/ebooks' icon={<i className='tabler-book-2' />}>
               Ebooks
             </MenuItem>
             <MenuItem href='/admin/simulacros' icon={<i className='tabler-clipboard-list' />}>
               Simulacros
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem href='/admin/rutas' icon={<i className='tabler-route' />}>
               Rutas Aprendizaje
             </MenuItem>
