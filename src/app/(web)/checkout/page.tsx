@@ -8,6 +8,7 @@ import { Box, CircularProgress } from '@mui/material'
 
 import CheckoutView from '@/features/web/checkout/components/CheckoutView'
 import { useCart } from '@/features/web/cart/context/CartContext'
+import SoutPageShell from '@sout/components/layout/SoutPageShell'
 
 export default function CartCheckoutPage() {
     const { cart, itemCount } = useCart()
@@ -21,9 +22,11 @@ export default function CartCheckoutPage() {
 
     if (itemCount === 0) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress />
-            </Box>
+            <SoutPageShell>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+                    <CircularProgress />
+                </Box>
+            </SoutPageShell>
         )
     }
 
@@ -49,5 +52,9 @@ export default function CartCheckoutPage() {
         moneda: item.moneda || 'PEN',
     }))
 
-    return <CheckoutView courses={courses} ebooks={ebooks} />
+    return (
+        <SoutPageShell>
+            <CheckoutView courses={courses} ebooks={ebooks} />
+        </SoutPageShell>
+    )
 }

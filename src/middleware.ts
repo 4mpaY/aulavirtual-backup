@@ -81,6 +81,8 @@ export default withAuth(
           path.startsWith('/login') ||
           path.startsWith('/register') ||
           path.startsWith('/cursos') ||
+          path.startsWith('/checkout') ||
+          path.startsWith('/perfil') ||
           path.startsWith('/ebooks') ||
           path.startsWith('/rutas') ||
           path.startsWith('/proyectos') ||
@@ -88,6 +90,9 @@ export default withAuth(
           path.startsWith('/consultoria') ||
           path.startsWith('/capacitacion') ||
           path.startsWith('/contacto') ||
+          path.startsWith('/servicios') ||
+          path.startsWith('/politica-de-privacidad') ||
+          path.startsWith('/terminos-de-uso') ||
           path.startsWith('/nosotros') ||
           path.startsWith('/docentes') ||
           path.startsWith('/libro-de-reclamaciones') ||

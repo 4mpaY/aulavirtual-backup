@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+const path = require('path')
+
 // 🔐 SEGURIDAD: Headers HTTP de seguridad para todas las rutas
 const securityHeaders = [
   {
@@ -49,6 +51,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias.canvas = false
     config.resolve.alias.encoding = false
+    config.resolve.alias['@sout'] = path.join(__dirname, 'src/features/sout')
 
     return config
   },
@@ -60,6 +63,24 @@ const nextConfig = {
     '@fullcalendar/list',
     '@fullcalendar/interaction'
   ],
+  async redirects() {
+    return [
+      { source: '/ebooks/:path*', destination: '/', permanent: false },
+      { source: '/rutas/:path*', destination: '/', permanent: false },
+      { source: '/proyectos/:path*', destination: '/', permanent: false },
+      { source: '/simulacros/:path*', destination: '/', permanent: false },
+      { source: '/suscripciones/:path*', destination: '/', permanent: false },
+      { source: '/empresas/:path*', destination: '/', permanent: false },
+      { source: '/docentes/:path*', destination: '/', permanent: false },
+      { source: '/capacitacion/:path*', destination: '/', permanent: false },
+      { source: '/consultoria/:path*', destination: '/', permanent: false },
+      { source: '/libro-de-reclamaciones/:path*', destination: '/', permanent: false },
+      { source: '/terminos-y-condiciones/:path*', destination: '/', permanent: false },
+      { source: '/politica-de-cambios-y-devoluciones/:path*', destination: '/', permanent: false },
+      { source: '/verificar-certificado/:path*', destination: '/', permanent: false },
+      { source: '/mantenimiento/:path*', destination: '/', permanent: false },
+    ]
+  },
   async headers() {
     return [
       {

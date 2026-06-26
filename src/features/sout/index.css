@@ -1,0 +1,323 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 13%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 13%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 13%;
+
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 153 100% 33%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 100% 50%;
+
+    --radius: 0.5rem;
+
+    /* Custom tokens */
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 13%) 0%, hsl(0 0% 20%) 50%, hsl(0 100% 25%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(0 100% 50%) 0%, hsl(0 100% 40%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(153 100% 33%) 0%, hsl(153 100% 28%) 100%);
+    --shadow-card: 0 4px 20px -4px hsla(0, 0%, 0%, 0.1);
+    --shadow-card-hover: 0 8px 30px -4px hsla(0, 100%, 50%, 0.2);
+    --shadow-button: 0 4px 14px -2px hsla(0, 100%, 50%, 0.4);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 153 100% 33%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  .section-padding {
+    @apply py-12 sm:py-16 md:py-20 lg:py-24;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-1;
+  }
+
+  .btn-primary-shadow {
+    box-shadow: var(--shadow-button);
+  }
+
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 10px 40px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.8s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.8s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent horizontal scroll on mobile */
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(0 100% 40%);
+}
+
+/* Improve touch scrolling on mobile */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent text size adjustment on mobile */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Tap highlight color for mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}

@@ -7,6 +7,7 @@ import { Box } from '@mui/material'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { AxiosWebCursos } from '@/features/web/cursos/http/axiosWebCursos'
+import SoutPageShell from '@sout/components/layout/SoutPageShell'
 
 // Component Imports
 import CourseDetail from '@/features/web/courses/components/CourseDetail'
@@ -39,9 +40,11 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
     }
 
     return (
-        <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
-            <CourseDetail course={course} />
-        </Box>
+        <SoutPageShell>
+            <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
+                <CourseDetail course={course} />
+            </Box>
+        </SoutPageShell>
     )
 }
 
@@ -51,7 +54,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     if (!course) return { title: 'Curso no encontrado' }
 
     return {
-        title: `${course.titulo} | Aula Virtual`,
-        description: course.descripcion || 'Detalles del curso en nuestra plataforma EdTech.'
+        title: `${course.titulo} | SOUT Training Center`,
+        description: course.descripcion || 'Detalles del curso en nuestra plataforma de capacitación.'
     }
 }

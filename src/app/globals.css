@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scrollbar-gutter: stable;
+}
+
 :root {
   --border-radius: var(--mui-shape-borderRadius);
   --border-color: var(--mui-palette-divider);
@@ -34,6 +38,32 @@
   --navbar-height: 88px;
   --sidebar-width: 80px;
   --sidebar-width-expanded: 260px;
+
+  /* Shadcn / Tailwind tokens (default — admin & legacy web) */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 4%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 4%;
+  --primary: 170 60% 36%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 75 63% 62%;
+  --secondary-foreground: 0 0% 4%;
+  --muted: 210 15% 93%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 167 96% 19%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 20% 88%;
+  --input: 214 20% 88%;
+  --ring: 170 60% 36%;
+  --radius: 0.5rem;
+  --sidebar-background: 167 96% 19%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-accent: 170 60% 36%;
+  --sidebar-border: 167 96% 25%;
 }
 
 *,

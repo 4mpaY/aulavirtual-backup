@@ -49,6 +49,9 @@
       "@features/*": [
         "./src/features/*"
       ],
+      "@sout/*": [
+        "./src/features/sout/*"
+      ],
       // "@views/*": [
       //   "./src/views/*"
       // ],
@@ -68,6 +71,7 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "_soutrainingcenter_temp"
   ]
 }
