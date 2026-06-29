@@ -10,7 +10,8 @@ import {
   Typography,
   Box,
   Button,
-  IconButton
+  IconButton,
+  Tooltip
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 
@@ -87,6 +88,28 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
 
   return (
     <Grid container spacing={5}>
+      <Grid item xs={12}>
+        <Tooltip title='Haz clic para copiar el ID' placement='top-start' arrow>
+          <CustomTextField
+            fullWidth
+            label='ID del Curso'
+            value={curso.id}
+            inputProps={{ readOnly: true }}
+            onClick={() => navigator.clipboard.writeText(curso.id)}
+            InputProps={{
+              startAdornment: <InputAdornment position='start'><i className='tabler-fingerprint text-xl text-textSecondary' /></InputAdornment>,
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <IconButton size='small' onClick={() => navigator.clipboard.writeText(curso.id)} tabIndex={-1}>
+                    <i className='tabler-copy text-base' />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+            sx={{ '& input': { fontFamily: 'monospace', cursor: 'pointer' }, '& .MuiOutlinedInput-root': { bgcolor: 'action.hover' } }}
+          />
+        </Tooltip>
+      </Grid>
       <Grid item xs={12}>
         <CustomTextField
           fullWidth

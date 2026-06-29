@@ -109,7 +109,15 @@ export function useImportarUsuarios() {
 
   return useMutation<{ exitosos: number; errores: any[] }, any, any[]>({
     mutationFn: async (usuarios: any[]) => await axiosUsuario.bulkCreate(usuarios),
-    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.USUARIOS })
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: QUERY_KEY.USUARIOS })
+      const tieneCursos = variables.some((u: any) => u.curso_id && String(u.curso_id).trim())
+
+      if (tieneCursos) {
+        qc.invalidateQueries({ queryKey: ['cursos'] })
+        qc.invalidateQueries({ queryKey: ['curso-alumnos'] })
+      }
+    }
   })
 }
 

@@ -225,19 +225,27 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
               >
                 {row.original.titulo}
               </Typography>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                noWrap
-                sx={{
-                  fontFamily: 'monospace',
-                  display: 'block',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
-              >
-                {row.original.slug}
-              </Typography>
+              <Tooltip title='Copiar ID' placement='bottom' arrow>
+                <Typography
+                  variant='caption'
+                  color='text.secondary'
+                  noWrap
+                  onClick={e => {
+                    e.stopPropagation()
+                    navigator.clipboard.writeText(row.original.id)
+                  }}
+                  sx={{
+                    fontFamily: 'monospace',
+                    display: 'block',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    cursor: 'pointer',
+                    '&:hover': { color: 'primary.main' }
+                  }}
+                >
+                  {row.original.id}
+                </Typography>
+              </Tooltip>
             </Box>
           </Box>
         )
