@@ -126,6 +126,8 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
       return
     }
 
+    event.target.value = ''
+
     try {
       let result
 
@@ -143,10 +145,13 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
         })
       }
 
+      setUploadProgress(null)
       onSelect(result.url, result.nombre)
       onClose()
     } catch (error) {
+      setUploadProgress(null)
       console.error('Error al subir archivo', error)
+      enqueueSnackbar('Error al subir el archivo', { variant: 'error' })
     }
   }
 

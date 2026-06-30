@@ -275,13 +275,13 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
               title='Vista previa'
               variant='simple'
             />
-            <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
+            <Box sx={{ position: 'absolute', top: 4, right: 4, zIndex: 2 }}>
               <IconButton
                 size='small'
-                sx={{ bgcolor: 'background.paper', '&:hover': { bgcolor: 'background.paper' } }}
+                sx={{ bgcolor: 'background.paper', boxShadow: 1, '&:hover': { bgcolor: 'error.main', color: 'common.white' } }}
                 onClick={() => setForm(prev => ({ ...prev, miniatura: '' }))}
               >
-                <i className='tabler-trash text-error text-sm' />
+                <i className='tabler-trash text-sm' />
               </IconButton>
             </Box>
           </Box>
