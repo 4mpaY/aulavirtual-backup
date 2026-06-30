@@ -8,39 +8,39 @@ datasource db {
 }
 
 model Usuario {
-  id                 String            @id @default(uuid())
-  correo             String            @unique
-  contrasena         String?
-  nombre             String
-  numero_documento   String?           @unique
-  apellido           String
-  slug               String?           @unique
-  avatar             String?
-  biografia          String?
-  celular            String?
-  rol                Rol               @default(ESTUDIANTE)
-  esta_activo        Boolean           @default(true)
-  creado_en          DateTime          @default(now())
-  actualizado_en     DateTime          @updatedAt
-  google_id          String?           @unique
-  cargo              String?
-  firma              String?
-  certificados       Certificado[]
-  comentarios        Comentario[]
-  cursos_dictados    Curso[]           @relation("ProfesorCursos")
-  inscripciones      Inscripcion[]
+  id                      String                 @id @default(uuid())
+  correo                  String                 @unique
+  contrasena              String?
+  nombre                  String
+  numero_documento        String?                @unique
+  apellido                String
+  slug                    String?                @unique
+  avatar                  String?
+  biografia               String?
+  celular                 String?
+  rol                     Rol                    @default(ESTUDIANTE)
+  esta_activo             Boolean                @default(true)
+  creado_en               DateTime               @default(now())
+  actualizado_en          DateTime               @updatedAt
+  google_id               String?                @unique
+  cargo                   String?
+  firma                   String?
+  certificados            Certificado[]
+  comentarios             Comentario[]
+  cursos_dictados         Curso[]                @relation("ProfesorCursos")
+  inscripciones           Inscripcion[]
   inscripciones_simulacro InscripcionSimulacro[]
-  intentos_examen    IntentoExamen[]
-  notificaciones     Notificacion[]
-  pedidos            Pedido[]
-  progreso_cursos    ProgresoCurso[]
-  progreso_lecciones ProgresoLeccion[]
-  valoraciones       ValoracionCurso[]
-  suscripciones      Suscripcion[]
-  entregas_trabajo    EntregaTrabajo[]
-  entregas_actividad  EntregaActividad[]
-  ebook_accesos       EbookAcceso[]
-  ebook_annotaciones  EbookAnnotacion[]
+  intentos_examen         IntentoExamen[]
+  notificaciones          Notificacion[]
+  pedidos                 Pedido[]
+  progreso_cursos         ProgresoCurso[]
+  progreso_lecciones      ProgresoLeccion[]
+  valoraciones            ValoracionCurso[]
+  suscripciones           Suscripcion[]
+  entregas_trabajo        EntregaTrabajo[]
+  entregas_actividad      EntregaActividad[]
+  ebook_accesos           EbookAcceso[]
+  ebook_annotaciones      EbookAnnotacion[]
 
   @@index([rol])
   @@map("usuarios")
@@ -79,29 +79,29 @@ model Categoria {
 }
 
 model Ebook {
-  id             String          @id @default(uuid())
+  id             String            @id @default(uuid())
   titulo         String
-  slug           String          @unique
+  slug           String            @unique
   descripcion    String?
   autor          String?
   miniatura      String?
   archivo_pdf    String
-  precio         Decimal         @default(0) @db.Decimal(10, 2)
-  precio_falso   Decimal         @default(0) @db.Decimal(10, 2)
-  moneda         String          @default("PEN")
-  estado         EstadoEbook     @default(BORRADOR)
-  es_gratis      Boolean         @default(false)
+  precio         Decimal           @default(0) @db.Decimal(10, 2)
+  precio_falso   Decimal           @default(0) @db.Decimal(10, 2)
+  moneda         String            @default("PEN")
+  estado         EstadoEbook       @default(BORRADOR)
+  es_gratis      Boolean           @default(false)
   paginas        Int?
   genero         String?
   resena         String?
   editorial      String?
   anio_edicion   Int?
   saga           String?
-  idioma         String?         @default("Español")
+  idioma         String?           @default("Español")
   categoria_id   String?
-  creado_en      DateTime        @default(now())
-  actualizado_en DateTime        @updatedAt
-  categoria      Categoria?      @relation(fields: [categoria_id], references: [id])
+  creado_en      DateTime          @default(now())
+  actualizado_en DateTime          @updatedAt
+  categoria      Categoria?        @relation(fields: [categoria_id], references: [id])
   accesos        EbookAcceso[]
   annotaciones   EbookAnnotacion[]
   detalles       DetallePedido[]
@@ -130,7 +130,7 @@ model EbookAnnotacion {
   usuario_id String
   ebook_id   String
   pagina     Int
-  tipo       String   // "highlight" | "underline" | "note"
+  tipo       String // "highlight" | "underline" | "note"
   texto      String?
   color      String   @default("#fbbf24")
   posicion   Json
@@ -317,21 +317,21 @@ model MetodoPagoManual {
 }
 
 model DetallePedido {
-  id              String    @id @default(uuid())
-  tipo_item       String  @default("CURSO")
-  cantidad        Int       @default(1)
-  descuento       Decimal   @default(0) @db.Decimal(10, 2)
-  precio_unitario Decimal   @db.Decimal(10, 2)
-  subtotal        Decimal   @db.Decimal(10, 2)
-  total           Decimal   @db.Decimal(10, 2)
+  id              String     @id @default(uuid())
+  tipo_item       String     @default("CURSO")
+  cantidad        Int        @default(1)
+  descuento       Decimal    @default(0) @db.Decimal(10, 2)
+  precio_unitario Decimal    @db.Decimal(10, 2)
+  subtotal        Decimal    @db.Decimal(10, 2)
+  total           Decimal    @db.Decimal(10, 2)
   pedido_id       String
   curso_id        String?
   ebook_id        String?
   simulacro_id    String?
-  curso           Curso?    @relation(fields: [curso_id], references: [id])
-  ebook           Ebook?  @relation(fields: [ebook_id], references: [id])
+  curso           Curso?     @relation(fields: [curso_id], references: [id])
+  ebook           Ebook?     @relation(fields: [ebook_id], references: [id])
   simulacro       Simulacro? @relation(fields: [simulacro_id], references: [id])
-  pedido          Pedido    @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  pedido          Pedido     @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
 
   @@index([pedido_id])
   @@index([curso_id])
@@ -865,23 +865,23 @@ model CursoEnPlan {
 }
 
 model Suscripcion {
-  id                   String            @id @default(uuid())
-  usuario_id           String
-  plan_id              String
-  estado               EstadoSuscripcion @default(PENDIENTE)
-  culqi_suscripcion_id String?           @unique
-  culqi_customer_id    String?
-  culqi_card_id        String?
-  fecha_inicio         DateTime?
-  fecha_fin            DateTime?
-  fecha_proximo_cobro  DateTime?
-  fecha_cancelacion    DateTime?
-  cancelado_por_usuario Boolean          @default(false)
-  creado_en            DateTime          @default(now())
-  actualizado_en       DateTime          @updatedAt
-  usuario              Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  plan                 PlanSuscripcion   @relation(fields: [plan_id], references: [id])
-  pagos                PagoSuscripcion[]
+  id                    String            @id @default(uuid())
+  usuario_id            String
+  plan_id               String
+  estado                EstadoSuscripcion @default(PENDIENTE)
+  culqi_suscripcion_id  String?           @unique
+  culqi_customer_id     String?
+  culqi_card_id         String?
+  fecha_inicio          DateTime?
+  fecha_fin             DateTime?
+  fecha_proximo_cobro   DateTime?
+  fecha_cancelacion     DateTime?
+  cancelado_por_usuario Boolean           @default(false)
+  creado_en             DateTime          @default(now())
+  actualizado_en        DateTime          @updatedAt
+  usuario               Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  plan                  PlanSuscripcion   @relation(fields: [plan_id], references: [id])
+  pagos                 PagoSuscripcion[]
 
   @@index([usuario_id])
   @@index([plan_id])
@@ -926,18 +926,18 @@ model Trabajo {
 }
 
 model EntregaTrabajo {
-  id                   String    @id @default(uuid())
-  archivo_url          String
-  archivo_nombre       String
-  comentario_estudiante String?   @db.Text
-  nota                 Float?
-  comentario_docente   String?   @db.Text
-  creado_en            DateTime  @default(now())
-  actualizado_en       DateTime  @updatedAt
-  trabajo_id           String
-  trabajo              Trabajo   @relation(fields: [trabajo_id], references: [id], onDelete: Cascade)
-  usuario_id           String
-  usuario              Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  id                    String   @id @default(uuid())
+  archivo_url           String
+  archivo_nombre        String
+  comentario_estudiante String?  @db.Text
+  nota                  Float?
+  comentario_docente    String?  @db.Text
+  creado_en             DateTime @default(now())
+  actualizado_en        DateTime @updatedAt
+  trabajo_id            String
+  trabajo               Trabajo  @relation(fields: [trabajo_id], references: [id], onDelete: Cascade)
+  usuario_id            String
+  usuario               Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@unique([trabajo_id, usuario_id])
   @@index([trabajo_id])
@@ -945,12 +945,92 @@ model EntregaTrabajo {
   @@map("entregas_trabajo")
 }
 
-// ─── Actividades / Tareas ────────────────────────────────────────────────────
+enum EstadoSimulacro {
+  BORRADOR
+  PUBLICADO
+  ARCHIVADO
+}
+
+enum NivelSimulacro {
+  BASICO
+  INTERMEDIO
+  AVANZADO
+}
 
 enum TipoActividad {
   ARCHIVO
   FORMULARIO
 }
+
+model Simulacro {
+  id               String                 @id @default(uuid())
+  titulo           String
+  slug             String                 @unique
+  descripcion      String?
+  miniatura        String?
+  estado           EstadoSimulacro        @default(BORRADOR)
+  nivel            NivelSimulacro         @default(BASICO)
+  duracion         String?
+  numero_preguntas Int                    @default(0)
+  area_tematica    String?
+  es_gratis        Boolean                @default(false)
+  precio           Decimal                @default(0) @db.Decimal(10, 2)
+  moneda           String                 @default("PEN")
+  creado_en        DateTime               @default(now())
+  actualizado_en   DateTime               @updatedAt
+  preguntas        PreguntaSimulacro[]
+  inscripciones    InscripcionSimulacro[]
+  detalles_pedido  DetallePedido[]
+
+  @@index([estado])
+}
+
+model InscripcionSimulacro {
+  id            String            @id @default(uuid())
+  usuario_id    String
+  simulacro_id  String
+  estado        EstadoInscripcion @default(ACTIVO)
+  inscrito_en   DateTime          @default(now())
+  intentos      Int               @default(0)
+  mejor_puntaje Float?
+
+  usuario   Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  simulacro Simulacro @relation(fields: [simulacro_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, simulacro_id])
+  @@index([usuario_id])
+  @@index([simulacro_id])
+  @@map("inscripciones_simulacro")
+}
+
+model PreguntaSimulacro {
+  id           String                    @id @default(uuid())
+  simulacro_id String
+  simulacro    Simulacro                 @relation(fields: [simulacro_id], references: [id], onDelete: Cascade)
+  enunciado    String
+  tema         String?
+  fundamento   String?
+  audio_url    String?
+  imagen_url   String?
+  orden        Int                       @default(0)
+  creado_en    DateTime                  @default(now())
+  opciones     OpcionPreguntaSimulacro[]
+
+  @@index([simulacro_id])
+}
+
+model OpcionPreguntaSimulacro {
+  id          String            @id @default(uuid())
+  pregunta_id String
+  pregunta    PreguntaSimulacro @relation(fields: [pregunta_id], references: [id], onDelete: Cascade)
+  texto       String
+  es_correcta Boolean           @default(false)
+  orden       Int               @default(0)
+
+  @@index([pregunta_id])
+}
+
+// ─── Actividades / Tareas ────────────────────────────────────────────────────
 
 model Actividad {
   id             String              @id @default(uuid())
@@ -977,15 +1057,15 @@ model Actividad {
 }
 
 model PreguntaActividad {
-  id             String                   @id @default(uuid())
+  id             String                    @id @default(uuid())
   texto          String
-  tipo           TipoPregunta             @default(OPCION_MULTIPLE)
-  puntos         Float                    @default(1)
+  tipo           TipoPregunta              @default(OPCION_MULTIPLE)
+  puntos         Float                     @default(1)
   orden          Int
-  creado_en      DateTime                 @default(now())
-  actualizado_en DateTime                 @updatedAt
+  creado_en      DateTime                  @default(now())
+  actualizado_en DateTime                  @updatedAt
   actividad_id   String
-  actividad      Actividad                @relation(fields: [actividad_id], references: [id], onDelete: Cascade)
+  actividad      Actividad                 @relation(fields: [actividad_id], references: [id], onDelete: Cascade)
   opciones       OpcionPreguntaActividad[]
 
   @@index([actividad_id])
@@ -1024,4 +1104,3 @@ model EntregaActividad {
   @@index([usuario_id])
   @@map("entregas_actividad")
 }
-
