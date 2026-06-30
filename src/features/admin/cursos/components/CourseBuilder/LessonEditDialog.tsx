@@ -22,6 +22,7 @@ import {
 import CustomTextField from '@core/components/mui/TextField'
 import MediaLibrary from '../MediaLibrary'
 import { sanitizeDatetimeInput, toLocalDatetimeLocalValue } from '@/utils/functions/sanitizeDatetime'
+import { blockDialogCloseWhile } from '@/utils/functions/dialogClose'
 
 type Recurso = { nombre: string; url: string; tipo?: 'enlace' | 'archivo' }
 
@@ -88,16 +89,6 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
   const [openMediaResources, setOpenMediaResources] = useState(false)
   const [errors, setErrors] = useState<{ fechaProgramada?: string; fechaFin?: string }>({})
 
-  // Estados para trabajos
-  const [tieneTrabajo, setTieneTrabajo] = useState(false)
-  const [trabajoTitulo, setTrabajoTitulo] = useState('')
-  const [trabajoDescripcion, setTrabajoDescripcion] = useState('')
-  const [trabajoArchivoUrl, setTrabajoArchivoUrl] = useState('')
-  const [trabajoArchivoNombre, setTrabajoArchivoNombre] = useState('')
-  const [trabajoFechaInicio, setTrabajoFechaInicio] = useState('')
-  const [trabajoFechaFin, setTrabajoFechaFin] = useState('')
-  const [openMediaTrabajo, setOpenMediaTrabajo] = useState(false)
-
   useEffect(() => {
     if (lessonData) {
       setTitle(lessonData.titulo || '')
@@ -129,14 +120,6 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
       setEsVistaPrevia(lessonData.es_vista_previa || false)
       setRecursos(lessonData.recursos || [])
       setContenido(lessonData.contenido || '')
-
-      setTieneTrabajo(!!lessonData.trabajo)
-      setTrabajoTitulo(lessonData.trabajo?.titulo || '')
-      setTrabajoDescripcion(lessonData.trabajo?.descripcion || '')
-      setTrabajoArchivoUrl(lessonData.trabajo?.archivo_url || '')
-      setTrabajoArchivoNombre(lessonData.trabajo?.archivo_nombre || '')
-      setTrabajoFechaInicio(lessonData.trabajo?.fecha_inicio ? toLocalDatetimeLocalValue(lessonData.trabajo.fecha_inicio) : '')
-      setTrabajoFechaFin(lessonData.trabajo?.fecha_fin ? toLocalDatetimeLocalValue(lessonData.trabajo.fecha_fin) : '')
     } else {
       setTitle('')
       setDuration('')
@@ -151,14 +134,6 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
       setEsVistaPrevia(false)
       setRecursos([])
       setContenido('')
-
-      setTieneTrabajo(false)
-      setTrabajoTitulo('')
-      setTrabajoDescripcion('')
-      setTrabajoArchivoUrl('')
-      setTrabajoArchivoNombre('')
-      setTrabajoFechaInicio('')
-      setTrabajoFechaFin('')
     }
 
     setErrors({})
@@ -194,12 +169,6 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
       }
     }
 
-    if (tieneTrabajo && !trabajoTitulo.trim()) {
-      alert('Por favor, ingresa un título para el trabajo.')
-
-      return
-    }
-
     setErrors({})
     onSave({
       titulo: title,
@@ -212,16 +181,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
       enlace_reunion: enlaceReunion || null,
       es_vista_previa: esVistaPrevia,
       contenido: contenido || null,
-      recursos: recursos,
-      trabajo: tieneTrabajo ? {
-        id: lessonData?.trabajo?.id,
-        titulo: trabajoTitulo.trim(),
-        descripcion: trabajoDescripcion || null,
-        archivo_url: trabajoArchivoUrl || null,
-        archivo_nombre: trabajoArchivoNombre || null,
-        fecha_inicio: sanitizeDatetimeInput(trabajoFechaInicio),
-        fecha_fin: sanitizeDatetimeInput(trabajoFechaFin)
-      } : null
+      recursos: recursos
     })
   }
 
@@ -230,7 +190,13 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     : null
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth='sm'>
+    <Dialog
+      open={open}
+      onClose={blockDialogCloseWhile(isSaving, onClose)}
+      disableEscapeKeyDown={isSaving}
+      fullWidth
+      maxWidth='sm'
+    >
       <DialogTitle>Editar Lección</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={4} sx={{ mt: 2 }}>
@@ -663,114 +629,6 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
               setOpenMediaResources(false)
             }}
             title='Seleccionar Recurso'
-            acceptType='OTRO'
-          />
-
-          <Divider />
-
-          {/* ── TRABAJO DE LA LECCIÓN ── */}
-          <Typography variant='subtitle2' sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.7rem', color: 'text.secondary' }}>
-            Trabajo / Tarea de la Lección
-          </Typography>
-
-          <FormControlLabel
-            control={
-              <Switch
-                checked={tieneTrabajo}
-                onChange={e => setTieneTrabajo(e.target.checked)}
-                color='primary'
-              />
-            }
-            label={
-              <Box>
-                <Typography variant='body2' fontWeight={600}>Habilitar entrega de trabajo</Typography>
-                <Typography variant='caption' color='text.secondary'>Permite a los estudiantes subir archivos para esta lección.</Typography>
-              </Box>
-            }
-          />
-
-          {tieneTrabajo && (
-            <Stack spacing={3} sx={{ pl: 2, borderLeft: '2px solid', borderColor: 'primary.main' }}>
-              <CustomTextField
-                fullWidth
-                label='Título del trabajo *'
-                placeholder='Ej: Informe de laboratorio 1'
-                value={trabajoTitulo}
-                onChange={e => setTrabajoTitulo(e.target.value)}
-                error={!trabajoTitulo.trim()}
-                helperText={!trabajoTitulo.trim() ? 'El título es obligatorio' : ''}
-              />
-
-              <CustomTextField
-                fullWidth
-                multiline
-                rows={3}
-                label='Instrucciones / Descripción'
-                placeholder='Escribe los detalles o requisitos del trabajo...'
-                value={trabajoDescripcion}
-                onChange={e => setTrabajoDescripcion(e.target.value)}
-              />
-
-              {/* Archivo adjunto */}
-              <Box>
-                <Typography variant='caption' sx={{ mb: 1, display: 'block', fontWeight: 600 }}>Archivo Guía o Plantilla (Opcional)</Typography>
-                {trabajoArchivoUrl ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
-                    <i className='tabler-file text-xl text-primary' />
-                    <Box sx={{ flex: 1, minWidth: 0 }}>
-                      <Typography variant='body2' fontWeight={600} noWrap>{trabajoArchivoNombre}</Typography>
-                      <Typography variant='caption' color='text.secondary' noWrap>{trabajoArchivoUrl}</Typography>
-                    </Box>
-                    <IconButton size='small' color='error' onClick={() => { setTrabajoArchivoUrl(''); setTrabajoArchivoNombre('') }}>
-                      <i className='tabler-trash text-base' />
-                    </IconButton>
-                  </Box>
-                ) : (
-                  <Button
-                    variant='outlined'
-                    size='small'
-                    startIcon={<i className='tabler-upload' />}
-                    onClick={() => setOpenMediaTrabajo(true)}
-                  >
-                    Seleccionar Archivo
-                  </Button>
-                )}
-              </Box>
-
-              {/* Fechas de entrega */}
-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                <CustomTextField
-                  fullWidth
-                  type='datetime-local'
-                  label='Fecha de Inicio'
-                  value={trabajoFechaInicio}
-                  onChange={e => setTrabajoFechaInicio(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                />
-                <CustomTextField
-                  fullWidth
-                  type='datetime-local'
-                  label='Fecha de Fin'
-                  value={trabajoFechaFin}
-                  onChange={e => setTrabajoFechaFin(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Box>
-            </Stack>
-          )}
-
-          <MediaLibrary
-            open={openMediaTrabajo}
-            onClose={() => setOpenMediaTrabajo(false)}
-            onSelect={(url: string, nombre?: string) => {
-              const parts = url.split('/')
-              const fileName = parts[parts.length - 1] || 'Guia'
-
-              setTrabajoArchivoUrl(url)
-              setTrabajoArchivoNombre(nombre || fileName.split('.')[0] || 'Archivo Guía')
-              setOpenMediaTrabajo(false)
-            }}
-            title='Seleccionar Guía/Plantilla de Trabajo'
             acceptType='OTRO'
           />
 

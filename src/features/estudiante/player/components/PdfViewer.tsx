@@ -9,6 +9,8 @@ import 'react-pdf/dist/esm/Page/TextLayer.css'
 
 import { Box, CircularProgress, IconButton, InputBase, Stack, Tooltip, Typography } from '@mui/material'
 
+import { usePreventEscapeStopLoading } from '@/utils/hooks/usePreventEscapeStopLoading'
+
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
 interface PdfViewerProps {
@@ -38,6 +40,8 @@ const PdfViewer = ({ url }: PdfViewerProps) => {
 
     const pageWidth = Math.round(baseWidth * zoom)
 
+    usePreventEscapeStopLoading(loading)
+
     useEffect(() => {
         setPdfData(null)
         setError(false)
@@ -45,17 +49,32 @@ const PdfViewer = ({ url }: PdfViewerProps) => {
 
         if (!url) return
 
+        const controller = new AbortController()
+
         setLoading(true)
 
-        fetch(url)
+        fetch(url, { signal: controller.signal })
             .then(res => {
                 if (!res.ok) throw new Error('No se pudo cargar el PDF')
 
                 return res.arrayBuffer()
             })
-            .then(buf => setPdfData({ data: buf }))
-            .catch(() => setError(true))
-            .finally(() => setLoading(false))
+            .then(buf => {
+                if (!controller.signal.aborted) {
+                    setPdfData({ data: buf })
+                }
+            })
+            .catch(err => {
+                if (controller.signal.aborted || err?.name === 'AbortError') return
+                setError(true)
+            })
+            .finally(() => {
+                if (!controller.signal.aborted) {
+                    setLoading(false)
+                }
+            })
+
+        return () => controller.abort()
     }, [url])
 
     useEffect(() => {

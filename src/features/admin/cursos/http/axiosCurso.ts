@@ -433,9 +433,9 @@ export class AxiosCurso extends AxiosInternalHttpClient {
     }
   }
 
-  async getEntregasActividad(cursoId: string, actId: string): Promise<{ entregas: any[]; pendientes: any[] }> {
+  async getEntregasActividad(cursoId: string, actId: string): Promise<{ entregas: any[]; pendientes: any[]; actividad?: any }> {
     try {
-      return await this.iGet<{ entregas: any[]; pendientes: any[] }>(`/${cursoId}/actividades/${actId}/entregas`)
+      return await this.iGet<{ entregas: any[]; pendientes: any[]; actividad?: any }>(`/${cursoId}/actividades/${actId}/entregas`)
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

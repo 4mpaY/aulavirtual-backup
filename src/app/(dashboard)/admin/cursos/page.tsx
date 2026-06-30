@@ -28,8 +28,6 @@ export default async function Page() {
     let initialDataCursos: Curso[] = []
 
     try {
-        const response = await axiosCurso.searchAll()
-
         initialDataCursos = response.cursos || []
     } catch (error) {
         console.error('Error fetching cursos:', error)

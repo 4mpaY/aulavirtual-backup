@@ -142,6 +142,14 @@ const UserDropdown = () => {
                         <i className='tabler-search text-[20px]' />
                         <Typography color='text.primary'>Explorar Cursos</Typography>
                       </MenuItem>
+                      <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/diplomados')}>
+                        <i className='tabler-certificate text-[20px]' />
+                        <Typography color='text.primary'>Explorar Diplomados</Typography>
+                      </MenuItem>
+                      <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/especializaciones')}>
+                        <i className='tabler-school text-[20px]' />
+                        <Typography color='text.primary'>Explorar Especializaciones</Typography>
+                      </MenuItem>
                     </div>
                   )}
                   {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>

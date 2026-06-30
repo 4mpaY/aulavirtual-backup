@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation'
 
 import { Home, BookOpen, Users, Award, Map, BookText, ClipboardList } from 'lucide-react'
 
+import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
+
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
@@ -24,6 +26,8 @@ export default function MobileBottomNav({
 
   const navItems = ALL_NAV_ITEMS.filter(item => {
     if (item.key === 'rutas' && !rutasHabilitado) return false
+    if (item.key === 'simulacros' && !isFeatureEnabled('simulacros')) return false
+    if (item.key === 'ebooks' && !isFeatureEnabled('ebooks')) return false
 
     return true
   })

@@ -537,15 +537,6 @@ const LessonRow = ({
             icon={<i className='tabler-eye text-xs' />}
           />
         )}
-        {leccion.trabajo && (
-          <Chip
-            size='small'
-            variant='tonal'
-            label='Tarea'
-            color='secondary'
-            icon={<i className='tabler-clipboard text-xs' />}
-          />
-        )}
         {leccion.duracion && (
           <Typography variant='caption' color='text.disabled'>
             {leccion.duracion} min

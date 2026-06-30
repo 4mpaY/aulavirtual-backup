@@ -11,6 +11,8 @@ type AppModalProps = {
   open: boolean
   handleClose: () => void
   viewIconClose?: boolean
+  /** Bloquea cierre con Escape o clic fuera (p. ej. mientras guarda/carga) */
+  disableClose?: boolean
 }
 
 const Wrapper = styled(Box)(({ theme }) => ({
@@ -40,11 +42,24 @@ const CloseButton = styled(IconButton)(() => ({
   zIndex: 100
 }))
 
-const AppModal: FC<AppModalProps & BoxProps> = ({ children, open, handleClose, viewIconClose = true, ...props }) => {
+const AppModal: FC<AppModalProps & BoxProps> = ({
+  children,
+  open,
+  handleClose,
+  viewIconClose = true,
+  disableClose = false,
+  ...props
+}) => {
   return (
     <Modal
       open={open}
-      onClose={handleClose}
+      onClose={(_, reason) => {
+        if (disableClose) return
+        if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+          handleClose()
+        }
+      }}
+      disableEscapeKeyDown={disableClose}
       slots={{
         backdrop: Backdrop
       }}
@@ -57,7 +72,7 @@ const AppModal: FC<AppModalProps & BoxProps> = ({ children, open, handleClose, v
       <Fade in={open}>
         <Wrapper {...props}>
           {viewIconClose && (
-            <CloseButton onClick={handleClose} aria-label='close' size='small'>
+            <CloseButton onClick={disableClose ? undefined : handleClose} aria-label='close' size='small' disabled={disableClose}>
               <Icon icon='tabler:x' fontSize={24} />
             </CloseButton>
           )}

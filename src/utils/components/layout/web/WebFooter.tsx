@@ -84,6 +84,8 @@ const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true
             <ul className="space-y-2 list-none pl-0 m-0" style={{ opacity: 0.8 }}>
               {([
                 { label: 'Cursos', href: '/cursos' },
+                { label: 'Diplomados', href: '/diplomados' },
+                { label: 'Especializaciones', href: '/especializaciones' },
                 ...(rutasHabilitado ? [{ label: 'Rutas', href: '/rutas' }] : []),
               ] as { label: string; href: string }[]).map(link => (
                 <li key={link.label}>

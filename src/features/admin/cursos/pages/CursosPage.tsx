@@ -60,6 +60,8 @@ import type { ThemeColor } from '@/@core/types'
 import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
 import tableStyles from '@core/styles/table.module.css'
 import { useCursos, useReorderCursos } from '../hooks/useCursos'
+import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
+import { getTipoProgramaColor, getTipoProgramaLabel } from '@/utils/configs/tipoProgramaOptions'
 
 type EstadoColorMap = {
   [key: string]: ThemeColor
@@ -130,6 +132,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
   const [estadoFilter, setEstadoFilter] = useState<string>('all')
+  const [tipoFilter, setTipoFilter] = useState<'all' | TipoPrograma>('all')
   const [orderedCursos, setOrderedCursos] = useState<Curso[]>([])
 
   const [pagination, setPagination] = useState({
@@ -141,7 +144,8 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
     page: (pagination.pageIndex + 1).toString(),
     limit: pagination.pageSize.toString(),
     buscar: globalFilter,
-    estado: estadoFilter === 'all' ? '' : estadoFilter
+    estado: estadoFilter === 'all' ? '' : estadoFilter,
+    ...(tipoFilter !== 'all' ? { tipo: tipoFilter } : {})
   })
 
   const reorderMutation = useReorderCursos()
@@ -153,7 +157,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
     setOrderedCursos([...cursos])
   }, [cursos])
 
-  const isDragDisabled = globalFilter.trim().length > 0 || estadoFilter !== 'all'
+  const isDragDisabled = globalFilter.trim().length > 0 || estadoFilter !== 'all' || tipoFilter !== 'all'
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -271,6 +275,18 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
             </Box>
           )
         }
+      }),
+      columnHelper.display({
+        id: 'tipo_programa',
+        header: 'Tipo',
+        cell: ({ row }) => (
+          <Chip
+            label={getTipoProgramaLabel(row.original.tipo)}
+            size='small'
+            variant='tonal'
+            color={getTipoProgramaColor(row.original.tipo)}
+          />
+        )
       }),
       columnHelper.display({
         id: 'categoria',
@@ -430,6 +446,20 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
             <MenuItem value='50'>50</MenuItem>
           </CustomTextField>
           <div className='flex flex-col sm:flex-row is-full sm:is-auto items-start sm:items-center gap-4'>
+            <CustomTextField
+              select
+              value={tipoFilter}
+              onChange={e => {
+                setTipoFilter(e.target.value as 'all' | TipoPrograma)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[200px]'
+            >
+              <MenuItem value='all'>Todos los tipos</MenuItem>
+              <MenuItem value='CURSO'>Cursos</MenuItem>
+              <MenuItem value='DIPLOMADO'>Diplomados</MenuItem>
+              <MenuItem value='ESPECIALIZACION'>Especializaciones</MenuItem>
+            </CustomTextField>
             <CustomTextField
               select
               value={estadoFilter}

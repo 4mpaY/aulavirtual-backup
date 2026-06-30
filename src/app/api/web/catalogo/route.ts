@@ -45,9 +45,19 @@ export async function GET(request: Request) {
       }
     }
 
+    const { searchParams } = new URL(request.url)
+    const tipoParam = searchParams.get('tipo')
+    const tipoFilter =
+      tipoParam === 'DIPLOMADO' || tipoParam === 'ESPECIALIZACION' || tipoParam === 'CURSO'
+        ? tipoParam
+        : undefined
+
     const [courses, categories] = await Promise.all([
       prisma.curso.findMany({
-        where: { estado: 'PUBLICADO' },
+        where: {
+          estado: 'PUBLICADO',
+          ...(tipoFilter ? { tipo: tipoFilter } : {})
+        },
         include: {
           profesor: { select: { id: true, nombre: true, apellido: true, avatar: true } },
           categoria: { select: { id: true, nombre: true, slug: true } },
