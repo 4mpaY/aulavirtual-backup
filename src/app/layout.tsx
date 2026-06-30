@@ -15,12 +15,22 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = configs.TEMPLATE_NAME || 'Aula Virtual'
   const slogan = configs.TEMPLATE_SLOGAN || ''
   const logo = configs.TEMPLATE_LOGO || '/favicon.ico'
+  const themeColor = configs.PRIMARY_COLOR_MAIN || '#131FF2'
 
   return {
     title: slogan ? `${title} - ${slogan}` : title,
     description: slogan,
+    manifest: '/manifest.json',
     icons: {
-      icon: logo
+      icon: logo,
+      apple: '/icons/apple-touch-icon.png'
+    },
+    other: {
+      'theme-color': themeColor,
+      'mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-capable': 'yes',
+      'apple-mobile-web-app-status-bar-style': 'default',
+      'apple-mobile-web-app-title': title
     }
   }
 }

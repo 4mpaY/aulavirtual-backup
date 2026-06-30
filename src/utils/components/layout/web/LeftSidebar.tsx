@@ -9,17 +9,20 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
-import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, Repeat2, BookText, ClipboardList } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, MonitorSmartphone } from 'lucide-react'
 
 import { useAuthModal } from '@/contexts/AuthModalContext'
+import { usePWAInstall } from '@/utils/hooks/usePWAInstall'
 
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
+
   // { title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' },
   // { title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' },
   { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
   { title: 'Empresas', url: '/empresas', icon: Building2, key: 'empresas' },
+
   // { title: 'Suscripciones', url: '/suscripciones', icon: Repeat2, key: 'suscripciones' },
   { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },
   { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
@@ -40,6 +43,8 @@ export default function LeftSidebar({
   const { data: session } = useSession()
   const userButtonRef = useRef<HTMLButtonElement>(null)
   const { openLogin, openRegister } = useAuthModal()
+  const { canInstall, hasNativePrompt, install } = usePWAInstall()
+  const [showInstallTip, setShowInstallTip] = useState(false)
 
   const navItems = ALL_NAV_ITEMS.filter(item => {
     if (item.key === 'rutas' && !rutasHabilitado) return false
@@ -146,8 +151,42 @@ export default function LeftSidebar({
         })}
 
         {/* Bottom: user or login */}
-        <div className="mt-auto px-3 w-full" style={{ paddingBottom: '20px', position: 'relative' }}>
+        <div className="mt-auto w-full" style={{ paddingBottom: '20px', position: 'relative' }}>
 
+          {/* Install PWA button — always visible while not installed */}
+          {canInstall && (
+            <div style={{ position: 'relative', padding: '0 12px', marginBottom: '8px' }}>
+              <button
+                onClick={() => hasNativePrompt ? install() : setShowInstallTip(t => !t)}
+                title="Instalar aplicación"
+                className="flex items-center w-full rounded-xl transition-all"
+                style={{ height: '44px', gap: '12px', backgroundColor: 'var(--web-light, #BDD962)', border: '1px solid transparent', cursor: 'pointer' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+              >
+                <div style={{ flexShrink: 0, minWidth: '30px', display: 'flex', justifyContent: 'center' }}>
+                  <MonitorSmartphone size={18} color="#0A0A0A" />
+                </div>
+                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', fontWeight: 700, color: '#0A0A0A', opacity: expanded ? 1 : 0, maxWidth: expanded ? '160px' : '0px', transition: 'opacity 0.2s, max-width 0.3s', whiteSpace: 'nowrap', overflow: 'hidden' }}>
+                  Instalar App
+                </span>
+              </button>
+
+              {showInstallTip && !hasNativePrompt && (
+                <>
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={() => setShowInstallTip(false)} />
+                  <div style={{ position: 'fixed', bottom: '80px', left: '72px', width: '260px', backgroundColor: '#ffffff', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: '1px solid hsl(214,20%,91%)', zIndex: 50, padding: '14px 16px' }}>
+                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8rem', fontWeight: 700, color: '#0A0A0A', margin: '0 0 6px 0' }}>Instalar la aplicación</p>
+                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
+                      En Chrome/Edge: busca el ícono <strong>⊕</strong> o <strong>⬇</strong> en la barra de direcciones y selecciona &quot;Instalar&quot;.
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="px-3">
           {/* User popup menu — rendered fixed to escape overflow:hidden on aside */}
           {session?.user && userMenuOpen && (
             <>
@@ -298,6 +337,7 @@ export default function LeftSidebar({
               </button>
             </div>
           )}
+          </div>
         </div>
       </aside>
     </>
