@@ -177,6 +177,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
             orden: l.orden,
             video_url: l.video_url,
             es_en_vivo: (l as any).es_en_vivo,
+            es_pdf: (l as any).es_pdf,
             fecha_programada: (l as any).fecha_programada,
             fecha_fin: (l as any).fecha_fin,
             enlace_reunion: (l as any).enlace_reunion,

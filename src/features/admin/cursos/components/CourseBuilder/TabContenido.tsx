@@ -41,8 +41,9 @@ import { CSS } from '@dnd-kit/utilities'
 import CustomTextField from '@core/components/mui/TextField'
 import { LessonEditDialog } from './LessonEditDialog'
 import { EvaluacionDialog } from './EvaluacionDialog'
+import { ActividadDialog } from './ActividadDialog'
 
-import type { Curso, CursoLeccionResumen, CursoExamenResumen } from '../../entity/Curso'
+import type { Curso, CursoLeccionResumen, CursoExamenResumen, CursoActividadResumen } from '../../entity/Curso'
 import {
   useCreateModulo,
   useUpdateModulo,
@@ -53,7 +54,9 @@ import {
   useDeleteLeccion,
   useReorderLecciones,
   useReorderExamenesModulo,
-  useDeleteExamen
+  useDeleteExamen,
+  useDeleteActividad,
+  useReorderActividadesModulo
 } from '../../hooks/useCursos'
 
 // Componente para Módulos arrastrables
@@ -164,6 +167,77 @@ const EvaluacionRow = ({
   )
 }
 
+// Fila de Actividad dentro del módulo
+const ActividadRow = ({
+  actividad,
+  onEdit,
+  onDelete,
+  dragHandleProps
+}: {
+  actividad: CursoActividadResumen
+  onEdit: (actividad: CursoActividadResumen) => void
+  onDelete: (actividadId: string) => void
+  dragHandleProps?: any
+}) => {
+  const isFormulario = actividad.tipo === 'FORMULARIO'
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        py: 1.5,
+        px: 2,
+        borderRadius: 1,
+        bgcolor: 'secondary.lightOpacity',
+        mb: 1,
+        border: '1px solid',
+        borderColor: 'secondary.light',
+        '&:hover': { borderColor: 'secondary.main' }
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box {...dragHandleProps} sx={{ display: 'flex', cursor: 'grab', '&:active': { cursor: 'grabbing' } }}>
+          <i className='tabler-grip-vertical text-lg text-textDisabled' />
+        </Box>
+        <i
+          className={`text-lg ${isFormulario ? 'tabler-list-check' : 'tabler-upload'}`}
+          style={{ color: 'var(--mui-palette-secondary-main)' }}
+        />
+        <Typography variant='body2' fontWeight={500}>{actividad.titulo}</Typography>
+        <Chip
+          size='small'
+          variant='tonal'
+          label={isFormulario ? `${actividad._count?.preguntas ?? 0} preguntas` : 'Archivo'}
+          color='secondary'
+        />
+        <Chip
+          size='small'
+          variant='outlined'
+          label={`${actividad.puntaje_maximo} pts`}
+          color='default'
+        />
+        {!actividad.esta_publicado && (
+          <Chip size='small' variant='tonal' label='Borrador' color='default' />
+        )}
+      </Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Tooltip title='Editar actividad'>
+          <IconButton size='small' color='secondary' onClick={() => onEdit(actividad)}>
+            <i className='tabler-edit text-lg' />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Eliminar actividad'>
+          <IconButton size='small' color='error' onClick={() => onDelete(actividad.id)}>
+            <i className='tabler-trash text-lg' />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </Box>
+  )
+}
+
 // Componente que representa un Módulo (Card)
 const ModuleCard = ({
   modulo,
@@ -181,10 +255,13 @@ const ModuleCard = ({
   onAddEvaluacion,
   onEditEvaluacion,
   onDeleteEvaluacion,
+  onAddActividad,
+  onEditActividad,
+  onDeleteActividad,
   sensors,
   dragHandleProps
 }: any) => {
-  const totalItems = (modulo.lecciones?.length ?? 0) + (modulo.examenes?.length ?? 0)
+  const totalItems = (modulo.lecciones?.length ?? 0) + (modulo.examenes?.length ?? 0) + (modulo.actividades?.length ?? 0)
   const [editing, setEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(modulo.titulo)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -269,6 +346,9 @@ const ModuleCard = ({
               {(modulo.examenes?.length ?? 0) > 0 && (
                 <Chip size='small' variant='tonal' color='warning' label={`${modulo.examenes.length} eval.`} sx={{ height: 20, fontSize: '0.72rem', flexShrink: 0 }} />
               )}
+              {(modulo.actividades?.length ?? 0) > 0 && (
+                <Chip size='small' variant='tonal' color='secondary' label={`${modulo.actividades.length} act.`} sx={{ height: 20, fontSize: '0.72rem', flexShrink: 0 }} />
+              )}
             </>
           )}
         </Box>
@@ -328,6 +408,20 @@ const ModuleCard = ({
             >
               Evaluación
             </Button>
+            <Button
+              variant='outlined'
+              size='small'
+              startIcon={<i className='tabler-file-check' style={{ fontSize: '0.95rem' }} />}
+              onClick={() => onAddActividad(modulo.id)}
+              sx={{
+                textTransform: 'none', fontWeight: 700, borderRadius: 2,
+                borderColor: '#7c3aed', color: '#7c3aed',
+                '&:hover': { bgcolor: alpha('#7c3aed', 0.08), borderColor: '#6d28d9' },
+                px: 2, py: 0.75, fontSize: '0.82rem'
+              }}
+            >
+              Actividad
+            </Button>
           </Box>
 
           {/* ── Content list ── */}
@@ -346,6 +440,7 @@ const ModuleCard = ({
               const allItems = [
                 ...(modulo.lecciones || []).map((l: any) => ({ ...l, _tipo: 'leccion' as const })),
                 ...(modulo.examenes || []).map((e: any) => ({ ...e, _tipo: 'examen' as const })),
+                ...(modulo.actividades || []).map((a: any) => ({ ...a, _tipo: 'actividad' as const })),
               ].sort((a, b) => (a.orden ?? 999) - (b.orden ?? 999))
 
               return (
@@ -367,12 +462,20 @@ const ModuleCard = ({
                             handleDeleteLesson={handleDeleteLesson}
                           />
                         </SortableLessonItem>
-                      ) : (
+                      ) : item._tipo === 'examen' ? (
                         <SortableLessonItem key={item.id} id={item.id}>
                           <EvaluacionRow
                             examen={item}
                             onEdit={onEditEvaluacion}
                             onDelete={onDeleteEvaluacion}
+                          />
+                        </SortableLessonItem>
+                      ) : (
+                        <SortableLessonItem key={item.id} id={item.id}>
+                          <ActividadRow
+                            actividad={item}
+                            onEdit={onEditActividad}
+                            onDelete={onDeleteActividad}
                           />
                         </SortableLessonItem>
                       )
@@ -500,6 +603,8 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
   const reorderLeccionesMutation = useReorderLecciones()
   const reorderExamenesMutation = useReorderExamenesModulo()
   const deleteExamenMutation = useDeleteExamen()
+  const deleteActividadMutation = useDeleteActividad()
+  const reorderActividadesMutation = useReorderActividadesModulo()
 
   const [newModuleTitle, setNewModuleTitle] = useState('')
   const [expandedModule, setExpandedModule] = useState<string | null>(null)
@@ -512,6 +617,13 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
     moduloId: string | null
     examen: CursoExamenResumen | null
   }>({ open: false, moduloId: null, examen: null })
+
+  // Actividad dialog state
+  const [actividadDialog, setActividadDialog] = useState<{
+    open: boolean
+    moduloId: string | null
+    actividad: CursoActividadResumen | null
+  }>({ open: false, moduloId: null, actividad: null })
 
   // Sensores para DND
   const sensors = useSensors(
@@ -660,7 +772,7 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
   const handleCombinedDragEnd = async (
     moduloId: string,
     event: DragEndEvent,
-    allItems: Array<{ id: string; _tipo: 'leccion' | 'examen'; orden?: number | null }>
+    allItems: Array<{ id: string; _tipo: 'leccion' | 'examen' | 'actividad'; orden?: number | null }>
   ) => {
     const { active, over } = event
 
@@ -672,11 +784,13 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
 
     const lecciones = reordered.filter(i => i._tipo === 'leccion').map(i => ({ id: i.id, orden: i.orden as number }))
     const examenes = reordered.filter(i => i._tipo === 'examen').map(i => ({ id: i.id, orden: i.orden as number }))
+    const actividades = reordered.filter(i => i._tipo === 'actividad').map(i => ({ id: i.id, orden: i.orden as number }))
 
     try {
       await Promise.all([
         lecciones.length ? reorderLeccionesMutation.mutateAsync({ cursoId: curso.id, moduloId, items: lecciones }) : null,
         examenes.length ? reorderExamenesMutation.mutateAsync({ cursoId: curso.id, moduloId, items: examenes }) : null,
+        actividades.length ? reorderActividadesMutation.mutateAsync({ cursoId: curso.id, moduloId, items: actividades }) : null,
       ].filter(Boolean) as Promise<any>[])
       onSuccess()
     } catch (error: any) {
@@ -724,6 +838,29 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
   }
 
   const activeModulo = evaluacionDialog.moduloId ? modulos.find(m => m.id === evaluacionDialog.moduloId) : null
+
+  // Actividad handlers
+  const handleOpenAddActividad = (moduloId: string) => {
+    setActividadDialog({ open: true, moduloId, actividad: null })
+  }
+
+  const handleOpenEditActividad = (actividad: CursoActividadResumen) => {
+    setActividadDialog({ open: true, moduloId: actividad.modulo_id, actividad })
+  }
+
+  const handleDeleteActividad = async (actividadId: string) => {
+    if (!window.confirm('¿Eliminar esta actividad y todas sus entregas?')) return
+
+    try {
+      await deleteActividadMutation.mutateAsync({ cursoId: curso.id, actId: actividadId })
+      enqueueSnackbar('Actividad eliminada', { variant: 'success' })
+      onSuccess()
+    } catch (error: any) {
+      enqueueSnackbar(error?.message || 'Error al eliminar', { variant: 'error' })
+    }
+  }
+
+  const activeModuloActividad = actividadDialog.moduloId ? modulos.find(m => m.id === actividadDialog.moduloId) : null
 
   return (
     <Box>
@@ -788,6 +925,9 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
                 onAddEvaluacion={handleOpenAddEvaluacion}
                 onEditEvaluacion={handleOpenEditEvaluacion}
                 onDeleteEvaluacion={handleDeleteEvaluacion}
+                onAddActividad={handleOpenAddActividad}
+                onEditActividad={handleOpenEditActividad}
+                onDeleteActividad={handleDeleteActividad}
                 sensors={sensors}
               />
             </SortableModuleItem>
@@ -824,6 +964,17 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
         moduloId={evaluacionDialog.moduloId}
         moduloTitulo={activeModulo?.titulo}
         examenId={evaluacionDialog.examen?.id}
+      />
+
+      <ActividadDialog
+        key={actividadDialog.actividad?.id || `new-act-${actividadDialog.moduloId}`}
+        open={actividadDialog.open}
+        onClose={() => setActividadDialog({ open: false, moduloId: null, actividad: null })}
+        onSuccess={onSuccess}
+        cursoId={curso.id}
+        moduloId={actividadDialog.moduloId}
+        moduloTitulo={activeModuloActividad?.titulo}
+        actividadId={actividadDialog.actividad?.id}
       />
     </Box>
   )
