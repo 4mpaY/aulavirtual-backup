@@ -6,6 +6,8 @@ import prisma from '@/utils/libs/prisma'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
 import { MisionVisionSection, ValoresSection } from '@/features/web/nosotros/components/NosotrosInteractive'
+import { PROQALL_DOCENTES } from '@/branches/proqall/docentes'
+import { isProqallBranch } from '@/branches/proqall/isProqallBranch'
 
 export const metadata = {
   title: 'Nosotros - Aula Virtual',
@@ -35,7 +37,7 @@ async function getTeachers() {
 }
 
 export default async function NosotrosPage() {
-  const teachers = await getTeachers()
+  const teachers = isProqallBranch() ? [...PROQALL_DOCENTES] : await getTeachers()
 
   return (
     <>
@@ -293,7 +295,7 @@ export default async function NosotrosPage() {
       <ValoresSection />
 
       {/* ── 5. PROFESORES ─────────────────────────────── */}
-      <ProfessorsCarousel teachers={JSON.parse(JSON.stringify(teachers))} />
+      <ProfessorsCarousel teachers={JSON.parse(JSON.stringify(teachers))} compact />
     </>
   )
 }

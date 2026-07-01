@@ -19,6 +19,8 @@ import prisma from '@/utils/libs/prisma'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import DocenteAvatarImage from './DocenteAvatarImage'
 import CursoCard from './CursoCard'
+import { getProqallDocenteBySlug } from '@/branches/proqall/docentes'
+import { isProqallBranch } from '@/branches/proqall/isProqallBranch'
 
 interface Props {
   params: { slug: string }
@@ -27,6 +29,12 @@ interface Props {
 export const dynamic = 'force-dynamic'
 
 async function getDocente(slug: string) {
+  if (isProqallBranch()) {
+    const staticDocente = getProqallDocenteBySlug(slug)
+
+    if (staticDocente) return staticDocente
+  }
+
   const docente = await prisma.usuario.findFirst({
     where: {
       OR: [

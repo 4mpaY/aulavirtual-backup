@@ -14,6 +14,11 @@ import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSe
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
 import CompaniesSection from '@/features/web/home/components/CompaniesSection'
 import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
+import { resolveProqallHomeLogos } from '@/branches/proqall/resolveHomeLogos'
+import { PROQALL_DOCENTES } from '@/branches/proqall/docentes'
+import { isProqallBranch } from '@/branches/proqall/isProqallBranch'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Aula Virtual - Aprende sin límites',
@@ -86,20 +91,25 @@ async function getHomeData() {
 
     try { logos = configs.HOME_LOGOS ? JSON.parse(configs.HOME_LOGOS) : [] } catch { logos = [] }
 
+    logos = resolveProqallHomeLogos(logos)
+
+    const teachers = isProqallBranch() ? [...PROQALL_DOCENTES] : teachersRaw
+
     return {
       courses: JSON.parse(JSON.stringify(courses)),
       rutas: JSON.parse(JSON.stringify(rutas)),
-      teachers: JSON.parse(JSON.stringify(teachersRaw)),
+      teachers: JSON.parse(JSON.stringify(teachers)),
       heroTitle,
       heroDescription,
       logos,
     }
   } catch {
     return {
-      courses: [], rutas: [], teachers: [],
+      courses: [], rutas: [],
+      teachers: isProqallBranch() ? [...PROQALL_DOCENTES] : [],
       heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
       heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
-      logos: [],
+      logos: resolveProqallHomeLogos([]),
     }
   }
 }
@@ -289,7 +299,7 @@ export default async function HomePage() {
       )}
 
       {/* ── 6. PROFESORES ───────────────────────────── */}
-      <ProfessorsCarousel teachers={teachers} />
+      <ProfessorsCarousel teachers={teachers} compact />
 
       {/* ── 7. EMPRESAS (B2B informativo) ───────────── */}
       <CompaniesSection />
