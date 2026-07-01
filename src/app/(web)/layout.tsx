@@ -27,7 +27,6 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
 
   const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
   const platformSlogan = configs.TEMPLATE_SLOGAN || 'Aprende sin límites'
-  const rutasHabilitado = configs.WEB_RUTAS_HABILITADO !== 'false'
   const empresasHabilitado = configs.WEB_EMPRESAS_HABILITADO !== 'false'
 
   return (
@@ -37,7 +36,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
         <div className="flex flex-1" style={{ paddingTop: 'var(--navbar-height)' }}>
           {/* Sidebar: visible solo en sm+ */}
           <div className="hidden sm:block">
-            <LeftSidebar rutasHabilitado={rutasHabilitado} empresasHabilitado={empresasHabilitado} />
+            <LeftSidebar empresasHabilitado={empresasHabilitado} />
           </div>
           <main
             className="flex-1 flex flex-col min-w-0 pb-16 sm:pb-0"
@@ -46,7 +45,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
             <div className="flex-1">
               {children}
             </div>
-            <WebFooter platformName={platformName} rutasHabilitado={rutasHabilitado} />
+            <WebFooter platformName={platformName} />
           </main>
         </div>
         {/* Bottom nav: visible solo en mobile */}

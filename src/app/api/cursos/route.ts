@@ -27,9 +27,13 @@ export async function GET(request: Request) {
 
     if (!validation.success) return validation.error
 
-    const { page, limit, buscar, estado, categoria_id, profesor_id } = validation.data
+    const { page, limit, buscar, estado, categoria_id, profesor_id, tipo } = validation.data
 
     const where: any = {}
+
+    if (tipo) {
+      where.tipo = tipo
+    }
 
     if (estado) {
       where.estado = estado

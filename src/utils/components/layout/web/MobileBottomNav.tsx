@@ -9,6 +9,8 @@ import { Home, BookOpen, Users, Award, MonitorSmartphone } from 'lucide-react'
 
 import { usePWAInstall } from '@/utils/hooks/usePWAInstall'
 
+import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
+
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
@@ -20,20 +22,12 @@ const ALL_NAV_ITEMS = [
   { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
 ]
 
-export default function MobileBottomNav({
-  rutasHabilitado = true,
-}: {
-  rutasHabilitado?: boolean
-}) {
+export default function MobileBottomNav() {
   const pathname = usePathname()
   const { canInstall, hasNativePrompt, install } = usePWAInstall()
   const [showTip, setShowTip] = useState(false)
 
-  const navItems = ALL_NAV_ITEMS.filter(item => {
-    if (item.key === 'rutas' && !rutasHabilitado) return false
-
-    return true
-  })
+  const navItems = ALL_NAV_ITEMS
 
   const isActive = (url: string) => {
     if (url === '/') return pathname === '/'
@@ -109,7 +103,7 @@ export default function MobileBottomNav({
               <div style={{ position: 'fixed', bottom: '72px', left: '50%', transform: 'translateX(-50%)', width: '280px', backgroundColor: '#ffffff', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: '1px solid hsl(214,20%,91%)', zIndex: 50, padding: '14px 16px' }}>
                 <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8rem', fontWeight: 700, color: '#0A0A0A', margin: '0 0 6px 0' }}>Instalar la aplicación</p>
                 <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                  En Chrome Android: toca el menú <strong>⋮</strong> y selecciona <strong>&quot;Añadir a pantalla de inicio&quot;</strong>.<br/>
+                  En Chrome Android: toca el menú <strong>⋮</strong> y selecciona <strong>&quot;Añadir a pantalla de inicio&quot;</strong>.<br />
                   En Safari iOS: toca <strong>Compartir ↑</strong> y luego <strong>&quot;Agregar a inicio&quot;</strong>.
                 </p>
               </div>

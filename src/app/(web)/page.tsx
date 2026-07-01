@@ -1,13 +1,14 @@
 import Link from 'next/link'
 
-import { ArrowRight, CheckCircle, Map } from 'lucide-react'
+import { ArrowRight, CheckCircle } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
+import { getTipoProgramaConfig } from '@/utils/configs/tipoPrograma'
+import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
 import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
 import HeroInstallButton from '@/features/web/home/components/HeroInstallButton'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
-import RutasSection from '@/features/web/home/components/RutasSection'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
 import HeroVisual from '@/features/web/home/components/HeroVisual'
@@ -19,34 +20,35 @@ import HomeEbooksSection from '@/features/web/home/components/HomeEbooksSection'
 
 export const metadata = {
   title: 'Aula Virtual - Aprende sin límites',
-  description: 'Plataforma de aprendizaje online con cursos especializados, rutas de aprendizaje y certificados.',
+  description: 'Plataforma de aprendizaje online con cursos especializados y certificados.',
 }
 
 async function getHomeData() {
   try {
-    const [coursesRaw, rutasRaw, teachersRaw, configs, ebooksRaw] = await Promise.all([
-      // Cursos
-      prisma.curso.findMany({
-        where: { estado: 'PUBLICADO' },
-        include: {
-          profesor: { select: { nombre: true, apellido: true, avatar: true } },
-          categoria: { select: { id: true, nombre: true } },
-          _count: { select: { modulos: true, inscripciones: true } },
-        },
-        orderBy: { creado_en: 'desc' },
-        take: 6,
-      }),
+    const courseInclude = {
+      profesor: { select: { nombre: true, apellido: true, avatar: true } },
+      categoria: { select: { id: true, nombre: true } },
+      _count: { select: { modulos: true, inscripciones: true } }
+    }
 
-      // Rutas
-      prisma.rutaAprendizaje.findMany({
-        where: { esta_activo: true },
-        include: {
-          cursos: {
-            take: 4,
-            include: { curso: { select: { miniatura: true, titulo: true } } },
-          },
-        },
-        take: 3,
+    const [coursesRaw, diplomadosRaw, especializacionesRaw, teachersRaw, configs, ebooksRaw] = await Promise.all([
+      prisma.curso.findMany({
+        where: { estado: 'PUBLICADO', tipo: 'CURSO' },
+        include: courseInclude,
+        orderBy: { creado_en: 'desc' },
+        take: 6
+      }),
+      prisma.curso.findMany({
+        where: { estado: 'PUBLICADO', tipo: 'DIPLOMADO' },
+        include: courseInclude,
+        orderBy: { creado_en: 'desc' },
+        take: 6
+      }),
+      prisma.curso.findMany({
+        where: { estado: 'PUBLICADO', tipo: 'ESPECIALIZACION' },
+        include: courseInclude,
+        orderBy: { creado_en: 'desc' },
+        take: 6
       }),
 
       // Profesores
@@ -68,17 +70,19 @@ async function getHomeData() {
       getConfigs(),
 
       // Ebooks destacados
-      prisma.ebook.findMany({
-        where: { estado: 'PUBLICADO' },
-        select: {
-          id: true, titulo: true, slug: true, miniatura: true,
-          autor: true, precio: true, precio_falso: true, moneda: true,
-          es_gratis: true, paginas: true, genero: true,
-          categoria: { select: { nombre: true } },
-        },
-        orderBy: { creado_en: 'desc' },
-        take: 5,
-      }),
+      isFeatureEnabled('ebooks')
+        ? prisma.ebook.findMany({
+            where: { estado: 'PUBLICADO' },
+            select: {
+              id: true, titulo: true, slug: true, miniatura: true,
+              autor: true, precio: true, precio_falso: true, moneda: true,
+              es_gratis: true, paginas: true, genero: true,
+              categoria: { select: { nombre: true } },
+            },
+            orderBy: { creado_en: 'desc' },
+            take: 5,
+          })
+        : Promise.resolve([]),
     ])
 
     const courses = await Promise.all(
@@ -89,11 +93,21 @@ async function getHomeData() {
       })
     )
 
-    const rutas = rutasRaw.map(r => ({
-      ...r,
-      total_cursos: r.cursos.length,
-      cursos: r.cursos.map(c => ({ miniatura: c.curso.miniatura, titulo: c.curso.titulo })),
-    }))
+    const diplomados = await Promise.all(
+      diplomadosRaw.map(async course => {
+        const leccionesCount = await prisma.leccion.count({ where: { modulo: { curso_id: course.id } } })
+
+        return { ...course, _count: { ...course._count, lecciones: leccionesCount } }
+      })
+    )
+
+    const especializaciones = await Promise.all(
+      especializacionesRaw.map(async course => {
+        const leccionesCount = await prisma.leccion.count({ where: { modulo: { curso_id: course.id } } })
+
+        return { ...course, _count: { ...course._count, lecciones: leccionesCount } }
+      })
+    )
 
     const heroTitle = configs.HOME_HERO_TITLE || 'Aprende sin límites,\ncrece sin fronteras'
     const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.'
@@ -109,7 +123,8 @@ async function getHomeData() {
 
     return {
       courses: JSON.parse(JSON.stringify(courses)),
-      rutas: JSON.parse(JSON.stringify(rutas)),
+      diplomados: JSON.parse(JSON.stringify(diplomados)),
+      especializaciones: JSON.parse(JSON.stringify(especializaciones)),
       teachers: JSON.parse(JSON.stringify(teachersRaw)),
       ebooks: JSON.parse(JSON.stringify(ebooks)),
       heroTitle,
@@ -118,7 +133,7 @@ async function getHomeData() {
     }
   } catch {
     return {
-      courses: [], rutas: [], teachers: [], ebooks: [],
+      courses: [], diplomados: [], especializaciones: [], teachers: [], ebooks: [],
       heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
       heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
       logos: [],
@@ -127,7 +142,10 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { courses, rutas, teachers, ebooks, heroTitle, heroDescription, logos } = await getHomeData()
+  const { courses, diplomados, especializaciones, teachers, ebooks, heroTitle, heroDescription, logos } = await getHomeData()
+  const cursosConfig = getTipoProgramaConfig('CURSO')
+  const diplomadosConfig = getTipoProgramaConfig('DIPLOMADO')
+  const especializacionesConfig = getTipoProgramaConfig('ESPECIALIZACION')
 
   return (
     <>
@@ -243,8 +261,8 @@ export default async function HomePage() {
         <ScrollReveal>
           <div className="flex items-end justify-between mb-8">
             <div>
-              <h2 className="section-title">Cursos destacados</h2>
-              <p className="section-subtitle">Descubre nuestros cursos más recientes</p>
+              <h2 className="section-title">{cursosConfig.homeTitle}</h2>
+              <p className="section-subtitle">{cursosConfig.homeSubtitle}</p>
             </div>
             <Link
               href="/cursos"
@@ -256,7 +274,12 @@ export default async function HomePage() {
           </div>
         </ScrollReveal>
         <ScrollReveal delay={0.1}>
-          <HomeCoursesSection courses={courses} />
+          <HomeCoursesSection
+            courses={courses}
+            catalogHref={cursosConfig.webPath}
+            emptyMessage={cursosConfig.emptyMessage}
+            viewLabel="Ver curso"
+          />
           <div className="flex justify-center mt-8 sm:hidden">
             <Link
               href="/cursos"
@@ -269,43 +292,69 @@ export default async function HomePage() {
         </ScrollReveal>
       </section>
 
+      {/* ── 3b. DIPLOMADOS DESTACADOS ───────────────── */}
+      {diplomados.length > 0 && (
+        <section className="section-container" style={{ borderTop: '1px solid hsl(214, 20%, 92%)' }}>
+          <ScrollReveal>
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <h2 className="section-title">{diplomadosConfig.homeTitle}</h2>
+                <p className="section-subtitle">{diplomadosConfig.homeSubtitle}</p>
+              </div>
+              <Link
+                href={diplomadosConfig.webPath}
+                className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
+                style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
+              >
+                Ver todos <ArrowRight size={16} />
+              </Link>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={0.1}>
+            <HomeCoursesSection
+              courses={diplomados}
+              catalogHref={diplomadosConfig.webPath}
+              emptyMessage={diplomadosConfig.emptyMessage}
+              viewLabel="Ver diplomado"
+            />
+          </ScrollReveal>
+        </section>
+      )}
+
+      {/* ── 3c. ESPECIALIZACIONES DESTACADAS ────────── */}
+      {especializaciones.length > 0 && (
+        <section className="section-container" style={{ borderTop: '1px solid hsl(214, 20%, 92%)' }}>
+          <ScrollReveal>
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <h2 className="section-title">{especializacionesConfig.homeTitle}</h2>
+                <p className="section-subtitle">{especializacionesConfig.homeSubtitle}</p>
+              </div>
+              <Link
+                href={especializacionesConfig.webPath}
+                className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
+                style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
+              >
+                Ver todas <ArrowRight size={16} />
+              </Link>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={0.1}>
+            <HomeCoursesSection
+              courses={especializaciones}
+              catalogHref={especializacionesConfig.webPath}
+              emptyMessage={especializacionesConfig.emptyMessage}
+              viewLabel="Ver especialización"
+            />
+          </ScrollReveal>
+        </section>
+      )}
+
       {/* ── 4. EBOOKS DESTACADOS ────────────────────── */}
-      <HomeEbooksSection ebooks={ebooks} />
+      {isFeatureEnabled('ebooks') && <HomeEbooksSection ebooks={ebooks} />}
 
       {/* ── 5. CARACTERÍSTICAS DE CLASES ────────────── */}
       <ClassFeaturesSection />
-
-      {/* ── 5. RUTAS DE APRENDIZAJE ─────────────────── */}
-      {rutas.length > 0 && (
-        <section style={{ backgroundColor: 'hsl(210, 15%, 97%)', borderTop: '1px solid hsl(214, 20%, 92%)' }}>
-          <div className="section-container">
-            <ScrollReveal>
-              <div className="flex items-end justify-between mb-2">
-                <div>
-                  <div
-                    className="inline-flex items-center gap-2 mb-3"
-                    style={{ color: 'var(--web-primary, #25927F)', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
-                  >
-                    <Map size={14} /> Especialízate
-                  </div>
-                  <h2 className="section-title" style={{ marginBottom: '0.25rem' }}>Rutas de Aprendizaje</h2>
-                  <p className="section-subtitle">Colecciones curadas para llevarte de principiante a experto.</p>
-                </div>
-                <Link
-                  href="/rutas"
-                  className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-                >
-                  Ver todas <ArrowRight size={16} />
-                </Link>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={0.1}>
-              <RutasSection rutas={rutas} embedded />
-            </ScrollReveal>
-          </div>
-        </section>
-      )}
 
       {/* ── 6. PROFESORES ───────────────────────────── */}
       <ProfessorsCarousel teachers={teachers} />

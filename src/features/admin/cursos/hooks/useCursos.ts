@@ -207,7 +207,7 @@ export function useDeletePreguntaActividad() {
 }
 
 export function useEntregasActividad(cursoId: string, actId: string) {
-  return useQuery<{ entregas: any[]; pendientes: any[] }, any>({
+  return useQuery<{ entregas: any[]; pendientes: any[]; actividad?: any }, any>({
     queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId, 'entregas'],
     queryFn: async () => await axiosCurso.getEntregasActividad(cursoId, actId),
     enabled: !!cursoId && !!actId,
@@ -221,8 +221,10 @@ export function useCalificarEntregaActividad() {
   return useMutation<{ entrega: any }, any, { cursoId: string; actId: string; entId: string; data: any }>({
     mutationFn: async ({ cursoId, actId, entId, data }) =>
       await axiosCurso.calificarEntregaActividad(cursoId, actId, entId, data),
-    onSuccess: (_, { cursoId, actId }) =>
+    onSuccess: (_, { cursoId, actId }) => {
       qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'actividades', actId, 'entregas'] })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId] })
+    }
   })
 }
 

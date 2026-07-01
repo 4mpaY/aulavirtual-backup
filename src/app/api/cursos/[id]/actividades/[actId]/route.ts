@@ -18,6 +18,7 @@ async function checkAccess(cursoId: string, actId: string, auth: any, request: R
   const curso = await prisma.curso.findUnique({ where: { id: cursoId } })
 
   if (!curso) return { error: ApiResponse.error(request, 'Curso no encontrado', 404) }
+
   if (auth.user.rol === 'PROFESOR' && curso.profesor_id !== auth.user.id) {
     return { error: ApiResponse.error(request, 'No tienes permiso', 403) }
   }

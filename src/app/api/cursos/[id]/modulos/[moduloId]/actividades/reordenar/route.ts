@@ -17,8 +17,16 @@ export async function PATCH(
 
     if (!auth.authorized) return auth.error
 
-    const { moduloId } = params
+    const { id: cursoId, moduloId } = params
     const { items } = await request.json()
+
+    const modulo = await prisma.modulo.findFirst({
+      where: { id: moduloId, curso_id: cursoId }
+    })
+
+    if (!modulo) {
+      return ApiResponse.error(request, 'Módulo no encontrado en este curso', 404)
+    }
 
     await Promise.all(
       items.map(({ id, orden }: { id: string; orden: number }) =>

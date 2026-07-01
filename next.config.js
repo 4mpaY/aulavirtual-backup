@@ -62,6 +62,19 @@ const nextConfig = {
     '@fullcalendar/list',
     '@fullcalendar/interaction'
   ],
+  async rewrites() {
+    return [
+      {
+        source: '/favicon.ico',
+        destination: '/api/branding/favicon',
+      },
+    ]
+  },
+  async redirects() {
+    return [
+      { source: '/rutas/:path*', destination: '/', permanent: false },
+    ]
+  },
   async headers() {
     return [
       {

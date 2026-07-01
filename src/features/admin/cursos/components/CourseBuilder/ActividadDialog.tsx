@@ -51,6 +51,7 @@ function QuestionForm({
 }) {
   const [texto, setTexto] = useState(initial?.texto || '')
   const [puntos, setPuntos] = useState(initial?.puntos || 1)
+
   const [opciones, setOpciones] = useState<any[]>(
     initial?.opciones?.map((o: any) => ({ ...o })) || [
       { texto: '', es_correcta: false },
@@ -232,6 +233,7 @@ export function ActividadDialog({
   useEffect(() => {
     if (actividadData?.actividad && phase === 'config') {
       const a = actividadData.actividad
+
       const toLocal = (val: any) => {
         if (!val) return null
         const d = new Date(val)
@@ -343,7 +345,12 @@ export function ActividadDialog({
   }
 
   return (
-    <AppModal open={open} handleClose={onClose} sx={{ p: 0, maxWidth: 720 }}>
+    <AppModal
+      open={open}
+      handleClose={onClose}
+      disableClose={isSavingConfig || isSavingQuestion}
+      sx={{ p: 0, maxWidth: 720 }}
+    >
       {/* ── Header ── */}
       <Box sx={{
         px: 3.5, pt: 3.5, pb: 0,

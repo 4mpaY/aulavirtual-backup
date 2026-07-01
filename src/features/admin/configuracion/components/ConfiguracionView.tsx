@@ -363,6 +363,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const [openMedia, setOpenMedia] = useState(false)
   const [showSecret, setShowSecret] = useState<{ [key: string]: boolean }>({})
   const [openLogoMedia, setOpenLogoMedia] = useState(false)
+  const [openFaviconMedia, setOpenFaviconMedia] = useState(false)
   const [pendingLogoLabel, setPendingLogoLabel] = useState('')
 
   const initialMapped = (initialData || []).reduce((acc: { [key: string]: string }, curr: Configuracion) => {
@@ -383,6 +384,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     CERTIFICADO_SLOGAN: '',
     CERTIFICADO_INSTITUTION_URL: '',
     TEMPLATE_LOGO: '',
+    SITE_FAVICON: '',
     SETTINGS_COOKIE_NAME: 'arm',
     PRIMARY_COLOR_MAIN: '#131FF2',
     PRIMARY_COLOR_LIGHT: '#242CBF',
@@ -457,7 +459,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       const axiosConfig = new AxiosConfiguracion({ getAuthToken })
 
       await axiosConfig.save(payload)
-      enqueueSnackbar('Configuración actualizada. Los cambios estéticos pueden requerir recargar la página.', { variant: 'success' })
+      enqueueSnackbar('Configuración actualizada. Si cambiaste el favicon, recarga la pestaña del navegador (Ctrl+F5).', { variant: 'success' })
     } catch (err) {
       console.error(err)
       enqueueSnackbar('Error al guardar la configuración', { variant: 'error' })
@@ -602,10 +604,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
             </Typography>
             <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
               <Stack spacing={1}>
-                <FormControlLabel
-                  control={<Switch checked={config.WEB_RUTAS_HABILITADO === 'true'} onChange={(e) => handleInputChange('WEB_RUTAS_HABILITADO', e.target.checked ? 'true' : 'false')} />}
-                  label='Mostrar página de Rutas de Aprendizaje'
-                />
                 <FormControlLabel
                   control={<Switch checked={config.WEB_EMPRESAS_HABILITADO === 'true'} onChange={(e) => handleInputChange('WEB_EMPRESAS_HABILITADO', e.target.checked ? 'true' : 'false')} />}
                   label='Mostrar página de Empresas'
@@ -754,6 +752,68 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 enqueueSnackbar('Logo seleccionado — recuerda guardar los cambios', { variant: 'info' })
               }}
               title='Seleccionar Logo'
+            />
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <SectionLabel>Favicon</SectionLabel>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+              Icono que aparece en la pestaña del navegador. Usa una imagen cuadrada (mínimo 32×32 px).
+              Al guardar, se generará automáticamente el favicon del sitio.
+            </Typography>
+            <Grid container spacing={3} alignItems='flex-start'>
+              <Grid item xs={12} md={4}>
+                <Paper
+                  variant='outlined'
+                  sx={{
+                    p: 2, textAlign: 'center', borderRadius: 2,
+                    minHeight: 120, display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', gap: 1.5
+                  }}
+                >
+                  {config.SITE_FAVICON ? (
+                    <img
+                      src={config.SITE_FAVICON}
+                      alt='Favicon'
+                      style={{ width: 48, height: 48, objectFit: 'contain' }}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                    />
+                  ) : (
+                    <Typography variant='caption' color='text.disabled'>Sin favicon personalizado</Typography>
+                  )}
+                  <Stack direction='row' spacing={1} flexWrap='wrap' justifyContent='center'>
+                    <Button
+                      variant='outlined'
+                      size='small'
+                      startIcon={<i className='tabler-photo' />}
+                      onClick={() => setOpenFaviconMedia(true)}
+                    >
+                      Cambiar favicon
+                    </Button>
+                    {config.SITE_FAVICON ? (
+                      <Button
+                        variant='text'
+                        size='small'
+                        color='error'
+                        onClick={() => handleInputChange('SITE_FAVICON', '')}
+                      >
+                        Quitar
+                      </Button>
+                    ) : null}
+                  </Stack>
+                </Paper>
+              </Grid>
+            </Grid>
+            <MediaLibrary
+              open={openFaviconMedia}
+              onClose={() => setOpenFaviconMedia(false)}
+              onSelect={(url) => {
+                handleInputChange('SITE_FAVICON', url)
+                enqueueSnackbar('Favicon seleccionado — recuerda guardar los cambios', { variant: 'info' })
+              }}
+              title='Seleccionar Favicon'
             />
           </Box>
 

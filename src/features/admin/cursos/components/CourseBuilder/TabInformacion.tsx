@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ChangeEvent } from 'react'
 
 import {
@@ -22,7 +22,27 @@ import { sanitizeDatetimeInput, toLocalDateInputValue } from '@/utils/functions/
 import type { Curso } from '../../entity/Curso'
 import { useEditCurso } from '../../hooks/useCursos'
 import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
+import type { Categoria } from '@/features/admin/categorias/entity/Categoria'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
+import { CategoriaSubcategoriaSelect } from '../CategoriaSubcategoriaSelect'
+import { TipoProgramaSelect } from '../TipoProgramaSelect'
+import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
+
+function resolveCategoriaSelection(categoriaId: string | null | undefined, categorias: Categoria[]) {
+  if (!categoriaId) return { padreId: '', subId: '' }
+
+  const asParent = categorias.find(c => c.id === categoriaId)
+
+  if (asParent) return { padreId: categoriaId, subId: '' }
+
+  for (const cat of categorias) {
+    const sub = cat.hijos?.find(h => h.id === categoriaId)
+
+    if (sub) return { padreId: cat.id, subId: categoriaId }
+  }
+
+  return { padreId: '', subId: '' }
+}
 
 interface TabInformacionProps {
   curso: Curso
@@ -38,11 +58,21 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
 
   const [openMedia, setOpenMedia] = useState(false)
   const [openBrochure, setOpenBrochure] = useState(false)
+  const [categoriaPadreId, setCategoriaPadreId] = useState('')
+  const [subcategoriaId, setSubcategoriaId] = useState('')
+
+  useEffect(() => {
+    const { padreId, subId } = resolveCategoriaSelection(curso.categoria_id, categorias)
+
+    setCategoriaPadreId(padreId)
+    setSubcategoriaId(subId)
+  }, [curso.categoria_id, categorias])
 
   const [form, setForm] = useState({
     titulo: curso.titulo,
     descripcion: curso.descripcion || '',
     categoria_id: curso.categoria_id || '',
+    tipo: (curso.tipo || 'CURSO') as TipoPrograma,
     profesor_id: curso.profesor_id,
     tipo_emision: curso.tipo_emision,
     duracion: curso.duracion || '',
@@ -67,6 +97,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
           titulo: form.titulo,
           descripcion: form.descripcion?.trim() || null,
           categoria_id: form.categoria_id || null,
+          tipo: form.tipo,
           profesor_id: form.profesor_id,
           tipo_emision: form.tipo_emision as 'SINCRONO' | 'ASINCRONO' | 'MIXTO',
           duracion: form.duracion || null,
@@ -133,21 +164,26 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
           onChange={handleChange}
         />
       </Grid>
-      <Grid item xs={12} sm={6}>
-        <CustomTextField
-          select
-          fullWidth
-          label='Categoría'
-          name='categoria_id'
-          value={form.categoria_id}
-          onChange={handleChange}
-        >
-          <MenuItem value=''>Sin categoría</MenuItem>
-          {categorias.map(cat => (
-            <MenuItem key={cat.id} value={cat.id}>{cat.nombre}</MenuItem>
-          ))}
-        </CustomTextField>
-      </Grid>
+      <TipoProgramaSelect
+        value={form.tipo}
+        onChange={tipo => setForm(prev => ({ ...prev, tipo }))}
+      />
+
+      <CategoriaSubcategoriaSelect
+        categorias={categorias}
+        categoriaPadreId={categoriaPadreId}
+        subcategoriaId={subcategoriaId}
+        onCategoriaPadreChange={padreId => {
+          setCategoriaPadreId(padreId)
+          setSubcategoriaId('')
+          setForm(prev => ({ ...prev, categoria_id: padreId || '' }))
+        }}
+        onSubcategoriaChange={subId => {
+          setSubcategoriaId(subId)
+          setForm(prev => ({ ...prev, categoria_id: subId || categoriaPadreId || '' }))
+        }}
+      />
+
       <Grid item xs={12} sm={6}>
         <CustomTextField
           select
