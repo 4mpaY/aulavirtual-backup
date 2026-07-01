@@ -173,7 +173,9 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     onSave({
       titulo: title,
       duracion: duration ? Number(duration) : null,
-      video_url: (videoSource === 'enlace' ? videoUrlEnlace : videoUrlPrivado) || null,
+      video_url: esPdf
+        ? videoUrlEnlace || null
+        : (videoSource === 'enlace' ? videoUrlEnlace : videoUrlPrivado) || null,
       es_en_vivo: esEnVivo,
       es_pdf: !esEnVivo && esPdf,
       fecha_programada: sanitizeDatetimeInput(fechaProgramada),
@@ -276,7 +278,8 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                     checked={esPdf}
                     onChange={e => {
                       setEsPdf(e.target.checked)
-                      setVideoUrl('')
+                      setVideoUrlEnlace('')
+                      setVideoUrlPrivado('')
                     }}
                     color='primary'
                   />
@@ -292,14 +295,14 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
               {esPdf ? (
                 <Box>
                   <Typography variant='caption' sx={{ mb: 1, display: 'block', fontWeight: 600 }}>Archivo PDF de la Lección</Typography>
-                  {videoUrl ? (
+                  {videoUrlEnlace ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                       <i className='tabler-file-type-pdf text-xl text-error' />
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant='body2' fontWeight={600} noWrap>{videoUrl.split('/').pop()}</Typography>
-                        <Typography variant='caption' color='text.secondary' noWrap>{videoUrl}</Typography>
+                        <Typography variant='body2' fontWeight={600} noWrap>{videoUrlEnlace.split('/').pop()}</Typography>
+                        <Typography variant='caption' color='text.secondary' noWrap>{videoUrlEnlace}</Typography>
                       </Box>
-                      <IconButton size='small' color='error' onClick={() => setVideoUrl('')}>
+                      <IconButton size='small' color='error' onClick={() => setVideoUrlEnlace('')}>
                         <i className='tabler-trash text-base' />
                       </IconButton>
                     </Box>
@@ -325,15 +328,15 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
                           setVideoSource(source)
 
 
-                          // Si cambia a privado y el video actual no es de stream, limpiar
-                          if (source === 'privado' && !videoUrl.includes('/api/videos/stream/')) {
-                            setVideoUrl('')
+                          // Si cambia a privado, limpiar enlace externo
+                          if (source === 'privado' && videoUrlEnlace) {
+                            setVideoUrlEnlace('')
                           }
 
 
-                          // Si cambia a enlace y es privado, limpiar
-                          if (source === 'enlace' && videoUrl.includes('/api/videos/stream/')) {
-                            setVideoUrl('')
+                          // Si cambia a enlace, limpiar video privado en stream
+                          if (source === 'enlace' && videoUrlPrivado.includes('/api/videos/stream/')) {
+                            setVideoUrlPrivado('')
                           }
                         }}
                         fullWidth
@@ -647,7 +650,7 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
             open={openMediaPdf}
             onClose={() => setOpenMediaPdf(false)}
             onSelect={(url: string) => {
-              setVideoUrl(url)
+              setVideoUrlEnlace(url)
               setOpenMediaPdf(false)
             }}
             title='Seleccionar o Subir PDF de la Lección'

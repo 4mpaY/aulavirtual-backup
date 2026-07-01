@@ -204,10 +204,8 @@ export default function MisNotasPage() {
                       <TableCell sx={{ fontSize: 13 }}>{row.periodo}</TableCell>
                       <TableCell sx={{ fontSize: 13, minWidth: 220 }}>
                         <Typography component='span' sx={{ fontWeight: 700 }}>
-                          {row.codigo}
+                          {row.curso}
                         </Typography>
-                        {' — '}
-                        {row.curso}
                       </TableCell>
                       <TableCell sx={{ fontSize: 13 }}>{row.grupo}</TableCell>
                       <TableCell sx={{ fontSize: 13 }}>{row.seccion}</TableCell>

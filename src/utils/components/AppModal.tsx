@@ -11,6 +11,7 @@ type AppModalProps = {
   open: boolean
   handleClose: () => void
   viewIconClose?: boolean
+
   /** Bloquea cierre con Escape o clic fuera (p. ej. mientras guarda/carga) */
   disableClose?: boolean
 }
@@ -55,6 +56,7 @@ const AppModal: FC<AppModalProps & BoxProps> = ({
       open={open}
       onClose={(_, reason) => {
         if (disableClose) return
+
         if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
           handleClose()
         }

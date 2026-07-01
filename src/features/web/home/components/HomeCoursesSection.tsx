@@ -32,7 +32,6 @@ interface Props {
 
 export default function HomeCoursesSection({
   courses,
-  catalogHref = '/cursos',
   emptyMessage = 'Próximamente habrá cursos disponibles.',
   viewLabel = 'Ver curso'
 }: Props) {

@@ -107,7 +107,7 @@ export async function GET(request: Request, { params }: { params: { cursoId: str
 
     return ApiResponse.success(request, {
       curso_id: cursoId,
-      codigo: inscripcion.curso.codigo ?? '—',
+      codigo: inscripcion.curso.codigo?.trim() || '',
       curso: inscripcion.curso.titulo,
       periodo: obtenerPeriodoAcademico(fecha),
       promedio: resumen.promedio,

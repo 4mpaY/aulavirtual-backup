@@ -103,11 +103,11 @@ function ArchivoReviewBlock({ entrega }: { entrega: any }) {
             borderColor: 'divider',
             borderRadius: 2,
             overflow: 'hidden',
-            maxHeight: 480,
+            height: 480,
             bgcolor: 'grey.50'
           }}
         >
-          <PdfViewer url={archivoUrl} />
+          <PdfViewer url={archivoUrl} embedded />
         </Box>
       )}
     </Box>
@@ -633,6 +633,7 @@ interface TabRevisionActividadesProps {
 
 export function TabRevisionActividades({ cursoId, curso }: TabRevisionActividadesProps) {
   const allActividades: CursoActividadResumen[] = curso.modulos?.flatMap(m => m.actividades || []) || []
+
   const [selectedActividad, setSelectedActividad] = useState<CursoActividadResumen | null>(
     allActividades[0] ?? null
   )

@@ -5,6 +5,7 @@ export const getBaseURL = () => {
   }
 
   const port = process.env.PORT
+
   const localhostFallback =
     port && port !== '3000' ? `http://localhost:${port}` : 'http://localhost:3000'
 

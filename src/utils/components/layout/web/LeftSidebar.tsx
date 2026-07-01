@@ -25,7 +25,9 @@ const ALL_NAV_ITEMS = [
   ...(isFeatureEnabled('ebooks')
     ? [{ title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' as const }]
     : []),
-  { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
+  ...(isFeatureEnabled('rutas')
+    ? [{ title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' as const }]
+    : []),
   { title: 'Empresas', url: '/empresas', icon: Building2, key: 'empresas' },
   ...(isFeatureEnabled('suscripciones')
     ? [{ title: 'Suscripciones', url: '/suscripciones', icon: Repeat2, key: 'suscripciones' as const }]
@@ -35,10 +37,8 @@ const ALL_NAV_ITEMS = [
 ]
 
 export default function LeftSidebar({
-  rutasHabilitado = true,
   empresasHabilitado = true,
 }: {
-  rutasHabilitado?: boolean
   empresasHabilitado?: boolean
 }) {
   const pathname = usePathname()
@@ -51,7 +51,6 @@ export default function LeftSidebar({
   const { openLogin, openRegister } = useAuthModal()
 
   const navItems = ALL_NAV_ITEMS.filter(item => {
-    if (item.key === 'rutas' && !rutasHabilitado) return false
     if (item.key === 'empresas' && !empresasHabilitado) return false
 
     return true

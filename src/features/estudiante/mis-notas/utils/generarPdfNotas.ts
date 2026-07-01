@@ -19,7 +19,7 @@ export async function downloadResumenNotasCurso(detalle: DetalleNotasCurso, estu
   y += 12
   doc.setFontSize(11)
   doc.setTextColor(0, 0, 0)
-  doc.text(`Curso: ${detalle.codigo} - ${detalle.curso}`, margin, y)
+  doc.text(`Curso: ${detalle.curso}`, margin, y)
 
   y += 7
   doc.text(`Periodo: ${detalle.periodo}`, margin, y)
@@ -39,9 +39,9 @@ export async function downloadResumenNotasCurso(detalle: DetalleNotasCurso, estu
   }
 
   y += 7
-  doc.setFont(undefined, 'bold')
+  doc.setFont('helvetica', 'bold')
   doc.text(`Promedio: ${fmtNota(detalle.promedio)}`, margin, y)
-  doc.setFont(undefined, 'normal')
+  doc.setFont('helvetica', 'normal')
 
   y += 14
   doc.setFontSize(12)
@@ -114,7 +114,7 @@ export async function downloadHistorialNotasPdf(registros: HistorialNotaItem[], 
 
   registros.forEach(row => {
     doc.text(row.periodo, cols[0].x, y)
-    const cursoTxt = `${row.codigo} - ${row.curso}`
+    const cursoTxt = row.curso
 
     doc.text(cursoTxt.length > 48 ? `${cursoTxt.slice(0, 48)}…` : cursoTxt, cols[1].x, y)
     doc.text(fmtNota(row.promedio), cols[2].x, y)

@@ -135,7 +135,7 @@ export async function GET(request: Request) {
       return {
         inscripcion_id: inscripcion.id,
         curso_id: curso.id,
-        codigo: curso.codigo ?? '—',
+        codigo: curso.codigo?.trim() || '',
         curso: curso.titulo,
         periodo: obtenerPeriodoAcademico(fecha),
         anio_academico: anioAcademico,

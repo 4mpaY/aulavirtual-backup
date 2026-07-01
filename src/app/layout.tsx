@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 
 import { Providers } from '@/components/Providers'
 import { getConfigs } from '@/utils/libs/config'
+import { resolveFaviconUrl } from '@/utils/functions/syncFavicon'
 import { getAuthOptions } from '@/utils/configs/auth'
 import { plus_jakarta_sans } from '@core/theme'
 
@@ -14,14 +15,16 @@ export async function generateMetadata(): Promise<Metadata> {
   const configs = await getConfigs()
   const title = configs.TEMPLATE_NAME || 'Aula Virtual'
   const slogan = configs.TEMPLATE_SLOGAN || ''
-  const logo = configs.TEMPLATE_LOGO || '/favicon.ico'
+  const logo = resolveFaviconUrl(configs)
 
   return {
     title: slogan ? `${title} - ${slogan}` : title,
     description: slogan,
     icons: {
-      icon: logo
-    }
+      icon: logo,
+      shortcut: logo,
+      apple: logo,
+    },
   }
 }
 

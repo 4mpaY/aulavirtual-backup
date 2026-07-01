@@ -86,6 +86,7 @@ export async function GET(
     if (!auth.authorized) return auth.error
 
     const { id: cursoId, actId, entId } = params
+
     const check = await prisma.actividad.findUnique({
       where: { id: actId },
       include: {

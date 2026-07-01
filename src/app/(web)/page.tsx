@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { ArrowRight, CheckCircle, Map } from 'lucide-react'
+import { ArrowRight, CheckCircle } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
@@ -8,7 +8,6 @@ import { getTipoProgramaConfig } from '@/utils/configs/tipoPrograma'
 import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
 import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
-import RutasSection from '@/features/web/home/components/RutasSection'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
 import HeroVisual from '@/features/web/home/components/HeroVisual'
@@ -20,7 +19,7 @@ import HomeEbooksSection from '@/features/web/home/components/HomeEbooksSection'
 
 export const metadata = {
   title: 'Aula Virtual - Aprende sin límites',
-  description: 'Plataforma de aprendizaje online con cursos especializados, rutas de aprendizaje y certificados.',
+  description: 'Plataforma de aprendizaje online con cursos especializados y certificados.',
 }
 
 async function getHomeData() {
@@ -31,7 +30,7 @@ async function getHomeData() {
       _count: { select: { modulos: true, inscripciones: true } }
     }
 
-    const [coursesRaw, diplomadosRaw, especializacionesRaw, rutasRaw, teachersRaw, configs, ebooksRaw] = await Promise.all([
+    const [coursesRaw, diplomadosRaw, especializacionesRaw, teachersRaw, configs, ebooksRaw] = await Promise.all([
       prisma.curso.findMany({
         where: { estado: 'PUBLICADO', tipo: 'CURSO' },
         include: courseInclude,
@@ -49,18 +48,6 @@ async function getHomeData() {
         include: courseInclude,
         orderBy: { creado_en: 'desc' },
         take: 6
-      }),
-
-      // Rutas
-      prisma.rutaAprendizaje.findMany({
-        where: { esta_activo: true },
-        include: {
-          cursos: {
-            take: 4,
-            include: { curso: { select: { miniatura: true, titulo: true } } },
-          },
-        },
-        take: 3,
       }),
 
       // Profesores
@@ -121,12 +108,6 @@ async function getHomeData() {
       })
     )
 
-    const rutas = rutasRaw.map(r => ({
-      ...r,
-      total_cursos: r.cursos.length,
-      cursos: r.cursos.map(c => ({ miniatura: c.curso.miniatura, titulo: c.curso.titulo })),
-    }))
-
     const heroTitle = configs.HOME_HERO_TITLE || 'Aprende sin límites,\ncrece sin fronteras'
     const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.'
     let logos: { label: string; url: string }[] = []
@@ -143,7 +124,6 @@ async function getHomeData() {
       courses: JSON.parse(JSON.stringify(courses)),
       diplomados: JSON.parse(JSON.stringify(diplomados)),
       especializaciones: JSON.parse(JSON.stringify(especializaciones)),
-      rutas: JSON.parse(JSON.stringify(rutas)),
       teachers: JSON.parse(JSON.stringify(teachersRaw)),
       ebooks: JSON.parse(JSON.stringify(ebooks)),
       heroTitle,
@@ -152,7 +132,7 @@ async function getHomeData() {
     }
   } catch {
     return {
-      courses: [], diplomados: [], especializaciones: [], rutas: [], teachers: [], ebooks: [],
+      courses: [], diplomados: [], especializaciones: [], teachers: [], ebooks: [],
       heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
       heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
       logos: [],
@@ -161,7 +141,7 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { courses, diplomados, especializaciones, rutas, teachers, ebooks, heroTitle, heroDescription, logos } = await getHomeData()
+  const { courses, diplomados, especializaciones, teachers, ebooks, heroTitle, heroDescription, logos } = await getHomeData()
   const cursosConfig = getTipoProgramaConfig('CURSO')
   const diplomadosConfig = getTipoProgramaConfig('DIPLOMADO')
   const especializacionesConfig = getTipoProgramaConfig('ESPECIALIZACION')
@@ -380,38 +360,6 @@ export default async function HomePage() {
 
       {/* ── 5. CARACTERÍSTICAS DE CLASES ────────────── */}
       <ClassFeaturesSection />
-
-      {/* ── 5. RUTAS DE APRENDIZAJE ─────────────────── */}
-      {rutas.length > 0 && (
-        <section style={{ backgroundColor: 'hsl(210, 15%, 97%)', borderTop: '1px solid hsl(214, 20%, 92%)' }}>
-          <div className="section-container">
-            <ScrollReveal>
-              <div className="flex items-end justify-between mb-2">
-                <div>
-                  <div
-                    className="inline-flex items-center gap-2 mb-3"
-                    style={{ color: 'var(--web-primary, #25927F)', fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}
-                  >
-                    <Map size={14} /> Especialízate
-                  </div>
-                  <h2 className="section-title" style={{ marginBottom: '0.25rem' }}>Rutas de Aprendizaje</h2>
-                  <p className="section-subtitle">Colecciones curadas para llevarte de principiante a experto.</p>
-                </div>
-                <Link
-                  href="/rutas"
-                  className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                  style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-                >
-                  Ver todas <ArrowRight size={16} />
-                </Link>
-              </div>
-            </ScrollReveal>
-            <ScrollReveal delay={0.1}>
-              <RutasSection rutas={rutas} embedded />
-            </ScrollReveal>
-          </div>
-        </section>
-      )}
 
       {/* ── 6. PROFESORES ───────────────────────────── */}
       <ProfessorsCarousel teachers={teachers} />

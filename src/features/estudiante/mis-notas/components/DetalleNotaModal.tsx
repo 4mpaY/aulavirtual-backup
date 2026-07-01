@@ -49,7 +49,7 @@ export function DetalleNotaModal({
       ) : (
         <>
           <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-            {detalle.codigo} — {detalle.curso}
+            {detalle.curso}
           </Typography>
 
           <Table size='small' sx={{ mb: 3, border: '1px solid', borderColor: 'divider' }}>

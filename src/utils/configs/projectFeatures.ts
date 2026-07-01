@@ -6,7 +6,8 @@ export const PROJECT_FEATURES = {
   ebooks: false,
   suscripciones: false,
   calendario: false,
-  simulacros: false
+  simulacros: false,
+  rutas: false,
 } as const
 
 export type ProjectFeature = keyof typeof PROJECT_FEATURES

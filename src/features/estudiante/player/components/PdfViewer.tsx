@@ -15,6 +15,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js'
 
 interface PdfViewerProps {
     url?: string | null
+
+    /** En modales/paneles con altura fija (p. ej. revisión de entregas) */
+    embedded?: boolean
 }
 
 const ZOOM_STEP = 0.25
@@ -22,7 +25,7 @@ const ZOOM_MIN = 0.5
 const ZOOM_MAX = 3
 const SCROLL_TOP_GAP = 16
 
-const PdfViewer = ({ url }: PdfViewerProps) => {
+const PdfViewer = ({ url, embedded = false }: PdfViewerProps) => {
     const [pdfData, setPdfData] = useState<{ data: ArrayBuffer } | null>(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
@@ -124,6 +127,17 @@ const PdfViewer = ({ url }: PdfViewerProps) => {
         return () => el.removeEventListener('scroll', computeVisiblePage)
     }, [numPages, pageWidth])
 
+    useEffect(() => {
+        const el = wrapperRef.current
+
+        if (!el || zoom <= 1) return
+
+        // Tras cambiar zoom, centrar horizontalmente el contenido ampliado
+        const contentWidth = pageWidth + 32
+
+        el.scrollLeft = Math.max(0, (contentWidth - el.clientWidth) / 2)
+    }, [zoom, pageWidth])
+
     const toggleFullscreen = () => {
         if (!containerRef.current) return
         document.fullscreenElement ? document.exitFullscreen() : containerRef.current.requestFullscreen()
@@ -198,8 +212,9 @@ const PdfViewer = ({ url }: PdfViewerProps) => {
             ref={containerRef}
             sx={{
                 width: '100%',
-                aspectRatio: isFullscreen ? undefined : '16/9',
-                height: isFullscreen ? '100vh' : undefined,
+                aspectRatio: embedded || isFullscreen ? undefined : '16/9',
+                height: isFullscreen ? '100vh' : embedded ? '100%' : undefined,
+                minHeight: embedded ? 320 : undefined,
                 bgcolor: '#1a1a1a',
                 borderRadius: isFullscreen ? 0 : { xs: 0, md: '12px' },
                 overflow: 'hidden',
@@ -277,25 +292,44 @@ const PdfViewer = ({ url }: PdfViewerProps) => {
             </Box>
 
             {/* Document area */}
-            <Box ref={wrapperRef} sx={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2, minHeight: 0 }}>
-                {loading && <CircularProgress sx={{ color: '#fff', my: 4 }} />}
+            <Box
+                ref={wrapperRef}
+                sx={{
+                    flex: 1,
+                    overflow: 'auto',
+                    minHeight: 0,
+                    overscrollBehavior: 'contain',
+                }}
+            >
+                {loading && <CircularProgress sx={{ color: '#fff', my: 4, mx: 'auto', display: 'block' }} />}
                 {pdfData && (
-                    <Document
-                        file={pdfData}
-                        onLoadSuccess={({ numPages: n }) => setNumPages(n)}
-                        loading={<CircularProgress sx={{ color: '#fff', my: 4 }} />}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: zoom > 1 ? 'flex-start' : 'center',
+                            width: zoom > 1 ? 'max-content' : '100%',
+                            minWidth: '100%',
+                            p: 2,
+                        }}
                     >
-                        {Array.from({ length: numPages }, (_, i) => i + 1).map(pageNum => (
-                            <Box
-                                key={pageNum}
-                                data-page={pageNum}
-                                ref={(el: HTMLDivElement | null) => { pageRefs.current[pageNum] = el }}
-                                sx={{ mb: 2, boxShadow: '0 4px 24px rgba(0,0,0,0.5)', flexShrink: 0 }}
-                            >
-                                <Page pageNumber={pageNum} width={pageWidth} renderTextLayer renderAnnotationLayer={false} />
-                            </Box>
-                        ))}
-                    </Document>
+                        <Document
+                            file={pdfData}
+                            onLoadSuccess={({ numPages: n }) => setNumPages(n)}
+                            loading={<CircularProgress sx={{ color: '#fff', my: 4 }} />}
+                        >
+                            {Array.from({ length: numPages }, (_, i) => i + 1).map(pageNum => (
+                                <Box
+                                    key={pageNum}
+                                    data-page={pageNum}
+                                    ref={(el: HTMLDivElement | null) => { pageRefs.current[pageNum] = el }}
+                                    sx={{ mb: 2, boxShadow: '0 4px 24px rgba(0,0,0,0.5)', flexShrink: 0 }}
+                                >
+                                    <Page pageNumber={pageNum} width={pageWidth} renderTextLayer renderAnnotationLayer={false} />
+                                </Box>
+                            ))}
+                        </Document>
+                    </Box>
                 )}
             </Box>
         </Box>

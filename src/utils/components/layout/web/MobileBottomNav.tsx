@@ -10,27 +10,23 @@ import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
-  { title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' },
-  { title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' },
-  { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
+  ...(isFeatureEnabled('simulacros')
+    ? [{ title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' as const }]
+    : []),
+  ...(isFeatureEnabled('ebooks')
+    ? [{ title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' as const }]
+    : []),
+  ...(isFeatureEnabled('rutas')
+    ? [{ title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' as const }]
+    : []),
   { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },
   { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
 ]
 
-export default function MobileBottomNav({
-  rutasHabilitado = true,
-}: {
-  rutasHabilitado?: boolean
-}) {
+export default function MobileBottomNav() {
   const pathname = usePathname()
 
-  const navItems = ALL_NAV_ITEMS.filter(item => {
-    if (item.key === 'rutas' && !rutasHabilitado) return false
-    if (item.key === 'simulacros' && !isFeatureEnabled('simulacros')) return false
-    if (item.key === 'ebooks' && !isFeatureEnabled('ebooks')) return false
-
-    return true
-  })
+  const navItems = ALL_NAV_ITEMS
 
   const isActive = (url: string) => {
     if (url === '/') return pathname === '/'
