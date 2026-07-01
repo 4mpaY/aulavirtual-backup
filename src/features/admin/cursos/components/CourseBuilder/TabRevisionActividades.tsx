@@ -267,7 +267,7 @@ function GradeModal({
     preguntas: []
   }
 
-  const preguntas = reviewContext.preguntas || []
+  const preguntas = useMemo(() => reviewContext.preguntas || [], [reviewContext.preguntas])
 
   const notaSugerida = useMemo(() => {
     if (reviewContext.tipo !== 'FORMULARIO' || preguntas.length === 0) return null
@@ -280,7 +280,7 @@ function GradeModal({
 
     setNota(entrega.nota != null ? String(entrega.nota) : '')
     setComentario(entrega.comentario_docente || '')
-  }, [open, entrega?.id, entrega?.nota, entrega?.comentario_docente])
+  }, [open, entrega])
 
   const handleSave = async () => {
     if (nota.trim() === '') {
@@ -426,8 +426,8 @@ function EntregasPanel({ actividad, cursoId }: { actividad: CursoActividadResume
   const [grading, setGrading] = useState<any>(null)
   const [filtro, setFiltro] = useState<FiltroEntrega>('todas')
 
-  const entregas = data?.entregas || []
-  const pendientes = data?.pendientes || []
+  const entregas = useMemo(() => data?.entregas || [], [data?.entregas])
+  const pendientes = useMemo(() => data?.pendientes || [], [data?.pendientes])
   const actividadDetalle = data?.actividad ?? null
 
   const entregasFiltradas = useMemo(() => {

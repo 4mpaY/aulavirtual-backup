@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import type { ChangeEvent } from 'react'
 
 import {
@@ -54,7 +54,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
   const { enqueueSnackbar } = useSnackbar()
   const editMutation = useEditCurso()
   const { data: categoriasRes } = useCategorias()
-  const categorias = categoriasRes?.categorias || []
+  const categorias = useMemo(() => categoriasRes?.categorias || [], [categoriasRes?.categorias])
 
   const [openMedia, setOpenMedia] = useState(false)
   const [openBrochure, setOpenBrochure] = useState(false)

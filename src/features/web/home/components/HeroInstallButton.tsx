@@ -93,7 +93,7 @@ export default function HeroInstallButton() {
                 </div>
               </div>
               <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.72rem', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                Busca el ícono <strong>⊕</strong> o <strong>⬇</strong> en la barra de direcciones y haz clic en <strong>"Instalar"</strong>.
+                Busca el ícono <strong>⊕</strong> o <strong>⬇</strong> en la barra de direcciones y haz clic en <strong>&quot;Instalar&quot;</strong>.
               </p>
             </div>
 
@@ -108,10 +108,10 @@ export default function HeroInstallButton() {
                 </span>
               </div>
               <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.72rem', color: '#64748b', margin: '0 0 4px 0', lineHeight: 1.5 }}>
-                <strong>Chrome Android:</strong> menú <strong>⋮</strong> → <strong>"Añadir a pantalla de inicio"</strong>
+                <strong>Chrome Android:</strong> menú <strong>⋮</strong> → <strong>&quot;Añadir a pantalla de inicio&quot;</strong>
               </p>
               <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.72rem', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                <strong>Safari iOS:</strong> botón <strong>Compartir ↑</strong> → <strong>"Agregar a inicio"</strong>
+                <strong>Safari iOS:</strong> botón <strong>Compartir ↑</strong> → <strong>&quot;Agregar a inicio&quot;</strong>
               </p>
             </div>
           </div>

@@ -204,10 +204,10 @@ export default function LeftSidebar({
                     <div style={{ padding: '11px 15px' }}>
                       <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.72rem', fontWeight: 700, color: '#0A0A0A', margin: '0 0 4px 0' }}>📱 En móvil</p>
                       <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.7rem', color: '#64748b', margin: '0 0 3px 0', lineHeight: 1.5 }}>
-                        <strong>Android:</strong> menú <strong>⋮</strong> → <strong>"Añadir a pantalla de inicio"</strong>
+                        <strong>Android:</strong> menú <strong>⋮</strong> → <strong>&quot;Añadir a pantalla de inicio&quot;</strong>
                       </p>
                       <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.7rem', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                        <strong>iOS Safari:</strong> <strong>Compartir ↑</strong> → <strong>"Agregar a inicio"</strong>
+                        <strong>iOS Safari:</strong> <strong>Compartir ↑</strong> → <strong>&quot;Agregar a inicio&quot;</strong>
                       </p>
                     </div>
                   </div>

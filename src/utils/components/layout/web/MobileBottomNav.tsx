@@ -9,8 +9,6 @@ import { Home, BookOpen, Users, Award, MonitorSmartphone } from 'lucide-react'
 
 import { usePWAInstall } from '@/utils/hooks/usePWAInstall'
 
-import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
-
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
