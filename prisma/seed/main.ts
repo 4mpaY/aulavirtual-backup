@@ -1154,6 +1154,20 @@ async function main() {
 
   console.log(`✅ ${simulacros.length} simulacros de prueba creados`)
 
+  // ─── CONFIGURACIONES DEL SISTEMA ────────────────────────────────────────────
+
+  await prisma.configuracion.upsert({
+    where: { clave: 'chat_entre_alumnos' },
+    update: {},
+    create: {
+      clave: 'chat_entre_alumnos',
+      valor: 'false',
+      descripcion: 'Permitir mensajes directos entre alumnos'
+    }
+  })
+
+  console.log('✅ Configuración de chat creada')
+
   // ─── RESUMEN ─────────────────────────────────────────────────────────────────
 
   console.log('')

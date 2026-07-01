@@ -4,9 +4,9 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node server.js",
     "build": "pnpm run build:icons && next build",
-    "start": "dotenv -- node .next/standalone/server.js",
+    "start": "NODE_ENV=production node server.js",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -17,6 +17,7 @@
     "db:migration:dev": "prisma migrate dev",
     "db:migration:deploy": "prisma migrate deploy",
     "db:seed": "dotenv -- tsx ./prisma/seed/main",
+    "db:seed:chat": "dotenv -- tsx ./prisma/seed/chat-demo",
     "db:reset": "dotenv -e .env -- pnpm prisma migrate reset"
   },
   "prisma": {
@@ -76,6 +77,8 @@
     "react-use": "17.5.0",
     "server-only": "0.0.1",
     "sharp": "^0.34.5",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
     "stylis": "4.3.1",
     "stylis-plugin-rtl": "2.1.1",
     "sweetalert2": "^11.26.22",

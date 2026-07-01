@@ -412,6 +412,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     MP_PUBLIC_KEY: '',
     PEDIDOS_SOLICITAR_COMPROBANTE: 'true',
     COMENTARIOS_REQUIERE_APROBACION: 'false',
+    chat_entre_alumnos: 'false',
     ...initialMapped
   })
 
@@ -649,6 +650,25 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   />
                 }
                 label='Requerir aprobación antes de publicar comentarios de estudiantes'
+              />
+            </Paper>
+          </Box>
+
+          {/* Chat */}
+          <Box>
+            <Typography variant='h6' gutterBottom>Chat entre Usuarios</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Controla si los alumnos pueden enviarse mensajes directos entre sí. Profesores y administradores siempre pueden chatear con sus alumnos.
+            </Typography>
+            <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={config.chat_entre_alumnos === 'true'}
+                    onChange={(e) => handleInputChange('chat_entre_alumnos', e.target.checked ? 'true' : 'false')}
+                  />
+                }
+                label='Permitir mensajes directos entre alumnos'
               />
             </Paper>
           </Box>
