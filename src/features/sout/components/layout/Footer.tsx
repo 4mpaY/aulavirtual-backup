@@ -40,18 +40,13 @@ const Footer = () => {
                 <img src={wstp.src} alt="WSTP" className="w-full h-full object-contain" />
               </a>
             </div>
-            <a
-              href="https://forms.gle/YaXB1nhvNkimJGUT7"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-block"
-            >
+            <Link href="/libro-de-reclamaciones" className="mt-4 inline-block">
               <img
                 src={libroReclamaciones.src}
                 alt="Libro de Reclamaciones"
                 className="w-40 h-auto object-contain hover:scale-105 transition-transform duration-300"
               />
-            </a>
+            </Link>
           </div>
 
           <div>
@@ -62,6 +57,7 @@ const Footer = () => {
                 { name: 'Quiénes Somos', href: '/nosotros' },
                 { name: 'Cursos', href: '/cursos' },
                 { name: 'Contacto', href: '/contacto' },
+                { name: 'Libro de Reclamaciones', href: '/libro-de-reclamaciones' },
               ].map((link) => (
                 <li key={link.name}>
                   <Link
@@ -135,12 +131,15 @@ const Footer = () => {
             <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-xs sm:text-sm text-center">
               <p>© 2026 SOUT Training Center. Todos los derechos reservados.</p>
               <div className="hidden md:block text-secondary-foreground/40">|</div>
-              <div className="flex items-center gap-4 md:gap-6">
+              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
                 <Link href="/politica-de-privacidad" className="hover:text-primary transition-colors duration-300">
                   Política de Privacidad
                 </Link>
                 <Link href="/terminos-de-uso" className="hover:text-primary transition-colors duration-300">
                   Términos de Uso
+                </Link>
+                <Link href="/politica-de-cambios-y-devoluciones" className="hover:text-primary transition-colors duration-300">
+                  Política de Devoluciones
                 </Link>
               </div>
             </div>

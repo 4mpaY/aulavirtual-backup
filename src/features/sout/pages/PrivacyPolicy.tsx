@@ -37,7 +37,11 @@ const PrivacyPolicy = () => {
               </p>
               <p className="text-gray-700 leading-relaxed">
                 Al utilizar nuestro sitio web o nuestros servicios de capacitación, aceptas las prácticas
-                descritas en esta política.
+                descritas en esta política. Consulta también nuestros{' '}
+                <a href="/terminos-de-uso" className="text-red-600 hover:underline">Términos de Uso</a> y nuestra{' '}
+                <a href="/politica-de-cambios-y-devoluciones" className="text-red-600 hover:underline">
+                  Política de Cambios y Devoluciones
+                </a>.
               </p>
             </section>
 
@@ -274,6 +278,12 @@ const PrivacyPolicy = () => {
                     </a>
                   </li>
                   <li><strong>Teléfonos:</strong> +51 977 959 001 / +51 932 191 033 / +51 966 424 257</li>
+                  <li>
+                    <strong>Libro de Reclamaciones:</strong>{' '}
+                    <a href="/libro-de-reclamaciones" className="text-red-600 hover:underline">
+                      Registro virtual disponible en la plataforma
+                    </a>
+                  </li>
                   <li><strong>Redes Sociales:</strong>
                     <span className="ml-1">Facebook: SOUT Training Center | TikTok: @sout.empresa</span>
                   </li>

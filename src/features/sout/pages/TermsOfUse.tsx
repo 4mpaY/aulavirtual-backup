@@ -17,7 +17,7 @@ const TermsOfUse = () => {
               Condiciones de uso del sitio web y servicios de SOUT Training Center
             </p>
             <p className="text-sm text-gray-500 mt-2">
-              Última actualización: Enero 2026
+              Última actualización: Junio 2026
             </p>
           </div>
 
@@ -67,14 +67,16 @@ const TermsOfUse = () => {
               </p>
               <ul className="list-disc pl-6 mb-4 text-gray-700 space-y-2">
                 <li>Proporcionar información sobre nuestros cursos, certificaciones y servicios</li>
-                <li>Facilitar la solicitud de cotizaciones y consultas</li>
-                <li>Permitir la inscripción a capacitaciones (presenciales, virtuales o in-house)</li>
+                <li>Facilitar la inscripción y compra de cursos en línea a través de nuestra Aula Virtual</li>
+                <li>Permitir la solicitud de cotizaciones y consultas para capacitaciones presenciales o in-house</li>
                 <li>Compartir recursos educativos, blog y testimonios</li>
                 <li>Mostrar nuestros clientes, acreditaciones y alianzas estratégicas</li>
+                <li>Emitir y verificar certificados digitales de los cursos completados</li>
               </ul>
               <p className="text-gray-700 leading-relaxed">
-                Actualmente, el sitio web no procesa pagos en línea. Todas las transacciones se realizan
-                mediante cotización personalizada y coordinación directa con nuestro equipo.
+                La plataforma permite adquirir cursos en línea mediante pasarelas de pago seguras (IziPay, PayPal y Culqi).
+                También ofrecemos capacitaciones presenciales, virtuales en vivo e in-house, cuya contratación se coordina
+                directamente con nuestro equipo comercial.
               </p>
             </section>
 
@@ -164,12 +166,22 @@ const TermsOfUse = () => {
                 Inscripción a Cursos y Servicios
               </h2>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                Proceso de inscripción:
+                Cursos en línea (Aula Virtual):
+              </h3>
+              <ol className="list-decimal pl-6 mb-6 text-gray-700 space-y-2">
+                <li>Selecciona el curso de tu interés en el catálogo de la plataforma</li>
+                <li>Completa el proceso de checkout con tus datos y método de pago</li>
+                <li>Una vez confirmado el pago, recibirás acceso inmediato al curso en tu panel de estudiante</li>
+                <li>Al acceder al contenido, aceptas la cláusula de ejecución inmediata del servicio digital</li>
+              </ol>
+
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                Capacitaciones presenciales, virtuales en vivo e in-house:
               </h3>
               <ol className="list-decimal pl-6 mb-6 text-gray-700 space-y-2">
                 <li>Solicita información o cotización a través de nuestro sitio web, WhatsApp o teléfonos</li>
                 <li>Nuestro equipo te enviará una propuesta comercial personalizada</li>
-                <li>Una vez aceptada, coordinaremos fechas, modalidad (presencial/virtual/in-house) y requisitos</li>
+                <li>Una vez aceptada, coordinaremos fechas, modalidad y requisitos</li>
                 <li>Procederás con el pago según las instrucciones (transferencia bancaria, depósito o factura corporativa)</li>
                 <li>Recibirás confirmación de inscripción y materiales del curso</li>
               </ol>
@@ -178,17 +190,28 @@ const TermsOfUse = () => {
                 Pagos y facturación:
               </h3>
               <ul className="list-disc pl-6 mb-4 text-gray-700 space-y-2">
-                <li>Todos los precios están expresados en soles peruanos (PEN) o dólares americanos (USD)</li>
-                <li>Los pagos pueden realizarse por transferencia bancaria o depósito</li>
-                <li>Para empresas, ofrecemos facturación corporativa con crédito de 15-30 días (previa evaluación)</li>
-                <li>Los precios no incluyen IGV (18%) salvo que se indique lo contrario</li>
+                <li>Los precios en línea están expresados en soles peruanos (PEN) o dólares americanos (USD)</li>
+                <li>Los pagos en línea se procesan a través de IziPay, PayPal o Culqi</li>
+                <li>Para capacitaciones corporativas, ofrecemos facturación con crédito de 15-30 días (previa evaluación)</li>
+                <li>Los precios pueden incluir o no IGV (18%) según se indique en cada curso</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 Cancelaciones y reembolsos:
               </h3>
+              <p className="text-gray-700 leading-relaxed mb-4">
+                Las condiciones de devolución para cursos en línea y presenciales se detallan en nuestra{' '}
+                <a href="/politica-de-cambios-y-devoluciones" className="text-red-600 hover:underline">
+                  Política de Cambios y Devoluciones
+                </a>.
+                En resumen:
+              </p>
               <ul className="list-disc pl-6 mb-4 text-gray-700 space-y-2">
-                <li>Cancelaciones con más de 7 días de anticipación: reembolso del 100%</li>
+                <li>
+                  <strong>Cursos en línea:</strong> reembolso total solo antes del primer acceso al contenido, dentro de
+                  7 días calendario desde la compra
+                </li>
+                <li>Cancelaciones presenciales con más de 7 días de anticipación: reembolso del 100%</li>
                 <li>Cancelaciones entre 3-7 días: reembolso del 50% o reprogramación sin costo</li>
                 <li>Cancelaciones con menos de 3 días: no hay reembolso, pero se puede reprogramar (sujeto a disponibilidad)</li>
                 <li>SOUT se reserva el derecho de cancelar o reprogramar cursos por causas de fuerza mayor,
@@ -345,6 +368,12 @@ const TermsOfUse = () => {
                     <span className="ml-1">Facebook: SOUT Training Center | TikTok: @sout.empresa</span>
                   </li>
                   <li><strong>Horario de atención:</strong> Lunes a Viernes 8:00 AM - 6:00 PM | Sábados 9:00 AM - 1:00 PM</li>
+                  <li>
+                    <strong>Libro de Reclamaciones:</strong>{' '}
+                    <a href="/libro-de-reclamaciones" className="text-red-600 hover:underline">
+                      Registro virtual disponible en la plataforma
+                    </a>
+                  </li>
                 </ul>
               </div>
             </section>

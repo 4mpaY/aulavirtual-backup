@@ -1,20 +1,13 @@
-import React from 'react'
+import type { Metadata } from 'next'
 
-import { Box, Container } from '@mui/material'
+import LibroReclamacionesPage from '@sout/pages/LibroReclamaciones'
 
-import LibroReclamacionesForm from '@/features/web/legal/components/LibroReclamacionesForm'
-
-export const metadata = {
-  title: 'Libro de Reclamaciones | ARM Asset Reliability Management',
-  description: 'Libro de reclamaciones virtual para el registro de quejas y reclamos conforme a la ley peruana.',
+export const metadata: Metadata = {
+  title: 'Libro de Reclamaciones',
+  description:
+    'Libro de reclamaciones virtual de SOUT Training Center para el registro de quejas y reclamos conforme a la ley peruana.',
 }
 
-export default function LibroReclamacionesPage() {
-  return (
-    <Box sx={{ bgcolor: 'white', minHeight: '100vh', py: { xs: 6, md: 10 } }}>
-      <Container maxWidth="lg">
-        <LibroReclamacionesForm />
-      </Container>
-    </Box>
-  )
+export default function Page() {
+  return <LibroReclamacionesPage />
 }

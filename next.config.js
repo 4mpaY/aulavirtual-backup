@@ -74,9 +74,6 @@ const nextConfig = {
       { source: '/docentes/:path*', destination: '/', permanent: false },
       { source: '/capacitacion/:path*', destination: '/', permanent: false },
       { source: '/consultoria/:path*', destination: '/', permanent: false },
-      { source: '/libro-de-reclamaciones/:path*', destination: '/', permanent: false },
-      { source: '/terminos-y-condiciones/:path*', destination: '/', permanent: false },
-      { source: '/politica-de-cambios-y-devoluciones/:path*', destination: '/', permanent: false },
       { source: '/verificar-certificado/:path*', destination: '/', permanent: false },
       { source: '/mantenimiento/:path*', destination: '/', permanent: false },
     ]

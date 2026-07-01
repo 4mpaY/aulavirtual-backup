@@ -30,6 +30,8 @@
   --shadow-card: 0 4px 20px -4px hsla(0, 0%, 0%, 0.1);
   --shadow-card-hover: 0 8px 30px -4px hsla(0, 100%, 50%, 0.2);
   --shadow-button: 0 4px 14px -2px hsla(0, 100%, 50%, 0.4);
+  --web-primary: hsl(0 100% 50%);
+  --web-dark: hsl(0 0% 20%);
 
   font-family: 'Open Sans', sans-serif;
   color: hsl(var(--foreground));
