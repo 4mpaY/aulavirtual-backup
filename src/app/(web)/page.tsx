@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle, Map } from 'lucide-react'
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
 import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
+import HeroInstallButton from '@/features/web/home/components/HeroInstallButton'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
 import RutasSection from '@/features/web/home/components/RutasSection'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
@@ -203,19 +204,13 @@ export default async function HomePage() {
 
               {/* Botones */}
               <div className="flex flex-wrap gap-4" style={{ marginBottom: '2.5rem' }}>
+                <HeroInstallButton />
                 <Link
                   href="/cursos"
-                  className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                  style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', boxShadow: '0 4px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.45)' }}
-                >
-                  Ver Cursos <ArrowRight size={18} />
-                </Link>
-                <Link
-                  href="/nosotros"
                   className="inline-flex items-center gap-2 no-underline rounded-xl font-semibold transition-all duration-200"
                   style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'rgba(255,255,255,0.08)', color: '#ffffff', fontSize: '0.9375rem', padding: '0.875rem 1.75rem', border: '1.5px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
                 >
-                  Saber más
+                  Ver Cursos <ArrowRight size={18} />
                 </Link>
               </div>
 

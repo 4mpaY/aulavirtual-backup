@@ -51,6 +51,7 @@ function validarFila(row: any, fila: number): FilaPreview {
   if (!contrasena || contrasena.length < 8) errores.push('Contraseña mín. 8 caracteres')
   if (!numero_documento || !/^\d{8}$/.test(numero_documento)) errores.push('DNI debe tener exactamente 8 dígitos')
   if (celular && !/^9\d{8}$/.test(celular)) errores.push('Celular: formato 9XXXXXXXX')
+
   if (curso_id) {
     const ids = curso_id.split(',').map(s => s.trim()).filter(Boolean)
 

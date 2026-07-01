@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const withPWA = require('@ducanh2912/next-pwa').default
 
 // 🔐 SEGURIDAD: Headers HTTP de seguridad para todas las rutas
 const securityHeaders = [
@@ -37,6 +38,7 @@ const securityHeaders = [
       "connect-src 'self' https://*.izipay.pe https://*.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com https://*.culqi.com",
       "frame-src 'self' blob: https: *", // 📺 FLEXIBLE: Permite videos/iframes de cualquier sitio seguro (YouTube, Vimeo, Wistia, etc.) + blob: para visor PDF
       "media-src 'self' blob: data: http://localhost https: *",
+      "worker-src 'self'",
       "object-src 'none'",
       "base-uri 'self'"
     ].join('; ')
@@ -92,4 +94,10 @@ const nextConfig = {
   }
 }
 
-module.exports = nextConfig
+module.exports = withPWA({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  reloadOnOnline: true,
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+})(nextConfig)

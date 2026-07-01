@@ -38,8 +38,9 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
       {/* Logo */}
       <Logo />
 
-      {/* Auth Buttons */}
+      {/* Right side */}
       <div className="flex items-center gap-3">
+
         <CartIcon />
         {session ? (
           <UserDropdown />
