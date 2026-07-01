@@ -36,6 +36,13 @@
   --sidebar-width-expanded: 260px;
 }
 
+@media (max-width: 639px) {
+  :root {
+    --sidebar-width: 0px;
+    --sidebar-width-expanded: 0px;
+  }
+}
+
 *,
 ::before,
 ::after {
@@ -50,6 +57,7 @@
 html {
   inline-size: 100%;
   min-block-size: 100%;
+  overflow-x: clip;
 }
 
 a {

@@ -13,6 +13,20 @@ declare global {
   }
 }
 
+// Captura el evento al evaluar el módulo, ANTES de que React monte.
+// Los módulos ES son singletons: este código corre una sola vez aunque
+// el hook sea importado por múltiples componentes.
+if (typeof window !== 'undefined') {
+  window.addEventListener(
+    'beforeinstallprompt',
+    (e) => {
+      e.preventDefault()
+      window.__pwaInstallPrompt = e as BeforeInstallPromptEvent
+    },
+    { once: true },
+  )
+}
+
 export function usePWAInstall() {
   const [mounted, setMounted] = useState(false)
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
@@ -21,14 +35,13 @@ export function usePWAInstall() {
   useEffect(() => {
     setMounted(true)
 
-    // Ya instalada como app standalone → ocultar el botón
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsInstalled(true)
 
       return
     }
 
-    // El evento puede haber disparado antes de que React montara
+    // El evento pudo haberse disparado antes de que React montara
     if (window.__pwaInstallPrompt) {
       setInstallPrompt(window.__pwaInstallPrompt)
     }
@@ -69,7 +82,6 @@ export function usePWAInstall() {
     }
   }
 
-  // mounted evita el flash: SSR no muestra nada, el cliente decide
   return {
     canInstall: mounted && !isInstalled,
     hasNativePrompt: !!installPrompt,

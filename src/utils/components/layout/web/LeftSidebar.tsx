@@ -175,11 +175,33 @@ export default function LeftSidebar({
               {showInstallTip && !hasNativePrompt && (
                 <>
                   <div style={{ position: 'fixed', inset: 0, zIndex: 49 }} onClick={() => setShowInstallTip(false)} />
-                  <div style={{ position: 'fixed', bottom: '80px', left: '72px', width: '260px', backgroundColor: '#ffffff', borderRadius: '14px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)', border: '1px solid hsl(214,20%,91%)', zIndex: 50, padding: '14px 16px' }}>
-                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8rem', fontWeight: 700, color: '#0A0A0A', margin: '0 0 6px 0' }}>Instalar la aplicación</p>
-                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
-                      En Chrome/Edge: busca el ícono <strong>⊕</strong> o <strong>⬇</strong> en la barra de direcciones y selecciona &quot;Instalar&quot;.
-                    </p>
+                  <div style={{ position: 'fixed', bottom: '80px', left: '72px', width: '280px', backgroundColor: '#ffffff', borderRadius: '18px', boxShadow: '0 16px 48px rgba(0,0,0,0.2)', border: '1px solid hsl(214,20%,88%)', zIndex: 50, overflow: 'hidden' }}>
+                    {/* Header */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 15px 10px', borderBottom: '1px solid hsl(214,20%,93%)' }}>
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.85rem', fontWeight: 700, color: '#0A0A0A', margin: 0 }}>¿Cómo instalar la app?</p>
+                      <button onClick={() => setShowInstallTip(false)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#94a3b8', padding: '2px', display: 'flex' }}>✕</button>
+                    </div>
+                    {/* Desktop */}
+                    <div style={{ padding: '11px 15px', borderBottom: '1px solid hsl(214,20%,93%)' }}>
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.72rem', fontWeight: 700, color: '#0A0A0A', margin: '0 0 6px 0' }}>🖥 Chrome / Edge (PC)</p>
+                      <div style={{ backgroundColor: '#f1f5f9', borderRadius: '8px', padding: '6px 9px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '5px' }}>
+                        <span style={{ fontFamily: 'monospace', fontSize: '0.65rem', color: '#64748b' }}>devrocket.org</span>
+                        <span style={{ backgroundColor: '#0A0A0A', color: '#fff', borderRadius: '5px', padding: '2px 7px', fontSize: '0.62rem', fontWeight: 600 }}>⊕ Instalar</span>
+                      </div>
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.7rem', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
+                        Busca el ícono <strong>⊕</strong> o <strong>⬇</strong> en la barra de direcciones.
+                      </p>
+                    </div>
+                    {/* Mobile */}
+                    <div style={{ padding: '11px 15px' }}>
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.72rem', fontWeight: 700, color: '#0A0A0A', margin: '0 0 4px 0' }}>📱 En móvil</p>
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.7rem', color: '#64748b', margin: '0 0 3px 0', lineHeight: 1.5 }}>
+                        <strong>Android:</strong> menú <strong>⋮</strong> → <strong>"Añadir a pantalla de inicio"</strong>
+                      </p>
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.7rem', color: '#64748b', margin: 0, lineHeight: 1.5 }}>
+                        <strong>iOS Safari:</strong> <strong>Compartir ↑</strong> → <strong>"Agregar a inicio"</strong>
+                      </p>
+                    </div>
                   </div>
                 </>
               )}
