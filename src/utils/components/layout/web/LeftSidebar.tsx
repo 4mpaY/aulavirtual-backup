@@ -9,7 +9,7 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
-import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, MonitorSmartphone, GraduationCap, Layers } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, MonitorSmartphone, GraduationCap, Layers, BookText, ClipboardList, Repeat2 } from 'lucide-react'
 
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import { usePWAInstall } from '@/utils/hooks/usePWAInstall'

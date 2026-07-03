@@ -49,7 +49,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
           </main>
         </div>
         {/* Bottom nav: visible solo en mobile */}
-        <MobileBottomNav rutasHabilitado={rutasHabilitado} />
+        <MobileBottomNav />
         <PWAInstalledToast />
       </div>
     </AuthModalProvider>
