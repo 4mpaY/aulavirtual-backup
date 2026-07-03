@@ -4,6 +4,7 @@ import type { AxiosStatic } from 'axios'
 
 import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
+import type { MisCursoItem } from '../entity/MisCursos'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -22,9 +23,9 @@ export class AxiosMisCursos extends AxiosInternalHttpClient {
     })
   }
 
-  async getAll(): Promise<any[]> {
+  async getAll(): Promise<MisCursoItem[]> {
     try {
-      const payload = await this.iGet<{ courses: any[] }>('')
+      const payload = await this.iGet<{ courses: MisCursoItem[] }>('')
 
       return payload?.courses || []
     } catch (err: any) {

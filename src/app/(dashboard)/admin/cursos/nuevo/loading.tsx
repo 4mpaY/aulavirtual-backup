@@ -1,21 +1,10 @@
-import { Box, CircularProgress, Typography } from '@mui/material'
+import DashboardLoadingView from '../../../components/DashboardLoadingView'
 
-export default function Loading() {
-    return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '400px',
-                gap: 4
-            }}
-        >
-            <CircularProgress size={48} thickness={4} />
-            <Typography variant='body1' color='text.secondary'>
-                Preparando el creador de cursos...
-            </Typography>
-        </Box>
-    )
+export default function NuevoCursoLoading() {
+  return (
+    <DashboardLoadingView
+      title="Preparando el creador de cursos..."
+      subtitle="Un momento, por favor"
+    />
+  )
 }

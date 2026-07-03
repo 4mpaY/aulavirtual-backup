@@ -22,6 +22,7 @@ interface FilaPreview {
   contrasena: string
   numero_documento: string
   celular: string
+  curso_id: string
   errores: string[]
 }
 
@@ -30,7 +31,9 @@ interface ImportarUsuariosModalProps {
   handleClose: () => void
 }
 
-const COLUMNAS_PLANTILLA = ['nombre', 'apellido', 'correo', 'contrasena', 'numero_documento', 'celular']
+const COLUMNAS_PLANTILLA = ['nombre', 'apellido', 'correo', 'contrasena', 'numero_documento', 'celular', 'curso_id']
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 function validarFila(row: any, fila: number): FilaPreview {
   const errores: string[] = []
@@ -40,6 +43,7 @@ function validarFila(row: any, fila: number): FilaPreview {
   const contrasena = String(row.contrasena || '').trim()
   const numero_documento = String(row.numero_documento || '').trim()
   const celular = String(row.celular || '').trim()
+  const curso_id = String(row.curso_id || '').trim()
 
   if (!nombre || nombre.length < 2 || nombre.length > 50) errores.push('Nombre inválido (2-50 chars)')
   if (!apellido || apellido.length < 2 || apellido.length > 50) errores.push('Apellido inválido (2-50 chars)')
@@ -48,13 +52,19 @@ function validarFila(row: any, fila: number): FilaPreview {
   if (!numero_documento || !/^\d{8}$/.test(numero_documento)) errores.push('DNI debe tener exactamente 8 dígitos')
   if (celular && !/^9\d{8}$/.test(celular)) errores.push('Celular: formato 9XXXXXXXX')
 
-  return { fila, nombre, apellido, correo, contrasena, numero_documento, celular, errores }
+  if (curso_id) {
+    const ids = curso_id.split(',').map(s => s.trim()).filter(Boolean)
+
+    if (ids.some(id => !UUID_REGEX.test(id))) errores.push('curso_id: todos los UUIDs deben ser válidos (separados por coma)')
+  }
+
+  return { fila, nombre, apellido, correo, contrasena, numero_documento, celular, curso_id, errores }
 }
 
 function descargarPlantilla() {
   const datos = [
     COLUMNAS_PLANTILLA,
-    ['Juan', 'Pérez', 'juan.perez@ejemplo.com', 'clave1234', '12345678', '987654321'],
+    ['Juan', 'Pérez', 'juan.perez@ejemplo.com', 'clave1234', '12345678', '987654321', ''],
   ]
 
   const ws = XLSX.utils.aoa_to_sheet(datos)
@@ -199,7 +209,7 @@ export default function ImportarUsuariosModal({ open, handleClose }: ImportarUsu
 
           <Alert severity='success' sx={{ borderRadius: 2 }}>
             <strong>Columnas requeridas:</strong> nombre, apellido, correo, contrasena, numero_documento<br />
-            <strong>Opcional:</strong> celular
+            <strong>Opcionales:</strong> celular, curso_id (UUID o varios UUIDs separados por coma para matrícula en múltiples cursos)
           </Alert>
         </Stack>
       )}
@@ -225,6 +235,7 @@ export default function ImportarUsuariosModal({ open, handleClose }: ImportarUsu
                   <TableCell>Nombre</TableCell>
                   <TableCell>Correo</TableCell>
                   <TableCell>DNI</TableCell>
+                  <TableCell>Matrícula</TableCell>
                   <TableCell>Estado</TableCell>
                 </TableRow>
               </TableHead>
@@ -238,6 +249,16 @@ export default function ImportarUsuariosModal({ open, handleClose }: ImportarUsu
                     <TableCell>{f.nombre} {f.apellido}</TableCell>
                     <TableCell>{f.correo}</TableCell>
                     <TableCell>{f.numero_documento}</TableCell>
+                    <TableCell>
+                      {f.curso_id ? (
+                        <Tooltip title={f.curso_id} arrow>
+                          <Chip
+                            label={`${f.curso_id.split(',').filter(Boolean).length} curso(s)`}
+                            color='info' size='small' variant='tonal' sx={{ cursor: 'help' }}
+                          />
+                        </Tooltip>
+                      ) : '—'}
+                    </TableCell>
                     <TableCell>
                       {f.errores.length === 0 ? (
                         <Chip label='Válido' color='success' size='small' variant='tonal' />

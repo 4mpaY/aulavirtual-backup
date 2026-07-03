@@ -1,13 +1,5 @@
-// Next Imports
-import React from 'react'
-
-import { Box } from '@mui/material'
-
-// Component Imports
-import CourseCatalog from '@/features/web/home/components/CourseCatalog'
-
-// Http Client
-import { AxiosWebCursos } from '@/features/web/cursos/http/axiosWebCursos'
+import ProgramCatalogLayout from '@/features/web/home/components/ProgramCatalogLayout'
+import { getProgramCatalogData } from '@/features/web/cursos/getProgramCatalogData'
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 // Server Action / Data Fetching
@@ -44,8 +36,7 @@ export const metadata = {
 export default async function CursosPage() {
   const session = await getAuthSession()
   const token = session?.user?.accessToken ?? null
-
-  const { courses, categories } = await getData(token)
+  const { courses, categories } = await getProgramCatalogData('CURSO', token)
 
   return (
     <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>

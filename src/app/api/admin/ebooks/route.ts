@@ -3,9 +3,10 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 
 import prisma from '@/utils/libs/prisma'
-import { handleApiError } from '@/utils/libs/validation'
+import { handleApiError, validateRequest } from '@/utils/libs/validation'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { generateUniqueSlug } from '@/utils/libs/slug'
+import { crearEbookSchema } from '@/schemas/ebook.schema'
 
 /**
  * GET /api/admin/ebooks — Listado completo (admin)
@@ -13,6 +14,7 @@ import { generateUniqueSlug } from '@/utils/libs/slug'
 export async function GET(request: Request) {
   try {
     const auth = await requireAdmin(request)
+
 
     if (!auth.authorized) return auth.error
 
@@ -22,7 +24,9 @@ export async function GET(request: Request) {
 
     const where: any = {}
 
+
     if (estado) where.estado = estado
+
 
     if (buscar) {
       where.OR = [
@@ -52,13 +56,34 @@ export async function POST(request: Request) {
   try {
     const auth = await requireAdmin(request)
 
+
     if (!auth.authorized) return auth.error
 
     const body = await request.json()
-    const { titulo, descripcion, autor, miniatura, archivo_pdf, precio, precio_falso, moneda, es_gratis, paginas, genero, categoria_id, estado } = body
+    const validation = validateRequest(crearEbookSchema, body, request)
 
-    if (!titulo?.trim()) return NextResponse.json({ error: 'El título es requerido' }, { status: 400 })
-    if (!archivo_pdf?.trim()) return NextResponse.json({ error: 'El archivo PDF es requerido' }, { status: 400 })
+    if (!validation.success) return validation.error
+
+    const {
+      titulo,
+      descripcion,
+      resena,
+      autor,
+      miniatura,
+      archivo_pdf,
+      precio,
+      precio_falso,
+      moneda,
+      es_gratis,
+      paginas,
+      genero,
+      categoria_id,
+      estado,
+      editorial,
+      anio_edicion,
+      saga,
+      idioma,
+    } = validation.data
 
     const slug = await generateUniqueSlug(titulo, prisma.ebook)
 
@@ -67,25 +92,26 @@ export async function POST(request: Request) {
         titulo: titulo.trim(),
         slug,
         descripcion: descripcion?.trim() || null,
+        resena: resena?.trim() || null,
         autor: autor?.trim() || null,
         miniatura: miniatura || null,
         archivo_pdf,
-        precio: precio ?? 0,
-        precio_falso: precio_falso ?? 0,
-        moneda: moneda || 'PEN',
-        es_gratis: es_gratis ?? false,
-        paginas: paginas ? Number(paginas) : null,
+        precio,
+        precio_falso,
+        moneda,
+        es_gratis,
+        paginas: paginas ?? null,
+        genero: genero?.trim() || null,
         categoria_id: categoria_id || null,
-        estado: estado || 'BORRADOR',
+        estado,
+        editorial: editorial?.trim() || null,
+        anio_edicion: anio_edicion ?? null,
+        saga: saga?.trim() || null,
+        idioma: idioma?.trim() || null,
       },
     })
 
-    // genero se setea con raw SQL hasta que el cliente Prisma sea regenerado
-    const generoVal = genero?.trim() || null
-
-    await prisma.$executeRaw`UPDATE ebooks SET genero = ${generoVal} WHERE id = ${ebook.id}`
-
-    return NextResponse.json({ ebook: { ...ebook, genero: generoVal } }, { status: 201 })
+    return NextResponse.json({ ebook }, { status: 201 })
   } catch (error) {
     return handleApiError(error, request)
   }

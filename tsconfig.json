@@ -68,6 +68,7 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "_soutrainingcenter_temp"
   ]
 }

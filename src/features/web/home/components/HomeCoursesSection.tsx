@@ -25,22 +25,29 @@ interface Course {
 
 interface Props {
   courses: Course[]
+  catalogHref?: string
+  emptyMessage?: string
+  viewLabel?: string
 }
 
-const nivelLabel: Record<string, string> = {
-  BASICO: 'Básico',
-  INTERMEDIO: 'Intermedio',
-  AVANZADO: 'Avanzado',
-}
-
-export default function HomeCoursesSection({ courses }: Props) {
+export default function HomeCoursesSection({
+  courses,
+  emptyMessage = 'Próximamente habrá cursos disponibles.',
+  viewLabel = 'Ver curso'
+}: Props) {
   const router = useRouter()
+
+  const nivelLabel: Record<string, string> = {
+    BASICO: 'Básico',
+    INTERMEDIO: 'Intermedio',
+    AVANZADO: 'Avanzado',
+  }
 
   if (courses.length === 0) {
     return (
       <div className="text-center py-16" style={{ color: 'hsl(215, 16%, 47%)', fontFamily: 'Poppins, sans-serif' }}>
         <BookOpen size={48} style={{ margin: '0 auto 16px', opacity: 0.4 }} />
-        <p>Próximamente habrá cursos disponibles.</p>
+        <p>{emptyMessage}</p>
       </div>
     )
   }
@@ -80,7 +87,7 @@ export default function HomeCoursesSection({ courses }: Props) {
                   boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 }}
               >
-                Ver curso <ArrowRight size={14} />
+                {viewLabel} <ArrowRight size={14} />
               </Link>
             </div>
 

@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic'
 
 import { ApiResponse } from '@/utils/libs/apiResponse'
-import { handleApiError } from '@/utils/libs/validation'
+import { handleApiError, validateRequest } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
+import { actualizarEbookSchema } from '@/schemas/ebook.schema'
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -33,15 +34,35 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     if (!auth.authorized || auth.user.rol !== 'ADMIN') return ApiResponse.error(request, 'No autorizado', 403)
 
     const body = await request.json()
-    const { titulo, descripcion, autor, miniatura, archivo_pdf, precio, precio_falso, moneda, es_gratis, paginas, genero, categoria_id, estado } = body
+    const validation = validateRequest(actualizarEbookSchema, body, request)
+
+    if (!validation.success) return validation.error
+
+    const {
+      titulo,
+      descripcion,
+      resena,
+      autor,
+      miniatura,
+      archivo_pdf,
+      precio,
+      precio_falso,
+      moneda,
+      es_gratis,
+      paginas,
+      genero,
+      categoria_id,
+      estado,
+    } = validation.data
 
     const ebook = await prisma.ebook.update({
       where: { id: params.id },
       data: {
         titulo: titulo?.trim(),
-        descripcion: descripcion?.trim() || null,
-        autor: autor?.trim() || null,
-        miniatura: miniatura || null,
+        descripcion: descripcion !== undefined ? descripcion?.trim() || null : undefined,
+        resena: resena !== undefined ? resena?.trim() || null : undefined,
+        autor: autor !== undefined ? autor?.trim() || null : undefined,
+        miniatura: miniatura !== undefined ? miniatura || null : undefined,
         ...(archivo_pdf && { archivo_pdf }),
         precio: precio !== undefined ? precio : undefined,
         precio_falso: precio_falso !== undefined ? precio_falso : undefined,

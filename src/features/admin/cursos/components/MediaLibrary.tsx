@@ -26,13 +26,49 @@ import { useSnackbar } from 'notistack'
 
 import { useMedia, useUploadMedia, useDeleteMedia, useUploadPrivateVideo } from '../hooks/useMedia'
 import CustomAlertDialog from '../../../../components/CustomAlertDialog'
+import { blockDialogCloseWhile } from '@/utils/functions/dialogClose'
+
+const ALLOWED_VIDEO_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/ogg',
+  'video/quicktime',
+  'video/x-matroska',
+  'video/mkv'
+]
+
+const ALLOWED_VIDEO_EXT = ['.mp4', '.webm', '.ogg', '.mov', '.mkv']
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const ALLOWED_IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.webp', '.gif']
+
+const ALLOWED_OTHER_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ...ALLOWED_IMAGE_TYPES,
+  'video/mp4',
+  'video/webm',
+  'video/x-matroska',
+  'video/mkv'
+]
+
+const ALLOWED_OTHER_EXT = [
+  '.pdf', '.doc', '.docx', '.xls', '.xlsx',
+  ...ALLOWED_IMAGE_EXT,
+  '.mp4', '.webm', '.mkv'
+]
+
+
 
 interface MediaLibraryProps {
   open: boolean
   onClose: () => void
   onSelect: (url: string, nombre?: string) => void
   title?: string
-  acceptType?: 'IMAGEN' | 'VIDEO' | 'OTRO'
+  acceptType?: 'IMAGEN' | 'VIDEO' | 'OTRO' | 'PDF'
 }
 
 const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios', acceptType = 'IMAGEN' }: MediaLibraryProps) => {
@@ -50,6 +86,35 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
 
     if (!file) return
 
+    // Validación de formato del lado del cliente
+    const extension = '.' + file.name.split('.').pop()?.toLowerCase()
+
+    if (acceptType === 'VIDEO') {
+      const isValid = ALLOWED_VIDEO_TYPES.includes(file.type) || ALLOWED_VIDEO_EXT.includes(extension)
+
+      if (!isValid) {
+        enqueueSnackbar('Formato de video no permitido. Solo se aceptan (.mp4, .webm, .ogg, .mov, .mkv)', { variant: 'error' })
+
+        return
+      }
+    } else if (acceptType === 'IMAGEN') {
+      const isValid = ALLOWED_IMAGE_TYPES.includes(file.type) || ALLOWED_IMAGE_EXT.includes(extension)
+
+      if (!isValid) {
+        enqueueSnackbar('Formato de imagen no permitido. Solo se aceptan (.jpg, .jpeg, .png, .webp, .gif)', { variant: 'error' })
+
+        return
+      }
+    } else {
+      const isValid = ALLOWED_OTHER_TYPES.includes(file.type) || ALLOWED_OTHER_EXT.includes(extension)
+
+      if (!isValid) {
+        enqueueSnackbar('Formato de archivo no permitido. Solo se aceptan PDF, Word, Excel, imágenes y videos (.mp4, .webm, .mkv)', { variant: 'error' })
+
+        return
+      }
+    }
+
     // Validación de tamaño máximo del lado del cliente
     const limit = acceptType === 'VIDEO' ? 3 * 1024 * 1024 * 1024 : 50 * 1024 * 1024
 
@@ -61,6 +126,8 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
 
       return
     }
+
+    event.target.value = ''
 
     try {
       let result
@@ -79,32 +146,38 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
         })
       }
 
+      setUploadProgress(null)
       onSelect(result.url, result.nombre)
       onClose()
     } catch (error) {
-      console.error('Error al subir archivo', error)
-      enqueueSnackbar('Error al subir archivo. Verifique el tamaño o el formato.', { variant: 'error' })
-    } finally {
       setUploadProgress(null)
+      console.error('Error al subir archivo', error)
+      enqueueSnackbar('Error al subir el archivo', { variant: 'error' })
     }
   }
 
-  const filteredMedia = media.filter(m =>
-    m.nombre.toLowerCase().includes(search.toLowerCase()) &&
-    (acceptType ? m.tipo === acceptType : true)
-  )
+  const filteredMedia = media.filter(m => {
+    if (!m.nombre.toLowerCase().includes(search.toLowerCase())) return false
+
+    if (acceptType === 'PDF') return m.mimetype === 'application/pdf'
+
+    return acceptType ? m.tipo === acceptType : true
+  })
+
+  const isUploading = uploadMutation.isPending || uploadVideoMutation.isPending || uploadProgress !== null
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={blockDialogCloseWhile(isUploading, onClose)}
+      disableEscapeKeyDown={isUploading}
       maxWidth="md"
       fullWidth
       PaperProps={{ sx: { borderRadius: '20px', minHeight: '600px' } }}
     >
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
         <Typography variant="h5" sx={{ fontWeight: 800 }}>{title}</Typography>
-        <IconButton onClick={onClose} size="small">
+        <IconButton onClick={onClose} size="small" disabled={isUploading}>
           <i className="tabler-x" />
         </IconButton>
       </DialogTitle>
@@ -114,7 +187,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
           <TextField
             fullWidth
             size="small"
-            placeholder={acceptType === 'IMAGEN' ? "Buscar imágenes..." : "Buscar recursos..."}
+            placeholder={acceptType === 'IMAGEN' ? "Buscar imágenes..." : acceptType === 'PDF' ? "Buscar PDFs..." : "Buscar recursos..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             InputProps={{
@@ -125,26 +198,21 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
               )
             }}
           />
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-end' }}>
-            <Button
-              component="label"
-              variant="contained"
-              startIcon={(uploadMutation.isPending || uploadVideoMutation.isPending) ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-upload" />}
-              disabled={uploadMutation.isPending || uploadVideoMutation.isPending}
-              sx={{ whiteSpace: 'nowrap' }}
-            >
-              {(uploadMutation.isPending || uploadVideoMutation.isPending) ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : acceptType === 'VIDEO' ? 'Subir Video' : 'Subir Recurso')}
-              <input
-                type="file"
-                hidden
-                accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
-                onChange={handleFileUpload}
-              />
-            </Button>
-            <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', pr: 1, fontSize: '0.7rem', fontWeight: 500 }}>
-              {acceptType === 'VIDEO' ? 'Máx: 3 GB' : 'Máx: 50 MB'}
-            </Typography>
-          </Box>
+          <Button
+            component="label"
+            variant="contained"
+            startIcon={uploadMutation.isPending ? <CircularProgress size={20} color="inherit" /> : <i className="tabler-upload" />}
+            disabled={uploadMutation.isPending}
+            sx={{ whiteSpace: 'nowrap' }}
+          >
+            {uploadMutation.isPending ? 'Subiendo...' : (acceptType === 'IMAGEN' ? 'Subir Imagen' : acceptType === 'PDF' ? 'Subir PDF' : 'Subir Recurso')}
+            <input
+              type="file"
+              hidden
+              accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : acceptType === 'PDF' ? '.pdf' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
+              onChange={handleFileUpload}
+            />
+          </Button>
         </Box>
 
         {isLoading ? (
@@ -184,15 +252,12 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                   >
                     <i className="tabler-plus text-3xl text-primary" />
                     <Typography variant="body2" color="primary" sx={{ mt: 1, fontWeight: 600 }}>
-                      {acceptType === 'IMAGEN' ? 'Nueva Imagen' : acceptType === 'VIDEO' ? 'Nuevo Video' : 'Nuevo Recurso'}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, fontSize: '0.7rem' }}>
-                      {acceptType === 'VIDEO' ? '(Máx: 3 GB)' : '(Máx: 50 MB)'}
+                      {acceptType === 'IMAGEN' ? 'Nueva Imagen' : acceptType === 'PDF' ? 'Nuevo PDF' : 'Nuevo Recurso'}
                     </Typography>
                     <input
                       type="file"
                       hidden
-                      accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
+                      accept={acceptType === 'IMAGEN' ? 'image/*' : acceptType === 'VIDEO' ? 'video/*' : acceptType === 'PDF' ? '.pdf' : '.pdf,.doc,.docx,.xls,.xlsx,image/*'}
                       onChange={handleFileUpload}
                     />
                   </CardActionArea>
@@ -205,7 +270,7 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
                 <Box sx={{ textAlign: 'center', py: 10, bgcolor: 'action.hover', borderRadius: 4 }}>
                   <i className="tabler-photo-off text-5xl text-textDisabled" />
                   <Typography sx={{ mt: 2 }} color="text.secondary">
-                    {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : acceptType === 'VIDEO' ? 'No se encontraron videos' : 'No se encontraron recursos'}
+                    {acceptType === 'IMAGEN' ? 'No se encontraron imágenes' : acceptType === 'PDF' ? 'No se encontraron PDFs' : 'No se encontraron recursos'}
                   </Typography>
                 </Box>
               </Grid>

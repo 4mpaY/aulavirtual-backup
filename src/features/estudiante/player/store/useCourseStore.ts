@@ -8,11 +8,11 @@ export interface Lesson {
     video_url?: string
     enlace_reunion?: string
     es_en_vivo?: boolean
+    es_pdf?: boolean
     fecha_programada?: string | Date | null
     fecha_fin?: string | Date | null
     completada: boolean
     recursos?: any[]
-    trabajo?: any
 }
 
 export interface Module {
@@ -20,6 +20,27 @@ export interface Module {
     titulo: string
     orden: number
     lecciones: Lesson[]
+    actividades?: CourseActividad[]
+}
+
+export interface CourseActividad {
+    id: string
+    titulo: string
+    tipo: 'ARCHIVO' | 'FORMULARIO'
+    orden: number | null
+    puntaje_maximo: number
+    fecha_inicio?: string | Date | null
+    fecha_fin?: string | Date | null
+    entrega?: {
+        id: string
+        archivo_url?: string | null
+        archivo_nombre?: string | null
+        comentario_estudiante?: string | null
+        nota?: number | null
+        comentario_docente?: string | null
+        creado_en: string
+        actualizado_en: string
+    } | null
 }
 
 export interface CourseExamen {
@@ -45,7 +66,7 @@ export interface Course {
 
 type ExamStatus = 'locked' | 'available' | 'in_progress' | 'passed' | 'failed'
 
-type PlayerView = 'lesson' | 'exam' | 'completion' | 'certificate'
+type PlayerView = 'lesson' | 'exam' | 'activity' | 'completion' | 'certificate'
 
 interface CourseState {
     course: Course | null
@@ -54,6 +75,7 @@ interface CourseState {
     examStatus: ExamStatus
     examenId: string | null        // ID del examen final
     currentExamenId: string | null // ID del examen actualmente activo (final o intermedio)
+    currentActividadId: string | null
     certificateId: string | null
     currentView: PlayerView
 
@@ -65,9 +87,11 @@ interface CourseState {
     setExamStatus: (status: ExamStatus) => void
     setExamenId: (id: string | null) => void
     setCurrentExamenId: (id: string | null) => void
+    setCurrentActividadId: (id: string | null) => void
     setCertificateId: (id: string | null) => void
     setCurrentView: (view: PlayerView) => void
     openExam: (examenId: string) => void
+    openActividad: (actividadId: string) => void
 }
 
 export const useCourseStore = create<CourseState>((set) => ({
@@ -77,6 +101,7 @@ export const useCourseStore = create<CourseState>((set) => ({
     examStatus: 'locked',
     examenId: null,
     currentExamenId: null,
+    currentActividadId: null,
     certificateId: null,
     currentView: 'lesson',
 
@@ -97,7 +122,7 @@ export const useCourseStore = create<CourseState>((set) => ({
         })
     },
 
-    setCurrentLessonId: (lessonId) => set({ currentLessonId: lessonId, currentView: 'lesson' }),
+    setCurrentLessonId: (lessonId) => set({ currentLessonId: lessonId, currentView: 'lesson', currentActividadId: null }),
 
     updateLessonProgress: (lessonId, completed, newPercentage) => set((state) => {
         if (!state.course) return state
@@ -141,8 +166,10 @@ export const useCourseStore = create<CourseState>((set) => ({
     setExamStatus: (status) => set({ examStatus: status }),
     setExamenId: (id) => set({ examenId: id }),
     setCurrentExamenId: (id) => set({ currentExamenId: id }),
+    setCurrentActividadId: (id) => set({ currentActividadId: id }),
     setCertificateId: (id) => set({ certificateId: id }),
     setCurrentView: (view) => set({ currentView: view }),
 
-    openExam: (examenId) => set({ currentExamenId: examenId, currentView: 'exam' })
+    openExam: (examenId) => set({ currentExamenId: examenId, currentView: 'exam', currentActividadId: null }),
+    openActividad: (actividadId) => set({ currentActividadId: actividadId, currentView: 'activity', currentExamenId: null })
 }))

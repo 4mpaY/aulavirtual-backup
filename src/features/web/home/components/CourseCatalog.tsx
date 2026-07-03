@@ -23,6 +23,8 @@ import {
 
 import CourseList from './CourseList'
 import { useCart } from '../../cart/context/CartContext'
+import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
+import { getTipoProgramaConfig } from '@/utils/configs/tipoPrograma'
 
 interface Category {
   id: string
@@ -33,9 +35,11 @@ interface Category {
 interface CourseCatalogProps {
   courses: any[]
   categories: Category[]
+  tipo?: TipoPrograma
 }
 
-const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
+const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogProps) => {
+  const config = getTipoProgramaConfig(tipo)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedLevel, setSelectedLevel] = useState('all')
@@ -114,7 +118,7 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
               Nuestras Capacitaciones
             </Typography>
             <Typography variant="h6" sx={{ color: '#475569', fontWeight: 500, maxWidth: 600, mx: 'auto' }}>
-              Aprende de expertos y potencia tu carrera profesional con nuestra selección premium.
+              {config.catalogSectionSubtitle}
             </Typography>
           </Box>
 
@@ -122,7 +126,7 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
             {/* Search Bar Premium */}
             <TextField
               fullWidth
-              placeholder="Buscar por título o descripción..."
+              placeholder={config.searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               sx={{ maxWidth: 800 }}
@@ -386,7 +390,7 @@ const CourseCatalog = ({ courses, categories }: CourseCatalogProps) => {
                   sx={{ bgcolor: 'white', fontWeight: 700, color: 'text.secondary', border: '1px solid #e2e8f0', px: 1 }}
                 />
               </Stack>
-              <CourseList courses={filteredAndSortedCourses} />
+              <CourseList courses={filteredAndSortedCourses} emptySearchMessage={config.catalogEmptySearch} />
             </Box>
           </Fade>
         </Stack>

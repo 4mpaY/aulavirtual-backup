@@ -15,7 +15,9 @@ const ALLOWED_MIMES: Record<string, string> = {
   'video/mp4': 'mp4',
   'video/webm': 'webm',
   'video/ogg': 'ogg',
-  'video/quicktime': 'mov'
+  'video/quicktime': 'mov',
+  'video/x-matroska': 'mkv',
+  'video/mkv': 'mkv'
 }
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024 * 1024 // 3 GB max for private videos
@@ -54,16 +56,37 @@ export async function POST(request: Request) {
       )
     }
 
-    // 🔐 SEGURIDAD: Validar MIME type contra lista blanca
-    if (!ALLOWED_MIMES[file.type]) {
+    // 🔐 SEGURIDAD: Validar MIME type contra lista blanca u obtener por extensión
+    let safeExtension = ALLOWED_MIMES[file.type]
+    let detectedMime = file.type
+
+    if (!safeExtension && file.name) {
+      const extension = file.name.split('.').pop()?.toLowerCase() || ''
+
+      const extToMime: Record<string, { ext: string, mime: string }> = {
+        'mp4': { ext: 'mp4', mime: 'video/mp4' },
+        'webm': { ext: 'webm', mime: 'video/webm' },
+        'ogg': { ext: 'ogg', mime: 'video/ogg' },
+        'mov': { ext: 'mov', mime: 'video/quicktime' },
+        'mkv': { ext: 'mkv', mime: 'video/x-matroska' }
+      }
+
+      const matched = extToMime[extension]
+
+      if (matched) {
+        safeExtension = matched.ext
+        detectedMime = matched.mime
+      }
+    }
+
+    if (!safeExtension) {
       return ApiResponse.error(
         request,
-        `Tipo de archivo no permitido. Solo se aceptan formatos de video (.mp4, .webm, .ogg, .mov)`,
+        `Tipo de archivo no permitido. Solo se aceptan formatos de video (.mp4, .webm, .ogg, .mov, .mkv)`,
         400
       )
     }
 
-    const safeExtension = ALLOWED_MIMES[file.type]
     const id = randomUUID()
     const nombreArchivo = `${id}.${safeExtension}`
     const nombreOriginal = file.name.replace(/[^a-zA-Z0-9._-]/g, '_') // Sanitizar nombre original
@@ -101,7 +124,7 @@ export async function POST(request: Request) {
         nombre: nombreOriginal,
         url: relativePath,
         tipo: 'VIDEO',
-        mimetype: file.type,
+        mimetype: detectedMime,
         peso: file.size
       }
     })

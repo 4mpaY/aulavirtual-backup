@@ -12,6 +12,7 @@ import HydratedDate from '@/utils/components/HydratedDate'
 import { usePedido } from '../hooks/usePedidos'
 import type { ThemeColor } from '@/@core/types'
 import type { Pedido } from '../entity/Pedido'
+import { getDetalleInfo } from '../entity/Pedido'
 
 type StatusType = { [key: string]: ThemeColor }
 
@@ -96,7 +97,7 @@ export function PedidoDetallePage() {
             <Typography variant="h6" gutterBottom>Resumen de Total</Typography>
             <Paper variant="outlined" sx={{ p: 4, bgcolor: 'action.hover' }}>
               <div className="flex justify-between mb-2">
-                <Typography color="text.secondary">Subtotal Cursos:</Typography>
+                <Typography color="text.secondary">Subtotal:</Typography>
                 <Typography>{pedido.moneda} {Number(pedido.total).toFixed(2)}</Typography>
               </div>
               {pedido.cupon && (
@@ -158,31 +159,46 @@ export function PedidoDetallePage() {
             </Grid>
           )}
 
-          {/* Tabla de cursos comprados */}
+          {/* Tabla de ítems comprados */}
           <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Cursos Comprados (Detalle)</Typography>
+            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>Ítems del Pedido (Detalle)</Typography>
             <TableContainer component={Paper} variant="outlined">
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Curso</TableCell>
+                    <TableCell>Ítem</TableCell>
+                    <TableCell>Tipo</TableCell>
                     <TableCell align="right">Precio Original</TableCell>
                     <TableCell align="right">Subtotal Pagado</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {pedido.detalles?.map((detalle: any) => (
-                    <TableRow key={detalle.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Avatar variant="rounded" src={detalle.curso?.miniatura || ''} sx={{ width: 40, height: 30 }} />
-                          <Typography variant="body2" fontWeight={600}>{detalle.curso?.titulo}</Typography>
-                        </div>
-                      </TableCell>
-                      <TableCell align="right">{pedido.moneda} {Number(detalle.curso?.precio || 0).toFixed(2)}</TableCell>
-                      <TableCell align="right">{pedido.moneda} {Number(detalle.subtotal).toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
+                  {pedido.detalles?.map(detalle => {
+                    const { titulo, miniatura, precio, esEbook } = getDetalleInfo(detalle)
+
+                    return (
+                      <TableRow key={detalle.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar variant="rounded" src={miniatura || ''} sx={{ width: 40, height: 30 }}>
+                              <i className={esEbook ? 'tabler-book' : 'tabler-school'} style={{ fontSize: 16 }} />
+                            </Avatar>
+                            <Typography variant="body2" fontWeight={600}>{titulo}</Typography>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={esEbook ? 'Ebook' : 'Curso'}
+                            size='small'
+                            color={esEbook ? 'info' : 'default'}
+                            variant='tonal'
+                          />
+                        </TableCell>
+                        <TableCell align="right">{pedido.moneda} {Number(precio || 0).toFixed(2)}</TableCell>
+                        <TableCell align="right">{pedido.moneda} {Number(detalle.subtotal).toFixed(2)}</TableCell>
+                      </TableRow>
+                    )
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>

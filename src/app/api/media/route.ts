@@ -18,6 +18,15 @@ const ALLOWED_MIMES: Record<string, string> = {
   'application/pdf': 'pdf',
   'video/mp4': 'mp4',
   'video/webm': 'webm',
+  'video/x-matroska': 'mkv',
+  'video/mkv': 'mkv',
+
+  // Audio
+  'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+  'audio/mp4': 'mp4',
+  'audio/mpeg': 'mp3',
+  'audio/wav': 'wav',
 
   // Documentos de Office
   'application/msword': 'doc',
@@ -122,11 +131,47 @@ export async function POST(request: Request) {
       )
     }
 
-    // 🔐 SEGURIDAD: Validar MIME type contra lista blanca
-    if (!ALLOWED_MIMES[file.type]) {
+    // 🔐 SEGURIDAD: Validar MIME type contra lista blanca u obtener por extensión
+    let safeExtension = ALLOWED_MIMES[file.type]
+    let detectedMime = file.type
+
+    if (!safeExtension && file.name) {
+      const extension = file.name.split('.').pop()?.toLowerCase() || ''
+
+      const extToMime: Record<string, { ext: string, mime: string }> = {
+        'jpg': { ext: 'jpg', mime: 'image/jpeg' },
+        'jpeg': { ext: 'jpg', mime: 'image/jpeg' },
+        'png': { ext: 'png', mime: 'image/png' },
+        'webp': { ext: 'webp', mime: 'image/webp' },
+        'gif': { ext: 'gif', mime: 'image/gif' },
+        'pdf': { ext: 'pdf', mime: 'application/pdf' },
+        'mp4': { ext: 'mp4', mime: 'video/mp4' },
+        'webm': { ext: 'webm', mime: 'video/webm' },
+        'mkv': { ext: 'mkv', mime: 'video/x-matroska' },
+        'doc': { ext: 'doc', mime: 'application/msword' },
+        'docx': { ext: 'docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+        'xls': { ext: 'xls', mime: 'application/vnd.ms-excel' },
+        'xlsx': { ext: 'xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+        'mp3': { ext: 'mp3', mime: 'audio/mpeg' },
+        'wav': { ext: 'wav', mime: 'audio/wav' },
+        'ogg': { ext: 'ogg', mime: 'audio/ogg' },
+        'oga': { ext: 'ogg', mime: 'audio/ogg' },
+        'm4a': { ext: 'mp4', mime: 'audio/mp4' },
+        'weba': { ext: 'webm', mime: 'audio/webm' }
+      }
+
+      const matched = extToMime[extension]
+
+      if (matched) {
+        safeExtension = matched.ext
+        detectedMime = matched.mime
+      }
+    }
+
+    if (!safeExtension) {
       return ApiResponse.error(
         request,
-        `Tipo de archivo no permitido. Tipos aceptados: imágenes (jpg, png, webp, gif), PDF, video (mp4, webm)`,
+        `Tipo de archivo no permitido. Tipos aceptados: imágenes (jpg, png, webp, gif), PDF, video (mp4, webm, mkv), audio (mp3, wav, ogg, m4a)`,
         400
       )
     }
@@ -135,21 +180,20 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes)
 
     // 🔐 SEGURIDAD: Verificar magic bytes (contenido real del archivo)
-    if (!verifyMagicBytes(buffer, file.type)) {
+    // Los tipos de audio se omiten de la verificación de magic bytes (formatos variables)
+    if (!detectedMime.startsWith('audio/') && !verifyMagicBytes(buffer, detectedMime)) {
       return ApiResponse.error(request, 'El contenido del archivo no coincide con su tipo declarado', 400)
     }
 
     const { searchParams } = new URL(request.url)
     const isSignature = searchParams.get('isSignature') === 'true'
 
-    // 🔐 SEGURIDAD: Extensión determinada por MIME type (no por nombre del usuario)
-    const safeExtension = ALLOWED_MIMES[file.type]
     const id = randomUUID()
     const nombreArchivo = `${id}.${safeExtension}`
     const nombreOriginal = file.name.replace(/[^a-zA-Z0-9._-]/g, '_') // Sanitizar nombre original
 
     // Ruta relativa para la URL y ruta absoluta para guardar
-    const folder = isSignature ? 'firmas' : 'cursos'
+    const folder = isSignature ? 'firmas' : detectedMime.startsWith('audio/') ? 'audios' : 'cursos'
     const relativePath = `/uploads/${folder}/${nombreArchivo}`
     const uploadDir = join(process.cwd(), 'public', 'uploads', folder)
     const absolutePath = join(uploadDir, nombreArchivo)
@@ -183,7 +227,7 @@ export async function POST(request: Request) {
       return ApiResponse.success(request, { url: relativePath }, 201)
     }
 
-    const tipo = file.type.startsWith('image/') ? 'IMAGEN' : file.type.startsWith('video/') ? 'VIDEO' : 'OTRO'
+    const tipo = detectedMime.startsWith('image/') ? 'IMAGEN' : detectedMime.startsWith('video/') ? 'VIDEO' : 'OTRO'
 
     const mediaResult = await prisma.media.create({
       data: {
@@ -191,7 +235,7 @@ export async function POST(request: Request) {
         nombre: nombreOriginal,
         url: relativePath,
         tipo,
-        mimetype: file.type,
+        mimetype: detectedMime,
         peso: file.size
       }
     })

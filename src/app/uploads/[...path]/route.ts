@@ -15,7 +15,8 @@ const CONTENT_TYPES: Record<string, string> = {
   svg: 'image/svg+xml',
   pdf: 'application/pdf',
   mp4: 'video/mp4',
-  webm: 'video/webm'
+  webm: 'video/webm',
+  mkv: 'video/x-matroska'
 }
 
 export async function GET(request: Request, { params }: { params: { path: string[] } }) {

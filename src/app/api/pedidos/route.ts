@@ -92,6 +92,12 @@ export async function GET(request: Request) {
                 select: {
                   titulo: true
                 }
+              },
+              ebook: {
+                select: {
+                  titulo: true,
+                  miniatura: true
+                }
               }
             }
           }

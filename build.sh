@@ -2,6 +2,8 @@
 
 echo "📦 Build de imagen Aula Virtual - Fly"
 echo ""
+echo "¡¡NO TE OLVIDES DE CAMBIAR EL .ENV AL DOMINIO CORRECTO!!"
+echo ""
 read -p "Ingresa la versión (ej: 1.0.1-[nombre-aula]): " VERSION
 # Eliminar secuencias de escape (ej: tecla Insert en Git Bash) y caracteres no válidos para tags Docker
 VERSION=$(echo "$VERSION" | sed 's/\x1b\[[0-9;]*[a-zA-Z~]//g' | tr -cd 'a-zA-Z0-9._-')
@@ -24,7 +26,7 @@ echo ""
 # SOLUCIÓN: Agregamos --no-cache para obligar a Docker a leer el Dockerfile actualizado
 docker build \
   --no-cache \
-  -f Dockerfile \
+  -f dockerfile.new \
   --build-arg NEXT_PUBLIC_APP_URL=$(grep NEXT_PUBLIC_APP_URL .env | cut -d '=' -f2) \
   --build-arg APP_URL=$(grep '^APP_URL=' .env | cut -d '=' -f2) \
   -t $IMAGE_NAME \

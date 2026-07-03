@@ -9,6 +9,7 @@ import WebFooter from '@/utils/components/layout/web/WebFooter'
 import WebHeader from '@/utils/components/layout/web/WebHeader'
 import ScrollAnimations from '@/utils/components/layout/web/ScrollAnimations'
 import FloatingContactButtons from '@/utils/components/layout/web/FloatingContactButtons'
+import PWAInstalledToast from '@/features/web/home/components/PWAInstalledToast'
 
 const getCategorias = unstable_cache(
   () =>
@@ -26,18 +27,29 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
 
   const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
   const platformSlogan = configs.TEMPLATE_SLOGAN || 'Aprende sin límites'
-  const rutasHabilitado = configs.WEB_RUTAS_HABILITADO !== 'false'
 
   return (
     <AuthModalProvider>
       <div className="web-layout min-h-screen bg-white flex flex-col">
         <WebHeader initialCategories={categories} platformName={platformName} platformSlogan={platformSlogan} />
-        <main className="flex-1 flex flex-col" style={{ paddingTop: 'var(--navbar-height)' }}>
-          {children}
-          <WebFooter platformName={platformName} rutasHabilitado={rutasHabilitado} />
-        </main>
-        <FloatingContactButtons />
-        <ScrollAnimations />
+        <div className="flex flex-1" style={{ paddingTop: 'var(--navbar-height)' }}>
+          {/* Sidebar: visible solo en sm+ */}
+          <div className="hidden sm:block">
+            <LeftSidebar empresasHabilitado={empresasHabilitado} />
+          </div>
+          <main
+            className="flex-1 flex flex-col min-w-0 pb-16 sm:pb-0"
+            style={{ paddingLeft: 'var(--sidebar-width)' }}
+          >
+            <div className="flex-1">
+              {children}
+            </div>
+            <WebFooter platformName={platformName} />
+          </main>
+        </div>
+        {/* Bottom nav: visible solo en mobile */}
+        <MobileBottomNav />
+        <PWAInstalledToast />
       </div>
     </AuthModalProvider>
   )

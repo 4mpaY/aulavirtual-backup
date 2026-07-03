@@ -19,7 +19,7 @@ const TikTokIcon = ({ size = 20 }: { size?: number }) => (
   </svg>
 )
 
-const WebFooter = async ({ platformName = 'Aula Virtual', rutasHabilitado = true }: WebFooterProps) => {
+const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
   const configs = await getConfigs()
   const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
   const phone = configs.TELEFONO || '+51 928 510 125'

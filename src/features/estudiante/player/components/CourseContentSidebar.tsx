@@ -21,6 +21,7 @@ import {
 
 import CustomTextField from '@core/components/mui/TextField'
 import { useCourseStore } from '../store/useCourseStore'
+import { getModuleItems } from '../utils/moduleItems'
 
 interface CourseContentSidebarProps {
     onLessonSelect: (lessonId: string) => void
@@ -34,9 +35,11 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
         progressPercentage,
         examStatus,
         examenId,
+        currentActividadId,
         currentView,
         setCurrentView,
-        openExam
+        openExam,
+        openActividad
     } = useCourseStore()
 
     const [searchQuery, setSearchQuery] = useState('')
@@ -56,7 +59,13 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                     ? module.lecciones
                     : module.lecciones.filter((l: any) => l.titulo.toLowerCase().includes(lowerQuery))
 
-                return matchedLessons.length > 0 ? { ...module, lecciones: matchedLessons } : null
+                const matchedActividades = moduleMatches
+                    ? (module.actividades || [])
+                    : (module.actividades || []).filter((a: any) => a.titulo.toLowerCase().includes(lowerQuery))
+
+                return matchedLessons.length > 0 || matchedActividades.length > 0
+                    ? { ...module, lecciones: matchedLessons, actividades: matchedActividades }
+                    : null
             })
             .filter(Boolean) as any[]
     }, [course?.modulos, searchQuery])
@@ -156,30 +165,39 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
 
                             <AccordionDetails sx={{ p: 0 }}>
                                 <List sx={{ p: 0 }}>
-                                    {(() => {
-                                        const allItems = [
-                                            ...(module.lecciones || []).map((l: any) => ({
-                                                ...l, tipo: 'leccion', orden: l.orden || 0
-                                            })),
-                                            ...(course?.examenes || [])
-                                                .filter((ex: any) => ex.modulo_id === module.id && ex.tipo === 'INTERMEDIO')
-                                                .map((ex: any) => ({
-                                                    ...ex, tipo: 'examen', completada: false, orden: ex.orden || 0
-                                                }))
-                                        ].sort((a, b) => (a.orden || 0) - (b.orden || 0))
-
-                                        return allItems.map((item: any) => {
+                                    {getModuleItems(module, course?.examenes).map((item: any) => {
                                             const isLocked = item.tipo === 'examen' && progressPercentage < (item.progreso_minimo || 0)
                                             const isLockedLesson = item.tipo === 'leccion' && item.fecha_desbloqueo && new Date(item.fecha_desbloqueo) > new Date()
+                                            const isLockedActividad = item.tipo === 'actividad' && item.fecha_inicio && new Date(item.fecha_inicio) > new Date() && !item.entrega
 
                                             const isSelected = item.tipo === 'leccion'
                                                 ? currentLessonId === item.id && currentView === 'lesson'
-                                                : currentExamenId === item.id && currentView === 'exam'
+                                                : item.tipo === 'examen'
+                                                    ? currentExamenId === item.id && currentView === 'exam'
+                                                    : currentActividadId === item.id && currentView === 'activity'
 
                                             const getIcon = () => {
-                                                if (isLocked || isLockedLesson) {
+                                                if (isLocked || isLockedLesson || isLockedActividad) {
                                                     return (
                                                         <i className="tabler-lock" style={{ fontSize: '1rem', color: '#9ca3af' }} />
+                                                    )
+                                                }
+
+                                                if (item.tipo === 'actividad') {
+                                                    if (item.entrega?.nota != null) {
+                                                        return (
+                                                            <i className="tabler-circle-check-filled" style={{ fontSize: '1rem', color: '#16a34a' }} />
+                                                        )
+                                                    }
+
+                                                    if (item.entrega) {
+                                                        return (
+                                                            <i className="tabler-clock-hour-4" style={{ fontSize: '1rem', color: '#d97706' }} />
+                                                        )
+                                                    }
+
+                                                    return (
+                                                        <i className="tabler-clipboard-list" style={{ fontSize: '1rem', color: isSelected ? '#7c3aed' : '#9ca3af' }} />
                                                     )
                                                 }
 
@@ -226,17 +244,18 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                                         <ListItemButton
                                                             selected={isSelected}
                                                             onClick={() => {
-                                                                if (isLockedLesson || isLocked) return
+                                                                if (isLockedLesson || isLocked || isLockedActividad) return
                                                                 if (item.tipo === 'leccion') onLessonSelect(item.id)
-                                                                else openExam(item.id)
+                                                                else if (item.tipo === 'examen') openExam(item.id)
+                                                                else openActividad(item.id)
                                                             }}
                                                             disabled={isLocked}
                                                             sx={{
                                                                 px: 3,
                                                                 py: 1.25,
                                                                 gap: 1.5,
-                                                                opacity: (isLocked || isLockedLesson) ? 0.55 : 1,
-                                                                cursor: isLockedLesson ? 'not-allowed' : 'pointer',
+                                                                opacity: (isLocked || isLockedLesson || isLockedActividad) ? 0.55 : 1,
+                                                                cursor: (isLockedLesson || isLockedActividad) ? 'not-allowed' : 'pointer',
                                                                 borderLeft: isSelected ? '3px solid #025E44' : '3px solid transparent',
                                                                 '&.Mui-selected': {
                                                                     bgcolor: 'rgba(2,94,68,0.06)',
@@ -272,7 +291,6 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                                                 )}
                                                             </Box>
 
-                                                            {/* Fechas al lado derecho */}
                                                             {item.tipo === 'examen' && (item.fecha_inicio || item.fecha_fin) && (
                                                                 <Box sx={{ flexShrink: 0, textAlign: 'right', ml: 1 }}>
                                                                     {item.fecha_inicio && (
@@ -297,7 +315,20 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                                                     )}
                                                                 </Box>
                                                             )}
-                                                            {/* Fecha clase en vivo */}
+                                                            {item.tipo === 'actividad' && (item.fecha_inicio || item.fecha_fin) && (
+                                                                <Box sx={{ flexShrink: 0, textAlign: 'right', ml: 1 }}>
+                                                                    {item.fecha_fin && (
+                                                                        <Typography variant="caption" sx={{
+                                                                            fontSize: '0.65rem', color: '#7c3aed', fontWeight: 600,
+                                                                            display: 'flex', alignItems: 'center', gap: 0.4,
+                                                                            justifyContent: 'flex-end', whiteSpace: 'nowrap'
+                                                                        }}>
+                                                                            <i className="tabler-calendar-down" style={{ fontSize: '0.65rem' }} />
+                                                                            {new Date(item.fecha_fin).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                                                        </Typography>
+                                                                    )}
+                                                                </Box>
+                                                            )}
                                                             {item.tipo === 'leccion' && item.es_en_vivo && item.fecha_programada && (
                                                                 <Box sx={{ flexShrink: 0, textAlign: 'right', ml: 1 }}>
                                                                     <Typography variant="caption" sx={{
@@ -314,8 +345,7 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
                                                     </Tooltip>
                                                 </ListItem>
                                             )
-                                        })
-                                    })()}
+                                    })}
                                 </List>
                             </AccordionDetails>
                         </Accordion>

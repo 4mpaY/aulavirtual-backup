@@ -36,12 +36,34 @@ export interface Pedido {
 
 export interface DetallePedido {
   id: string
+  tipo_item: 'CURSO' | 'EBOOK'
   cantidad: number
   precio_unitario: number
   subtotal: number
   total: number
-  curso_id: string
-  curso: {
+  curso_id: string | null
+  ebook_id: string | null
+  curso?: {
     titulo: string
+    miniatura?: string | null
+    precio?: number
+  } | null
+  ebook?: {
+    titulo: string
+    miniatura?: string | null
+    precio?: number
+  } | null
+}
+
+/** Resuelve título/miniatura/precio del detalle sin importar si es curso o ebook */
+export function getDetalleInfo(detalle: DetallePedido) {
+  const esEbook = detalle.tipo_item === 'EBOOK' || (!detalle.curso && !!detalle.ebook)
+  const item = esEbook ? detalle.ebook : detalle.curso
+
+  return {
+    esEbook,
+    titulo: item?.titulo ?? '',
+    miniatura: item?.miniatura ?? null,
+    precio: item?.precio
   }
 }

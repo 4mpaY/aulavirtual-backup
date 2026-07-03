@@ -73,6 +73,21 @@ export async function POST(request: Request) {
       }
     }
 
+    // Sincronizar favicon si el admin configuró una imagen fuente
+    const faviconSource = configuraciones.find(
+      (conf: { clave: string; valor: string }) => conf.clave === 'SITE_FAVICON'
+    )?.valor
+
+    if (faviconSource?.trim()) {
+      try {
+        const { syncFaviconFromUrl } = await import('@/utils/functions/syncFavicon')
+
+        await syncFaviconFromUrl(faviconSource)
+      } catch (err) {
+        console.error('[FAVICON_SYNC_ERROR]', err)
+      }
+    }
+
     // Limpiar caché después de actualizar
     const { clearConfigCache } = await import('@/utils/libs/config')
 
