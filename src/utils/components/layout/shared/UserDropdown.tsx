@@ -20,7 +20,7 @@ import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 
 // Hook Imports
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 
 import UserAvatar from '@/utils/components/UserAvatar'
 
@@ -78,6 +78,10 @@ const UserDropdown = () => {
 
   const dashboardPath = getDashboardPath(data?.user?.rol)
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login' })
+  }
+
   return (
     <>
       <Badge
@@ -134,6 +138,17 @@ const UserDropdown = () => {
                   <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, dashboardPath)}>
                     <i className='tabler-layout-dashboard text-[22px]' />
                     <Typography color='text.primary'>Mi Panel</Typography>
+                  </MenuItem>
+                  <Divider className='mlb-1' />
+                  <MenuItem
+                    className='mli-2 gap-3'
+                    onClick={() => {
+                      setOpen(false)
+                      handleLogout()
+                    }}
+                  >
+                    <i className='tabler-logout text-[22px]' />
+                    <Typography color='text.primary'>Cerrar Sesión</Typography>
                   </MenuItem>
                 </MenuList>
               </ClickAwayListener>
