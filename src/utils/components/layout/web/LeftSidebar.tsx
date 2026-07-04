@@ -18,8 +18,8 @@ import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
-  { title: 'Diplomados', url: '/diplomados', icon: GraduationCap, key: 'diplomados' },
-  { title: 'Especializaciones', url: '/especializaciones', icon: Layers, key: 'especializaciones' },
+  // { title: 'Diplomados', url: '/diplomados', icon: GraduationCap, key: 'diplomados' },
+  // { title: 'Especializaciones', url: '/especializaciones', icon: Layers, key: 'especializaciones' },
   ...(isFeatureEnabled('simulacros')
     ? [{ title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' as const }]
     : []),

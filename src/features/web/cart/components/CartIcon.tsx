@@ -27,7 +27,7 @@ const CartIcon = () => {
                     color="error"
                     sx={{ '& .MuiBadge-badge': { fontWeight: 800 } }}
                 >
-                    <i className="tabler-shopping-cart" style={{ fontSize: '1.4rem' }} />
+                    <i className="tabler-shopping-cart" style={{ fontSize: '1.6rem' }} />
                 </Badge>
             </IconButton>
         </Tooltip>

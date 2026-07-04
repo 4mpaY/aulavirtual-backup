@@ -162,11 +162,11 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
 
   const displayDate = isLive
     ? {
-        label: 'Inicio',
-        value: course.fecha_inicio
-          ? <HydratedDate date={course.fecha_inicio} format="date" options={{ day: '2-digit', month: '2-digit', year: 'numeric' }} />
-          : 'Próximamente'
-      }
+      label: 'Inicio',
+      value: course.fecha_inicio
+        ? <HydratedDate date={course.fecha_inicio} format="date" options={{ day: '2-digit', month: '2-digit', year: 'numeric' }} />
+        : 'Próximamente'
+    }
     : null
 
   const defaultBeneficios = [
@@ -195,9 +195,8 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
     { text: 'Materiales y adicionales', active: true },
     { text: 'Seguimiento académico', active: true },
     { text: 'Evaluación programada', active: true },
-    { text: 'Evaluación en cualquier momento', active: false },
     { text: 'Recuperación de evaluación', active: false },
-    { text: 'Certificado por Ecoambiental o CIP', active: false },
+    { text: 'Certificación', active: false },
   ]
 
   return (
