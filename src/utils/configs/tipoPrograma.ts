@@ -2,23 +2,26 @@ export type TipoPrograma = 'CURSO' | 'DIPLOMADO' | 'ESPECIALIZACION'
 
 export const TIPO_PROGRAMA_CONFIG = {
   CURSO: {
-    label: 'Curso',
-    labelPlural: 'Cursos',
+    label: 'Capacitación',
+    labelPlural: 'Capacitaciones',
     adminBasePath: '/admin/cursos',
     webPath: '/cursos',
-    catalogTitle: 'Catálogo de Cursos',
-    catalogDescription: 'Explora nuestra selección de cursos y comienza a aprender hoy.',
-    catalogSectionTitle: 'Nuestros Cursos',
+    catalogTitle: 'Catálogo de Capacitaciones',
+    catalogTitlePrefix: 'Catálogo de',
+    catalogTitleHighlight: 'Capacitaciones',
+    catalogDescription:
+      'Explora nuestra selección de capacitaciones, desarrolla nuevas habilidades y potencia tu carrera profesional.',
+    catalogSectionTitle: 'Nuestras Capacitaciones',
     catalogSectionSubtitle: 'Aprende de expertos y potencia tu carrera profesional con nuestra selección premium.',
-    catalogEmptySearch: 'No encontramos cursos que coincidan con tu búsqueda.',
-    searchPlaceholder: 'Buscar curso por título o descripción...',
-    homeTitle: 'Cursos destacados',
-    homeSubtitle: 'Descubre nuestros cursos más recientes',
-    emptyMessage: 'Próximamente habrá cursos disponibles.',
-    nuevoLabel: 'Nuevo Curso',
-    gestionTitle: 'Gestión de Cursos',
-    buscarPlaceholder: 'Buscar curso',
-    cargandoLabel: 'Cargando cursos...'
+    catalogEmptySearch: 'No encontramos capacitaciones que coincidan con tu búsqueda.',
+    searchPlaceholder: 'Buscar capacitación por título o descripción...',
+    homeTitle: 'Capacitaciones destacadas',
+    homeSubtitle: 'Descubre nuestras capacitaciones más recientes',
+    emptyMessage: 'Próximamente habrá capacitaciones disponibles.',
+    nuevoLabel: 'Nueva Capacitación',
+    gestionTitle: 'Gestión de Capacitaciones',
+    buscarPlaceholder: 'Buscar capacitación',
+    cargandoLabel: 'Cargando capacitaciones...'
   },
   DIPLOMADO: {
     label: 'Diplomado',
@@ -61,5 +64,5 @@ export const TIPO_PROGRAMA_CONFIG = {
 } as const
 
 export function getTipoProgramaConfig(tipo: TipoPrograma) {
-  return TIPO_PROGRAMA_CONFIG[tipo]
+  return TIPO_PROGRAMA_CONFIG.CURSO
 }

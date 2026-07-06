@@ -67,10 +67,35 @@ export async function GET(request: Request) {
         orderBy: { creado_en: 'desc' }
       }),
       prisma.categoria.findMany({
-        where: { esta_activo: true },
-        select: { id: true, nombre: true, slug: true },
-        orderBy: { nombre: 'asc' }
-      })
+        where: {
+          categoria_padre_id: null,
+          esta_activo: true,
+        },
+        orderBy: { orden: 'asc' },
+        select: {
+          id: true,
+          nombre: true,
+          slug: true,
+          hijos: {
+            where: { esta_activo: true },
+            orderBy: { orden: 'asc' },
+            select: {
+              id: true,
+              nombre: true,
+              slug: true,
+              hijos: {
+                where: { esta_activo: true },
+                orderBy: { orden: 'asc' },
+                select: {
+                  id: true,
+                  nombre: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+        },
+      }),
     ])
 
     let userCourseIds = new Set<string>()

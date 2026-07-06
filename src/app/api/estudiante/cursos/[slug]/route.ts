@@ -12,6 +12,72 @@ import { puedeAccederCurso } from '@/utils/libs/subscription-access'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
+const examenesInclude = {
+  where: { esta_publicado: true },
+  select: {
+    id: true,
+    titulo: true,
+    tipo: true,
+    peso: true,
+    progreso_minimo: true,
+    orden: true,
+    modulo_id: true,
+    puntaje_aprobacion: true,
+    intentos_maximos: true,
+    esta_publicado: true,
+    fecha_inicio: true,
+    fecha_fin: true,
+  },
+} as const
+
+async function fetchCourseForPlayer(slug: string, userId: string) {
+  const leccionInclude = {
+    include: {
+      progreso: { where: { usuario_id: userId } },
+    },
+    orderBy: { orden: 'asc' as const },
+  }
+
+  const moduloIncludeWithActividades = {
+    include: {
+      lecciones: leccionInclude,
+      actividades: {
+        where: { esta_publicado: true },
+        orderBy: { orden: 'asc' as const },
+        include: {
+          entregas: { where: { usuario_id: userId }, take: 1 },
+        },
+      },
+    },
+    orderBy: { orden: 'asc' as const },
+  }
+
+  const moduloIncludeBase = {
+    include: {
+      lecciones: leccionInclude,
+    },
+    orderBy: { orden: 'asc' as const },
+  }
+
+  try {
+    return await prisma.curso.findUnique({
+      where: { slug },
+      include: {
+        modulos: moduloIncludeWithActividades,
+        examenes: examenesInclude,
+      },
+    })
+  } catch {
+    return prisma.curso.findUnique({
+      where: { slug },
+      include: {
+        modulos: moduloIncludeBase,
+        examenes: examenesInclude,
+      },
+    })
+  }
+}
+
 export async function GET(request: Request, { params }: { params: { slug: string } }) {
   try {
     let user: any = null
@@ -47,51 +113,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
 
     const { slug } = params
 
-    const course = await prisma.curso.findUnique({
-      where: { slug },
-      include: {
-        modulos: {
-          include: {
-            lecciones: {
-              include: {
-                progreso: {
-                  where: { usuario_id: user.id }
-                }
-              },
-              orderBy: { orden: 'asc' }
-            },
-            actividades: {
-              where: { esta_publicado: true },
-              orderBy: { orden: 'asc' },
-              include: {
-                entregas: {
-                  where: { usuario_id: user.id },
-                  take: 1
-                }
-              }
-            }
-          },
-          orderBy: { orden: 'asc' }
-        },
-        examenes: {
-          where: { esta_publicado: true },
-          select: {
-            id: true,
-            titulo: true,
-            tipo: true,
-            peso: true,
-            progreso_minimo: true,
-            orden: true,
-            modulo_id: true,
-            puntaje_aprobacion: true,
-            intentos_maximos: true,
-            esta_publicado: true,
-            fecha_inicio: true,
-            fecha_fin: true
-          }
-        }
-      }
-    })
+    const course = await fetchCourseForPlayer(slug, user.id)
 
     if (!course) {
       return ApiResponse.error(request, 'Curso no encontrado', 404)
@@ -184,10 +206,10 @@ export async function GET(request: Request, { params }: { params: { slug: string
             fecha_programada: (l as any).fecha_programada,
             fecha_fin: (l as any).fecha_fin,
             enlace_reunion: (l as any).enlace_reunion,
-            completada: l.progreso[0]?.esta_completado || false,
-            recursos: Array.isArray(l.recursos) ? l.recursos : []
+            completada: (l as { progreso?: Array<{ esta_completado: boolean }> }).progreso?.[0]?.esta_completado || false,
+            recursos: Array.isArray((l as { recursos?: unknown }).recursos) ? (l as { recursos: unknown[] }).recursos : []
           })),
-        actividades: m.actividades.map(a => ({
+        actividades: ('actividades' in m && Array.isArray(m.actividades) ? m.actividades : []).map((a: any) => ({
           id: a.id,
           titulo: a.titulo,
           tipo: a.tipo,

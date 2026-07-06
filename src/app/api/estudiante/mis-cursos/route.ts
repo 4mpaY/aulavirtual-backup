@@ -63,8 +63,21 @@ export async function GET(request: Request) {
       }
     })
 
-    // Incluir cursos de suscripción activa
-    const suscripcionActiva = await prisma.suscripcion.findFirst({
+    // Incluir cursos de suscripción activa (opcional)
+    let cursosSuscripcion: Array<{
+      id: string
+      titulo: string
+      slug: string
+      miniatura?: string
+      profesor: { nombre: string; apellido: string }
+      categoria?: string
+      progreso: number
+      tieneAcceso: boolean
+      origen: 'SUSCRIPCION'
+    }> = []
+
+    try {
+      const suscripcionActiva = await prisma.suscripcion.findFirst({
       where: {
         usuario_id: user.id,
         estado: { in: ['ACTIVA', 'EN_PRUEBA'] }
@@ -99,6 +112,9 @@ export async function GET(request: Request) {
       tieneAcceso: true,
       origen: 'SUSCRIPCION' as const
     })) ?? []
+    } catch {
+      /* suscripciones no disponibles */
+    }
 
     // Combinar y deduplicar por id (compra tiene prioridad sobre suscripción)
     const idsInscritos = new Set(cursosInscritos.map(c => c.id))

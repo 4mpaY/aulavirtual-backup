@@ -32,8 +32,8 @@
   --ipg-muted: #f1f5f4;
 
   --navbar-height: 88px;
-  --sidebar-width: 80px;
-  --sidebar-width-expanded: 260px;
+  --sidebar-width: 0px;
+  --sidebar-width-expanded: 0px;
 }
 
 @media (max-width: 639px) {
@@ -58,6 +58,7 @@ html {
   inline-size: 100%;
   min-block-size: 100%;
   overflow-x: clip;
+  scrollbar-gutter: stable;
 }
 
 a {

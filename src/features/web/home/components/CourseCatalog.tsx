@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, usePathname } from 'next/navigation'
 
 import {
   Box,
@@ -13,73 +13,205 @@ import {
   InputAdornment,
   Chip,
   Fade,
-  MenuItem,
   IconButton,
   Tooltip,
   Divider,
   Badge,
-  Fab
+  Fab,
 } from '@mui/material'
 
 import CourseList from './CourseList'
+import { CatalogFilterSelect } from './CatalogFilterSelect'
 import { useCart } from '../../cart/context/CartContext'
 import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
 import { getTipoProgramaConfig } from '@/utils/configs/tipoPrograma'
+import {
+  getCategoriaFilterIds,
+  getCategoriaSlugFromSelection,
+  resolveCategoriaSelectionBySlug,
+} from '@/features/admin/categorias/utils/categoriaJerarquia'
 
-interface Category {
+interface CategoryNode {
   id: string
   nombre: string
   slug: string
+  hijos?: CategoryNode[]
 }
 
 interface CourseCatalogProps {
   courses: any[]
-  categories: Category[]
+  categories: CategoryNode[]
   tipo?: TipoPrograma
 }
 
 const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogProps) => {
   const config = getTipoProgramaConfig(tipo)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [selectedLevel, setSelectedLevel] = useState('all')
+  const [categoriaPadreId, setCategoriaPadreId] = useState('')
+  const [subcategoriaId, setSubcategoriaId] = useState('')
+  const [subSubcategoriaId, setSubSubcategoriaId] = useState('')
   const [selectedPrice, setSelectedPrice] = useState('all')
   const [selectedModality, setSelectedModality] = useState('all')
   const [sortBy, setSortBy] = useState('recent')
   const { itemCount, setIsCartDrawerOpen } = useCart()
 
   const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const didInitFromUrl = useRef(false)
+  const skipUrlSync = useRef(true)
+  const initialSlugRef = useRef(searchParams.get('categoria'))
 
-  // Sincronizar selectedCategory con la URL
+  const syncCategoriaUrl = useCallback(
+    (padreId: string, subId: string, subSubId: string) => {
+      if (typeof window === 'undefined') return
+
+      const slug = getCategoriaSlugFromSelection(categories, { padreId, subId, subSubId })
+      const params = new URLSearchParams(window.location.search)
+
+      if (slug) {
+        params.set('categoria', slug)
+      } else {
+        params.delete('categoria')
+      }
+
+      const query = params.toString()
+      const nextUrl = query ? `${pathname}?${query}` : pathname
+
+      window.history.replaceState(window.history.state, '', nextUrl)
+    },
+    [categories, pathname]
+  )
+
   useEffect(() => {
-    const catId = searchParams.get('categoria')
+    if (didInitFromUrl.current || categories.length === 0) return
 
-    if (catId) {
-      setSelectedCategory(catId)
-    } else {
-      setSelectedCategory('all')
+    didInitFromUrl.current = true
+    const selection = resolveCategoriaSelectionBySlug(initialSlugRef.current, categories)
+
+    setCategoriaPadreId(selection.padreId)
+    setSubcategoriaId(selection.subId)
+    setSubSubcategoriaId(selection.subSubId)
+  }, [categories])
+
+  useEffect(() => {
+    if (!didInitFromUrl.current) return
+
+    if (skipUrlSync.current) {
+      skipUrlSync.current = false
+      return
     }
-  }, [searchParams])
+
+    syncCategoriaUrl(categoriaPadreId, subcategoriaId, subSubcategoriaId)
+  }, [categoriaPadreId, subcategoriaId, subSubcategoriaId, syncCategoriaUrl])
+
+  useEffect(() => {
+    const onPopState = () => {
+      skipUrlSync.current = true
+      const slug = new URLSearchParams(window.location.search).get('categoria')
+      const selection = resolveCategoriaSelectionBySlug(slug, categories)
+
+      setCategoriaPadreId(selection.padreId)
+      setSubcategoriaId(selection.subId)
+      setSubSubcategoriaId(selection.subSubId)
+    }
+
+    window.addEventListener('popstate', onPopState)
+
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [categories])
+
+  const subcategorias = useMemo(() => {
+    const padre = categories.find(c => c.id === categoriaPadreId)
+
+    return padre?.hijos ?? []
+  }, [categories, categoriaPadreId])
+
+  const subSubcategorias = useMemo(() => {
+    const sub = subcategorias.find(s => s.id === subcategoriaId)
+
+    return sub?.hijos ?? []
+  }, [subcategorias, subcategoriaId])
+
+  const categoriaOptions = useMemo(
+    () => [
+      { value: '', label: 'Todas categorías' },
+      ...categories.map(cat => ({ value: cat.id, label: cat.nombre })),
+    ],
+    [categories]
+  )
+
+  const subcategoriaOptions = useMemo(() => {
+    if (!categoriaPadreId) {
+      return [{ value: '', label: 'Selecciona una categoría primero', disabled: true }]
+    }
+
+    if (subcategorias.length === 0) {
+      return [{ value: '', label: 'Sin subcategorías', disabled: true }]
+    }
+
+    return [
+      { value: '', label: 'Todas subcategorías' },
+      ...subcategorias.map(sub => ({ value: sub.id, label: sub.nombre })),
+    ]
+  }, [categoriaPadreId, subcategorias])
+
+  const subSubcategoriaOptions = useMemo(() => {
+    if (!subcategoriaId) {
+      return [{ value: '', label: 'Selecciona una subcategoría primero', disabled: true }]
+    }
+
+    if (subSubcategorias.length === 0) {
+      return [{ value: '', label: 'Sin sub-subcategorías', disabled: true }]
+    }
+
+    return [
+      { value: '', label: 'Todas sub-subcategorías' },
+      ...subSubcategorias.map(subSub => ({ value: subSub.id, label: subSub.nombre })),
+    ]
+  }, [subcategoriaId, subSubcategorias])
+
+  const categoriaFilterIds = useMemo(
+    () =>
+      getCategoriaFilterIds(categories as any, {
+        padreId: categoriaPadreId,
+        subId: subcategoriaId,
+        subSubId: subSubcategoriaId,
+      }),
+    [categories, categoriaPadreId, subcategoriaId, subSubcategoriaId]
+  )
+
+  const handlePadreChange = (padreId: string) => {
+    setCategoriaPadreId(padreId)
+    setSubcategoriaId('')
+    setSubSubcategoriaId('')
+  }
+
+  const handleSubChange = (subId: string) => {
+    setSubcategoriaId(subId)
+    setSubSubcategoriaId('')
+  }
+
+  const handleSubSubChange = (subSubId: string) => {
+    setSubSubcategoriaId(subSubId)
+  }
 
   const filteredAndSortedCourses = useMemo(() => {
     const filtered = courses.filter(course => {
       const matchesSearch = course.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (course.descripcion && course.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
 
-      const matchesCategory = selectedCategory === 'all' || course.categoria?.slug === selectedCategory
-
-      const matchesLevel = selectedLevel === 'all' ||
-        (selectedLevel === 'none' ? !course.nivel : course.nivel === selectedLevel)
+      const matchesCategory =
+        categoriaFilterIds.length === 0 ||
+        (course.categoria?.id && categoriaFilterIds.includes(course.categoria.id))
 
       const matchesPrice = selectedPrice === 'all' ||
         (selectedPrice === 'free' ? course.es_gratis : !course.es_gratis)
 
       const matchesModality = selectedModality === 'all' || course.tipo_emision === selectedModality
 
-      return matchesSearch && matchesCategory && matchesLevel && matchesPrice && matchesModality
+      return matchesSearch && matchesCategory && matchesPrice && matchesModality
     })
 
-    // Aplicar ordenamiento
     return [...filtered].sort((a, b) => {
       if (sortBy === 'recent') {
         return new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime()
@@ -89,25 +221,25 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
 
       return 0
     })
-  }, [courses, searchTerm, selectedCategory, selectedLevel, selectedPrice, selectedModality, sortBy])
+  }, [courses, searchTerm, categoriaFilterIds, selectedPrice, selectedModality, sortBy])
 
   const clearFilters = () => {
     setSearchTerm('')
-    setSelectedCategory('all')
-    setSelectedLevel('all')
     setSelectedPrice('all')
     setSelectedModality('all')
     setSortBy('recent')
+    setCategoriaPadreId('')
+    setSubcategoriaId('')
+    setSubSubcategoriaId('')
   }
 
   const hasFilters = searchTerm !== '' ||
-    selectedCategory !== 'all' ||
-    selectedLevel !== 'all' ||
+    categoriaPadreId !== '' ||
+    subcategoriaId !== '' ||
+    subSubcategoriaId !== '' ||
     selectedPrice !== 'all' ||
     selectedModality !== 'all' ||
     sortBy !== 'recent'
-
-
 
   return (
     <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', pb: 10 }}>
@@ -115,7 +247,7 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
         <Stack spacing={5}>
           <Box sx={{ textAlign: 'center' }}>
             <Typography variant="h3" sx={{ fontWeight: 900, mb: 1.5, color: '#1e293b', letterSpacing: '-0.03em' }}>
-              Nuestras Capacitaciones
+              {config.catalogSectionTitle}
             </Typography>
             <Typography variant="h6" sx={{ color: '#475569', fontWeight: 500, maxWidth: 600, mx: 'auto' }}>
               {config.catalogSectionSubtitle}
@@ -123,7 +255,6 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
           </Box>
 
           <Stack spacing={4} alignItems="center">
-            {/* Search Bar Premium */}
             <TextField
               fullWidth
               placeholder={config.searchPlaceholder}
@@ -148,9 +279,7 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
                   bgcolor: 'white',
                   boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
                   border: '1px solid #e2e8f0',
-                  '&:hover': {
-                    borderColor: 'var(--mui-palette-primary-main)',
-                  },
+                  '&:hover': { borderColor: 'var(--mui-palette-primary-main)' },
                   '&.Mui-focused': {
                     borderColor: 'var(--mui-palette-primary-main)',
                     boxShadow: '0 0 0 4px rgb(var(--mui-palette-primary-mainChannel) / 0.1)',
@@ -164,17 +293,17 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
               }}
             />
 
-            {/* Filter Bar Premium */}
             <Box sx={{
               position: 'relative',
               width: { xs: '100vw', md: '100%' },
-              ml: { xs: 'calc(50% - 50vw)', md: 0 }
+              ml: { xs: 'calc(50% - 50vw)', md: 0 },
+              overflow: 'visible',
             }}>
               <Box sx={{
                 width: '100%',
                 display: 'flex',
-                flexWrap: { xs: 'nowrap', md: 'wrap' },
-                overflowX: { xs: 'auto', md: 'visible' },
+                flexWrap: 'wrap',
+                overflow: 'visible',
                 gap: { xs: 2, md: 1.5 },
                 justifyContent: { xs: 'flex-start', md: 'center' },
                 alignItems: 'center',
@@ -190,162 +319,102 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
                 scrollbarWidth: 'none',
                 '&::-webkit-scrollbar': { display: 'none' }
               }}>
-                {/* Categoría */}
-                <TextField
-                  select
-                  size="small"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <i className="tabler-category" style={{ color: selectedCategory !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '16px',
-                      border: '1.5px solid',
-                      borderColor: selectedCategory !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
-                      '& fieldset': { border: 'none' },
-                      bgcolor: selectedCategory !== 'all' ? 'primary.50' : '#f8fafc',
-                      color: selectedCategory !== 'all' ? 'primary.main' : 'inherit',
-                      fontWeight: 700,
-                      transition: 'all 0.2s ease'
-                    }
-                  }}
-                  sx={{ minWidth: 170, flexShrink: 0 }}
-                >
-                  <MenuItem value="all">Todas las Categorías</MenuItem>
-                  {categories.map((cat) => (
-                    <MenuItem key={cat.id} value={cat.slug}>{cat.nombre}</MenuItem>
-                  ))}
-                </TextField>
+                <Box sx={{
+                  display: 'flex',
+                  flexWrap: 'nowrap',
+                  gap: 1.5,
+                  flexShrink: 0,
+                  alignItems: 'center',
+                  borderRight: { xs: 'none', md: '1px solid #e2e8f0' },
+                  pr: { xs: 0, md: 1.5 },
+                  mr: { xs: 0, md: 0.5 },
+                }}>
+                  <CatalogFilterSelect
+                    value={categoriaPadreId}
+                    onChange={handlePadreChange}
+                    placeholder="Categoría"
+                    active={Boolean(categoriaPadreId)}
+                    iconClass="tabler-category"
+                    getLabel={(id) => categories.find(c => c.id === id)?.nombre ?? 'Categoría'}
+                    options={categoriaOptions}
+                  />
 
-                {/* Nivel */}
-                <TextField
-                  select
-                  size="small"
-                  value={selectedLevel}
-                  onChange={(e) => setSelectedLevel(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <i className="tabler-chart-bar" style={{ color: selectedLevel !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '16px',
-                      border: '1.5px solid',
-                      borderColor: selectedLevel !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
-                      '& fieldset': { border: 'none' },
-                      bgcolor: selectedLevel !== 'all' ? 'primary.50' : '#f8fafc',
-                      color: selectedLevel !== 'all' ? 'primary.main' : 'inherit',
-                      fontWeight: 700,
-                      transition: 'all 0.2s ease'
-                    }
-                  }}
-                  sx={{ minWidth: 140, flexShrink: 0 }}
-                >
-                  <MenuItem value="all">Todos Niveles</MenuItem>
-                  <MenuItem value="BASICO">Básico</MenuItem>
-                  <MenuItem value="INTERMEDIO">Intermedio</MenuItem>
-                  <MenuItem value="AVANZADO">Avanzado</MenuItem>
-                  <MenuItem value="none">Sin nivel</MenuItem>
-                </TextField>
+                  <CatalogFilterSelect
+                    value={subcategoriaId}
+                    onChange={handleSubChange}
+                    disabled={!categoriaPadreId}
+                    placeholder="Subcategoría"
+                    active={Boolean(subcategoriaId)}
+                    iconClass="tabler-tags"
+                    getLabel={(id) => subcategorias.find(s => s.id === id)?.nombre ?? 'Subcategoría'}
+                    options={subcategoriaOptions}
+                  />
 
-                {/* Tipo/Precio */}
-                <TextField
-                  select
-                  size="small"
+                  <CatalogFilterSelect
+                    value={subSubcategoriaId}
+                    onChange={handleSubSubChange}
+                    disabled={!subcategoriaId}
+                    placeholder="Sub-subcategoría"
+                    active={Boolean(subSubcategoriaId)}
+                    iconClass="tabler-tag"
+                    minWidth={175}
+                    getLabel={(id) => subSubcategorias.find(s => s.id === id)?.nombre ?? 'Sub-subcategoría'}
+                    options={subSubcategoriaOptions}
+                  />
+                </Box>
+
+                <CatalogFilterSelect
                   value={selectedPrice}
-                  onChange={(e) => setSelectedPrice(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <i className="tabler-coin" style={{ color: selectedPrice !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '16px',
-                      border: '1.5px solid',
-                      borderColor: selectedPrice !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
-                      '& fieldset': { border: 'none' },
-                      bgcolor: selectedPrice !== 'all' ? 'primary.50' : '#f8fafc',
-                      color: selectedPrice !== 'all' ? 'primary.main' : 'inherit',
-                      fontWeight: 700,
-                      transition: 'all 0.2s ease'
-                    }
-                  }}
-                  sx={{ minWidth: 130, flexShrink: 0 }}
-                >
-                  <MenuItem value="all">Tipo / Precio</MenuItem>
-                  <MenuItem value="free">Gratuito</MenuItem>
-                  <MenuItem value="premium">Premium</MenuItem>
-                </TextField>
+                  onChange={setSelectedPrice}
+                  placeholder="Tipo / Precio"
+                  active={selectedPrice !== 'all'}
+                  iconClass="tabler-coin"
+                  minWidth={130}
+                  getLabel={(v) => (v === 'free' ? 'Gratuito' : v === 'premium' ? 'Premium' : 'Tipo / Precio')}
+                  options={[
+                    { value: 'all', label: 'Tipo / Precio' },
+                    { value: 'free', label: 'Gratuito' },
+                    { value: 'premium', label: 'Premium' },
+                  ]}
+                />
 
-                {/* Modalidad */}
-                <TextField
-                  select
-                  size="small"
+                <CatalogFilterSelect
                   value={selectedModality}
-                  onChange={(e) => setSelectedModality(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <i className="tabler-device-laptop" style={{ color: selectedModality !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '16px',
-                      border: '1.5px solid',
-                      borderColor: selectedModality !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
-                      '& fieldset': { border: 'none' },
-                      bgcolor: selectedModality !== 'all' ? 'primary.50' : '#f8fafc',
-                      color: selectedModality !== 'all' ? 'primary.main' : 'inherit',
-                      fontWeight: 700,
-                      transition: 'all 0.2s ease'
-                    }
+                  onChange={setSelectedModality}
+                  placeholder="Cualquier Modalidad"
+                  active={selectedModality !== 'all'}
+                  iconClass="tabler-device-laptop"
+                  minWidth={160}
+                  getLabel={(v) => {
+                    if (v === 'ASINCRONO') return 'Asincrónico'
+                    if (v === 'SINCRONO') return 'En Vivo'
+                    if (v === 'MIXTO') return 'Mixto'
+                    return 'Cualquier Modalidad'
                   }}
-                  sx={{ minWidth: 160, flexShrink: 0 }}
-                >
-                  <MenuItem value="all">Cualquier Modalidad</MenuItem>
-                  <MenuItem value="ASINCRONO">Asincrónico</MenuItem>
-                  <MenuItem value="SINCRONO">En Vivo</MenuItem>
-                  <MenuItem value="MIXTO">Mixto</MenuItem>
-                </TextField>
+                  options={[
+                    { value: 'all', label: 'Cualquier Modalidad' },
+                    { value: 'ASINCRONO', label: 'Asincrónico' },
+                    { value: 'SINCRONO', label: 'En Vivo' },
+                    { value: 'MIXTO', label: 'Mixto' },
+                  ]}
+                />
 
                 <Divider orientation="vertical" flexItem sx={{ mx: 0.5, display: { xs: 'none', md: 'block' } }} />
 
-                {/* Ordenamiento */}
-                <TextField
-                  select
-                  size="small"
+                <CatalogFilterSelect
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <i className="tabler-sort-ascending" style={{ color: 'var(--mui-palette-primary-main)' }} />
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      borderRadius: '16px',
-                      border: '1px solid #e2e8f0',
-                      '& fieldset': { border: 'none' },
-                      bgcolor: '#ffffff',
-                      color: 'var(--mui-palette-primary-main)',
-                      fontWeight: 700,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                      '&:hover': {
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                      }
-                    }
-                  }}
-                  sx={{ minWidth: 170, flexShrink: 0 }}
-                >
-                  <MenuItem value="recent">Recientes primero</MenuItem>
-                  <MenuItem value="alphabetical">A - Z</MenuItem>
-                </TextField>
+                  onChange={setSortBy}
+                  placeholder="Recientes primero"
+                  active
+                  iconClass="tabler-sort-ascending"
+                  minWidth={170}
+                  variant="sort"
+                  getLabel={(v) => (v === 'alphabetical' ? 'A - Z' : 'Recientes primero')}
+                  options={[
+                    { value: 'recent', label: 'Recientes primero' },
+                    { value: 'alphabetical', label: 'A - Z' },
+                  ]}
+                />
 
                 {hasFilters && (
                   <Tooltip title="Limpiar todos los filtros">
@@ -366,7 +435,6 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
                 )}
               </Box>
 
-              {/* Fading overlay on the right to indicate scroll */}
               <Box sx={{
                 display: { xs: 'block', md: 'none' },
                 position: 'absolute',
@@ -381,7 +449,7 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
             </Box>
           </Stack>
 
-          <Fade in={true} timeout={1000}>
+          <Fade in timeout={1000}>
             <Box>
               <Stack direction="row" spacing={1} sx={{ mb: 3, px: 1 }}>
                 <Chip
@@ -396,7 +464,6 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
         </Stack>
       </Container>
 
-      {/* Carrito Flotante */}
       <Fab
         color="primary"
         aria-label="cart"
