@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-
-import { Box, Button, Checkbox, FormControlLabel, styled, Typography } from '@mui/material'
+import { Box, Button, styled, Typography } from '@mui/material'
 import { useSnackbar } from 'notistack'
 
 import { Icon } from '@iconify/react'
@@ -48,17 +46,15 @@ const InfoBox = styled(Box)(({ theme }) => ({
 
 const DeleteCursoModal = ({ open, handleClose, curso, onSuccess }: DeleteCursoModalProps) => {
   const { enqueueSnackbar } = useSnackbar()
-  const [confirmed, setConfirmed] = useState(false)
   const deleteCursoMutation = useDeleteCurso()
 
   const handleDelete = async () => {
-    if (!curso || !confirmed) return
+    if (!curso) return
 
     try {
       await deleteCursoMutation.mutateAsync(curso.id)
 
       enqueueSnackbar('Curso eliminado exitosamente', { variant: 'success' })
-      setConfirmed(false)
       handleClose()
       onSuccess?.()
     } catch (error: any) {
@@ -70,7 +66,6 @@ const DeleteCursoModal = ({ open, handleClose, curso, onSuccess }: DeleteCursoMo
 
   const handleCloseModal = () => {
     if (!deleteCursoMutation.isPending) {
-      setConfirmed(false)
       handleClose()
     }
   }
@@ -100,9 +95,15 @@ const DeleteCursoModal = ({ open, handleClose, curso, onSuccess }: DeleteCursoMo
           </Box>
         </WarningBox>
 
-        <Typography variant='body1' sx={{ mb: 2 }}>
-          Estás a punto de eliminar el siguiente curso:
-        </Typography>
+        {noBorrador ? (
+          <Typography variant='body1' sx={{ mb: 2, color: 'text.secondary' }}>
+            No puedes eliminar este curso porque no está en estado Borrador.
+          </Typography>
+        ) : (
+          <Typography variant='body1' sx={{ mb: 2 }}>
+            Estás a punto de eliminar el siguiente curso de forma permanente:
+          </Typography>
+        )}
 
         <InfoBox>
           <Typography variant='body2' sx={{ mb: 1 }}>
@@ -113,24 +114,6 @@ const DeleteCursoModal = ({ open, handleClose, curso, onSuccess }: DeleteCursoMo
           </Typography>
         </InfoBox>
 
-        {!noBorrador && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={confirmed}
-                onChange={e => setConfirmed(e.target.checked)}
-                disabled={deleteCursoMutation.isPending}
-                color='error'
-              />
-            }
-            label={
-              <Typography variant='body2'>
-                Confirmo que deseo eliminar este curso de forma permanente
-              </Typography>
-            }
-          />
-        )}
-
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 4 }}>
           <Button variant='outlined' onClick={handleCloseModal} disabled={deleteCursoMutation.isPending}>
             Cancelar
@@ -139,7 +122,7 @@ const DeleteCursoModal = ({ open, handleClose, curso, onSuccess }: DeleteCursoMo
             variant='contained'
             color='error'
             onClick={handleDelete}
-            disabled={noBorrador || !confirmed || deleteCursoMutation.isPending}
+            disabled={noBorrador || deleteCursoMutation.isPending}
             startIcon={<Icon icon='mdi:delete' />}
           >
             {deleteCursoMutation.isPending ? 'Eliminando...' : 'Eliminar Curso'}

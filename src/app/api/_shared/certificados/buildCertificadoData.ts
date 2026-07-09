@@ -52,6 +52,7 @@ type BuildCertificadoDataOptions = {
   cursoFechaFin: Date | null
   reqUrl: URL
   previewFlag: boolean
+  frontPageOnly?: boolean
 }
 
 /**
@@ -59,7 +60,7 @@ type BuildCertificadoDataOptions = {
  * Usado por ambas rutas (admin y estudiante) para eliminar duplicación.
  */
 export async function buildCertificadoData(opts: BuildCertificadoDataOptions): Promise<CertificadoData> {
-  const { certificado, configs, inscripcion, usuarioAvatar, intentosExamen, cursoFechaFin, reqUrl, previewFlag } = opts
+  const { certificado, configs, inscripcion, usuarioAvatar, intentosExamen, cursoFechaFin, reqUrl, previewFlag, frontPageOnly } = opts
 
   const snapshot = certificado.datos as any
 
@@ -180,15 +181,16 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     fechaInicioVal,
     fechaFinVal,
     vigenciaHastaVal,
-    gerenteGeneral: null, // se inyecta por la ruta (requiere query adicional)
+    gerenteGeneral: null,
     profesorSnapshot,
     mostrarFirmaDocente,
-    codigoVerificacion: certificado.codigo_verificacion,
+    codigoVerificacion: snapshot?.emision_manual ? '' : certificado.codigo_verificacion,
     qrDataUrl,
-    notaFinal: null, // calculado dentro de cada generador desde notasPorModulo
+    notaFinal: null,
     notasPorModulo,
     intentosExamen,
     notaInscripcion: snapshot?.nota_final ?? inscripcion?.nota_final ?? null,
-    previewFlag
+    previewFlag,
+    frontPageOnly: frontPageOnly || snapshot?.emision_manual === true
   }
 }

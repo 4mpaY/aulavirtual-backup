@@ -15,11 +15,11 @@ const axiosCertificadoFactory = () => {
 }
 
 export const useCertificados = (
-  params: { page: number; limit: number; buscar?: string; codigo?: string; nombre?: string },
+  params: { page: number; limit: number; buscar?: string; codigo?: string; nombre?: string; emision?: string },
   initialData?: CertificadosResponse['result']
 ) => {
   const isDefault =
-    params.page === 1 && params.limit === 10 && !params.buscar && !params.codigo && !params.nombre
+    params.page === 1 && params.limit === 10 && !params.buscar && !params.codigo && !params.nombre && (!params.emision || params.emision === 'todos')
 
   return useQuery({
     queryKey: ['admin-certificados', params],

@@ -55,13 +55,15 @@ const usuarioStatusObj: UsuarioStatusType = {
 const rolStatusObj: UsuarioStatusType = {
   ADMIN: 'error',
   PROFESOR: 'warning',
-  ESTUDIANTE: 'info'
+  ESTUDIANTE: 'info',
+  SUPERVISOR: 'primary'
 }
 
 const rolLabels: { [key in Rol]: string } = {
   ADMIN: 'Administrador',
   PROFESOR: 'Profesor',
-  ESTUDIANTE: 'Estudiante'
+  ESTUDIANTE: 'Estudiante',
+  SUPERVISOR: 'Supervisor'
 }
 
 const columnHelper = createColumnHelper<Usuario>()
@@ -280,6 +282,7 @@ export function UsuariosPage({ initialDataUsuarios, initialTotal = 0 }: Usuarios
               <MenuItem value={Rol.ADMIN}>Administrador</MenuItem>
               <MenuItem value={Rol.PROFESOR}>Profesor</MenuItem>
               <MenuItem value={Rol.ESTUDIANTE}>Estudiante</MenuItem>
+              <MenuItem value={Rol.SUPERVISOR}>Supervisor</MenuItem>
             </CustomTextField>
             <DebouncedInput
               value={globalFilter ?? ''}

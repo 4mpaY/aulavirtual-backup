@@ -42,6 +42,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import { LessonEditDialog } from './LessonEditDialog'
 import { EvaluacionDialog } from './EvaluacionDialog'
 import { ActividadDialog } from './ActividadDialog'
+import { AsistenciaDialog } from './AsistenciaDialog'
 
 import type { Curso, CursoLeccionResumen, CursoExamenResumen, CursoActividadResumen } from '../../entity/Curso'
 import {
@@ -251,6 +252,7 @@ const ModuleCard = ({
   handleToggleLessonPreview,
   setEditingLesson,
   handleDeleteLesson,
+  onTakeAttendance,
   onAddLesson,
   onAddEvaluacion,
   onEditEvaluacion,
@@ -460,6 +462,7 @@ const ModuleCard = ({
                             handleToggleLessonPreview={handleToggleLessonPreview}
                             setEditingLesson={setEditingLesson}
                             handleDeleteLesson={handleDeleteLesson}
+                            onTakeAttendance={onTakeAttendance}
                           />
                         </SortableLessonItem>
                       ) : item._tipo === 'examen' ? (
@@ -499,6 +502,7 @@ const LessonRow = ({
   handleToggleLessonPreview,
   setEditingLesson,
   handleDeleteLesson,
+  onTakeAttendance,
   dragHandleProps
 }: any) => {
   return (
@@ -544,6 +548,11 @@ const LessonRow = ({
         )}
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Tooltip title='Control de asistencia'>
+          <IconButton size='small' color='info' onClick={() => onTakeAttendance(leccion)}>
+            <i className='tabler-user-check text-lg' />
+          </IconButton>
+        </Tooltip>
         <Tooltip title='Editar contenido'>
           <IconButton size='small' color='primary' onClick={() => setEditingLesson({ moduloId, leccion })}>
             <i className='tabler-edit text-lg' />
@@ -601,6 +610,7 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
   const [expandedModule, setExpandedModule] = useState<string | null>(null)
   const [addingLessonModuloId, setAddingLessonModuloId] = useState<string | null>(null)
   const [editingLesson, setEditingLesson] = useState<{ moduloId: string; leccion: CursoLeccionResumen } | null>(null)
+  const [asistenciaLesson, setAsistenciaLesson] = useState<{ moduloId: string; leccion: CursoLeccionResumen } | null>(null)
 
   // Evaluacion dialog state
   const [evaluacionDialog, setEvaluacionDialog] = useState<{
@@ -912,6 +922,7 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
                 handleToggleLessonPreview={handleToggleLessonPreview}
                 setEditingLesson={setEditingLesson}
                 handleDeleteLesson={handleDeleteLesson}
+                onTakeAttendance={(leccion: any) => setAsistenciaLesson({ moduloId: modulo.id, leccion })}
                 onAddLesson={(moduloId: string) => { setExpandedModule(moduloId); setAddingLessonModuloId(moduloId) }}
                 onAddEvaluacion={handleOpenAddEvaluacion}
                 onEditEvaluacion={handleOpenEditEvaluacion}
@@ -966,6 +977,13 @@ export function TabContenido({ curso, onSuccess }: TabContenidoProps) {
         moduloId={actividadDialog.moduloId}
         moduloTitulo={activeModuloActividad?.titulo}
         actividadId={actividadDialog.actividad?.id}
+      />
+
+      <AsistenciaDialog
+        open={!!asistenciaLesson}
+        onClose={() => setAsistenciaLesson(null)}
+        cursoId={curso.id}
+        leccion={asistenciaLesson?.leccion || null}
       />
     </Box>
   )

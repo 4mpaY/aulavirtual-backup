@@ -495,3 +495,35 @@ export function useDeletePregunta() {
     onSuccess: (_, { cursoId }) => qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'examen'] })
   })
 }
+
+// ===================== ASISTENCIAS =====================
+
+export function useAsistenciasLeccion(cursoId: string, leccionId: string) {
+  return useQuery<any[], any>({
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'lecciones', leccionId, 'asistencias'],
+    queryFn: async () => await axiosCurso.getAsistenciasLeccion(cursoId, leccionId),
+    enabled: !!cursoId && !!leccionId,
+    staleTime: 0
+  })
+}
+
+export function useUpdateAsistenciasLeccion() {
+  const qc = useQueryClient()
+
+  return useMutation<{ success: boolean; message: string }, any, { cursoId: string; leccionId: string; data: any[] }>({
+    mutationFn: async ({ cursoId, leccionId, data }) => await axiosCurso.updateAsistenciasLeccion(cursoId, leccionId, data),
+    onSuccess: (_, { cursoId, leccionId }) => {
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'lecciones', leccionId, 'asistencias'] })
+      qc.invalidateQueries({ queryKey: [...QUERY_KEY.CURSOS, cursoId, 'asistencias', 'resumen'] })
+    }
+  })
+}
+
+export function useResumenAsistencias(cursoId: string) {
+  return useQuery<any[], any>({
+    queryKey: [...QUERY_KEY.CURSOS, cursoId, 'asistencias', 'resumen'],
+    queryFn: async () => await axiosCurso.getResumenAsistencias(cursoId),
+    enabled: !!cursoId,
+    staleTime: 0
+  })
+}

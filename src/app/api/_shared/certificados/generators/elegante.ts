@@ -264,10 +264,14 @@ export const generarElegante: GeneratorFn = async data => {
   doc.setFontSize(6)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(...MUTED)
-  doc.text(`Código de Verificación: ${codigoVerificacion}`, 16, H - 10)
+  if (codigoVerificacion) doc.text(`Código de Verificación: ${codigoVerificacion}`, 16, H - 10)
   doc.text(`Emisión: ${fechaFirmadaTxt}`, 16, H - 6)
   doc.text(`Vigencia de acceso: ${vigenciaTxt}`, W - 16, H - 10, { align: 'right' })
   if (institutionUrl) doc.text(institutionUrl, W - qrSz - 20, H - 10, { align: 'right' })
+
+  if (data.frontPageOnly) {
+    return doc.output('arraybuffer')
+  }
 
   // ── PÁGINA 2 (Rendimiento + Contenido) ───────────────────────────────
   doc.addPage()
@@ -296,7 +300,7 @@ export const generarElegante: GeneratorFn = async data => {
   doc.text(nombreInstitucion.toUpperCase(), W - 14, 14, { align: 'right' })
   doc.setFontSize(6)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Código: ${codigoVerificacion}`, W - 14, 19.5, { align: 'right' })
+  if (codigoVerificacion) doc.text(`Código: ${codigoVerificacion}`, W - 14, 19.5, { align: 'right' })
 
   const pm = 14
   const p2Y = 28

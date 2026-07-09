@@ -17,6 +17,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // Reusar la instancia tanto en desarrollo como en producción
+delete globalForPrisma.prisma
 const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
 globalForPrisma.prisma = prisma

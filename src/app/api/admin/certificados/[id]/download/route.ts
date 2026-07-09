@@ -23,6 +23,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const { id } = params
     const reqUrl = new URL(request.url)
     const previewFlag = reqUrl.searchParams.get('preview') === 'true'
+    const frontPageOnly = reqUrl.searchParams.get('frontPageOnly') === 'true'
 
     // ── Carga paralela principal ──────────────────────────────────────
     const [certificado, configs] = await Promise.all([
@@ -117,7 +118,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
       intentosExamen,
       cursoFechaFin,
       reqUrl,
-      previewFlag
+      previewFlag,
+      frontPageOnly
     })
 
     // Inyectar gerente (requiere query adicional que hacemos aquí)

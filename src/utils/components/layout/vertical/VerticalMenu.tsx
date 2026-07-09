@@ -79,7 +79,7 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
         <MenuItem
-          href={rol === 'ADMIN' ? '/admin/dashboard' : (rol === 'PROFESOR' ? '/profesor/dashboard' : '/estudiante/dashboard')}
+          href={rol === 'ADMIN' ? '/admin/dashboard' : (rol === 'PROFESOR' ? '/profesor/dashboard' : (rol === 'SUPERVISOR' ? '/supervisor' : '/estudiante/dashboard'))}
           icon={<i className='tabler-smart-home' />}
         >
           Dashboard

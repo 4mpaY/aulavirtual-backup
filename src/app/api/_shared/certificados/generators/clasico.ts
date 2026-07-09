@@ -293,7 +293,7 @@ export const generarClasico: GeneratorFn = async data => {
   doc.setFontSize(10)
   doc.setTextColor(90, 90, 90)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Código de Registro: ${codigoVerificacion}`, 16, pageHeight - 12)
+  if (codigoVerificacion) doc.text(`Código de Registro: ${codigoVerificacion}`, 16, pageHeight - 12)
   doc.text(`Fecha de Emisión: ${fechaFirmadaTxt}`, 16, pageHeight - 7)
   doc.text(
     `Vigencia de acceso: ${vigenciaHastaVal ? formatDateLong(vigenciaHastaVal) : 'sin caducidad'}`,
@@ -303,6 +303,10 @@ export const generarClasico: GeneratorFn = async data => {
   )
 
   void previewFlag
+
+  if (data.frontPageOnly) {
+    return doc.output('arraybuffer')
+  }
 
   // ── PÁGINA 2 ─────────────────────────────────────────────────────────
   doc.addPage()
@@ -365,7 +369,7 @@ export const generarClasico: GeneratorFn = async data => {
   doc.text(slogan, logoRightEdge, 16)
   doc.setFontSize(T.label)
   doc.setFont('helvetica', 'bold')
-  doc.text(`Código: ${codigoVerificacion}`, pageWidth - margin, 9, { align: 'right' })
+  if (codigoVerificacion) doc.text(`Código: ${codigoVerificacion}`, pageWidth - margin, 9, { align: 'right' })
   doc.setFontSize(T.label)
   doc.setFont('helvetica', 'normal')
   doc.text(`Fecha de emisión: ${fechaFirmadaTxt}`, pageWidth - margin, 15, { align: 'right' })

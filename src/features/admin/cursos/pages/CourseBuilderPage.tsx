@@ -27,6 +27,7 @@ import { TabComentarios } from '../components/CourseBuilder/TabComentarios'
 import { TabEvaluacion } from '../components/CourseBuilder/TabEvaluacion'
 import { TabValoraciones } from '../components/CourseBuilder/TabValoraciones'
 import { TabRevisionActividades } from '../components/CourseBuilder/TabRevisionActividades'
+import { TabAsistencias } from '../components/CourseBuilder/TabAsistencias'
 
 import { useCurso } from '../hooks/useCursos'
 
@@ -100,6 +101,7 @@ export function CourseBuilderPage({ cursoId, profesores, listPath = '/admin/curs
                         <Tab icon={<i className='tabler-message' />} iconPosition='start' label='Comentarios' value='5' />
                         <Tab icon={<i className='tabler-star-filled' />} iconPosition='start' label='Valoraciones' value='7' />
                         <Tab icon={<i className='tabler-file-check' />} iconPosition='start' label='Actividades' value='9' />
+                        <Tab icon={<i className='tabler-users' />} iconPosition='start' label='Asistencias' value='10' />
                     </TabList>
 
                     <TabPanel value='1' sx={{ p: 5 }}>
@@ -132,6 +134,10 @@ export function CourseBuilderPage({ cursoId, profesores, listPath = '/admin/curs
 
                     <TabPanel value='9' sx={{ p: 5 }}>
                         <TabRevisionActividades cursoId={curso.id} curso={curso} />
+                    </TabPanel>
+
+                    <TabPanel value='10' sx={{ p: 5 }}>
+                        <TabAsistencias cursoId={curso.id} curso={curso} />
                     </TabPanel>
                 </Card>
             </TabContext>

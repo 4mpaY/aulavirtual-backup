@@ -42,6 +42,8 @@ function getDashboardPath(rol?: string): string {
       return '/admin/dashboard'
     case 'PROFESOR':
       return '/profesor/dashboard'
+    case 'SUPERVISOR':
+      return '/supervisor'
     default:
       return '/estudiante/dashboard'
   }

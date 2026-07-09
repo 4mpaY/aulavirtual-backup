@@ -456,4 +456,30 @@ export class AxiosCurso extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  // ===================== ASISTENCIAS =====================
+
+  async getAsistenciasLeccion(cursoId: string, leccionId: string): Promise<any[]> {
+    try {
+      return await this.iGet<any[]>(`/${cursoId}/lecciones/${leccionId}/asistencias`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async updateAsistenciasLeccion(cursoId: string, leccionId: string, data: { usuario_id: string; asistio: boolean }[]): Promise<{ success: boolean; message: string }> {
+    try {
+      return await this.iPost<{ success: boolean; message: string }>(`/${cursoId}/lecciones/${leccionId}/asistencias`, data)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async getResumenAsistencias(cursoId: string): Promise<any[]> {
+    try {
+      return await this.iGet<any[]>(`/${cursoId}/asistencias/resumen`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

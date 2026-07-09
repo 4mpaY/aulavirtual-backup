@@ -43,6 +43,9 @@ model Usuario {
   ebook_annotaciones        EbookAnnotacion[]
   participaciones_chat ParticipanteConversacion[]
   mensajes_enviados    MensajeChat[]              @relation("MensajesEnviados")
+  alumnos_supervisados SupervisorAlumno[]         @relation("Supervisados")
+  supervisores         SupervisorAlumno[]         @relation("Supervisores")
+  asistencias          Asistencia[]
 
   @@index([rol])
   @@map("usuarios")
@@ -241,6 +244,7 @@ model Leccion {
   modulo           Modulo             @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
   progreso         ProgresoLeccion[]
   trabajo          Trabajo?
+  asistencias      Asistencia[]
 
   @@unique([modulo_id, orden])
   @@index([modulo_id])
@@ -394,6 +398,23 @@ model ProgresoCurso {
   @@map("progreso_curso")
 }
 
+model Asistencia {
+  id             String   @id @default(uuid())
+  leccion_id     String
+  usuario_id     String
+  asistio        Boolean  @default(false)
+  creado_en      DateTime @default(now())
+  actualizado_en DateTime @updatedAt
+
+  leccion Leccion @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([leccion_id, usuario_id])
+  @@index([leccion_id])
+  @@index([usuario_id])
+  @@map("asistencias")
+}
+
 model Examen {
   id                 String          @id @default(uuid())
   titulo             String
@@ -493,14 +514,13 @@ model Certificado {
   id                  String   @id @default(uuid())
   codigo_verificacion String   @unique
   emitido_en          DateTime @default(now())
-  usuario_id          String
-  curso_id            String
+  usuario_id          String?
+  curso_id            String?
   datos               Json?
   numero_intento      Int      @default(1)
-  curso               Curso    @relation(fields: [curso_id], references: [id], onDelete: Cascade)
-  usuario             Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  curso               Curso?   @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  usuario             Usuario? @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
-  @@unique([usuario_id, curso_id])
   @@index([usuario_id])
   @@index([curso_id])
   @@map("certificados")
@@ -687,6 +707,7 @@ enum Rol {
   ADMIN
   PROFESOR
   ESTUDIANTE
+  SUPERVISOR
 }
 
 enum EstadoCurso {
@@ -1076,6 +1097,19 @@ model MensajeChat {
   @@index([conversacion_id, creado_en])
   @@map("mensajes_chat")
 }
+
+model SupervisorAlumno {
+  supervisor_id String
+  alumno_id     String
+  supervisor    Usuario @relation("Supervisados", fields: [supervisor_id], references: [id], onDelete: Cascade)
+  alumno        Usuario @relation("Supervisores", fields: [alumno_id], references: [id], onDelete: Cascade)
+
+  @@id([supervisor_id, alumno_id])
+  @@index([supervisor_id])
+  @@index([alumno_id])
+  @@map("supervisores_alumnos")
+}
+
 // ─── Actividades / Tareas ────────────────────────────────────────────────────
 
 model Actividad {

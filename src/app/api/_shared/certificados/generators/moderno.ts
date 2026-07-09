@@ -263,7 +263,7 @@ export const generarModerno: GeneratorFn = async data => {
   doc.setFontSize(6)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(...MUTED)
-  doc.text(`Código: ${codigoVerificacion}`, 16, H - 6)
+  if (codigoVerificacion) doc.text(`Código: ${codigoVerificacion}`, 16, H - 6)
   doc.text(
     `Vigencia de acceso: ${vigenciaHastaVal ? formatDateLong(vigenciaHastaVal) : 'sin caducidad'}`,
     W - 16,
@@ -428,7 +428,7 @@ export const generarModerno: GeneratorFn = async data => {
   doc.setFontSize(T.s)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(...MUTED)
-  doc.text(`Código: ${codigoVerificacion}`, cL, H - 5)
+  if (codigoVerificacion) doc.text(`Código: ${codigoVerificacion}`, cL, H - 5)
 
   return doc.output('arraybuffer')
 }

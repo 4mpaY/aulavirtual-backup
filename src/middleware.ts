@@ -28,6 +28,10 @@ export default withAuth(
         return NextResponse.redirect(new URL('/profesor/dashboard', req.url), { status: 302 })
       }
 
+      if (rol === Rol.SUPERVISOR) {
+        return NextResponse.redirect(new URL('/supervisor', req.url), { status: 302 })
+      }
+
       return NextResponse.redirect(new URL('/estudiante/dashboard', req.url), { status: 302 })
     }
 
@@ -41,6 +45,10 @@ export default withAuth(
 
       if (rol === Rol.PROFESOR) {
         return NextResponse.redirect(new URL('/profesor/dashboard', req.url), { status: 302 })
+      }
+
+      if (rol === Rol.SUPERVISOR) {
+        return NextResponse.redirect(new URL('/supervisor', req.url), { status: 302 })
       }
 
       return NextResponse.redirect(new URL('/estudiante/dashboard', req.url), { status: 302 })
@@ -67,6 +75,11 @@ export default withAuth(
       } else {
         return NextResponse.redirect(new URL('/unauthorized', req.url), { status: 302 })
       }
+    }
+
+    // Rutas de supervisor - solo SUPERVISOR o ADMIN
+    if (path.startsWith('/supervisor') && rol !== Rol.ADMIN && rol !== Rol.SUPERVISOR) {
+      return NextResponse.redirect(new URL('/unauthorized', req.url), { status: 302 })
     }
 
     return NextResponse.next()
