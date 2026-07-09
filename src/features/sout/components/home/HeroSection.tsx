@@ -28,7 +28,7 @@ const slides = [
     id: 2,
     title: "Estamos Acreditados",
     subtitle: "Respaldados por instituciones de reconocimiento internacional",
-    backgroundImage: heroImage.src,
+    backgroundImage: "/images/1.jpeg",
     showLogo: true,
     accreditations: [
       
@@ -38,7 +38,7 @@ const slides = [
     id: 3,
     title: "Lo Que Ofrecemos",
     subtitle: "Soluciones integrales para tu desarrollo profesional y empresarial",
-    backgroundImage: firstAidImage.src,
+    backgroundImage: "/images/2.jpeg",
     offerings: [
       {
         title: "Capacitación",
@@ -118,8 +118,6 @@ const HeroSection = () => {
   return (
     <section 
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
     >
       {/* Background Images - Change with slides */}
       <div className="absolute inset-0">

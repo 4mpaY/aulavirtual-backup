@@ -17,7 +17,7 @@ export type PublicCourse = {
   duracion?: string | null
   profesor: {
     id: string
-    slug: string
+    slug?: string | null
     nombre: string
     apellido: string
     avatar?: string | null
