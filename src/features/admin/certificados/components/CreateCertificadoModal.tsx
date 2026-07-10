@@ -31,11 +31,12 @@ import type { UsuarioBusqueda, CursoBusqueda } from '../entity/Certificado'
 interface Props {
   open: boolean
   onClose: () => void
+  onSuccess?: () => void
 }
 
 const today = () => new Date().toISOString().split('T')[0]
 
-export function CreateCertificadoModal({ open, onClose }: Props) {
+export function CreateCertificadoModal({ open, onClose, onSuccess }: Props) {
   const { mutateAsync: createCertificado, isPending } = useCreateCertificado()
 
   // ── Búsqueda de usuarios ──
@@ -155,6 +156,7 @@ export function CreateCertificadoModal({ open, onClose }: Props) {
       })
 
       toast.success(reemplazar ? 'Certificado reemplazado exitosamente.' : 'Certificado creado exitosamente.')
+      if (onSuccess) onSuccess()
       handleClose()
     } catch (err: any) {
       const msg: string = err?.error || err?.message || ''

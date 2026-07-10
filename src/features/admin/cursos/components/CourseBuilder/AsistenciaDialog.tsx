@@ -87,9 +87,14 @@ export function AsistenciaDialog({ open, onClose, cursoId, leccion }: Asistencia
       </DialogTitle>
       
       <DialogContent dividers>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Lección: <strong>{leccion?.titulo}</strong>
-        </Typography>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>
+            Lección
+          </Typography>
+          <Typography variant="body1" fontWeight="bold" color="text.primary">
+            {leccion?.titulo}
+          </Typography>
+        </Box>
 
         {isLoading ? (
           <Box display="flex" justifyContent="center" py={4}>
@@ -100,10 +105,25 @@ export function AsistenciaDialog({ open, onClose, cursoId, leccion }: Asistencia
         ) : alumnos?.length === 0 ? (
           <Typography color="text.secondary">No hay alumnos inscritos en este curso.</Typography>
         ) : (
-          <List disablePadding>
+          <>
+            <Box display="flex" justifyContent="space-between" alignItems="center" px={2} mb={2} mt={4}>
+              <Box display="flex" alignItems="center">
+                <Box sx={{ width: 56 }} />
+                <Typography variant="caption" fontWeight="bold" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
+                  Alumno
+                </Typography>
+              </Box>
+              <Box sx={{ width: 64, textAlign: 'center' }}>
+                <Typography variant="caption" fontWeight="bold" color="text.secondary" sx={{ textTransform: 'uppercase' }}>
+                  Asistió
+                </Typography>
+              </Box>
+            </Box>
+            <Divider />
+            <List disablePadding>
             {alumnos?.map((alumno: any, index: number) => (
               <React.Fragment key={alumno.usuarioId}>
-                <ListItem sx={{ px: 0 }}>
+                <ListItem sx={{ px: 2 }}>
                   <ListItemAvatar>
                     <Avatar src={alumno.avatar} alt={alumno.nombre}>
                       {alumno.nombre.charAt(0)}
@@ -113,17 +133,19 @@ export function AsistenciaDialog({ open, onClose, cursoId, leccion }: Asistencia
                     primary={`${alumno.nombre} ${alumno.apellido}`}
                     secondary={alumno.correo}
                   />
-                  <Switch
-                    edge="end"
-                    checked={!!asistencias[alumno.usuarioId]}
-                    onChange={() => handleToggle(alumno.usuarioId)}
-                    color="primary"
-                  />
+                  <Box sx={{ width: 64, display: 'flex', justifyContent: 'center' }}>
+                    <Switch
+                      checked={!!asistencias[alumno.usuarioId]}
+                      onChange={() => handleToggle(alumno.usuarioId)}
+                      color="primary"
+                    />
+                  </Box>
                 </ListItem>
                 {index < alumnos.length - 1 && <Divider />}
               </React.Fragment>
             ))}
           </List>
+        </>
         )}
       </DialogContent>
 

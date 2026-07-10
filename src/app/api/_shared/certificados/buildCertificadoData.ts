@@ -77,21 +77,21 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
   const nombreCompleto =
     snapshot?.usuario?.nombre && snapshot?.usuario?.apellido
       ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
-      : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+      : `${certificado.usuario?.nombre || ''} ${certificado.usuario?.apellido || ''}`.trim()
 
   // ── Curso ──
-  const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
-  const cursoDuracion = snapshot?.curso?.duracion || certificado.curso.duracion
-  const cursoModalidad = snapshot?.curso?.tipo_emision || certificado.curso.tipo_emision
-  const cursoVigenciaMeses = snapshot?.curso?.vigencia_meses ?? certificado.curso.vigencia_meses ?? null
+  const cursoTitulo = snapshot?.curso?.titulo || certificado.curso?.titulo || 'Curso'
+  const cursoDuracion = snapshot?.curso?.duracion || certificado.curso?.duracion || ''
+  const cursoModalidad = snapshot?.curso?.tipo_emision || certificado.curso?.tipo_emision || 'ASINCRONO'
+  const cursoVigenciaMeses = snapshot?.curso?.vigencia_meses ?? certificado.curso?.vigencia_meses ?? null
 
   // ── Fechas ──
-  const esSincrono = certificado.curso.tipo_emision === 'SINCRONO'
+  const esSincrono = cursoModalidad === 'SINCRONO'
   const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
 
   const fechaInicioVal =
     snapshot?.fechas?.inicio_curso ||
-    (esSincrono ? certificado.curso.fecha_inicio : inscripcion?.inscrito_en || certificado.emitido_en)
+    (esSincrono ? certificado.curso?.fecha_inicio : inscripcion?.inscrito_en || certificado.emitido_en)
 
   const fechaFinVal =
     snapshot?.fechas?.culminacion ||
@@ -103,7 +103,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     (inscripcion?.inscrito_en ? calcularFechaCaducidadCurso(inscripcion.inscrito_en, cursoVigenciaMeses) : null)
 
   // ── Firmas ──
-  const profesorSnapshot = snapshot?.profesor || certificado.curso.profesor
+  const profesorSnapshot = snapshot?.profesor || certificado.curso?.profesor
   const mostrarFirmaDocente = configs.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'
 
   // ── QR ──
@@ -176,7 +176,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     cursoModalidad,
 
     // se usa como respaldo para certificados antiguos o inscripciones previas a la migración
-    modulos: certificado.curso.modulos,
+    modulos: certificado.curso?.modulos || [],
     fechaEmisionVal,
     fechaInicioVal,
     fechaFinVal,

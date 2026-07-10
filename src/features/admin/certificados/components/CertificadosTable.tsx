@@ -50,7 +50,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
 
-  const { data, isLoading } = useCertificados(params, initialData || undefined)
+  const { data, isLoading, refetch } = useCertificados(params, initialData || undefined)
 
   const certificados = data?.certificados || []
   const total = data?.paginacion?.total || 0
@@ -103,6 +103,28 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     }
   }
 
+  const handleDelete = async (certificado: Certificado) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el certificado con código ${certificado.codigo_verificacion}?`)) {
+      return
+    }
+
+    try {
+      const getAuthToken = async () => {
+        const s = await getSession()
+        return s?.user?.accessToken ?? null
+      }
+
+      const axiosCertificado = new AxiosCertificado({ getAuthToken })
+      await axiosCertificado.delete(certificado.id)
+      
+      toast.success('Certificado eliminado correctamente')
+      refetch() // Fetch latest data from server
+    } catch (err: any) {
+      console.error('Error deleting certificate:', err)
+      toast.error('Error al eliminar el certificado')
+    }
+  }
+
   const columns = useMemo(
     () => [
       columnHelper.display({
@@ -116,26 +138,41 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       }),
       columnHelper.accessor('usuario', {
         header: 'Estudiante',
-        cell: ({ row }) => (
-          <Box className='flex items-center gap-3'>
-            <Avatar
-              src={row.original.usuario.avatar || undefined}
-              imgProps={{ referrerPolicy: 'no-referrer' }}
-            />
-            <Box className='flex flex-col'>
-              <Typography color='text.primary' sx={{ fontWeight: 500 }}>
-                {row.original.usuario.nombre} {row.original.usuario.apellido}
-              </Typography>
-              <Typography variant='caption' color='text.secondary'>
-                {row.original.usuario.correo}
-              </Typography>
+        cell: ({ row }) => {
+          const usuario = row.original.usuario
+          const datosManuales = (row.original as any).datos?.usuario
+
+          const nombre = usuario?.nombre || datosManuales?.nombre || 'Desconocido'
+          const apellido = usuario?.apellido || datosManuales?.apellido || ''
+          const correo = usuario?.correo || ''
+          const avatar = usuario?.avatar || undefined
+
+          return (
+            <Box className='flex items-center gap-3'>
+              <Avatar
+                src={avatar}
+                imgProps={{ referrerPolicy: 'no-referrer' }}
+              />
+              <Box className='flex flex-col'>
+                <Typography color='text.primary' sx={{ fontWeight: 500 }}>
+                  {nombre} {apellido}
+                </Typography>
+                {correo && (
+                  <Typography variant='caption' color='text.secondary'>
+                    {correo}
+                  </Typography>
+                )}
+              </Box>
             </Box>
-          </Box>
-        )
+          )
+        }
       }),
       columnHelper.accessor('curso', {
         header: 'Curso',
-        cell: ({ row }) => <Typography color='text.primary'>{row.original.curso.titulo}</Typography>
+        cell: ({ row }) => {
+          const cursoTitulo = row.original.curso?.titulo || (row.original as any).datos?.curso?.titulo || 'Desconocido'
+          return <Typography color='text.primary'>{cursoTitulo}</Typography>
+        }
       }),
       columnHelper.accessor('codigo_verificacion', {
         header: 'Código',
@@ -192,6 +229,11 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
             <Tooltip title='Descargar PDF'>
               <IconButton onClick={() => handleDownload(row.original)} color='primary' size='small'>
                 <i className='tabler-download text-[22px]' />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title='Eliminar'>
+              <IconButton onClick={() => handleDelete(row.original)} color='error' size='small'>
+                <i className='tabler-trash text-[22px]' />
               </IconButton>
             </Tooltip>
           </Box>
@@ -343,11 +385,21 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
           }}
         />
       </Card>
-      <CreateCertificadoModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <CreateCertificadoModal 
+        open={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        onSuccess={() => {
+          setParams(prev => ({ ...prev, page: 1 }))
+          refetch()
+        }}
+      />
       <ImportCertificadosModal 
         open={importModalOpen} 
         onClose={() => setImportModalOpen(false)} 
-        onSuccess={() => setParams(prev => ({ ...prev, page: 1 }))}
+        onSuccess={() => {
+          setParams(prev => ({ ...prev, page: 1 }))
+          refetch()
+        }}
       />
     </>
   )
