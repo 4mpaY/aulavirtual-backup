@@ -241,95 +241,68 @@ export async function POST(request: Request) {
       )
     }
 
-    const transactionId = String(Date.now())
-    const orderNumber = String(pedido.numero_pedido).padStart(10, '0')
-
-    // 8. Izipay
+    // 8. Izipay (Lyra / MiCuentaWeb - Charge/CreatePaymentOrder)
     if (gateway === 'IZIPAY') {
       const configs = await getConfigs()
-      const merchantCode = configs.IZIPAY_MERCHANT_CODE
-      const apiKey = configs.IZIPAY_API_KEY
       const endpoint = configs.IZIPAY_ENDPOINT
-      const rsaKey = configs.IZIPAY_RSA_KEY
+      const restUser = configs.IZIPAY_REST_USER
+      const restPassword = configs.IZIPAY_REST_PASSWORD
 
-      if (!merchantCode || !apiKey || !endpoint || !rsaKey) {
+      if (!endpoint || !restUser || !restPassword) {
         return ApiResponse.error(request, 'La pasarela Izipay no está configurada correctamente', 500)
       }
 
-      const tokenResponse = await fetch(`${endpoint}/security/v1/Token/Generate`, {
+      // Se prioriza el origin de la petición real (inmune a valores de NEXT_PUBLIC_APP_URL
+      // horneados incorrectamente en el build de la imagen Docker) sobre las variables de entorno.
+      const appUrl = (
+        new URL(request.url).origin ||
+        process.env.APP_URL ||
+        process.env.NEXT_PUBLIC_APP_URL ||
+        ''
+      ).replace(/\/$/, '')
+      const returnUrl = `${appUrl}/api/izipay/return?pedidoId=${pedido.id}`
+      const basicAuth = 'Basic ' + Buffer.from(`${restUser}:${restPassword}`).toString('base64')
+      const expirationDate = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+
+      const orderResponse = await fetch(`${endpoint}/api-payment/V4/Charge/CreatePaymentOrder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
-          transactionId: transactionId
+          Authorization: basicAuth
         },
         body: JSON.stringify({
-          requestSource: 'ECOMMERCE',
-          merchantCode,
-          orderNumber,
-          publicKey: apiKey,
-          amount: String(Number(total).toFixed(2)),
-          currency: moneda
+          amount: Math.round(Number(total) * 100),
+          currency: moneda,
+          orderId: pedido.id,
+          expirationDate,
+          returnMode: 'POST',
+          successUrl: returnUrl,
+          cancelUrl: returnUrl,
+          channelOptions: { channelType: 'URL' },
+          customer: { email: auth.user.email || undefined }
         })
       })
 
-      const tokenData = await tokenResponse.json()
+      const orderData = await orderResponse.json()
 
-      if (!tokenResponse.ok || tokenData.code !== '00') {
-        console.error('Izipay Token Error:', tokenData)
+      if (!orderResponse.ok || orderData.status !== 'SUCCESS') {
+        console.error('[IZIPAY] Error creando orden de pago:', orderData)
 
-        return ApiResponse.error(request, 'Error al obtener el token de sesión de Izipay', 500)
+        return ApiResponse.error(request, 'Error al iniciar el pago con Izipay', 500)
       }
 
-      const actualToken = tokenData.response?.token || tokenData.response
+      const paymentURL = orderData.answer.paymentURL
 
       await prisma.pedido.update({
         where: { id: pedido.id },
-        data: { token_pago: String(actualToken) }
+        data: { url_pago: paymentURL }
       })
-
-      const userName = auth.user.nombre || auth.user.name || 'Cliente'
-      const firstName = userName.split(' ')[0]
-      const lastName = userName.split(' ').slice(1).join(' ') || 'Cliente'
-      const documentStr = auth.user.numero_documento || '12345678'
-      const validDocument = documentStr.length >= 8 ? documentStr.substring(0, 15) : '12345678'
-
-      const iziConfig = {
-        transactionId,
-        action: 'pay',
-        merchantCode,
-        order: {
-          orderNumber,
-          currency: moneda,
-          amount: String(Number(total).toFixed(2)),
-          payMethod: 'all',
-          processType: 'AT',
-          merchantBuyerId: String(auth.user.id).substring(0, 15),
-          dateTimeTransaction: String(Date.now())
-        },
-        billing: {
-          firstName,
-          lastName,
-          email: auth.user.email || 'cliente@email.com',
-          phoneNumber: '999999999',
-          street: 'Av. Default 123',
-          city: 'Lima',
-          state: 'Lima',
-          country: 'PE',
-          postalCode: '15000',
-          documentType: 'DNI',
-          document: validDocument
-        },
-        render: { typeForm: 'pop-up' }
-      }
 
       return ApiResponse.success(
         request,
         {
           message: 'Pasarela preparada correctamente',
-          iziConfig,
-          token: String(actualToken),
-          keyRSA: rsaKey,
+          paymentURL,
           pedidoId: pedido.id
         },
         201

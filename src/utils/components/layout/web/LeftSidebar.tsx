@@ -9,7 +9,7 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
-import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, MonitorSmartphone, GraduationCap, Layers, BookText, ClipboardList, Repeat2 } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, MonitorSmartphone, BookText, ClipboardList, Repeat2 } from 'lucide-react'
 
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import { usePWAInstall } from '@/utils/hooks/usePWAInstall'
@@ -18,8 +18,9 @@ import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
-  // { title: 'Diplomados', url: '/diplomados', icon: GraduationCap, key: 'diplomados' },
-  // { title: 'Especializaciones', url: '/especializaciones', icon: Layers, key: 'especializaciones' },
+
+  // { title: 'Diplomados', url: '/diplomados', key: 'diplomados' },
+  // { title: 'Especializaciones', url: '/especializaciones', key: 'especializaciones' },
   ...(isFeatureEnabled('simulacros')
     ? [{ title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' as const }]
     : []),

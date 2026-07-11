@@ -1,61 +1,79 @@
-import { createHmac, timingSafeEqual } from 'crypto'
-
 import { NextResponse } from 'next/server'
 
 import prisma from '@/utils/libs/prisma'
 import { completeOrder } from '@/utils/libs/order-service'
-
-/**
- * Verifica la firma HMAC-SHA256 del webhook de Izipay.
- * Izipay envía el header 'x-izipay-hmac-sha256' con la firma del body.
- */
-function verifyIzipaySignature(rawBody: string, signature: string | null): boolean {
-  const apiKey = process.env.IZIPAY_API_KEY
-
-  if (!apiKey || !signature) return false
-
-  try {
-    const expected = createHmac('sha256', apiKey).update(rawBody).digest('hex')
-    const expectedBuffer = Buffer.from(expected, 'utf8')
-    const signatureBuffer = Buffer.from(signature, 'utf8')
-
-    // timingSafeEqual previene ataques de timing
-    if (expectedBuffer.length !== signatureBuffer.length) return false
-
-    return timingSafeEqual(expectedBuffer, signatureBuffer)
-  } catch {
-    return false
-  }
-}
+import { getConfigs } from '@/utils/libs/config'
+import { verifyIzipaySignature } from '@/utils/libs/izipay-signature'
 
 /**
  * POST /api/izipay/webhook
- * Endpoint de respaldo para recibir notificaciones IPN de Izipay (server-to-server).
- * En el flujo principal de Web Core, la confirmación se hace vía /api/izipay/confirm.
+ * Notificación IPN server-to-server de Izipay (Lyra / MiCuentaWeb).
+ * El body llega como application/x-www-form-urlencoded con los campos
+ * kr-answer (JSON stringificado) y kr-hash (HMAC-SHA256 hex sobre kr-answer,
+ * calculado con la "Clave HMAC-SHA-256" del comercio).
  */
 export async function POST(request: Request) {
   try {
-    // 🔐 SEGURIDAD: Verificar firma HMAC antes de procesar cualquier dato
     const rawBody = await request.text()
-    const signature = request.headers.get('x-izipay-hmac-sha256')
+    const contentType = request.headers.get('content-type') || ''
 
-    if (!verifyIzipaySignature(rawBody, signature)) {
+    let krAnswer: string | undefined
+    let krHash: string | undefined
+
+    if (contentType.includes('application/json')) {
+      const parsed = JSON.parse(rawBody)
+
+      krAnswer = parsed['kr-answer']
+      krHash = parsed['kr-hash']
+    } else {
+      const params = new URLSearchParams(rawBody)
+
+      krAnswer = params.get('kr-answer') || undefined
+      krHash = params.get('kr-hash') || undefined
+    }
+
+    if (!krAnswer || !krHash) {
+      return NextResponse.json({ message: 'kr-answer/kr-hash no proporcionados' }, { status: 400 })
+    }
+
+    const configs = await getConfigs()
+    const claveHash = configs.IZIPAY_HASH_KEY
+
+    if (!claveHash) {
+      console.error('[WEBHOOK IZIPAY] IZIPAY_HASH_KEY no configurado. Rechazando notificación por seguridad.')
+
+      return NextResponse.json({ message: 'Pasarela no configurada correctamente' }, { status: 500 })
+    }
+
+    if (!verifyIzipaySignature({ krAnswer, krHash }, claveHash)) {
       console.warn('[WEBHOOK IZIPAY] Firma inválida rechazada. IP potencialmente maliciosa.')
 
       return NextResponse.json({ message: 'Firma inválida' }, { status: 401 })
     }
 
-    const body = JSON.parse(rawBody)
-
-    const { orderStatus, orderId, transactions } = body
+    const answer = JSON.parse(krAnswer)
+    const orderStatus = answer.orderStatus
+    const orderId = answer.orderDetails?.orderId ?? answer.orderId
 
     if (!orderId) {
-      return NextResponse.json({ message: 'OrderId no proporcionado' }, { status: 400 })
+      return NextResponse.json({ message: 'orderId no proporcionado' }, { status: 400 })
     }
 
-    const pedido = await prisma.pedido.findUnique({
+    // Buscamos por el UUID del pedido (enviado como orderId al crear la orden). Se
+    // mantiene un fallback por numero_pedido como red de seguridad barata.
+    let pedido = await prisma.pedido.findUnique({
       where: { id: orderId }
     })
+
+    if (!pedido) {
+      const numeroPedido = Number(orderId)
+
+      if (!Number.isNaN(numeroPedido)) {
+        pedido = await prisma.pedido.findFirst({
+          where: { numero_pedido: numeroPedido }
+        })
+      }
+    }
 
     if (!pedido) {
       console.error(`[WEBHOOK IZIPAY] Pedido no encontrado: ${orderId}`)
@@ -68,12 +86,29 @@ export async function POST(request: Request) {
     }
 
     if (orderStatus === 'PAID') {
-      const transaccion = transactions?.[0]
-      const transaccionId = transaccion?.uuid
+      const transaccionId = answer.transactions?.[0]?.uuid
+
+      // Validar que el monto/moneda notificados coincidan con el pedido antes de
+      // otorgar acceso, evitando confiar ciegamente en un IPN con datos manipulados.
+      const reportedAmount = answer.orderDetails?.orderTotalAmount ?? answer.transactions?.[0]?.amount
+      const reportedCurrency = answer.orderDetails?.orderCurrency ?? answer.transactions?.[0]?.currency
+
+      if (reportedAmount != null && reportedCurrency != null) {
+        const expectedAmount = Math.round(Number(pedido.total) * 100)
+
+        if (Number(reportedAmount) !== expectedAmount || reportedCurrency !== pedido.moneda) {
+          console.error(
+            `[WEBHOOK IZIPAY] Monto/moneda no coinciden para pedido ${pedido.id}. ` +
+              `Esperado: ${expectedAmount} ${pedido.moneda}. Recibido: ${reportedAmount} ${reportedCurrency}.`
+          )
+
+          return NextResponse.json({ message: 'El monto notificado no coincide con el pedido' }, { status: 400 })
+        }
+      }
 
       await completeOrder(pedido.id, {
         metodo_pago: 'IZIPAY',
-        respuesta_pago: body,
+        respuesta_pago: answer,
         transaccion_id: transaccionId
       })
 

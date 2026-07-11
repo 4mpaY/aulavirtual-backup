@@ -16,8 +16,11 @@ const ENV_OVERRIDES: Record<string, string> = {
   CULQI_PRIVATE_KEY:     process.env.CULQI_SECRET_KEY      ?? '',
   CULQI_WEBHOOK_SECRET:  process.env.CULQI_WEBHOOK_SECRET  ?? '',
 
-  // IziPay
-  IZIPAY_API_KEY:        process.env.IZIPAY_API_KEY        ?? '',
+  // IziPay (Lyra / MiCuentaWeb)
+  IZIPAY_REST_USER:      process.env.IZIPAY_REST_USER      ?? '',
+  IZIPAY_REST_PASSWORD:  process.env.IZIPAY_REST_PASSWORD  ?? '',
+  IZIPAY_HASH_KEY:       process.env.IZIPAY_HASH_KEY       ?? '',
+  IZIPAY_ENDPOINT:       process.env.IZIPAY_ENDPOINT       ?? '',
 
   // PayPal
   PAYPAL_CLIENT_SECRET:  process.env.PAYPAL_CLIENT_SECRET  ?? '',

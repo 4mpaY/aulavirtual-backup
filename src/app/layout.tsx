@@ -26,6 +26,11 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: logo,
       apple: logo,
     },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'black-translucent',
+      title,
+    },
   }
 }
 
