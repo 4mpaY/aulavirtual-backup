@@ -11,22 +11,25 @@ const CACHE_TTL = 1000 * 60 * 5 // 5 minutos
 
 // Claves privadas/secretas que SIEMPRE deben venir del .env (nunca de la BD)
 // El .env tiene prioridad absoluta sobre la BD para estas claves.
+// .trim() defensivo: algunos gestores de .env/Docker env_file pueden dejar
+// espacios o saltos de línea (\r) invisibles al pegar valores, lo que rompe
+// silenciosamente comparaciones de firma/autenticación.
 const ENV_OVERRIDES: Record<string, string> = {
   // Culqi
-  CULQI_PRIVATE_KEY:     process.env.CULQI_SECRET_KEY      ?? '',
-  CULQI_WEBHOOK_SECRET:  process.env.CULQI_WEBHOOK_SECRET  ?? '',
+  CULQI_PRIVATE_KEY:     (process.env.CULQI_SECRET_KEY      ?? '').trim(),
+  CULQI_WEBHOOK_SECRET:  (process.env.CULQI_WEBHOOK_SECRET  ?? '').trim(),
 
   // IziPay (Lyra / MiCuentaWeb)
-  IZIPAY_REST_USER:      process.env.IZIPAY_REST_USER      ?? '',
-  IZIPAY_REST_PASSWORD:  process.env.IZIPAY_REST_PASSWORD  ?? '',
-  IZIPAY_HASH_KEY:       process.env.IZIPAY_HASH_KEY       ?? '',
-  IZIPAY_ENDPOINT:       process.env.IZIPAY_ENDPOINT       ?? '',
+  IZIPAY_REST_USER:      (process.env.IZIPAY_REST_USER      ?? '').trim(),
+  IZIPAY_REST_PASSWORD:  (process.env.IZIPAY_REST_PASSWORD  ?? '').trim(),
+  IZIPAY_HASH_KEY:       (process.env.IZIPAY_HASH_KEY       ?? '').trim(),
+  IZIPAY_ENDPOINT:       (process.env.IZIPAY_ENDPOINT       ?? '').trim(),
 
   // PayPal
-  PAYPAL_CLIENT_SECRET:  process.env.PAYPAL_CLIENT_SECRET  ?? '',
+  PAYPAL_CLIENT_SECRET:  (process.env.PAYPAL_CLIENT_SECRET  ?? '').trim(),
 
   // Mercado Pago
-  MP_ACCESS_TOKEN:       process.env.MP_ACCESS_TOKEN       ?? '',
+  MP_ACCESS_TOKEN:       (process.env.MP_ACCESS_TOKEN       ?? '').trim(),
 }
 
 export async function getConfigs(): Promise<Record<string, string>> {

@@ -252,17 +252,39 @@ export async function POST(request: Request) {
         return ApiResponse.error(request, 'La pasarela Izipay no está configurada correctamente', 500)
       }
 
-      // Se prioriza el origin de la petición real (inmune a valores de NEXT_PUBLIC_APP_URL
-      // horneados incorrectamente en el build de la imagen Docker) sobre las variables de entorno.
+      // IMPORTANTE: `request.url` en Next.js standalone (Docker) se construye con las
+      // variables HOSTNAME/PORT del propio proceso (ej. "0.0.0.0:3000"), no con el Host
+      // real del cliente detrás de nginx. Los headers x-forwarded-* sí reflejan el host
+      // público real (confirmado con tráfico real de Izipay), así que se leen directo.
+      const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host')
+      const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
+
       const appUrl = (
-        new URL(request.url).origin ||
+        (forwardedHost ? `${forwardedProto}://${forwardedHost}` : '') ||
         process.env.APP_URL ||
         process.env.NEXT_PUBLIC_APP_URL ||
         ''
       ).replace(/\/$/, '')
+
       const returnUrl = `${appUrl}/api/izipay/return?pedidoId=${pedido.id}`
       const basicAuth = 'Basic ' + Buffer.from(`${restUser}:${restPassword}`).toString('base64')
       const expirationDate = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+
+      const orderPayload = {
+        amount: Math.round(Number(total) * 100),
+        currency: moneda,
+        orderId: pedido.id,
+        expirationDate,
+        returnMode: 'POST',
+        successUrl: returnUrl,
+        cancelUrl: returnUrl,
+        channelOptions: { channelType: 'URL' },
+        customer: { email: auth.user.email || undefined }
+      }
+
+      // TEMPORAL: diagnóstico para confirmar qué se envía a Izipay y qué responde.
+      console.log('[IZIPAY][DEBUG] appUrl:', appUrl, '| returnUrl:', returnUrl)
+      console.log('[IZIPAY][DEBUG] Payload CreatePaymentOrder:', JSON.stringify(orderPayload))
 
       const orderResponse = await fetch(`${endpoint}/api-payment/V4/Charge/CreatePaymentOrder`, {
         method: 'POST',
@@ -270,20 +292,12 @@ export async function POST(request: Request) {
           'Content-Type': 'application/json',
           Authorization: basicAuth
         },
-        body: JSON.stringify({
-          amount: Math.round(Number(total) * 100),
-          currency: moneda,
-          orderId: pedido.id,
-          expirationDate,
-          returnMode: 'POST',
-          successUrl: returnUrl,
-          cancelUrl: returnUrl,
-          channelOptions: { channelType: 'URL' },
-          customer: { email: auth.user.email || undefined }
-        })
+        body: JSON.stringify(orderPayload)
       })
 
       const orderData = await orderResponse.json()
+
+      console.log('[IZIPAY][DEBUG] Respuesta CreatePaymentOrder:', JSON.stringify(orderData))
 
       if (!orderResponse.ok || orderData.status !== 'SUCCESS') {
         console.error('[IZIPAY] Error creando orden de pago:', orderData)

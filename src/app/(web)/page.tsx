@@ -14,7 +14,6 @@ import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarque
 import HeroVisual from '@/features/web/home/components/HeroVisual'
 import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSection'
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
-import CompaniesSection from '@/features/web/home/components/CompaniesSection'
 import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
 import HomeEbooksSection from '@/features/web/home/components/HomeEbooksSection'
 
@@ -72,16 +71,16 @@ async function getHomeData() {
       // Ebooks destacados
       isFeatureEnabled('ebooks')
         ? prisma.ebook.findMany({
-            where: { estado: 'PUBLICADO' },
-            select: {
-              id: true, titulo: true, slug: true, miniatura: true,
-              autor: true, precio: true, precio_falso: true, moneda: true,
-              es_gratis: true, paginas: true, genero: true,
-              categoria: { select: { nombre: true } },
-            },
-            orderBy: { creado_en: 'desc' },
-            take: 5,
-          })
+          where: { estado: 'PUBLICADO' },
+          select: {
+            id: true, titulo: true, slug: true, miniatura: true,
+            autor: true, precio: true, precio_falso: true, moneda: true,
+            es_gratis: true, paginas: true, genero: true,
+            categoria: { select: { nombre: true } },
+          },
+          orderBy: { creado_en: 'desc' },
+          take: 5,
+        })
         : Promise.resolve([]),
     ])
 
@@ -360,7 +359,7 @@ export default async function HomePage() {
       <ProfessorsCarousel teachers={teachers} />
 
       {/* ── 7. EMPRESAS (B2B informativo) ───────────── */}
-      <CompaniesSection />
+      {/* <CompaniesSection /> */}
 
       {/* ── 8. CTA AGENDAR REUNIÓN ──────────────────── */}
       <EnterpriseCTASection />

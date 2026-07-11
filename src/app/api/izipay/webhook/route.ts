@@ -3,38 +3,28 @@ import { NextResponse } from 'next/server'
 import prisma from '@/utils/libs/prisma'
 import { completeOrder } from '@/utils/libs/order-service'
 import { getConfigs } from '@/utils/libs/config'
-import { verifyIzipaySignature } from '@/utils/libs/izipay-signature'
+import { verifyVadsSignature } from '@/utils/libs/izipay-signature'
+
+// Mapeo de códigos ISO 4217 numéricos a alfabéticos para las monedas soportadas.
+const CURRENCY_NUMERIC_TO_ALPHA: Record<string, string> = {
+  '604': 'PEN',
+  '840': 'USD'
+}
 
 /**
  * POST /api/izipay/webhook
- * Notificación IPN server-to-server de Izipay (Lyra / MiCuentaWeb).
- * El body llega como application/x-www-form-urlencoded con los campos
- * kr-answer (JSON stringificado) y kr-hash (HMAC-SHA256 hex sobre kr-answer,
- * calculado con la "Clave HMAC-SHA-256" del comercio).
+ * Notificación IPN server-to-server de Izipay (Lyra / MiCuentaWeb), formato clásico
+ * vads_* (application/x-www-form-urlencoded) con firma HMAC-SHA256 en el campo
+ * `signature`, calculada sobre los campos vads_* concatenados en orden alfabético.
  */
 export async function POST(request: Request) {
   try {
     const rawBody = await request.text()
-    const contentType = request.headers.get('content-type') || ''
+    const params = new URLSearchParams(rawBody)
 
-    let krAnswer: string | undefined
-    let krHash: string | undefined
-
-    if (contentType.includes('application/json')) {
-      const parsed = JSON.parse(rawBody)
-
-      krAnswer = parsed['kr-answer']
-      krHash = parsed['kr-hash']
-    } else {
-      const params = new URLSearchParams(rawBody)
-
-      krAnswer = params.get('kr-answer') || undefined
-      krHash = params.get('kr-hash') || undefined
-    }
-
-    if (!krAnswer || !krHash) {
-      return NextResponse.json({ message: 'kr-answer/kr-hash no proporcionados' }, { status: 400 })
-    }
+    // TEMPORAL: diagnóstico para depurar la verificación de firma end-to-end.
+    console.log('[WEBHOOK IZIPAY][DEBUG] Content-Type:', request.headers.get('content-type'))
+    console.log('[WEBHOOK IZIPAY][DEBUG] Raw body:', rawBody)
 
     const configs = await getConfigs()
     const claveHash = configs.IZIPAY_HASH_KEY
@@ -45,15 +35,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Pasarela no configurada correctamente' }, { status: 500 })
     }
 
-    if (!verifyIzipaySignature({ krAnswer, krHash }, claveHash)) {
+    if (!verifyVadsSignature(params, claveHash)) {
       console.warn('[WEBHOOK IZIPAY] Firma inválida rechazada. IP potencialmente maliciosa.')
 
       return NextResponse.json({ message: 'Firma inválida' }, { status: 401 })
     }
 
-    const answer = JSON.parse(krAnswer)
-    const orderStatus = answer.orderStatus
-    const orderId = answer.orderDetails?.orderId ?? answer.orderId
+    const orderId = params.get('vads_order_id')
+    const transStatus = params.get('vads_trans_status')
+    const transUuid = params.get('vads_trans_uuid')
+    const amount = params.get('vads_amount')
+    const currencyNumeric = params.get('vads_currency')
 
     if (!orderId) {
       return NextResponse.json({ message: 'orderId no proporcionado' }, { status: 400 })
@@ -85,21 +77,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Pedido ya completado' }, { status: 200 })
     }
 
-    if (orderStatus === 'PAID') {
-      const transaccionId = answer.transactions?.[0]?.uuid
-
+    if (transStatus === 'AUTHORISED' || transStatus === 'CAPTURED') {
       // Validar que el monto/moneda notificados coincidan con el pedido antes de
       // otorgar acceso, evitando confiar ciegamente en un IPN con datos manipulados.
-      const reportedAmount = answer.orderDetails?.orderTotalAmount ?? answer.transactions?.[0]?.amount
-      const reportedCurrency = answer.orderDetails?.orderCurrency ?? answer.transactions?.[0]?.currency
-
-      if (reportedAmount != null && reportedCurrency != null) {
+      if (amount != null && currencyNumeric != null) {
         const expectedAmount = Math.round(Number(pedido.total) * 100)
+        const reportedCurrency = CURRENCY_NUMERIC_TO_ALPHA[currencyNumeric] ?? currencyNumeric
 
-        if (Number(reportedAmount) !== expectedAmount || reportedCurrency !== pedido.moneda) {
+        if (Number(amount) !== expectedAmount || reportedCurrency !== pedido.moneda) {
           console.error(
             `[WEBHOOK IZIPAY] Monto/moneda no coinciden para pedido ${pedido.id}. ` +
-              `Esperado: ${expectedAmount} ${pedido.moneda}. Recibido: ${reportedAmount} ${reportedCurrency}.`
+              `Esperado: ${expectedAmount} ${pedido.moneda}. Recibido: ${amount} ${reportedCurrency}.`
           )
 
           return NextResponse.json({ message: 'El monto notificado no coincide con el pedido' }, { status: 400 })
@@ -108,13 +96,13 @@ export async function POST(request: Request) {
 
       await completeOrder(pedido.id, {
         metodo_pago: 'IZIPAY',
-        respuesta_pago: answer,
-        transaccion_id: transaccionId
+        respuesta_pago: Object.fromEntries(params.entries()),
+        transaccion_id: transUuid || undefined
       })
 
       console.log(`[WEBHOOK IZIPAY] Pedido ${pedido.id} completado con éxito vía servicio.`)
     } else {
-      console.warn(`[WEBHOOK IZIPAY] Pago no exitoso para pedido ${pedido.id}: ${orderStatus}`)
+      console.warn(`[WEBHOOK IZIPAY] Pago no exitoso para pedido ${pedido.id}: ${transStatus}`)
     }
 
     return NextResponse.json({ message: 'Notificación procesada' }, { status: 200 })
