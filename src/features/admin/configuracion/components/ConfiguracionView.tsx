@@ -25,7 +25,8 @@ import {
   Chip,
   Link,
   CardHeader,
-  FormControlLabel
+  FormControlLabel,
+  Alert
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { getSession } from 'next-auth/react'
@@ -397,10 +398,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     GOOGLE_CLIENT_ID: '',
     GOOGLE_CLIENT_SECRET: '',
     IZIPAY_ENABLED: 'true',
-    IZIPAY_MERCHANT_CODE: '',
-    IZIPAY_RSA_KEY: '',
-    IZIPAY_ENDPOINT: 'https://sandbox-api-pw.izipay.pe',
-    IZIPAY_SDK_URL: 'https://sandbox-checkout.izipay.pe/payments/v1/js/index.js',
     CULQI_ENABLED: 'true',
     CULQI_PUBLIC_KEY: '',
     CULQI_RSA_ID: '',
@@ -989,41 +986,12 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
             onInputChange={handleInputChange}
           >
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label='Merchant Code'
-                  value={config.IZIPAY_MERCHANT_CODE}
-                  onChange={(e) => handleInputChange('IZIPAY_MERCHANT_CODE', e.target.value)}
-                />
-              </Grid>
-
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label='RSA Key'
-                  multiline
-                  rows={2}
-                  value={config.IZIPAY_RSA_KEY}
-                  onChange={(e) => handleInputChange('IZIPAY_RSA_KEY', e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label='Endpoint API'
-                  value={config.IZIPAY_ENDPOINT}
-                  onChange={(e) => handleInputChange('IZIPAY_ENDPOINT', e.target.value)}
-                  helperText='Ej: https://sandbox-api-pw.izipay.pe'
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label='SDK JS URL'
-                  value={config.IZIPAY_SDK_URL}
-                  onChange={(e) => handleInputChange('IZIPAY_SDK_URL', e.target.value)}
-                />
+                <Alert severity='info' sx={{ borderRadius: 2 }}>
+                  Las credenciales de Izipay (Usuario, Contraseña, Clave HMAC-SHA-256 y Endpoint API) se configuran
+                  por variables de entorno (IZIPAY_REST_USER, IZIPAY_REST_PASSWORD, IZIPAY_HASH_KEY, IZIPAY_ENDPOINT),
+                  no desde este panel. Aquí solo puedes activar/desactivar la pasarela.
+                </Alert>
               </Grid>
             </Grid>
           </GatewayAccordion>

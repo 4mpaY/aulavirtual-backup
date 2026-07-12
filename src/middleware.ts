@@ -95,6 +95,7 @@ export default withAuth(
           path.startsWith('/libro-de-reclamaciones') ||
           path.startsWith('/terminos-y-condiciones') ||
           path.startsWith('/politica-de-cambios-y-devoluciones') ||
+          path.startsWith('/politica-de-privacidad') ||
           path.startsWith('/forgot-password') ||
           path.startsWith('/reset-password') ||
           path.startsWith('/verificar-certificado') ||

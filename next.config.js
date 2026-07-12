@@ -31,11 +31,11 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.izipay.pe https://*.paypal.com https://*.paypalobjects.com https://*.culqi.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.izipay.pe https://*.micuentaweb.pe https://*.paypal.com https://*.paypalobjects.com https://*.culqi.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.micuentaweb.pe",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https: *", // 🖼️ FLEXIBLE: Permite imágenes de cualquier sitio seguro
-      "connect-src 'self' ws: wss: https://*.izipay.pe https://*.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com https://*.culqi.com",
+      "connect-src 'self' ws: wss: https://*.izipay.pe https://*.micuentaweb.pe https://*.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com https://*.culqi.com",
       "frame-src 'self' blob: https: *", // 📺 FLEXIBLE: Permite videos/iframes de cualquier sitio seguro (YouTube, Vimeo, Wistia, etc.) + blob: para visor PDF
       "media-src 'self' blob: data: http://localhost https: *",
       "worker-src 'self'",

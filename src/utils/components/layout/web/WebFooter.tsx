@@ -100,6 +100,9 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
                 { label: 'Nosotros', href: '/nosotros' },
                 { label: 'Contacto', href: '/contacto' },
                 ...(rutasHabilitado ? [{ label: 'Rutas', href: '/rutas' }] : []),
+                { label: 'Términos y condiciones', href: '/terminos-y-condiciones' },
+                { label: 'Política de Devoluciones', href: '/politica-de-cambios-y-devoluciones' },
+                { label: 'Política de Privacidad', href: '/politica-de-privacidad' },
               ].map(link => (
                 <li key={link.href}>
                   <Link

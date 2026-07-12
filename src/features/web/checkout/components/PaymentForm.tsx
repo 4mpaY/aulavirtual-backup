@@ -31,14 +31,12 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 import { useConfig } from '@/contexts/ConfigContext'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import AppModal from '@/utils/components/AppModal'
-import IzipayScript from './IzipayScript'
 import CulqiScript from './CulqiScript'
 import { PayPalPaymentButton } from './PayPalPaymentButton'
 import { useCart } from '../../cart/context/CartContext'
 
 declare global {
   interface Window {
-    Izipay: any
     Culqi: any
   }
 }
@@ -274,26 +272,6 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
     return true
   }, [configs.PEDIDOS_SOLICITAR_COMPROBANTE, tipoComprobante, numeroComprobante])
 
-  const handlePaymentResponse = useCallback(async (response: any, pedidoId: string) => {
-    try {
-      const confirmRes = await fetch('/api/izipay/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pedidoId, response })
-      })
-
-      const confirmData = await confirmRes.json()
-
-      if (response.code === '00') {
-        confirmRes.ok ? handlePaymentSuccess() : setPaymentError(confirmData.message || 'Error al confirmar el pago')
-      } else {
-        setPaymentError(response.messageUser || 'El pago no fue completado')
-      }
-    } catch {
-      setPaymentError('Error inesperado al confirmar el pago')
-    }
-  }, [handlePaymentSuccess])
-
   const handleCulqiToken = useCallback(async (token: string, email: string) => {
     try {
       setIsLoading(true)
@@ -352,16 +330,13 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
         return
       }
 
-      const { iziConfig, token, keyRSA, pedidoId } = dataRaw.result
+      const { paymentURL } = dataRaw.result
 
-      if (!window.Izipay) throw new Error('El SDK de Izipay no se ha cargado.')
+      if (!paymentURL) throw new Error('No se pudo obtener la URL de pago de Izipay.')
 
-      const checkout = new window.Izipay({ config: iziConfig })
-
-      checkout.LoadForm({ authorization: token, keyRSA, callbackResponse: (r: any) => handlePaymentResponse(r, pedidoId) })
+      window.location.href = paymentURL
     } catch (error: any) {
       setPaymentError(error.message || 'Ocurrió un error inesperado')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -592,7 +567,6 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
   return (
     <>
       <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: '24px', bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}>
-        <IzipayScript />
         <CulqiScript
           publicKey={configs.CULQI_PUBLIC_KEY || ''}
           settings={culqiSettings || { currency: courses[0]?.moneda || 'PEN', amount: Math.round(displayTotal * 100) }}

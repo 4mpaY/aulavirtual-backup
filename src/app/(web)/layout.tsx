@@ -27,6 +27,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
 
   const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
   const platformSlogan = configs.TEMPLATE_SLOGAN || 'Aprende sin límites'
+  const empresasHabilitado = configs.WEB_EMPRESAS_HABILITADO !== 'false'
 
   return (
     <AuthModalProvider>
@@ -41,7 +42,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
           </main>
         </div>
         {/* Bottom nav: visible solo en mobile */}
-        <MobileBottomNav />
+        <MobileBottomNav empresasHabilitado={empresasHabilitado} />
         <ScrollAnimations />
         <PWAInstalledToast />
       </div>

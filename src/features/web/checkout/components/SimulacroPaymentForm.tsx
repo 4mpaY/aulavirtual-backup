@@ -16,11 +16,10 @@ import { useSession } from 'next-auth/react'
 import { useConfig } from '@/contexts/ConfigContext'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import AppModal from '@/utils/components/AppModal'
-import IzipayScript from './IzipayScript'
 import CulqiScript from './CulqiScript'
 
 declare global {
-  interface Window { Izipay: any; Culqi: any }
+  interface Window { Culqi: any }
 }
 
 interface MetodoPagoManual {
@@ -173,23 +172,6 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
     setTimeout(() => router.push('/estudiante/mis-simulacros'), 2000)
   }, [router])
 
-  const handlePaymentResponse = useCallback(async (response: any, pedidoId: string) => {
-    try {
-      const res = await fetch('/api/izipay/confirm', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pedidoId, response })
-      })
-
-      const data = await res.json()
-
-      if (response.code === '00') {
-        res.ok ? handlePaymentSuccess() : setPaymentError(data.message || 'Error al confirmar')
-      } else {
-        setPaymentError(response.messageUser || 'El pago no fue completado')
-      }
-    } catch { setPaymentError('Error inesperado') }
-  }, [handlePaymentSuccess])
-
   const handleCulqiToken = useCallback(async (token: string, email: string) => {
     try {
       setIsLoading(true)
@@ -253,17 +235,15 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
 
     if (!result) return
 
-    const { iziConfig, token, keyRSA, pedidoId } = result
+    const { paymentURL } = result
 
-    if (!window.Izipay) {
-      setPaymentError('SDK de Izipay no cargado')
+    if (!paymentURL) {
+      setPaymentError('No se pudo obtener la URL de pago de Izipay.')
 
       return
     }
 
-    const iz = new window.Izipay({ config: iziConfig })
-
-    iz.LoadForm({ authorization: token, keyRSA, callbackResponse: (r: any) => handlePaymentResponse(r, pedidoId) })
+    window.location.href = paymentURL
   }
 
   const handleMercadoPagoCheckout = async () => {
@@ -373,7 +353,6 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
   return (
     <>
       <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: '24px', bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}>
-        <IzipayScript />
         <CulqiScript
           publicKey={configs.CULQI_PUBLIC_KEY || ''}
           settings={culqiSettings || { currency: simulacro.moneda || 'PEN', amount: Math.round(displayTotal * 100) }}
