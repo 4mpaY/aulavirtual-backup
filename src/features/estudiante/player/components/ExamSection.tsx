@@ -45,6 +45,7 @@ interface ExamenData {
     puntaje_aprobacion: number
     mezclar_preguntas: boolean
     preguntas: Pregunta[]
+    nota_maxima?: number
 }
 
 interface ExamSectionProps {
@@ -55,8 +56,6 @@ interface ExamSectionProps {
 }
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
-
-const toVeinte = (pct: number) => Math.round((pct / 100) * 20)
 
 const fmtFecha = (val: string) =>
     new Date(val).toLocaleString('es-PE', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit' })
@@ -70,9 +69,9 @@ const formatTime = (seconds: number) => {
 
 // ─── Score Ring ───────────────────────────────────────────────────────────────
 
-const ScoreRing = ({ puntaje, aprobado }: { puntaje: number; aprobado: boolean }) => {
+const ScoreRing = ({ puntaje, aprobado, notaMaxima = 20 }: { puntaje: number; aprobado: boolean; notaMaxima?: number }) => {
     const color = aprobado ? '#16a34a' : '#dc2626'
-    const nota = toVeinte(puntaje)
+    const nota = Math.round((puntaje / 100) * notaMaxima)
 
     return (
         <Box sx={{ position: 'relative', display: 'inline-flex', my: 1 }}>
@@ -97,7 +96,7 @@ const ScoreRing = ({ puntaje, aprobado }: { puntaje: number; aprobado: boolean }
                 <Typography variant="h3" fontWeight={900} lineHeight={1} sx={{ color }}>
                     {nota}
                 </Typography>
-                <Typography variant="body2" color="text.secondary" fontWeight={700}>/20</Typography>
+                <Typography variant="body2" color="text.secondary" fontWeight={700}>/{notaMaxima}</Typography>
             </Box>
         </Box>
     )
@@ -447,8 +446,9 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
 
     // ── Result screen ─────────────────────────────────────────────────────────
     if (resultado) {
-        const nota = toVeinte(resultado.puntaje)
-        const notaMinima = toVeinte(resultado.puntajeAprobacion)
+        const baseMax = resultado.nota_maxima ?? examen?.nota_maxima ?? 20
+        const nota = Math.round((resultado.puntaje / 100) * baseMax)
+        const notaMinima = Math.round((resultado.puntajeAprobacion / 100) * baseMax)
         const aprobado = resultado.aprobado
         const puedeVerRespuestas = resultado.intentosRestantes <= 0 || aprobado
         const color = aprobado ? '#16a34a' : '#dc2626'
@@ -469,7 +469,7 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
                         }}
                     />
 
-                    <ScoreRing puntaje={resultado.puntaje} aprobado={aprobado} />
+                    <ScoreRing puntaje={resultado.puntaje} aprobado={aprobado} notaMaxima={baseMax} />
 
                     {/* Stats row */}
                     <Stack direction="row" spacing={3} mt={2.5} justifyContent="center" flexWrap="wrap">
@@ -482,14 +482,14 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
                         <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
                         <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="h6" fontWeight={800} sx={{ color }}>
-                                {nota}/20
+                                {nota}/{baseMax}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">Tu nota</Typography>
                         </Box>
                         <Divider orientation="vertical" flexItem sx={{ my: 0.5 }} />
                         <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="h6" fontWeight={800} color="text.secondary">
-                                {notaMinima}/20
+                                {notaMinima}/{baseMax}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">Nota mínima</Typography>
                         </Box>
@@ -670,7 +670,8 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
 
     // ── Exam start screen ─────────────────────────────────────────────────────
     if (!examenIniciado) {
-        const puntajeMin = toVeinte(examen.puntaje_aprobacion)
+        const baseMax = examen.nota_maxima ?? 20
+        const puntajeMin = Math.round((examen.puntaje_aprobacion / 100) * baseMax)
 
         return (
             <Card variant="outlined" sx={{ borderRadius: '16px', overflow: 'hidden', borderColor: 'divider' }}>
@@ -701,7 +702,7 @@ const ExamSection = ({ examenId, onExamPassed, isFinalExam = true, onContinue }:
                             />
                             <Chip
                                 icon={<i className="tabler-target" style={{ fontSize: '1rem' }} />}
-                                label={`Nota mínima: ${puntajeMin}/20`}
+                                label={`Nota mínima: ${puntajeMin}/${baseMax}`}
                                 variant="outlined" size="small" color="primary"
                             />
                             {examen.fecha_fin && (

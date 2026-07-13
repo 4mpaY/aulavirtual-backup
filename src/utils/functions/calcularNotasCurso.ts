@@ -5,6 +5,7 @@ export type ExamenNotaInput = {
   orden: number | null
   modulo_id: string | null
   modulo_orden: number | null
+  nota_maxima?: number
 }
 
 export type EvaluacionNota = {
@@ -14,6 +15,7 @@ export type EvaluacionNota = {
   peso: number
   puntaje_porcentaje: number
   nota: number
+  nota_maxima?: number
 }
 
 export type ResumenNotasCurso = {
@@ -27,6 +29,11 @@ export type ResumenNotasCurso = {
 /** Convierte porcentaje (0-100) a escala vigesimal peruana (0-20). */
 export function porcentajeAVigesimal(porcentaje: number): number {
   return Math.round(porcentaje * 0.2 * 100) / 100
+}
+
+/** Convierte porcentaje (0-100) a una nota en base a una calificación máxima dada. */
+export function porcentajeANota(porcentaje: number, notaMaxima: number): number {
+  return Math.round((porcentaje / 100) * notaMaxima * 100) / 100
 }
 
 export function calcularMejoresIntentos(
@@ -68,6 +75,7 @@ export function calcularResumenNotasCurso(
 
   const evaluaciones: EvaluacionNota[] = ordenados.map((ex, index) => {
     const puntajePorcentaje = mejoresIntentos[ex.id] ?? 0
+    const maxNota = ex.nota_maxima ?? 20
 
     return {
       numero: index + 1,
@@ -75,7 +83,8 @@ export function calcularResumenNotasCurso(
       descripcion: ex.titulo,
       peso: ex.peso,
       puntaje_porcentaje: puntajePorcentaje,
-      nota: porcentajeAVigesimal(puntajePorcentaje)
+      nota: porcentajeANota(puntajePorcentaje, maxNota),
+      nota_maxima: maxNota
     }
   })
 

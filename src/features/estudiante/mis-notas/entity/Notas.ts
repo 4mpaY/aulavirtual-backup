@@ -29,6 +29,7 @@ export type EvaluacionNotaDetalle = {
   descripcion: string
   peso: number
   nota: number
+  nota_maxima?: number
 }
 
 export type DetalleNotasCurso = {

@@ -7,6 +7,7 @@ export interface CategoriaHijo {
   orden: number
   creado_en: string
   actualizado_en: string
+  hijos?: CategoriaHijo[]
 }
 
 export interface Categoria {

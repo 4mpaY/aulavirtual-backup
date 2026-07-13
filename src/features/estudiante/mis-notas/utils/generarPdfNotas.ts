@@ -64,7 +64,10 @@ export async function downloadResumenNotasCurso(detalle: DetalleNotasCurso, estu
 
     doc.text(desc, margin + 22, y)
     doc.text(String(ev.peso), margin + 130, y)
-    doc.text(fmtNota(ev.nota), margin + 150, y)
+    const notaStr = ev.nota_maxima && ev.nota_maxima !== 20
+      ? `${fmtNota(ev.nota)}/${ev.nota_maxima}`
+      : fmtNota(ev.nota)
+    doc.text(notaStr, margin + 150, y)
     y += 7
 
     if (y > 270) {

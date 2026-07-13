@@ -8,41 +8,44 @@ datasource db {
 }
 
 model Usuario {
-  id                      String                 @id @default(uuid())
-  correo                  String                 @unique
-  contrasena              String?
-  nombre                  String
-  numero_documento        String?                @unique
-  apellido                String
-  slug                    String?                @unique
-  avatar                  String?
-  biografia               String?
-  celular                 String?
-  rol                     Rol                    @default(ESTUDIANTE)
-  esta_activo             Boolean                @default(true)
-  creado_en               DateTime               @default(now())
-  actualizado_en          DateTime               @updatedAt
-  google_id               String?                @unique
-  cargo                   String?
-  firma                   String?
-  certificados            Certificado[]
-  comentarios             Comentario[]
-  cursos_dictados         Curso[]                @relation("ProfesorCursos")
-  inscripciones           Inscripcion[]
-  inscripciones_simulacro InscripcionSimulacro[]
-  intentos_examen         IntentoExamen[]
-  notificaciones          Notificacion[]
-  pedidos                 Pedido[]
-  progreso_cursos         ProgresoCurso[]
-  progreso_lecciones      ProgresoLeccion[]
-  valoraciones            ValoracionCurso[]
-  suscripciones           Suscripcion[]
-  entregas_trabajo        EntregaTrabajo[]
-  entregas_actividad      EntregaActividad[]
-  ebook_accesos             EbookAcceso[]
-  ebook_annotaciones        EbookAnnotacion[]
-  participaciones_chat ParticipanteConversacion[]
-  mensajes_enviados    MensajeChat[]              @relation("MensajesEnviados")
+  id                                                                String                     @id @default(uuid())
+  correo                                                            String                     @unique
+  contrasena                                                        String?
+  nombre                                                            String
+  numero_documento                                                  String?                    @unique
+  apellido                                                          String
+  avatar                                                            String?
+  biografia                                                         String?
+  celular                                                           String?
+  rol                                                               Rol                        @default(ESTUDIANTE)
+  esta_activo                                                       Boolean                    @default(true)
+  creado_en                                                         DateTime                   @default(now())
+  actualizado_en                                                    DateTime                   @updatedAt
+  google_id                                                         String?                    @unique
+  cargo                                                             String?
+  firma                                                             String?
+  slug                                                              String?                    @unique
+  asistencias                                                       asistencias[]
+  certificados                                                      Certificado[]
+  comentarios                                                       Comentario[]
+  cursos_dictados                                                   Curso[]                    @relation("ProfesorCursos")
+  ebook_accesos                                                     EbookAcceso[]
+  ebook_annotaciones                                                EbookAnnotacion[]
+  entregas_actividad                                                EntregaActividad[]
+  entregas_trabajo                                                  EntregaTrabajo[]
+  inscripciones                                                     Inscripcion[]
+  inscripciones_simulacro                                           InscripcionSimulacro[]
+  intentos_examen                                                   IntentoExamen[]
+  mensajes_enviados                                                 MensajeChat[]              @relation("MensajesEnviados")
+  notificaciones                                                    Notificacion[]
+  participaciones_chat                                              ParticipanteConversacion[]
+  pedidos                                                           Pedido[]
+  progreso_cursos                                                   ProgresoCurso[]
+  progreso_lecciones                                                ProgresoLeccion[]
+  supervisores_alumnos_supervisores_alumnos_alumno_idTousuarios     supervisores_alumnos[]     @relation("supervisores_alumnos_alumno_idTousuarios")
+  supervisores_alumnos_supervisores_alumnos_supervisor_idTousuarios supervisores_alumnos[]     @relation("supervisores_alumnos_supervisor_idTousuarios")
+  suscripciones                                                     Suscripcion[]
+  valoraciones                                                      ValoracionCurso[]
 
   @@index([rol])
   @@map("usuarios")
@@ -94,19 +97,19 @@ model Ebook {
   estado         EstadoEbook       @default(BORRADOR)
   es_gratis      Boolean           @default(false)
   paginas        Int?
-  genero         String?
-  resena         String?
-  editorial      String?
-  anio_edicion   Int?
-  saga           String?
-  idioma         String?           @default("Español")
   categoria_id   String?
   creado_en      DateTime          @default(now())
   actualizado_en DateTime          @updatedAt
-  categoria      Categoria?        @relation(fields: [categoria_id], references: [id])
+  genero         String?
+  anio_edicion   Int?
+  editorial      String?
+  idioma         String?           @default("Español")
+  resena         String?
+  saga           String?
+  detalles       DetallePedido[]
   accesos        EbookAcceso[]
   annotaciones   EbookAnnotacion[]
-  detalles       DetallePedido[]
+  categoria      Categoria?        @relation(fields: [categoria_id], references: [id])
 
   @@index([categoria_id])
   @@index([estado])
@@ -118,8 +121,8 @@ model EbookAcceso {
   usuario_id String
   ebook_id   String
   creado_en  DateTime @default(now())
-  usuario    Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   ebook      Ebook    @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@unique([usuario_id, ebook_id])
   @@index([usuario_id])
@@ -132,14 +135,13 @@ model EbookAnnotacion {
   usuario_id String
   ebook_id   String
   pagina     Int
-  tipo       String // "highlight" | "underline" | "note"
+  tipo       String
   texto      String?
   color      String   @default("#fbbf24")
   posicion   Json
   creado_en  DateTime @default(now())
-
-  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  ebook   Ebook   @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+  ebook      Ebook    @relation(fields: [ebook_id], references: [id], onDelete: Cascade)
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@index([usuario_id, ebook_id])
   @@map("ebook_annotaciones")
@@ -149,7 +151,6 @@ model Curso {
   id                   String            @id @default(uuid())
   titulo               String
   slug                 String            @unique
-  codigo               String?           @unique
   descripcion          String?
   miniatura            String?
   video_presentacion   String?
@@ -157,41 +158,42 @@ model Curso {
   tipo_emision         TipoEmision       @default(ASINCRONO)
   estado               EstadoCurso       @default(BORRADOR)
   es_gratis            Boolean           @default(false)
-  es_privado           Boolean           @default(false)
-  completar_automatico Boolean           @default(false)
-  precio_certificado   Decimal?          @db.Decimal(10, 2)
   precio               Decimal           @default(0) @db.Decimal(10, 2)
-  precio_falso         Decimal           @default(0) @db.Decimal(10, 2)
   moneda               String            @default("PEN")
   creado_en            DateTime          @default(now())
   actualizado_en       DateTime          @updatedAt
   profesor_id          String
   categoria_id         String?
   nivel                NivelCurso?
-  tipo                 TipoCurso         @default(CURSO)
   beneficios           Json?             @default("[]")
   incluye              Json?             @default("[]")
   metodologia          Json?             @default("[]")
   objetivos            Json?             @default("[]")
   fecha_inicio         DateTime?
-  fecha_fin            DateTime?
-  vigencia_meses       Int?
   precio_oferta        Decimal?          @db.Decimal(10, 2)
   brochure             String?
+  tipo                 TipoCurso         @default(CURSO)
+  fecha_fin            DateTime?
+  es_privado           Boolean           @default(false)
+  precio_certificado   Decimal?          @db.Decimal(10, 2)
+  codigo               String?           @unique
+  precio_falso         Decimal           @default(0) @db.Decimal(10, 2)
+  vigencia_meses       Int?
+  completar_automatico Boolean           @default(false)
   orden                Int               @default(0)
+  actividades          Actividad[]
   certificados         Certificado[]
+  cupones              CuponCurso[]
   categoria            Categoria?        @relation(fields: [categoria_id], references: [id])
   profesor             Usuario           @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
+  planes               CursoEnPlan[]
   rutas                CursoEnRuta[]
   detalles_pedido      DetallePedido[]
   examenes             Examen[]
   inscripciones        Inscripcion[]
   modulos              Modulo[]
-  actividades          Actividad[]
   progreso             ProgresoCurso[]
-  cupones              CuponCurso[]
   valoraciones         ValoracionCurso[]
-  planes               CursoEnPlan[]
 
   @@index([profesor_id])
   @@index([categoria_id])
@@ -208,9 +210,9 @@ model Modulo {
   creado_en      DateTime    @default(now())
   actualizado_en DateTime    @updatedAt
   curso_id       String
+  actividades    Actividad[]
   examenes       Examen[]
   lecciones      Leccion[]
-  actividades    Actividad[]
   curso          Curso       @relation(fields: [curso_id], references: [id], onDelete: Cascade)
 
   @@unique([curso_id, orden])
@@ -233,9 +235,10 @@ model Leccion {
   video_url        String?
   es_vista_previa  Boolean            @default(false)
   es_en_vivo       Boolean            @default(false)
-  es_pdf           Boolean            @default(false)
   fecha_programada DateTime?
   fecha_fin        DateTime?
+  es_pdf           Boolean            @default(false)
+  asistencias      asistencias[]
   comentarios      Comentario[]
   contenidos       ContenidoLeccion[]
   modulo           Modulo             @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
@@ -275,17 +278,17 @@ model Pedido {
   url_pago              String?
   token_pago            String?
   respuesta_izipay      Json?
-  comprobante_url       String?
-  comprobante_subido_en DateTime?
-  tipo_comprobante      String?
-  numero_comprobante    String?
   creado_en             DateTime          @default(now())
   pagado_en             DateTime?
   cancelado_en          DateTime?
   actualizado_en        DateTime          @updatedAt
   usuario_id            String
   cupon_id              String?
+  comprobante_url       String?
+  comprobante_subido_en DateTime?
   metodo_pago_manual_id String?
+  numero_comprobante    String?
+  tipo_comprobante      String?
   detalles              DetallePedido[]
   inscripciones         Inscripcion[]
   cupon                 Cupon?            @relation(fields: [cupon_id], references: [id])
@@ -320,7 +323,6 @@ model MetodoPagoManual {
 
 model DetallePedido {
   id              String     @id @default(uuid())
-  tipo_item       String     @default("CURSO")
   cantidad        Int        @default(1)
   descuento       Decimal    @default(0) @db.Decimal(10, 2)
   precio_unitario Decimal    @db.Decimal(10, 2)
@@ -329,11 +331,12 @@ model DetallePedido {
   pedido_id       String
   curso_id        String?
   ebook_id        String?
+  tipo_item       String     @default("CURSO")
   simulacro_id    String?
   curso           Curso?     @relation(fields: [curso_id], references: [id])
   ebook           Ebook?     @relation(fields: [ebook_id], references: [id])
-  simulacro       Simulacro? @relation(fields: [simulacro_id], references: [id])
   pedido          Pedido     @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  simulacro       Simulacro? @relation(fields: [simulacro_id], references: [id])
 
   @@index([pedido_id])
   @@index([curso_id])
@@ -347,12 +350,12 @@ model Inscripcion {
   estado                 EstadoInscripcion @default(ACTIVO)
   inscrito_en            DateTime          @default(now())
   completado_en          DateTime?
-  nota_final             Float?
-  estado_nota            EstadoNota?
-  certificado_habilitado Boolean           @default(false)
   usuario_id             String
   curso_id               String
   pedido_id              String?
+  estado_nota            EstadoNota?
+  nota_final             Float?
+  certificado_habilitado Boolean           @default(false)
   curso                  Curso             @relation(fields: [curso_id], references: [id], onDelete: Cascade)
   pedido                 Pedido?           @relation(fields: [pedido_id], references: [id])
   usuario                Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
@@ -398,21 +401,22 @@ model Examen {
   id                 String          @id @default(uuid())
   titulo             String
   descripcion        String?
-  tipo               TipoExamen      @default(FINAL)
-  peso               Int             @default(100)
-  progreso_minimo    Int             @default(0)
-  orden              Int?
   limite_tiempo      Int?
   puntaje_aprobacion Float           @default(60)
+  nota_maxima        Int             @default(20)
   intentos_maximos   Int             @default(1)
   mezclar_preguntas  Boolean         @default(false)
   esta_publicado     Boolean         @default(false)
-  fecha_inicio       DateTime?
-  fecha_fin          DateTime?
   creado_en          DateTime        @default(now())
   actualizado_en     DateTime        @updatedAt
   curso_id           String
   modulo_id          String?
+  orden              Int?
+  peso               Int             @default(100)
+  progreso_minimo    Int             @default(0)
+  tipo               TipoExamen      @default(FINAL)
+  fecha_fin          DateTime?
+  fecha_inicio       DateTime?
   curso              Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
   modulo             Modulo?         @relation(fields: [modulo_id], references: [id], onDelete: Cascade)
   intentos           IntentoExamen[]
@@ -539,15 +543,15 @@ model Tenant {
 }
 
 model Media {
-  id              String        @id @default(uuid())
-  nombre          String
-  url             String
-  tipo            String
-  mimetype        String
-  peso            Int
-  creado_en       DateTime      @default(now())
-  actualizado_en  DateTime      @updatedAt
-  mensajes_chat   MensajeChat[]
+  id             String        @id @default(uuid())
+  nombre         String
+  url            String
+  tipo           String
+  mimetype       String
+  peso           Int
+  creado_en      DateTime      @default(now())
+  actualizado_en DateTime      @updatedAt
+  mensajes_chat  MensajeChat[]
 
   @@map("media")
 }
@@ -570,12 +574,12 @@ model Notificacion {
 model Comentario {
   id             String           @id @default(uuid())
   contenido      String
-  estado         EstadoComentario @default(PENDIENTE)
   creado_en      DateTime         @default(now())
   actualizado_en DateTime         @updatedAt
   usuario_id     String
   leccion_id     String
   respuesta_a_id String?
+  estado         EstadoComentario @default(PENDIENTE)
   leccion        Leccion          @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
   padre          Comentario?      @relation("Respuestas", fields: [respuesta_a_id], references: [id], onDelete: Cascade)
   respuestas     Comentario[]     @relation("Respuestas")
@@ -598,8 +602,8 @@ model Cupon {
   esta_activo      Boolean       @default(true)
   creado_en        DateTime      @default(now())
   actualizado_en   DateTime      @updatedAt
-  pedidos          Pedido[]
   cursos           CuponCurso[]
+  pedidos          Pedido[]
 
   @@map("cupones")
 }
@@ -668,6 +672,7 @@ model Reclamacion {
   email                String
   nombre_apoderado     String?
   bien_contratado_tipo TipoBien
+  moneda               String               @default("PEN")
   monto_reclamado      Decimal              @db.Decimal(10, 2)
   descripcion_bien     String
   tipo_reclamacion     TipoReclamacion
@@ -678,15 +683,339 @@ model Reclamacion {
   fecha_respuesta      DateTime?
   creado_en            DateTime             @default(now())
   actualizado_en       DateTime             @updatedAt
-  moneda               String               @default("PEN")
 
   @@map("reclamaciones")
+}
+
+model PlanSuscripcion {
+  id                   String               @id @default(uuid())
+  nombre               String
+  descripcion          String?
+  precio               Decimal              @db.Decimal(10, 2)
+  moneda               String               @default("PEN")
+  intervalo            IntervaloSuscripcion
+  culqi_interval_unit  Int                  @default(1)
+  culqi_interval_count Int                  @default(1)
+  dias_prueba          Int                  @default(0)
+  esta_activo          Boolean              @default(true)
+  culqi_plan_id        String?              @unique
+  culqi_short_name     String?              @unique
+  creado_en            DateTime             @default(now())
+  actualizado_en       DateTime             @updatedAt
+  beneficios           Json?                @default("[]")
+  cursos               CursoEnPlan[]
+  suscripciones        Suscripcion[]
+
+  @@index([esta_activo])
+  @@map("planes_suscripcion")
+}
+
+model CursoEnPlan {
+  plan_id  String
+  curso_id String
+  curso    Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  plan     PlanSuscripcion @relation(fields: [plan_id], references: [id], onDelete: Cascade)
+
+  @@id([plan_id, curso_id])
+  @@index([plan_id])
+  @@index([curso_id])
+  @@map("cursos_en_plan")
+}
+
+model Suscripcion {
+  id                    String            @id @default(uuid())
+  usuario_id            String
+  plan_id               String
+  estado                EstadoSuscripcion @default(PENDIENTE)
+  culqi_suscripcion_id  String?           @unique
+  culqi_customer_id     String?
+  culqi_card_id         String?
+  fecha_inicio          DateTime?
+  fecha_fin             DateTime?
+  fecha_proximo_cobro   DateTime?
+  fecha_cancelacion     DateTime?
+  cancelado_por_usuario Boolean           @default(false)
+  creado_en             DateTime          @default(now())
+  actualizado_en        DateTime          @updatedAt
+  pagos                 PagoSuscripcion[]
+  plan                  PlanSuscripcion   @relation(fields: [plan_id], references: [id])
+  usuario               Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id])
+  @@index([plan_id])
+  @@index([estado])
+  @@map("suscripciones")
+}
+
+model PagoSuscripcion {
+  id             String                @id @default(uuid())
+  suscripcion_id String
+  monto          Decimal               @db.Decimal(10, 2)
+  moneda         String                @default("PEN")
+  estado         EstadoPagoSuscripcion @default(PENDIENTE)
+  culqi_cargo_id String?               @unique
+  periodo_inicio DateTime?
+  periodo_fin    DateTime?
+  intentos       Int                   @default(0)
+  creado_en      DateTime              @default(now())
+  actualizado_en DateTime              @updatedAt
+  suscripcion    Suscripcion           @relation(fields: [suscripcion_id], references: [id], onDelete: Cascade)
+
+  @@index([suscripcion_id])
+  @@index([estado])
+  @@map("pagos_suscripcion")
+}
+
+model Trabajo {
+  id             String           @id @default(uuid())
+  titulo         String
+  descripcion    String?
+  archivo_url    String?
+  archivo_nombre String?
+  fecha_inicio   DateTime?
+  fecha_fin      DateTime?
+  creado_en      DateTime         @default(now())
+  actualizado_en DateTime         @updatedAt
+  leccion_id     String           @unique
+  entregas       EntregaTrabajo[]
+  leccion        Leccion          @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+
+  @@map("trabajos")
+}
+
+model EntregaTrabajo {
+  id                    String   @id @default(uuid())
+  archivo_url           String
+  archivo_nombre        String
+  comentario_estudiante String?
+  nota                  Float?
+  comentario_docente    String?
+  creado_en             DateTime @default(now())
+  actualizado_en        DateTime @updatedAt
+  trabajo_id            String
+  usuario_id            String
+  trabajo               Trabajo  @relation(fields: [trabajo_id], references: [id], onDelete: Cascade)
+  usuario               Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([trabajo_id, usuario_id])
+  @@index([trabajo_id])
+  @@index([usuario_id])
+  @@map("entregas_trabajo")
+}
+
+model Simulacro {
+  id               String                 @id @default(uuid())
+  titulo           String
+  slug             String                 @unique
+  descripcion      String?
+  miniatura        String?
+  estado           EstadoSimulacro        @default(BORRADOR)
+  nivel            NivelSimulacro         @default(BASICO)
+  duracion         String?
+  numero_preguntas Int                    @default(0)
+  area_tematica    String?
+  es_gratis        Boolean                @default(false)
+  precio           Decimal                @default(0) @db.Decimal(10, 2)
+  moneda           String                 @default("PEN")
+  creado_en        DateTime               @default(now())
+  actualizado_en   DateTime               @updatedAt
+  preguntas        PreguntaSimulacro[]
+  detalles_pedido  DetallePedido[]
+  inscripciones    InscripcionSimulacro[]
+
+  @@index([estado])
+}
+
+model InscripcionSimulacro {
+  id            String            @id @default(uuid())
+  usuario_id    String
+  simulacro_id  String
+  estado        EstadoInscripcion @default(ACTIVO)
+  inscrito_en   DateTime          @default(now())
+  intentos      Int               @default(0)
+  mejor_puntaje Float?
+  simulacro     Simulacro         @relation(fields: [simulacro_id], references: [id], onDelete: Cascade)
+  usuario       Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([usuario_id, simulacro_id])
+  @@index([usuario_id])
+  @@index([simulacro_id])
+  @@map("inscripciones_simulacro")
+}
+
+model PreguntaSimulacro {
+  id           String                    @id @default(uuid())
+  simulacro_id String
+  enunciado    String
+  tema         String?
+  fundamento   String?
+  orden        Int                       @default(0)
+  creado_en    DateTime                  @default(now())
+  audio_url    String?
+  imagen_url   String?
+  opciones     OpcionPreguntaSimulacro[]
+  simulacro    Simulacro                 @relation(fields: [simulacro_id], references: [id], onDelete: Cascade)
+
+  @@index([simulacro_id])
+}
+
+model OpcionPreguntaSimulacro {
+  id          String            @id @default(uuid())
+  pregunta_id String
+  texto       String
+  es_correcta Boolean           @default(false)
+  orden       Int               @default(0)
+  pregunta    PreguntaSimulacro @relation(fields: [pregunta_id], references: [id], onDelete: Cascade)
+
+  @@index([pregunta_id])
+}
+
+model Conversacion {
+  id             String                     @id @default(uuid())
+  creado_en      DateTime                   @default(now())
+  actualizado_en DateTime                   @updatedAt
+  mensajes       MensajeChat[]
+  participantes  ParticipanteConversacion[]
+
+  @@map("conversaciones")
+}
+
+model ParticipanteConversacion {
+  id              String       @id @default(uuid())
+  conversacion_id String
+  usuario_id      String
+  unido_en        DateTime     @default(now())
+  conversacion    Conversacion @relation(fields: [conversacion_id], references: [id], onDelete: Cascade)
+  usuario         Usuario      @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([conversacion_id, usuario_id])
+  @@index([conversacion_id])
+  @@index([usuario_id])
+  @@map("participantes_conversacion")
+}
+
+model MensajeChat {
+  id              String       @id @default(uuid())
+  contenido       String
+  leido           Boolean      @default(false)
+  creado_en       DateTime     @default(now())
+  conversacion_id String
+  remitente_id    String
+  adjunto_id      String?
+  adjunto         Media?       @relation(fields: [adjunto_id], references: [id])
+  conversacion    Conversacion @relation(fields: [conversacion_id], references: [id], onDelete: Cascade)
+  remitente       Usuario      @relation("MensajesEnviados", fields: [remitente_id], references: [id], onDelete: Cascade)
+
+  @@index([conversacion_id])
+  @@index([remitente_id])
+  @@index([conversacion_id, creado_en])
+  @@map("mensajes_chat")
+}
+
+model Actividad {
+  id             String              @id @default(uuid())
+  titulo         String
+  instrucciones  String?
+  tipo           TipoActividad       @default(ARCHIVO)
+  orden          Int?
+  fecha_inicio   DateTime?
+  fecha_fin      DateTime?
+  puntaje_maximo Float               @default(20)
+  esta_publicado Boolean             @default(false)
+  creado_en      DateTime            @default(now())
+  actualizado_en DateTime            @updatedAt
+  curso_id       String
+  modulo_id      String?
+  curso          Curso               @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  modulo         Modulo?             @relation(fields: [modulo_id], references: [id])
+  entregas       EntregaActividad[]
+  preguntas      PreguntaActividad[]
+
+  @@index([curso_id])
+  @@index([modulo_id])
+  @@map("actividades")
+}
+
+model PreguntaActividad {
+  id             String                    @id @default(uuid())
+  texto          String
+  tipo           TipoPregunta              @default(OPCION_MULTIPLE)
+  puntos         Float                     @default(1)
+  orden          Int
+  creado_en      DateTime                  @default(now())
+  actualizado_en DateTime                  @updatedAt
+  actividad_id   String
+  opciones       OpcionPreguntaActividad[]
+  actividad      Actividad                 @relation(fields: [actividad_id], references: [id], onDelete: Cascade)
+
+  @@index([actividad_id])
+  @@map("preguntas_actividad")
+}
+
+model OpcionPreguntaActividad {
+  id          String            @id @default(uuid())
+  texto       String
+  es_correcta Boolean           @default(false)
+  orden       Int
+  pregunta_id String
+  pregunta    PreguntaActividad @relation(fields: [pregunta_id], references: [id], onDelete: Cascade)
+
+  @@index([pregunta_id])
+  @@map("opciones_pregunta_actividad")
+}
+
+model EntregaActividad {
+  id                    String    @id @default(uuid())
+  archivo_url           String?
+  archivo_nombre        String?
+  comentario_estudiante String?
+  respuestas            Json?
+  nota                  Float?
+  comentario_docente    String?
+  creado_en             DateTime  @default(now())
+  actualizado_en        DateTime  @updatedAt
+  actividad_id          String
+  usuario_id            String
+  actividad             Actividad @relation(fields: [actividad_id], references: [id], onDelete: Cascade)
+  usuario               Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([actividad_id, usuario_id])
+  @@index([actividad_id])
+  @@index([usuario_id])
+  @@map("entregas_actividad")
+}
+
+model asistencias {
+  id             String   @id
+  leccion_id     String
+  usuario_id     String
+  asistio        Boolean  @default(false)
+  creado_en      DateTime @default(now())
+  actualizado_en DateTime
+  lecciones      Leccion  @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
+  usuarios       Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@unique([leccion_id, usuario_id])
+  @@index([leccion_id])
+  @@index([usuario_id])
+}
+
+model supervisores_alumnos {
+  supervisor_id                                         String
+  alumno_id                                             String
+  usuarios_supervisores_alumnos_alumno_idTousuarios     Usuario @relation("supervisores_alumnos_alumno_idTousuarios", fields: [alumno_id], references: [id], onDelete: Cascade)
+  usuarios_supervisores_alumnos_supervisor_idTousuarios Usuario @relation("supervisores_alumnos_supervisor_idTousuarios", fields: [supervisor_id], references: [id], onDelete: Cascade)
+
+  @@id([supervisor_id, alumno_id])
+  @@index([alumno_id])
+  @@index([supervisor_id])
 }
 
 enum Rol {
   ADMIN
   PROFESOR
   ESTUDIANTE
+  SUPERVISOR
 }
 
 enum EstadoCurso {
@@ -833,122 +1162,6 @@ enum EstadoPagoSuscripcion {
   REEMBOLSADO
 }
 
-model PlanSuscripcion {
-  id                   String               @id @default(uuid())
-  nombre               String
-  descripcion          String?
-  precio               Decimal              @db.Decimal(10, 2)
-  moneda               String               @default("PEN")
-  intervalo            IntervaloSuscripcion
-  culqi_interval_unit  Int                  @default(1)
-  culqi_interval_count Int                  @default(1)
-  dias_prueba          Int                  @default(0)
-  esta_activo          Boolean              @default(true)
-  beneficios           Json?                @default("[]")
-  culqi_plan_id        String?              @unique
-  culqi_short_name     String?              @unique
-  creado_en            DateTime             @default(now())
-  actualizado_en       DateTime             @updatedAt
-  cursos               CursoEnPlan[]
-  suscripciones        Suscripcion[]
-
-  @@index([esta_activo])
-  @@map("planes_suscripcion")
-}
-
-model CursoEnPlan {
-  plan_id  String
-  curso_id String
-  plan     PlanSuscripcion @relation(fields: [plan_id], references: [id], onDelete: Cascade)
-  curso    Curso           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
-
-  @@id([plan_id, curso_id])
-  @@index([plan_id])
-  @@index([curso_id])
-  @@map("cursos_en_plan")
-}
-
-model Suscripcion {
-  id                    String            @id @default(uuid())
-  usuario_id            String
-  plan_id               String
-  estado                EstadoSuscripcion @default(PENDIENTE)
-  culqi_suscripcion_id  String?           @unique
-  culqi_customer_id     String?
-  culqi_card_id         String?
-  fecha_inicio          DateTime?
-  fecha_fin             DateTime?
-  fecha_proximo_cobro   DateTime?
-  fecha_cancelacion     DateTime?
-  cancelado_por_usuario Boolean           @default(false)
-  creado_en             DateTime          @default(now())
-  actualizado_en        DateTime          @updatedAt
-  usuario               Usuario           @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  plan                  PlanSuscripcion   @relation(fields: [plan_id], references: [id])
-  pagos                 PagoSuscripcion[]
-
-  @@index([usuario_id])
-  @@index([plan_id])
-  @@index([estado])
-  @@map("suscripciones")
-}
-
-model PagoSuscripcion {
-  id             String                @id @default(uuid())
-  suscripcion_id String
-  monto          Decimal               @db.Decimal(10, 2)
-  moneda         String                @default("PEN")
-  estado         EstadoPagoSuscripcion @default(PENDIENTE)
-  culqi_cargo_id String?               @unique
-  periodo_inicio DateTime?
-  periodo_fin    DateTime?
-  intentos       Int                   @default(0)
-  creado_en      DateTime              @default(now())
-  actualizado_en DateTime              @updatedAt
-  suscripcion    Suscripcion           @relation(fields: [suscripcion_id], references: [id], onDelete: Cascade)
-
-  @@index([suscripcion_id])
-  @@index([estado])
-  @@map("pagos_suscripcion")
-}
-
-model Trabajo {
-  id             String           @id @default(uuid())
-  titulo         String
-  descripcion    String?          @db.Text
-  archivo_url    String?
-  archivo_nombre String?
-  fecha_inicio   DateTime?
-  fecha_fin      DateTime?
-  creado_en      DateTime         @default(now())
-  actualizado_en DateTime         @updatedAt
-  leccion_id     String           @unique
-  leccion        Leccion          @relation(fields: [leccion_id], references: [id], onDelete: Cascade)
-  entregas       EntregaTrabajo[]
-
-  @@map("trabajos")
-}
-
-model EntregaTrabajo {
-  id                    String   @id @default(uuid())
-  archivo_url           String
-  archivo_nombre        String
-  comentario_estudiante String?  @db.Text
-  nota                  Float?
-  comentario_docente    String?  @db.Text
-  creado_en             DateTime @default(now())
-  actualizado_en        DateTime @updatedAt
-  trabajo_id            String
-  trabajo               Trabajo  @relation(fields: [trabajo_id], references: [id], onDelete: Cascade)
-  usuario_id            String
-  usuario               Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-
-  @@unique([trabajo_id, usuario_id])
-  @@index([trabajo_id])
-  @@index([usuario_id])
-  @@map("entregas_trabajo")
-}
-
 enum EstadoSimulacro {
   BORRADOR
   PUBLICADO
@@ -964,189 +1177,4 @@ enum NivelSimulacro {
 enum TipoActividad {
   ARCHIVO
   FORMULARIO
-}
-
-model Simulacro {
-  id               String                 @id @default(uuid())
-  titulo           String
-  slug             String                 @unique
-  descripcion      String?
-  miniatura        String?
-  estado           EstadoSimulacro        @default(BORRADOR)
-  nivel            NivelSimulacro         @default(BASICO)
-  duracion         String?
-  numero_preguntas Int                    @default(0)
-  area_tematica    String?
-  es_gratis        Boolean                @default(false)
-  precio           Decimal                @default(0) @db.Decimal(10, 2)
-  moneda           String                 @default("PEN")
-  creado_en        DateTime               @default(now())
-  actualizado_en   DateTime               @updatedAt
-  preguntas        PreguntaSimulacro[]
-  inscripciones    InscripcionSimulacro[]
-  detalles_pedido  DetallePedido[]
-
-  @@index([estado])
-}
-
-model InscripcionSimulacro {
-  id            String            @id @default(uuid())
-  usuario_id    String
-  simulacro_id  String
-  estado        EstadoInscripcion @default(ACTIVO)
-  inscrito_en   DateTime          @default(now())
-  intentos      Int               @default(0)
-  mejor_puntaje Float?
-
-  usuario   Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  simulacro Simulacro @relation(fields: [simulacro_id], references: [id], onDelete: Cascade)
-
-  @@unique([usuario_id, simulacro_id])
-  @@index([usuario_id])
-  @@index([simulacro_id])
-  @@map("inscripciones_simulacro")
-}
-
-model PreguntaSimulacro {
-  id           String                    @id @default(uuid())
-  simulacro_id String
-  simulacro    Simulacro                 @relation(fields: [simulacro_id], references: [id], onDelete: Cascade)
-  enunciado    String
-  tema         String?
-  fundamento   String?
-  audio_url    String?
-  imagen_url   String?
-  orden        Int                       @default(0)
-  creado_en    DateTime                  @default(now())
-  opciones     OpcionPreguntaSimulacro[]
-
-  @@index([simulacro_id])
-}
-
-model OpcionPreguntaSimulacro {
-  id          String            @id @default(uuid())
-  pregunta_id String
-  pregunta    PreguntaSimulacro @relation(fields: [pregunta_id], references: [id], onDelete: Cascade)
-  texto       String
-  es_correcta Boolean           @default(false)
-  orden       Int               @default(0)
-
-  @@index([pregunta_id])
-}
-
-
-model Conversacion {
-  id             String                     @id @default(uuid())
-  creado_en      DateTime                   @default(now())
-  actualizado_en DateTime                   @updatedAt
-  participantes  ParticipanteConversacion[]
-  mensajes       MensajeChat[]
-
-  @@map("conversaciones")
-}
-
-model ParticipanteConversacion {
-  id              String       @id @default(uuid())
-  conversacion_id String
-  usuario_id      String
-  unido_en        DateTime     @default(now())
-  conversacion    Conversacion @relation(fields: [conversacion_id], references: [id], onDelete: Cascade)
-  usuario         Usuario      @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-
-  @@unique([conversacion_id, usuario_id])
-  @@index([conversacion_id])
-  @@index([usuario_id])
-  @@map("participantes_conversacion")
-}
-
-model MensajeChat {
-  id              String       @id @default(uuid())
-  contenido       String       @db.Text
-  leido           Boolean      @default(false)
-  creado_en       DateTime     @default(now())
-  conversacion_id String
-  remitente_id    String
-  adjunto_id      String?
-  conversacion    Conversacion @relation(fields: [conversacion_id], references: [id], onDelete: Cascade)
-  remitente       Usuario      @relation("MensajesEnviados", fields: [remitente_id], references: [id], onDelete: Cascade)
-  adjunto         Media?       @relation(fields: [adjunto_id], references: [id], onDelete: SetNull)
-
-  @@index([conversacion_id])
-  @@index([remitente_id])
-  @@index([conversacion_id, creado_en])
-  @@map("mensajes_chat")
-}
-// ─── Actividades / Tareas ────────────────────────────────────────────────────
-
-model Actividad {
-  id             String              @id @default(uuid())
-  titulo         String
-  instrucciones  String?             @db.Text
-  tipo           TipoActividad       @default(ARCHIVO)
-  orden          Int?
-  fecha_inicio   DateTime?
-  fecha_fin      DateTime?
-  puntaje_maximo Float               @default(20)
-  esta_publicado Boolean             @default(false)
-  creado_en      DateTime            @default(now())
-  actualizado_en DateTime            @updatedAt
-  curso_id       String
-  modulo_id      String?
-  curso          Curso               @relation(fields: [curso_id], references: [id], onDelete: Cascade)
-  modulo         Modulo?             @relation(fields: [modulo_id], references: [id], onDelete: SetNull)
-  preguntas      PreguntaActividad[]
-  entregas       EntregaActividad[]
-
-  @@index([curso_id])
-  @@index([modulo_id])
-  @@map("actividades")
-}
-
-model PreguntaActividad {
-  id             String                    @id @default(uuid())
-  texto          String
-  tipo           TipoPregunta              @default(OPCION_MULTIPLE)
-  puntos         Float                     @default(1)
-  orden          Int
-  creado_en      DateTime                  @default(now())
-  actualizado_en DateTime                  @updatedAt
-  actividad_id   String
-  actividad      Actividad                 @relation(fields: [actividad_id], references: [id], onDelete: Cascade)
-  opciones       OpcionPreguntaActividad[]
-
-  @@index([actividad_id])
-  @@map("preguntas_actividad")
-}
-
-model OpcionPreguntaActividad {
-  id          String            @id @default(uuid())
-  texto       String
-  es_correcta Boolean           @default(false)
-  orden       Int
-  pregunta_id String
-  pregunta    PreguntaActividad @relation(fields: [pregunta_id], references: [id], onDelete: Cascade)
-
-  @@index([pregunta_id])
-  @@map("opciones_pregunta_actividad")
-}
-
-model EntregaActividad {
-  id                    String    @id @default(uuid())
-  archivo_url           String?
-  archivo_nombre        String?
-  comentario_estudiante String?   @db.Text
-  respuestas            Json?
-  nota                  Float?
-  comentario_docente    String?   @db.Text
-  creado_en             DateTime  @default(now())
-  actualizado_en        DateTime  @updatedAt
-  actividad_id          String
-  usuario_id            String
-  actividad             Actividad @relation(fields: [actividad_id], references: [id], onDelete: Cascade)
-  usuario               Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-
-  @@unique([actividad_id, usuario_id])
-  @@index([actividad_id])
-  @@index([usuario_id])
-  @@map("entregas_actividad")
 }

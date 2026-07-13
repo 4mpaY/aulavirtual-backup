@@ -64,5 +64,5 @@ export const TIPO_PROGRAMA_CONFIG = {
 } as const
 
 export function getTipoProgramaConfig(tipo: TipoPrograma) {
-  return TIPO_PROGRAMA_CONFIG.CURSO
+  return TIPO_PROGRAMA_CONFIG[tipo]
 }

@@ -53,7 +53,8 @@ export async function GET(request: Request, { params }: { params: { cursoId: str
                 peso: true,
                 orden: true,
                 modulo_id: true,
-                modulo: { select: { orden: true } }
+                modulo: { select: { orden: true } },
+                nota_maxima: true
               }
             }
           }
@@ -82,7 +83,8 @@ export async function GET(request: Request, { params }: { params: { cursoId: str
       peso: ex.peso,
       orden: ex.orden,
       modulo_id: ex.modulo_id,
-      modulo_orden: ex.modulo?.orden ?? null
+      modulo_orden: ex.modulo?.orden ?? null,
+      nota_maxima: ex.nota_maxima
     }))
 
     const resumen = calcularResumenNotasCurso(
@@ -119,7 +121,8 @@ export async function GET(request: Request, { params }: { params: { cursoId: str
         examen_id: e.examen_id,
         descripcion: e.descripcion,
         peso: e.peso,
-        nota: e.nota
+        nota: e.nota,
+        nota_maxima: e.nota_maxima
       }))
     })
   } catch (error) {

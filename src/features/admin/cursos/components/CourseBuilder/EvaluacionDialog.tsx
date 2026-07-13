@@ -193,6 +193,7 @@ const defaultConfig = {
   peso: 1 as 1 | 2 | 3,
   progreso_minimo: 0,
   puntaje_aprobacion: 12,
+  nota_maxima: 20,
   intentos_maximos: 1,
   limite_tiempo: null as number | null,
   mezclar_preguntas: true,
@@ -240,6 +241,7 @@ export function EvaluacionDialog({
   useEffect(() => {
     if (examenData?.examen && phase === 'config') {
       const e = examenData.examen
+      const baseMax = e.nota_maxima ?? 20
 
       const toDatetimeLocal = (val: any) => {
         if (!val) return null
@@ -253,7 +255,8 @@ export function EvaluacionDialog({
         descripcion: e.descripcion || '',
         peso: e.peso || 1,
         progreso_minimo: e.progreso_minimo ?? 0,
-        puntaje_aprobacion: e.puntaje_aprobacion ? Math.round(e.puntaje_aprobacion / 5) : 12,
+        nota_maxima: baseMax,
+        puntaje_aprobacion: e.puntaje_aprobacion ? Math.round((e.puntaje_aprobacion / 100) * baseMax) : Math.round(0.6 * baseMax),
         intentos_maximos: e.intentos_maximos || 1,
         limite_tiempo: e.limite_tiempo || null,
         mezclar_preguntas: e.mezclar_preguntas ?? true,
@@ -271,10 +274,11 @@ export function EvaluacionDialog({
     if (!config.titulo.trim()) return
 
     const toISO = (val: string | null) => (val ? new Date(val).toISOString() : null)
+    const baseMax = config.nota_maxima ?? 20
 
     const configToSave = {
       ...config,
-      puntaje_aprobacion: config.puntaje_aprobacion * 5,
+      puntaje_aprobacion: (config.puntaje_aprobacion / baseMax) * 100,
       fecha_inicio: toISO(config.fecha_inicio),
       fecha_fin: toISO(config.fecha_fin)
     }
@@ -484,13 +488,32 @@ export function EvaluacionDialog({
               <CustomTextField
                 fullWidth
                 type='number'
-                label='Nota mínima de aprobación (0 – 20)'
-                inputProps={{ min: 0, max: 20 }}
+                label='Base de calificación (Nota máxima)'
+                inputProps={{ min: 1 }}
+                value={config.nota_maxima ?? 20}
+                onChange={e => {
+                  const val = Math.max(1, Number(e.target.value))
+
+                  set('nota_maxima', val)
+                  if (config.puntaje_aprobacion > val) {
+                    set('puntaje_aprobacion', val)
+                  }
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <CustomTextField
+                fullWidth
+                type='number'
+                label={`Nota mínima de aprobación (0 – ${config.nota_maxima ?? 20})`}
+                inputProps={{ min: 0, max: config.nota_maxima ?? 20 }}
                 value={config.puntaje_aprobacion}
                 onChange={e => {
+                  const maxBase = config.nota_maxima ?? 20
                   let val = Number(e.target.value)
 
-                  if (val > 20) val = 20
+                  if (val > maxBase) val = maxBase
                   if (val < 0) val = 0
                   set('puntaje_aprobacion', val)
                 }}

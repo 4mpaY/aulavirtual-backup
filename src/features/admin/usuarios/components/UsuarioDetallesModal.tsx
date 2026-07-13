@@ -38,7 +38,8 @@ interface UsuarioDetallesModalProps {
 const rolLabels: { [key in Rol]: string } = {
   ADMIN: 'Administrador',
   PROFESOR: 'Profesor',
-  ESTUDIANTE: 'Estudiante'
+  ESTUDIANTE: 'Estudiante',
+  SUPERVISOR: 'Supervisor'
 }
 
 interface CertConfirm {

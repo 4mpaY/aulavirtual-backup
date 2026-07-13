@@ -9,7 +9,8 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography
+  Typography,
+  Chip
 } from '@mui/material'
 
 import AppModal from '@/utils/components/AppModal'
@@ -72,6 +73,11 @@ export function DetalleNotaModal({
                 {evaluaciones.map(ev => (
                   <TableCell key={ev.examen_id} align='center' sx={{ fontWeight: 700, fontSize: 15 }}>
                     {ev.nota.toFixed(2)}
+                    {ev.nota_maxima && ev.nota_maxima !== 20 && (
+                      <Typography component='span' variant='caption' color='text.secondary' sx={{ ml: 0.5 }}>
+                        /{ev.nota_maxima}
+                      </Typography>
+                    )}
                   </TableCell>
                 ))}
                 {evaluaciones.length === 0 && (
@@ -108,7 +114,18 @@ export function DetalleNotaModal({
                 evaluaciones.map(ev => (
                   <TableRow key={ev.examen_id}>
                     <TableCell>Nota {ev.numero}</TableCell>
-                    <TableCell>{ev.descripcion}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span>{ev.descripcion}</span>
+                        {ev.nota_maxima && ev.nota_maxima !== 20 && (
+                          <Chip
+                            label={`Base: ${ev.nota_maxima}`}
+                            size='small'
+                            sx={{ height: 18, fontSize: '0.68rem', bgcolor: 'rgba(0,0,0,0.06)', color: 'text.secondary', fontWeight: 600 }}
+                          />
+                        )}
+                      </Box>
+                    </TableCell>
                     <TableCell align='center'>{ev.peso}</TableCell>
                   </TableRow>
                 ))

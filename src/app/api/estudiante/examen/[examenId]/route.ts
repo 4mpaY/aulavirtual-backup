@@ -161,6 +161,7 @@ export async function GET(request: Request, { params }: { params: { examenId: st
         puntaje: ultimoIntento.puntaje,
         aprobado: ultimoIntento.esta_aprobado,
         puntajeAprobacion: examen.puntaje_aprobacion,
+        nota_maxima: examen.nota_maxima,
         respuestasCorrectas: ultimoIntento.respuestas.filter((r: any) => r.es_correcta).length,
         totalPreguntas: examen.preguntas.length,
         intentosRestantes,
@@ -185,6 +186,7 @@ export async function GET(request: Request, { params }: { params: { examenId: st
         descripcion: examen.descripcion,
         fecha_fin: (examen as any).fecha_fin ?? null,
         puntaje_aprobacion: examen.puntaje_aprobacion,
+        nota_maxima: examen.nota_maxima,
         mezclar_preguntas: examen.mezclar_preguntas,
         preguntas: examen.preguntas.map(p => ({
           id: p.id,

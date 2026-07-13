@@ -17,9 +17,9 @@ const TikTokIcon = ({ size = 20 }: { size?: number }) => (
 
 export default async function ContactoPage() {
   const configs = await getConfigs()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51989971364'
   const phone = configs.TELEFONO || `+${waNumber}`
-  const email = configs.EMAIL_CONTACTO || 'contacto@agendaperu.com'
+  const email = configs.EMAIL_CONTACTO || 'agenda2050peru@gmail.com'
   const address = configs.DIRECCION || 'Lima, Perú'
   const WA = `https://wa.me/${waNumber}?text=Hola%2C%20quiero%20información%20sobre%20las%20capacitaciones`
 

@@ -22,9 +22,9 @@ const TikTokIcon = ({ size = 20 }: { size?: number }) => (
 const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
   const configs = await getConfigs()
   const rutasHabilitado = isFeatureEnabled('rutas')
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
-  const phone = configs.TELEFONO || '+51 928 510 125'
-  const email = configs.EMAIL_CONTACTO || 'contacto@agendaperu.com'
+  const waNumber = configs.WHATSAPP_NUMERO || '51989971364'
+  const phone = configs.TELEFONO || '+51 989 971 364'
+  const email = configs.EMAIL_CONTACTO || 'agenda2050peru@gmail.com'
   const address = configs.DIRECCION || 'Lima, Perú'
 
   return (
