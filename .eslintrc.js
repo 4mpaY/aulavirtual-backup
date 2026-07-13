@@ -123,6 +123,18 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-var-requires': 'off'
       }
+    },
+    {
+      files: [
+        'src/features/sout/components/ui/**/*',
+        'src/features/sout/components/NavLink.tsx',
+        'src/features/sout/components/SEO.tsx'
+      ],
+      rules: {
+        'import/no-unresolved': 'off',
+        'import/namespace': 'off',
+        '@typescript-eslint/no-unused-vars': 'off'
+      }
     }
   ]
 }

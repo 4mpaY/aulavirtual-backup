@@ -1,14 +1,17 @@
 'use client'
 
 import { useState } from "react";
+
+import { Send, Phone, Mail, MapPin, CheckCircle } from "lucide-react";
+
 import { Button } from "@sout/components/ui/button";
 import { Input } from "@sout/components/ui/input";
 import { Textarea } from "@sout/components/ui/textarea";
-import { Send, Phone, Mail, MapPin, CheckCircle } from "lucide-react";
 import { useToast } from "@sout/hooks/use-toast";
 
 const CTASection = () => {
   const { toast } = useToast();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -34,6 +37,7 @@ Espero su respuesta. Gracias.`;
 
     // Abrir WhatsApp con el mensaje
     const whatsappUrl = `https://wa.me/51977959001?text=${encodeURIComponent(message)}`;
+
     window.open(whatsappUrl, '_blank');
 
     // Limpiar formulario

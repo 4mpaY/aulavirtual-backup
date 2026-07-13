@@ -1,14 +1,12 @@
 'use client'
 
-import Header from "@sout/components/layout/Header";
-import Footer from "@sout/components/layout/Footer";
-import { Button } from "@sout/components/ui/button";
-import Link from 'next/link';
 import { useState } from "react";
+
+import Link from 'next/link';
+
 import {
   Clock,
   Users,
-  ChevronRight,
   Filter,
   Car,
   Heart,
@@ -18,6 +16,12 @@ import {
   Truck,
   Mountain,
 } from "lucide-react";
+
+import Header from "@sout/components/layout/Header";
+import Footer from "@sout/components/layout/Footer";
+import { Button } from "@sout/components/ui/button";
+
+
 import curso1 from "@sout/assets/curso1.jpeg";
 import firstAidTraining from "@sout/assets/rcp.png";
 import fireTraining from "@sout/assets/fire-training.jpg";
@@ -213,9 +217,12 @@ const Courses = () => {
   const filteredCourses = courses.filter((course) => {
     const modalityMatch =
       filter.modality === "all" || course.modality.includes(filter.modality);
+
     const sectorMatch =
       filter.sector === "all" || course.sector.includes(filter.sector);
-    return modalityMatch && sectorMatch;
+
+    
+return modalityMatch && sectorMatch;
   });
 
   return (

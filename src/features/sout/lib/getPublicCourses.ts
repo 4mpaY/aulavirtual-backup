@@ -70,6 +70,7 @@ export async function getPublicCourses(): Promise<{
       where: { usuario_id: userId, estado: 'ACTIVO' },
       select: { curso_id: true },
     })
+
     userCourseIds = new Set(inscripciones.map(i => i.curso_id))
   }
 
@@ -85,6 +86,10 @@ export async function getPublicCourses(): Promise<{
         precio_falso: course.precio_falso != null ? Number(course.precio_falso) : null,
         es_comprado: userId ? userCourseIds.has(course.id) : false,
         _count: { ...course._count, lecciones: leccionesCount },
+        profesor: {
+          ...course.profesor,
+          slug: course.profesor.slug ?? '',
+        },
       }
     })
   )

@@ -79,7 +79,7 @@ const TestimonialsSection = () => {
 
               {/* Content */}
               <blockquote className="text-sm text-foreground leading-relaxed mb-6">
-                "{testimonial.content}"
+                &ldquo;{testimonial.content}&rdquo;
               </blockquote>
 
               {/* Author */}

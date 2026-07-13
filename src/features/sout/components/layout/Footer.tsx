@@ -1,5 +1,7 @@
 import Link from 'next/link'
+
 import { MapPin, Phone, Mail, Clock, Facebook } from 'lucide-react'
+
 import libroReclamaciones from '@sout/assets/libroreclamaciones.jpeg'
 import logo from '@sout/assets/logoblanco.png'
 import marca from '@sout/assets/logo.svg'

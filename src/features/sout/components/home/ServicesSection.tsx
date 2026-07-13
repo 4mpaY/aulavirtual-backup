@@ -1,4 +1,3 @@
-import { Button } from "@sout/components/ui/button";
 import { 
   Car, 
   Shield, 
@@ -16,6 +15,8 @@ import {
   Building2,
   Store
 } from "lucide-react";
+
+import { Button } from "@sout/components/ui/button";
 
 const services = [
   {
@@ -152,7 +153,9 @@ const getColorClasses = (color: string) => {
     purple: { bg: "bg-purple-500/5", icon: "text-purple-500", badge: "bg-purple-500" },
     green: { bg: "bg-green-500/5", icon: "text-green-500", badge: "bg-green-500" }
   };
-  return colors[color] || colors.primary;
+
+  
+return colors[color] || colors.primary;
 };
 
 const ServicesSection = () => {

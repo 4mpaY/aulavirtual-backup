@@ -1,10 +1,7 @@
 'use client'
 
-import Header from "@sout/components/layout/Header";
-import Footer from "@sout/components/layout/Footer";
-import PageHero from "@sout/components/layout/PageHero";
-import { Button } from "@sout/components/ui/button";
 import Link from 'next/link';
+
 import {
   Car,
   Heart,
@@ -14,6 +11,12 @@ import {
   ChevronRight,
   CheckCircle,
 } from "lucide-react";
+
+import Header from "@sout/components/layout/Header";
+import Footer from "@sout/components/layout/Footer";
+import PageHero from "@sout/components/layout/PageHero";
+import { Button } from "@sout/components/ui/button";
+
 import heroImage from "@sout/assets/historial.jpeg";
 
 const services = [

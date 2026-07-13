@@ -15,6 +15,7 @@ function stringToColor(string: string) {
 
   for (let i = 0; i < 3; i += 1) {
     const value = (hash >> (i * 8)) & 0xff
+
     color += `00${value.toString(16)}`.slice(-2)
   }
 
@@ -34,7 +35,9 @@ export default function SoutHeaderAvatar({ src, name = 'U', apellido = '', class
   const initials = useMemo(() => {
     const first = name?.charAt(0) || ''
     const second = apellido?.charAt(0) || ''
-    return `${first}${second}`.toUpperCase() || '?'
+
+    
+return `${first}${second}`.toUpperCase() || '?'
   }, [name, apellido])
 
   const bgColor = useMemo(() => stringToColor(`${name}${apellido}` || 'Default'), [name, apellido])
