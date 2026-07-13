@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
     icons: {
       icon: logo,
       shortcut: logo,
-      apple: logo,
+      apple: '/icons/apple-touch-icon.png',
     },
     appleWebApp: {
       capable: true,

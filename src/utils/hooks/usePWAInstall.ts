@@ -11,7 +11,13 @@ declare global {
   interface Window {
     __pwaInstallPrompt?: BeforeInstallPromptEvent
   }
+
+  interface Navigator {
+    standalone?: boolean
+  }
 }
+
+type Platform = 'ios' | 'android' | 'desktop'
 
 // Captura el evento al evaluar el módulo, ANTES de que React monte.
 // Los módulos ES son singletons: este código corre una sola vez aunque
@@ -27,15 +33,43 @@ if (typeof window !== 'undefined') {
   )
 }
 
+function detectPlatform(ua: string): Platform {
+  // iPadOS 13+ en modo escritorio se identifica como Mac con soporte táctil
+  const isIPadOS = /Macintosh/.test(ua) && typeof navigator !== 'undefined' && navigator.maxTouchPoints > 1
+
+  if (/iPhone|iPad|iPod/.test(ua) || isIPadOS) return 'ios'
+  if (/Android/.test(ua)) return 'android'
+
+  return 'desktop'
+}
+
+function detectIsSafari(ua: string): boolean {
+  // En iOS, Chrome/Firefox/Edge usan WebKit pero se identifican con CriOS/FxiOS/EdgiOS
+  return /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua)
+}
+
+function detectIsInAppBrowser(ua: string): boolean {
+  return /Instagram|FBAN|FBAV|Line\/|TikTok|MicroMessenger|WhatsApp/.test(ua)
+}
+
 export function usePWAInstall() {
   const [mounted, setMounted] = useState(false)
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isInstalled, setIsInstalled] = useState(false)
+  const [platform, setPlatform] = useState<Platform>('desktop')
+  const [isSafari, setIsSafari] = useState(false)
+  const [isInAppBrowser, setIsInAppBrowser] = useState(false)
 
   useEffect(() => {
     setMounted(true)
 
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    const ua = window.navigator.userAgent
+
+    setPlatform(detectPlatform(ua))
+    setIsSafari(detectIsSafari(ua))
+    setIsInAppBrowser(detectIsInAppBrowser(ua))
+
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
       setIsInstalled(true)
 
       return
@@ -86,5 +120,8 @@ export function usePWAInstall() {
     canInstall: mounted && !isInstalled,
     hasNativePrompt: !!installPrompt,
     install,
+    platform,
+    isSafari,
+    isInAppBrowser,
   }
 }
