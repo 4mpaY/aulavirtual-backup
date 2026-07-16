@@ -96,10 +96,13 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     snapshot?.fechas?.culminacion ||
     (esSincrono ? cursoFechaFin || certificado.emitido_en : inscripcion?.completado_en || certificado.emitido_en)
 
+  // Certificados emitidos manualmente (sin Inscripcion asociada) usan la fecha de emisión como base
+  const fechaBaseVigencia = inscripcion?.inscrito_en || fechaEmisionVal
+
   const vigenciaHastaVal =
     snapshot?.fechas?.vigencia_hasta ||
     inscripcion?.acceso_hasta ||
-    (inscripcion?.inscrito_en ? calcularFechaCaducidadCurso(inscripcion.inscrito_en, cursoVigenciaMeses) : null)
+    calcularFechaCaducidadCurso(fechaBaseVigencia, cursoVigenciaMeses)
 
   // ── Firmas ──
   const profesorSnapshot = snapshot?.profesor || certificado.curso.profesor
@@ -145,6 +148,14 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     }
   }
 
+  // Renumerar orden de forma secuencial para la vista del certificado: los módulos/lecciones
+  // eliminados dejan huecos en `orden` que no se compactan en la BD
+  const modulosNumerados = certificado.curso.modulos.map((modulo, mi) => ({
+    ...modulo,
+    orden: mi,
+    lecciones: modulo.lecciones.map((leccion, li) => ({ ...leccion, orden: li }))
+  }))
+
   // ── Rendimiento: calcula notas por módulo ──
   const notasPorModulo: Record<string, { puntaje: number; count: number }> = {}
 
@@ -175,7 +186,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     cursoModalidad,
 
     // se usa como respaldo para certificados antiguos o inscripciones previas a la migración
-    modulos: certificado.curso.modulos,
+    modulos: modulosNumerados,
     fechaEmisionVal,
     fechaInicioVal,
     fechaFinVal,

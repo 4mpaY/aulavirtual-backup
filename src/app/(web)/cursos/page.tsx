@@ -37,7 +37,7 @@ async function getData(token: string | null) {
 }
 
 export const metadata = {
-  title: `${process.env.NEXT_PUBLIC_APP_NAME} | Cursos`,
+  title: `Cursos | VISIONA`,
   description: 'Explora nuestra amplia variedad de cursos y comienza a aprender hoy mismo.'
 }
 

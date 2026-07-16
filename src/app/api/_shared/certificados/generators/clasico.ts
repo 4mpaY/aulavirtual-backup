@@ -492,7 +492,7 @@ export const generarClasico: GeneratorFn = async data => {
   const calcModuloHeight = (modulo: any): number => {
     const modTxt = `${modulo.orden + 1}. ${modulo.titulo}`.toUpperCase()
     const modLines = doc.splitTextToSize(modTxt, contentColW - 8)
-    let h = modLines.length * 4.5 + 4 + 2
+    let h = modLines.length * 4.5 + 4 + 1
 
     for (const leccion of modulo.lecciones) {
       const lecTxt = `${modulo.orden + 1}.${leccion.orden + 1}  ${leccion.titulo}`
@@ -580,7 +580,7 @@ export const generarClasico: GeneratorFn = async data => {
       doc.setFont('helvetica', 'bold')
       doc.setTextColor(pr, pg, pb)
       doc.text(modLines, startX + 4, y + 4.5)
-      y += modH + 2
+      y += modH + 1
 
       for (const leccion of modulo.lecciones) {
         const lecTxt = `${modulo.orden + 1}.${leccion.orden + 1}  ${leccion.titulo}`
