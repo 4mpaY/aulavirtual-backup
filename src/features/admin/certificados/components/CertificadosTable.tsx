@@ -9,6 +9,7 @@ import {
   Card,
   CardHeader,
   IconButton,
+  Menu,
   MenuItem,
   TablePagination,
   Tooltip,
@@ -28,12 +29,11 @@ import { toast } from 'react-toastify'
 import { AxiosCertificado } from '../http/axiosCertificado'
 import type { Certificado } from '../entity/Certificado'
 import { CreateCertificadoModal } from './CreateCertificadoModal'
+import ImportarCertificadosModal from './ImportarCertificadosModal'
 import CustomTextField from '@core/components/mui/TextField'
-import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 import HydratedDate from '@/utils/components/HydratedDate'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import tableStyles from '@core/styles/table.module.css'
-
 
 import { useCertificados } from '../hooks/useCertificados'
 
@@ -44,15 +44,19 @@ interface CertificadosTableProps {
 }
 
 export function CertificadosTable({ initialData }: CertificadosTableProps) {
-  const [params, setParams] = useState({ page: 1, limit: 10, codigo: '', nombre: '' })
+  const [params, setParams] = useState({ page: 1, limit: 10, fechaInicio: '', fechaFin: '' })
   const [modalOpen, setModalOpen] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
+  
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [activeCertForHistory, setActiveCertForHistory] = useState<Certificado | null>(null)
 
   const { data, isLoading } = useCertificados(params, initialData || undefined)
 
   const certificados = data?.certificados || []
   const total = data?.paginacion?.total || 0
 
-  const handleDownload = async (certificado: Certificado) => {
+  const handleDownload = async (certificado: Certificado, forceDynamic = false) => {
     try {
       toast.info('Generando PDF...')
 
@@ -63,7 +67,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       }
 
       const axiosCertificado = new AxiosCertificado({ getAuthToken })
-      const blob = await axiosCertificado.downloadPdf(certificado.id)
+      const blob = await axiosCertificado.downloadPdf(certificado.id, false, forceDynamic)
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
 
@@ -97,6 +101,35 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     } catch (err: any) {
       console.error('Error previewing certificate:', err)
       toast.error('Error al visualizar el certificado')
+    }
+  }
+
+  const handleDownloadAllZip = async () => {
+    try {
+      toast.info('Generando archivo ZIP...')
+
+      const getAuthToken = async () => {
+        const s = await getSession()
+
+        return s?.user?.accessToken ?? null
+      }
+
+      const axiosCertificado = new AxiosCertificado({ getAuthToken })
+      const blob = await axiosCertificado.downloadZip(params.fechaInicio, params.fechaFin)
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+
+      a.href = url
+      a.download = `certificados.zip`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+
+      toast.success('ZIP descargado correctamente')
+    } catch (err: any) {
+      console.error('Error downloading zip:', err)
+      toast.error(err?.error || 'Error al descargar ZIP')
     }
   }
 
@@ -153,20 +186,38 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       columnHelper.display({
         id: 'acciones',
         header: () => <Box className='w-full text-right'>Acciones</Box>,
-        cell: ({ row }) => (
-          <Box className='flex items-center justify-end w-full gap-1'>
-            <Tooltip title='Vista previa'>
-              <IconButton onClick={() => handlePreview(row.original)} color='secondary' size='small'>
-                <i className='tabler-eye text-[22px]' />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title='Descargar PDF'>
-              <IconButton onClick={() => handleDownload(row.original)} color='primary' size='small'>
-                <i className='tabler-download text-[22px]' />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )
+        cell: ({ row }) => {
+          const hasHistory = !!row.original.datos?.archivo_pdf
+
+          return (
+            <Box className='grid grid-cols-3 gap-2 items-center justify-items-center w-fit ml-auto'>
+              <Tooltip title='Vista previa'>
+                <IconButton onClick={() => handlePreview(row.original)} color='secondary' size='small'>
+                  <i className='tabler-eye text-[22px]' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Descargar PDF'>
+                <IconButton onClick={() => handleDownload(row.original)} color='primary' size='small'>
+                  <i className='tabler-download text-[22px]' />
+                </IconButton>
+              </Tooltip>
+              {hasHistory && (
+                <Tooltip title='Ver versiones archivadas'>
+                  <IconButton
+                    onClick={(e) => {
+                      setAnchorEl(e.currentTarget)
+                      setActiveCertForHistory(row.original)
+                    }}
+                    color='success'
+                    size='small'
+                  >
+                    <i className='tabler-archive text-[22px]' />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          )
+        }
       })
     ],
     [params.page, params.limit]
@@ -220,23 +271,45 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
             <MenuItem value={25}>25</MenuItem>
             <MenuItem value={50}>50</MenuItem>
           </CustomTextField>
-          <Box className='flex flex-col sm:flex-row items-center gap-4 is-full sm:is-auto'>
-            <DebouncedInput
-              value={params.codigo}
-              onChange={value => {
-                setParams(prev => ({ ...prev, codigo: String(value), page: 1 }))
+          <Box className='flex flex-col sm:flex-row items-end gap-4 is-full sm:is-auto'>
+            <CustomTextField
+              type='date'
+              label='Fecha inicio'
+              InputLabelProps={{ shrink: true }}
+              value={params.fechaInicio}
+              onChange={e => {
+                setParams(prev => ({ ...prev, fechaInicio: e.target.value, page: 1 }))
               }}
-              placeholder='Filtrar por código'
+              sx={{ width: 160 }}
               className='is-full sm:is-auto'
             />
-            <DebouncedInput
-              value={params.nombre}
-              onChange={value => {
-                setParams(prev => ({ ...prev, nombre: String(value), page: 1 }))
+            <CustomTextField
+              type='date'
+              label='Fecha fin'
+              InputLabelProps={{ shrink: true }}
+              value={params.fechaFin}
+              onChange={e => {
+                setParams(prev => ({ ...prev, fechaFin: e.target.value, page: 1 }))
               }}
-              placeholder='Filtrar por estudiante'
+              sx={{ width: 160 }}
               className='is-full sm:is-auto'
             />
+            <Button
+              variant='contained'
+              color='success'
+              startIcon={<i className='tabler-download text-[16px]' />}
+              onClick={handleDownloadAllZip}
+            >
+              Descargar
+            </Button>
+            <Button
+              variant='tonal'
+              color='primary'
+              startIcon={<i className='tabler-upload text-[16px]' />}
+              onClick={() => setImportModalOpen(true)}
+            >
+              Importar
+            </Button>
             <Button
               variant='contained'
               startIcon={<i className='tabler-plus text-[16px]' />}
@@ -296,7 +369,58 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
           }}
         />
       </Card>
+      
       <CreateCertificadoModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      
+      <ImportarCertificadosModal open={importModalOpen} handleClose={() => setImportModalOpen(false)} />
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => {
+          setAnchorEl(null)
+          setActiveCertForHistory(null)
+        }}
+      >
+        {activeCertForHistory && (
+          <MenuItem
+            onClick={() => {
+              handleDownload(activeCertForHistory, true)
+              setAnchorEl(null)
+              setActiveCertForHistory(null)
+            }}
+          >
+            Versión Original (Sistema)
+          </MenuItem>
+        )}
+        {activeCertForHistory?.datos &&
+          (activeCertForHistory.datos as any).pdf_history?.map((hist: any, idx: number) => {
+            const fecha = new Date(hist.fecha).toLocaleDateString('es-ES', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+            return (
+              <MenuItem
+                key={idx}
+                onClick={() => {
+                  const a = document.createElement('a')
+                  a.href = hist.url
+                  a.download = `certificado-${activeCertForHistory.codigo_verificacion}-v${idx + 1}.pdf`
+                  document.body.appendChild(a)
+                  a.click()
+                  document.body.removeChild(a)
+                  setAnchorEl(null)
+                  setActiveCertForHistory(null)
+                }}
+              >
+                Versión Manual {idx + 1} ({fecha})
+              </MenuItem>
+            )
+          })}
+      </Menu>
     </>
   )
 }
