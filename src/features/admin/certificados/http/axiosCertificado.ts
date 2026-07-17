@@ -27,8 +27,8 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
     page: number
     limit: number
     buscar?: string
-    codigo?: string
-    nombre?: string
+    fechaInicio?: string
+    fechaFin?: string
   }): Promise<CertificadosResponse['result']> {
     try {
       return await this.iGet<CertificadosResponse['result']>('', { params })
@@ -37,10 +37,10 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
     }
   }
 
-  async downloadPdf(id: string, preview = false): Promise<Blob> {
+  async downloadPdf(id: string, preview = false, forceDynamic = false): Promise<Blob> {
     try {
       const res = await this.client.get(`/${id}/download`, {
-        params: { preview },
+        params: { preview, dynamic: forceDynamic },
         responseType: 'blob'
       })
 
@@ -73,6 +73,33 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
       const res = await this.iGet<{ cursos: CursoBusqueda[] }>('/buscar-cursos', { params: { buscar } })
 
       return res.cursos
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async downloadZip(fechaInicio?: string, fechaFin?: string): Promise<Blob> {
+    try {
+      const res = await this.client.get('/download-zip', {
+        params: { fechaInicio, fechaFin },
+        responseType: 'blob'
+      })
+
+      return res.data
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async importarCertificados(formData: FormData): Promise<{ exitosos: number; errores: { file: string; message: string }[] }> {
+    try {
+      const res = await this.client.post('/import', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+
+      return res.data
     } catch (err: any) {
       throw err?.response?.data ?? err
     }
