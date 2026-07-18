@@ -65,6 +65,7 @@ export const actualizarCursoSchema = z.object({
   precio_usd: z.coerce.number().min(0, 'El precio en USD no puede ser negativo').optional().nullable(),
   precio_falso_usd: z.coerce.number().min(0, 'El precio tachado en USD no puede ser negativo').optional().nullable(),
   moneda: z.string().max(3).optional(),
+  numero_asesor: z.string().optional().nullable(),
   duracion: z.string().max(50).optional().nullable(),
   codigo: z.string().max(20).optional().nullable(),
   miniatura: z.string().optional().nullable(),

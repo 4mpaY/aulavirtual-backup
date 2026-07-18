@@ -58,6 +58,14 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
     }
   }
 
+  async delete(id: string, type: 'imported' | 'all'): Promise<any> {
+    try {
+      return await this.iDelete<any>(`/${id}`, { params: { type } })
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
   async buscarUsuarios(q: string): Promise<UsuarioBusqueda[]> {
     try {
       const res = await this.iGet<{ usuarios: UsuarioBusqueda[] }>('/buscar-usuarios', { params: { q } })

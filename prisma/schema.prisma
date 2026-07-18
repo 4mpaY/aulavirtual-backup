@@ -169,6 +169,7 @@ model Curso {
   precio_usd           Decimal?          @db.Decimal(10, 2)
   precio_falso_usd     Decimal?          @db.Decimal(10, 2)
   moneda               String            @default("PEN")
+  numero_asesor        String?
   creado_en            DateTime          @default(now())
   actualizado_en       DateTime          @updatedAt
   profesor_id          String

@@ -84,6 +84,7 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
             enqueueSnackbar(error?.message || 'Error al actualizar los firmantes', { variant: 'error' })
         }
     }
+    const [numeroAsesor, setNumeroAsesor] = useState<string>((curso as any).numero_asesor || '')
 
     const handleSavePrice = async () => {
         try {
@@ -257,6 +258,35 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                             Guardar Vigencia
                         </Button>
                     </Box>
+                </Box>
+                <Box sx={{ mt: 3 }}>
+                    <Typography variant='subtitle2' sx={{ mb: 1 }}>Contacto del Asesor</Typography>
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end', mt: 1 }}>
+                        <CustomTextField
+                            label='Número de WhatsApp'
+                            value={numeroAsesor}
+                            onChange={e => setNumeroAsesor(e.target.value)}
+                            sx={{ width: 300 }}
+                        />
+                        <Button
+                            variant='outlined'
+                            onClick={async () => {
+                                try {
+                                    await editMutation.mutateAsync({ id: curso.id, data: { numero_asesor: numeroAsesor || null } as any })
+                                    enqueueSnackbar('Número de asesor actualizado', { variant: 'success' })
+                                    onSuccess()
+                                } catch (error: any) {
+                                    enqueueSnackbar(error?.message || 'Error al actualizar número', { variant: 'error' })
+                                }
+                            }}
+                            disabled={editMutation.isPending}
+                        >
+                            Guardar Asesor
+                        </Button>
+                    </Box>
+                    <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 0.5 }}>
+                        Número para contactar sobre dudas de los certificados o en general (incluir código de país, ej. +51 987 654 321)
+                    </Typography>
                 </Box>
             </Grid>
 
