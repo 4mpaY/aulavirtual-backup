@@ -35,7 +35,9 @@ import HydratedDate from '@/utils/components/HydratedDate'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import tableStyles from '@core/styles/table.module.css'
 
-import { useCertificados } from '../hooks/useCertificados'
+import Swal from 'sweetalert2'
+
+import { useCertificados, useDeleteCertificado } from '../hooks/useCertificados'
 
 const columnHelper = createColumnHelper<Certificado>()
 
@@ -52,6 +54,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
   const [activeCertForHistory, setActiveCertForHistory] = useState<Certificado | null>(null)
 
   const { data, isLoading } = useCertificados(params, initialData || undefined)
+  const deleteMutation = useDeleteCertificado()
 
   const certificados = data?.certificados || []
   const total = data?.paginacion?.total || 0
@@ -72,7 +75,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       const a = document.createElement('a')
 
       a.href = url
-      a.download = `certificado-${certificado.usuario.nombre.toLowerCase()}-${certificado.codigo_verificacion}.pdf`
+      a.download = `certificado-${certificado.codigo_verificacion}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -82,6 +85,62 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     } catch (err: any) {
       console.error('Error downloading certificate:', err)
       toast.error('Error al descargar el certificado')
+    }
+  }
+
+  const handleDeleteCertificado = async (certificado: Certificado) => {
+    const hasHistory = !!certificado.datos?.archivo_pdf
+
+    if (hasHistory) {
+      const result = await Swal.fire({
+        title: '¿Qué deseas eliminar?',
+        text: 'Este certificado tiene un PDF importado.',
+        icon: 'warning',
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonColor: '#d33',
+        denyButtonColor: '#f59e0b',
+        confirmButtonText: 'Borrar AMBOS',
+        denyButtonText: 'Borrar SOLO importado',
+        cancelButtonText: 'Cancelar'
+      })
+
+      if (result.isConfirmed) {
+        // Borrar todos
+        try {
+          await deleteMutation.mutateAsync({ id: certificado.id, type: 'all' })
+          toast.success('Certificado eliminado por completo')
+        } catch (error: any) {
+          toast.error(error.message || 'Error al eliminar')
+        }
+      } else if (result.isDenied) {
+        // Borrar solo importado
+        try {
+          await deleteMutation.mutateAsync({ id: certificado.id, type: 'imported' })
+          toast.success('Certificado importado eliminado')
+        } catch (error: any) {
+          toast.error(error.message || 'Error al eliminar')
+        }
+      }
+    } else {
+      const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción eliminará el certificado definitivamente.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      })
+
+      if (result.isConfirmed) {
+        try {
+          await deleteMutation.mutateAsync({ id: certificado.id, type: 'all' })
+          toast.success('Certificado eliminado')
+        } catch (error: any) {
+          toast.error(error.message || 'Error al eliminar')
+        }
+      }
     }
   }
 
@@ -185,36 +244,38 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       }),
       columnHelper.display({
         id: 'acciones',
-        header: () => <Box className='w-full text-right'>Acciones</Box>,
+        header: () => <Box className='w-full text-left'>Acciones</Box>,
         cell: ({ row }) => {
           const hasHistory = !!row.original.datos?.archivo_pdf
 
           return (
-            <Box className='grid grid-cols-3 gap-2 items-center justify-items-center w-fit ml-auto'>
+            <Box className='flex items-center justify-start gap-0 w-full'>
               <Tooltip title='Vista previa'>
                 <IconButton onClick={() => handlePreview(row.original)} color='secondary' size='small'>
                   <i className='tabler-eye text-[22px]' />
                 </IconButton>
               </Tooltip>
-              <Tooltip title='Descargar PDF'>
-                <IconButton onClick={() => handleDownload(row.original)} color='primary' size='small'>
+              <Tooltip title='Descargar Certificado Base'>
+                <IconButton onClick={() => handleDownload(row.original, true)} color='primary' size='small'>
                   <i className='tabler-download text-[22px]' />
                 </IconButton>
               </Tooltip>
               {hasHistory && (
-                <Tooltip title='Ver versiones archivadas'>
+                <Tooltip title='Descargar Certificado Importado'>
                   <IconButton
-                    onClick={(e) => {
-                      setAnchorEl(e.currentTarget)
-                      setActiveCertForHistory(row.original)
-                    }}
+                    onClick={() => handleDownload(row.original, false)}
                     color='success'
                     size='small'
                   >
-                    <i className='tabler-archive text-[22px]' />
+                    <i className='tabler-file text-[22px]' />
                   </IconButton>
                 </Tooltip>
               )}
+              <Tooltip title='Eliminar'>
+                <IconButton onClick={() => handleDeleteCertificado(row.original)} color='error' size='small'>
+                  <i className='tabler-trash text-[22px]' />
+                </IconButton>
+              </Tooltip>
             </Box>
           )
         }

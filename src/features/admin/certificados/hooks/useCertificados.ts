@@ -61,3 +61,18 @@ export const useImportarCertificados = () => {
     }
   })
 }
+
+export const useDeleteCertificado = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, type }: { id: string; type: 'imported' | 'all' }) => {
+      const axiosCertificado = axiosCertificadoFactory()
+
+      return await axiosCertificado.delete(id, type)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-certificados'] })
+    }
+  })
+}

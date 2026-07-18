@@ -15,6 +15,7 @@ export interface MiCertificado {
   id: string
   codigo_verificacion: string
   emitido_en: string
+  datos?: any
   curso: CertificadoCurso
 }
 
