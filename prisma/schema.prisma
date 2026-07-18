@@ -39,6 +39,7 @@ model Usuario {
   suscripciones           Suscripcion[]
   entregas_trabajo        EntregaTrabajo[]
   entregas_actividad      EntregaActividad[]
+  eventos_externos        EventoExterno[]
   ebook_accesos             EbookAcceso[]
   ebook_annotaciones        EbookAnnotacion[]
   participaciones_chat ParticipanteConversacion[]
@@ -160,6 +161,7 @@ model Curso {
   es_privado           Boolean           @default(false)
   completar_automatico Boolean           @default(false)
   precio_certificado   Decimal?          @db.Decimal(10, 2)
+  certificado_plantilla String?
   precio               Decimal           @default(0) @db.Decimal(10, 2)
   precio_falso         Decimal           @default(0) @db.Decimal(10, 2)
   moneda               String            @default("PEN")
@@ -506,6 +508,19 @@ model Certificado {
   @@map("certificados")
 }
 
+model PlantillaCertificadoPersonalizada {
+  id               String   @id @default(uuid())
+  nombre           String
+  cara_frente_url  String
+  cara_reverso_url String?
+  campos           Json     @default("[]")
+  activo           Boolean  @default(true)
+  creado_en        DateTime @default(now())
+  actualizado_en   DateTime @updatedAt
+
+  @@map("plantillas_certificado_personalizadas")
+}
+
 model ValoracionCurso {
   id             String   @id @default(uuid())
   puntuacion     Int
@@ -565,6 +580,24 @@ model Notificacion {
 
   @@index([usuario_id])
   @@map("notificaciones")
+}
+
+model EventoExterno {
+  id             String    @id @default(uuid())
+  titulo         String
+  descripcion    String?
+  fecha_inicio   DateTime
+  fecha_fin      DateTime?
+  todo_el_dia    Boolean   @default(false)
+  color          String?
+  usuario_id     String
+  creado_en      DateTime  @default(now())
+  actualizado_en DateTime  @updatedAt
+  usuario        Usuario   @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@index([usuario_id])
+  @@index([fecha_inicio])
+  @@map("eventos_externos")
 }
 
 model Comentario {

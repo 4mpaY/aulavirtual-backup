@@ -44,6 +44,7 @@ import type { Pedido } from '../entity/Pedido'
 import { getDetalleInfo } from '../entity/Pedido'
 import { usePedidos, useDeletePedido } from '../hooks/usePedidos'
 import { AxiosPedido } from '../http/axiosPedido'
+import { useCursosLista } from '@/features/admin/cursos/hooks/useCursos'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import HydratedDate from '@/utils/components/HydratedDate'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
@@ -73,7 +74,11 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
   const [estadoFiltro, setEstadoFiltro] = useState('TODOS')
   const [nroPedido, setNroPedido] = useState('')
   const [nombre, setNombre] = useState('')
+  const [fechaInicio, setFechaInicio] = useState('')
+  const [fechaFin, setFechaFin] = useState('')
+  const [cursoId, setCursoId] = useState('')
 
+  const { data: cursosLista } = useCursosLista()
   const { mutateAsync: deletePedido, isPending: isDeleting } = useDeletePedido()
   const [deleteInfo, setDeleteInfo] = useState<{ open: boolean, id: string | null }>({ open: false, id: null })
   const [isExporting, setIsExporting] = useState(false)
@@ -85,7 +90,15 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
       const session = await getSession()
       const token = session?.user?.accessToken ?? null
       const axiosPedido = new AxiosPedido({ getAuthToken: () => token })
-      const res = await axiosPedido.getAll({ estado: estadoFiltro, nro_pedido: nroPedido, nombre, limit: '5000' })
+      const res = await axiosPedido.getAll({
+        estado: estadoFiltro,
+        nro_pedido: nroPedido,
+        nombre,
+        curso_id: cursoId,
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin,
+        limit: '5000'
+      })
       const todos: Pedido[] = res?.pedidos ?? []
 
       const filas = todos.map(p => ({
@@ -139,6 +152,9 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
       estado: estadoFiltro,
       nro_pedido: nroPedido,
       nombre: nombre,
+      curso_id: cursoId,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
       page: String(pagination.pageIndex + 1),
       limit: String(pagination.pageSize)
     },
@@ -374,6 +390,47 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
             }}
             placeholder='Buscar Estudiante...'
             className='is-full sm:is-[200px]'
+          />
+
+          <CustomTextField
+            select
+            value={cursoId}
+            onChange={e => {
+              setCursoId(e.target.value)
+              table.setPageIndex(0)
+            }}
+            className='is-full sm:is-[200px]'
+          >
+            <MenuItem value=''>Todos los cursos</MenuItem>
+            {cursosLista?.map(curso => (
+              <MenuItem key={curso.id} value={curso.id}>
+                {curso.titulo}
+              </MenuItem>
+            ))}
+          </CustomTextField>
+
+          <CustomTextField
+            type='date'
+            label='Desde'
+            InputLabelProps={{ shrink: true }}
+            value={fechaInicio}
+            onChange={e => {
+              setFechaInicio(e.target.value)
+              table.setPageIndex(0)
+            }}
+            className='is-full sm:is-[160px]'
+          />
+
+          <CustomTextField
+            type='date'
+            label='Hasta'
+            InputLabelProps={{ shrink: true }}
+            value={fechaFin}
+            onChange={e => {
+              setFechaFin(e.target.value)
+              table.setPageIndex(0)
+            }}
+            className='is-full sm:is-[160px]'
           />
 
           <Button
