@@ -12,7 +12,7 @@ import { requireAdmin } from '@/utils/libs/auth-helpers'
 /**
  * GET /api/admin/certificados/[id]/download
  * Descarga el PDF del certificado (solo ADMIN).
- * La plantilla se resuelve desde la configuración CERTIFICADO_PLANTILLA.
+ * La plantilla se resuelve: override del curso > configuración global CERTIFICADO_PLANTILLA > 'clasico'.
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -37,6 +37,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
               fecha_inicio: true,
               vigencia_meses: true,
               tipo_emision: true,
+              certificado_plantilla: true,
               profesor: {
                 select: { nombre: true, apellido: true, cargo: true, firma: true }
               }
@@ -124,8 +125,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
     certData.gerenteGeneral = gerenteGeneral
 
     // ── Seleccionar plantilla y generar PDF ───────────────────────────
-    const plantilla = configs.CERTIFICADO_PLANTILLA || 'clasico'
-    const generarPDF = getGenerator(plantilla)
+    const plantilla = certificado.curso.certificado_plantilla || configs.CERTIFICADO_PLANTILLA || 'clasico'
+    const generarPDF = await getGenerator(plantilla)
     const pdfBuffer = await generarPDF(certData)
 
     return new NextResponse(pdfBuffer, {

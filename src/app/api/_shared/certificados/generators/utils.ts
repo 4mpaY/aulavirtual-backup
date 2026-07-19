@@ -81,6 +81,30 @@ export async function compressImageForPdf(
 }
 
 /**
+ * Calcula la nota final promediando las notas por módulo, o cae a la nota
+ * de inscripción si no hay notas por módulo. Replica la fórmula usada en
+ * los generadores de plantilla fija (ver clasico.ts).
+ */
+export function calcularNotaFinal(
+  notasPorModulo: Record<string, { puntaje: number; count: number }>,
+  notaInscripcion: number | null
+): number | null {
+  const promediosPorModulo = Object.values(notasPorModulo).map(e => {
+    const raw = e.puntaje / e.count
+
+    return raw > 20 ? raw / 5 : raw
+  })
+
+  if (promediosPorModulo.length > 0) {
+    return promediosPorModulo.reduce((a, b) => a + b, 0) / promediosPorModulo.length
+  }
+
+  const raw = notaInscripcion ?? null
+
+  return raw !== null ? (raw > 20 ? raw / 5 : raw) : null
+}
+
+/**
  * Resuelve las dimensiones del logo respetando aspect ratio con Sharp.
  * Devuelve { w, h } en mm.
  */

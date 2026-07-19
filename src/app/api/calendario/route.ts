@@ -9,7 +9,8 @@ const COLORS = {
   CLASE_VIVO: '#1565C0',
   EXAMEN: '#C62828',
   CURSO_INICIO: '#2E7D32',
-  CURSO_FIN: '#E65100'
+  CURSO_FIN: '#E65100',
+  EVENTO_EXTERNO: '#6A1B9A'
 }
 
 export async function GET(request: Request) {
@@ -21,6 +22,29 @@ export async function GET(request: Request) {
     const userId = auth.user.id
     const rol = auth.user.rol
     const eventos: any[] = []
+
+    // Eventos externos (agenda personal) — independientes del rol, solo del propio usuario
+    const eventosExternos = await prisma.eventoExterno.findMany({
+      where: { usuario_id: userId }
+    })
+
+    for (const ev of eventosExternos) {
+      eventos.push({
+        id: `evento-externo-${ev.id}`,
+        title: ev.titulo,
+        start: ev.fecha_inicio.toISOString(),
+        end: ev.fecha_fin?.toISOString() ?? undefined,
+        allDay: ev.todo_el_dia,
+        color: ev.color ?? COLORS.EVENTO_EXTERNO,
+        extendedProps: {
+          tipo: 'EVENTO_EXTERNO',
+          eventoExternoId: ev.id,
+          descripcion: ev.descripcion ?? undefined,
+          color: ev.color ?? undefined,
+          todoElDia: ev.todo_el_dia
+        }
+      })
+    }
 
     let cursoIds: string[] = []
 
@@ -43,7 +67,7 @@ export async function GET(request: Request) {
       cursoIds = cursos.map(c => c.id)
     }
 
-    if (cursoIds.length === 0) return ApiResponse.success(request, [])
+    if (cursoIds.length === 0) return ApiResponse.success(request, eventos)
 
     // Fechas de inicio y fin de cursos
     const cursos = await prisma.curso.findMany({

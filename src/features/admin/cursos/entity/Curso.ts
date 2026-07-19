@@ -99,6 +99,7 @@ export interface Curso {
   es_privado: boolean
   completar_automatico: boolean
   precio_certificado: number | null
+  certificado_plantilla: string | null
   precio: number
   precio_falso: number
   moneda: string

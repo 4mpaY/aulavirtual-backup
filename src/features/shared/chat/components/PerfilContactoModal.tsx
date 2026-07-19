@@ -5,8 +5,6 @@ import {
   ListItemText, Typography
 } from '@mui/material'
 
-import { Icon } from '@iconify/react'
-
 import AppModal from '@/utils/components/AppModal'
 
 import type { UsuarioChatInfo } from '../entity/Chat'
@@ -64,7 +62,7 @@ export default function PerfilContactoModal({ open, handleClose, usuario, cursos
           <List disablePadding dense>
             {cursos.map(curso => (
               <ListItem key={curso.id} disablePadding sx={{ py: 0.25 }}>
-                <Icon icon='tabler:book' width={16} style={{ marginRight: 8, flexShrink: 0 }} />
+                <i className='tabler-book text-[16px]' style={{ marginRight: 8, flexShrink: 0 }} />
                 <ListItemText primary={curso.titulo} />
               </ListItem>
             ))}

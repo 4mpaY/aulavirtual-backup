@@ -55,6 +55,7 @@ export const actualizarCursoSchema = z.object({
   es_privado: z.boolean().optional(),
   completar_automatico: z.boolean().optional(),
   precio_certificado: z.coerce.number().min(0).optional().nullable(),
+  certificado_plantilla: z.string().optional().nullable(),
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').optional(),
   precio_falso: z.coerce.number().min(0, 'El precio falso no puede ser negativo').optional(),
   moneda: z.string().max(3).optional(),

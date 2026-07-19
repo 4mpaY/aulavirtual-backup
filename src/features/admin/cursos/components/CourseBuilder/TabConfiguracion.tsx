@@ -20,6 +20,8 @@ import { useCambiarEstadoCurso, useEditCurso } from '../../hooks/useCursos'
 
 import type { Curso } from '../../entity/Curso'
 import CustomTextField from '@core/components/mui/TextField'
+import { usePlantillasCertificado } from '../../../plantillas-certificado/hooks/usePlantillasCertificado'
+import { PLANTILLAS_CERTIFICADO_FIJAS } from '../../../plantillas-certificado/entity/plantillasFijas'
 
 interface TabConfiguracionProps {
     curso: Curso
@@ -39,6 +41,29 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
     const [moneda, setMoneda] = useState(curso.moneda)
     const [precioCertificado, setPrecioCertificado] = useState<number | ''>(curso.precio_certificado ?? '')
     const [vigenciaMeses, setVigenciaMeses] = useState<number | ''>((curso as any).vigencia_meses ?? '')
+    const [certificadoPlantilla, setCertificadoPlantilla] = useState(curso.certificado_plantilla ?? '')
+
+    const { data: plantillasPersonalizadas = [] } = usePlantillasCertificado()
+
+    const opcionesPlantillaCertificado = [
+        ...PLANTILLAS_CERTIFICADO_FIJAS,
+        ...plantillasPersonalizadas
+            .filter(p => p.activo && p.cara_frente_url)
+            .map(p => ({ id: p.id, nombre: p.nombre, descripcion: 'Diseño personalizado' }))
+    ]
+
+    const handleSaveCertificadoPlantilla = async () => {
+        try {
+            await editMutation.mutateAsync({
+                id: curso.id,
+                data: { certificado_plantilla: certificadoPlantilla || null }
+            })
+            enqueueSnackbar('Diseño de certificado actualizado', { variant: 'success' })
+            onSuccess()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al actualizar el diseño de certificado', { variant: 'error' })
+        }
+    }
 
     const handleSavePrice = async () => {
         try {
@@ -191,6 +216,39 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                             Guardar Vigencia
                         </Button>
                     </Box>
+                </Box>
+            </Grid>
+
+            <Grid item xs={12}><Divider /></Grid>
+
+            {/* Diseño de Certificado */}
+            <Grid item xs={12}>
+                <Typography variant='h6' sx={{ mb: 1 }}>Diseño de Certificado</Typography>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                    Elige un diseño de certificado específico para este curso. Si dejas &quot;Usar el diseño general&quot;,
+                    se usará la plantilla configurada globalmente en Configuración &gt; Certificación.
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    <CustomTextField
+                        select
+                        label='Plantilla de certificado'
+                        value={certificadoPlantilla}
+                        onChange={e => setCertificadoPlantilla(e.target.value)}
+                        sx={{ width: 320 }}
+                    >
+                        <MenuItem value=''>Usar el diseño general</MenuItem>
+                        {opcionesPlantillaCertificado.map(p => (
+                            <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>
+                        ))}
+                    </CustomTextField>
+                    <Button
+                        variant='contained'
+                        onClick={handleSaveCertificadoPlantilla}
+                        disabled={editMutation.isPending}
+                        startIcon={<i className='tabler-device-floppy' />}
+                    >
+                        Guardar Diseño
+                    </Button>
                 </Box>
             </Grid>
 

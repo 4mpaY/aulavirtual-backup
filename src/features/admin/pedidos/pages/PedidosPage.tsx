@@ -345,94 +345,102 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
   return (
     <Card>
       <CardHeader title='Gestión de Pedidos' className='pbe-4' />
-      <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
-        <CustomTextField
-          select
-          value={table.getState().pagination.pageSize}
-          onChange={e => table.setPageSize(Number(e.target.value))}
-          className='is-[70px]'
-        >
-          <MenuItem value='10'>10</MenuItem>
-          <MenuItem value='25'>25</MenuItem>
-          <MenuItem value='50'>50</MenuItem>
-        </CustomTextField>
-        <div className='flex flex-wrap items-center gap-4 is-full sm:is-auto'>
+      <div className='flex flex-col gap-4 p-6 border-bs'>
+        <div className='flex justify-between flex-col items-start md:flex-row md:items-end gap-4'>
           <CustomTextField
             select
-            value={estadoFiltro}
-            onChange={e => {
-              setEstadoFiltro(e.target.value)
-              table.setPageIndex(0)
-            }}
-            className='is-full sm:is-[180px]'
+            label='Mostrar'
+            value={table.getState().pagination.pageSize}
+            onChange={e => table.setPageSize(Number(e.target.value))}
+            className='is-[70px]'
           >
-            <MenuItem value='TODOS'>Todos los estados</MenuItem>
-            <MenuItem value='COMPLETADO'>Pagados (Completados)</MenuItem>
-            <MenuItem value='PENDIENTE'>Pendientes</MenuItem>
-            <MenuItem value='CANCELADO'>Cancelados</MenuItem>
+            <MenuItem value='10'>10</MenuItem>
+            <MenuItem value='25'>25</MenuItem>
+            <MenuItem value='50'>50</MenuItem>
           </CustomTextField>
 
-          <DebouncedInput
-            value={nroPedido}
-            onChange={val => {
-              setNroPedido(String(val))
-              table.setPageIndex(0)
-            }}
-            placeholder='Buscar # Pedido'
-            className='is-full sm:is-[160px]'
-          />
+          <div className='flex flex-wrap items-end gap-4 is-full md:is-auto'>
+            <CustomTextField
+              select
+              label='Estado'
+              value={estadoFiltro}
+              onChange={e => {
+                setEstadoFiltro(e.target.value)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[170px]'
+            >
+              <MenuItem value='TODOS'>Todos los estados</MenuItem>
+              <MenuItem value='COMPLETADO'>Pagados (Completados)</MenuItem>
+              <MenuItem value='PENDIENTE'>Pendientes</MenuItem>
+              <MenuItem value='CANCELADO'>Cancelados</MenuItem>
+            </CustomTextField>
 
-          <DebouncedInput
-            value={nombre}
-            onChange={val => {
-              setNombre(String(val))
-              table.setPageIndex(0)
-            }}
-            placeholder='Buscar Estudiante...'
-            className='is-full sm:is-[200px]'
-          />
+            <DebouncedInput
+              value={nroPedido}
+              onChange={val => {
+                setNroPedido(String(val))
+                table.setPageIndex(0)
+              }}
+              label='# Pedido'
+              placeholder='Buscar...'
+              className='is-full sm:is-[140px]'
+            />
 
-          <CustomTextField
-            select
-            value={cursoId}
-            onChange={e => {
-              setCursoId(e.target.value)
-              table.setPageIndex(0)
-            }}
-            className='is-full sm:is-[200px]'
-          >
-            <MenuItem value=''>Todos los cursos</MenuItem>
-            {cursosLista?.map(curso => (
-              <MenuItem key={curso.id} value={curso.id}>
-                {curso.titulo}
-              </MenuItem>
-            ))}
-          </CustomTextField>
+            <DebouncedInput
+              value={nombre}
+              onChange={val => {
+                setNombre(String(val))
+                table.setPageIndex(0)
+              }}
+              label='Estudiante'
+              placeholder='Nombre o correo...'
+              className='is-full sm:is-[190px]'
+            />
 
-          <CustomTextField
-            type='date'
-            label='Desde'
-            InputLabelProps={{ shrink: true }}
-            value={fechaInicio}
-            onChange={e => {
-              setFechaInicio(e.target.value)
-              table.setPageIndex(0)
-            }}
-            className='is-full sm:is-[160px]'
-          />
+            <CustomTextField
+              select
+              label='Curso'
+              value={cursoId}
+              onChange={e => {
+                setCursoId(e.target.value)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[190px]'
+            >
+              <MenuItem value=''>Todos los cursos</MenuItem>
+              {cursosLista?.map(curso => (
+                <MenuItem key={curso.id} value={curso.id}>
+                  {curso.titulo}
+                </MenuItem>
+              ))}
+            </CustomTextField>
 
-          <CustomTextField
-            type='date'
-            label='Hasta'
-            InputLabelProps={{ shrink: true }}
-            value={fechaFin}
-            onChange={e => {
-              setFechaFin(e.target.value)
-              table.setPageIndex(0)
-            }}
-            className='is-full sm:is-[160px]'
-          />
+            <CustomTextField
+              type='date'
+              label='Desde'
+              value={fechaInicio}
+              onChange={e => {
+                setFechaInicio(e.target.value)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[150px]'
+            />
 
+            <CustomTextField
+              type='date'
+              label='Hasta'
+              value={fechaFin}
+              onChange={e => {
+                setFechaFin(e.target.value)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[150px]'
+            />
+          </div>
+        </div>
+
+        <div className='flex flex-wrap justify-end gap-4'>
           <Button
             variant='contained'
             color='success'
