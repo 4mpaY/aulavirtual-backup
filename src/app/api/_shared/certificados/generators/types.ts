@@ -6,6 +6,7 @@ export interface SignatarioData {
   apellido?: string
   cargo?: string | null
   firma?: string | null
+  sello?: string | null
 }
 
 /**
@@ -69,9 +70,14 @@ export interface CertificadoData {
   profesorSnapshot: SignatarioData | null
   mostrarFirmaDocente: boolean
 
+  // ── Firmantes (catálogo reutilizable, solo usado por la plantilla personalizada) ──
+  firmante1: SignatarioData | null
+  firmante2: SignatarioData | null
+
   // ── Verificación ──
   codigoVerificacion: string
   qrDataUrl: string
+  verifyUrl: string
 
   // ── Rendimiento ──
   notaFinal: number | null
@@ -95,10 +101,20 @@ export type GeneratorFn = (data: CertificadoData) => Promise<ArrayBuffer>
  * Definición de un campo posicionable dentro de una plantilla de certificado
  * personalizada (diseño subido por el admin). Ver generators/personalizado.ts.
  */
-export type CampoTipo = 'texto' | 'texto_libre' | 'imagen' | 'qr'
+export type CampoTipo = 'texto' | 'texto_libre' | 'imagen' | 'qr' | 'tabla_modulos'
 export type CampoPagina = 'frente' | 'reverso'
 export type CampoAlign = 'left' | 'center' | 'right'
 export type CampoVAlign = 'top' | 'middle' | 'bottom'
+export type CampoVarianteTablaModulos = 'lista' | 'compacta' | 'tarjetas' | 'tabla'
+export type CampoFontFamily =
+  | 'helvetica'
+  | 'times'
+  | 'courier'
+  | 'montserrat'
+  | 'playfair'
+  | 'poppins'
+  | 'nunito'
+  | 'dancingscript'
 
 export type CampoKeyTexto =
   | 'nombreCompleto'
@@ -114,8 +130,20 @@ export type CampoKeyTexto =
   | 'firmaDocenteCargo'
   | 'firmaGerenteNombre'
   | 'firmaGerenteCargo'
+  | 'firmante1Nombre'
+  | 'firmante1Cargo'
+  | 'firmante2Nombre'
+  | 'firmante2Cargo'
 
-export type CampoKeyImagen = 'logoInstitucion' | 'firmaDocenteImagen' | 'firmaGerenteImagen' | 'qr'
+export type CampoKeyImagen =
+  | 'logoInstitucion'
+  | 'firmaDocenteImagen'
+  | 'firmaGerenteImagen'
+  | 'firmante1Firma'
+  | 'firmante1Sello'
+  | 'firmante2Firma'
+  | 'firmante2Sello'
+  | 'qr'
 
 export interface CampoPlantillaPersonalizada {
   id: string
@@ -126,11 +154,14 @@ export interface CampoPlantillaPersonalizada {
   xPct: number
   yPct: number
   widthPct?: number
+  heightPct?: number
   maxWidthPct?: number
   fontSize?: number
+  fontFamily?: CampoFontFamily
   color?: string
   bold?: boolean
   italic?: boolean
   align?: CampoAlign
   vAlign?: CampoVAlign
+  variante?: CampoVarianteTablaModulos
 }

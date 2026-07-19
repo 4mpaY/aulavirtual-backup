@@ -16,6 +16,12 @@ export interface CursoCategoria {
   nombre: string
 }
 
+export interface CursoFirmante {
+  id: string
+  nombre: string
+  cargo: string | null
+}
+
 export interface CursoLeccionResumen {
   id: string
   titulo: string
@@ -109,6 +115,10 @@ export interface Curso {
   profesor: CursoProfesor
   categoria_id: string | null
   categoria: CursoCategoria | null
+  firmante_1_id: string | null
+  firmante_1: CursoFirmante | null
+  firmante_2_id: string | null
+  firmante_2: CursoFirmante | null
   modulos: CursoModulo[]
   orden: number
   brochure: string | null

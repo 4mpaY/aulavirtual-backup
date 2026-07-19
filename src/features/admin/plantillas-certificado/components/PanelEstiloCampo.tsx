@@ -1,8 +1,14 @@
 'use client'
 
-import { Box, Button, Divider, FormControlLabel, MenuItem, Stack, Switch, TextField, Typography } from '@mui/material'
+import { Box, Button, Divider, FormControlLabel, ListSubheader, MenuItem, Stack, Switch, TextField, Typography } from '@mui/material'
 
-import type { CampoAlign, CampoPlantillaPersonalizada, CampoVAlign } from '../entity/PlantillaCertificado'
+import type {
+  CampoAlign,
+  CampoFontFamily,
+  CampoPlantillaPersonalizada,
+  CampoVAlign,
+  CampoVarianteTablaModulos
+} from '../entity/PlantillaCertificado'
 import { labelDeCampo } from './CampoChip'
 
 interface Props {
@@ -11,8 +17,84 @@ interface Props {
   onRemove: () => void
 }
 
+interface ColorFieldProps {
+  label: string
+  value: string | undefined
+  fallback: string
+  onChange: (color: string) => void
+}
+
+interface FontFamilySelectProps {
+  value: CampoFontFamily | undefined
+  onChange: (fontFamily: CampoFontFamily) => void
+}
+
+function FontFamilySelect({ value, onChange }: FontFamilySelectProps) {
+  return (
+    <TextField
+      fullWidth
+      select
+      size='small'
+      label='Tipografía'
+      value={value ?? 'helvetica'}
+      onChange={e => onChange(e.target.value as CampoFontFamily)}
+    >
+      <ListSubheader>Profesionales</ListSubheader>
+      <MenuItem value='helvetica'>Helvetica (sans-serif)</MenuItem>
+      <MenuItem value='times'>Times (serif clásica)</MenuItem>
+      <MenuItem value='montserrat'>Montserrat (sans moderna)</MenuItem>
+      <MenuItem value='playfair'>Playfair Display (serif elegante)</MenuItem>
+      <MenuItem value='courier'>Courier (monoespaciada)</MenuItem>
+
+      <ListSubheader>Amigables</ListSubheader>
+      <MenuItem value='poppins'>Poppins (redondeada)</MenuItem>
+      <MenuItem value='nunito'>Nunito (suave)</MenuItem>
+      <MenuItem value='dancingscript'>Dancing Script (manuscrita)</MenuItem>
+    </TextField>
+  )
+}
+
+function ColorField({ label, value, fallback, onChange }: ColorFieldProps) {
+  return (
+    <Box>
+      <Typography variant='body2' fontWeight={500} sx={{ mb: 1 }}>{label}</Typography>
+      <Stack direction='row' spacing={1.5} alignItems='center'>
+        <TextField
+          fullWidth
+          size='small'
+          value={value ?? fallback}
+          onChange={e => onChange(e.target.value)}
+          inputProps={{ style: { fontFamily: 'monospace', fontSize: 13 } }}
+        />
+        <Box
+          sx={{
+            width: 36,
+            height: 36,
+            flexShrink: 0,
+            borderRadius: 1,
+            bgcolor: value ?? fallback,
+            border: '2px solid',
+            borderColor: 'divider',
+            cursor: 'pointer'
+          }}
+          component='label'
+        >
+          <input
+            type='color'
+            value={/^#[0-9A-Fa-f]{6}$/.test(value || '') ? value : fallback}
+            onChange={e => onChange(e.target.value)}
+            style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+          />
+        </Box>
+      </Stack>
+    </Box>
+  )
+}
+
 export default function PanelEstiloCampo({ campo, onChange, onRemove }: Props) {
   const esTexto = campo.tipo === 'texto' || campo.tipo === 'texto_libre'
+  const esQr = campo.tipo === 'qr' || campo.key === 'qr'
+  const esTablaModulos = campo.tipo === 'tabla_modulos'
 
   return (
     <Stack spacing={3}>
@@ -44,38 +126,14 @@ export default function PanelEstiloCampo({ campo, onChange, onRemove }: Props) {
             onChange={e => onChange({ fontSize: Number(e.target.value) || 14 })}
           />
 
-          <Box>
-            <Typography variant='body2' fontWeight={500} sx={{ mb: 1 }}>Color</Typography>
-            <Stack direction='row' spacing={1.5} alignItems='center'>
-              <TextField
-                fullWidth
-                size='small'
-                value={campo.color ?? '#000000'}
-                onChange={e => onChange({ color: e.target.value })}
-                inputProps={{ style: { fontFamily: 'monospace', fontSize: 13 } }}
-              />
-              <Box
-                sx={{
-                  width: 36,
-                  height: 36,
-                  flexShrink: 0,
-                  borderRadius: 1,
-                  bgcolor: campo.color ?? '#000000',
-                  border: '2px solid',
-                  borderColor: 'divider',
-                  cursor: 'pointer'
-                }}
-                component='label'
-              >
-                <input
-                  type='color'
-                  value={/^#[0-9A-Fa-f]{6}$/.test(campo.color || '') ? campo.color : '#000000'}
-                  onChange={e => onChange({ color: e.target.value })}
-                  style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
-                />
-              </Box>
-            </Stack>
-          </Box>
+          <FontFamilySelect value={campo.fontFamily} onChange={fontFamily => onChange({ fontFamily })} />
+
+          <ColorField
+            label='Color'
+            value={campo.color}
+            fallback='#000000'
+            onChange={color => onChange({ color })}
+          />
 
           <Stack direction='row' spacing={3}>
             <FormControlLabel
@@ -108,12 +166,12 @@ export default function PanelEstiloCampo({ campo, onChange, onRemove }: Props) {
             label='Ancho máximo (% de la página, opcional)'
             value={campo.maxWidthPct ?? ''}
             onChange={e => onChange({ maxWidthPct: e.target.value ? Number(e.target.value) : undefined })}
-            helperText='El texto salta de línea si supera este ancho'
+            helperText='El texto salta de línea si supera este ancho. Por defecto ya tiene un margen automático de 92%'
           />
         </>
       )}
 
-      {!esTexto && (
+      {!esTexto && !esTablaModulos && (
         <>
           <TextField
             fullWidth
@@ -137,6 +195,72 @@ export default function PanelEstiloCampo({ campo, onChange, onRemove }: Props) {
             <MenuItem value='middle'>Al medio</MenuItem>
             <MenuItem value='bottom'>Abajo</MenuItem>
           </TextField>
+
+          {esQr && (
+            <ColorField
+              label='Color del QR'
+              value={campo.color}
+              fallback='#000000'
+              onChange={color => onChange({ color })}
+            />
+          )}
+        </>
+      )}
+
+      {esTablaModulos && (
+        <>
+          <TextField
+            fullWidth
+            select
+            size='small'
+            label='Estilo de diseño'
+            value={campo.variante ?? 'lista'}
+            onChange={e => onChange({ variante: e.target.value as CampoVarianteTablaModulos })}
+            helperText='Cómo se muestran los módulos, lecciones y el promedio de cada módulo'
+          >
+            <MenuItem value='lista'>Lista simple</MenuItem>
+            <MenuItem value='compacta'>Compacta (promedio junto al título)</MenuItem>
+            <MenuItem value='tarjetas'>Tarjetas</MenuItem>
+            <MenuItem value='tabla'>Tabla con columnas</MenuItem>
+          </TextField>
+
+          <TextField
+            fullWidth
+            size='small'
+            type='number'
+            label='Tamaño de fuente máximo (pt)'
+            value={campo.fontSize ?? 10}
+            onChange={e => onChange({ fontSize: Number(e.target.value) || 10 })}
+            helperText='La fuente se reduce automáticamente si el contenido no cabe en el cuadro'
+          />
+
+          <FontFamilySelect value={campo.fontFamily} onChange={fontFamily => onChange({ fontFamily })} />
+
+          <ColorField
+            label='Color del texto'
+            value={campo.color}
+            fallback='#000000'
+            onChange={color => onChange({ color })}
+          />
+
+          <Stack direction='row' spacing={2}>
+            <TextField
+              fullWidth
+              size='small'
+              type='number'
+              label='Ancho del cuadro (%)'
+              value={campo.widthPct ?? 90}
+              onChange={e => onChange({ widthPct: Number(e.target.value) || 90 })}
+            />
+            <TextField
+              fullWidth
+              size='small'
+              type='number'
+              label='Alto del cuadro (%)'
+              value={campo.heightPct ?? 90}
+              onChange={e => onChange({ heightPct: Number(e.target.value) || 90 })}
+            />
+          </Stack>
         </>
       )}
 

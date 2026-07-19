@@ -105,6 +105,23 @@ export function calcularNotaFinal(
 }
 
 /**
+ * Calcula el promedio de un módulo específico a partir de sus intentos de examen,
+ * normalizando a escala 0-20 (misma fórmula que usa `calcularNotaFinal`).
+ */
+export function calcularPromedioModulo(
+  moduloId: string,
+  notasPorModulo: Record<string, { puntaje: number; count: number }>
+): number | null {
+  const entrada = notasPorModulo[moduloId]
+
+  if (!entrada || entrada.count === 0) return null
+
+  const raw = entrada.puntaje / entrada.count
+
+  return raw > 20 ? raw / 5 : raw
+}
+
+/**
  * Resuelve las dimensiones del logo respetando aspect ratio con Sharp.
  * Devuelve { w, h } en mm.
  */

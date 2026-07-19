@@ -38,6 +38,7 @@ import MediaLibrary from '../../cursos/components/MediaLibrary'
 import { useUsuarios } from '../../usuarios/hooks/useUsuarios'
 import { usePlantillasCertificado } from '../../plantillas-certificado/hooks/usePlantillasCertificado'
 import { PLANTILLAS_CERTIFICADO_FIJAS } from '../../plantillas-certificado/entity/plantillasFijas'
+import { useFirmantes } from '../../firmantes/hooks/useFirmantes'
 
 interface ConfiguracionViewProps {
   initialData?: Configuracion[]
@@ -87,6 +88,8 @@ function CertificadosSettings({ config, onInputChange }: { config: any; onInputC
   const plantillaActiva = config.CERTIFICADO_PLANTILLA || 'clasico'
 
   const { data: plantillasPersonalizadas = [] } = usePlantillasCertificado()
+  const { data: firmantes = [] } = useFirmantes()
+  const firmantesActivos = firmantes.filter(f => f.activo)
 
   const opcionesPlantilla = [
     ...PLANTILLAS_CERTIFICADO_FIJAS,
@@ -290,6 +293,66 @@ function CertificadosSettings({ config, onInputChange }: { config: any; onInputC
           })()}
         </Paper>
       )}
+
+      <Divider />
+
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1 }}>
+          <SectionLabel>Firmante 1 / Firmante 2 (plantilla personalizada)</SectionLabel>
+          <Button
+            variant='outlined'
+            size='small'
+            href='/admin/firmantes'
+            component={Link}
+            endIcon={<i className='tabler-arrow-right' style={{ fontSize: 16 }} />}
+          >
+            Gestionar firmantes
+          </Button>
+        </Box>
+        <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+          Catálogo independiente de firmantes (nombre, cargo, firma y sello) que solo aplica a las plantillas
+          de certificado <strong>personalizadas</strong>. Los valores de aquí son el firmante por defecto; cada
+          curso puede elegir su propio Firmante 1 / Firmante 2 desde su configuración, sin afectar a este valor global.
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label='Firmante 1 por defecto'
+              value={config.CERTIFICADO_FIRMANTE_1_ID || ''}
+              onChange={(e) => onInputChange('CERTIFICADO_FIRMANTE_1_ID', e.target.value)}
+            >
+              <MenuItem value=''>
+                <em>Ninguno seleccionado</em>
+              </MenuItem>
+              {firmantesActivos.map((f) => (
+                <MenuItem key={f.id} value={f.id}>
+                  {f.nombre}{f.cargo ? ` (${f.cargo})` : ''}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label='Firmante 2 por defecto'
+              value={config.CERTIFICADO_FIRMANTE_2_ID || ''}
+              onChange={(e) => onInputChange('CERTIFICADO_FIRMANTE_2_ID', e.target.value)}
+            >
+              <MenuItem value=''>
+                <em>Ninguno seleccionado</em>
+              </MenuItem>
+              {firmantesActivos.map((f) => (
+                <MenuItem key={f.id} value={f.id}>
+                  {f.nombre}{f.cargo ? ` (${f.cargo})` : ''}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+        </Grid>
+      </Box>
     </Stack>
   )
 }

@@ -22,6 +22,7 @@ import type { Curso } from '../../entity/Curso'
 import CustomTextField from '@core/components/mui/TextField'
 import { usePlantillasCertificado } from '../../../plantillas-certificado/hooks/usePlantillasCertificado'
 import { PLANTILLAS_CERTIFICADO_FIJAS } from '../../../plantillas-certificado/entity/plantillasFijas'
+import { useFirmantes } from '../../../firmantes/hooks/useFirmantes'
 
 interface TabConfiguracionProps {
     curso: Curso
@@ -42,8 +43,12 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
     const [precioCertificado, setPrecioCertificado] = useState<number | ''>(curso.precio_certificado ?? '')
     const [vigenciaMeses, setVigenciaMeses] = useState<number | ''>((curso as any).vigencia_meses ?? '')
     const [certificadoPlantilla, setCertificadoPlantilla] = useState(curso.certificado_plantilla ?? '')
+    const [firmante1Id, setFirmante1Id] = useState(curso.firmante_1_id ?? '')
+    const [firmante2Id, setFirmante2Id] = useState(curso.firmante_2_id ?? '')
 
     const { data: plantillasPersonalizadas = [] } = usePlantillasCertificado()
+    const { data: firmantes = [] } = useFirmantes()
+    const firmantesActivos = firmantes.filter(f => f.activo)
 
     const opcionesPlantillaCertificado = [
         ...PLANTILLAS_CERTIFICADO_FIJAS,
@@ -62,6 +67,19 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
             onSuccess()
         } catch (error: any) {
             enqueueSnackbar(error?.message || 'Error al actualizar el diseño de certificado', { variant: 'error' })
+        }
+    }
+
+    const handleSaveFirmantes = async () => {
+        try {
+            await editMutation.mutateAsync({
+                id: curso.id,
+                data: { firmante_1_id: firmante1Id || null, firmante_2_id: firmante2Id || null }
+            })
+            enqueueSnackbar('Firmantes del curso actualizados', { variant: 'success' })
+            onSuccess()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al actualizar los firmantes', { variant: 'error' })
         }
     }
 
@@ -248,6 +266,52 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                         startIcon={<i className='tabler-device-floppy' />}
                     >
                         Guardar Diseño
+                    </Button>
+                </Box>
+            </Grid>
+
+            <Grid item xs={12}><Divider /></Grid>
+
+            {/* Firmante 1 / Firmante 2 (solo aplica a plantillas personalizadas) */}
+            <Grid item xs={12}>
+                <Typography variant='h6' sx={{ mb: 1 }}>Firmante 1 / Firmante 2</Typography>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                    Solo aplica si este curso usa una plantilla de certificado personalizada con campos de
+                    Firmante 1/2. Si dejas &quot;Usar el firmante por defecto&quot;, se usará el firmante global
+                    configurado en Configuración &gt; Certificación.
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <CustomTextField
+                        select
+                        label='Firmante 1'
+                        value={firmante1Id}
+                        onChange={e => setFirmante1Id(e.target.value)}
+                        sx={{ width: 260 }}
+                    >
+                        <MenuItem value=''>Usar el firmante por defecto</MenuItem>
+                        {firmantesActivos.map(f => (
+                            <MenuItem key={f.id} value={f.id}>{f.nombre}{f.cargo ? ` (${f.cargo})` : ''}</MenuItem>
+                        ))}
+                    </CustomTextField>
+                    <CustomTextField
+                        select
+                        label='Firmante 2'
+                        value={firmante2Id}
+                        onChange={e => setFirmante2Id(e.target.value)}
+                        sx={{ width: 260 }}
+                    >
+                        <MenuItem value=''>Usar el firmante por defecto</MenuItem>
+                        {firmantesActivos.map(f => (
+                            <MenuItem key={f.id} value={f.id}>{f.nombre}{f.cargo ? ` (${f.cargo})` : ''}</MenuItem>
+                        ))}
+                    </CustomTextField>
+                    <Button
+                        variant='contained'
+                        onClick={handleSaveFirmantes}
+                        disabled={editMutation.isPending}
+                        startIcon={<i className='tabler-device-floppy' />}
+                    >
+                        Guardar Firmantes
                     </Button>
                 </Box>
             </Grid>

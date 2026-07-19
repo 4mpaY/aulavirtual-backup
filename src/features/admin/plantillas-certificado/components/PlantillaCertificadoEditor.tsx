@@ -4,7 +4,21 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useRouter } from 'next/navigation'
 
-import { Box, Button, Card, CardHeader, CircularProgress, Divider, Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CardHeader,
+  CircularProgress,
+  Divider,
+  FormControlLabel,
+  Stack,
+  Switch,
+  Tab,
+  Tabs,
+  TextField,
+  Typography
+} from '@mui/material'
 import { DndContext, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { useSnackbar } from 'notistack'
@@ -12,11 +26,26 @@ import { useSnackbar } from 'notistack'
 import MediaLibrary from '../../cursos/components/MediaLibrary'
 import { usePlantillaCertificado, usePlantillasCertificadoMutation } from '../hooks/usePlantillasCertificado'
 import { CATALOGO_CAMPOS } from '../entity/catalogoCampos'
+import type { CatalogoCampoItem } from '../entity/catalogoCampos'
 import type { CampoPagina, CampoPlantillaPersonalizada } from '../entity/PlantillaCertificado'
 import CampoChip from './CampoChip'
 import PanelEstiloCampo from './PanelEstiloCampo'
+import '../certificadoFonts.css'
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
+
+const SECCIONES_CAMPOS = CATALOGO_CAMPOS.reduce<{ seccion: string; items: CatalogoCampoItem[] }[]>((acc, item) => {
+  let grupo = acc.find(g => g.seccion === item.seccion)
+
+  if (!grupo) {
+    grupo = { seccion: item.seccion, items: [] }
+    acc.push(grupo)
+  }
+
+  grupo.items.push(item)
+
+  return acc
+}, [])
 
 interface Props {
   plantillaId: string
@@ -31,6 +60,7 @@ export default function PlantillaCertificadoEditor({ plantillaId }: Props) {
   const [nombre, setNombre] = useState('')
   const [caraFrenteUrl, setCaraFrenteUrl] = useState('')
   const [caraReversoUrl, setCaraReversoUrl] = useState<string | null>(null)
+  const [reversoActivo, setReversoActivo] = useState(false)
   const [campos, setCampos] = useState<CampoPlantillaPersonalizada[]>([])
   const [cara, setCara] = useState<CampoPagina>('frente')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -43,6 +73,7 @@ export default function PlantillaCertificadoEditor({ plantillaId }: Props) {
     setNombre(plantilla.nombre)
     setCaraFrenteUrl(plantilla.cara_frente_url)
     setCaraReversoUrl(plantilla.cara_reverso_url)
+    setReversoActivo(plantilla.reverso_activo ?? false)
     setCampos(plantilla.campos || [])
   }, [plantilla])
 
@@ -67,12 +98,26 @@ export default function PlantillaCertificadoEditor({ plantillaId }: Props) {
         // posición, se podrían arrastrar hasta quedar recortados por el borde del lienzo
         // (que tiene overflow:hidden). Se reserva ese tamaño al calcular los límites.
         const esImagen = c.tipo === 'imagen' || c.tipo === 'qr'
+        const esTablaModulos = c.tipo === 'tabla_modulos'
         const tam = c.widthPct ?? 15
         const vAlign = c.vAlign ?? 'top'
-        const minX = esImagen ? tam / 2 : 0
-        const maxX = esImagen ? 100 - tam / 2 : 97
-        const minY = !esImagen ? 0 : vAlign === 'middle' ? tam / 2 : vAlign === 'bottom' ? tam : 0
-        const maxY = !esImagen ? 96 : vAlign === 'middle' ? 100 - tam / 2 : vAlign === 'bottom' ? 100 : 100 - tam
+
+        // El bloque de módulos se ancla por su esquina superior izquierda (no por
+        // un punto centrado como imagen/texto), así que sus límites reservan su
+        // propio ancho/alto para que no quede recortado por el borde del lienzo.
+        const minX = esTablaModulos ? 0 : esImagen ? tam / 2 : 0
+        const maxX = esTablaModulos ? 100 - (c.widthPct ?? 90) : esImagen ? 100 - tam / 2 : 97
+        const minY = esTablaModulos ? 0 : !esImagen ? 0 : vAlign === 'middle' ? tam / 2 : vAlign === 'bottom' ? tam : 0
+
+        const maxY = esTablaModulos
+          ? 100 - (c.heightPct ?? 90)
+          : !esImagen
+            ? 96
+            : vAlign === 'middle'
+              ? 100 - tam / 2
+              : vAlign === 'bottom'
+                ? 100
+                : 100 - tam
 
         return {
           ...c,
@@ -118,6 +163,26 @@ export default function PlantillaCertificadoEditor({ plantillaId }: Props) {
     setSelectedId(nuevo.id)
   }
 
+  const handleAddTablaModulos = () => {
+    const nuevo: CampoPlantillaPersonalizada = {
+      id: crypto.randomUUID(),
+      tipo: 'tabla_modulos',
+      pagina: cara,
+      key: null,
+      xPct: 5,
+      yPct: 5,
+      widthPct: 90,
+      heightPct: 90,
+      fontSize: 10,
+      color: '#000000',
+      fontFamily: 'helvetica',
+      variante: 'lista'
+    }
+
+    setCampos(prev => [...prev, nuevo])
+    setSelectedId(nuevo.id)
+  }
+
   const updateCampo = (id: string, patch: Partial<CampoPlantillaPersonalizada>) =>
     setCampos(prev => prev.map(c => (c.id === id ? { ...c, ...patch } : c)))
 
@@ -142,7 +207,13 @@ export default function PlantillaCertificadoEditor({ plantillaId }: Props) {
     try {
       await actualizar.mutateAsync({
         id: plantillaId,
-        data: { nombre: nombre.trim(), cara_frente_url: caraFrenteUrl, cara_reverso_url: caraReversoUrl, campos }
+        data: {
+          nombre: nombre.trim(),
+          cara_frente_url: caraFrenteUrl,
+          cara_reverso_url: caraReversoUrl,
+          reverso_activo: reversoActivo,
+          campos
+        }
       })
       enqueueSnackbar('Plantilla guardada', { variant: 'success' })
     } catch {
@@ -193,30 +264,58 @@ export default function PlantillaCertificadoEditor({ plantillaId }: Props) {
           <Typography variant='overline' color='text.secondary' fontWeight={600}>
             Campos dinámicos
           </Typography>
-          <Stack spacing={1} mt={2}>
-            {CATALOGO_CAMPOS.map(item => (
-              <Button
-                key={item.key}
-                size='small'
-                variant='outlined'
-                color={keysUsadosEnCara.has(item.key) ? 'secondary' : 'primary'}
-                startIcon={<i className={item.icon} />}
-                onClick={() => handleAddCampo(item)}
-                sx={{ justifyContent: 'flex-start' }}
-              >
-                {item.label}
-              </Button>
+
+          <Stack spacing={3} mt={2}>
+            {SECCIONES_CAMPOS.map(grupo => (
+              <Box key={grupo.seccion}>
+                <Typography variant='caption' color='text.secondary' fontWeight={600} display='block' mb={1}>
+                  {grupo.seccion}
+                </Typography>
+                <Stack spacing={1}>
+                  {grupo.items.map(item => (
+                    <Button
+                      key={item.key}
+                      size='small'
+                      variant='outlined'
+                      color={keysUsadosEnCara.has(item.key) ? 'secondary' : 'primary'}
+                      startIcon={<i className={item.icon} />}
+                      onClick={() => handleAddCampo(item)}
+                      sx={{ justifyContent: 'flex-start' }}
+                    >
+                      {item.label}
+                    </Button>
+                  ))}
+                </Stack>
+              </Box>
             ))}
-            <Button
-              size='small'
-              variant='outlined'
-              color='primary'
-              startIcon={<i className='tabler-text-size' />}
-              onClick={handleAddTextoLibre}
-              sx={{ justifyContent: 'flex-start' }}
-            >
-              + Texto libre
-            </Button>
+
+            <Box>
+              <Typography variant='caption' color='text.secondary' fontWeight={600} display='block' mb={1}>
+                Otros
+              </Typography>
+              <Stack spacing={1}>
+                <Button
+                  size='small'
+                  variant='outlined'
+                  color='primary'
+                  startIcon={<i className='tabler-text-size' />}
+                  onClick={handleAddTextoLibre}
+                  sx={{ justifyContent: 'flex-start' }}
+                >
+                  + Texto libre
+                </Button>
+                <Button
+                  size='small'
+                  variant='outlined'
+                  color='primary'
+                  startIcon={<i className='tabler-list-details' />}
+                  onClick={handleAddTablaModulos}
+                  sx={{ justifyContent: 'flex-start' }}
+                >
+                  + Contenido del curso (módulos)
+                </Button>
+              </Stack>
+            </Box>
           </Stack>
         </Box>
 
@@ -224,7 +323,7 @@ export default function PlantillaCertificadoEditor({ plantillaId }: Props) {
         <Box p={3}>
           <Tabs value={cara} onChange={(_, v) => setCara(v as CampoPagina)} sx={{ mb: 2 }}>
             <Tab value='frente' label='Cara 1 (Frente)' />
-            <Tab value='reverso' label='Cara 2 (Reverso)' />
+            <Tab value='reverso' label={caraReversoUrl && !reversoActivo ? 'Cara 2 (Reverso) · inactiva' : 'Cara 2 (Reverso)'} />
           </Tabs>
 
           <Stack direction='row' spacing={2} mb={2} flexWrap='wrap'>
@@ -235,11 +334,23 @@ export default function PlantillaCertificadoEditor({ plantillaId }: Props) {
               {caraReversoUrl ? 'Cambiar cara 2' : 'Agregar cara 2 (opcional)'}
             </Button>
             {caraReversoUrl && (
-              <Button size='small' color='error' variant='text' onClick={() => setCaraReversoUrl(null)}>
-                Quitar cara 2
-              </Button>
+              <FormControlLabel
+                sx={{ ml: 0 }}
+                control={<Switch size='small' checked={reversoActivo} onChange={e => setReversoActivo(e.target.checked)} />}
+                label={
+                  <Typography variant='body2' color='text.secondary'>
+                    {reversoActivo ? 'Cara 2 activa' : 'Cara 2 inactiva'}
+                  </Typography>
+                }
+              />
             )}
           </Stack>
+
+          {caraReversoUrl && !reversoActivo && (
+            <Typography variant='caption' color='warning.main' display='block' mb={2}>
+              La cara 2 está guardada pero no se imprimirá en el certificado hasta que la actives.
+            </Typography>
+          )}
 
           <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
             <Box

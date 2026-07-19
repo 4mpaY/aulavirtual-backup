@@ -45,7 +45,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 
     const body = await request.json()
-    const { nombre, cara_frente_url, cara_reverso_url, campos, activo } = body
+    const { nombre, cara_frente_url, cara_reverso_url, reverso_activo, campos, activo } = body
 
     const actualizada = await prisma.plantillaCertificadoPersonalizada.update({
       where: { id: params.id },
@@ -53,6 +53,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         ...(nombre !== undefined && { nombre }),
         ...(cara_frente_url !== undefined && { cara_frente_url }),
         ...(cara_reverso_url !== undefined && { cara_reverso_url: cara_reverso_url || null }),
+        ...(reverso_activo !== undefined && { reverso_activo: Boolean(reverso_activo) }),
         ...(campos !== undefined && { campos: Array.isArray(campos) ? campos : [] }),
         ...(activo !== undefined && { activo: Boolean(activo) })
       }

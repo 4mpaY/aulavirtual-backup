@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 
 import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertificadoData'
+import { resolverFirmantes } from '@/app/api/_shared/certificados/resolverFirmantes'
 import { getConfigs } from '@/utils/libs/config'
 import { getGenerator } from '@/app/api/_shared/certificados/generators'
 import { handleApiError } from '@/utils/libs/validation'
@@ -40,6 +41,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
               certificado_plantilla: true,
               profesor: {
                 select: { nombre: true, apellido: true, cargo: true, firma: true }
+              },
+              firmante_1: {
+                select: { nombre: true, cargo: true, firma: true, sello: true }
+              },
+              firmante_2: {
+                select: { nombre: true, cargo: true, firma: true, sello: true }
               }
             }
           },
@@ -123,6 +130,16 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     // Inyectar gerente (requiere query adicional que hacemos aquí)
     certData.gerenteGeneral = gerenteGeneral
+
+    // ── Firmante 1 / Firmante 2 (solo usados por la plantilla personalizada) ──
+    const { firmante1, firmante2 } = await resolverFirmantes({
+      cursoFirmante1: certificado.curso.firmante_1,
+      cursoFirmante2: certificado.curso.firmante_2,
+      configs
+    })
+
+    certData.firmante1 = firmante1
+    certData.firmante2 = firmante2
 
     // ── Seleccionar plantilla y generar PDF ───────────────────────────
     const plantilla = certificado.curso.certificado_plantilla || configs.CERTIFICADO_PLANTILLA || 'clasico'
