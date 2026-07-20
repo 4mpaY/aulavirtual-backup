@@ -5,36 +5,29 @@ import { Heart, Lightbulb, Users, TrendingUp, ShieldCheck } from 'lucide-react'
 import { eyebrow, sectionH2, sectionDesc, cardTitle, cardBody } from '@/features/web/home/components/typography'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 
-const valores = [
-  {
-    icon: Heart,
-    title: 'Compromiso',
-    desc: 'Nos dedicamos plenamente a la formación de cada estudiante, acompañándolos en cada etapa de su aprendizaje.',
-  },
-  {
-    icon: Lightbulb,
-    title: 'Innovación',
-    desc: 'Buscamos constantemente nuevas formas de enseñar y de acercar el conocimiento de manera más efectiva.',
-  },
-  {
-    icon: Users,
-    title: 'Trabajo en Equipo',
-    desc: 'Creemos en la colaboración como motor del aprendizaje y el crecimiento colectivo.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Mejora Continua',
-    desc: 'Actualizamos nuestros contenidos y metodologías para mantenernos a la vanguardia del sector.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Integridad',
-    desc: 'Actuamos con transparencia y honestidad, generando confianza en cada relación con nuestros estudiantes y empresas.',
-  },
+// Los íconos de "Valores" son fijos por posición — el admin solo edita título y descripción.
+const VALOR_ICONS = [Heart, Lightbulb, Users, TrendingUp, ShieldCheck]
+
+const DEFAULT_VALORES = [
+  { titulo: 'Compromiso', descripcion: 'Nos dedicamos plenamente a la formación de cada estudiante, acompañándolos en cada etapa de su aprendizaje.' },
+  { titulo: 'Innovación', descripcion: 'Buscamos constantemente nuevas formas de enseñar y de acercar el conocimiento de manera más efectiva.' },
+  { titulo: 'Trabajo en Equipo', descripcion: 'Creemos en la colaboración como motor del aprendizaje y el crecimiento colectivo.' },
+  { titulo: 'Mejora Continua', descripcion: 'Actualizamos nuestros contenidos y metodologías para mantenernos a la vanguardia del sector.' },
+  { titulo: 'Integridad', descripcion: 'Actuamos con transparencia y honestidad, generando confianza en cada relación con nuestros estudiantes y empresas.' },
 ]
 
+const DEFAULT_MISION = '"Brindar formación profesional de alta calidad, accesible y orientada al sector industrial, impulsando el desarrollo de competencias que generan valor real en las organizaciones y en la carrera de nuestros estudiantes."'
+
+const DEFAULT_VISION = '"Ser la plataforma de referencia en formación profesional especializada en Latinoamérica, reconocida por la excelencia de sus contenidos, la solidez de sus certificaciones y su compromiso con la transformación del sector industrial."'
+
 /* ── Misión / Visión ────────────────────────────────────── */
-export function MisionVisionSection() {
+export function MisionVisionSection({
+  misionTexto = DEFAULT_MISION,
+  visionTexto = DEFAULT_VISION,
+}: {
+  misionTexto?: string
+  visionTexto?: string
+}) {
   return (
     <section style={{ backgroundColor: '#f8fafc', padding: '5rem 1.5rem' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
@@ -54,12 +47,12 @@ export function MisionVisionSection() {
         >
           {/* Misión */}
           <ScrollReveal direction="left" delay={0.05}>
-            <MisionCard />
+            <MisionCard texto={misionTexto} />
           </ScrollReveal>
 
           {/* Visión */}
           <ScrollReveal direction="right" delay={0.1}>
-            <VisionCard />
+            <VisionCard texto={visionTexto} />
           </ScrollReveal>
         </div>
       </div>
@@ -67,7 +60,7 @@ export function MisionVisionSection() {
   )
 }
 
-function MisionCard() {
+function MisionCard({ texto }: { texto: string }) {
   return (
     <div
       style={{
@@ -121,16 +114,14 @@ function MisionCard() {
           Nuestra Misión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Brindar formación profesional de alta calidad, accesible y orientada al sector industrial,
-          impulsando el desarrollo de competencias que generan valor real en las organizaciones y en
-          la carrera de nuestros estudiantes.&quot;
+          {texto}
         </p>
       </div>
     </div>
   )
 }
 
-function VisionCard() {
+function VisionCard({ texto }: { texto: string }) {
   return (
     <div
       style={{
@@ -184,17 +175,20 @@ function VisionCard() {
           Nuestra Visión
         </h3>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.9375rem', color: '#334155', lineHeight: 1.75, fontStyle: 'italic' }}>
-          &quot;Ser la plataforma de referencia en formación profesional especializada en Latinoamérica,
-          reconocida por la excelencia de sus contenidos, la solidez de sus certificaciones y su
-          compromiso con la transformación del sector industrial.&quot;
+          {texto}
         </p>
       </div>
     </div>
   )
 }
 
+interface ValorItem {
+  titulo: string
+  descripcion: string
+}
+
 /* ── Valores ─────────────────────────────────────────────── */
-export function ValoresSection() {
+export function ValoresSection({ valores = DEFAULT_VALORES }: { valores?: ValorItem[] }) {
   return (
     <section style={{ backgroundColor: '#ffffff', padding: '5rem 1.5rem', borderTop: '1px solid hsl(214,20%,92%)' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
@@ -217,7 +211,7 @@ export function ValoresSection() {
         >
           {valores.map((v, i) => (
             <ScrollReveal key={i} delay={i * 0.06}>
-              <ValorCard v={v} />
+              <ValorCard v={v} Icon={VALOR_ICONS[i % VALOR_ICONS.length]} />
             </ScrollReveal>
           ))}
         </div>
@@ -226,7 +220,7 @@ export function ValoresSection() {
   )
 }
 
-function ValorCard({ v }: { v: typeof valores[number] }) {
+function ValorCard({ v, Icon }: { v: ValorItem; Icon: typeof VALOR_ICONS[number] }) {
   return (
     <div
       style={{
@@ -264,12 +258,12 @@ function ValorCard({ v }: { v: typeof valores[number] }) {
           border: '1.5px solid rgba(var(--web-primary-rgb, 37, 146, 127),0.2)',
         }}
       >
-        <v.icon size={28} color="var(--web-primary, #25927F)" />
+        <Icon size={28} color="var(--web-primary, #25927F)" />
       </div>
       <h3 style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#0A0A0A', marginBottom: '0.625rem' }}>
-        {v.title}
+        {v.titulo}
       </h3>
-      <p style={{ ...cardBody, textAlign: 'center' }}>{v.desc}</p>
+      <p style={{ ...cardBody, textAlign: 'center' }}>{v.descripcion}</p>
     </div>
   )
 }

@@ -70,6 +70,8 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
     es_gratis: false,
     precio: 0,
     precio_falso: 0,
+    precio_usd: null,
+    precio_falso_usd: null,
     moneda: 'PEN',
     nivel: 'BASICO',
     duracion: '',
@@ -299,6 +301,8 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                                 if (e.target.checked) {
                                   setFieldValue('precio', 0)
                                   setFieldValue('precio_falso', 0)
+                                  setFieldValue('precio_usd', 0)
+                                  setFieldValue('precio_falso_usd', 0)
                                 }
                               }}
                             />
@@ -306,35 +310,61 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                           label='Este curso es gratis'
                         />
                         {!values.es_gratis && (
-                          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                            <CustomTextField
-                              type='number'
-                              label='Precio'
-                              name='precio'
-                              value={values.precio}
-                              onChange={handleChange}
-                              sx={{ width: 200 }}
-                            />
-                            <CustomTextField
-                              type='number'
-                              label='Precio Falso (Opcional)'
-                              name='precio_falso'
-                              value={values.precio_falso}
-                              onChange={handleChange}
-                              sx={{ width: 200 }}
-                            />
-                            <CustomTextField
-                              select
-                              label='Moneda'
-                              name='moneda'
-                              value={values.moneda}
-                              onChange={handleChange}
-                              sx={{ width: 120 }}
-                            >
-                              <MenuItem value='PEN'>PEN (S/)</MenuItem>
-                              <MenuItem value='USD'>USD ($)</MenuItem>
-                            </CustomTextField>
-                          </Box>
+                          <>
+                            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                              <CustomTextField
+                                type='number'
+                                label='Precio (Soles)'
+                                name='precio'
+                                value={values.precio}
+                                onChange={handleChange}
+                                sx={{ width: 200 }}
+                                InputProps={{ startAdornment: <InputAdornment position='start'>S/</InputAdornment> }}
+                              />
+                              <CustomTextField
+                                type='number'
+                                label='Precio Falso Soles (Opcional)'
+                                name='precio_falso'
+                                value={values.precio_falso}
+                                onChange={handleChange}
+                                sx={{ width: 220 }}
+                                InputProps={{ startAdornment: <InputAdornment position='start'>S/</InputAdornment> }}
+                              />
+                              <CustomTextField
+                                select
+                                label='Moneda de la orden'
+                                name='moneda'
+                                value={values.moneda}
+                                onChange={handleChange}
+                                sx={{ width: 160 }}
+                                helperText='Moneda usada al pagar con pasarelas locales'
+                              >
+                                <MenuItem value='PEN'>PEN (S/)</MenuItem>
+                                <MenuItem value='USD'>USD ($)</MenuItem>
+                              </CustomTextField>
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                              <CustomTextField
+                                type='number'
+                                label='Precio (Dólares)'
+                                name='precio_usd'
+                                value={values.precio_usd ?? ''}
+                                onChange={handleChange}
+                                sx={{ width: 200 }}
+                                helperText='Se muestra cuando el visitante activa el toggle Dólares'
+                                InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
+                              />
+                              <CustomTextField
+                                type='number'
+                                label='Precio Falso Dólares (Opcional)'
+                                name='precio_falso_usd'
+                                value={values.precio_falso_usd ?? ''}
+                                onChange={handleChange}
+                                sx={{ width: 220 }}
+                                InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
+                              />
+                            </Box>
+                          </>
                         )}
                       </Grid>
 

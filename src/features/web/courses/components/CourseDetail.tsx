@@ -40,6 +40,8 @@ import UserAvatar from '@/utils/components/UserAvatar'
 import PdfViewer from '@/features/estudiante/player/components/PdfViewer'
 import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
 import { useAuthModal } from '@/contexts/AuthModalContext'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { formatPrice, getDisplayPrice } from '@/utils/functions/formatPrice'
 
 
 interface Leccion {
@@ -63,6 +65,8 @@ interface CourseDetailProps {
     miniatura?: string
     precio: number
     precio_falso: number
+    precio_usd?: number | null
+    precio_falso_usd?: number | null
     moneda: string
     es_gratis: boolean
     es_comprado?: boolean
@@ -100,6 +104,8 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
   const { data: session } = useSession()
   const router = useRouter()
   const { openLogin } = useAuthModal()
+  const { currency } = useCurrency()
+  const displayPrice = getDisplayPrice(course, currency)
 
   const handleFreeEnroll = async () => {
     if (!session) {
@@ -356,14 +362,14 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                 {/* Precio */}
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
                   <Typography sx={{ fontFamily: FONT, fontWeight: 900, fontSize: { xs: '2.5rem', md: '3rem' }, color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>
-                    {course.es_comprado ? 'Adquirido' : course.es_gratis ? 'Gratis' : `${course.moneda} ${course.precio}`}
+                    {course.es_comprado ? 'Adquirido' : course.es_gratis ? 'Gratis' : formatPrice(displayPrice.amount, displayPrice.currency)}
                   </Typography>
                   {!course.es_gratis && !course.es_comprado && (
                     <Typography sx={{ fontFamily: FONT, fontSize: '1rem', color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>
-                      {course.moneda}{' '}
-                      {Number(course.precio_falso) !== 0
-                        ? Number(course.precio_falso)
-                        : (course.precio * 1.5).toFixed(2)}
+                      {formatPrice(
+                        displayPrice.falseAmount ?? displayPrice.amount * 1.5,
+                        displayPrice.currency
+                      )}
                     </Typography>
                   )}
                 </Box>
@@ -579,7 +585,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
                     Programa {course.es_gratis ? 'Gratuito' : 'Premium'}
                   </Typography>
                   <Typography sx={{ fontFamily: FONT, fontWeight: 900, fontSize: '2rem', color: 'var(--web-light, #BDD962)', lineHeight: 1 }}>
-                    {course.es_comprado ? 'Adquirido' : course.es_gratis ? 'Gratis' : `${course.moneda} ${course.precio}`}
+                    {course.es_comprado ? 'Adquirido' : course.es_gratis ? 'Gratis' : formatPrice(displayPrice.amount, displayPrice.currency)}
                   </Typography>
                 </Box>
 

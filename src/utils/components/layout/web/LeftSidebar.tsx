@@ -9,12 +9,10 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
-import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, MonitorSmartphone, BookText, ClipboardList, Repeat2 } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, BookText, ClipboardList, Repeat2 } from 'lucide-react'
 
 import { useAuthModal } from '@/contexts/AuthModalContext'
-import { usePWAInstall } from '@/utils/hooks/usePWAInstall'
 import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
-import PWAInstallTip from '@/utils/components/shared/PWAInstallTip'
 
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
@@ -54,8 +52,6 @@ export default function LeftSidebar({
   const { data: session } = useSession()
   const userButtonRef = useRef<HTMLButtonElement>(null)
   const { openLogin, openRegister } = useAuthModal()
-  const { canInstall, hasNativePrompt, install } = usePWAInstall()
-  const [showInstallTip, setShowInstallTip] = useState(false)
 
   const navItems = ALL_NAV_ITEMS.filter(item => {
     if (item.key === 'empresas' && !empresasHabilitado) return false
@@ -162,35 +158,6 @@ export default function LeftSidebar({
 
         {/* Bottom: user or login */}
         <div className="mt-auto w-full" style={{ paddingBottom: '20px', position: 'relative' }}>
-
-          {/* Install PWA button — always visible while not installed */}
-          {canInstall && (
-            <div style={{ position: 'relative', padding: '0 12px', marginBottom: '8px' }}>
-              <button
-                onClick={() => hasNativePrompt ? install() : setShowInstallTip(t => !t)}
-                title="Instalar aplicación"
-                className="flex items-center w-full rounded-xl transition-all"
-                style={{ height: '44px', gap: '12px', backgroundColor: 'var(--web-light, #BDD962)', border: '1px solid transparent', cursor: 'pointer' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-              >
-                <div style={{ flexShrink: 0, minWidth: '30px', display: 'flex', justifyContent: 'center' }}>
-                  <MonitorSmartphone size={18} color="#0A0A0A" />
-                </div>
-                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', fontWeight: 700, color: '#0A0A0A', opacity: expanded ? 1 : 0, maxWidth: expanded ? '160px' : '0px', transition: 'opacity 0.2s, max-width 0.3s', whiteSpace: 'nowrap', overflow: 'hidden' }}>
-                  Instalar App
-                </span>
-              </button>
-
-              {showInstallTip && !hasNativePrompt && (
-                <PWAInstallTip
-                  onClose={() => setShowInstallTip(false)}
-                  style={{ position: 'fixed', top: 'auto', bottom: '80px', left: '72px', width: '280px' }}
-                />
-              )}
-            </div>
-          )}
-
           <div className="px-3">
             {/* User popup menu — rendered fixed to escape overflow:hidden on aside */}
             {session?.user && userMenuOpen && (

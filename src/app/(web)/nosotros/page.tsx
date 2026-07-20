@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
+import { getConfigs } from '@/utils/libs/config'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
 import { MisionVisionSection, ValoresSection } from '@/features/web/nosotros/components/NosotrosInteractive'
@@ -11,6 +12,16 @@ export const metadata = {
   title: 'Nosotros - Aula Virtual',
   description: 'Conoce quiénes somos, nuestra misión, visión y los valores que guían nuestra plataforma educativa.',
 }
+
+// El emoji de cada estadística es fijo por posición — el admin solo edita valor y etiqueta.
+const STAT_EMOJIS = ['👩‍🎓', '📚', '👨‍🏫', '🏆']
+
+const DEFAULT_STATS = [
+  { value: '+1,200', label: 'Estudiantes formados' },
+  { value: '+80', label: 'Cursos disponibles' },
+  { value: '+30', label: 'Docentes expertos' },
+  { value: '98%', label: 'Tasa de satisfacción' },
+]
 
 async function getTeachers() {
   try {
@@ -35,7 +46,30 @@ async function getTeachers() {
 }
 
 export default async function NosotrosPage() {
-  const teachers = await getTeachers()
+  const [teachers, configs] = await Promise.all([getTeachers(), getConfigs()])
+
+  const heroTitle = configs.NOSOTROS_HERO_TITLE || 'Somos calidad y responsabilidad a tu servicio'
+  const heroDescription = configs.NOSOTROS_HERO_DESCRIPTION || 'Somos una plataforma educativa especializada en la formación profesional de alto impacto. Ofrecemos cursos diseñados por expertos del sector, con certificaciones reconocidas que impulsan tu desarrollo profesional y el de tu equipo.'
+
+  const titleWords = heroTitle.trim().split(' ')
+  const titleLastWord = titleWords.pop()
+  const titleRest = titleWords.join(' ')
+
+  let stats = DEFAULT_STATS
+
+  try {
+    const parsed = configs.NOSOTROS_STATS ? JSON.parse(configs.NOSOTROS_STATS) : null
+
+    if (Array.isArray(parsed) && parsed.length > 0) stats = parsed
+  } catch { /* usa el default */ }
+
+  let valores
+
+  try {
+    const parsed = configs.NOSOTROS_VALORES ? JSON.parse(configs.NOSOTROS_VALORES) : null
+
+    if (Array.isArray(parsed) && parsed.length > 0) valores = parsed
+  } catch { /* usa el default */ }
 
   return (
     <>
@@ -98,12 +132,7 @@ export default async function NosotrosPage() {
 
                 {/* Stats 2×2 */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  {[
-                    { emoji: '👩‍🎓', value: '+1,200', label: 'Estudiantes formados' },
-                    { emoji: '📚', value: '+80', label: 'Cursos disponibles' },
-                    { emoji: '👨‍🏫', value: '+30', label: 'Docentes expertos' },
-                    { emoji: '🏆', value: '98%', label: 'Tasa de satisfacción' },
-                  ].map((s, i) => (
+                  {stats.map((s, i) => (
                     <div
                       key={i}
                       style={{
@@ -114,7 +143,7 @@ export default async function NosotrosPage() {
                         padding: '1.125rem 1.25rem',
                       }}
                     >
-                      <span style={{ fontSize: '1.375rem' }}>{s.emoji}</span>
+                      <span style={{ fontSize: '1.375rem' }}>{STAT_EMOJIS[i % STAT_EMOJIS.length]}</span>
                       <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.375rem', fontWeight: 800, color: 'var(--web-light, #BDD962)', lineHeight: 1, marginTop: '0.5rem' }}>{s.value}</div>
                       <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '3px', lineHeight: 1.3 }}>{s.label}</div>
                     </div>
@@ -175,9 +204,8 @@ export default async function NosotrosPage() {
                     marginBottom: '1.25rem',
                   }}
                 >
-                  Somos calidad y{' '}
-                  <span style={{ color: 'var(--web-light, #BDD962)' }}>responsabilidad</span>{' '}
-                  a tu servicio
+                  {titleRest ? `${titleRest} ` : ''}
+                  <span style={{ color: 'var(--web-light, #BDD962)' }}>{titleLastWord}</span>
                 </h1>
 
                 <p
@@ -190,9 +218,7 @@ export default async function NosotrosPage() {
                     marginBottom: '2.5rem',
                   }}
                 >
-                  Somos una plataforma educativa especializada en la formación profesional de alto impacto.
-                  Ofrecemos cursos diseñados por expertos del sector, con certificaciones reconocidas
-                  que impulsan tu desarrollo profesional y el de tu equipo.
+                  {heroDescription}
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -287,10 +313,10 @@ export default async function NosotrosPage() {
       </section> */}
 
       {/* ── 3. MISIÓN / VISIÓN (client component) ─────── */}
-      <MisionVisionSection />
+      <MisionVisionSection misionTexto={configs.NOSOTROS_MISION_TEXTO} visionTexto={configs.NOSOTROS_VISION_TEXTO} />
 
       {/* ── 4. VALORES (client component) ─────────────── */}
-      <ValoresSection />
+      <ValoresSection valores={valores} />
 
       {/* ── 5. PROFESORES ─────────────────────────────── */}
       <ProfessorsCarousel teachers={JSON.parse(JSON.stringify(teachers))} />

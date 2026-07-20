@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { ArrowRight, CheckCircle } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
@@ -10,16 +10,37 @@ import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSectio
 import HeroInstallButton from '@/features/web/home/components/HeroInstallButton'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
-import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
 import HeroVisual from '@/features/web/home/components/HeroVisual'
+import HeroImageCarousel from '@/features/web/home/components/HeroImageCarousel'
 import ClassFeaturesSection from '@/features/web/home/components/ClassFeaturesSection'
 import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCarousel'
-import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASection'
 import HomeEbooksSection from '@/features/web/home/components/HomeEbooksSection'
+import ConveniosSection from '@/features/web/home/components/ConveniosSection'
+import WhyChooseUsSection from '@/features/web/home/components/WhyChooseUsSection'
 
 export const metadata = {
   title: 'Aula Virtual - Aprende sin límites',
   description: 'Plataforma de aprendizaje online con cursos especializados y certificados.',
+}
+
+function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
+  // Si no hay descripción, no se muestra ni el título ni la descripción — el admin
+  // dejó el campo vacío a propósito, no se rellena con un texto por defecto.
+  if (!subtitle?.trim()) return null
+
+  const words = title.trim().split(' ')
+  const last = words.pop()
+  const rest = words.join(' ')
+
+  return (
+    <div className="text-center mb-10 max-w-2xl mx-auto">
+      <h2 className="section-title">
+        {rest ? `${rest} ` : ''}
+        <span style={{ color: 'var(--web-primary, #25927F)' }}>{last}</span>
+      </h2>
+      <p className="section-subtitle">{subtitle}</p>
+    </div>
+  )
 }
 
 async function getHomeData() {
@@ -110,9 +131,24 @@ async function getHomeData() {
 
     const heroTitle = configs.HOME_HERO_TITLE || 'Aprende sin límites,\ncrece sin fronteras'
     const heroDescription = configs.HOME_HERO_DESCRIPTION || 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.'
-    let logos: { label: string; url: string }[] = []
 
-    try { logos = configs.HOME_LOGOS ? JSON.parse(configs.HOME_LOGOS) : [] } catch { logos = [] }
+    let heroImages: string[] = []
+
+    try {
+      const parsed = configs.HOME_HERO_IMAGES ? JSON.parse(configs.HOME_HERO_IMAGES) : []
+
+      if (Array.isArray(parsed)) heroImages = parsed.filter(Boolean)
+    } catch { heroImages = [] }
+
+    if (heroImages.length === 0 && configs.HOME_HERO_IMAGE) heroImages = [configs.HOME_HERO_IMAGE]
+
+    let convenios: { label: string; url: string }[] = []
+
+    try { convenios = configs.HOME_CONVENIOS_LOGOS ? JSON.parse(configs.HOME_CONVENIOS_LOGOS) : [] } catch { convenios = [] }
+
+    let porQueElegirnos: { icono: string; titulo: string; descripcion: string }[] = []
+
+    try { porQueElegirnos = configs.HOME_POR_QUE_ELEGIRNOS ? JSON.parse(configs.HOME_POR_QUE_ELEGIRNOS) : [] } catch { porQueElegirnos = [] }
 
     const ebooks = ebooksRaw.map(e => ({
       ...e,
@@ -128,20 +164,52 @@ async function getHomeData() {
       ebooks: JSON.parse(JSON.stringify(ebooks)),
       heroTitle,
       heroDescription,
-      logos,
+      heroImages,
+
+      // Título/descripción de estas secciones vienen únicamente de Configuracion (ver seed
+      // para los valores por defecto). Si el admin borra la descripción, la sección oculta
+      // tanto el título como la descripción — no hay texto de relleno hardcodeado aquí.
+      cursosTitle: configs.HOME_CURSOS_TITLE || '',
+      cursosSubtitle: configs.HOME_CURSOS_SUBTITLE || '',
+      convenios,
+      conveniosHabilitado: configs.HOME_CONVENIOS_HABILITADO !== 'false',
+      conveniosTitle: configs.HOME_CONVENIOS_TITLE || '',
+      conveniosDescription: configs.HOME_CONVENIOS_DESCRIPTION || '',
+      porQueElegirnos,
+      porQueElegirnosHabilitado: configs.HOME_POR_QUE_ELEGIRNOS_HABILITADO !== 'false',
+      docentesTitle: configs.HOME_DOCENTES_TITLE || '',
+      docentesSubtitle: configs.HOME_DOCENTES_SUBTITLE || '',
     }
   } catch {
     return {
       courses: [], diplomados: [], especializaciones: [], teachers: [], ebooks: [],
       heroTitle: 'Aprende sin límites,\ncrece sin fronteras',
       heroDescription: 'Accede a cursos especializados, rutas de aprendizaje y certificaciones diseñadas para impulsar tu carrera profesional.',
-      logos: [],
+      heroImages: [],
+      cursosTitle: '',
+      cursosSubtitle: '',
+      convenios: [],
+      conveniosHabilitado: true,
+      conveniosTitle: '',
+      conveniosDescription: '',
+      porQueElegirnos: [],
+      porQueElegirnosHabilitado: true,
+      docentesTitle: '',
+      docentesSubtitle: '',
     }
   }
 }
 
 export default async function HomePage() {
-  const { courses, diplomados, especializaciones, teachers, ebooks, heroTitle, heroDescription, logos } = await getHomeData()
+  const {
+    courses, diplomados, especializaciones, teachers, ebooks,
+    heroTitle, heroDescription, heroImages,
+    cursosTitle, cursosSubtitle,
+    convenios, conveniosHabilitado, conveniosTitle, conveniosDescription,
+    porQueElegirnos, porQueElegirnosHabilitado,
+    docentesTitle, docentesSubtitle,
+  } = await getHomeData()
+
   const cursosConfig = getTipoProgramaConfig('CURSO')
   const diplomadosConfig = getTipoProgramaConfig('DIPLOMADO')
   const especializacionesConfig = getTipoProgramaConfig('ESPECIALIZACION')
@@ -149,6 +217,9 @@ export default async function HomePage() {
   return (
     <>
       {/* ── 1. HERO ─────────────────────────────────── */}
+      {heroImages.length > 0 ? (
+        <HeroImageCarousel images={heroImages} />
+      ) : (
       <section
         style={{
           background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
@@ -251,35 +322,21 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
-      {/* ── 2. LOGO MARQUEE ─────────────────────────── */}
-      <ClientLogosMarquee logos={logos} />
-
-      {/* ── 3. CURSOS DESTACADOS ────────────────────── */}
-      <section className="section-container">
+      {/* ── 2. CURSOS DESTACADOS ────────────────────── */}
+      <section className="section-container" style={{ maxWidth: '1440px' }}>
         <ScrollReveal>
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="section-title">{cursosConfig.homeTitle}</h2>
-              <p className="section-subtitle">{cursosConfig.homeSubtitle}</p>
-            </div>
-            <Link
-              href="/cursos"
-              className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-            >
-              Ver todos <ArrowRight size={16} />
-            </Link>
-          </div>
+          <SectionHeader title={cursosTitle} subtitle={cursosSubtitle} />
         </ScrollReveal>
         <ScrollReveal delay={0.1}>
           <HomeCoursesSection
             courses={courses}
             catalogHref={cursosConfig.webPath}
             emptyMessage={cursosConfig.emptyMessage}
-            viewLabel="Ver curso"
+            viewLabel="Ir a matricularse"
           />
-          <div className="flex justify-center mt-8 sm:hidden">
+          <div className="flex justify-center mt-10">
             <Link
               href="/cursos"
               className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
@@ -291,31 +348,33 @@ export default async function HomePage() {
         </ScrollReveal>
       </section>
 
+      {/* ── 2b. NUESTROS CONVENIOS ──────────────────── */}
+      {conveniosHabilitado && (
+        <ConveniosSection title={conveniosTitle} description={conveniosDescription} logos={convenios} />
+      )}
+
       {/* ── 3b. DIPLOMADOS DESTACADOS ───────────────── */}
       {diplomados.length > 0 && (
         <section className="section-container" style={{ borderTop: '1px solid hsl(214, 20%, 92%)' }}>
           <ScrollReveal>
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <h2 className="section-title">{diplomadosConfig.homeTitle}</h2>
-                <p className="section-subtitle">{diplomadosConfig.homeSubtitle}</p>
-              </div>
-              <Link
-                href={diplomadosConfig.webPath}
-                className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-              >
-                Ver todos <ArrowRight size={16} />
-              </Link>
-            </div>
+            <SectionHeader title={diplomadosConfig.homeTitle} subtitle={diplomadosConfig.homeSubtitle} />
           </ScrollReveal>
           <ScrollReveal delay={0.1}>
             <HomeCoursesSection
               courses={diplomados}
               catalogHref={diplomadosConfig.webPath}
               emptyMessage={diplomadosConfig.emptyMessage}
-              viewLabel="Ver diplomado"
+              viewLabel="Ir a matricularse"
             />
+            <div className="flex justify-center mt-10">
+              <Link
+                href={diplomadosConfig.webPath}
+                className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
+                style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff' }}
+              >
+                Ver todos los diplomados <ArrowRight size={16} />
+              </Link>
+            </div>
           </ScrollReveal>
         </section>
       )}
@@ -324,27 +383,24 @@ export default async function HomePage() {
       {especializaciones.length > 0 && (
         <section className="section-container" style={{ borderTop: '1px solid hsl(214, 20%, 92%)' }}>
           <ScrollReveal>
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <h2 className="section-title">{especializacionesConfig.homeTitle}</h2>
-                <p className="section-subtitle">{especializacionesConfig.homeSubtitle}</p>
-              </div>
-              <Link
-                href={especializacionesConfig.webPath}
-                className="no-underline hidden sm:inline-flex items-center gap-2 text-sm font-semibold"
-                style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-              >
-                Ver todas <ArrowRight size={16} />
-              </Link>
-            </div>
+            <SectionHeader title={especializacionesConfig.homeTitle} subtitle={especializacionesConfig.homeSubtitle} />
           </ScrollReveal>
           <ScrollReveal delay={0.1}>
             <HomeCoursesSection
               courses={especializaciones}
               catalogHref={especializacionesConfig.webPath}
               emptyMessage={especializacionesConfig.emptyMessage}
-              viewLabel="Ver especialización"
+              viewLabel="Ir a matricularse"
             />
+            <div className="flex justify-center mt-10">
+              <Link
+                href={especializacionesConfig.webPath}
+                className="no-underline inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-semibold text-sm"
+                style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', color: '#ffffff' }}
+              >
+                Ver todas las especializaciones <ArrowRight size={16} />
+              </Link>
+            </div>
           </ScrollReveal>
         </section>
       )}
@@ -352,56 +408,20 @@ export default async function HomePage() {
       {/* ── 4. EBOOKS DESTACADOS ────────────────────── */}
       {isFeatureEnabled('ebooks') && <HomeEbooksSection ebooks={ebooks} />}
 
+      {/* ── 4c. ¿POR QUÉ ELEGIRNOS? ─────────────────── */}
+      {porQueElegirnosHabilitado && <WhyChooseUsSection items={porQueElegirnos} />}
+
       {/* ── 5. CARACTERÍSTICAS DE CLASES ────────────── */}
       <ClassFeaturesSection />
 
       {/* ── 6. PROFESORES ───────────────────────────── */}
-      <ProfessorsCarousel teachers={teachers} />
+      <ProfessorsCarousel teachers={teachers} title={docentesTitle} subtitle={docentesSubtitle} />
 
       {/* ── 7. EMPRESAS (B2B informativo) ───────────── */}
       {/* <CompaniesSection /> */}
 
-      {/* ── 8. CTA AGENDAR REUNIÓN ──────────────────── */}
-      <EnterpriseCTASection />
-
-      {/* ── 9. VERIFICAR CERTIFICADO ────────────────── */}
+      {/* ── 8. VERIFICAR CERTIFICADO ────────────────── */}
       <SearchCertificateSection />
-
-      {/* ── 10. CTA INSCRIPCIÓN ─────────────────────── */}
-      <section className="bg-white py-16 text-center" style={{ borderTop: '1px solid hsl(214, 20%, 88%)' }}>
-        <div className="max-w-3xl mx-auto px-4">
-          <ScrollReveal>
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-              style={{ backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.08)', color: 'var(--web-dark, #025E44)' }}
-            >
-              <CheckCircle size={16} />
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.75rem', fontWeight: 600 }}>
-                Únete a miles de estudiantes
-              </span>
-            </div>
-            <h2
-              className="mb-4"
-              style={{ fontFamily: 'Poppins, sans-serif', fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', fontWeight: 700, color: '#0A0A0A', letterSpacing: '-0.02em' }}
-            >
-              ¿Listo para transformar tu carrera?
-            </h2>
-            <p
-              className="mb-8 max-w-xl mx-auto"
-              style={{ fontFamily: 'Poppins, sans-serif', color: 'hsl(215, 16%, 47%)', lineHeight: 1.7 }}
-            >
-              Inscríbete hoy y comienza a aprender con los mejores profesionales del sector.
-            </p>
-            <Link
-              href="/cursos"
-              className="no-underline inline-flex items-center gap-2 px-10 py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
-              style={{ fontFamily: 'Poppins, sans-serif', backgroundColor: 'var(--web-primary, #25927F)', boxShadow: '0 6px 20px rgba(var(--web-primary-rgb, 37, 146, 127),0.35)' }}
-            >
-              Inscribirse ahora <ArrowRight size={18} />
-            </Link>
-          </ScrollReveal>
-        </div>
-      </section>
     </>
   )
 }

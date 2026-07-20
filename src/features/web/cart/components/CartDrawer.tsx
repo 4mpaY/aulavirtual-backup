@@ -20,10 +20,13 @@ import {
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 import { useCart } from '../context/CartContext'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { formatPrice, getDisplayPrice } from '@/utils/functions/formatPrice'
 
 const CartDrawer = () => {
-    const { cart, removeFromCart, cartTotal, itemCount, isCartDrawerOpen, setIsCartDrawerOpen } = useCart()
+    const { cart, removeFromCart, itemCount, isCartDrawerOpen, setIsCartDrawerOpen } = useCart()
     const router = useRouter()
+    const { currency } = useCurrency()
 
     const onClose = () => setIsCartDrawerOpen(false)
 
@@ -35,7 +38,9 @@ const CartDrawer = () => {
         }
     }
 
-    const moneda = cart[0]?.moneda || 'PEN'
+    const displayItems = cart.map(item => ({ item, display: getDisplayPrice(item, currency) }))
+    const moneda = displayItems[0]?.display.currency || 'PEN'
+    const cartTotal = displayItems.reduce((acc, { display }) => acc + display.amount, 0)
 
     return (
         <Drawer anchor="right" open={isCartDrawerOpen} onClose={onClose}>
@@ -64,7 +69,7 @@ const CartDrawer = () => {
                         </Box>
                     ) : (
                         <List>
-                            {cart.map((item) => (
+                            {displayItems.map(({ item, display }) => (
                                 <ListItem
                                     key={item.id}
                                     secondaryAction={
@@ -95,7 +100,7 @@ const CartDrawer = () => {
                                                 />
                                             </Box>
                                         }
-                                        secondary={`${item.moneda} ${Number(item.precio).toFixed(2)}`}
+                                        secondary={formatPrice(display.amount, display.currency)}
                                     />
                                 </ListItem>
                             ))}
@@ -111,7 +116,7 @@ const CartDrawer = () => {
                         <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
                             <Typography variant="h6" fontWeight={700}>Total</Typography>
                             <Typography variant="h6" fontWeight={900} color="primary.main">
-                                {moneda} {cartTotal.toFixed(2)}
+                                {formatPrice(cartTotal, moneda)}
                             </Typography>
                         </Stack>
                         <Button

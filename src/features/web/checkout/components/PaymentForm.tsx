@@ -161,10 +161,14 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
   const [paymentError, setPaymentError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const configs = useConfig()
-  const isCulqiEnabled = configs.CULQI_ENABLED !== 'false'
-  const isIzipayEnabled = configs.IZIPAY_ENABLED !== 'false'
+
+  // Los gateways locales (Culqi, Izipay, Mercado Pago, Yape/Transferencia) solo cobran en soles.
+  // Si el visitante seleccionó Dólares, únicamente PayPal queda disponible (ya convierte a USD internamente).
+  const isUsdSelected = (courses[0] || ebooks[0])?.moneda === 'USD'
+  const isCulqiEnabled = configs.CULQI_ENABLED !== 'false' && !isUsdSelected
+  const isIzipayEnabled = configs.IZIPAY_ENABLED !== 'false' && !isUsdSelected
   const isPaypalEnabled = configs.PAYPAL_ENABLED !== 'false'
-  const isMercadoPagoEnabled = configs.MP_ENABLED !== 'false' && !!configs.MP_ACCESS_TOKEN
+  const isMercadoPagoEnabled = configs.MP_ENABLED !== 'false' && !!configs.MP_ACCESS_TOKEN && !isUsdSelected
 
   const [paymentMethod, setPaymentMethod] = useState<'izipay' | 'paypal' | 'culqi' | 'mercadopago' | 'manual'>('culqi')
   const [isCulqiLoaded, setIsCulqiLoaded] = useState(false)
@@ -221,9 +225,15 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
     if (!isCulqiEnabled && paymentMethod === 'culqi') {
       if (isIzipayEnabled) setPaymentMethod('izipay')
       else if (isPaypalEnabled) setPaymentMethod('paypal')
-      else if (isManualEnabled) setPaymentMethod('manual')
+      else if (isManualEnabled && !isUsdSelected) setPaymentMethod('manual')
     }
-  }, [isCulqiEnabled, isIzipayEnabled, isPaypalEnabled, isManualEnabled, paymentMethod])
+  }, [isCulqiEnabled, isIzipayEnabled, isPaypalEnabled, isManualEnabled, isUsdSelected, paymentMethod])
+
+  useEffect(() => {
+    if (isUsdSelected && paymentMethod !== 'paypal' && isPaypalEnabled) {
+      setPaymentMethod('paypal')
+    }
+  }, [isUsdSelected, paymentMethod, isPaypalEnabled])
 
   const handleVoucherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -709,10 +719,16 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
               {isMercadoPagoEnabled && (
                 <MethodTab icon='tabler-shopping-cart' label='Mercado Pago' selected={paymentMethod === 'mercadopago'} onClick={() => setPaymentMethod('mercadopago')} color='#009ee3' />
               )}
-              {isManualEnabled && metodosManual.length > 0 && (
+              {isManualEnabled && metodosManual.length > 0 && !isUsdSelected && (
                 <MethodTab icon='tabler-device-mobile-message' label='Yape / Transferencia' selected={paymentMethod === 'manual'} onClick={() => setPaymentMethod('manual')} color='#6c3483' />
               )}
             </Stack>
+
+            {isUsdSelected && (
+              <Alert severity='info' sx={{ mb: 2, borderRadius: '12px' }}>
+                Con Dólares seleccionados, el pago se procesa con PayPal. Cambia a Soles en la parte superior para ver más métodos de pago.
+              </Alert>
+            )}
 
             {/* ── Culqi ── */}
             {paymentMethod === 'culqi' && isCulqiEnabled && (
@@ -806,7 +822,7 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
             )}
 
             {/* ── Pago Manual ── */}
-            {paymentMethod === 'manual' && isManualEnabled && (
+            {paymentMethod === 'manual' && isManualEnabled && !isUsdSelected && (
               <Box sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflow: 'hidden' }}>
                 {isGuest ? (
                   <Box sx={{ p: 3 }}>

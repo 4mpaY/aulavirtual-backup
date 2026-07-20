@@ -415,6 +415,116 @@ function GatewayAccordion({ icon, title, subtitle, enabledKey, config, onInputCh
   )
 }
 
+interface LegalSeccion {
+  titulo: string
+  contenido: string
+}
+
+interface LegalPageEditorProps {
+  prefix: string
+  label: string
+  config: any
+  onInputChange: (clave: string, valor: string) => void
+}
+
+function LegalPageEditor({ prefix, label, config, onInputChange }: LegalPageEditorProps) {
+  const seccionesKey = `${prefix}_SECCIONES`
+
+  const secciones: LegalSeccion[] = (() => {
+    try {
+      const arr = JSON.parse(config[seccionesKey] || '[]')
+
+      if (Array.isArray(arr)) return arr
+    } catch { /* ignore */ }
+
+    return []
+  })()
+
+  const updateSeccion = (index: number, partial: Partial<LegalSeccion>) => {
+    const updated = [...secciones]
+
+    updated[index] = { ...updated[index], ...partial }
+    onInputChange(seccionesKey, JSON.stringify(updated))
+  }
+
+  const addSeccion = () => {
+    onInputChange(seccionesKey, JSON.stringify([...secciones, { titulo: '', contenido: '' }]))
+  }
+
+  const removeSeccion = (index: number) => {
+    onInputChange(seccionesKey, JSON.stringify(secciones.filter((_, i) => i !== index)))
+  }
+
+  return (
+    <Box>
+      <Typography variant='h6' gutterBottom>{label}</Typography>
+      <Stack spacing={3} sx={{ mb: 3 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label='Título de la página'
+              value={config[`${prefix}_TITULO`] || ''}
+              onChange={(e) => onInputChange(`${prefix}_TITULO`, e.target.value)}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label='Subtítulo (ej. fecha de actualización)'
+              value={config[`${prefix}_SUBTITULO`] || ''}
+              onChange={(e) => onInputChange(`${prefix}_SUBTITULO`, e.target.value)}
+            />
+          </Grid>
+        </Grid>
+        <TextField
+          fullWidth
+          multiline
+          rows={3}
+          label='Párrafo introductorio'
+          value={config[`${prefix}_INTRO`] || ''}
+          onChange={(e) => onInputChange(`${prefix}_INTRO`, e.target.value)}
+        />
+      </Stack>
+
+      <Typography variant='subtitle2' sx={{ mb: 1.5 }}>Secciones</Typography>
+      <Stack spacing={2} sx={{ mb: 2 }}>
+        {secciones.map((s, i) => (
+          <Paper key={i} variant='outlined' sx={{ p: 2 }}>
+            <Stack direction='row' spacing={2} alignItems='flex-start'>
+              <Stack spacing={1.5} sx={{ flex: 1 }}>
+                <TextField
+                  fullWidth
+                  size='small'
+                  label={`Título de la sección ${i + 1}`}
+                  value={s.titulo}
+                  onChange={(e) => updateSeccion(i, { titulo: e.target.value })}
+                />
+                <TextField
+                  fullWidth
+                  size='small'
+                  multiline
+                  rows={4}
+                  label='Contenido'
+                  value={s.contenido}
+                  onChange={(e) => updateSeccion(i, { contenido: e.target.value })}
+                  helperText='Deja una línea en blanco para separar párrafos. Si escribes "Libro de Reclamaciones", se enlaza automáticamente a esa página.'
+                />
+              </Stack>
+              <IconButton size='small' color='error' onClick={() => removeSeccion(i)}>
+                <i className='tabler-trash' style={{ fontSize: '1rem' }} />
+              </IconButton>
+            </Stack>
+          </Paper>
+        ))}
+      </Stack>
+      <Button variant='outlined' size='small' startIcon={<i className='tabler-plus' />} onClick={addSeccion}>
+        Añadir sección
+      </Button>
+    </Box>
+  )
+}
+
 export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const { enqueueSnackbar } = useSnackbar()
   const [tabValue, setTabValue] = useState(0)
@@ -423,7 +533,10 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
   const [showSecret, setShowSecret] = useState<{ [key: string]: boolean }>({})
   const [openLogoMedia, setOpenLogoMedia] = useState(false)
   const [openFaviconMedia, setOpenFaviconMedia] = useState(false)
+  const [openHeroImageMedia, setOpenHeroImageMedia] = useState(false)
   const [pendingLogoLabel, setPendingLogoLabel] = useState('')
+  const [openConvenioMedia, setOpenConvenioMedia] = useState(false)
+  const [pendingConvenioLabel, setPendingConvenioLabel] = useState('')
 
   const initialMapped = (initialData || []).reduce((acc: { [key: string]: string }, curr: Configuracion) => {
     acc[curr.clave] = curr.valor
@@ -431,12 +544,55 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     return acc
   }, {})
 
+  const heroImagesInitial: string[] = (() => {
+    try {
+      const arr = JSON.parse(initialMapped.HOME_HERO_IMAGES || '[]')
+
+      if (Array.isArray(arr) && arr.length > 0) return arr
+    } catch { /* ignore */ }
+
+    return initialMapped.HOME_HERO_IMAGE ? [initialMapped.HOME_HERO_IMAGE] : []
+  })()
+
   const [config, setConfig] = useState<{ [key: string]: string }>({
     HOME_HERO_TITLE: '',
     HOME_HERO_DESCRIPTION: '',
     WHATSAPP_NUMERO: '',
     WHATSAPP_NUMERO_EMPRESAS: '',
     HOME_LOGOS: '[]',
+    HOME_HERO_IMAGE: '',
+    HOME_CURSOS_TITLE: 'Cursos destacados',
+    HOME_CURSOS_SUBTITLE: 'Descubre nuestros cursos más recientes',
+    HOME_CONVENIOS_HABILITADO: 'true',
+    HOME_CONVENIOS_TITLE: 'Nuestros convenios',
+    HOME_CONVENIOS_DESCRIPTION: '',
+    HOME_CONVENIOS_LOGOS: '[]',
+    HOME_POR_QUE_ELEGIRNOS_HABILITADO: 'true',
+    HOME_POR_QUE_ELEGIRNOS: '[]',
+    HOME_DOCENTES_TITLE: 'Nuestros Profesores',
+    HOME_DOCENTES_SUBTITLE: 'Aprende de profesionales con amplia experiencia en el sector industrial y académico.',
+    NOSOTROS_HERO_TITLE: 'Somos calidad y responsabilidad a tu servicio',
+    NOSOTROS_HERO_DESCRIPTION: '',
+    NOSOTROS_STATS: '[]',
+    NOSOTROS_MISION_TEXTO: '',
+    NOSOTROS_VISION_TEXTO: '',
+    NOSOTROS_VALORES: '[]',
+    LEGAL_TERMINOS_TITULO: 'Términos y Condiciones',
+    LEGAL_TERMINOS_SUBTITULO: '',
+    LEGAL_TERMINOS_INTRO: '',
+    LEGAL_TERMINOS_SECCIONES: '[]',
+    LEGAL_DEVOLUCIONES_TITULO: 'Política de Cambios y Devoluciones',
+    LEGAL_DEVOLUCIONES_SUBTITULO: '',
+    LEGAL_DEVOLUCIONES_INTRO: '',
+    LEGAL_DEVOLUCIONES_SECCIONES: '[]',
+    LEGAL_PRIVACIDAD_TITULO: 'Política de Privacidad',
+    LEGAL_PRIVACIDAD_SUBTITULO: '',
+    LEGAL_PRIVACIDAD_INTRO: '',
+    LEGAL_PRIVACIDAD_SECCIONES: '[]',
+    LEGAL_RECLAMOS_INTRO: '',
+    LEGAL_RECLAMOS_PROVEEDOR: '',
+    LEGAL_RECLAMOS_RUC: '',
+    LEGAL_RECLAMOS_DOMICILIO: '',
     TEMPLATE_NAME: 'Aula Virtual',
     TEMPLATE_SLOGAN: '',
     CERTIFICADO_INSTITUTION_NAME: '',
@@ -470,7 +626,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     PEDIDOS_SOLICITAR_COMPROBANTE: 'true',
     COMENTARIOS_REQUIERE_APROBACION: 'false',
     chat_entre_alumnos: 'false',
-    ...initialMapped
+    ...initialMapped,
+    HOME_HERO_IMAGES: JSON.stringify(heroImagesInitial),
   })
 
   const handleChangeTab = (event: SyntheticEvent, newValue: number) => {
@@ -489,6 +646,110 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     const updated = logosArray.filter((_, i) => i !== index)
 
     handleInputChange('HOME_LOGOS', JSON.stringify(updated))
+  }
+
+  const heroImagesArray: string[] = (() => {
+    try { return JSON.parse(config.HOME_HERO_IMAGES || '[]') } catch { return [] }
+  })()
+
+  const handleRemoveHeroImage = (index: number) => {
+    const updated = heroImagesArray.filter((_, i) => i !== index)
+
+    handleInputChange('HOME_HERO_IMAGES', JSON.stringify(updated))
+  }
+
+  const handleMoveHeroImage = (index: number, direction: -1 | 1) => {
+    const newIndex = index + direction
+
+    if (newIndex < 0 || newIndex >= heroImagesArray.length) return
+
+    const updated = [...heroImagesArray]
+
+      ;[updated[index], updated[newIndex]] = [updated[newIndex], updated[index]]
+
+    handleInputChange('HOME_HERO_IMAGES', JSON.stringify(updated))
+  }
+
+  const conveniosArray: { label: string; url: string }[] = (() => {
+    try { return JSON.parse(config.HOME_CONVENIOS_LOGOS || '[]') } catch { return [] }
+  })()
+
+  const handleRemoveConvenio = (index: number) => {
+    const updated = conveniosArray.filter((_, i) => i !== index)
+
+    handleInputChange('HOME_CONVENIOS_LOGOS', JSON.stringify(updated))
+  }
+
+  const porQueElegirnosArray: { icono: string; titulo: string; descripcion: string }[] = (() => {
+    try { return JSON.parse(config.HOME_POR_QUE_ELEGIRNOS || '[]') } catch { return [] }
+  })()
+
+  const [pendingWhyIcon, setPendingWhyIcon] = useState('Award')
+  const [pendingWhyTitle, setPendingWhyTitle] = useState('')
+  const [pendingWhyDesc, setPendingWhyDesc] = useState('')
+
+  const handleAddWhyItem = () => {
+    if (!pendingWhyTitle.trim()) return
+    const updated = [...porQueElegirnosArray, { icono: pendingWhyIcon, titulo: pendingWhyTitle.trim(), descripcion: pendingWhyDesc.trim() }]
+
+    handleInputChange('HOME_POR_QUE_ELEGIRNOS', JSON.stringify(updated))
+    setPendingWhyTitle('')
+    setPendingWhyDesc('')
+  }
+
+  const handleRemoveWhyItem = (index: number) => {
+    const updated = porQueElegirnosArray.filter((_, i) => i !== index)
+
+    handleInputChange('HOME_POR_QUE_ELEGIRNOS', JSON.stringify(updated))
+  }
+
+  const DEFAULT_NOSOTROS_STATS = [
+    { value: '+1,200', label: 'Estudiantes formados' },
+    { value: '+80', label: 'Cursos disponibles' },
+    { value: '+30', label: 'Docentes expertos' },
+    { value: '98%', label: 'Tasa de satisfacción' },
+  ]
+
+  const nosotrosStatsArray: { value: string; label: string }[] = (() => {
+    try {
+      const arr = JSON.parse(config.NOSOTROS_STATS || '[]')
+
+      if (Array.isArray(arr) && arr.length > 0) return arr
+    } catch { /* ignore */ }
+
+    return DEFAULT_NOSOTROS_STATS
+  })()
+
+  const handleUpdateStat = (index: number, partial: Partial<{ value: string; label: string }>) => {
+    const updated = [...nosotrosStatsArray]
+
+    updated[index] = { ...updated[index], ...partial }
+    handleInputChange('NOSOTROS_STATS', JSON.stringify(updated))
+  }
+
+  const DEFAULT_NOSOTROS_VALORES = [
+    { titulo: 'Compromiso', descripcion: 'Nos dedicamos plenamente a la formación de cada estudiante, acompañándolos en cada etapa de su aprendizaje.' },
+    { titulo: 'Innovación', descripcion: 'Buscamos constantemente nuevas formas de enseñar y de acercar el conocimiento de manera más efectiva.' },
+    { titulo: 'Trabajo en Equipo', descripcion: 'Creemos en la colaboración como motor del aprendizaje y el crecimiento colectivo.' },
+    { titulo: 'Mejora Continua', descripcion: 'Actualizamos nuestros contenidos y metodologías para mantenernos a la vanguardia del sector.' },
+    { titulo: 'Integridad', descripcion: 'Actuamos con transparencia y honestidad, generando confianza en cada relación con nuestros estudiantes y empresas.' },
+  ]
+
+  const nosotrosValoresArray: { titulo: string; descripcion: string }[] = (() => {
+    try {
+      const arr = JSON.parse(config.NOSOTROS_VALORES || '[]')
+
+      if (Array.isArray(arr) && arr.length > 0) return arr
+    } catch { /* ignore */ }
+
+    return DEFAULT_NOSOTROS_VALORES
+  })()
+
+  const handleUpdateValor = (index: number, partial: Partial<{ titulo: string; descripcion: string }>) => {
+    const updated = [...nosotrosValoresArray]
+
+    updated[index] = { ...updated[index], ...partial }
+    handleInputChange('NOSOTROS_VALORES', JSON.stringify(updated))
   }
 
   const toggleSecret = (key: string) => {
@@ -549,7 +810,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       content: (
         <Stack spacing={4}>
           {/* Hero */}
-          <Box>
+          {/* <Box>
             <Typography variant='h6' gutterBottom>Hero de la Página Principal</Typography>
             <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
               Separa el título en dos líneas usando un salto de línea — la segunda línea se resaltará en color.
@@ -573,6 +834,31 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 placeholder='Accede a cursos especializados, rutas de aprendizaje y certificaciones...'
                 value={config.HOME_HERO_DESCRIPTION}
                 onChange={(e) => handleInputChange('HOME_HERO_DESCRIPTION', e.target.value)}
+              />
+            </Stack>
+          </Box> */}
+
+          {/* Cursos Destacados */}
+          <Box>
+            <Typography variant='h6' gutterBottom>Sección &quot;Cursos Destacados&quot;</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Título y descripción que aparecen sobre la grilla de cursos destacados en la página principal.
+            </Typography>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                label='Título de la sección'
+                placeholder='Cursos destacados'
+                value={config.HOME_CURSOS_TITLE}
+                onChange={(e) => handleInputChange('HOME_CURSOS_TITLE', e.target.value)}
+                helperText='La última palabra se resalta automáticamente con el color primario.'
+              />
+              <TextField
+                fullWidth
+                label='Descripción'
+                placeholder='Descubre nuestros cursos más recientes'
+                value={config.HOME_CURSOS_SUBTITLE}
+                onChange={(e) => handleInputChange('HOME_CURSOS_SUBTITLE', e.target.value)}
               />
             </Stack>
           </Box>
@@ -651,6 +937,217 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
 
           <Divider />
 
+          {/* Nuestros Convenios */}
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1 }}>
+              <Typography variant='h6'>Sección &quot;Nuestros Convenios&quot;</Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={config.HOME_CONVENIOS_HABILITADO !== 'false'}
+                    onChange={(e) => handleInputChange('HOME_CONVENIOS_HABILITADO', e.target.checked ? 'true' : 'false')}
+                  />
+                }
+                label='Mostrar sección'
+              />
+            </Box>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Logos de entidades o empresas aliadas. Si no agregas ningún logo, la sección no se muestra en la página principal.
+            </Typography>
+            <Stack spacing={3} sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                label='Título de la sección'
+                value={config.HOME_CONVENIOS_TITLE}
+                onChange={(e) => handleInputChange('HOME_CONVENIOS_TITLE', e.target.value)}
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                label='Descripción'
+                value={config.HOME_CONVENIOS_DESCRIPTION}
+                onChange={(e) => handleInputChange('HOME_CONVENIOS_DESCRIPTION', e.target.value)}
+              />
+            </Stack>
+
+            {conveniosArray.length > 0 && (
+              <Stack spacing={1} sx={{ mb: 3 }}>
+                {conveniosArray.map((logo, i) => (
+                  <Paper key={i} variant='outlined' sx={{ p: 1.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ width: 64, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.100', borderRadius: 1 }}>
+                      <img src={logo.url} alt={logo.label} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                    </Box>
+                    <Typography variant='body2' sx={{ flex: 1 }}>{logo.label}</Typography>
+                    <IconButton size='small' color='error' onClick={() => handleRemoveConvenio(i)}>
+                      <i className='tabler-trash' style={{ fontSize: '1rem' }} />
+                    </IconButton>
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
+            <Paper variant='outlined' sx={{ p: 2 }}>
+              <Typography variant='subtitle2' gutterBottom>Añadir Convenio</Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems='flex-start'>
+                <TextField
+                  size='small'
+                  label='Nombre de la entidad'
+                  placeholder='Ej: Colegio de Ingenieros del Perú'
+                  value={pendingConvenioLabel}
+                  onChange={(e) => setPendingConvenioLabel(e.target.value)}
+                  sx={{ flex: 1 }}
+                />
+                <Button
+                  variant='outlined'
+                  size='small'
+                  startIcon={<i className='tabler-photo' />}
+                  onClick={() => setOpenConvenioMedia(true)}
+                  disabled={!pendingConvenioLabel.trim()}
+                  sx={{ whiteSpace: 'nowrap' }}
+                >
+                  Seleccionar imagen
+                </Button>
+              </Stack>
+              {!pendingConvenioLabel.trim() && (
+                <Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
+                  Escribe el nombre de la entidad antes de seleccionar la imagen.
+                </Typography>
+              )}
+            </Paper>
+          </Box>
+
+          <MediaLibrary
+            open={openConvenioMedia}
+            onClose={() => setOpenConvenioMedia(false)}
+            onSelect={(url) => {
+              const nuevo = { label: pendingConvenioLabel.trim() || 'Convenio', url }
+              const actualizado = [...conveniosArray, nuevo]
+
+              handleInputChange('HOME_CONVENIOS_LOGOS', JSON.stringify(actualizado))
+              setPendingConvenioLabel('')
+              setOpenConvenioMedia(false)
+            }}
+            title='Seleccionar Logo de Convenio'
+            acceptType='IMAGEN'
+          />
+
+          <Divider />
+
+          {/* ¿Por qué elegirnos? */}
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1 }}>
+              <Typography variant='h6'>Sección &quot;¿Por qué elegirnos?&quot;</Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={config.HOME_POR_QUE_ELEGIRNOS_HABILITADO !== 'false'}
+                    onChange={(e) => handleInputChange('HOME_POR_QUE_ELEGIRNOS_HABILITADO', e.target.checked ? 'true' : 'false')}
+                  />
+                }
+                label='Mostrar sección'
+              />
+            </Box>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Tarjetas con ícono, título y descripción. Si no agregas ninguna, se muestran tarjetas predeterminadas.
+            </Typography>
+
+            {porQueElegirnosArray.length > 0 && (
+              <Stack spacing={1} sx={{ mb: 3 }}>
+                {porQueElegirnosArray.map((item, i) => (
+                  <Paper key={i} variant='outlined' sx={{ p: 1.5, display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                    <Box sx={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'action.hover', borderRadius: 1 }}>
+                      <i className='tabler-star' style={{ fontSize: '1.1rem' }} />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant='body2' fontWeight={600}>{item.titulo} <Typography component='span' variant='caption' color='text.secondary'>({item.icono})</Typography></Typography>
+                      <Typography variant='caption' color='text.secondary'>{item.descripcion}</Typography>
+                    </Box>
+                    <IconButton size='small' color='error' onClick={() => handleRemoveWhyItem(i)}>
+                      <i className='tabler-trash' style={{ fontSize: '1rem' }} />
+                    </IconButton>
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
+            <Paper variant='outlined' sx={{ p: 2 }}>
+              <Typography variant='subtitle2' gutterBottom>Añadir Tarjeta</Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    select
+                    fullWidth
+                    size='small'
+                    label='Ícono'
+                    value={pendingWhyIcon}
+                    onChange={(e) => setPendingWhyIcon(e.target.value)}
+                  >
+                    {['Presentation', 'GraduationCap', 'Monitor', 'ClipboardList', 'FileCheck', 'BookOpen', 'Award', 'Users', 'Star', 'ShieldCheck', 'Clock', 'Video'].map(name => (
+                      <MenuItem key={name} value={name}>{name}</MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={8}>
+                  <TextField
+                    fullWidth
+                    size='small'
+                    label='Título'
+                    value={pendingWhyTitle}
+                    onChange={(e) => setPendingWhyTitle(e.target.value)}
+                    placeholder='Ej: Clases en vivo'
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    size='small'
+                    multiline
+                    rows={2}
+                    label='Descripción'
+                    value={pendingWhyDesc}
+                    onChange={(e) => setPendingWhyDesc(e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button variant='outlined' size='small' onClick={handleAddWhyItem} disabled={!pendingWhyTitle.trim()}>
+                    Añadir tarjeta
+                  </Button>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Box>
+
+          <Divider />
+
+          {/* Nuestros Docentes */}
+          <Box>
+            <Typography variant='h6' gutterBottom>Sección &quot;Nuestros Docentes&quot;</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              El contenido (fotos, nombre, cargo) se toma automáticamente de los usuarios con rol Profesor. Aquí solo se edita el encabezado.
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='Título de la sección'
+                  value={config.HOME_DOCENTES_TITLE}
+                  onChange={(e) => handleInputChange('HOME_DOCENTES_TITLE', e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='Subtítulo'
+                  value={config.HOME_DOCENTES_SUBTITLE}
+                  onChange={(e) => handleInputChange('HOME_DOCENTES_SUBTITLE', e.target.value)}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+
+          <Divider />
+
           {/* Visibilidad de páginas */}
           <Box>
             <Typography variant='h6' gutterBottom>Visibilidad de Páginas</Typography>
@@ -724,6 +1221,177 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 label='Permitir mensajes directos entre alumnos'
               />
             </Paper>
+          </Box>
+        </Stack>
+      )
+    },
+    {
+      label: 'Nosotros',
+      icon: 'tabler-users',
+      content: (
+        <Stack spacing={4}>
+          <Box>
+            <Typography variant='h6' gutterBottom>Hero</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              Título, descripción y estadísticas del banner principal de la página &quot;Nosotros&quot;.
+            </Typography>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                label='Título del hero'
+                value={config.NOSOTROS_HERO_TITLE}
+                onChange={(e) => handleInputChange('NOSOTROS_HERO_TITLE', e.target.value)}
+                helperText='La última palabra se resalta automáticamente con el color claro del tema.'
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label='Descripción del hero'
+                value={config.NOSOTROS_HERO_DESCRIPTION}
+                onChange={(e) => handleInputChange('NOSOTROS_HERO_DESCRIPTION', e.target.value)}
+              />
+            </Stack>
+
+            <Typography variant='subtitle2' sx={{ mt: 3, mb: 1.5 }}>Estadísticas</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+              El emoji de cada tarjeta es fijo según su posición — aquí solo editas el valor y la etiqueta.
+            </Typography>
+            <Grid container spacing={2}>
+              {nosotrosStatsArray.map((s, i) => (
+                <Grid item xs={12} sm={6} key={i}>
+                  <Paper variant='outlined' sx={{ p: 2 }}>
+                    <Stack spacing={1.5}>
+                      <TextField
+                        size='small'
+                        fullWidth
+                        label='Valor'
+                        value={s.value}
+                        onChange={(e) => handleUpdateStat(i, { value: e.target.value })}
+                      />
+                      <TextField
+                        size='small'
+                        fullWidth
+                        label='Etiqueta'
+                        value={s.label}
+                        onChange={(e) => handleUpdateStat(i, { label: e.target.value })}
+                      />
+                    </Stack>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <Typography variant='h6' gutterBottom>Misión y Visión</Typography>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label='Misión'
+                value={config.NOSOTROS_MISION_TEXTO}
+                onChange={(e) => handleInputChange('NOSOTROS_MISION_TEXTO', e.target.value)}
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label='Visión'
+                value={config.NOSOTROS_VISION_TEXTO}
+                onChange={(e) => handleInputChange('NOSOTROS_VISION_TEXTO', e.target.value)}
+              />
+            </Stack>
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <Typography variant='h6' gutterBottom>Valores</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              El ícono de cada tarjeta es fijo según su posición — aquí solo editas título y descripción.
+            </Typography>
+            <Stack spacing={2}>
+              {nosotrosValoresArray.map((v, i) => (
+                <Paper key={i} variant='outlined' sx={{ p: 2 }}>
+                  <Stack spacing={1.5}>
+                    <TextField
+                      size='small'
+                      fullWidth
+                      label={`Título ${i + 1}`}
+                      value={v.titulo}
+                      onChange={(e) => handleUpdateValor(i, { titulo: e.target.value })}
+                    />
+                    <TextField
+                      size='small'
+                      fullWidth
+                      multiline
+                      rows={2}
+                      label='Descripción'
+                      value={v.descripcion}
+                      onChange={(e) => handleUpdateValor(i, { descripcion: e.target.value })}
+                    />
+                  </Stack>
+                </Paper>
+              ))}
+            </Stack>
+          </Box>
+        </Stack>
+      )
+    },
+    {
+      label: 'Legal',
+      icon: 'tabler-file-text',
+      content: (
+        <Stack spacing={4} divider={<Divider />}>
+          <LegalPageEditor prefix='LEGAL_TERMINOS' label='Términos y Condiciones' config={config} onInputChange={handleInputChange} />
+          <LegalPageEditor prefix='LEGAL_DEVOLUCIONES' label='Política de Cambios y Devoluciones' config={config} onInputChange={handleInputChange} />
+          <LegalPageEditor prefix='LEGAL_PRIVACIDAD' label='Política de Privacidad' config={config} onInputChange={handleInputChange} />
+
+          <Box>
+            <Typography variant='h6' gutterBottom>Libro de Reclamaciones</Typography>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+              El formulario de reclamos es fijo (campos exigidos por ley) — aquí solo se edita el texto introductorio y los datos del proveedor que se muestran encima del formulario.
+            </Typography>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                label='Texto introductorio'
+                value={config.LEGAL_RECLAMOS_INTRO}
+                onChange={(e) => handleInputChange('LEGAL_RECLAMOS_INTRO', e.target.value)}
+              />
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label='Proveedor'
+                    value={config.LEGAL_RECLAMOS_PROVEEDOR}
+                    onChange={(e) => handleInputChange('LEGAL_RECLAMOS_PROVEEDOR', e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label='RUC'
+                    value={config.LEGAL_RECLAMOS_RUC}
+                    onChange={(e) => handleInputChange('LEGAL_RECLAMOS_RUC', e.target.value)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label='Domicilio'
+                    value={config.LEGAL_RECLAMOS_DOMICILIO}
+                    onChange={(e) => handleInputChange('LEGAL_RECLAMOS_DOMICILIO', e.target.value)}
+                  />
+                </Grid>
+              </Grid>
+            </Stack>
           </Box>
         </Stack>
       )
@@ -869,6 +1537,61 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 enqueueSnackbar('Favicon seleccionado — recuerda guardar los cambios', { variant: 'info' })
               }}
               title='Seleccionar Favicon'
+            />
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <SectionLabel>Imágenes de Portada (Hero)</SectionLabel>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+              Imagen(es) que se muestran en el banner principal de inicio. Si agregas más de una, se mostrarán
+              como un carrusel automático. Si no subes ninguna, se muestra el visual interactivo predeterminado.
+            </Typography>
+
+            {heroImagesArray.length > 0 && (
+              <Stack spacing={1} sx={{ mb: 2 }}>
+                {heroImagesArray.map((url, i) => (
+                  <Paper key={i} variant='outlined' sx={{ p: 1.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box sx={{ width: 100, height: 56, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.100', borderRadius: 1, overflow: 'hidden' }}>
+                      <img src={url} alt={`Portada ${i + 1}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
+                    </Box>
+                    <Typography variant='body2' sx={{ flex: 1 }}>Imagen {i + 1}</Typography>
+                    <IconButton size='small' onClick={() => handleMoveHeroImage(i, -1)} disabled={i === 0}>
+                      <i className='tabler-arrow-up' style={{ fontSize: '1rem' }} />
+                    </IconButton>
+                    <IconButton size='small' onClick={() => handleMoveHeroImage(i, 1)} disabled={i === heroImagesArray.length - 1}>
+                      <i className='tabler-arrow-down' style={{ fontSize: '1rem' }} />
+                    </IconButton>
+                    <IconButton size='small' color='error' onClick={() => handleRemoveHeroImage(i)}>
+                      <i className='tabler-trash' style={{ fontSize: '1rem' }} />
+                    </IconButton>
+                  </Paper>
+                ))}
+              </Stack>
+            )}
+
+            <Button
+              variant='outlined'
+              size='small'
+              startIcon={<i className='tabler-photo' />}
+              onClick={() => setOpenHeroImageMedia(true)}
+            >
+              Añadir imagen
+            </Button>
+
+            <MediaLibrary
+              open={openHeroImageMedia}
+              onClose={() => setOpenHeroImageMedia(false)}
+              onSelect={(url) => {
+                const actualizado = [...heroImagesArray, url]
+
+                handleInputChange('HOME_HERO_IMAGES', JSON.stringify(actualizado))
+                enqueueSnackbar('Imagen añadida — recuerda guardar los cambios', { variant: 'info' })
+                setOpenHeroImageMedia(false)
+              }}
+              title='Seleccionar Imagen de Portada'
+              acceptType='IMAGEN'
             />
           </Box>
 

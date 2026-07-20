@@ -39,6 +39,8 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
     const [completarAutomatico, setCompletarAutomatico] = useState(curso.completar_automatico ?? false)
     const [precio, setPrecio] = useState(curso.precio)
     const [precioFalso, setPrecioFalso] = useState(curso.precio_falso)
+    const [precioUsd, setPrecioUsd] = useState<number | ''>(curso.precio_usd ?? '')
+    const [precioFalsoUsd, setPrecioFalsoUsd] = useState<number | ''>(curso.precio_falso_usd ?? '')
     const [moneda, setMoneda] = useState(curso.moneda)
     const [precioCertificado, setPrecioCertificado] = useState<number | ''>(curso.precio_certificado ?? '')
     const [vigenciaMeses, setVigenciaMeses] = useState<number | ''>((curso as any).vigencia_meses ?? '')
@@ -91,6 +93,8 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                     es_gratis: esGratis,
                     precio: esGratis ? 0 : precio,
                     precio_falso: esGratis ? 0 : precioFalso,
+                    precio_usd: esGratis ? null : (precioUsd === '' ? null : Number(precioUsd)),
+                    precio_falso_usd: esGratis ? null : (precioFalsoUsd === '' ? null : Number(precioFalsoUsd)),
                     moneda,
                     precio_certificado: esGratis
                         ? (precioCertificado === '' ? null : Number(precioCertificado))
@@ -169,32 +173,51 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                     </Box>
                 )}
                 {!esGratis && (
-                    <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                        <CustomTextField
-                            type='number'
-                            label='Precio'
-                            value={precio}
-                            onChange={e => setPrecio(Number(e.target.value))}
-                            sx={{ width: 200 }}
-                        />
-                        <CustomTextField
-                            type='number'
-                            label='Precio Falso (Opcional)'
-                            value={precioFalso}
-                            onChange={e => setPrecioFalso(Number(e.target.value))}
-                            sx={{ width: 200 }}
-                        />
-                        <CustomTextField
-                            select
-                            label='Moneda'
-                            value={moneda}
-                            onChange={e => setMoneda(e.target.value)}
-                            sx={{ width: 120 }}
-                        >
-                            <MenuItem value='PEN'>PEN (S/)</MenuItem>
-                            <MenuItem value='USD'>USD ($)</MenuItem>
-                        </CustomTextField>
-                    </Box>
+                    <>
+                        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                            <CustomTextField
+                                type='number'
+                                label='Precio (Soles)'
+                                value={precio}
+                                onChange={e => setPrecio(Number(e.target.value))}
+                                sx={{ width: 200 }}
+                            />
+                            <CustomTextField
+                                type='number'
+                                label='Precio Falso Soles (Opcional)'
+                                value={precioFalso}
+                                onChange={e => setPrecioFalso(Number(e.target.value))}
+                                sx={{ width: 220 }}
+                            />
+                            <CustomTextField
+                                select
+                                label='Moneda de la orden'
+                                value={moneda}
+                                onChange={e => setMoneda(e.target.value)}
+                                sx={{ width: 160 }}
+                            >
+                                <MenuItem value='PEN'>PEN (S/)</MenuItem>
+                                <MenuItem value='USD'>USD ($)</MenuItem>
+                            </CustomTextField>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                            <CustomTextField
+                                type='number'
+                                label='Precio (Dólares)'
+                                value={precioUsd}
+                                onChange={e => setPrecioUsd(e.target.value === '' ? '' : Number(e.target.value))}
+                                sx={{ width: 200 }}
+                                helperText='Se muestra cuando el visitante activa el toggle Dólares'
+                            />
+                            <CustomTextField
+                                type='number'
+                                label='Precio Falso Dólares (Opcional)'
+                                value={precioFalsoUsd}
+                                onChange={e => setPrecioFalsoUsd(e.target.value === '' ? '' : Number(e.target.value))}
+                                sx={{ width: 220 }}
+                            />
+                        </Box>
+                    </>
                 )}
                 <Box sx={{ mt: 2 }}>
                     <Button

@@ -108,6 +108,8 @@ export interface Curso {
   certificado_plantilla: string | null
   precio: number
   precio_falso: number
+  precio_usd: number | null
+  precio_falso_usd: number | null
   moneda: string
   creado_en: string
   actualizado_en: string

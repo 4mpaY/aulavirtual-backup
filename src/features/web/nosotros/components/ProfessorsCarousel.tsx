@@ -7,7 +7,7 @@ import Image from 'next/image'
 
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 
-import { eyebrow, sectionH2, sectionDesc } from '@/features/web/home/components/typography'
+import { sectionH2, sectionDesc } from '@/features/web/home/components/typography'
 
 type Teacher = {
   id: string
@@ -48,7 +48,17 @@ function useVisible() {
   return visible
 }
 
-export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }) {
+interface ProfessorsCarouselProps {
+  teachers: Teacher[]
+  title?: string
+  subtitle?: string
+}
+
+export default function ProfessorsCarousel({
+  teachers,
+  title = '',
+  subtitle = '',
+}: ProfessorsCarouselProps) {
   const [current, setCurrent] = useState(0)
   const visible = useVisible()
   const total = teachers.length
@@ -71,17 +81,16 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
       <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <p style={{ ...eyebrow, display: 'block', textAlign: 'center' }}>
-            Nuestro equipo docente
-          </p>
-          <h2 style={{ ...sectionH2, textAlign: 'center', marginBottom: '0.75rem' }}>
-            Nuestros Profesores
-          </h2>
-          <p style={{ ...sectionDesc, textAlign: 'center', maxWidth: '520px', margin: '0 auto' }}>
-            Aprende de profesionales con amplia experiencia en el sector industrial y académico.
-          </p>
-        </div>
+        {subtitle?.trim() && (
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2 style={{ ...sectionH2, textAlign: 'center', marginBottom: '0.75rem' }}>
+              {title}
+            </h2>
+            <p style={{ ...sectionDesc, textAlign: 'center', maxWidth: '100%', margin: '0 auto' }}>
+              {subtitle}
+            </p>
+          </div>
+        )}
 
         {/* Carousel */}
         <div style={{ position: 'relative', padding: '0 3rem' }}>
@@ -89,7 +98,8 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: `repeat(${Math.min(visible, total)}, 1fr)`,
+              gridTemplateColumns: `repeat(${Math.min(visible, total)}, minmax(0, 280px))`,
+              justifyContent: 'center',
               gap: '1.25rem',
             }}
           >
@@ -240,7 +250,7 @@ export default function ProfessorsCarousel({ teachers }: { teachers: Teacher[] }
                       }}
                     >
                       <ChevronDown size={14} />
-                      Ver más
+                      Ver cursos
                     </Link>
                   </div>
                 </Link>

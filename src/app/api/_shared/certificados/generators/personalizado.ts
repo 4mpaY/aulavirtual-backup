@@ -370,6 +370,7 @@ function dibujarTablaModulosCompacta(doc: any, campo: CampoPlantillaPersonalizad
 
     doc.setFont(fontFamily, 'normal')
     doc.setFontSize(fontSize * 0.9)
+
     const lecLinesPorLeccion = modulo.lecciones.map(leccion => {
       const lecTxt = `${modulo.orden + 1}.${leccion.orden + 1} ${leccion.titulo}`
 

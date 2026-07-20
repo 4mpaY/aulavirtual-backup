@@ -3,10 +3,12 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { BookOpen, Users, ArrowRight } from 'lucide-react'
+import { BookOpen, Users, ArrowRight, Calendar, Clock } from 'lucide-react'
 
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
-import UserAvatar from '@/utils/components/UserAvatar'
+import HydratedDate from '@/utils/components/HydratedDate'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { formatCoursePrice } from '@/utils/functions/formatPrice'
 
 interface Course {
   id: string
@@ -14,10 +16,13 @@ interface Course {
   slug: string
   miniatura?: string
   precio: number
+  precio_usd?: number | null
   moneda: string
   es_gratis: boolean
   nivel?: string
   tipo_emision?: string
+  duracion?: string | null
+  fecha_inicio?: string | Date | null
   profesor: { nombre: string; apellido: string; avatar?: string }
   categoria?: { nombre: string }
   _count?: { lecciones: number; inscripciones: number }
@@ -33,9 +38,10 @@ interface Props {
 export default function HomeCoursesSection({
   courses,
   emptyMessage = 'Próximamente habrá cursos disponibles.',
-  viewLabel = 'Ver curso'
+  viewLabel = 'Ir a matricularse'
 }: Props) {
   const router = useRouter()
+  const { currency } = useCurrency()
 
   const nivelLabel: Record<string, string> = {
     BASICO: 'Básico',
@@ -53,7 +59,7 @@ export default function HomeCoursesSection({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
       {courses.map(course => (
         <div
           key={course.id}
@@ -93,12 +99,19 @@ export default function HomeCoursesSection({
 
             {/* Badges */}
             <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-              {course.tipo_emision === 'SINCRONO' && (
+              {course.tipo_emision === 'SINCRONO' ? (
                 <span
                   className="px-2.5 py-1 rounded-full text-xs font-bold text-white"
                   style={{ backgroundColor: '#ef4444', fontFamily: 'Poppins, sans-serif' }}
                 >
-                  En vivo
+                  Vivo
+                </span>
+              ) : (
+                <span
+                  className="px-2.5 py-1 rounded-full text-xs font-bold text-white"
+                  style={{ backgroundColor: 'var(--web-dark, #025E44)', fontFamily: 'Poppins, sans-serif' }}
+                >
+                  Asincrónico
                 </span>
               )}
             </div>
@@ -126,20 +139,7 @@ export default function HomeCoursesSection({
           </div>
 
           {/* Content */}
-          <div className="p-5 flex flex-col gap-3">
-            {course.categoria && (
-              <span
-                className="inline-block self-start px-2.5 py-0.5 rounded text-xs font-bold uppercase"
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  backgroundColor: 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)',
-                  color: 'var(--web-dark, #025E44)',
-                }}
-              >
-                {course.categoria.nombre}
-              </span>
-            )}
-
+          <div className="p-5 flex flex-col gap-2">
             <Link
               href={`/cursos/${course.slug}`}
               onClick={e => e.stopPropagation()}
@@ -158,37 +158,47 @@ export default function HomeCoursesSection({
               {course.titulo}
             </Link>
 
-            <div className="flex items-center gap-2">
-              <UserAvatar
-                src={course.profesor.avatar}
-                name={`${course.profesor.nombre} ${course.profesor.apellido}`}
-                size={24}
-              />
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'hsl(215, 16%, 47%)', fontWeight: 500 }}>
-                {course.profesor.nombre} {course.profesor.apellido}
-              </span>
-            </div>
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: 'hsl(215, 16%, 47%)', fontWeight: 500 }}>
+              Por {course.profesor.nombre} {course.profesor.apellido}
+            </span>
 
-            <div className="flex items-center justify-between pt-2" style={{ borderTop: '1px solid hsl(214, 20%, 92%)' }}>
-              <span
-                className="font-bold text-lg"
-                style={{ fontFamily: 'Poppins, sans-serif', color: 'var(--web-primary, #25927F)' }}
-              >
-                {course.es_gratis ? 'Gratis' : `${course.moneda} ${Number(course.precio).toFixed(2)}`}
-              </span>
-              <Link
-                href={`/cursos/${course.slug}`}
-                onClick={e => e.stopPropagation()}
-                className="no-underline inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  backgroundColor: 'var(--web-primary, #25927F)',
-                  color: '#ffffff',
-                }}
-              >
-                Ver curso <ArrowRight size={13} />
-              </Link>
-            </div>
+            {(course.fecha_inicio || course.duracion) && (
+              <div className="flex items-center gap-4 flex-wrap" style={{ marginTop: 2, marginBottom: 2 }}>
+                {course.fecha_inicio && (
+                  <span className="flex items-center gap-1.5" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: '#334155', fontWeight: 600 }}>
+                    <Calendar size={14} color="var(--web-primary, #25927F)" />
+                    <HydratedDate date={course.fecha_inicio} format="date" options={{ day: '2-digit', month: '2-digit', year: 'numeric' }} />
+                  </span>
+                )}
+                {course.duracion && (
+                  <span className="flex items-center gap-1.5" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.8125rem', color: '#334155', fontWeight: 600 }}>
+                    <Clock size={14} color="var(--web-primary, #25927F)" />
+                    {course.duracion}
+                  </span>
+                )}
+              </div>
+            )}
+
+            <span
+              className="font-bold"
+              style={{ fontFamily: 'Poppins, sans-serif', fontSize: '1.0625rem', color: 'var(--web-primary, #25927F)' }}
+            >
+              {course.es_gratis ? 'Gratis' : formatCoursePrice(course, currency)}
+            </span>
+
+            <Link
+              href={`/cursos/${course.slug}`}
+              onClick={e => e.stopPropagation()}
+              className="no-underline inline-flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2.5 rounded-lg transition-colors"
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                backgroundColor: 'var(--web-primary, #25927F)',
+                color: '#ffffff',
+                marginTop: 4,
+              }}
+            >
+              {viewLabel}
+            </Link>
           </div>
         </div>
       ))}

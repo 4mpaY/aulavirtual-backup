@@ -36,6 +36,7 @@ export default function CartCheckoutPage() {
         slug: item.slug,
         miniatura: item.miniatura,
         precio: item.precio,
+        precio_usd: item.precio_usd,
         moneda: item.moneda || 'PEN',
         profesor: { nombre: 'Instructor', apellido: '' }
     }))

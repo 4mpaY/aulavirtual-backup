@@ -273,8 +273,34 @@ function PhoneMockup() {
 // ── Componente principal ─────────────────────────────────
 export default function ClassFeaturesSection() {
   return (
-    <section style={{ backgroundColor: '#0A0A0A', padding: '5rem 1rem' }}>
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem' }}>
+    <section
+      style={{
+        background: 'linear-gradient(135deg, var(--web-dark-deep, #012d22) 0%, var(--web-dark, #025E44) 45%, var(--web-dark-mid, #0f4438) 100%)',
+        padding: '5rem 1rem',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Patrón de grid decorativo */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+        }}
+      />
+      {/* Glow izquierdo */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute', top: '-15%', left: '-10%', width: '520px', height: '520px', borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(var(--web-primary-rgb, 37, 146, 127),0.22) 0%, transparent 65%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem', position: 'relative', zIndex: 1 }}>
         <div
           style={{
             display: 'grid',
@@ -290,7 +316,7 @@ export default function ClassFeaturesSection() {
                 <p style={eyebrowDark}>Experiencia de aprendizaje</p>
                 <h2 style={sectionH2Dark}>
                   Todo lo que necesitas<br />
-                  <span style={{ color: 'var(--web-primary, #25927F)' }}>en un solo lugar</span>
+                  <span style={{ color: 'var(--web-light, #BDD962)' }}>en un solo lugar</span>
                 </h2>
                 <p style={sectionDescDark}>
                   Una plataforma diseñada para que el aprendizaje sea efectivo, flexible y reconocido por las empresas.

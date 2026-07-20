@@ -10,6 +10,7 @@ export interface CartItem {
     slug: string
     miniatura?: string
     precio: number
+    precio_usd?: number | null
     moneda: string
 }
 

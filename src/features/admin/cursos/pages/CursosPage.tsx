@@ -11,6 +11,7 @@ import {
   Chip,
   IconButton,
   MenuItem,
+  Stack,
   TablePagination,
   Tooltip,
   Typography
@@ -322,10 +323,16 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
           row.original.es_gratis ? (
             <Chip label='Gratis' size='small' variant='tonal' color='success' />
           ) : (
-            <Typography variant='body2' fontWeight={600} whiteSpace='nowrap'>
-              {row.original.moneda === 'PEN' ? 'S/ ' : '$ '}
-              {Number(row.original.precio).toFixed(2)}
-            </Typography>
+            <Stack spacing={0}>
+              <Typography variant='body2' fontWeight={600} whiteSpace='nowrap'>
+                S/ {Number(row.original.precio).toFixed(2)}
+              </Typography>
+              {row.original.precio_usd != null && (
+                <Typography variant='caption' color='text.secondary' whiteSpace='nowrap'>
+                  $ {Number(row.original.precio_usd).toFixed(2)}
+                </Typography>
+              )}
+            </Stack>
           )
         )
       }),

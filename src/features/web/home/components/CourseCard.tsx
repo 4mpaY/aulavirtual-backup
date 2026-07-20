@@ -22,6 +22,8 @@ import { useCart } from '../../cart/context/CartContext'
 import HydratedDate from '@/utils/components/HydratedDate'
 import UserAvatar from '@/utils/components/UserAvatar'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { formatCoursePrice } from '@/utils/functions/formatPrice'
 
 interface CourseCardProps {
   id: string
@@ -30,6 +32,7 @@ interface CourseCardProps {
   descripcion?: string
   miniatura?: string
   precio: number
+  precio_usd?: number | null
   moneda: string
   es_gratis: boolean
   profesor: {
@@ -74,6 +77,7 @@ const CourseCard = ({
   slug,
   miniatura,
   precio,
+  precio_usd,
   moneda,
   es_gratis,
   profesor,
@@ -88,12 +92,13 @@ const CourseCard = ({
 }: CourseCardProps) => {
   const router = useRouter()
   const { addToCart, isInCart } = useCart()
+  const { currency } = useCurrency()
 
   const inCart = isInCart(id)
 
   const handleAddToCart = (e: MouseEvent) => {
     e.stopPropagation()
-    addToCart({ id, type: 'CURSO', titulo, slug, miniatura, precio, moneda })
+    addToCart({ id, type: 'CURSO', titulo, slug, miniatura, precio, precio_usd, moneda })
   }
 
   // Formatear nivel para mostrar texto amigable
@@ -303,7 +308,7 @@ const CourseCard = ({
           )}
 
           <Typography variant="h5" sx={{ fontWeight: 800, color: es_comprado ? '#10b981' : 'primary.main', mb: 0 }}>
-            {es_comprado ? 'Adquirido' : (es_gratis ? 'Gratis' : `${moneda} ${precio}`)}
+            {es_comprado ? 'Adquirido' : (es_gratis ? 'Gratis' : formatCoursePrice({ precio, precio_usd }, currency))}
           </Typography>
         </Box>
 

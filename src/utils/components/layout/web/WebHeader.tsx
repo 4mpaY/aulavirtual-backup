@@ -8,6 +8,7 @@ import UserDropdown from '@components/layout/shared/UserDropdown'
 import CartIcon from '@/features/web/cart/components/CartIcon'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import { useConfig } from '@/contexts/ConfigContext'
+import CurrencyToggle from '@components/layout/shared/CurrencyToggle'
 
 export interface Category {
   id: string
@@ -32,8 +33,12 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 bg-white border-b border-border shadow-sm z-50 flex items-center justify-between px-6 md:px-10"
-      style={{ height: 'var(--navbar-height)' }}
+      className="fixed top-0 left-0 right-0 shadow-sm z-50 flex items-center justify-between px-6 md:px-10"
+      style={{
+        height: 'var(--navbar-height)',
+        backgroundColor: 'var(--web-dark, #025E44)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+      }}
     >
       {/* Logo */}
       <Logo />
@@ -41,6 +46,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
       {/* Right side */}
       <div className="flex items-center gap-3">
 
+        <CurrencyToggle />
         <CartIcon />
         {session ? (
           <UserDropdown />
@@ -49,7 +55,13 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
             <Button
               onClick={() => openLogin()}
               size="small"
-              sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#02115C', fontFamily: 'Inter, sans-serif' }}
+              sx={{
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                color: '#ffffff',
+                fontFamily: 'Inter, sans-serif',
+                '&:hover': { backgroundColor: 'rgba(255,255,255,0.08)' },
+              }}
             >
               Iniciar Sesión
             </Button>

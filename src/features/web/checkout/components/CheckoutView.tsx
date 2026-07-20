@@ -9,6 +9,8 @@ import { ChevronRight, ShoppingCart } from 'lucide-react'
 
 import OrderSummary from './OrderSummary'
 import PaymentForm from './PaymentForm'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { getDisplayPrice } from '@/utils/functions/formatPrice'
 
 const FONT = 'Poppins, sans-serif'
 
@@ -24,6 +26,8 @@ export interface CourseCheckoutItem {
     slug: string
     miniatura?: string
     precio: number
+    precio_usd?: number | null
+    precio_falso_usd?: number | null
     moneda: string
     profesor: { nombre: string; apellido: string }
 }
@@ -44,6 +48,15 @@ interface CheckoutViewProps {
 
 const CheckoutView = ({ courses, ebooks }: CheckoutViewProps) => {
     const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null)
+    const { currency } = useCurrency()
+
+    // Solo afecta lo que se muestra al usuario (precio y símbolo). El monto realmente
+    // cobrado siempre lo resuelve el servidor a partir del curso en base de datos.
+    const displayCourses = courses.map(c => {
+        const { amount, currency: resolvedCurrency } = getDisplayPrice(c, currency)
+
+        return { ...c, precio: amount, moneda: resolvedCurrency }
+    })
 
     const hasOnlyEbooks = courses.length === 0 && ebooks.length > 0
 
@@ -100,7 +113,7 @@ const CheckoutView = ({ courses, ebooks }: CheckoutViewProps) => {
                 <Grid container spacing={4}>
                     <Grid item xs={12} lg={4} sx={{ order: { xs: 1, lg: 2 } }}>
                         <OrderSummary
-                            courses={courses}
+                            courses={displayCourses}
                             ebooks={ebooks}
                             appliedCoupon={appliedCoupon}
                             onCouponApplied={setAppliedCoupon}
@@ -109,7 +122,7 @@ const CheckoutView = ({ courses, ebooks }: CheckoutViewProps) => {
 
                     <Grid item xs={12} lg={8} sx={{ order: { xs: 2, lg: 1 } }}>
                         <PaymentForm
-                            courses={courses}
+                            courses={displayCourses}
                             ebooks={ebooks}
                             appliedCouponCode={appliedCoupon?.codigo}
                             finalTotal={appliedCoupon ? appliedCoupon.total : undefined}

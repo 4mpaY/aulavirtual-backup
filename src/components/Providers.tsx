@@ -16,6 +16,7 @@ import { getDemoName, getMode, getSettingsFromCookie, getSystemMode } from '@cor
 
 import { CartProvider } from '@/features/web/cart/context/CartContext'
 import CartDrawer from '@/features/web/cart/components/CartDrawer'
+import { CurrencyProvider } from '@/contexts/CurrencyContext'
 
 type Props = ChildrenType & {
     direction?: Direction
@@ -48,10 +49,12 @@ export const Providers = (props: Props) => {
                     <VerticalNavProvider>
                         <SettingsProvider settingsCookie={settings} mode={mode} demoName={demoName}>
                             <ThemeProvider direction={direction} systemMode={systemMode}>
-                                <CartProvider>
-                                    {children}
-                                    <CartDrawer />
-                                </CartProvider>
+                                <CurrencyProvider>
+                                    <CartProvider>
+                                        {children}
+                                        <CartDrawer />
+                                    </CartProvider>
+                                </CurrencyProvider>
                             </ThemeProvider>
                         </SettingsProvider>
                     </VerticalNavProvider>

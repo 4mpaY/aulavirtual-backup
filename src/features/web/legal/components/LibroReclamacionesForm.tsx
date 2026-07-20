@@ -28,7 +28,19 @@ import Swal from 'sweetalert2'
 import type { ReclamacionInput } from '@/schemas/reclamacion.schema'
 import { ReclamacionSchema } from '@/schemas/reclamacion.schema'
 
-export default function LibroReclamacionesForm() {
+interface LibroReclamacionesFormProps {
+  intro?: string
+  proveedor?: string
+  ruc?: string
+  domicilio?: string
+}
+
+export default function LibroReclamacionesForm({
+  intro = 'Conforme a lo establecido en el Código de Protección y Defensa del Consumidor, esta institución cuenta con un Libro de Reclamaciones Virtual a su disposición.',
+  proveedor = 'NOMBRE DE TU EMPRESA',
+  ruc = '20600000000',
+  domicilio = '[DIRECCIÓN]',
+}: LibroReclamacionesFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [successCode, setSuccessCode] = useState<string | null>(null)
 
@@ -133,13 +145,12 @@ export default function LibroReclamacionesForm() {
           LIBRO DE RECLAMACIONES
         </Typography>
         <Typography variant="body1" color="text.secondary" maxWidth="800px" mx="auto">
-          Conforme a lo establecido en el Código de Protección y Defensa del Consumidor,
-          esta institución cuenta con un Libro de Reclamaciones Virtual a su disposición.
+          {intro}
         </Typography>
         <Box sx={{ mt: 2, textAlign: 'left', bgcolor: 'white', p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-          <Typography variant="caption" display="block"><strong>PROVEEDOR:</strong> NOMBRE DE TU EMPRESA</Typography>
-          <Typography variant="caption" display="block"><strong>RUC:</strong> 20600000000 </Typography>
-          <Typography variant="caption" display="block"><strong>DOMICILIO:</strong> [DIRECCIÓN]</Typography>
+          <Typography variant="caption" display="block"><strong>PROVEEDOR:</strong> {proveedor}</Typography>
+          <Typography variant="caption" display="block"><strong>RUC:</strong> {ruc}</Typography>
+          <Typography variant="caption" display="block"><strong>DOMICILIO:</strong> {domicilio}</Typography>
         </Box>
       </Box>
 

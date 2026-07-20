@@ -1168,6 +1168,197 @@ async function main() {
 
   console.log('✅ Configuración de chat creada')
 
+  // ─── TEXTOS POR DEFECTO DE LA HOME ──────────────────────────────────────────
+  // Valores iniciales de las secciones administrables de la página principal.
+  // Si el admin borra la descripción de una de estas secciones, esa sección
+  // deja de mostrarse (ver src/app/(web)/page.tsx).
+
+  const homeDefaults: { clave: string; valor: string; descripcion: string }[] = [
+    {
+      clave: 'HOME_CURSOS_TITLE',
+      valor: 'Cursos destacados',
+      descripcion: 'Título de la sección de cursos destacados en la página principal'
+    },
+    {
+      clave: 'HOME_CURSOS_SUBTITLE',
+      valor: 'Descubre nuestros cursos más recientes',
+      descripcion: 'Descripción de la sección de cursos destacados en la página principal'
+    },
+    {
+      clave: 'HOME_CONVENIOS_TITLE',
+      valor: 'Nuestros convenios',
+      descripcion: 'Título de la sección "Nuestros convenios" en la página principal'
+    },
+    {
+      clave: 'HOME_CONVENIOS_DESCRIPTION',
+      valor: 'Nuestra institución se enorgullece de contar con convenios estratégicos con diversas entidades reconocidas en el campo de la ingeniería. Estos acuerdos brindan a nuestros estudiantes y profesionales oportunidades únicas de desarrollo, colaboración e innovación.',
+      descripcion: 'Descripción de la sección "Nuestros convenios" en la página principal'
+    },
+    {
+      clave: 'HOME_POR_QUE_ELEGIRNOS',
+      valor: JSON.stringify([
+        { icono: 'Presentation', titulo: 'Clases en vivo', descripcion: 'Contamos con las mejores clases online con nuestros especialistas.' },
+        { icono: 'GraduationCap', titulo: 'Asesoría Académica', descripcion: 'Contamos con un foro de preguntas y respuestas en todo nuestros cursos.' },
+        { icono: 'Monitor', titulo: 'Plataforma Virtual', descripcion: 'Finalizado el curso o especialización y una vez obtenida la certificación, contarás con un periodo adicional de acceso a la plataforma virtual, conforme a las políticas académicas vigentes.' },
+        { icono: 'ClipboardList', titulo: 'Seguimiento académico', descripcion: 'Realizamos seguimiento y asesoramiento continuo en el proceso de tu aprendizaje.' },
+        { icono: 'FileCheck', titulo: 'Certificación Única', descripcion: 'Nuestros certificados cuenta con código único de validación además de un código QR para poder verificar la autenticidad.' },
+        { icono: 'BookOpen', titulo: 'Cursos asincrónicos', descripcion: 'Contamos con cursos o especializaciones grabadas con acceso 24/7.' },
+      ]),
+      descripcion: 'Tarjetas de la sección "¿Por qué elegirnos?" en la página principal (JSON)'
+    },
+    {
+      clave: 'HOME_DOCENTES_TITLE',
+      valor: 'Nuestros docentes',
+      descripcion: 'Título de la sección "Nuestros docentes" en la página principal'
+    },
+    {
+      clave: 'HOME_DOCENTES_SUBTITLE',
+      valor: 'Descubre a los apasionados educadores que forman parte de nuestro equipo docente, dedicados a inspirar y guiar a nuestros estudiantes en su viaje educativo. Con una combinación única de experiencia, dedicación y creatividad, nuestros profesores están comprometidos a brindar una educación de calidad que prepare a los estudiantes para enfrentar los desafíos del futuro. ¡Conoce más sobre ellos y su impacto en nuestra comunidad educativa!',
+      descripcion: 'Descripción de la sección "Nuestros docentes" en la página principal'
+    },
+  ]
+
+  for (const { clave, valor, descripcion } of homeDefaults) {
+    await prisma.configuracion.upsert({
+      where: { clave },
+      update: {},
+      create: { clave, valor, descripcion }
+    })
+  }
+
+  console.log(`✅ ${homeDefaults.length} textos por defecto de la home creados`)
+
+  // ─── TEXTOS POR DEFECTO DE "NOSOTROS" ───────────────────────────────────────
+
+  const nosotrosDefaults: { clave: string; valor: string; descripcion: string }[] = [
+    {
+      clave: 'NOSOTROS_HERO_TITLE',
+      valor: 'Somos calidad y responsabilidad a tu servicio',
+      descripcion: 'Título del hero en la página "Nosotros" (la última palabra se resalta)'
+    },
+    {
+      clave: 'NOSOTROS_HERO_DESCRIPTION',
+      valor: 'Somos una plataforma educativa especializada en la formación profesional de alto impacto. Ofrecemos cursos diseñados por expertos del sector, con certificaciones reconocidas que impulsan tu desarrollo profesional y el de tu equipo.',
+      descripcion: 'Descripción del hero en la página "Nosotros"'
+    },
+    {
+      clave: 'NOSOTROS_STATS',
+      valor: JSON.stringify([
+        { value: '+1,200', label: 'Estudiantes formados' },
+        { value: '+80', label: 'Cursos disponibles' },
+        { value: '+30', label: 'Docentes expertos' },
+        { value: '98%', label: 'Tasa de satisfacción' },
+      ]),
+      descripcion: 'Estadísticas (2x2) del hero en la página "Nosotros" (JSON, 4 items — el ícono es fijo por posición)'
+    },
+    {
+      clave: 'NOSOTROS_MISION_TEXTO',
+      valor: 'Brindar formación profesional de alta calidad, accesible y orientada al sector industrial, impulsando el desarrollo de competencias que generan valor real en las organizaciones y en la carrera de nuestros estudiantes.',
+      descripcion: 'Texto de la tarjeta "Nuestra Misión" en la página "Nosotros"'
+    },
+    {
+      clave: 'NOSOTROS_VISION_TEXTO',
+      valor: 'Ser la plataforma de referencia en formación profesional especializada en Latinoamérica, reconocida por la excelencia de sus contenidos, la solidez de sus certificaciones y su compromiso con la transformación del sector industrial.',
+      descripcion: 'Texto de la tarjeta "Nuestra Visión" en la página "Nosotros"'
+    },
+    {
+      clave: 'NOSOTROS_VALORES',
+      valor: JSON.stringify([
+        { titulo: 'Compromiso', descripcion: 'Nos dedicamos plenamente a la formación de cada estudiante, acompañándolos en cada etapa de su aprendizaje.' },
+        { titulo: 'Innovación', descripcion: 'Buscamos constantemente nuevas formas de enseñar y de acercar el conocimiento de manera más efectiva.' },
+        { titulo: 'Trabajo en Equipo', descripcion: 'Creemos en la colaboración como motor del aprendizaje y el crecimiento colectivo.' },
+        { titulo: 'Mejora Continua', descripcion: 'Actualizamos nuestros contenidos y metodologías para mantenernos a la vanguardia del sector.' },
+        { titulo: 'Integridad', descripcion: 'Actuamos con transparencia y honestidad, generando confianza en cada relación con nuestros estudiantes y empresas.' },
+      ]),
+      descripcion: 'Tarjetas de "Valores" en la página "Nosotros" (JSON, 5 items — el ícono es fijo por posición)'
+    },
+  ]
+
+  for (const { clave, valor, descripcion } of nosotrosDefaults) {
+    await prisma.configuracion.upsert({
+      where: { clave },
+      update: {},
+      create: { clave, valor, descripcion }
+    })
+  }
+
+  console.log(`✅ ${nosotrosDefaults.length} textos por defecto de "Nosotros" creados`)
+
+  // ─── TEXTOS POR DEFECTO DE PÁGINAS LEGALES ──────────────────────────────────
+  // `contenido` de cada sección es texto plano; usa "\n\n" para separar párrafos.
+  // La frase "Libro de Reclamaciones" se enlaza automáticamente a /libro-de-reclamaciones.
+
+  const legalDefaults: { clave: string; valor: string; descripcion: string }[] = [
+    // Términos y condiciones
+    { clave: 'LEGAL_TERMINOS_TITULO', valor: 'Términos y Condiciones', descripcion: 'Título de la página de Términos y Condiciones' },
+    { clave: 'LEGAL_TERMINOS_SUBTITULO', valor: 'Última actualización: Noviembre de 2024', descripcion: 'Subtítulo (fecha) de Términos y Condiciones' },
+    { clave: 'LEGAL_TERMINOS_INTRO', valor: 'Bienvenido a NOMBRE DE TU EMPRESA ("Nosotros"). Al acceder a nuestro sitio web y utilizar nuestros servicios de Aula Virtual e Ingeniería, usted ("el Usuario") acepta estar sujeto a los presentes Términos y Condiciones. Le sugerimos leer esta página cuidadosamente antes de proceder con cualquier compra o inscripción.', descripcion: 'Párrafo introductorio de Términos y Condiciones' },
+    {
+      clave: 'LEGAL_TERMINOS_SECCIONES',
+      valor: JSON.stringify([
+        { titulo: '1. Generalidades de los Servicios', contenido: 'Brindamos servicios de capacitación, consultoría en sistemas de gestión (ISO), capacitaciones y entrenamiento, eventos, activaciones BTL y campañas en SST y respuesta ante emergencias, y actividades de trabajos de alto riesgo.\n\nNuestra Aula Virtual contiene cursos y certificaciones dirigidos a profesionales de las diferentes especialidades y sectores económicos. Al adquirir un curso, está comprando una licencia de acceso individual e intransferible.' },
+        { titulo: '2. Pagos, Precios e Impuestos', contenido: 'Todos los pagos procesados en nuestro sitio web se gestionan a través de pasarelas de pago seguras. Los precios expuestos pueden estar sujetos a cambios; no obstante, una vez procesada una orden y validado el pago, el precio se mantendrá respetado. En caso de aplicar cupones de descuento, estos deben validarse antes del check-out final.' },
+        { titulo: '3. Políticas de Devolución', contenido: 'Debido a la naturaleza de los bienes digitales (cursos pre-grabados y contenido virtual descargable), las devoluciones o reembolsos no están permitidos una vez que el usuario ingresa al Aula Virtual o se comprueba la descarga del material. Ante cualquier incidencia inusual o fallo técnico, puede escribir a nuestro equipo de soporte que evaluará excepciones únicamente ante defectos probados del sistema.' },
+        { titulo: '4. Propiedad Intelectual e Industrial', contenido: 'Todo el material expuesto en la plataforma web (textos, gráficos, videos, diagramas y recursos) pertenece originariamente a NOMBRE DE TU EMPRESA o a sus instructores afiliados. Queda estrictamente prohibida su copia, distribución sin autorización comercial y cualquier modalidad de piratería. Cualquier violación directa implicará el bloqueo irrevocable de la cuenta y potenciales acciones civiles correspondientes.' },
+        { titulo: '5. Certificaciones', contenido: 'La emisión de certificados dentro de nuestra plataforma se somete a los requisitos técnicos indicados en cada curso (visualización al 100%, aprobación de evaluaciones, etc.). Nos reservamos el derecho de verificar y cruzar la identidad de los estudiantes y de no emitir certificaciones si constatamos fraude o suplantación.' },
+        { titulo: '6. Privacidad y Datos Personales', contenido: 'Nos comprometemos a mantener la confidencialidad de la información proporcionada por los usuarios en el momento del registro (Ley de Protección de Datos Personales o norma correspondiente en territorio peruano). Los datos se utilizan estrictamente para el servicio comercial del curso y fines facturativos, nunca serán cedidos a bases de datos de terceros.' },
+        { titulo: '7. Contacto y Libro de Reclamaciones', contenido: 'Para consultas de soporte, envíe sus requerimientos a arm.confiabilidad@gmail.com. De acuerdo a la legislación vigente de protección al consumidor peruano, mantenemos un Libro de Reclamaciones a disposición pública en nuestra plataforma web.' },
+      ]),
+      descripcion: 'Secciones (título + contenido) de Términos y Condiciones (JSON)'
+    },
+
+    // Política de cambios y devoluciones
+    { clave: 'LEGAL_DEVOLUCIONES_TITULO', valor: 'Política de Cambios y Devoluciones', descripcion: 'Título de la página de Política de Cambios y Devoluciones' },
+    { clave: 'LEGAL_DEVOLUCIONES_SUBTITULO', valor: 'Última actualización: Marzo de 2026', descripcion: 'Subtítulo (fecha) de Política de Cambios y Devoluciones' },
+    { clave: 'LEGAL_DEVOLUCIONES_INTRO', valor: 'La presente política regula las condiciones de reembolso y cambios aplicables a los servicios educativos ofrecidos por [NOMBRE DE EMPRESA], con RUC [RUC], con domicilio en [DIRECCIÓN] — a través de su Aula Virtual. Al adquirir cualquier curso, el usuario declara haber leído y aceptado los términos aquí descritos.', descripcion: 'Párrafo introductorio de Política de Cambios y Devoluciones' },
+    {
+      clave: 'LEGAL_DEVOLUCIONES_SECCIONES',
+      valor: JSON.stringify([
+        { titulo: '1. Naturaleza del Servicio', contenido: 'Los cursos y materiales ofrecidos en nuestra plataforma constituyen contenido digital de ejecución inmediata. Esto implica que el servicio educativo se activa y se considera prestado desde el momento en que el usuario realiza su primer acceso a la plataforma, visualiza la primera lección o descarga cualquier material complementario del curso adquirido.' },
+        { titulo: '2. Excepción por Contenido Digital — Cláusula de Ejecución Inmediata', contenido: 'De conformidad con el Código de Protección y Defensa del Consumidor (Ley N° 29571) y las disposiciones de INDECOPI sobre contratos a distancia y servicios de ejecución inmediata:\n\nEl usuario reconoce expresamente que, al realizar el primer inicio de sesión, visualizar la primera lección o descargar cualquier material del curso, otorga su consentimiento expreso para el inicio inmediato de la prestación del servicio, renunciando con ello a su derecho de arrepentimiento o solicitud de reembolso, dado que el servicio se considera consumido desde el inicio de su ejecución.\n\nEsta condición es aplicable a todos los cursos, rutas de aprendizaje, paquetes y materiales digitales disponibles en la plataforma.' },
+        { titulo: '3. Condiciones para Solicitar Reembolso', contenido: 'El usuario podrá solicitar el reembolso total de su compra únicamente bajo las siguientes condiciones:\n\na) Antes del primer acceso: que el usuario no haya ingresado a la plataforma ni visualizado contenido alguno tras la compra. El plazo máximo para esta solicitud es de 7 días calendario desde la fecha de pago confirmado.\n\nb) Falla técnica insubsanable: si existe un error técnico atribuible a nuestra plataforma que impida el acceso al contenido, y que el equipo de soporte no pueda resolver en un plazo de 72 horas hábiles desde la notificación formal del incidente.' },
+        { titulo: '4. Proceso de Solicitud de Reembolso', contenido: 'Para iniciar un proceso de devolución (si aplica), el usuario debe:\n\n1. Enviar un correo a correo@gmail.com con el asunto: "Solicitud de Reembolso — [Nombre del Curso]".\n\n2. Adjuntar el comprobante de pago y número de pedido correspondiente.\n\n3. Nuestro equipo auditará los registros de acceso (logs de IP y actividad) para verificar que el contenido no haya sido consumido antes de proceder con la evaluación de la solicitud.' },
+        { titulo: '5. Modalidad de Reembolso', contenido: 'Si la solicitud es aprobada, el reembolso se gestionará a través de la pasarela de pago correspondiente. El tiempo de acreditación en la cuenta del cliente dependerá de su entidad bancaria, generalmente entre 15 y 30 días hábiles.\n\nNos reservamos el derecho de descontar las comisiones operativas cobradas por la pasarela de pago que no sean reembolsables por la misma.' },
+        { titulo: '6. Contacto y Atención al Cliente', contenido: 'Para consultas relacionadas con esta política, comuníquese con nosotros a través de correo@gmail.com. De acuerdo con la legislación de protección al consumidor vigente, también ponemos a su disposición nuestro Libro de Reclamaciones en la plataforma.' },
+      ]),
+      descripcion: 'Secciones (título + contenido) de Política de Cambios y Devoluciones (JSON)'
+    },
+
+    // Política de privacidad
+    { clave: 'LEGAL_PRIVACIDAD_TITULO', valor: 'Política de Privacidad', descripcion: 'Título de la página de Política de Privacidad' },
+    { clave: 'LEGAL_PRIVACIDAD_SUBTITULO', valor: 'Última actualización: Marzo de 2026', descripcion: 'Subtítulo (fecha) de Política de Privacidad' },
+    { clave: 'LEGAL_PRIVACIDAD_INTRO', valor: 'En [NOMBRE DE EMPRESA] valoramos la confianza que nuestros usuarios depositan al compartir su información personal. Esta Política de Privacidad describe cómo recopilamos, usamos, almacenamos y protegemos los datos personales de quienes acceden a nuestra Aula Virtual, de acuerdo con la Ley N° 29733, Ley de Protección de Datos Personales, y su reglamento.', descripcion: 'Párrafo introductorio de Política de Privacidad' },
+    {
+      clave: 'LEGAL_PRIVACIDAD_SECCIONES',
+      valor: JSON.stringify([
+        { titulo: '1. Información que Recopilamos', contenido: 'Recopilamos datos proporcionados directamente por el usuario al registrarse, inscribirse a un curso o realizar una compra, tales como: nombres, apellidos, correo electrónico, número de teléfono, documento de identidad y datos de facturación. Asimismo, registramos información de uso de la plataforma (progreso de cursos, intentos de examen y actividad de acceso) con fines académicos.' },
+        { titulo: '2. Finalidad del Tratamiento de Datos', contenido: 'Los datos personales se utilizan para: gestionar la inscripción y acceso a los cursos, procesar pagos a través de las pasarelas autorizadas (IziPay, PayPal, Culqi), emitir certificados de finalización, enviar comunicaciones sobre el estado de sus pedidos o cursos, y brindar soporte académico y técnico.' },
+        { titulo: '3. Confidencialidad y Terceros', contenido: 'No vendemos ni cedemos la información personal de nuestros usuarios a terceros con fines comerciales. Solo compartimos datos estrictamente necesarios con proveedores de pago y correo electrónico para la correcta prestación del servicio, quienes están obligados a mantener la confidencialidad de dicha información.' },
+        { titulo: '4. Derechos del Usuario (ARCO)', contenido: 'El usuario puede ejercer sus derechos de Acceso, Rectificación, Cancelación y Oposición sobre sus datos personales, enviando una solicitud a flyup.sale@gmail.com, adjuntando copia de su documento de identidad para validar la titularidad de la solicitud.' },
+        { titulo: '5. Seguridad de la Información', contenido: 'Implementamos medidas técnicas y organizativas razonables (cifrado de contraseñas, conexiones seguras y controles de acceso) para proteger los datos personales contra accesos no autorizados, pérdida o alteración.' },
+        { titulo: '6. Cambios a esta Política', contenido: 'Nos reservamos el derecho de actualizar esta Política de Privacidad para reflejar cambios legales o mejoras en nuestros procesos. Cualquier modificación relevante será comunicada a través de la plataforma.' },
+        { titulo: '7. Contacto', contenido: 'Para consultas sobre el tratamiento de sus datos personales, escríbanos a flyup.sale@gmail.com. De acuerdo a la legislación de protección al consumidor vigente, también ponemos a su disposición nuestro Libro de Reclamaciones en la plataforma.' },
+      ]),
+      descripcion: 'Secciones (título + contenido) de Política de Privacidad (JSON)'
+    },
+
+    // Libro de reclamaciones (solo textos — el formulario es fijo)
+    { clave: 'LEGAL_RECLAMOS_INTRO', valor: 'Conforme a lo establecido en el Código de Protección y Defensa del Consumidor, esta institución cuenta con un Libro de Reclamaciones Virtual a su disposición.', descripcion: 'Párrafo introductorio del Libro de Reclamaciones' },
+    { clave: 'LEGAL_RECLAMOS_PROVEEDOR', valor: 'NOMBRE DE TU EMPRESA', descripcion: 'Nombre del proveedor mostrado en el Libro de Reclamaciones' },
+    { clave: 'LEGAL_RECLAMOS_RUC', valor: '20600000000', descripcion: 'RUC mostrado en el Libro de Reclamaciones' },
+    { clave: 'LEGAL_RECLAMOS_DOMICILIO', valor: '[DIRECCIÓN]', descripcion: 'Domicilio mostrado en el Libro de Reclamaciones' },
+  ]
+
+  for (const { clave, valor, descripcion } of legalDefaults) {
+    await prisma.configuracion.upsert({
+      where: { clave },
+      update: {},
+      create: { clave, valor, descripcion }
+    })
+  }
+
+  console.log(`✅ ${legalDefaults.length} textos por defecto de páginas legales creados`)
+
   // ─── RESUMEN ─────────────────────────────────────────────────────────────────
 
   console.log('')
@@ -1190,6 +1381,7 @@ async function main() {
   console.log('   DESCUENTO50  → S/. 50 de descuento')
   console.log('')
   console.log('📝 Simulacros:')
+
   for (const s of simulacros) {
     console.log(`   - ${s.titulo} (${s.nivel}, ${s.es_gratis ? 'gratis' : 'S/. ' + s.precio})`)
   }

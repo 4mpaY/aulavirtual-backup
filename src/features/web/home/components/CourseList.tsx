@@ -54,6 +54,7 @@ const CourseList = ({ courses, loading, error, emptySearchMessage = 'No encontra
               descripcion={course.descripcion}
               miniatura={course.miniatura}
               precio={Number(course.precio)}
+              precio_usd={course.precio_usd != null ? Number(course.precio_usd) : null}
               moneda={course.moneda}
               es_gratis={course.es_gratis}
               profesor={{
