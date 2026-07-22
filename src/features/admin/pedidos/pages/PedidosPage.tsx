@@ -90,6 +90,7 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
       const session = await getSession()
       const token = session?.user?.accessToken ?? null
       const axiosPedido = new AxiosPedido({ getAuthToken: () => token })
+
       const res = await axiosPedido.getAll({
         estado: estadoFiltro,
         nro_pedido: nroPedido,
@@ -99,6 +100,7 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
         fecha_fin: fechaFin,
         limit: '5000'
       })
+
       const todos: Pedido[] = res?.pedidos ?? []
 
       const filas = todos.map(p => ({

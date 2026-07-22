@@ -1,35 +1,40 @@
 'use client'
 
+import { useState } from 'react'
+import type { CSSProperties } from 'react'
+
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 
-import { Home, BookOpen, Users, Award, Building2 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
-const ALL_NAV_ITEMS = [
-  { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
-  { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
+import { LogIn, User, MonitorSmartphone } from 'lucide-react'
 
-  // { title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' },
-  // { title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' },
-  // { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
-  { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },
-  { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
-]
+import { useAuthModal } from '@/contexts/AuthModalContext'
+import { usePWAInstall } from '@/utils/hooks/usePWAInstall'
+import PWAInstallTip from '@/utils/components/shared/PWAInstallTip'
 
-export default function MobileBottomNav({
-  empresasHabilitado = true,
-}: {
-  empresasHabilitado?: boolean
-}) {
-  const pathname = usePathname()
+export default function MobileBottomNav() {
+  const { data: session } = useSession()
+  const { openLogin } = useAuthModal()
+  const { canInstall, hasNativePrompt, install } = usePWAInstall()
+  const [showInstallTip, setShowInstallTip] = useState(false)
 
-  const navItems = ALL_NAV_ITEMS
+  const itemStyle = (active: boolean): CSSProperties => ({
+    color: active ? 'var(--web-primary, #25927F)' : '#94a3b8',
+  })
 
-  const isActive = (url: string) => {
-    if (url === '/') return pathname === '/'
+  const iconBoxStyle = (active: boolean): CSSProperties => ({
+    width: '36px',
+    height: '28px',
+    backgroundColor: active ? 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)' : 'transparent',
+  })
 
-    return pathname.startsWith(url)
-  }
+  const labelStyle = (active: boolean): CSSProperties => ({
+    fontFamily: 'Poppins, sans-serif',
+    fontSize: '0.625rem',
+    fontWeight: active ? 700 : 500,
+    lineHeight: 1,
+  })
 
   return (
     <nav
@@ -41,67 +46,50 @@ export default function MobileBottomNav({
         boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
       }}
     >
-      {navItems.map(item => {
-        const active = isActive(item.url)
-
-        return (
-          <Link
-            key={item.title}
-            href={item.url}
-            className="no-underline flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors"
-            style={{ color: active ? 'var(--web-primary, #25927F)' : '#94a3b8' }}
-          >
-            <div
-              className="flex items-center justify-center rounded-xl transition-all duration-200"
-              style={{
-                width: '36px',
-                height: '28px',
-                backgroundColor: active ? 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)' : 'transparent',
-              }}
-            >
-              <item.icon size={active ? 22 : 20} strokeWidth={active ? 2.5 : 1.8} />
-            </div>
-            <span
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontSize: '0.625rem',
-                fontWeight: active ? 700 : 500,
-                lineHeight: 1,
-              }}
-            >
-              {item.title}
-            </span>
-          </Link>
-        )
-      })}
-
-      {empresasHabilitado && (
+      {session?.user ? (
         <Link
-          href="/empresas"
+          href="/perfil"
           className="no-underline flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors"
-          style={{ color: isActive('/empresas') ? 'var(--web-primary, #25927F)' : '#94a3b8' }}
+          style={itemStyle(false)}
         >
-          <div
-            className="flex items-center justify-center rounded-xl transition-all duration-200"
-            style={{
-              width: '36px',
-              height: '28px',
-              backgroundColor: isActive('/empresas') ? 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)' : 'transparent',
-            }}
-          >
-            <Building2 size={isActive('/empresas') ? 22 : 20} strokeWidth={isActive('/empresas') ? 2.5 : 1.8} />
+          <div className="flex items-center justify-center rounded-xl transition-all duration-200" style={iconBoxStyle(false)}>
+            <User size={20} strokeWidth={1.8} />
           </div>
-          <span
-            style={{
-              fontFamily: 'Poppins, sans-serif',
-              fontSize: '0.625rem',
-              fontWeight: isActive('/empresas') ? 700 : 500,
-              lineHeight: 1,
-            }}
-          >
-            Empresas
-          </span>
+          <span style={labelStyle(false)}>Mi Cuenta</span>
         </Link>
+      ) : (
+        <button
+          onClick={() => openLogin()}
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors border-none bg-transparent cursor-pointer"
+          style={itemStyle(false)}
+        >
+          <div className="flex items-center justify-center rounded-xl transition-all duration-200" style={iconBoxStyle(false)}>
+            <LogIn size={20} strokeWidth={1.8} />
+          </div>
+          <span style={labelStyle(false)}>Iniciar Sesión</span>
+        </button>
+      )}
+
+      {canInstall && (
+        <div className="relative flex-1 h-full">
+          <button
+            onClick={() => (hasNativePrompt ? install() : setShowInstallTip(t => !t))}
+            className="flex flex-col items-center justify-center gap-1 w-full h-full transition-colors border-none bg-transparent cursor-pointer"
+            style={itemStyle(false)}
+          >
+            <div className="flex items-center justify-center rounded-xl transition-all duration-200" style={iconBoxStyle(false)}>
+              <MonitorSmartphone size={20} strokeWidth={1.8} />
+            </div>
+            <span style={labelStyle(false)}>Instalar App</span>
+          </button>
+
+          {showInstallTip && !hasNativePrompt && (
+            <PWAInstallTip
+              onClose={() => setShowInstallTip(false)}
+              style={{ position: 'fixed', top: 'auto', bottom: '72px', right: '12px', left: 'auto', width: '280px' }}
+            />
+          )}
+        </div>
       )}
     </nav>
   )

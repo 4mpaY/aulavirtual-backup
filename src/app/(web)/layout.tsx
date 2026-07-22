@@ -32,7 +32,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthModalProvider>
       <div className="web-layout min-h-screen bg-background flex flex-col">
-        <WebHeader initialCategories={categories} platformName={platformName} platformSlogan={platformSlogan} />
+        <WebHeader initialCategories={categories} platformName={platformName} platformSlogan={platformSlogan} empresasHabilitado={empresasHabilitado} />
         <div className="flex flex-1" style={{ paddingTop: 'var(--navbar-height)' }}>
           {/* Sidebar: visible solo en sm+ */}
           <div className="hidden sm:block">
@@ -49,7 +49,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
           </main>
         </div>
         {/* Bottom nav: visible solo en mobile */}
-        <MobileBottomNav empresasHabilitado={empresasHabilitado} />
+        <MobileBottomNav />
         <PWAInstalledToast />
       </div>
     </AuthModalProvider>

@@ -4,7 +4,14 @@ import { join } from 'path'
 import sharp from 'sharp'
 
 const BRANDING_DIR = join(process.cwd(), 'public', 'uploads', 'branding')
+const ICONS_DIR = join(process.cwd(), 'public', 'icons')
 const FAVICON_PUBLIC_PATH = '/uploads/branding/site-favicon.png'
+
+const PWA_ICONS: { file: string; size: number }[] = [
+  { file: 'icon-192x192.png', size: 192 },
+  { file: 'icon-512x512.png', size: 512 },
+  { file: 'apple-touch-icon.png', size: 180 },
+]
 
 function resolvePublicPath(url: string): string {
   const normalized = url.startsWith('/') ? url.slice(1) : url
@@ -13,8 +20,9 @@ function resolvePublicPath(url: string): string {
 }
 
 /**
- * Genera un favicon optimizado (32×32 PNG) a partir de una imagen subida.
- * El archivo se guarda en public/uploads/branding (volumen persistente en Docker).
+ * Genera el favicon de pestaña (32×32) y los íconos de instalación PWA
+ * (192, 512, apple-touch-icon) a partir de la misma imagen fuente, para que
+ * el ícono usado al "instalar/descargar" la app quede siempre sincronizado.
  */
 export async function syncFaviconFromUrl(sourceUrl: string): Promise<string> {
   if (!sourceUrl?.trim()) {
@@ -25,6 +33,7 @@ export async function syncFaviconFromUrl(sourceUrl: string): Promise<string> {
   const sourceBuffer = await readFile(sourcePath)
 
   await mkdir(BRANDING_DIR, { recursive: true })
+  await mkdir(ICONS_DIR, { recursive: true })
 
   const faviconBuffer = await sharp(sourceBuffer)
     .resize(32, 32, {
@@ -35,6 +44,20 @@ export async function syncFaviconFromUrl(sourceUrl: string): Promise<string> {
     .toBuffer()
 
   await writeFile(join(BRANDING_DIR, 'site-favicon.png'), faviconBuffer)
+
+  await Promise.all(
+    PWA_ICONS.map(async ({ file, size }) => {
+      const buffer = await sharp(sourceBuffer)
+        .resize(size, size, {
+          fit: 'contain',
+          background: { r: 255, g: 255, b: 255, alpha: 1 },
+        })
+        .png()
+        .toBuffer()
+
+      await writeFile(join(ICONS_DIR, file), buffer)
+    })
+  )
 
   return FAVICON_PUBLIC_PATH
 }
