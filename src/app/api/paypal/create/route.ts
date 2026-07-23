@@ -99,7 +99,18 @@ export async function POST(request: Request) {
       const configs = await getConfigs()
 
       exchangeRate = Number(configs['PAYPAL_EXCHANGE_RATE']) || 3.8
-      totalUSD = Number((total / exchangeRate).toFixed(2))
+
+      // Si el curso tiene un precio en dólares configurado manualmente, ese es el
+      // monto real a cobrar (evita que difiera del precio_usd mostrado en la web).
+      // Los cursos/ebooks sin precio_usd caen al cálculo automático como respaldo.
+      const subtotalUSD =
+        cursos.reduce((acc, c) => acc + (c.precio_usd != null ? Number(c.precio_usd) : Number(c.precio) / exchangeRate), 0) +
+        ebooks.reduce((acc, e) => acc + Number(e.precio) / exchangeRate, 0)
+
+      // Misma proporción de descuento del cupón (calculada en soles) aplicada al subtotal en USD.
+      const proporcionDescuento = subtotal > 0 ? descuentoTotal / subtotal : 0
+
+      totalUSD = Number((subtotalUSD * (1 - proporcionDescuento)).toFixed(2))
     }
 
     const pedido = await prisma.pedido.create({

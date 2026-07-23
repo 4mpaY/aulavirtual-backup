@@ -49,13 +49,25 @@ function getDashboardPath(rol?: string): string {
   }
 }
 
+function getRolLabel(rol?: string): string {
+  switch (rol) {
+    case 'ADMIN':
+      return 'Administrador'
+    case 'PROFESOR':
+      return 'Profesor'
+    default:
+      return 'Estudiante'
+  }
+}
+
 interface UserDropdownProps {
   showCurrencyToggle?: boolean
   onLoginClick?: () => void
   onRegisterClick?: () => void
+  dark?: boolean
 }
 
-const UserDropdown = ({ showCurrencyToggle = false, onLoginClick, onRegisterClick }: UserDropdownProps = {}) => {
+const UserDropdown = ({ showCurrencyToggle = false, onLoginClick, onRegisterClick, dark = false }: UserDropdownProps = {}) => {
   // States
   const [open, setOpen] = useState(false)
 
@@ -85,7 +97,9 @@ const UserDropdown = ({ showCurrencyToggle = false, onLoginClick, onRegisterClic
   }
 
   const dashboardPath = getDashboardPath(data?.user?.rol)
+  const rolLabel = getRolLabel(data?.user?.rol)
   const hasSession = !!data?.user
+  const isEstudiante = !data?.user?.rol || data.user.rol === 'ESTUDIANTE'
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/' })
@@ -94,21 +108,42 @@ const UserDropdown = ({ showCurrencyToggle = false, onLoginClick, onRegisterClic
   return (
     <>
       {hasSession ? (
-        <Badge
+        <div
           ref={anchorRef}
-          overlap='circular'
-          badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          className='mis-2'
+          onClick={handleDropdownOpen}
+          className='mis-2 flex items-center gap-2 cursor-pointer'
         >
-          <UserAvatar
-            src={data?.user?.avatar}
-            name={data?.user?.name || 'User'}
-            size={38}
-            onClick={handleDropdownOpen}
-            className='cursor-pointer'
+          <div className='hidden sm:flex flex-col items-end leading-tight max-w-[140px]'>
+            <Typography
+              className='font-medium truncate max-is-full'
+              variant='body2'
+              sx={{ color: dark ? '#ffffff' : 'text.primary' }}
+            >
+              {data?.user?.name}
+            </Typography>
+            <Typography
+              variant='caption'
+              sx={{ color: dark ? 'var(--web-light, #BDD962)' : 'text.secondary', fontWeight: 600 }}
+            >
+              {rolLabel}
+            </Typography>
+          </div>
+          <Badge
+            overlap='circular'
+            badgeContent={<BadgeContentSpan />}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          >
+            <UserAvatar
+              src={data?.user?.avatar}
+              name={data?.user?.name || 'User'}
+              size={38}
+            />
+          </Badge>
+          <i
+            className='tabler-chevron-down text-[18px] hidden sm:inline-block'
+            style={{ color: dark ? '#ffffff' : undefined }}
           />
-        </Badge>
+        </div>
       ) : (
         <div ref={anchorRef} className='mis-2'>
           <Avatar
@@ -149,7 +184,9 @@ const UserDropdown = ({ showCurrencyToggle = false, onLoginClick, onRegisterClic
                         <Typography className='font-medium' color='text.primary'>
                           {`${data?.user.name}`}
                         </Typography>
-                        <Typography variant='caption'>{`${data?.user.email}`}</Typography>
+                        <Typography variant='caption' sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                          {rolLabel}
+                        </Typography>
                       </div>
                     </div>
                   )}
@@ -170,10 +207,17 @@ const UserDropdown = ({ showCurrencyToggle = false, onLoginClick, onRegisterClic
                         <i className='tabler-user text-[22px]' />
                         <Typography color='text.primary'>Mi Perfil</Typography>
                       </MenuItem>
-                      <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, dashboardPath)}>
-                        <i className='tabler-layout-dashboard text-[22px]' />
-                        <Typography color='text.primary'>Mi Panel</Typography>
-                      </MenuItem>
+                      {isEstudiante ? (
+                        <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, '/estudiante/mis-cursos')}>
+                          <i className='tabler-book text-[22px]' />
+                          <Typography color='text.primary'>Mis Cursos</Typography>
+                        </MenuItem>
+                      ) : (
+                        <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e, dashboardPath)}>
+                          <i className='tabler-layout-dashboard text-[22px]' />
+                          <Typography color='text.primary'>Mi Panel</Typography>
+                        </MenuItem>
+                      )}
                       <Divider className='mlb-1' />
                       <MenuItem
                         className='mli-2 gap-3'
@@ -182,7 +226,7 @@ const UserDropdown = ({ showCurrencyToggle = false, onLoginClick, onRegisterClic
                           handleLogout()
                         }}
                       >
-                        <i className='tabler-logout text-[22px]' />
+                        <i className='tabler-arrow-left text-[22px]' />
                         <Typography color='text.primary'>Cerrar Sesión</Typography>
                       </MenuItem>
                     </>

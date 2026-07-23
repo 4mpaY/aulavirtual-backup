@@ -24,13 +24,6 @@ const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
   </svg>
 )
 
-const staticSocialLinks = [
-  { label: 'Facebook', href: 'https://www.facebook.com/flyup.store', icon: <Facebook size={20} /> },
-  { label: 'TikTok', href: 'https://tiktok.com/@flyupsale', icon: <TikTokIcon size={20} /> },
-  { label: 'Instagram', href: 'https://www.instagram.com/devrocket.software/', icon: <Instagram size={20} /> },
-  { label: 'Youtube', href: 'https://www.youtube.com/@Fly-s9b', icon: <Youtube size={20} /> },
-]
-
 interface WebFooterProps {
   platformName?: string
 }
@@ -38,11 +31,17 @@ interface WebFooterProps {
 const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
   const configs = await getConfigs()
   const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const telefono = configs.CONTACTO_TELEFONO || '+51 928 510 125'
+  const email = configs.CONTACTO_EMAIL || 'flyup.sale@gmail.com'
+  const direccion = configs.CONTACTO_DIRECCION || 'Lima, Miraflores'
 
   const socialLinks = [
-    ...staticSocialLinks,
+    { label: 'Facebook', href: configs.SOCIAL_FACEBOOK_URL ?? 'https://www.facebook.com/flyup.store', icon: <Facebook size={20} /> },
+    { label: 'TikTok', href: configs.SOCIAL_TIKTOK_URL ?? 'https://tiktok.com/@flyupsale', icon: <TikTokIcon size={20} /> },
+    { label: 'Instagram', href: configs.SOCIAL_INSTAGRAM_URL ?? 'https://www.instagram.com/devrocket.software/', icon: <Instagram size={20} /> },
+    { label: 'Youtube', href: configs.SOCIAL_YOUTUBE_URL ?? 'https://www.youtube.com/@Fly-s9b', icon: <Youtube size={20} /> },
     { label: 'WhatsApp', href: `https://wa.me/${waNumber}`, icon: <WhatsAppIcon size={20} /> },
-  ]
+  ].filter(social => social.href.trim() !== '')
 
   return (
     <footer style={{ backgroundColor: '#0A0A0A', color: '#ffffff' }}>
@@ -60,15 +59,15 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
             <ul className="space-y-3" style={{ opacity: 0.8 }}>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <Phone size={16} className="flex-shrink-0 mt-0.5" />
-                <span>+51 928 510 125</span>
+                <span>{telefono}</span>
               </li>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <Mail size={16} className="flex-shrink-0 mt-0.5" />
-                <span>flyup.sale@gmail.com</span>
+                <span>{email}</span>
               </li>
               <li className="flex items-start gap-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '0.875rem' }}>
                 <MapPin size={16} className="flex-shrink-0 mt-0.5" />
-                <span>Lima, Miraflores</span>
+                <span>{direccion}</span>
               </li>
             </ul>
           </div>

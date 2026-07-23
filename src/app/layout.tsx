@@ -8,6 +8,7 @@ import { resolveFaviconUrl } from '@/utils/functions/syncFavicon'
 import { getAuthOptions } from '@/utils/configs/auth'
 import { plus_jakarta_sans } from '@core/theme'
 
+import 'react-perfect-scrollbar/dist/css/styles.css'
 import './globals.css'
 import '@assets/iconify-icons/generated-icons.css'
 

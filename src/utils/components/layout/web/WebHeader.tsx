@@ -5,13 +5,16 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Menu, X, Home, BookOpen, Users, Award, Building2 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+
+import { Menu, X, Home, BookOpen, Users, Award, Building2, LogIn, UserPlus } from 'lucide-react'
 
 import Logo from '@components/layout/shared/Logo'
 import UserDropdown from '@components/layout/shared/UserDropdown'
 import CartIcon from '@/features/web/cart/components/CartIcon'
 import CurrencyToggle from '@components/layout/shared/CurrencyToggle'
 import { useAuthModal } from '@/contexts/AuthModalContext'
+import { useConfig } from '@/contexts/ConfigContext'
 
 export interface Category {
   id: string
@@ -44,6 +47,9 @@ export default function WebHeader({
   void platformName
   void platformSlogan
   const { openLogin, openRegister } = useAuthModal()
+  const { data: session } = useSession()
+  const configs = useConfig()
+  const multiMonedaHabilitado = configs.WEB_MULTIMONEDA_HABILITADO === 'true'
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -79,17 +85,20 @@ export default function WebHeader({
         >
           <Menu size={24} />
         </button>
-        <Logo />
+        <Logo enlargeSquare />
       </div>
 
       {/* Right side */}
       <div className="flex items-center gap-3">
-        <div className="hidden sm:flex">
-          <CurrencyToggle />
-        </div>
+        {multiMonedaHabilitado && (
+          <div className="hidden sm:flex">
+            <CurrencyToggle />
+          </div>
+        )}
         <CartIcon />
         <UserDropdown
-          showCurrencyToggle
+          dark
+          showCurrencyToggle={multiMonedaHabilitado}
           onLoginClick={() => openLogin()}
           onRegisterClick={() => openRegister()}
         />
@@ -121,7 +130,7 @@ export default function WebHeader({
               className="flex items-center justify-between px-4"
               style={{ height: 'var(--navbar-height)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}
             >
-              <Logo />
+              <Logo enlargeSquare />
               <button
                 type="button"
                 aria-label="Cerrar menú"
@@ -155,6 +164,65 @@ export default function WebHeader({
                 )
               })}
             </nav>
+
+            {/* Cuenta: login/registro o dropdown de usuario */}
+            <div
+              style={{
+                marginTop: 'auto',
+                padding: '16px',
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+              }}
+            >
+              {session ? (
+                <div className="flex items-center justify-center">
+                  <UserDropdown dark />
+                </div>
+              ) : (
+                <div className="flex flex-col" style={{ gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      openLogin()
+                    }}
+                    className="flex items-center justify-center gap-2 cursor-pointer bg-transparent"
+                    style={{
+                      height: '48px',
+                      borderRadius: '999px',
+                      border: '1.5px solid rgba(255,255,255,0.4)',
+                      color: '#ffffff',
+                      fontFamily: 'Poppins, sans-serif',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    <LogIn size={17} />
+                    Iniciar Sesión
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      openRegister()
+                    }}
+                    className="flex items-center justify-center gap-2 cursor-pointer"
+                    style={{
+                      height: '48px',
+                      borderRadius: '999px',
+                      border: 'none',
+                      backgroundColor: 'var(--web-light, #BDD962)',
+                      color: '#0A0A0A',
+                      fontFamily: 'Poppins, sans-serif',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    <UserPlus size={17} />
+                    Registrarse
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

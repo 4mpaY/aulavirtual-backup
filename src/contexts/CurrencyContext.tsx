@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 
+import { useConfig } from '@/contexts/ConfigContext'
+
 export type Currency = 'PEN' | 'USD'
 
 interface CurrencyContextType {
@@ -16,9 +18,13 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 const STORAGE_KEY = 'currency:v1'
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
+  const configs = useConfig()
+  const multiMonedaHabilitado = configs.WEB_MULTIMONEDA_HABILITADO === 'true'
   const [currency, setCurrencyState] = useState<Currency>('PEN')
 
   useEffect(() => {
+    if (!multiMonedaHabilitado) return
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
 
@@ -26,9 +32,11 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     } catch {
       // Safari private mode, quota exceeded, o localStorage deshabilitado
     }
-  }, [])
+  }, [multiMonedaHabilitado])
 
   const setCurrency = (next: Currency) => {
+    if (!multiMonedaHabilitado) return
+
     setCurrencyState(next)
 
     try {
@@ -40,8 +48,10 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 
   const toggleCurrency = () => setCurrency(currency === 'PEN' ? 'USD' : 'PEN')
 
+  const effectiveCurrency = multiMonedaHabilitado ? currency : 'PEN'
+
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, toggleCurrency }}>
+    <CurrencyContext.Provider value={{ currency: effectiveCurrency, setCurrency, toggleCurrency }}>
       {children}
     </CurrencyContext.Provider>
   )

@@ -30,6 +30,7 @@ function toParagraphsHtml(text: string) {
     .filter(Boolean)
     .map(p => {
       const escaped = escapeHtml(p).replace(/\n/g, '<br/>')
+
       const linked = escaped.replace(
         /Libro de Reclamaciones/g,
         '<a href="/libro-de-reclamaciones" style="color: var(--web-dark, #025E44); text-decoration: underline;">Libro de Reclamaciones</a>'

@@ -14,9 +14,9 @@ const CartIcon = () => {
                 color="inherit"
                 onClick={() => setIsCartDrawerOpen(true)}
                 sx={{
-                    bgcolor: 'primary.50',
-                    color: 'primary.main',
-                    '&:hover': { bgcolor: 'primary.100' },
+                    bgcolor: 'rgba(255,255,255,0.08)',
+                    color: '#ffffff',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.16)' },
                     borderRadius: '10px',
                     width: 44,
                     height: 44

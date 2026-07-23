@@ -415,6 +415,42 @@ function GatewayAccordion({ icon, title, subtitle, enabledKey, config, onInputCh
   )
 }
 
+interface ConfigAccordionProps {
+  title: string
+  description?: React.ReactNode
+  action?: React.ReactNode
+  children: React.ReactNode
+}
+
+function ConfigAccordion({ title, description, action, children }: ConfigAccordionProps) {
+  return (
+    <Accordion
+      variant='outlined'
+      sx={{ borderRadius: '8px !important', '&:before': { display: 'none' } }}
+    >
+      <AccordionSummary
+        expandIcon={<i className='tabler-chevron-down' style={{ fontSize: 18 }} />}
+        sx={{ px: 3, py: 1, minHeight: 56 }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 2 }}>
+          <Typography variant='subtitle1' fontWeight={600}>{title}</Typography>
+          {action && (
+            <Box onClick={(e) => e.stopPropagation()} sx={{ display: 'flex', alignItems: 'center' }}>
+              {action}
+            </Box>
+          )}
+        </Box>
+      </AccordionSummary>
+      <AccordionDetails sx={{ px: 3, pb: 3, pt: 0 }}>
+        {description && (
+          <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>{description}</Typography>
+        )}
+        {children}
+      </AccordionDetails>
+    </Accordion>
+  )
+}
+
 interface LegalSeccion {
   titulo: string
   contenido: string
@@ -456,8 +492,7 @@ function LegalPageEditor({ prefix, label, config, onInputChange }: LegalPageEdit
   }
 
   return (
-    <Box>
-      <Typography variant='h6' gutterBottom>{label}</Typography>
+    <ConfigAccordion title={label}>
       <Stack spacing={3} sx={{ mb: 3 }}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
@@ -521,7 +556,7 @@ function LegalPageEditor({ prefix, label, config, onInputChange }: LegalPageEdit
       <Button variant='outlined' size='small' startIcon={<i className='tabler-plus' />} onClick={addSeccion}>
         Añadir sección
       </Button>
-    </Box>
+    </ConfigAccordion>
   )
 }
 
@@ -559,6 +594,13 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     HOME_HERO_DESCRIPTION: '',
     WHATSAPP_NUMERO: '',
     WHATSAPP_NUMERO_EMPRESAS: '',
+    CONTACTO_TELEFONO: '+51 928 510 125',
+    CONTACTO_EMAIL: 'flyup.sale@gmail.com',
+    CONTACTO_DIRECCION: 'Lima, Miraflores',
+    SOCIAL_FACEBOOK_URL: 'https://www.facebook.com/flyup.store',
+    SOCIAL_TIKTOK_URL: 'https://tiktok.com/@flyupsale',
+    SOCIAL_INSTAGRAM_URL: 'https://www.instagram.com/devrocket.software/',
+    SOCIAL_YOUTUBE_URL: 'https://www.youtube.com/@Fly-s9b',
     HOME_LOGOS: '[]',
     HOME_LOGOS_HABILITADO: 'true',
     HOME_LOGOS_TITLE: 'Capacita a tu equipo,\nsin complicaciones',
@@ -574,6 +616,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     HOME_POR_QUE_ELEGIRNOS: '[]',
     HOME_DOCENTES_TITLE: 'Nuestros Profesores',
     HOME_DOCENTES_SUBTITLE: 'Aprende de profesionales con amplia experiencia en el sector industrial y académico.',
+    WEB_MULTIMONEDA_HABILITADO: 'false',
     NOSOTROS_HERO_TITLE: 'Somos calidad y responsabilidad a tu servicio',
     NOSOTROS_HERO_DESCRIPTION: '',
     NOSOTROS_STATS: '[]',
@@ -811,7 +854,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     {
       label: 'Web',
       content: (
-        <Stack spacing={4}>
+        <Stack spacing={1.5}>
           {/* Hero */}
           {/* <Box>
             <Typography variant='h6' gutterBottom>Hero de la Página Principal</Typography>
@@ -842,11 +885,10 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
           </Box> */}
 
           {/* Cursos Destacados */}
-          <Box>
-            <Typography variant='h6' gutterBottom>Sección &quot;Cursos Destacados&quot;</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Título y descripción que aparecen sobre la grilla de cursos destacados en la página principal.
-            </Typography>
+          <ConfigAccordion
+            title='Sección &quot;Cursos Destacados&quot;'
+            description='Título y descripción que aparecen sobre la grilla de cursos destacados en la página principal.'
+          >
             <Stack spacing={3}>
               <TextField
                 fullWidth
@@ -864,14 +906,13 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 onChange={(e) => handleInputChange('HOME_CURSOS_SUBTITLE', e.target.value)}
               />
             </Stack>
-          </Box>
-
-          <Divider />
+          </ConfigAccordion>
 
           {/* Logos */}
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1 }}>
-              <Typography variant='h6'>Logos de Empresas Clientes</Typography>
+          <ConfigAccordion
+            title='Logos de Empresas Clientes'
+            description='Estos logos aparecerán en el carrusel de la página principal. Si no hay logos, se mostrarán los predeterminados.'
+            action={
               <FormControlLabel
                 control={
                   <Switch
@@ -881,11 +922,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 }
                 label='Mostrar sección'
               />
-            </Box>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Estos logos aparecerán en el carrusel de la página principal. Si no hay logos, se mostrarán los predeterminados.
-            </Typography>
-
+            }
+          >
             <Stack spacing={3} sx={{ mb: 3 }}>
               <TextField
                 fullWidth
@@ -953,7 +991,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 </Typography>
               )}
             </Paper>
-          </Box>
+          </ConfigAccordion>
 
           <MediaLibrary
             open={openLogoMedia}
@@ -970,12 +1008,11 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
             acceptType='IMAGEN'
           />
 
-          <Divider />
-
           {/* Nuestros Convenios */}
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1 }}>
-              <Typography variant='h6'>Sección &quot;Nuestros Convenios&quot;</Typography>
+          <ConfigAccordion
+            title='Sección &quot;Nuestros Convenios&quot;'
+            description='Logos de entidades o empresas aliadas. Si no agregas ningún logo, la sección no se muestra en la página principal.'
+            action={
               <FormControlLabel
                 control={
                   <Switch
@@ -985,10 +1022,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 }
                 label='Mostrar sección'
               />
-            </Box>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Logos de entidades o empresas aliadas. Si no agregas ningún logo, la sección no se muestra en la página principal.
-            </Typography>
+            }
+          >
             <Stack spacing={3} sx={{ mb: 3 }}>
               <TextField
                 fullWidth
@@ -1050,7 +1085,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 </Typography>
               )}
             </Paper>
-          </Box>
+          </ConfigAccordion>
 
           <MediaLibrary
             open={openConvenioMedia}
@@ -1067,12 +1102,11 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
             acceptType='IMAGEN'
           />
 
-          <Divider />
-
           {/* ¿Por qué elegirnos? */}
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1 }}>
-              <Typography variant='h6'>Sección &quot;¿Por qué elegirnos?&quot;</Typography>
+          <ConfigAccordion
+            title='Sección &quot;¿Por qué elegirnos?&quot;'
+            description='Tarjetas con ícono, título y descripción. Si no agregas ninguna, se muestran tarjetas predeterminadas.'
+            action={
               <FormControlLabel
                 control={
                   <Switch
@@ -1082,11 +1116,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 }
                 label='Mostrar sección'
               />
-            </Box>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Tarjetas con ícono, título y descripción. Si no agregas ninguna, se muestran tarjetas predeterminadas.
-            </Typography>
-
+            }
+          >
             {porQueElegirnosArray.length > 0 && (
               <Stack spacing={1} sx={{ mb: 3 }}>
                 {porQueElegirnosArray.map((item, i) => (
@@ -1151,16 +1182,13 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 </Grid>
               </Grid>
             </Paper>
-          </Box>
-
-          <Divider />
+          </ConfigAccordion>
 
           {/* Nuestros Docentes */}
-          <Box>
-            <Typography variant='h6' gutterBottom>Sección &quot;Nuestros Docentes&quot;</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              El contenido (fotos, nombre, cargo) se toma automáticamente de los usuarios con rol Profesor. Aquí solo se edita el encabezado.
-            </Typography>
+          <ConfigAccordion
+            title='Sección &quot;Nuestros Docentes&quot;'
+            description='El contenido (fotos, nombre, cargo) se toma automáticamente de los usuarios con rol Profesor. Aquí solo se edita el encabezado.'
+          >
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -1179,34 +1207,180 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 />
               </Grid>
             </Grid>
-          </Box>
+          </ConfigAccordion>
 
-          <Divider />
+          {/* Moneda del sitio */}
+          <ConfigAccordion
+            title='Moneda del Sitio'
+            description='Por defecto el sitio trabaja solo en soles. Si activas esta opción, los visitantes verán un selector para ver los precios en Soles o Dólares.'
+          >
+            <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={config.WEB_MULTIMONEDA_HABILITADO === 'true'}
+                    onChange={(e) => handleInputChange('WEB_MULTIMONEDA_HABILITADO', e.target.checked ? 'true' : 'false')}
+                  />
+                }
+                label='Permitir a los visitantes cambiar entre Soles y Dólares'
+              />
+            </Paper>
+          </ConfigAccordion>
 
           {/* Visibilidad de páginas */}
-          <Box>
-            <Typography variant='h6' gutterBottom>Visibilidad de Páginas</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Activa o desactiva las páginas del sitio web público. Los cambios pueden tardar unos minutos en aplicarse.
-            </Typography>
+          <ConfigAccordion
+            title='Visibilidad de Páginas'
+            description='Activa o desactiva las páginas del sitio web público. Los cambios pueden tardar unos minutos en aplicarse.'
+          >
             <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
               <Stack spacing={1}>
                 <FormControlLabel
-                  control={<Switch checked={config.WEB_EMPRESAS_HABILITADO === 'true'} onChange={(e) => handleInputChange('WEB_EMPRESAS_HABILITADO', e.target.checked ? 'true' : 'false')} />}
+                  control={<Switch checked={config.WEB_EMPRESAS_HABILITADO !== 'false'} onChange={(e) => handleInputChange('WEB_EMPRESAS_HABILITADO', e.target.checked ? 'true' : 'false')} />}
                   label='Mostrar página de Empresas'
                 />
               </Stack>
             </Paper>
-          </Box>
+          </ConfigAccordion>
 
-          <Divider />
+          {/* Redes sociales y contacto */}
+          <ConfigAccordion
+            title='Redes Sociales y Contacto'
+            description='Información de contacto y enlaces a redes sociales que se muestran en el footer del sitio web. Deja un enlace vacío para ocultar ese ícono.'
+          >
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label='Teléfono'
+                  value={config.CONTACTO_TELEFONO}
+                  onChange={(e) => handleInputChange('CONTACTO_TELEFONO', e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-phone' style={{ fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label='Correo de contacto'
+                  value={config.CONTACTO_EMAIL}
+                  onChange={(e) => handleInputChange('CONTACTO_EMAIL', e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-mail' style={{ fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label='Dirección'
+                  value={config.CONTACTO_DIRECCION}
+                  onChange={(e) => handleInputChange('CONTACTO_DIRECCION', e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-map-pin' style={{ fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='WhatsApp'
+                  value={config.WHATSAPP_NUMERO}
+                  onChange={(e) => handleInputChange('WHATSAPP_NUMERO', e.target.value)}
+                  helperText='Sin + ni espacios. Ej: 51959436827. Se usa en el botón flotante y el ícono de WhatsApp del footer.'
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-brand-whatsapp' style={{ fontSize: 18, color: '#25D366' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='Facebook'
+                  placeholder='https://www.facebook.com/tu-página'
+                  value={config.SOCIAL_FACEBOOK_URL}
+                  onChange={(e) => handleInputChange('SOCIAL_FACEBOOK_URL', e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-brand-facebook' style={{ fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='Instagram'
+                  placeholder='https://www.instagram.com/tu-cuenta'
+                  value={config.SOCIAL_INSTAGRAM_URL}
+                  onChange={(e) => handleInputChange('SOCIAL_INSTAGRAM_URL', e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-brand-instagram' style={{ fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='TikTok'
+                  placeholder='https://tiktok.com/@tu-cuenta'
+                  value={config.SOCIAL_TIKTOK_URL}
+                  onChange={(e) => handleInputChange('SOCIAL_TIKTOK_URL', e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-brand-tiktok' style={{ fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label='YouTube'
+                  placeholder='https://www.youtube.com/@tu-canal'
+                  value={config.SOCIAL_YOUTUBE_URL}
+                  onChange={(e) => handleInputChange('SOCIAL_YOUTUBE_URL', e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-brand-youtube' style={{ fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </ConfigAccordion>
 
           {/* Facturación */}
-          <Box>
-            <Typography variant='h6' gutterBottom>Facturación y Comprobantes</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Controla si los alumnos pueden solicitar comprobantes de pago (Boleta/Factura) durante el checkout.
-            </Typography>
+          <ConfigAccordion
+            title='Facturación y Comprobantes'
+            description='Controla si los alumnos pueden solicitar comprobantes de pago (Boleta/Factura) durante el checkout.'
+          >
             <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
               <FormControlLabel
                 control={
@@ -1218,14 +1392,13 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 label='Habilitar solicitud de comprobantes en el Checkout'
               />
             </Paper>
-          </Box>
+          </ConfigAccordion>
 
           {/* Comentarios */}
-          <Box>
-            <Typography variant='h6' gutterBottom>Moderación de Comentarios</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Controla si los comentarios de los estudiantes requieren aprobación antes de ser visibles públicamente. Los comentarios de admin y profesor siempre se publican de inmediato.
-            </Typography>
+          <ConfigAccordion
+            title='Moderación de Comentarios'
+            description='Controla si los comentarios de los estudiantes requieren aprobación antes de ser visibles públicamente. Los comentarios de admin y profesor siempre se publican de inmediato.'
+          >
             <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
               <FormControlLabel
                 control={
@@ -1237,14 +1410,13 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 label='Requerir aprobación antes de publicar comentarios de estudiantes'
               />
             </Paper>
-          </Box>
+          </ConfigAccordion>
 
           {/* Chat */}
-          <Box>
-            <Typography variant='h6' gutterBottom>Chat entre Usuarios</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Controla si los alumnos pueden enviarse mensajes directos entre sí. Profesores y administradores siempre pueden chatear con sus alumnos.
-            </Typography>
+          <ConfigAccordion
+            title='Chat entre Usuarios'
+            description='Controla si los alumnos pueden enviarse mensajes directos entre sí. Profesores y administradores siempre pueden chatear con sus alumnos.'
+          >
             <Paper variant='outlined' sx={{ p: 2, bgcolor: 'background.default' }}>
               <FormControlLabel
                 control={
@@ -1256,7 +1428,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 label='Permitir mensajes directos entre alumnos'
               />
             </Paper>
-          </Box>
+          </ConfigAccordion>
         </Stack>
       )
     },
@@ -1264,12 +1436,11 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       label: 'Nosotros',
       icon: 'tabler-users',
       content: (
-        <Stack spacing={4}>
-          <Box>
-            <Typography variant='h6' gutterBottom>Hero</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              Título, descripción y estadísticas del banner principal de la página &quot;Nosotros&quot;.
-            </Typography>
+        <Stack spacing={1.5}>
+          <ConfigAccordion
+            title='Hero'
+            description='Título, descripción y estadísticas del banner principal de la página &quot;Nosotros&quot;.'
+          >
             <Stack spacing={3}>
               <TextField
                 fullWidth
@@ -1316,12 +1487,9 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 </Grid>
               ))}
             </Grid>
-          </Box>
+          </ConfigAccordion>
 
-          <Divider />
-
-          <Box>
-            <Typography variant='h6' gutterBottom>Misión y Visión</Typography>
+          <ConfigAccordion title='Misión y Visión'>
             <Stack spacing={3}>
               <TextField
                 fullWidth
@@ -1340,15 +1508,12 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 onChange={(e) => handleInputChange('NOSOTROS_VISION_TEXTO', e.target.value)}
               />
             </Stack>
-          </Box>
+          </ConfigAccordion>
 
-          <Divider />
-
-          <Box>
-            <Typography variant='h6' gutterBottom>Valores</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              El ícono de cada tarjeta es fijo según su posición — aquí solo editas título y descripción.
-            </Typography>
+          <ConfigAccordion
+            title='Valores'
+            description='El ícono de cada tarjeta es fijo según su posición — aquí solo editas título y descripción.'
+          >
             <Stack spacing={2}>
               {nosotrosValoresArray.map((v, i) => (
                 <Paper key={i} variant='outlined' sx={{ p: 2 }}>
@@ -1373,7 +1538,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 </Paper>
               ))}
             </Stack>
-          </Box>
+          </ConfigAccordion>
         </Stack>
       )
     },
@@ -1381,16 +1546,15 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
       label: 'Legal',
       icon: 'tabler-file-text',
       content: (
-        <Stack spacing={4} divider={<Divider />}>
+        <Stack spacing={1.5}>
           <LegalPageEditor prefix='LEGAL_TERMINOS' label='Términos y Condiciones' config={config} onInputChange={handleInputChange} />
           <LegalPageEditor prefix='LEGAL_DEVOLUCIONES' label='Política de Cambios y Devoluciones' config={config} onInputChange={handleInputChange} />
           <LegalPageEditor prefix='LEGAL_PRIVACIDAD' label='Política de Privacidad' config={config} onInputChange={handleInputChange} />
 
-          <Box>
-            <Typography variant='h6' gutterBottom>Libro de Reclamaciones</Typography>
-            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-              El formulario de reclamos es fijo (campos exigidos por ley) — aquí solo se edita el texto introductorio y los datos del proveedor que se muestran encima del formulario.
-            </Typography>
+          <ConfigAccordion
+            title='Libro de Reclamaciones'
+            description='El formulario de reclamos es fijo (campos exigidos por ley) — aquí solo se edita el texto introductorio y los datos del proveedor que se muestran encima del formulario.'
+          >
             <Stack spacing={3}>
               <TextField
                 fullWidth
@@ -1427,7 +1591,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                 </Grid>
               </Grid>
             </Stack>
-          </Box>
+          </ConfigAccordion>
         </Stack>
       )
     },

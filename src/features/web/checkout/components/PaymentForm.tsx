@@ -162,12 +162,12 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const configs = useConfig()
 
-  // Los gateways locales (Culqi, Izipay, Mercado Pago, Yape/Transferencia) solo cobran en soles.
-  // Si el visitante seleccionó Dólares, únicamente PayPal queda disponible (ya convierte a USD internamente).
+  // Los gateways locales (Culqi, Izipay, Mercado Pago, Yape/Transferencia) solo cobran en soles,
+  // y PayPal solo cobra en dólares — son mutuamente excluyentes según la moneda mostrada.
   const isUsdSelected = (courses[0] || ebooks[0])?.moneda === 'USD'
   const isCulqiEnabled = configs.CULQI_ENABLED !== 'false' && !isUsdSelected
   const isIzipayEnabled = configs.IZIPAY_ENABLED !== 'false' && !isUsdSelected
-  const isPaypalEnabled = configs.PAYPAL_ENABLED !== 'false'
+  const isPaypalEnabled = configs.PAYPAL_ENABLED !== 'false' && isUsdSelected
   const isMercadoPagoEnabled = configs.MP_ENABLED !== 'false' && !!configs.MP_ACCESS_TOKEN && !isUsdSelected
 
   const [paymentMethod, setPaymentMethod] = useState<'izipay' | 'paypal' | 'culqi' | 'mercadopago' | 'manual'>('culqi')
@@ -232,8 +232,13 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
   useEffect(() => {
     if (isUsdSelected && paymentMethod !== 'paypal' && isPaypalEnabled) {
       setPaymentMethod('paypal')
+    } else if (!isPaypalEnabled && paymentMethod === 'paypal') {
+      if (isCulqiEnabled) setPaymentMethod('culqi')
+      else if (isIzipayEnabled) setPaymentMethod('izipay')
+      else if (isMercadoPagoEnabled) setPaymentMethod('mercadopago')
+      else if (isManualEnabled) setPaymentMethod('manual')
     }
-  }, [isUsdSelected, paymentMethod, isPaypalEnabled])
+  }, [isUsdSelected, paymentMethod, isPaypalEnabled, isCulqiEnabled, isIzipayEnabled, isMercadoPagoEnabled, isManualEnabled])
 
   const handleVoucherChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

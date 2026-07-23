@@ -1,7 +1,8 @@
 'use client'
 
 // React Imports
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { SyntheticEvent } from 'react'
 
 // Next Imports
 // import Img from 'next/image'
@@ -64,7 +65,20 @@ const SloganText = styled.span<LogoTextProps>`
     isCollapsed && !isHovered ? 'opacity: 0; margin-inline-start: 0;' : 'opacity: 1; margin-inline-start: 10px;'}
 `
 
-const Logo = () => {
+interface LogoProps {
+
+  // Cuando el logo subido es casi cuadrado (o vertical) se ve muy pequeño a la
+  // altura fija de 46px. Con esto activado, se mide el aspect ratio real de la
+  // imagen y se le da más alto a los logos cuadrados; los horizontales/anchos
+  // se quedan tal cual (46px), que es como ya se ven bien.
+
+  enlargeSquare?: boolean
+}
+
+const COMPACT_HEIGHT = 46
+const SQUARE_HEIGHT = 68
+
+const Logo = ({ enlargeSquare = false }: LogoProps = {}) => {
   // Refs
   const logoTextRef = useRef<HTMLDivElement>(null)
 
@@ -72,13 +86,26 @@ const Logo = () => {
   const { isHovered, transitionDuration } = useVerticalNav()
   const { settings } = useSettings()
   const configs = useConfig()
+  const [imgHeight, setImgHeight] = useState(COMPACT_HEIGHT)
 
   // Vars
   const { layout } = settings
-  
+
   const templateLogo = configs.TEMPLATE_LOGO || themeConfig.templateLogo
   const templateName = configs.TEMPLATE_NAME || themeConfig.templateName
   const templateSlogan = configs.TEMPLATE_SLOGAN || themeConfig.templateSlogan
+
+  const handleImgLoad = (e: SyntheticEvent<HTMLImageElement>) => {
+    if (!enlargeSquare) return
+
+    const { naturalWidth, naturalHeight } = e.currentTarget
+
+    if (!naturalWidth || !naturalHeight) return
+
+    const ratio = naturalWidth / naturalHeight
+
+    setImgHeight(ratio < 1.6 ? SQUARE_HEIGHT : COMPACT_HEIGHT)
+  }
 
   useEffect(() => {
     if (layout !== 'collapsed') {
@@ -97,7 +124,13 @@ const Logo = () => {
 
   return (
     <Link href='/' className='flex items-center'>
-      <img src={templateLogo} alt={`${templateName} Logo`} className='bs-[46px]' />
+      <img
+        src={templateLogo}
+        alt={`${templateName} Logo`}
+        onLoad={handleImgLoad}
+        className={enlargeSquare ? undefined : 'bs-[46px]'}
+        style={enlargeSquare ? { height: imgHeight, width: 'auto' } : undefined}
+      />
       <div
         className={`flex flex-col ${montserrat.className}`}
         ref={logoTextRef}
