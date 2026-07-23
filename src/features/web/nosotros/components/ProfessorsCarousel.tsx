@@ -7,6 +7,7 @@ import Image from 'next/image'
 
 import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 
+import { parseProfesorBio } from '@/utils/functions/parseProfesorBio'
 import { sectionH2, sectionDesc } from '@/features/web/home/components/typography'
 
 type Teacher = {
@@ -108,6 +109,7 @@ export default function ProfessorsCarousel({
               const color = AVATAR_COLORS[(current + i) % AVATAR_COLORS.length]
 
               const href = teacherHref(teacher)
+              const { titulo, descripcion } = parseProfesorBio(teacher.biografia, teacher.cargo)
 
               return (
                 <Link
@@ -197,7 +199,24 @@ export default function ProfessorsCarousel({
                       {teacher.nombre} {teacher.apellido}
                     </h3>
 
-                    {teacher.cargo && (
+                    {titulo && (
+                      <p
+                        style={{
+                          fontFamily: 'Poppins, sans-serif',
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          color: 'var(--web-primary, #25927F)',
+                          lineHeight: 1.4,
+                          marginBottom: '0.375rem',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {titulo}
+                      </p>
+                    )}
+                    {descripcion && (
                       <p
                         style={{
                           fontFamily: 'Poppins, sans-serif',
@@ -212,7 +231,7 @@ export default function ProfessorsCarousel({
                           overflow: 'hidden',
                         } as React.CSSProperties}
                       >
-                        {teacher.cargo}
+                        {descripcion}
                       </p>
                     )}
                     <Link

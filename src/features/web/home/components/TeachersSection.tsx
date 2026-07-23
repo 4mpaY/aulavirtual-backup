@@ -10,6 +10,7 @@ import Link from 'next/link'
 
 import { ArrowRight, BookOpen } from 'lucide-react'
 
+import { parseProfesorBio } from '@/utils/functions/parseProfesorBio'
 import ScrollReveal from './ScrollReveal'
 import { eyebrowDark, sectionH2Dark, sectionDescDark, cardBody, smallText } from './typography'
 
@@ -30,6 +31,7 @@ interface Props {
 function TeacherCard({ teacher, index }: { teacher: Teacher; index: number }) {
   const fullName = `${teacher.nombre} ${teacher.apellido}`
   const initials = `${teacher.nombre[0]}${teacher.apellido[0]}`.toUpperCase()
+  const { titulo, descripcion } = parseProfesorBio(teacher.biografia, teacher.cargo)
 
   // Colores de fondo para el avatar inicial, cíclicos
   const avatarColors = ['var(--web-primary, #25927F)', 'var(--web-dark, #025E44)', '#3AB079', 'var(--web-light, #BDD962)']
@@ -138,12 +140,22 @@ function TeacherCard({ teacher, index }: { teacher: Teacher; index: number }) {
           >
             {fullName}
           </h3>
-          {teacher.cargo && (
-            <p style={{ ...smallText, color: 'var(--web-primary, #25927F)', fontWeight: 600, marginBottom: '0.5rem' }}>
-              {teacher.cargo}
+          {titulo && (
+            <p
+              style={{
+                ...smallText,
+                color: 'var(--web-primary, #25927F)',
+                fontWeight: 600,
+                marginBottom: '0.5rem',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {titulo}
             </p>
           )}
-          {teacher.biografia && (
+          {descripcion && (
             <p
               style={{
                 ...cardBody,
@@ -154,7 +166,7 @@ function TeacherCard({ teacher, index }: { teacher: Teacher; index: number }) {
                 overflow: 'hidden',
               }}
             >
-              {teacher.biografia}
+              {descripcion}
             </p>
           )}
         </div>

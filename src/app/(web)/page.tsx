@@ -7,6 +7,7 @@ import { getConfigs } from '@/utils/libs/config'
 import { getTipoProgramaConfig } from '@/utils/configs/tipoPrograma'
 import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
 import HomeCoursesSection from '@/features/web/home/components/HomeCoursesSection'
+import ClientLogosMarquee from '@/features/web/home/components/ClientLogosMarquee'
 import HeroInstallButton from '@/features/web/home/components/HeroInstallButton'
 import SearchCertificateSection from '@/features/web/home/components/SearchCertificateSection'
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
@@ -146,6 +147,10 @@ async function getHomeData() {
 
     try { convenios = configs.HOME_CONVENIOS_LOGOS ? JSON.parse(configs.HOME_CONVENIOS_LOGOS) : [] } catch { convenios = [] }
 
+    let logosEmpresas: { label: string; url: string }[] = []
+
+    try { logosEmpresas = configs.HOME_LOGOS ? JSON.parse(configs.HOME_LOGOS) : [] } catch { logosEmpresas = [] }
+
     let porQueElegirnos: { icono: string; titulo: string; descripcion: string }[] = []
 
     try { porQueElegirnos = configs.HOME_POR_QUE_ELEGIRNOS ? JSON.parse(configs.HOME_POR_QUE_ELEGIRNOS) : [] } catch { porQueElegirnos = [] }
@@ -175,6 +180,10 @@ async function getHomeData() {
       conveniosHabilitado: configs.HOME_CONVENIOS_HABILITADO !== 'false',
       conveniosTitle: configs.HOME_CONVENIOS_TITLE || '',
       conveniosDescription: configs.HOME_CONVENIOS_DESCRIPTION || '',
+      logosEmpresas,
+      logosEmpresasHabilitado: configs.HOME_LOGOS_HABILITADO !== 'false',
+      logosEmpresasDescription: configs.HOME_LOGOS_SUBTITLE || '',
+      logosEmpresasTitle: configs.HOME_LOGOS_TITLE || '',
       porQueElegirnos,
       porQueElegirnosHabilitado: configs.HOME_POR_QUE_ELEGIRNOS_HABILITADO !== 'false',
       docentesTitle: configs.HOME_DOCENTES_TITLE || '',
@@ -192,6 +201,10 @@ async function getHomeData() {
       conveniosHabilitado: true,
       conveniosTitle: '',
       conveniosDescription: '',
+      logosEmpresas: [],
+      logosEmpresasHabilitado: true,
+      logosEmpresasDescription: '',
+      logosEmpresasTitle: '',
       porQueElegirnos: [],
       porQueElegirnosHabilitado: true,
       docentesTitle: '',
@@ -206,6 +219,7 @@ export default async function HomePage() {
     heroTitle, heroDescription, heroImages,
     cursosTitle, cursosSubtitle,
     convenios, conveniosHabilitado, conveniosTitle, conveniosDescription,
+    logosEmpresas, logosEmpresasHabilitado, logosEmpresasDescription, logosEmpresasTitle,
     porQueElegirnos, porQueElegirnosHabilitado,
     docentesTitle, docentesSubtitle,
   } = await getHomeData()
@@ -322,6 +336,15 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      )}
+
+      {/* ── 1b. LOGOS EMPRESAS CLIENTES ──────────────── */}
+      {logosEmpresasHabilitado && (
+        <ClientLogosMarquee
+          logos={logosEmpresas}
+          description={logosEmpresasDescription || undefined}
+          title={logosEmpresasTitle || undefined}
+        />
       )}
 
       {/* ── 2. CURSOS DESTACADOS ────────────────────── */}

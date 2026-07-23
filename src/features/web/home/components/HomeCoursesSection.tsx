@@ -59,7 +59,7 @@ export default function HomeCoursesSection({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
       {courses.map(course => (
         <div
           key={course.id}
@@ -68,7 +68,7 @@ export default function HomeCoursesSection({
           style={{ border: '1px solid hsl(214, 20%, 88%)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}
         >
           {/* Thumbnail */}
-          <div className="relative overflow-hidden group/thumb" style={{ paddingTop: '56.25%' }}>
+          <div className="relative overflow-hidden group/thumb" style={{ paddingTop: '62%' }}>
             <div className="absolute inset-0">
               <CourseThumbnail
                 src={course.miniatura}
@@ -139,7 +139,7 @@ export default function HomeCoursesSection({
           </div>
 
           {/* Content */}
-          <div className="p-5 flex flex-col gap-2">
+          <div className="p-6 flex flex-col gap-2.5">
             <Link
               href={`/cursos/${course.slug}`}
               onClick={e => e.stopPropagation()}

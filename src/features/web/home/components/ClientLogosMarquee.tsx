@@ -2,6 +2,8 @@
 
 import React, { useRef } from 'react'
 
+import { sectionDesc } from './typography'
+
 type HardcodedLogo = { label: string; initials: string; color: string; light: string }
 type DynamicLogo = { label: string; url: string }
 type LogoItem = HardcodedLogo | DynamicLogo
@@ -21,13 +23,25 @@ const DEFAULT_LOGOS: HardcodedLogo[] = [
 
 interface Props {
   logos?: DynamicLogo[]
+  title?: string
+  description?: string
 }
 
-export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
+export default function ClientLogosMarquee({
+  logos: logosFromProps,
+  title = 'Capacita a tu equipo,\nsin complicaciones',
+  description
+}: Props) {
   const activeLogos: LogoItem[] =
     logosFromProps && logosFromProps.length > 0 ? logosFromProps : DEFAULT_LOGOS
 
-  const track = [...activeLogos, ...activeLogos, ...activeLogos]
+  const [titleLine1, titleLine2] = title.split('\n')
+
+  // Con pocos logos el marquee deja un hueco vacío en vez de hacer scroll continuo:
+  // en ese caso los mostramos estáticos y centrados.
+  const MIN_LOGOS_FOR_MARQUEE = 6
+  const shouldScroll = activeLogos.length >= MIN_LOGOS_FOR_MARQUEE
+  const track = shouldScroll ? [...activeLogos, ...activeLogos, ...activeLogos] : activeLogos
   const rowRef = useRef<HTMLDivElement>(null)
 
   const pauseAnimation = () => {
@@ -50,19 +64,6 @@ export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
     >
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '2.5rem', padding: '0 1rem' }}>
-        <p
-          style={{
-            fontFamily: 'Poppins, sans-serif',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase',
-            color: 'var(--web-primary, #25927F)',
-            marginBottom: '0.75rem',
-          }}
-        >
-          Empresas que confían en nosotros
-        </p>
         <h2
           style={{
             fontFamily: 'Poppins, sans-serif',
@@ -71,44 +72,62 @@ export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
             color: '#0A0A0A',
             letterSpacing: '-0.02em',
             lineHeight: 1.2,
+            marginBottom: description?.trim() ? '0.75rem' : 0,
           }}
         >
-          Capacita a tu equipo,{' '}
-          <span style={{ color: 'var(--web-primary, #25927F)' }}>sin complicaciones</span>
+          {titleLine1}
+          {titleLine2 && (
+            <>
+              {' '}
+              <span style={{ color: 'var(--web-primary, #25927F)' }}>{titleLine2}</span>
+            </>
+          )}
         </h2>
+        {description?.trim() && (
+          <p style={{ ...sectionDesc, textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
+            {description}
+          </p>
+        )}
       </div>
 
       {/* Marquee wrapper */}
       <div style={{ position: 'relative' }}>
-        {/* Fade izquierdo */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute', left: 0, top: 0, bottom: 0, width: '10rem', zIndex: 2,
-            background: 'linear-gradient(to right, #f8fafc 0%, transparent 100%)',
-            pointerEvents: 'none',
-          }}
-        />
-        {/* Fade derecho */}
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute', right: 0, top: 0, bottom: 0, width: '10rem', zIndex: 2,
-            background: 'linear-gradient(to left, #f8fafc 0%, transparent 100%)',
-            pointerEvents: 'none',
-          }}
-        />
+        {shouldScroll && (
+          <>
+            {/* Fade izquierdo */}
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute', left: 0, top: 0, bottom: 0, width: '10rem', zIndex: 2,
+                background: 'linear-gradient(to right, #f8fafc 0%, transparent 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+            {/* Fade derecho */}
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute', right: 0, top: 0, bottom: 0, width: '10rem', zIndex: 2,
+                background: 'linear-gradient(to left, #f8fafc 0%, transparent 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+          </>
+        )}
 
         {/* Track */}
         <div
           ref={rowRef}
-          onMouseEnter={pauseAnimation}
-          onMouseLeave={resumeAnimation}
+          onMouseEnter={shouldScroll ? pauseAnimation : undefined}
+          onMouseLeave={shouldScroll ? resumeAnimation : undefined}
           style={{
             display: 'flex',
             gap: '1.25rem',
-            width: 'max-content',
-            animation: 'marqueeScroll 40s linear infinite',
+            width: shouldScroll ? 'max-content' : '100%',
+            justifyContent: shouldScroll ? 'flex-start' : 'center',
+            flexWrap: shouldScroll ? 'nowrap' : 'wrap',
+            padding: shouldScroll ? 0 : '0 1rem',
+            animation: shouldScroll ? 'marqueeScroll 40s linear infinite' : 'none',
           }}
         >
           {track.map((logo, i) => (
@@ -119,12 +138,14 @@ export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
         </div>
       </div>
 
-      <style>{`
-        @keyframes marqueeScroll {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-33.333%); }
-        }
-      `}</style>
+      {shouldScroll && (
+        <style>{`
+          @keyframes marqueeScroll {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-33.333%); }
+          }
+        `}</style>
+      )}
     </section>
   )
 }

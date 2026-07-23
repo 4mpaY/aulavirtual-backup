@@ -72,7 +72,7 @@ export default function LeftSidebar({
   const handleLogout = async () => {
     setUserMenuOpen(false)
     await signOut({ redirect: false })
-    router.push('/login')
+    router.push('/')
   }
 
   const user = session?.user as any

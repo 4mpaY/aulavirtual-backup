@@ -560,6 +560,9 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     WHATSAPP_NUMERO: '',
     WHATSAPP_NUMERO_EMPRESAS: '',
     HOME_LOGOS: '[]',
+    HOME_LOGOS_HABILITADO: 'true',
+    HOME_LOGOS_TITLE: 'Capacita a tu equipo,\nsin complicaciones',
+    HOME_LOGOS_SUBTITLE: 'Empresas líderes confían en nuestra formación para capacitar a sus equipos.',
     HOME_HERO_IMAGE: '',
     HOME_CURSOS_TITLE: 'Cursos destacados',
     HOME_CURSOS_SUBTITLE: 'Descubre nuestros cursos más recientes',
@@ -867,10 +870,42 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
 
           {/* Logos */}
           <Box>
-            <Typography variant='h6' gutterBottom>Logos de Empresas Clientes</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1 }}>
+              <Typography variant='h6'>Logos de Empresas Clientes</Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={config.HOME_LOGOS_HABILITADO !== 'false'}
+                    onChange={(e) => handleInputChange('HOME_LOGOS_HABILITADO', e.target.checked ? 'true' : 'false')}
+                  />
+                }
+                label='Mostrar sección'
+              />
+            </Box>
             <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
               Estos logos aparecerán en el carrusel de la página principal. Si no hay logos, se mostrarán los predeterminados.
             </Typography>
+
+            <Stack spacing={3} sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                label='Título de la sección'
+                value={config.HOME_LOGOS_TITLE}
+                onChange={(e) => handleInputChange('HOME_LOGOS_TITLE', e.target.value)}
+                helperText='Usa Enter para separar líneas. La segunda línea aparece en color.'
+              />
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                label='Descripción'
+                value={config.HOME_LOGOS_SUBTITLE}
+                onChange={(e) => handleInputChange('HOME_LOGOS_SUBTITLE', e.target.value)}
+                helperText='Texto que aparece debajo del título.'
+              />
+            </Stack>
 
             {/* Lista de logos actuales */}
             {logosArray.length > 0 && (

@@ -1207,6 +1207,16 @@ async function main() {
       descripcion: 'Tarjetas de la sección "¿Por qué elegirnos?" en la página principal (JSON)'
     },
     {
+      clave: 'HOME_LOGOS_SUBTITLE',
+      valor: 'Empresas líderes confían en nuestra formación para capacitar a sus equipos.',
+      descripcion: 'Descripción (debajo del título) de la sección "Logos de empresas clientes" en la página principal'
+    },
+    {
+      clave: 'HOME_LOGOS_TITLE',
+      valor: 'Capacita a tu equipo,\nsin complicaciones',
+      descripcion: 'Título de la sección "Logos de empresas clientes" en la página principal'
+    },
+    {
       clave: 'HOME_DOCENTES_TITLE',
       valor: 'Nuestros docentes',
       descripcion: 'Título de la sección "Nuestros docentes" en la página principal'
