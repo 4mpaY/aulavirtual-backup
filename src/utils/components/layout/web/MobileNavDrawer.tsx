@@ -50,7 +50,7 @@ export default function MobileNavDrawer({ open, onClose, empresasHabilitado = tr
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         {/* Header */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 6, pt: 3, pb: 2 }}>
-          <div style={{ transform: 'scale(1.35)', transformOrigin: 'left center' }}>
+          <div style={{ transform: 'scale(1.05)', transformOrigin: 'left center' }}>
             <Logo />
           </div>
           <IconButton

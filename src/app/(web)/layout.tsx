@@ -8,7 +8,6 @@ import prisma from '@/utils/libs/prisma'
 import WebFooter from '@/utils/components/layout/web/WebFooter'
 import WebHeader from '@/utils/components/layout/web/WebHeader'
 import LeftSidebar from '@/utils/components/layout/web/LeftSidebar'
-import MobileBottomNav from '@/utils/components/layout/web/MobileBottomNav'
 import PWAInstalledToast from '@/features/web/home/components/PWAInstalledToast'
 
 const getCategorias = unstable_cache(
@@ -39,7 +38,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
             <LeftSidebar empresasHabilitado={empresasHabilitado} />
           </div>
           <main
-            className="flex-1 flex flex-col min-w-0 pb-16 sm:pb-0"
+            className="flex-1 flex flex-col min-w-0"
             style={{ paddingLeft: 'var(--sidebar-width)' }}
           >
             <div className="flex-1">
@@ -48,8 +47,6 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
             <WebFooter platformName={platformName} />
           </main>
         </div>
-        {/* Bottom nav: visible solo en mobile */}
-        <MobileBottomNav />
         <PWAInstalledToast />
       </div>
     </AuthModalProvider>
