@@ -179,6 +179,11 @@ model Curso {
   vigencia_meses       Int?
   precio_oferta        Decimal?          @db.Decimal(10, 2)
   brochure             String?
+  landing_active       Boolean           @default(false)
+  landing_timer        DateTime?
+  landing_wsp_link     String?
+  landing_bg_image     String?
+  landing_flyer_image  String?
   orden                Int               @default(0)
   certificados         Certificado[]
   categoria            Categoria?        @relation(fields: [categoria_id], references: [id])

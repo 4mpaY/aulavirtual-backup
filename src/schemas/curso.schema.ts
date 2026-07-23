@@ -70,7 +70,12 @@ export const actualizarCursoSchema = z.object({
   objetivos: z.array(z.string()).optional(),
   metodologia: z.array(z.any()).optional(),
   beneficios: z.array(z.any()).optional(),
-  incluye: z.array(z.any()).optional()
+  incluye: z.array(z.any()).optional(),
+  landing_active: z.boolean().optional(),
+  landing_timer: z.string().optional().nullable(),
+  landing_wsp_link: z.string().optional().nullable(),
+  landing_bg_image: z.string().optional().nullable(),
+  landing_flyer_image: z.string().optional().nullable()
 })
 
 export type ActualizarCursoDto = z.infer<typeof actualizarCursoSchema>
