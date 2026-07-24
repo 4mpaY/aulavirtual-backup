@@ -44,6 +44,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
           </div>
           <main
             className="flex-1 flex flex-col min-w-0"
+            className="flex-1 flex flex-col min-w-0"
             style={{ paddingLeft: 'var(--sidebar-width)' }}
           >
             <div className="flex-1">
