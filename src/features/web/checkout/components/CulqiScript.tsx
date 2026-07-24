@@ -77,13 +77,21 @@ const CulqiScript = ({
 
         culqi.culqi = handleCulqiAction
         window.Culqi = culqi
+
+        // Avisar al padre que Culqi está listo. Es necesario aquí (no solo en el
+        // onLoad del <Script>) porque next/script solo dispara onLoad la primera
+        // vez que este src se carga en la pestaña — en navegaciones client-side
+        // posteriores (volver a /checkout, otro curso, el modal de suscripción)
+        // el script ya está cacheado y onLoad nunca se vuelve a disparar, dejando
+        // el botón de pago en "Cargando..." para siempre aunque Culqi sí esté listo.
+        onLoad?.()
       }
     }
 
     if (window.CulqiCheckout) {
       initCulqi()
     }
-  }, [publicKey, settings, client, options, onTokenReceived, onError])
+  }, [publicKey, settings, client, options, onTokenReceived, onError, onLoad])
 
   return (
     <Script
