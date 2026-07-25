@@ -5,6 +5,7 @@ import { CheckCircle2 } from 'lucide-react'
 
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import { getConfigs } from '@/utils/libs/config'
+import { normalizeWhatsAppNumber } from '@/utils/functions/whatsapp'
 
 export const metadata = {
   title: 'Proyectos - ARM',
@@ -13,7 +14,7 @@ export const metadata = {
 
 export default async function ProyectosPage() {
   const configs = await getConfigs()
-  const waNumero = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumero = normalizeWhatsAppNumber(configs.WHATSAPP_NUMERO) || '51959436827'
 
   const sections = [
     {

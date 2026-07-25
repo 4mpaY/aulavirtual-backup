@@ -9,6 +9,7 @@ import { Phone, Mail, MapPin, Facebook, Youtube, Instagram } from 'lucide-react'
 import { getConfigs } from '@/utils/libs/config'
 import HydratedDate from '@/utils/components/HydratedDate'
 import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
+import { buildWhatsAppUrl } from '@/utils/functions/whatsapp'
 
 // Simple TikTok SVG icon (not in lucide-react)
 const TikTokIcon = ({ size = 16 }: { size?: number }) => (
@@ -30,7 +31,7 @@ interface WebFooterProps {
 
 const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
   const configs = await getConfigs()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waHref = buildWhatsAppUrl(configs.WHATSAPP_NUMERO)
   const telefono = configs.CONTACTO_TELEFONO || '+51 928 510 125'
   const email = configs.CONTACTO_EMAIL || 'flyup.sale@gmail.com'
   const direccion = configs.CONTACTO_DIRECCION || 'Lima, Miraflores'
@@ -40,7 +41,7 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
     { label: 'TikTok', href: configs.SOCIAL_TIKTOK_URL ?? 'https://tiktok.com/@flyupsale', icon: <TikTokIcon size={20} /> },
     { label: 'Instagram', href: configs.SOCIAL_INSTAGRAM_URL ?? 'https://www.instagram.com/devrocket.software/', icon: <Instagram size={20} /> },
     { label: 'Youtube', href: configs.SOCIAL_YOUTUBE_URL ?? 'https://www.youtube.com/@Fly-s9b', icon: <Youtube size={20} /> },
-    { label: 'WhatsApp', href: `https://wa.me/${waNumber}`, icon: <WhatsAppIcon size={20} /> },
+    { label: 'WhatsApp', href: waHref, icon: <WhatsAppIcon size={20} /> },
   ].filter(social => social.href.trim() !== '')
 
   return (

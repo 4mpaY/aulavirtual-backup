@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { useConfig } from '@/contexts/ConfigContext'
+import { buildWhatsAppUrl } from '@/utils/functions/whatsapp'
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
@@ -18,7 +19,7 @@ const PhoneIcon = () => (
 
 const tooltipStyle: React.CSSProperties = {
   position: 'absolute',
-  left: '64px',
+  right: '64px',
   top: '50%',
   transform: 'translateY(-50%)',
   backgroundColor: 'rgba(15, 23, 42, 0.85)',
@@ -36,14 +37,15 @@ export default function FloatingContactButtons() {
   const [hoveredWa, setHoveredWa] = useState(false)
   const [hoveredPhone, setHoveredPhone] = useState(false)
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
-  const phoneNumber = waNumber.startsWith('+') ? waNumber : `+${waNumber}`
+  const waHref = buildWhatsAppUrl(configs.WHATSAPP_NUMERO)
+  const telefono = configs.CONTACTO_TELEFONO || '+51 928 510 125'
+  const phoneNumber = telefono.startsWith('+') ? telefono : `+${telefono}`
 
   return (
     <div
       style={{
         position: 'fixed',
-        left: '20px',
+        right: '20px',
         bottom: '40px',
         zIndex: 9999,
         display: 'flex',
@@ -54,7 +56,7 @@ export default function FloatingContactButtons() {
       {/* WhatsApp */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <a
-          href={`https://wa.me/${waNumber}`}
+          href={waHref}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Contactar por WhatsApp"

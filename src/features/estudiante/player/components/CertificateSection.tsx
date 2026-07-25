@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 
 import HydratedDate from '@/utils/components/HydratedDate'
+import { buildWhatsAppUrl } from '@/utils/functions/whatsapp'
 
 interface CertificateData {
     id: string
@@ -395,7 +396,7 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
         const precioFmt = precioCertificado ? `${moneda} ${Number(precioCertificado).toFixed(2)}` : ''
 
         const waUrl = whatsappNumero
-            ? `https://wa.me/${whatsappNumero.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, quiero obtener mi certificado del curso "${cursoTitulo || ''}"${precioFmt ? ` (${precioFmt})` : ''}. Por favor, indícame los pasos para realizar el pago.`)}`
+            ? buildWhatsAppUrl(whatsappNumero, { text: `Hola, quiero obtener mi certificado del curso "${cursoTitulo || ''}"${precioFmt ? ` (${precioFmt})` : ''}. Por favor, indícame los pasos para realizar el pago.` })
             : null
 
         return (

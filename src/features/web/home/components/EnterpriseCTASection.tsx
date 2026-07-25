@@ -15,11 +15,12 @@ const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
 )
 
 import { useConfig } from '@/contexts/ConfigContext'
+import { buildWhatsAppUrl } from '@/utils/functions/whatsapp'
 
 import ScrollReveal from './ScrollReveal'
 import { sectionH2, sectionDesc, cardTitle, cardBody, smallText } from './typography'
 
-const WHATSAPP_MSG = encodeURIComponent('Hola, me gustaría agendar una reunión para explorar sus planes corporativos.')
+const WHATSAPP_MSG = 'Hola, me gustaría agendar una reunión para explorar sus planes corporativos.'
 
 const bullets = [
   { icon: Zap, text: 'Planes desde 5 hasta 100+ colaboradores' },
@@ -29,8 +30,7 @@ const bullets = [
 
 export default function EnterpriseCTASection() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO_EMPRESAS || configs.WHATSAPP_NUMERO || '51928510125'
-  const waLink = `https://wa.me/${waNumber}?text=${WHATSAPP_MSG}`
+  const waLink = buildWhatsAppUrl(configs.WHATSAPP_NUMERO_EMPRESAS || configs.WHATSAPP_NUMERO, { fallback: '51928510125', text: WHATSAPP_MSG })
 
   return (
     <section

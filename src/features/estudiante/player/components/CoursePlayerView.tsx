@@ -20,6 +20,8 @@ import axios from 'axios'
 
 import { toast } from 'react-toastify'
 
+import { buildWhatsAppUrl } from '@/utils/functions/whatsapp'
+
 import CertificateSection from './CertificateSection'
 import CommentsSection from './CommentsSection'
 import CompletionSummary from './CompletionSummary'
@@ -848,7 +850,7 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
                         </Button>
                         <Button
                             variant="contained"
-                            href={`https://wa.me/${phoneNumberProfesor}?text=${encodeURIComponent('Hola, necesito ayuda académica con el curso: ' + storeCourse.titulo)}`}
+                            href={buildWhatsAppUrl(phoneNumberProfesor, { text: 'Hola, necesito ayuda académica con el curso: ' + storeCourse.titulo })}
                             target="_blank"
                             sx={{
                                 borderRadius: '20px',

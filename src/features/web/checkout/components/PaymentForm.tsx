@@ -31,6 +31,7 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 import { useConfig } from '@/contexts/ConfigContext'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import AppModal from '@/utils/components/AppModal'
+import { buildWhatsAppUrl } from '@/utils/functions/whatsapp'
 import CulqiScript from './CulqiScript'
 import { PayPalPaymentButton } from './PayPalPaymentButton'
 import { useCart } from '../../cart/context/CartContext'
@@ -477,7 +478,7 @@ const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: Pa
           `Adjunto comprobante.`,
         ].join('\n')
 
-        const url = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(mensaje)}`
+        const url = buildWhatsAppUrl(whatsappNumero, { text: mensaje })
 
         try {
           const qrDataUrl = await toDataURL(url, { width: 400, margin: 2, errorCorrectionLevel: 'L', color: { dark: '#000000', light: '#FFFFFF' } })

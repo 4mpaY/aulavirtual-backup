@@ -6,16 +6,18 @@ import { Phone, Mail, MapPin } from 'lucide-react'
 
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import { useConfig } from '@/contexts/ConfigContext'
+import { buildWhatsAppUrl, normalizeWhatsAppNumber } from '@/utils/functions/whatsapp'
 
 export function ContactList() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = normalizeWhatsAppNumber(configs.WHATSAPP_NUMERO) || '51959436827'
+  const waHref = buildWhatsAppUrl(configs.WHATSAPP_NUMERO)
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
       {[
         { icon: MapPin, title: 'Ubicación', info: 'Arequipa, Perú' },
-        { icon: Phone, title: 'WhatsApp', info: `+${waNumber}`, href: `https://wa.me/${waNumber}` },
+        { icon: Phone, title: 'WhatsApp', info: `+${waNumber}`, href: waHref },
         { icon: Mail, title: 'Email', info: 'arm.confiabilidad@gmail.com', href: 'mailto:arm.confiabilidad@gmail.com' },
       ].map((item, i) => (
         <ScrollReveal key={i} delay={i * 0.1}>
@@ -66,13 +68,13 @@ export function ContactList() {
 
 export function ContactActions() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waHref = buildWhatsAppUrl(configs.WHATSAPP_NUMERO)
 
   return (
     <ScrollReveal>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
         <a
-          href={`https://wa.me/${waNumber}`}
+          href={waHref}
           target="_blank"
           rel="noopener noreferrer"
           style={{

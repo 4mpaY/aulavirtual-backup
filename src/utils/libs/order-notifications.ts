@@ -1,7 +1,6 @@
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
 import { sendMail } from '@/utils/libs/mailer'
-import { getBaseURL } from '@/utils/env'
 import { generateOrderPDF } from './pdf-generator'
 
 /**
@@ -40,7 +39,7 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
 
     // 🔐 SEGURIDAD: Convertir ruta relativa a absoluta para correos
     if (platformLogo && platformLogo.startsWith('/')) {
-      const baseURL = getBaseURL().replace(/\/$/, '') // Quita slash final si existe
+      const baseURL = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '') // Quita slash final si existe
 
       platformLogo = `${baseURL}${platformLogo}`
     }
@@ -51,8 +50,8 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
     // 4. Construir contenido del correo
     const primaryColor = '#25927F'
     const secondaryColor = '#f9f9f9'
-    const baseURL = getBaseURL().replace(/\/$/, '')
-    
+    const baseURL = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '')
+
     const cursosHtml = pedido.detalles.map(d => {
       return `
       <tr>
@@ -150,5 +149,105 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
     console.log(`[Order-Notifications] Correo enviado exitosamente para pedido ${pedidoId}`)
   } catch (error) {
     console.error('[Order-Notifications] Error crítico enviando notificación:', error)
+  }
+}
+
+/**
+ * Notifica por correo al equipo interno (ADMIN_NOTIFICATION_EMAIL) cuando se completa una matrícula/pago.
+ */
+export async function sendAdminEnrollmentNotification(pedidoId: string) {
+  try {
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL
+
+    if (!adminEmail) {
+      console.warn(
+        '⚠️ [Order-Notifications] ADMIN_NOTIFICATION_EMAIL no está configurado en .env. Omitiendo notificación interna.'
+      )
+
+      return
+    }
+
+    const pedido = await prisma.pedido.findUnique({
+      where: { id: pedidoId },
+      include: {
+        usuario: true,
+        detalles: {
+          include: {
+            curso: {
+              select: { titulo: true }
+            },
+            ebook: {
+              select: { titulo: true }
+            }
+          }
+        }
+      }
+    })
+
+    if (!pedido) {
+      console.error(`[Order-Notifications] Pedido ${pedidoId} no encontrado para notificación interna.`)
+
+      return
+    }
+
+    const configs = await getConfigs()
+    const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const baseURL = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '')
+    const primaryColor = '#25927F'
+
+    const itemsHtml = pedido.detalles
+      .map(d => `<li style="margin-bottom: 6px;">${d.curso?.titulo ?? d.ebook?.titulo ?? 'Ítem'}</li>`)
+      .join('')
+
+    const emailHtml = `
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; background-color: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #eee;">
+        <div style="background-color: ${primaryColor}; padding: 25px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 20px; letter-spacing: 1px;">NUEVA MATRÍCULA RECIBIDA</h1>
+          <p style="color: rgba(255,255,255,0.8); margin: 10px 0 0 0; font-size: 14px;">Pedido #${String(pedido.numero_pedido).padStart(6, '0')}</p>
+        </div>
+        <div style="padding: 30px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+              <td style="padding: 6px 0; color: #888; font-size: 12px; text-transform: uppercase;">Alumno</td>
+              <td style="padding: 6px 0; text-align: right; color: #333; font-weight: 600;">${pedido.usuario.nombre} ${pedido.usuario.apellido ?? ''}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #888; font-size: 12px; text-transform: uppercase;">Correo</td>
+              <td style="padding: 6px 0; text-align: right; color: #333;">${pedido.usuario.correo}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #888; font-size: 12px; text-transform: uppercase;">Método de pago</td>
+              <td style="padding: 6px 0; text-align: right; color: #333;">${pedido.metodo_pago || 'Manual'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #888; font-size: 12px; text-transform: uppercase;">Total</td>
+              <td style="padding: 6px 0; text-align: right; color: ${primaryColor}; font-weight: 700;">${pedido.moneda} ${Number(pedido.total).toFixed(2)}</td>
+            </tr>
+          </table>
+          <p style="color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 6px;">Cursos / Ítems</p>
+          <ul style="color: #333; padding-left: 20px; margin-top: 0;">
+            ${itemsHtml}
+          </ul>
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="${baseURL}/admin/pedidos" style="background-color: ${primaryColor}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block;">
+              VER PEDIDO EN EL PANEL
+            </a>
+          </div>
+        </div>
+        <div style="background-color: #f4f4f4; padding: 16px; text-align: center; border-top: 1px solid #eee;">
+          <p style="margin: 0; color: #999; font-size: 12px;">${platformName} — Notificación automática interna.</p>
+        </div>
+      </div>
+    `
+
+    await sendMail({
+      to: adminEmail,
+      subject: `Nueva matrícula recibida - Pedido #${String(pedido.numero_pedido).padStart(6, '0')}`,
+      html: emailHtml
+    })
+
+    console.log(`[Order-Notifications] Notificación interna enviada para pedido ${pedidoId}`)
+  } catch (error) {
+    console.error('[Order-Notifications] Error crítico enviando notificación interna:', error)
   }
 }

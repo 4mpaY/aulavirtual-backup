@@ -7,6 +7,7 @@ import { getOrderConfirmationTemplate } from '@/utils/libs/email-templates'
 import prisma from '@/utils/libs/prisma'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { sendMail } from '@/utils/libs/mailer'
+import { sendAdminEnrollmentNotification } from '@/utils/libs/order-notifications'
 
 /**
  * POST /api/pedidos/manual
@@ -201,6 +202,16 @@ export async function POST(request: Request) {
                 to: estudiante.correo,
                 subject: `Confirmación de Pedido #${pedidoCompleto.numero_pedido} - ${platformName}`,
                 html: emailHtml
+              })
+            }
+
+            // 📧 Notificar al correo interno cuando la matrícula queda activa (pedido COMPLETADO)
+            if (estado === 'COMPLETADO') {
+              sendAdminEnrollmentNotification(pedidoCompleto.id).catch(err => {
+                console.error(
+                  `[Manual-Order-Mail] Error enviando notificación interna para pedido ${pedidoCompleto.id}:`,
+                  err
+                )
               })
             }
           }

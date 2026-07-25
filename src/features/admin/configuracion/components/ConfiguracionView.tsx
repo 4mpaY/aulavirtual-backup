@@ -1299,7 +1299,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   label='WhatsApp'
                   value={config.WHATSAPP_NUMERO}
                   onChange={(e) => handleInputChange('WHATSAPP_NUMERO', e.target.value)}
-                  helperText='Sin + ni espacios. Ej: 51959436827. Se usa en el botón flotante y el ícono de WhatsApp del footer.'
+                  placeholder='+51 999 999 999'
+                  helperText='Tu número con o sin código de país (ej: +51 999 999 999 o 51999999999). Se usa en el botón flotante y el ícono de WhatsApp del footer.'
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>
@@ -2062,7 +2063,8 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   label='Número de WhatsApp'
                   value={config.PAGO_MANUAL_WHATSAPP_NUMERO || ''}
                   onChange={(e) => handleInputChange('PAGO_MANUAL_WHATSAPP_NUMERO', e.target.value)}
-                  helperText='Sin + ni espacios. Ej: 51959436827'
+                  placeholder='+51 999 999 999'
+                  helperText='Tu número con o sin código de país (ej: +51 999 999 999 o 51999999999).'
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>

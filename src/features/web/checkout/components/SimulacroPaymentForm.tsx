@@ -16,6 +16,7 @@ import { useSession } from 'next-auth/react'
 import { useConfig } from '@/contexts/ConfigContext'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import AppModal from '@/utils/components/AppModal'
+import { buildWhatsAppUrl } from '@/utils/functions/whatsapp'
 import CulqiScript from './CulqiScript'
 
 declare global {
@@ -305,7 +306,7 @@ export default function SimulacroPaymentForm({ simulacro }: SimulacroPaymentForm
       if (whatsappNumero) {
         const nombre = (session.user as any)?.nombre || session.user?.name || ''
         const msg = `Pedido #${numeroPedido} - ${nombre}\n  • ${simulacro.titulo}\nTotal: ${currencySymbol} ${Number(total).toFixed(2)}\nAdjunto comprobante.`
-        const url = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(msg)}`
+        const url = buildWhatsAppUrl(whatsappNumero, { text: msg })
 
         try {
           await toDataURL(url, { width: 400, margin: 2, errorCorrectionLevel: 'L', color: { dark: '#000000', light: '#FFFFFF' } })

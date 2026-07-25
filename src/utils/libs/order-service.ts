@@ -1,5 +1,5 @@
 import prisma from '@/utils/libs/prisma'
-import { sendOrderConfirmationEmail } from './order-notifications'
+import { sendOrderConfirmationEmail, sendAdminEnrollmentNotification } from './order-notifications'
 
 interface OrderCompletionData {
   metodo_pago: 'PAYPAL' | 'IZIPAY' | 'CULQI' | 'MERCADOPAGO' | 'YAPE' | 'PLIN' | 'TRANSFERENCIA' | 'OTRO'
@@ -185,6 +185,11 @@ export async function completeOrder(pedidoId: string, data: OrderCompletionData)
     // 3. Envío de correo asíncrono
     sendOrderConfirmationEmail(pedidoId).catch(err => {
       console.error(`[Order-Service] Error enviando mail para pedido ${pedidoId}:`, err)
+    })
+
+    // 4. Notificación interna asíncrona (equipo/administración)
+    sendAdminEnrollmentNotification(pedidoId).catch(err => {
+      console.error(`[Order-Service] Error enviando notificación interna para pedido ${pedidoId}:`, err)
     })
 
     return { ...result, yaCompletado: false }
