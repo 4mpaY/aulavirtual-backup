@@ -8,7 +8,7 @@ import { useConfig } from '@/contexts/ConfigContext'
 
 export default function WhatsAppPage() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51994356180'
   const waUrl = `https://wa.me/${waNumber}?text=Hola%2C%20vengo%20de%20la%20web%20y%20quiero%20información%20sobre%20las%20capacitaciones`
 
   useEffect(() => {

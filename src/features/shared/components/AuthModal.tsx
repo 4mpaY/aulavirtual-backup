@@ -465,8 +465,8 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
                     <CustomTextField
                       {...field}
                       fullWidth
-                      label="Celular (opcional)"
-                      placeholder="987654321"
+                      label="Celular"
+                      placeholder="+51 987 654 321"
                       error={!!registerForm.formState.errors.celular}
                       helperText={registerForm.formState.errors.celular?.message}
                       disabled={isLoading}

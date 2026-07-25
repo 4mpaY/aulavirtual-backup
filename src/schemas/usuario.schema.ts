@@ -31,9 +31,9 @@ export const crearUsuarioSchema = z.object({
   celular: z
     .string()
     .trim()
-    .regex(/^9\d{8}$/, 'El celular debe tener 9 dígitos y comenzar con 9')
-    .optional()
-    .or(z.literal('')),
+    .min(8, 'El celular es muy corto')
+    .max(20, 'El celular es muy largo')
+    .regex(/^\+?[0-9\s]+$/, 'Solo se permiten números, espacios y el signo + al inicio'),
   rol: z
     .nativeEnum(Rol)
     .optional()
@@ -96,9 +96,10 @@ export const actualizarUsuarioSchema = z.object({
   celular: z
     .string()
     .trim()
-    .regex(/^9\d{8}$/, 'El celular debe tener 9 dígitos y comenzar con 9')
-    .optional()
-    .or(z.literal('')),
+    .min(8, 'El celular es muy corto')
+    .max(20, 'El celular es muy largo')
+    .regex(/^\+?[0-9\s]+$/, 'Solo se permiten números, espacios y el signo + al inicio')
+    .optional(),
   rol: z
     .nativeEnum(Rol)
     .optional(),
@@ -153,9 +154,9 @@ export const actualizarPerfilSchema = z.object({
   celular: z
     .string()
     .trim()
-    .regex(/^9\d{8}$/, 'El celular debe tener 9 dígitos y comenzar con 9')
-    .optional()
-    .or(z.literal('')),
+    .min(8, 'El celular es muy corto')
+    .max(20, 'El celular es muy largo')
+    .regex(/^\+?[0-9\s]+$/, 'Solo se permiten números, espacios y el signo + al inicio'),
   biografia: z
     .string()
     .trim()

@@ -18,7 +18,7 @@ const ITEMS = [
 
 export default async function EmpleabilidadPage() {
   const configs = await getConfigs()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51994356180'
   const WA = `https://wa.me/${waNumber}?text=Hola%2C%20quiero%20información%20sobre%20el%20bono%20de%20empleabilidad`
 
   return (
@@ -141,14 +141,14 @@ export default async function EmpleabilidadPage() {
                   No se trata solo de aprender código, sino de saber cómo mostrar tu valor al mundo profesional. Este bono te da las herramientas necesarias para destacar.
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
                   {[
-                    { value: '+20', label: 'Años de Exp.' },
+                    { value: '+20', label: 'Años de experiencia.' },
                     { value: '100%', label: 'Gratuito' },
                   ].map(s => (
-                    <div key={s.label} style={{ background: '#fafafa', padding: '1.5rem', borderRadius: '1.25rem', border: '1px solid #e5e5e5' }}>
+                    <div key={s.label} style={{ flex: '1 1 140px', background: '#fafafa', padding: '1.5rem', borderRadius: '1.25rem', border: '1px solid #e5e5e5', minWidth: 0 }}>
                       <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.75rem', color: 'var(--agenda-primary)', marginBottom: '0.25rem' }}>{s.value}</p>
-                      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#888' }}>{s.label}</p>
+                      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.label}</p>
                     </div>
                   ))}
                 </div>

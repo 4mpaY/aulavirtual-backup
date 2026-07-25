@@ -17,7 +17,7 @@ const TikTokIcon = ({ size = 20 }: { size?: number }) => (
 
 export default async function ContactoPage() {
   const configs = await getConfigs()
-  const waNumber = configs.WHATSAPP_NUMERO || '51989971364'
+  const waNumber = configs.WHATSAPP_NUMERO || '51994356180'
   const phone = configs.TELEFONO || `+${waNumber}`
   const email = configs.EMAIL_CONTACTO || 'agenda2050peru@gmail.com'
   const address = configs.DIRECCION || 'Lima, Perú'
@@ -120,8 +120,31 @@ export default async function ContactoPage() {
                   <Phone size={20} />
                 </div>
                 <div>
-                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>Teléfono</p>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>Teléfono / WhatsApp</p>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>{phone}</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '1.25rem' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDD962', flexShrink: 0 }}>
+                  <Mail size={20} />
+                </div>
+                <div>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>Correo Institucional</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>{email}</p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '1.25rem' }}>
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDD962', flexShrink: 0 }}>
+                  <Globe size={20} />
+                </div>
+                <div>
+                  <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>Portales Web</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)' }}>
+                    <a href="https://www.agenda2050.pe" style={{ color: 'inherit', textDecoration: 'none' }}>www.agenda2050.pe</a><br/>
+                    <a href="https://www.agenda2050peru.com" style={{ color: 'inherit', textDecoration: 'none' }}>www.agenda2050peru.com</a>
+                  </p>
                 </div>
               </div>
 
@@ -129,9 +152,9 @@ export default async function ContactoPage() {
                 <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: '#BDD962', marginBottom: '1rem' }}>Redes Oficiales</p>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   {[
-                    { href: '#', icon: <Instagram size={20} />, label: 'Instagram' },
-                    { href: '#', icon: <Linkedin size={20} />, label: 'LinkedIn' },
-                    { href: '#', icon: <TikTokIcon size={20} />, label: 'TikTok' },
+                    { href: 'https://www.instagram.com/agenda2050peru/', icon: <Instagram size={20} />, label: 'Instagram' },
+                    { href: 'https://www.linkedin.com/company/agenda2050', icon: <Linkedin size={20} />, label: 'LinkedIn' },
+                    { href: 'https://www.tiktok.com/@agenda2050peru', icon: <TikTokIcon size={20} />, label: 'TikTok' },
                   ].map(s => (
                     <a
                       key={s.label}

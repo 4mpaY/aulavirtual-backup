@@ -8,7 +8,7 @@ export const metadata = {
 
 export default async function LlamadasPage() {
   const configs = await getConfigs()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51994356180'
   const phoneDisplay = configs.TELEFONO || `+${waNumber}`
   const telLink = `tel:${phoneDisplay.startsWith('+') ? phoneDisplay : '+' + phoneDisplay}`
 

@@ -303,8 +303,8 @@ const Register = ({ mode }: { mode: SystemMode }) => {
                     <CustomTextField
                       {...field}
                       fullWidth
-                      label='Celular (opcional)'
-                      placeholder='987654321'
+                      label='Celular'
+                      placeholder='+51 987 654 321'
                       error={!!errors.celular}
                       helperText={errors.celular?.message}
                       disabled={isLoading}

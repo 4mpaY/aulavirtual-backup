@@ -10,7 +10,7 @@ const WhatsAppSVG = () => (
 
 export default function FloatingContactButtons() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51994356180'
 
   return (
     <div

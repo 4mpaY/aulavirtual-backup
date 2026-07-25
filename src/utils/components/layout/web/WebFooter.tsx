@@ -22,8 +22,8 @@ const TikTokIcon = ({ size = 20 }: { size?: number }) => (
 const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
   const configs = await getConfigs()
   const rutasHabilitado = isFeatureEnabled('rutas')
-  const waNumber = configs.WHATSAPP_NUMERO || '51989971364'
-  const phone = configs.TELEFONO || '+51 989 971 364'
+  const waNumber = configs.WHATSAPP_NUMERO || '51994356180'
+  const phone = configs.TELEFONO || '+51 994 356 180'
   const email = configs.EMAIL_CONTACTO || 'agenda2050peru@gmail.com'
   const address = configs.DIRECCION || 'Lima, Perú'
 
@@ -49,9 +49,9 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               {[
-                { href: '#', icon: <Instagram size={18} />, label: 'Instagram' },
-                { href: '#', icon: <Linkedin size={18} />, label: 'LinkedIn' },
-                { href: '#', icon: <TikTokIcon size={18} />, label: 'TikTok' },
+                { href: 'https://www.instagram.com/agenda2050peru/', icon: <Instagram size={18} />, label: 'Instagram' },
+                { href: 'https://www.linkedin.com/company/agenda2050', icon: <Linkedin size={18} />, label: 'LinkedIn' },
+                { href: 'https://www.tiktok.com/@agenda2050peru', icon: <TikTokIcon size={18} />, label: 'TikTok' },
               ].map(s => (
                 <a
                   key={s.label}
@@ -148,9 +148,10 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
       {/* Bottom bar */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="container-page flex flex-col sm:flex-row items-center justify-between gap-3" style={{ paddingTop: '1.25rem', paddingBottom: '1.25rem' }}>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)' }}>
-            © <HydratedDate date={new Date()} format="year" /> {platformName}. Todos los derechos reservados.
-          </p>
+          <div style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)' }}>
+            <p>© <HydratedDate date={new Date()} format="year" /> AGENDA 2050 PERÚ</p>
+            <p>Marca comercial de AGENDA 2030 PERÚ S.A.C.</p>
+          </div>
           <div style={{ display: 'flex', gap: '2rem' }}>
             {[
               { label: 'Términos', href: '/terminos-y-condiciones' },

@@ -41,8 +41,8 @@ const HERO_SLIDES = [
     image: '/images/agenda/hero.jpg',
     eyebrow: 'Liderazgo & Tecnología',
     title: 'AGENDA',
-    subtitle: '2050',
-    description: 'Forjando los expertos tecnológicos del mañana con formación práctica y visión empresarial.',
+    subtitle: '2050 PERÚ',
+    description: 'Formación práctica e integral en Tecnología, Gerencia, Gestión Social y Desarrollo Sostenible, y visión empresarial orientado a mejorar y fortalecer la empleabilidad.',
   },
   {
     image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1920&auto=format&fit=crop',
