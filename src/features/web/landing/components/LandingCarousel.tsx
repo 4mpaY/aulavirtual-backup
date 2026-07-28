@@ -1,8 +1,10 @@
 'use client'
 
 import React from 'react'
+
 import { Box, Typography, Container, Grid } from '@mui/material'
 import { motion } from 'framer-motion'
+
 import type { Curso } from '@/features/admin/cursos/entity/Curso'
 
 interface Props {
@@ -19,24 +21,43 @@ export default function LandingCarousel({ curso }: Props) {
   ]
 
   const items = Array.isArray(curso.beneficios) && curso.beneficios.length > 0 
-    ? curso.beneficios.map((b: any) => ({
-        icon: 'tabler-check',
-        title: b,
-        desc: ''
-      }))
+    ? curso.beneficios.map((b: any, index) => {
+        if (typeof b === 'object' && b !== null) {
+          return {
+            icon: b.icon || 'tabler-check',
+            title: b.title || '',
+            desc: b.desc || ''
+          }
+        }
+
+        return {
+          icon: defaultItems[index]?.icon || 'tabler-check',
+          title: b,
+          desc: defaultItems[index]?.desc || ''
+        }
+      })
     : defaultItems
 
+  const finalItems = [...items]
+
+  while (finalItems.length < 4) {
+    const idx = finalItems.length
+
+    finalItems.push(defaultItems[idx] || { icon: 'tabler-check', title: '', desc: '' })
+  }
+
   return (
-    <Container maxWidth='xl'>
-      <Box sx={{ 
-        bgcolor: '#111827', 
-        borderRadius: 4, 
-        border: '1px solid rgba(255,255,255,0.05)',
-        p: { xs: 3, md: 5 },
-        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
-      }}>
+    <Box sx={{ 
+      bgcolor: '#0B0F19', // Sleek dark navy background for the entire section
+      width: '100%', 
+      py: { xs: 8, md: 10 },
+      border: 'none',
+      borderRadius: 0,
+      boxShadow: 'none'
+    }}>
+      <Container maxWidth='xl'>
         <Grid container spacing={4} justifyContent="center">
-          {items.map((item, index) => (
+          {finalItems.map((item, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -50,35 +71,47 @@ export default function LandingCarousel({ curso }: Props) {
                   flexDirection: 'column', 
                   alignItems: 'center', 
                   textAlign: 'center',
-                  p: 3,
-                  bgcolor: 'rgba(255,255,255,0.02)',
-                  borderRadius: 3,
-                  border: '1px solid rgba(255,255,255,0.03)',
+                  p: 2, 
                   height: '100%',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    bgcolor: 'rgba(255,255,255,0.05)',
-                    borderColor: 'primary.main',
-                    boxShadow: '0 0 20px rgba(var(--mui-palette-primary-mainChannel), 0.2)'
-                  }
+                  bgcolor: 'transparent',
+                  border: 'none'
                 }}>
+                  {/* Icon Container */}
                   <Box sx={{ 
-                    width: 60, 
-                    height: 60, 
+                    width: 80, 
+                    height: 80, 
                     borderRadius: '50%', 
-                    bgcolor: 'primary.dark', 
+                    bgcolor: '#025E44', // Brand deep teal
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center',
-                    mb: 2
+                    mb: 3,
+                    boxShadow: '0 4px 15px rgba(2, 94, 68, 0.3)'
                   }}>
-                    <i className={`${item.icon} text-3xl text-primary-light`} style={{ color: '#fff' }} />
+                    <i className={`${item.icon} text-4xl text-white`} />
                   </Box>
-                  <Typography variant='h6' sx={{ fontWeight: 700, mb: 1, color: '#e0e0e0', fontSize: '1.1rem' }}>
+                  <Typography 
+                    variant='h5' 
+                    sx={{ 
+                      fontWeight: 800, 
+                      mb: 1.5, 
+                      color: '#ffffff', 
+                      fontSize: { xs: '1.25rem', md: '1.45rem' },
+                      fontFamily: "'Plus Jakarta Sans', sans-serif"
+                    }}
+                  >
                     {item.title}
                   </Typography>
                   {item.desc && (
-                    <Typography variant='body2' sx={{ color: '#9ca3af' }}>
+                    <Typography 
+                      variant='body1' 
+                      sx={{ 
+                        color: '#9ca3af',
+                        fontSize: '1.05rem',
+                        lineHeight: 1.6,
+                        fontFamily: "'Plus Jakarta Sans', sans-serif"
+                      }}
+                    >
                       {item.desc}
                     </Typography>
                   )}
@@ -87,7 +120,7 @@ export default function LandingCarousel({ curso }: Props) {
             </Grid>
           ))}
         </Grid>
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   )
 }

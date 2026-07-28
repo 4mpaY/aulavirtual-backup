@@ -1,17 +1,20 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { Box, Typography, Button, Container, Grid, useTheme } from '@mui/material'
-import { motion, AnimatePresence } from 'framer-motion'
+import React from 'react'
+
 import Link from 'next/link'
-import Image from 'next/image'
+
+import { Box, Button } from '@mui/material'
+import { motion } from 'framer-motion'
 
 import type { Curso } from '@/features/admin/cursos/entity/Curso'
 import LandingHeader from './LandingHeader'
 import LandingHero from './LandingHero'
+import LandingTicker from './LandingTicker'
 import LandingCarousel from './LandingCarousel'
 import LandingPremiumDetails from './LandingPremiumDetails'
 import LandingBrochure from './LandingBrochure'
+import LandingSyllabus from './LandingSyllabus'
 
 interface Props {
   curso: Curso
@@ -19,54 +22,64 @@ interface Props {
 }
 
 export default function LandingClientPage({ curso, logo }: Props) {
-  const theme = useTheme()
-
   return (
     <Box sx={{ bgcolor: '#f9fafb', color: '#111827', minHeight: '100vh', overflowX: 'hidden', pb: 10 }}>
       {/* HEADER FIXO */}
-      <LandingHeader logo={logo} targetDate={curso.landing_timer} courseSlug={curso.slug} />
+      <LandingHeader logo={logo} targetDate={curso.landing_timer} />
 
-      {/* HERO SECTION */}
-      <Box sx={{ mt: '80px' }}> {/* Compensate for fixed header */}
-        <LandingHero curso={curso} />
-      </Box>
+      {/* HERO SECTION (No mt offset so background starts from top) */}
+      <LandingHero curso={curso} />
 
-      {/* CAROUSEL SECTION */}
-      <Box sx={{ mt: 8, mb: 8 }}>
-        <LandingCarousel curso={curso} />
-      </Box>
+      {/* TICKER RIBBON (Below Hero) */}
+      <LandingTicker curso={curso} />
+
+      {/* CAROUSEL SECTION (Full-width dark band) */}
+      <LandingCarousel curso={curso} />
 
       {/* SECOND CTA */}
-      {curso.landing_wsp_link && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 6 }}>
-           <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              animate={{ scale: [1, 1.05, 1], boxShadow: ['0px 0px 0px rgba(37,211,102,0)', '0px 0px 30px rgba(37,211,102,0.6)', '0px 0px 0px rgba(37,211,102,0)'] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-           >
-              <Button
-                 variant='contained'
-                 href={curso.landing_wsp_link}
-                 target='_blank'
-                 size='large'
-                 sx={{ 
-                    bgcolor: '#25D366', 
-                    color: 'white', 
-                    px: 6, 
-                    py: 2, 
-                    fontSize: '1.2rem',
-                    fontWeight: 700,
-                    borderRadius: 8,
-                    '&:hover': { bgcolor: '#1ebe57' }
-                 }}
-                 startIcon={<i className='tabler-brand-whatsapp text-3xl' />}
-              >
-                 UNIRME AL GRUPO
-              </Button>
-           </motion.div>
-        </Box>
-      )}
+      <Box sx={{ display: 'flex', justifyContent: 'center', my: 8 }}>
+         <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{ 
+              scale: [1, 1.05, 1], 
+              boxShadow: [
+                '0px 4px 15px rgba(37,211,102,0.25)', 
+                '0px 12px 35px rgba(37,211,102,0.7)', 
+                '0px 4px 15px rgba(37,211,102,0.25)'
+              ] 
+            }}
+            transition={{ repeat: Infinity, duration: 2 }}
+            style={{ borderRadius: '50px' }}
+         >
+            <Button
+               variant='contained'
+               href={(curso as any).landing_wsp_link || (curso.numero_asesor ? `https://wa.me/${curso.numero_asesor}` : 'https://chat.whatsapp.com/')}
+               target='_blank'
+               sx={{ 
+                  bgcolor: '#25D366', 
+                  color: 'white', 
+                  px: { xs: 6, sm: 10 }, 
+                  py: 2.5, 
+                  fontSize: { xs: '1.2rem', sm: '1.45rem' },
+                  fontWeight: 900,
+                  borderRadius: '50px', // Pill shape for modern look
+                  letterSpacing: '0.05em',
+                  boxShadow: 'none',
+                  '&:hover': { 
+                    bgcolor: '#1ebe57',
+                    boxShadow: 'none'
+                  }
+               }}
+               startIcon={<i className='tabler-brand-whatsapp text-4xl' style={{ marginRight: 4 }} />}
+             >
+               UNIRME AL GRUPO
+            </Button>
+         </motion.div>
+      </Box>
+
+      {/* SYLLABUS SECTION */}
+      <LandingSyllabus curso={curso} />
 
       {/* BROCHURE SECTION */}
       {curso.brochure && (
@@ -75,8 +88,13 @@ export default function LandingClientPage({ curso, logo }: Props) {
         </Box>
       )}
 
-      {/* PREMIUM DETAILS SECTION */}
-      <Box sx={{ mt: 8, px: 2 }}>
+      {/* PREMIUM DETAILS SECTION (Full-width block matching syllabus background) */}
+      <Box sx={{ 
+        bgcolor: '#f9fafb', 
+        width: '100%', 
+        py: { xs: 8, md: 12 }, 
+        mt: 0
+      }}>
         <LandingPremiumDetails curso={curso} />
       </Box>
 
@@ -86,7 +104,7 @@ export default function LandingClientPage({ curso, logo }: Props) {
           component={Link} 
           href={`/cursos/${curso.slug}?skipLanding=true`}
           variant='text' 
-          sx={{ color: '#aaa', textDecoration: 'underline', '&:hover': { color: '#fff' } }}
+          sx={{ color: '#aaa', textDecoration: 'underline', '&:hover': { color: '#000' } }}
         >
           Ver más detalles en la página principal del curso
         </Button>
