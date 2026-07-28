@@ -1,8 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Box, Typography, Button, Container, Grid } from '@mui/material'
+
 import { motion } from 'framer-motion'
+import { Box, Typography, Button, Container, Grid } from '@mui/material'
+
 import type { Curso } from '@/features/admin/cursos/entity/Curso'
 
 interface Props {
@@ -20,7 +22,7 @@ export default function LandingHero({ curso }: Props) {
         minHeight: { xs: 'auto', md: '80vh' },
         display: 'flex',
         alignItems: 'center',
-        pt: { xs: 8, md: 8 },
+        pt: { xs: 26, sm: 28, md: 32 },
         pb: { xs: 8, md: 8 },
         backgroundImage: `url("${bgImage}")`,
         backgroundSize: 'cover',

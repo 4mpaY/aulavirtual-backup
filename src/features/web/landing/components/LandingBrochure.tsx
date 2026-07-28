@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Box, Typography, Button, Container } from '@mui/material'
+
 import { motion } from 'framer-motion'
+import { Box, Typography, Button, Container } from '@mui/material'
 
 interface Props {
   url: string

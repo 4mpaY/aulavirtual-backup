@@ -1,10 +1,12 @@
 import React from 'react'
-import { notFound, redirect } from 'next/navigation'
+
+import { notFound } from 'next/navigation'
+
 import type { Metadata } from 'next'
-import prisma from '@/utils/libs/prisma'
 
 import LandingClientPage from '@/features/web/landing/components/LandingClientPage'
 import { getConfigs } from '@/utils/libs/config'
+import prisma from '@/utils/libs/prisma'
 
 async function getCourseForLanding(slug: string) {
   const course = await prisma.curso.findUnique({
@@ -12,18 +14,31 @@ async function getCourseForLanding(slug: string) {
     include: {
       profesor: {
         select: { nombre: true, apellido: true }
+      },
+      modulos: {
+        orderBy: { orden: 'asc' },
+        include: {
+          lecciones: {
+            orderBy: { orden: 'asc' }
+          }
+        }
       }
     }
   })
 
-  if (!course) return null
+  if (!course) {
+    return null
+  }
+
   return course
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const course = await getCourseForLanding(params.slug)
 
-  if (!course) return { title: 'Curso no encontrado' }
+  if (!course) {
+    return { title: 'Curso no encontrado' }
+  }
 
   return {
     title: `Lanzamiento: ${course.titulo} | Aula Virtual`,
@@ -39,7 +54,7 @@ export default async function LandingPage({ params }: { params: { slug: string }
   }
 
   const configs = await getConfigs()
-  const platformLogo = configs.WEB_LOGO_URL || '/images/logos/default-logo.png'
+  const platformLogo = configs.TEMPLATE_LOGO || configs.WEB_LOGO_URL || '/images/logo.png'
 
   return <LandingClientPage curso={course as any} logo={platformLogo} />
 }

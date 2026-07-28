@@ -11,8 +11,8 @@ import {
     Typography,
     IconButton
 } from '@mui/material'
-
 import { useSnackbar } from 'notistack'
+
 import { useEditCurso } from '../../hooks/useCursos'
 import type { Curso } from '../../entity/Curso'
 import CustomTextField from '@core/components/mui/TextField'
@@ -38,6 +38,46 @@ export function TabLanding({ curso, onSuccess }: TabLandingProps) {
     const [openBgMedia, setOpenBgMedia] = useState(false)
     const [openFlyerMedia, setOpenFlyerMedia] = useState(false)
 
+    const defaultBeneficios = [
+        { icon: 'tabler-video', title: 'Clase en vivo', desc: 'Clases 100% en vivo por Zoom.' },
+        { icon: 'tabler-headset', title: 'Seguimiento personalizado', desc: 'Apoyo y soporte de la coordinadora.' },
+        { icon: 'tabler-device-laptop', title: 'Plataforma virtual', desc: 'Acceso 24/7 durante el programa.' },
+        { icon: 'tabler-certificate', title: 'Certificado Opcional', desc: 'Solicítalo al finalizar el curso.' }
+    ]
+
+    const initialBeneficios = Array.isArray(curso.beneficios) && curso.beneficios.length > 0
+        ? curso.beneficios.map((b: any, index) => {
+            if (typeof b === 'string') {
+                return {
+                    icon: defaultBeneficios[index]?.icon || 'tabler-check',
+                    title: b,
+                    desc: defaultBeneficios[index]?.desc || ''
+                }
+            }
+
+            return {
+                icon: b.icon || 'tabler-check',
+                title: b.title || '',
+                desc: b.desc || ''
+            }
+        })
+        : defaultBeneficios
+
+    while (initialBeneficios.length < 4) {
+        const idx = initialBeneficios.length
+
+        initialBeneficios.push(defaultBeneficios[idx] || { icon: 'tabler-check', title: '', desc: '' })
+    }
+
+    const [beneficios, setBeneficios] = useState<any[]>(initialBeneficios)
+
+    const handleUpdateBeneficio = (index: number, field: string, value: string) => {
+        const updated = [...beneficios]
+
+        updated[index] = { ...updated[index], [field]: value }
+        setBeneficios(updated)
+    }
+
     const handleSaveLanding = async () => {
         try {
             await editMutation.mutateAsync({
@@ -47,7 +87,8 @@ export function TabLanding({ curso, onSuccess }: TabLandingProps) {
                     landing_timer: landingTimer ? sanitizeDatetimeInput(landingTimer) : null,
                     landing_wsp_link: landingWspLink || null,
                     landing_bg_image: landingBgImage || null,
-                    landing_flyer_image: landingFlyerImage || null
+                    landing_flyer_image: landingFlyerImage || null,
+                    beneficios: beneficios
                 } as any
             })
             enqueueSnackbar('Configuración de landing actualizada', { variant: 'success' })
@@ -152,7 +193,82 @@ export function TabLanding({ curso, onSuccess }: TabLandingProps) {
                             </Grid>
                         </Grid>
 
-                        <Box sx={{ mt: 2 }}>
+                        {/* Detalles destacados */}
+                        <Box sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 4, mt: 4 }}>
+                            <Typography variant='h6' sx={{ mb: 1, fontWeight: 600 }}>Tarjetas de Detalles Destacados (Beneficios)</Typography>
+                            <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+                                Configura las 4 tarjetas de beneficios/características que se muestran en el banner oscuro debajo de la cabecera.
+                            </Typography>
+                            <Grid container spacing={4}>
+                                {beneficios.map((item, index) => (
+                                    <Grid item xs={12} sm={6} key={index}>
+                                        <Box sx={{ p: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2, bgcolor: 'background.paper' }}>
+                                            <Typography variant='subtitle2' sx={{ fontWeight: 700, mb: 2, color: 'text.primary' }}>Tarjeta #{index + 1}</Typography>
+                                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                                                <CustomTextField
+                                                    label='Título'
+                                                    value={item.title || ''}
+                                                    onChange={e => handleUpdateBeneficio(index, 'title', e.target.value)}
+                                                    fullWidth
+                                                />
+                                                <CustomTextField
+                                                    label='Descripción'
+                                                    value={item.desc || ''}
+                                                    onChange={e => handleUpdateBeneficio(index, 'desc', e.target.value)}
+                                                    fullWidth
+                                                />
+                                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                                    <CustomTextField
+                                                        label='Icono (ej: tabler-video)'
+                                                        value={item.icon || ''}
+                                                        onChange={e => handleUpdateBeneficio(index, 'icon', e.target.value)}
+                                                        fullWidth
+                                                    />
+                                                    <Box sx={{ 
+                                                        width: 44, 
+                                                        height: 44, 
+                                                        borderRadius: 1, 
+                                                        border: '1px solid', 
+                                                        borderColor: 'divider', 
+                                                        display: 'flex', 
+                                                        alignItems: 'center', 
+                                                        justifyContent: 'center',
+                                                        bgcolor: 'action.hover',
+                                                        color: 'primary.main',
+                                                        flexShrink: 0
+                                                    }}>
+                                                        <i className={`${item.icon || 'tabler-check'} text-2xl`} />
+                                                    </Box>
+                                                </Box>
+                                                {/* Preselección de iconos comunes */}
+                                                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 0.5 }}>
+                                                    {[
+                                                        { icon: 'tabler-video', label: 'Zoom' },
+                                                        { icon: 'tabler-certificate', label: 'Diploma' },
+                                                        { icon: 'tabler-device-laptop', label: 'Plataforma' },
+                                                        { icon: 'tabler-headset', label: 'Soporte' },
+                                                        { icon: 'tabler-file-text', label: 'Manuales' },
+                                                        { icon: 'tabler-award', label: 'Destaque' }
+                                                    ].map((sIcon) => (
+                                                        <Button
+                                                            key={sIcon.icon}
+                                                            variant='outlined'
+                                                            size='small'
+                                                            sx={{ px: 1.5, py: 0.25, minWidth: 'auto', fontSize: '0.7rem', textTransform: 'none' }}
+                                                            onClick={() => handleUpdateBeneficio(index, 'icon', sIcon.icon)}
+                                                        >
+                                                            {sIcon.label}
+                                                        </Button>
+                                                    ))}
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </Box>
+
+                        <Box sx={{ mt: 4 }}>
                             <Button
                                 variant='contained'
                                 onClick={handleSaveLanding}
