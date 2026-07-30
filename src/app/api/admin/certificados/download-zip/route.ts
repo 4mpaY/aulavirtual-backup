@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
+
 import JSZip from 'jszip'
+
 import prisma from '@/utils/libs/prisma'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
@@ -59,6 +61,7 @@ export async function GET(request: Request) {
     for (const cert of certificados) {
       try {
         const { buffer, filename } = await getPdfBuffer(cert.id, reqUrl, false)
+
         zip.file(filename, buffer)
       } catch (err) {
         console.error(`Error al procesar certificado ${cert.codigo_verificacion} para el ZIP:`, err)

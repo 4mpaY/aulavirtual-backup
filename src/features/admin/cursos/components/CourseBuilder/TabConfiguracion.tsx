@@ -20,10 +20,8 @@ import { useCambiarEstadoCurso, useEditCurso } from '../../hooks/useCursos'
 
 import type { Curso } from '../../entity/Curso'
 import CustomTextField from '@core/components/mui/TextField'
-import { sanitizeDatetimeInput, toLocalDateInputValue } from '@/utils/functions/sanitizeDatetime'
-import MediaLibrary from '../MediaLibrary'
-import CourseThumbnail from '@/utils/components/CourseThumbnail'
-import { IconButton } from '@mui/material'
+
+
 
 interface TabConfiguracionProps {
     curso: Curso
@@ -327,10 +325,6 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
             <Grid item xs={12}><Divider /></Grid>
 
 
-
-            {/* MediaLibrary modals */}
-            <MediaLibrary open={openBgMedia} onClose={() => setOpenBgMedia(false)} onSelect={(url) => setLandingBgImage(url)} />
-            <MediaLibrary open={openFlyerMedia} onClose={() => setOpenFlyerMedia(false)} onSelect={(url) => setLandingFlyerImage(url)} />
 
         </Grid>
     )

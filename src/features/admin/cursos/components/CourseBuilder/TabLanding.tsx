@@ -16,7 +16,7 @@ import { useSnackbar } from 'notistack'
 import { useEditCurso } from '../../hooks/useCursos'
 import type { Curso } from '../../entity/Curso'
 import CustomTextField from '@core/components/mui/TextField'
-import { sanitizeDatetimeInput, toLocalDateInputValue } from '@/utils/functions/sanitizeDatetime'
+import { sanitizeDatetimeInput, toLocalDatetimeLocalValue } from '@/utils/functions/sanitizeDatetime'
 import MediaLibrary from '../MediaLibrary'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
@@ -31,7 +31,7 @@ export function TabLanding({ curso, onSuccess }: TabLandingProps) {
 
     // Landing Page State
     const [landingActive, setLandingActive] = useState((curso as any).landing_active ?? false)
-    const [landingTimer, setLandingTimer] = useState<string>((curso as any).landing_timer ? toLocalDateInputValue((curso as any).landing_timer) : '')
+    const [landingTimer, setLandingTimer] = useState<string>((curso as any).landing_timer ? toLocalDatetimeLocalValue((curso as any).landing_timer) : '')
     const [landingWspLink, setLandingWspLink] = useState<string>((curso as any).landing_wsp_link || '')
     const [landingBgImage, setLandingBgImage] = useState<string>((curso as any).landing_bg_image || '')
     const [landingFlyerImage, setLandingFlyerImage] = useState<string>((curso as any).landing_flyer_image || '')
@@ -105,6 +105,35 @@ export function TabLanding({ curso, onSuccess }: TabLandingProps) {
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
                     Configura la página de aterrizaje previa al curso, ideal para generar expectativa (timer), inscripciones por WhatsApp y captar leads.
                 </Typography>
+                
+                {/* Landing URL Copy Section */}
+                <Box sx={{ mb: 4, p: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2, bgcolor: 'action.hover' }}>
+                    <Typography variant='subtitle1' sx={{ mb: 1, fontWeight: 600 }}>URL de la Landing Page</Typography>
+                    <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                        Comparte este enlace para dirigir a los usuarios a la página de aterrizaje de este curso.
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <CustomTextField
+                            fullWidth
+                            value={typeof window !== 'undefined' ? `${window.location.origin}/landing/${curso.slug}` : `/landing/${curso.slug}`}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                        />
+                        <Button 
+                            variant='contained' 
+                            onClick={() => {
+                                navigator.clipboard.writeText(typeof window !== 'undefined' ? `${window.location.origin}/landing/${curso.slug}` : `/landing/${curso.slug}`);
+                                enqueueSnackbar('URL copiada al portapapeles', { variant: 'success' });
+                            }}
+                            startIcon={<i className='tabler-copy' />}
+                            sx={{ flexShrink: 0 }}
+                        >
+                            Copiar URL
+                        </Button>
+                    </Box>
+                </Box>
+
                 <FormControlLabel
                     control={
                         <Switch

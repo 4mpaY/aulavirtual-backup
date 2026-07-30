@@ -26,6 +26,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     if (type === 'imported') {
       const datos = certificado.datos as any || {}
+
       if (datos.archivo_pdf) {
         delete datos.archivo_pdf
         await prisma.certificado.update({

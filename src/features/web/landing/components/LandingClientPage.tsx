@@ -25,7 +25,7 @@ export default function LandingClientPage({ curso, logo }: Props) {
   return (
     <Box sx={{ bgcolor: '#f9fafb', color: '#111827', minHeight: '100vh', overflowX: 'hidden', pb: 10 }}>
       {/* HEADER FIXO */}
-      <LandingHeader logo={logo} targetDate={curso.landing_timer} />
+      <LandingHeader logo={logo} targetDate={(curso as any).landing_timer} />
 
       {/* HERO SECTION (No mt offset so background starts from top) */}
       <LandingHero curso={curso} />
@@ -54,7 +54,7 @@ export default function LandingClientPage({ curso, logo }: Props) {
          >
             <Button
                variant='contained'
-               href={(curso as any).landing_wsp_link || (curso.numero_asesor ? `https://wa.me/${curso.numero_asesor}` : 'https://chat.whatsapp.com/')}
+               href={(curso as any).landing_wsp_link || ((curso as any).numero_asesor ? `https://wa.me/${(curso as any).numero_asesor}` : 'https://chat.whatsapp.com/')}
                target='_blank'
                sx={{ 
                   bgcolor: '#25D366', 

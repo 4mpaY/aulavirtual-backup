@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 
 import {
-  Alert, Box, Button, Chip, CircularProgress, Divider,
+  Alert, Box, Button, Chip, CircularProgress,
   Stack, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Tooltip, Typography
 } from '@mui/material'
@@ -31,7 +31,9 @@ function formatBytes(bytes: number, decimals = 2) {
   const dm = decimals < 0 ? 0 : decimals
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
+
+  
+return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
 export default function ImportarCertificadosModal({ open, handleClose }: ImportarCertificadosModalProps) {
@@ -51,6 +53,7 @@ export default function ImportarCertificadosModal({ open, handleClose }: Importa
 
   const validarArchivos = (fileList: FileList) => {
     const list: FilaPreview[] = []
+
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i]
       const errores: string[] = []
@@ -66,6 +69,7 @@ export default function ImportarCertificadosModal({ open, handleClose }: Importa
         errores
       })
     }
+
     setArchivos(prev => [...prev, ...list])
     setStep('preview')
   }
@@ -82,15 +86,18 @@ export default function ImportarCertificadosModal({ open, handleClose }: Importa
 
   const handleImportar = async () => {
     const validos = archivos.filter(a => a.errores.length === 0)
+
     if (validos.length === 0) return
 
     const formData = new FormData()
+
     validos.forEach(a => {
       formData.append('files', a.file)
     })
 
     try {
       const res = await importar(formData)
+
       setResultado(res)
       setStep('result')
     } catch (err: any) {
