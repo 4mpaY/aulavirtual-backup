@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
+
 import { handleApiError } from '@/utils/libs/validation'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { getPdfBuffer } from '@/app/api/_shared/certificados/getPdfBuffer'

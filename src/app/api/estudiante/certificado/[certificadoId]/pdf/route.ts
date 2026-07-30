@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
+
 import prisma from '@/utils/libs/prisma'
 import { handleApiError } from '@/utils/libs/validation'
 import { requireAuth } from '@/utils/libs/auth-helpers'

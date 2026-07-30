@@ -473,10 +473,6 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
 
 
 
-            {/* MediaLibrary modals */}
-            <MediaLibrary open={openBgMedia} onClose={() => setOpenBgMedia(false)} onSelect={(url) => setLandingBgImage(url)} />
-            <MediaLibrary open={openFlyerMedia} onClose={() => setOpenFlyerMedia(false)} onSelect={(url) => setLandingFlyerImage(url)} />
-
         </Grid>
     )
 }

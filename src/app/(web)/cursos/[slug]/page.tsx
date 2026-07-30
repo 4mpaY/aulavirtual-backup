@@ -1,7 +1,7 @@
 // Next Imports
 import React from 'react'
 
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 
 import { Box } from '@mui/material'
 
@@ -29,11 +29,9 @@ async function getCourseData(slug: string, token: string | null) {
 }
 
 export default async function CourseDetailPage({ 
-    params,
-    searchParams 
+    params
 }: { 
     params: { slug: string }
-    searchParams?: { skipLanding?: string }
 }) {
     const session = await getAuthSession()
     const token = session?.user?.accessToken ?? null
@@ -44,10 +42,10 @@ export default async function CourseDetailPage({
         notFound()
     }
 
-    // Redirigir a la landing page para todos los cursos (si no lo ha comprado)
-    if (!course.es_comprado && searchParams?.skipLanding !== 'true') {
-        redirect(`/landing/${course.slug}`)
-    }
+    // Redirigir a la landing page para todos los cursos (si no lo ha comprado) - DESACTIVADO POR PETICIÓN
+    // if (!course.es_comprado && searchParams?.skipLanding !== 'true') {
+    //     redirect(`/landing/${course.slug}`)
+    // }
 
     return (
         <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>

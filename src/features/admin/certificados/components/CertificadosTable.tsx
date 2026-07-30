@@ -26,6 +26,8 @@ import { getSession } from 'next-auth/react'
 
 import { toast } from 'react-toastify'
 
+import Swal from 'sweetalert2'
+
 import { AxiosCertificado } from '../http/axiosCertificado'
 import type { Certificado } from '../entity/Certificado'
 import { CreateCertificadoModal } from './CreateCertificadoModal'
@@ -35,7 +37,6 @@ import HydratedDate from '@/utils/components/HydratedDate'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import tableStyles from '@core/styles/table.module.css'
 
-import Swal from 'sweetalert2'
 
 import { useCertificados, useDeleteCertificado } from '../hooks/useCertificados'
 
@@ -463,11 +464,14 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
               hour: '2-digit',
               minute: '2-digit'
             })
-            return (
+
+            
+return (
               <MenuItem
                 key={idx}
                 onClick={() => {
                   const a = document.createElement('a')
+
                   a.href = hist.url
                   a.download = `certificado-${activeCertForHistory.codigo_verificacion}-v${idx + 1}.pdf`
                   document.body.appendChild(a)

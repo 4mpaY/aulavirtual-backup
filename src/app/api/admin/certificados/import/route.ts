@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
 
-import { NextResponse } from 'next/server'
 import { join } from 'path'
 import { writeFile, mkdir } from 'fs/promises'
+
+import { NextResponse } from 'next/server'
+
 import prisma from '@/utils/libs/prisma'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
@@ -34,6 +36,7 @@ export async function POST(request: Request) {
     for (const file of files) {
       try {
         const originalName = file.name
+
         if (!originalName.toLowerCase().endsWith('.pdf')) {
           errores.push({ file: originalName, message: 'Solo se permiten archivos PDF' })
           continue

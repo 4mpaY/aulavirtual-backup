@@ -277,7 +277,7 @@ export default function LandingPremiumDetails({ curso }: Props) {
                   <Button
                     variant='contained'
                     fullWidth
-                    href={(curso as any).landing_wsp_link || (curso.numero_asesor ? `https://wa.me/${curso.numero_asesor}` : 'https://chat.whatsapp.com/')}
+                    href={(curso as any).landing_wsp_link || ((curso as any).numero_asesor ? `https://wa.me/${(curso as any).numero_asesor}` : 'https://chat.whatsapp.com/')}
                     target='_blank'
                     sx={{ 
                       bgcolor: '#25D366', 

@@ -1,5 +1,6 @@
 import { promises as fs } from 'fs'
 import path from 'path'
+
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
 import { buildCertificadoData } from './buildCertificadoData'
@@ -46,9 +47,12 @@ export async function getPdfBuffer(
   // 1. Si existe archivo_pdf subido estáticamente y no se fuerza dinámico, cargarlo desde el disco
   if (!forceDynamic && snapshot?.archivo_pdf) {
     const filePath = path.join(process.cwd(), 'public', snapshot.archivo_pdf)
+
     try {
       const buffer = await fs.readFile(filePath)
-      return { buffer, filename }
+
+      
+return { buffer, filename }
     } catch (e) {
       console.error(`Archivo PDF estático no encontrado en ${filePath}, se generará dinámicamente:`, e)
     }
@@ -97,6 +101,7 @@ export async function getPdfBuffer(
 
   // ── Gerente General ───────────────────────────────────────────────
   const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID
+
   const gerenteGeneral = gerenteGeneralId
     ? await prisma.usuario.findUnique({
         where: { id: gerenteGeneralId },
