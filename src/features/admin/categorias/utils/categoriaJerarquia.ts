@@ -49,6 +49,7 @@ export function getCategoriaFilterIds(
   if (!targetId) return []
 
   const padre = categorias.find(c => c.id === selection.padreId)
+
   if (!padre) return [targetId]
 
   if (selection.subSubId) return [selection.subSubId]
@@ -68,6 +69,7 @@ export function getCategoriaFilterIds(
 
   for (const sub of padre.hijos ?? []) {
     ids.push(sub.id)
+
     for (const nieto of sub.hijos ?? []) {
       ids.push(nieto.id)
     }

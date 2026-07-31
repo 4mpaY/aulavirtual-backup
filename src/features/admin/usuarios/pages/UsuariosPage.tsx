@@ -59,7 +59,7 @@ const rolStatusObj: UsuarioStatusType = {
   SUPERVISOR: 'success'
 }
 
-const rolLabels: { [key in Rol]: string } = {
+const rolLabels: Record<string, string> = {
   ADMIN: 'Administrador',
   PROFESOR: 'Profesor',
   ESTUDIANTE: 'Estudiante',

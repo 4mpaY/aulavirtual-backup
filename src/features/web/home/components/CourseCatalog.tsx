@@ -98,7 +98,8 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
 
     if (skipUrlSync.current) {
       skipUrlSync.current = false
-      return
+      
+return
     }
 
     syncCategoriaUrl(categoriaPadreId, subcategoriaId, subSubcategoriaId)
@@ -389,7 +390,8 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
                     if (v === 'ASINCRONO') return 'Asincrónico'
                     if (v === 'SINCRONO') return 'En Vivo'
                     if (v === 'MIXTO') return 'Mixto'
-                    return 'Cualquier Modalidad'
+                    
+return 'Cualquier Modalidad'
                   }}
                   options={[
                     { value: 'all', label: 'Cualquier Modalidad' },

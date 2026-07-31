@@ -101,7 +101,7 @@ export async function GET(request: Request) {
       }
     })
 
-    const cursosSuscripcion = suscripcionActiva?.plan.cursos.map(cp => ({
+    cursosSuscripcion = suscripcionActiva?.plan.cursos.map(cp => ({
       id: cp.curso.id,
       titulo: cp.curso.titulo,
       slug: cp.curso.slug,

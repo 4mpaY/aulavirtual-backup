@@ -53,8 +53,7 @@ export async function GET(request: Request, { params }: { params: { cursoId: str
                 peso: true,
                 orden: true,
                 modulo_id: true,
-                modulo: { select: { orden: true } },
-                nota_maxima: true
+                modulo: { select: { orden: true } }
               }
             }
           }
@@ -84,7 +83,7 @@ export async function GET(request: Request, { params }: { params: { cursoId: str
       orden: ex.orden,
       modulo_id: ex.modulo_id,
       modulo_orden: ex.modulo?.orden ?? null,
-      nota_maxima: ex.nota_maxima
+      nota_maxima: 20
     }))
 
     const resumen = calcularResumenNotasCurso(

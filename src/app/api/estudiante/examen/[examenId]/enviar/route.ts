@@ -221,7 +221,7 @@ export async function POST(request: Request, { params }: { params: { examenId: s
       puntaje: porcentaje,
       aprobado,
       puntajeAprobacion: examen.puntaje_aprobacion,
-      nota_maxima: examen.nota_maxima,
+      nota_maxima: 20,
       respuestasCorrectas: respuestasCalificadas.filter((r: any) => r.es_correcta).length,
       totalPreguntas: examen.preguntas.length,
       intentosRestantes: examen.intentos_maximos - intentosRealizados - 1,

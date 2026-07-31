@@ -495,6 +495,7 @@ export function EvaluacionDialog({
                   const val = Math.max(1, Number(e.target.value))
 
                   set('nota_maxima', val)
+
                   if (config.puntaje_aprobacion > val) {
                     set('puntaje_aprobacion', val)
                   }

@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { Linkedin, Mail, Globe, Award, Briefcase, GraduationCap, Sparkles, ArrowRight, BookOpen, Layers, Cpu, Laptop, Leaf, Building2, Rocket, ArrowDown, MapPin, Phone } from 'lucide-react'
+import { Mail, Globe, Award, Briefcase, Sparkles, BookOpen, Layers, Cpu, Laptop, Leaf, Building2, Rocket, MapPin, Phone } from 'lucide-react'
 
 import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { MessageCircle, Phone, Mail, MapPin, ArrowRight, Instagram, Linkedin } from 'lucide-react'
+import { MessageCircle, Phone, Mail, MapPin, ArrowRight, Instagram, Linkedin, Globe } from 'lucide-react'
 
 import { getConfigs } from '@/utils/libs/config'
 

@@ -24,8 +24,10 @@ type ProgramCatalogLayoutProps = {
 
 export default function ProgramCatalogLayout({ tipo, courses, categories }: ProgramCatalogLayoutProps) {
   const config = getTipoProgramaConfig(tipo)
+
   const titlePrefix =
     'catalogTitlePrefix' in config ? config.catalogTitlePrefix : config.catalogTitle
+
   const titleHighlight =
     'catalogTitleHighlight' in config ? config.catalogTitleHighlight : null
 
