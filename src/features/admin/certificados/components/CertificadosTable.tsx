@@ -50,7 +50,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
   const [params, setParams] = useState({ page: 1, limit: 10, fechaInicio: '', fechaFin: '' })
   const [modalOpen, setModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
-  
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [activeCertForHistory, setActiveCertForHistory] = useState<Certificado | null>(null)
 
@@ -431,9 +431,9 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
           }}
         />
       </Card>
-      
+
       <CreateCertificadoModal open={modalOpen} onClose={() => setModalOpen(false)} />
-      
+
       <ImportarCertificadosModal open={importModalOpen} handleClose={() => setImportModalOpen(false)} />
 
       <Menu
@@ -465,8 +465,8 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
               minute: '2-digit'
             })
 
-            
-return (
+
+            return (
               <MenuItem
                 key={idx}
                 onClick={() => {
