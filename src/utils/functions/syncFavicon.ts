@@ -71,5 +71,5 @@ export function resolveFaviconUrl(configs: Record<string, string>): string {
     return FAVICON_PUBLIC_PATH
   }
 
-  return configs.TEMPLATE_LOGO || '/favicon.ico'
+  return '/favicon.ico'
 }
