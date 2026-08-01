@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import {
   Avatar,
@@ -60,7 +60,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
   const certificados = data?.certificados || []
   const total = data?.paginacion?.total || 0
 
-  const handleDownload = async (certificado: Certificado, forceDynamic = false) => {
+  const handleDownload = useCallback(async (certificado: Certificado, forceDynamic = false) => {
     try {
       toast.info('Generando PDF...')
 
@@ -87,9 +87,9 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       console.error('Error downloading certificate:', err)
       toast.error('Error al descargar el certificado')
     }
-  }
+  }, [])
 
-  const handleDeleteCertificado = async (certificado: Certificado) => {
+  const handleDeleteCertificado = useCallback(async (certificado: Certificado) => {
     const hasHistory = !!certificado.datos?.archivo_pdf
 
     if (hasHistory) {
@@ -143,9 +143,9 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         }
       }
     }
-  }
+  }, [deleteMutation])
 
-  const handlePreview = async (certificado: Certificado) => {
+  const handlePreview = useCallback(async (certificado: Certificado) => {
     try {
       const getAuthToken = async () => {
         const s = await getSession()
@@ -162,7 +162,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       console.error('Error previewing certificate:', err)
       toast.error('Error al visualizar el certificado')
     }
-  }
+  }, [])
 
   const handleDownloadAllZip = async () => {
     try {
@@ -282,7 +282,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         }
       })
     ],
-    [params.page, params.limit]
+    [params.page, params.limit, handlePreview, handleDownload, handleDeleteCertificado]
   )
 
   const table = useReactTable({

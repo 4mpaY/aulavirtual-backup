@@ -2,10 +2,6 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 
-import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertificadoData'
-import { resolverFirmantes } from '@/app/api/_shared/certificados/resolverFirmantes'
-import { getConfigs } from '@/utils/libs/config'
-import { getGenerator } from '@/app/api/_shared/certificados/generators'
 import { handleApiError } from '@/utils/libs/validation'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { getPdfBuffer } from '@/app/api/_shared/certificados/getPdfBuffer'

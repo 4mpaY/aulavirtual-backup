@@ -2,10 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 
-import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertificadoData'
-import { resolverFirmantes } from '@/app/api/_shared/certificados/resolverFirmantes'
-import { getConfigs } from '@/utils/libs/config'
-import { getGenerator } from '@/app/api/_shared/certificados/generators'
+import prisma from '@/utils/libs/prisma'
 import { handleApiError } from '@/utils/libs/validation'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { getPdfBuffer } from '@/app/api/_shared/certificados/getPdfBuffer'
@@ -26,36 +23,6 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     const reqUrl = new URL(request.url)
     const previewFlag = reqUrl.searchParams.get('preview') === 'true'
 
-    // ── Carga paralela principal ──────────────────────────────────────
-    const [certificado, configs] = await Promise.all([
-      prisma.certificado.findUnique({
-        where: { id: certificadoId },
-        include: {
-          curso: {
-            select: {
-              titulo: true,
-              duracion: true,
-              nivel: true,
-              fecha_inicio: true,
-              vigencia_meses: true,
-              tipo_emision: true,
-              certificado_plantilla: true,
-              profesor: {
-                select: { nombre: true, apellido: true, cargo: true, firma: true }
-              },
-              firmante_1: {
-                select: { nombre: true, cargo: true, firma: true, sello: true }
-              },
-              firmante_2: {
-                select: { nombre: true, cargo: true, firma: true, sello: true }
-              }
-            }
-          },
-          usuario: { select: { nombre: true, apellido: true } }
-        }
-      }),
-      getConfigs()
-    ])
     // Verificar ownership
     const certificado = await prisma.certificado.findUnique({
       where: { id: certificadoId },

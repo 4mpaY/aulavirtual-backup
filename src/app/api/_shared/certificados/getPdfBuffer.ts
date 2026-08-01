@@ -125,7 +125,7 @@ return { buffer, filename }
 
   // ── Seleccionar plantilla y generar PDF ───────────────────────────
   const plantilla = configs.CERTIFICADO_PLANTILLA || 'clasico'
-  const generarPDF = getGenerator(plantilla)
+  const generarPDF = await getGenerator(plantilla)
   const pdfBuffer = await generarPDF(certData)
 
   return { buffer: Buffer.from(pdfBuffer), filename }
