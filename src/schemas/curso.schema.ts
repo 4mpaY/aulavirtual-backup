@@ -61,6 +61,7 @@ export const actualizarCursoSchema = z.object({
   precio: z.coerce.number().min(0, 'El precio no puede ser negativo').optional(),
   precio_falso: z.coerce.number().min(0, 'El precio falso no puede ser negativo').optional(),
   moneda: z.string().max(3).optional(),
+  numero_asesor: z.string().optional().nullable(),
   duracion: z.string().max(50).optional().nullable(),
   codigo: z.string().max(20).optional().nullable(),
   miniatura: z.string().optional().nullable(),
@@ -72,7 +73,12 @@ export const actualizarCursoSchema = z.object({
   objetivos: z.array(z.string()).optional(),
   metodologia: z.array(z.any()).optional(),
   beneficios: z.array(z.any()).optional(),
-  incluye: z.array(z.any()).optional()
+  incluye: z.array(z.any()).optional(),
+  landing_active: z.boolean().optional(),
+  landing_timer: z.string().optional().nullable(),
+  landing_wsp_link: z.string().optional().nullable(),
+  landing_bg_image: z.string().optional().nullable(),
+  landing_flyer_image: z.string().optional().nullable()
 })
 
 export type ActualizarCursoDto = z.infer<typeof actualizarCursoSchema>
