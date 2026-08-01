@@ -88,9 +88,8 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
             enqueueSnackbar(error?.message || 'Error al actualizar los firmantes', { variant: 'error' })
         }
     }
+
     const [numeroAsesor, setNumeroAsesor] = useState<string>((curso as any).numero_asesor || '')
-
-
 
     const handleSavePrice = async () => {
         try {
