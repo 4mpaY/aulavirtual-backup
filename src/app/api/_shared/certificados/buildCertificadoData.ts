@@ -183,8 +183,11 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     gerenteGeneral: null, // se inyecta por la ruta (requiere query adicional)
     profesorSnapshot,
     mostrarFirmaDocente,
+    firmante1: null, // se inyecta por la ruta vía resolverFirmantes()
+    firmante2: null, // se inyecta por la ruta vía resolverFirmantes()
     codigoVerificacion: certificado.codigo_verificacion,
     qrDataUrl,
+    verifyUrl,
     notaFinal: null, // calculado dentro de cada generador desde notasPorModulo
     notasPorModulo,
     intentosExamen,

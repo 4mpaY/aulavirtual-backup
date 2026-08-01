@@ -16,6 +16,12 @@ export interface CursoCategoria {
   nombre: string
 }
 
+export interface CursoFirmante {
+  id: string
+  nombre: string
+  cargo: string | null
+}
+
 export interface CursoLeccionResumen {
   id: string
   titulo: string
@@ -24,11 +30,21 @@ export interface CursoLeccionResumen {
   video_url: string | null
   enlace_reunion: string | null
   es_en_vivo: boolean
+  es_pdf: boolean
   fecha_programada: string | Date | null
   recursos: any[]
   estado: 'BORRADOR' | 'PUBLICADO'
   es_vista_previa: boolean
   contenido: string | null
+  trabajo?: {
+    id: string
+    titulo: string
+    descripcion: string | null
+    archivo_url: string | null
+    archivo_nombre: string | null
+    fecha_inicio: string | Date | null
+    fecha_fin: string | Date | null
+  } | null
 }
 
 export interface CursoExamenResumen {
@@ -47,6 +63,17 @@ export interface CursoExamenResumen {
   _count?: { preguntas: number }
 }
 
+export interface CursoActividadResumen {
+  id: string
+  titulo: string
+  tipo: 'ARCHIVO' | 'FORMULARIO'
+  orden: number | null
+  puntaje_maximo: number
+  esta_publicado: boolean
+  modulo_id: string | null
+  _count?: { preguntas: number; entregas: number }
+}
+
 export interface CursoModulo {
   id: string
   titulo: string
@@ -56,6 +83,7 @@ export interface CursoModulo {
   actualizado_en: string
   lecciones: CursoLeccionResumen[]
   examenes: CursoExamenResumen[]
+  actividades: CursoActividadResumen[]
 }
 
 export interface Curso {
@@ -70,12 +98,14 @@ export interface Curso {
   fecha_fin: string | Date | null
   duracion: string | null
   tipo_emision: 'SINCRONO' | 'ASINCRONO' | 'MIXTO'
+  tipo: 'CURSO' | 'DIPLOMADO' | 'ESPECIALIZACION'
   nivel: 'BASICO' | 'INTERMEDIO' | 'AVANZADO'
   estado: 'BORRADOR' | 'PUBLICADO' | 'ARCHIVADO'
   es_gratis: boolean
   es_privado: boolean
   completar_automatico: boolean
   precio_certificado: number | null
+  certificado_plantilla: string | null
   precio: number
   precio_falso: number
   moneda: string
@@ -85,7 +115,12 @@ export interface Curso {
   profesor: CursoProfesor
   categoria_id: string | null
   categoria: CursoCategoria | null
+  firmante_1_id: string | null
+  firmante_1: CursoFirmante | null
+  firmante_2_id: string | null
+  firmante_2: CursoFirmante | null
   modulos: CursoModulo[]
+  orden: number
   brochure: string | null
   objetivos: string[]
   metodologia: any[]

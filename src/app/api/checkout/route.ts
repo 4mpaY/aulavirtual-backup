@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto'
+
 import { getConfigs } from '@/utils/libs/config'
 import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
@@ -5,10 +7,11 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import { sendMail } from '@/utils/libs/mailer'
 import { getOrderConfirmationTemplate } from '@/utils/libs/email-templates'
+import { completeOrder } from '@/utils/libs/order-service'
 
 /**
  * POST /api/checkout
- * Genera un pedido y obtiene el Session Token de Izipay Web Core
+ * Genera un pedido que puede contener cursos, ebooks o ambos.
  */
 export async function POST(request: Request) {
   try {
@@ -17,7 +20,8 @@ export async function POST(request: Request) {
     if (!auth.authorized) return auth.error
 
     const {
-      cursoIds,
+      cursoIds = [],
+      ebookIds = [],
       codigoCupon,
       gateway = 'IZIPAY',
       metodoPagoManualId,
@@ -25,55 +29,69 @@ export async function POST(request: Request) {
       numeroComprobante
     } = await request.json()
 
-    if (!cursoIds || !Array.isArray(cursoIds) || cursoIds.length === 0) {
-      return ApiResponse.error(request, 'Se requiere al menos un ID de curso', 400)
+    const hasCursos = Array.isArray(cursoIds) && cursoIds.length > 0
+    const hasEbooks = Array.isArray(ebookIds) && ebookIds.length > 0
+
+    if (!hasCursos && !hasEbooks) {
+      return ApiResponse.error(request, 'Se requiere al menos un artículo en el carrito', 400)
     }
 
-    // 1. Obtener los cursos y verificar inscripciones en paralelo (Promise.all)
-    const [cursos, inscripcionesExistentes] = await Promise.all([
-      prisma.curso.findMany({
-        where: { id: { in: cursoIds } }
-      }),
-      prisma.inscripcion.findMany({
-        where: {
-          usuario_id: auth.user.id,
-          curso_id: { in: cursoIds }
-        }
-      })
+    // 1. Obtener cursos/ebooks y verificar accesos/inscripciones existentes en paralelo
+    const [cursos, ebooks, inscripcionesExistentes, accesosExistentes] = await Promise.all([
+      hasCursos
+        ? prisma.curso.findMany({ where: { id: { in: cursoIds } } })
+        : Promise.resolve([]),
+      hasEbooks
+        ? prisma.ebook.findMany({ where: { id: { in: ebookIds }, estado: 'PUBLICADO', es_gratis: false } })
+        : Promise.resolve([]),
+      hasCursos
+        ? prisma.inscripcion.findMany({ where: { usuario_id: auth.user.id, curso_id: { in: cursoIds } } })
+        : Promise.resolve([]),
+      hasEbooks
+        ? prisma.ebookAcceso.findMany({ where: { usuario_id: auth.user.id, ebook_id: { in: ebookIds } } })
+        : Promise.resolve([]),
     ])
 
-    if (cursos.length === 0) {
+    if (hasCursos && cursos.length === 0) {
       return ApiResponse.error(request, 'No se encontraron los cursos seleccionados', 404)
     }
 
-    // 2. Verificar inscripciones existentes
+    if (hasEbooks && ebooks.length === 0) {
+      return ApiResponse.error(request, 'No se encontraron los ebooks seleccionados', 404)
+    }
+
     if (inscripcionesExistentes.length > 0) {
       const titulos = inscripcionesExistentes
-        .map(i => {
-          const c = cursos.find(curso => curso.id === i.curso_id)
-
-          return c?.titulo
-        })
+        .map(i => cursos.find(c => c.id === i.curso_id)?.titulo)
         .join(', ')
 
       return ApiResponse.error(request, `Ya estás inscrito en: ${titulos}`, 400)
     }
 
-    // 3. Calcular total y preparar detalles
-    const subtotal = cursos.reduce((acc, c) => acc + Number(c.precio), 0)
+    if (accesosExistentes.length > 0) {
+      const titulos = accesosExistentes
+        .map(a => ebooks.find(e => e.id === a.ebook_id)?.titulo)
+        .join(', ')
+
+      return ApiResponse.error(request, `Ya tienes acceso a: ${titulos}`, 400)
+    }
+
+    // 2. Calcular totales
+    const subtotalCursos = cursos.reduce((acc, c) => acc + Number(c.precio), 0)
+    const subtotalEbooks = ebooks.reduce((acc, e) => acc + Number(e.precio), 0)
+    const subtotal = subtotalCursos + subtotalEbooks
     let total = subtotal
     let cuponId = null
     let descuentoTotal = 0
 
-    // 3.1. Validar cupón si se proporciona
-    if (codigoCupon) {
+    // 2.1. Aplicar cupón (solo aplica a cursos)
+    if (codigoCupon && hasCursos) {
       const cupon = await prisma.cupon.findUnique({
         where: { codigo: codigoCupon.toUpperCase(), esta_activo: true },
         include: { cursos: { select: { curso_id: true } } }
       })
 
       if (cupon) {
-        // Verificar expiración y límite
         const ahora = new Date()
 
         ahora.setHours(0, 0, 0, 0)
@@ -84,11 +102,9 @@ export async function POST(request: Request) {
 
         const expirado = fechaExpiracion && fechaExpiracion < ahora
         const limiteAlcanzado = cupon.limite_uso !== null && cupon.usos_actuales >= cupon.limite_uso
-
-        // Verificar restricción por cursos
         const cursosPermitidos = cupon.cursos.map(c => c.curso_id)
         const tieneRestriccion = cursosPermitidos.length > 0
-        
+
         const cubreTodasLosCursos = tieneRestriccion
           ? cursoIds.every((id: string) => cursosPermitidos.includes(id))
           : true
@@ -97,20 +113,20 @@ export async function POST(request: Request) {
           cuponId = cupon.id
 
           if (cupon.tipo === 'PORCENTAJE') {
-            descuentoTotal = subtotal * (Number(cupon.valor) / 100)
+            descuentoTotal = subtotalCursos * (Number(cupon.valor) / 100)
           } else if (cupon.tipo === 'MONTO_FIJO') {
             descuentoTotal = Number(cupon.valor)
           }
 
-          if (descuentoTotal > subtotal) descuentoTotal = subtotal
+          if (descuentoTotal > subtotalCursos) descuentoTotal = subtotalCursos
           total = subtotal - descuentoTotal
         }
       }
     }
 
-    const moneda = cursos[0].moneda || 'PEN'
+    const moneda = (cursos[0] || ebooks[0])?.moneda || 'PEN'
 
-    // 4. Crear el pedido
+    // 3. Crear el pedido con detalles de cursos (Prisma ORM)
     const pedido = await prisma.pedido.create({
       data: {
         usuario_id: auth.user.id,
@@ -121,34 +137,50 @@ export async function POST(request: Request) {
         tipo_comprobante: tipoComprobante,
         numero_comprobante: numeroComprobante,
         ...(gateway === 'MANUAL' && metodoPagoManualId ? { metodo_pago_manual_id: metodoPagoManualId } : {}),
-        detalles: {
-          create: cursos.map(c => {
-            const precioCurso = Number(c.precio)
+        ...(hasCursos ? {
+          detalles: {
+            create: cursos.map(c => {
+              const precioCurso = Number(c.precio)
+              const proporcion = subtotalCursos > 0 ? precioCurso / subtotalCursos : 0
+              const descuentoCurso = descuentoTotal * proporcion
 
-            // Distribuir el descuento proporcionalmente para los detalles si hay más de un curso
-            // O simplemente aplicar el descuento proporcional al precio del curso respecto al subtotal
-            const proporcion = subtotal > 0 ? precioCurso / subtotal : 0
-            const descuentoCurso = descuentoTotal * proporcion
-
-            return {
-              curso_id: c.id,
-              precio_unitario: c.precio,
-              descuento: descuentoCurso,
-              subtotal: c.precio,
-              total: precioCurso - descuentoCurso
-            }
-          })
-        }
+              return {
+                curso_id: c.id,
+                precio_unitario: c.precio,
+                descuento: descuentoCurso,
+                subtotal: c.precio,
+                total: precioCurso - descuentoCurso
+              }
+            })
+          }
+        } : {})
       },
       include: { detalles: { include: { curso: { select: { titulo: true, precio: true } } } } }
     })
-    
-    // 📧 Enviar correo de confirmación de pedido
+
+    // 3.1. Añadir detalles de ebooks via raw SQL (Prisma client no tiene ebook_id todavía)
+    for (const ebook of ebooks) {
+      const id = randomUUID()
+      const precioEbook = Number(ebook.precio)
+
+      await prisma.$executeRaw`
+        INSERT INTO detalles_pedido (id, tipo_item, cantidad, precio_unitario, descuento, subtotal, total, pedido_id, ebook_id)
+        VALUES (${id}, 'EBOOK', 1, ${precioEbook}, 0, ${precioEbook}, ${precioEbook}, ${pedido.id}, ${ebook.id})
+      `
+    }
+
+    // 4. Construir lista de items para email (cursos + ebooks)
+    const emailItems = [
+      ...pedido.detalles.filter(d => d.curso != null).map(d => ({ titulo: d.curso!.titulo, precio: Number(d.total) })),
+      ...ebooks.map(e => ({ titulo: e.titulo, precio: Number(e.precio) }))
+    ]
+
+    // 5. Enviar correo de confirmación
     try {
       const configs = await getConfigs()
       const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
-      
+
       const emailHtml = getOrderConfirmationTemplate({
         platformName,
         customerName: auth.user.nombre || auth.user.name || 'Estudiante',
@@ -157,10 +189,7 @@ export async function POST(request: Request) {
         total: Number(pedido.total),
         moneda: pedido.moneda,
         metodoPago: gateway === 'MANUAL' ? 'Transferencia Manual' : gateway,
-        cursos: pedido.detalles.map(d => ({
-          titulo: d.curso.titulo,
-          precio: Number(d.total) // Usamos el total del detalle que ya tiene el descuento aplicado
-        })),
+        cursos: emailItems,
         appUrl
       })
 
@@ -172,10 +201,28 @@ export async function POST(request: Request) {
         })
       }
     } catch (mailError) {
-      console.error('[Checkout-Mail] Error al enviar correo de confirmación:', mailError)
+      console.error('[Checkout-Mail] Error al enviar correo:', mailError)
     }
 
-    // 5. Si el gateway es MANUAL, retornar datos para el mensaje de WhatsApp
+    // 6. Si total = 0, completar automáticamente
+    if (total === 0) {
+      await completeOrder(pedido.id, {
+        metodo_pago: 'OTRO',
+        respuesta_pago: { origen: 'cupon_100_pct', cupon_id: cuponId }
+      })
+
+      return ApiResponse.success(
+        request,
+        {
+          message: '¡Acceso gratuito completado! Ya tienes acceso al contenido.',
+          pedidoId: pedido.id,
+          gratuito: true
+        },
+        201
+      )
+    }
+
+    // 7. Pago manual
     if (gateway === 'MANUAL') {
       return ApiResponse.success(
         request,
@@ -185,113 +232,98 @@ export async function POST(request: Request) {
           numeroPedido: pedido.numero_pedido,
           total: pedido.total,
           moneda: pedido.moneda,
-          cursos: pedido.detalles.map(d => d.curso.titulo)
+          cursos: [
+            ...pedido.detalles.filter(d => d.curso != null).map(d => d.curso!.titulo),
+            ...ebooks.map(e => e.titulo)
+          ]
         },
         201
       )
     }
 
-    // 6. Generar transactionId y dateTimeTransaction para Izipay
-    const transactionId = String(Date.now()) // Al menos 13 chars (timestamp)
-
-    // orderNumber debe tener entre 5-15 caracteres
-    const orderNumber = String(pedido.numero_pedido).padStart(10, '0')
-
-    // 5. Obtener Session Token de Izipay SOLO si se solicita explícitamente
+    // 8. Izipay (Lyra / MiCuentaWeb - Charge/CreatePaymentOrder)
     if (gateway === 'IZIPAY') {
       const configs = await getConfigs()
-      const merchantCode = configs.IZIPAY_MERCHANT_CODE
-      const apiKey = configs.IZIPAY_API_KEY
       const endpoint = configs.IZIPAY_ENDPOINT
-      const rsaKey = configs.IZIPAY_RSA_KEY
+      const restUser = configs.IZIPAY_REST_USER
+      const restPassword = configs.IZIPAY_REST_PASSWORD
 
-      if (!merchantCode || !apiKey || !endpoint || !rsaKey) {
+      if (!endpoint || !restUser || !restPassword) {
         return ApiResponse.error(request, 'La pasarela Izipay no está configurada correctamente', 500)
       }
 
-      const tokenResponse = await fetch(`${endpoint}/security/v1/Token/Generate`, {
+      // IMPORTANTE: `request.url` en Next.js standalone (Docker) se construye con las
+      // variables HOSTNAME/PORT del propio proceso (ej. "0.0.0.0:3000"), no con el Host
+      // real del cliente detrás de nginx. Los headers x-forwarded-* sí reflejan el host
+      // público real (confirmado con tráfico real de Izipay), así que se leen directo.
+      const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host')
+      const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
+
+      const appUrl = (
+        (forwardedHost ? `${forwardedProto}://${forwardedHost}` : '') ||
+        process.env.APP_URL ||
+        process.env.NEXT_PUBLIC_APP_URL ||
+        ''
+      ).replace(/\/$/, '')
+
+      const returnUrl = `${appUrl}/api/izipay/return?pedidoId=${pedido.id}`
+      const basicAuth = 'Basic ' + Buffer.from(`${restUser}:${restPassword}`).toString('base64')
+      const expirationDate = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+
+      const orderPayload = {
+        amount: Math.round(Number(total) * 100),
+        currency: moneda,
+        orderId: pedido.id,
+        expirationDate,
+        returnMode: 'POST',
+        successUrl: returnUrl,
+        cancelUrl: returnUrl,
+        channelOptions: { channelType: 'URL' },
+        customer: { email: auth.user.email || undefined }
+      }
+
+      // TEMPORAL: diagnóstico para confirmar qué se envía a Izipay y qué responde.
+      console.log('[IZIPAY][DEBUG] appUrl:', appUrl, '| returnUrl:', returnUrl)
+      console.log('[IZIPAY][DEBUG] Payload CreatePaymentOrder:', JSON.stringify(orderPayload))
+
+      const orderResponse = await fetch(`${endpoint}/api-payment/V4/Charge/CreatePaymentOrder`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
-          transactionId: transactionId
+          Authorization: basicAuth
         },
-        body: JSON.stringify({
-          requestSource: 'ECOMMERCE',
-          merchantCode: merchantCode,
-          orderNumber: orderNumber,
-          publicKey: apiKey,
-          amount: String(Number(total).toFixed(2)),
-          currency: moneda
-        })
+        body: JSON.stringify(orderPayload)
       })
 
-      const tokenData = await tokenResponse.json()
+      const orderData = await orderResponse.json()
 
-      if (!tokenResponse.ok || tokenData.code !== '00') {
-        console.error('Izipay Token Error:', tokenData)
+      console.log('[IZIPAY][DEBUG] Respuesta CreatePaymentOrder:', JSON.stringify(orderData))
 
-        return ApiResponse.error(request, 'Error al obtener el token de sesión de Izipay', 500)
+      if (!orderResponse.ok || orderData.status !== 'SUCCESS') {
+        console.error('[IZIPAY] Error creando orden de pago:', orderData)
+
+        return ApiResponse.error(request, 'Error al iniciar el pago con Izipay', 500)
       }
 
-      const actualToken = tokenData.response?.token || tokenData.response
+      const paymentURL = orderData.answer.paymentURL
 
       await prisma.pedido.update({
         where: { id: pedido.id },
-        data: { token_pago: String(actualToken) }
+        data: { url_pago: paymentURL }
       })
-
-      const userName = auth.user.nombre || auth.user.name || 'Cliente'
-      const firstName = userName.split(' ')[0]
-      const lastName = userName.split(' ').slice(1).join(' ') || 'Cliente'
-      const documentStr = auth.user.numero_documento || '12345678'
-      const validDocument = documentStr.length >= 8 ? documentStr.substring(0, 15) : '12345678'
-
-      const iziConfig = {
-        transactionId,
-        action: 'pay',
-        merchantCode,
-        order: {
-          orderNumber: orderNumber,
-          currency: moneda,
-          amount: String(Number(total).toFixed(2)),
-          payMethod: 'all',
-          processType: 'AT',
-          merchantBuyerId: String(auth.user.id).substring(0, 15),
-          dateTimeTransaction: String(Date.now())
-        },
-        billing: {
-          firstName,
-          lastName,
-          email: auth.user.email || 'cliente@email.com',
-          phoneNumber: '999999999',
-          street: 'Av. Default 123',
-          city: 'Lima',
-          state: 'Lima',
-          country: 'PE',
-          postalCode: '15000',
-          documentType: 'DNI',
-          document: validDocument
-        },
-        render: {
-          typeForm: 'pop-up'
-        }
-      }
 
       return ApiResponse.success(
         request,
         {
           message: 'Pasarela preparada correctamente',
-          iziConfig,
-          token: String(actualToken),
-          keyRSA: rsaKey,
+          paymentURL,
           pedidoId: pedido.id
         },
         201
       )
     }
 
-    // 8. Crear Orden de Culqi si el gateway es CULQI
+    // 9. Culqi
     if (gateway === 'CULQI') {
       const configs = await getConfigs()
       const privateKey = configs.CULQI_PRIVATE_KEY
@@ -300,7 +332,7 @@ export async function POST(request: Request) {
         return ApiResponse.error(request, 'La pasarela Culqi no está configurada correctamente', 500)
       }
 
-      const expirationDate = Math.floor(Date.now() / 1000) + 24 * 60 * 60 // 24 horas
+      const expirationDate = Math.floor(Date.now() / 1000) + 24 * 60 * 60
 
       const culqiOrderResponse = await fetch('https://api.culqi.com/v2/orders', {
         method: 'POST',
@@ -349,7 +381,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Crear preferencia de Mercado Pago
+    // 10. Mercado Pago
     if (gateway === 'MERCADOPAGO') {
       const configs = await getConfigs()
       const accessToken = configs.MP_ACCESS_TOKEN
@@ -364,22 +396,31 @@ export async function POST(request: Request) {
         new URL(request.url).origin
       ).replace(/\/$/, '')
 
-      const preference: Record<string, any> = {
-        external_reference: pedido.id,
-        items: pedido.detalles.map((d: any) => ({
+      const mpItems = [
+        ...pedido.detalles.map((d: any) => ({
           id: d.curso_id,
           title: d.curso.titulo,
           quantity: 1,
           unit_price: Number(d.total),
           currency_id: moneda
         })),
+        ...ebooks.map(e => ({
+          id: e.id,
+          title: e.titulo,
+          quantity: 1,
+          unit_price: Number(e.precio),
+          currency_id: moneda
+        }))
+      ]
+
+      const preference: Record<string, any> = {
+        external_reference: pedido.id,
+        items: mpItems,
         back_urls: {
           success: `${appUrl}/checkout/mercadopago/success?pedidoId=${pedido.id}`,
           failure: `${appUrl}/checkout/mercadopago/failure?pedidoId=${pedido.id}`,
           pending: `${appUrl}/checkout/mercadopago/pending?pedidoId=${pedido.id}`
         },
-
-        // auto_return solo funciona con URLs HTTPS públicas (no localhost)
         ...(appUrl.startsWith('https://') ? { auto_return: 'approved' } : {}),
         notification_url: `${appUrl}/api/mercadopago/webhook`
       }
@@ -401,9 +442,6 @@ export async function POST(request: Request) {
 
       const mpData = await mpResponse.json()
 
-      console.log('[MP_CHECKOUT] init_point:', mpData.init_point)
-      console.log('[MP_CHECKOUT] sandbox_init_point:', mpData.sandbox_init_point)
-
       await prisma.pedido.update({
         where: { id: pedido.id },
         data: { token_pago: mpData.id, metodo_pago: 'MERCADOPAGO' }
@@ -422,13 +460,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Si no es ninguno de los anteriores
     return ApiResponse.success(
       request,
-      {
-        message: 'Pedido creado correctamente',
-        pedidoId: pedido.id
-      },
+      { message: 'Pedido creado correctamente', pedidoId: pedido.id },
       201
     )
   } catch (error) {

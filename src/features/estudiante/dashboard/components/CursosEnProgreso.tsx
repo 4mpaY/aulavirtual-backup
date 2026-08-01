@@ -159,17 +159,37 @@ export default function CursosEnProgreso({ cursos, loading }: Props) {
           Aún no tienes cursos en progreso
         </Typography>
         <Typography variant='body2' color='text.secondary' sx={{ mt: 0.5, mb: 2.5 }}>
-          Explora el catálogo y empieza tu primer curso hoy.
+          Explora el catálogo y empieza tu formación hoy.
         </Typography>
-        <Button
-          variant='contained'
-          href='/cursos'
-          size='small'
-          startIcon={<i className='tabler-search' />}
-          sx={{ borderRadius: '10px', fontWeight: 700, textTransform: 'none' }}
-        >
-          Explorar cursos
-        </Button>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
+          <Button
+            variant='contained'
+            href='/cursos'
+            size='small'
+            startIcon={<i className='tabler-search' />}
+            sx={{ borderRadius: '10px', fontWeight: 700, textTransform: 'none' }}
+          >
+            Cursos
+          </Button>
+          <Button
+            variant='outlined'
+            href='/diplomados'
+            size='small'
+            startIcon={<i className='tabler-certificate' />}
+            sx={{ borderRadius: '10px', fontWeight: 700, textTransform: 'none' }}
+          >
+            Diplomados
+          </Button>
+          <Button
+            variant='outlined'
+            href='/especializaciones'
+            size='small'
+            startIcon={<i className='tabler-school' />}
+            sx={{ borderRadius: '10px', fontWeight: 700, textTransform: 'none' }}
+          >
+            Especializaciones
+          </Button>
+        </Box>
       </Box>
     )
   }

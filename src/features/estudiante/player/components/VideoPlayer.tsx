@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 
-import { Box, Paper, Typography, Button } from '@mui/material'
+import { Box, Paper, Typography, Button, CircularProgress } from '@mui/material'
 
 interface VideoPlayerProps {
     url?: string
@@ -64,15 +64,49 @@ function getEmbedUrl(url: string): string {
 
 const VideoPlayer = ({ url, tipo = 'VIDEO', onEnded, nextLessonTitle, onNextLesson }: VideoPlayerProps) => {
     const [videoEnded, setVideoEnded] = useState(false)
+    const [resolvedUrl, setResolvedUrl] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false)
     const iframeRef = useRef<HTMLIFrameElement>(null)
 
     const isYT = !!url && (url.includes('youtube.com') || url.includes('youtu.be'))
     const isVimeo = !!url && url.includes('vimeo.com')
     const isEmbedded = isYT || isVimeo || tipo === 'INCRUSTADO'
 
-    // Resetea la pantalla final al cambiar de lección
+    // Resetea la pantalla final al cambiar de lección y resuelve la URL firmada si es privada
     useEffect(() => {
         setVideoEnded(false)
+
+        if (!url) {
+            setResolvedUrl(null)
+
+            return
+        }
+
+        const isPrivado = url.includes('/api/videos/stream/')
+
+        if (isPrivado) {
+            setLoading(true)
+            const filename = url.split('/').pop() || ''
+
+            fetch(`/api/videos/url/${filename}`)
+                .then(r => {
+                    if (!r.ok) throw new Error('Error al obtener URL del video')
+
+                    return r.json()
+                })
+                .then(({ url: signedUrl }) => {
+                    setResolvedUrl(signedUrl)
+                })
+                .catch(err => {
+                    console.error('Error al resolver la URL del video privado:', err)
+                    setResolvedUrl(null)
+                })
+                .finally(() => {
+                    setLoading(false)
+                })
+        } else {
+            setResolvedUrl(url)
+        }
     }, [url])
 
     // Escucha postMessages de YouTube y Vimeo para detectar fin de video
@@ -130,7 +164,29 @@ const VideoPlayer = ({ url, tipo = 'VIDEO', onEnded, nextLessonTitle, onNextLess
         return () => window.removeEventListener('message', handleVimeoReady)
     }, [isVimeo])
 
-    if (!url) {
+    if (loading) {
+        return (
+            <Paper
+                sx={{
+                    width: '100%',
+                    aspectRatio: '16/9',
+                    bgcolor: 'black',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: { xs: 0, md: '12px' },
+                    overflow: 'hidden'
+                }}
+            >
+                <Box sx={{ color: 'white', textAlign: 'center' }}>
+                    <CircularProgress color="inherit" />
+                    <Box sx={{ mt: 1.5, opacity: 0.7 }}>Cargando video...</Box>
+                </Box>
+            </Paper>
+        )
+    }
+
+    if (!url || (!resolvedUrl && !isEmbedded)) {
         return (
             <Paper
                 sx={{
@@ -224,11 +280,14 @@ const VideoPlayer = ({ url, tipo = 'VIDEO', onEnded, nextLessonTitle, onNextLess
                 </>
             ) : (
                 <video
+                    key={resolvedUrl || ''}
+                    src={resolvedUrl || ''}
                     controls
+                    autoPlay
+                    crossOrigin="anonymous"
                     onEnded={() => { setVideoEnded(true); onEnded?.() }}
                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 >
-                    <source src={url} />
                     Tu navegador no soporta el elemento de video.
                 </video>
             )}

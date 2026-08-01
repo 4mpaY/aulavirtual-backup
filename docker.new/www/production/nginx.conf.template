@@ -1,0 +1,94 @@
+server {
+  listen 80;
+  server_name ${SSL_DOMAIN_1};
+  # server_name ${SSL_DOMAIN_1} ${SSL_DOMAIN_2}; # Descomentar si se usa un segundo dominio
+
+  # Ubicación para validación de certificados SSL
+  location /.well-known/acme-challenge/ {
+    root /var/www/html;
+    try_files $uri =404;
+  }
+
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
+
+server {
+  listen 443 ssl http2;
+  server_name ${SSL_DOMAIN_1};
+
+  # Certificados SSL (Let's Encrypt)
+  ssl_certificate /etc/letsencrypt/live/${SSL_DOMAIN_1}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${SSL_DOMAIN_1}/privkey.pem;
+
+  # SSL endurecido
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
+  ssl_prefer_server_ciphers off;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 10m;
+
+  # Tamaño máximo del body (archivos)
+  client_max_body_size 3G;
+  client_body_timeout 600s;
+  send_timeout 600s;
+  keepalive_timeout 600s;
+
+  # Videos protegidos con token firmado
+  location /private-videos/ {
+    secure_link $arg_token,$arg_expires;
+    secure_link_md5 "$secure_link_expires$uri ${NGINX_VIDEO_SECRET}";
+
+    if ($secure_link = "") { return 403; }       # token inválido
+    if ($secure_link = "0") { return 410; }      # token expirado
+
+    alias /app/private/videos/;
+
+    # ✅ Soporte de range requests (seek) nativo
+    add_header Accept-Ranges bytes;
+    add_header Cache-Control "no-cache, no-store";
+
+    # Tipos de video
+    types {
+        video/mp4  mp4;
+        video/webm webm;
+        video/ogg  ogg;
+    }
+  }
+
+  location / {
+    # Configuraciones comunes de proxy
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+
+    proxy_pass http://app:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_cache_bypass $http_upgrade;
+
+    # Timeouts para subidas grandes
+    proxy_read_timeout 600s;
+    proxy_connect_timeout 600s;
+    proxy_send_timeout 600s;
+  }
+
+  # Cache de archivos estáticos para máximo rendimiento
+  location /_next/static {
+      proxy_cache_bypass $http_upgrade;
+      proxy_pass http://app:3000;
+      expires 365d;
+      access_log off;
+  }
+
+  location /static {
+      proxy_cache_bypass $http_upgrade;
+      proxy_pass http://app:3000;
+      expires 365d;
+      access_log off;
+  }
+}

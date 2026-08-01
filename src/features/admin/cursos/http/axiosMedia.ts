@@ -31,7 +31,7 @@ export class AxiosMedia extends AxiosInternalHttpClient {
     }
   }
 
-  async upload(file: File): Promise<any> {
+  async upload(file: File, onProgress?: (progress: number) => void): Promise<any> {
     try {
       const formData = new FormData()
 
@@ -40,6 +40,13 @@ export class AxiosMedia extends AxiosInternalHttpClient {
       const payload = await this.iPost<any>('', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total && onProgress) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+
+            onProgress(percentCompleted)
+          }
         }
       })
 

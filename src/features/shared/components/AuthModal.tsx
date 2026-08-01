@@ -18,7 +18,7 @@ import {
   Divider,
   InputAdornment
 } from '@mui/material'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -33,11 +33,12 @@ interface AuthModalProps {
   open: boolean
   mode: Mode
   callbackUrl?: string
+  onSuccess?: () => void
   onClose: () => void
   onSwitchMode: (mode: Mode) => void
 }
 
-const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModalProps) => {
+const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }: AuthModalProps) => {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [registerSuccess, setRegisterSuccess] = useState(false)
@@ -45,10 +46,11 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
   const router = useRouter()
+  const { update: updateSession } = useSession()
 
   const loginForm = useForm<LoginDto>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { correo: 'prueba@gmail.com', contrasena: 'Prueba123@' }
+    defaultValues: { correo: '', contrasena: '' }
   })
 
   const registerForm = useForm<RegisterDto>({
@@ -89,10 +91,14 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
     }
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = async () => {
     onClose()
 
-    if (callbackUrl) {
+    await updateSession()
+
+    if (onSuccess) {
+      onSuccess()
+    } else if (callbackUrl) {
       window.location.href = callbackUrl
     } else {
       router.refresh()
@@ -123,7 +129,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
       }
 
       if (result?.ok) {
-        handleLoginSuccess()
+        await handleLoginSuccess()
       }
     } catch {
       setError('Ocurrió un error inesperado. Intenta nuevamente.')
@@ -161,7 +167,7 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
       })
 
       if (loginResult?.ok) {
-        handleLoginSuccess()
+        await handleLoginSuccess()
       } else {
         // Si falla el auto-login, llevamos al modo login con mensaje de éxito
         onSwitchMode('login')
@@ -286,11 +292,11 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
       <DialogContent sx={{ overflowX: 'hidden', overflowY: 'auto' }}>
         <Box sx={{ textAlign: 'center', mb: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
-            <Box sx={{ transform: 'scale(1.5)', transformOrigin: 'center', display: 'inline-block' }}>
+            <Box sx={{ transform: 'scale(1.2)', transformOrigin: 'center', display: 'inline-block' }}>
               <Logo />
             </Box>
           </Box>
-          <Typography variant="h5" sx={{ mt: 4, fontWeight: 800 }}>
+          <Typography variant="h5" sx={{ mt: 5, fontWeight: 800 }}>
             {mode === 'login' ? 'Iniciar Sesión' : mode === 'register' ? 'Crear Cuenta' : '¿Olvidaste tu contraseña?'}
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -307,11 +313,11 @@ const AuthModal = ({ open, mode, callbackUrl, onClose, onSwitchMode }: AuthModal
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {registerSuccess && <Alert severity="success" sx={{ mb: 2 }}>¡Registro exitoso! Iniciando sesión...</Alert>}
 
-        {mode === 'login' && (
+        {/* {mode === 'login' && (
           <Alert severity="info" sx={{ mb: 2, fontSize: '0.8rem' }}>
-            <strong>Cuenta de prueba:</strong> prueba@gmail.com &nbsp;|&nbsp; <strong>Contraseña:</strong> Prueba123@
+            <strong>Cuenta de prueba:</strong>  &nbsp;|&nbsp; <strong>Contraseña:</strong> 
           </Alert>
-        )}
+        )} */}
 
         {mode === 'login' ? (
           <form key="login-form" onSubmit={loginForm.handleSubmit(onLoginSubmit)}>

@@ -4,6 +4,8 @@ import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/admin/reclamaciones/pendientes
  * Devuelve la cantidad de reclamaciones pendientes (solo admin)

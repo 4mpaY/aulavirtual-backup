@@ -31,20 +31,38 @@ export async function POST(request: Request) {
       return validation.error
     }
 
-    const { usuarios_ids, cursos_ids, precio, estado, metodo_pago, mensaje, tipo_comprobante, numero_comprobante } =
-      validation.data
+    const {
+      usuarios_ids,
+      cursos_ids,
+      ebooks_ids,
+      precio,
+      estado,
+      metodo_pago,
+      mensaje,
+      tipo_comprobante,
+      numero_comprobante
+    } = validation.data
 
-    // 3. Obtener información de los cursos
-    const cursos = await prisma.curso.findMany({
-      where: { id: { in: cursos_ids } },
-      select: { id: true, titulo: true, moneda: true, vigencia_meses: true }
-    })
+    // 3. Obtener información de los cursos y ebooks seleccionados
+    const cursos = cursos_ids.length
+      ? await prisma.curso.findMany({
+          where: { id: { in: cursos_ids } },
+          select: { id: true, titulo: true, moneda: true, vigencia_meses: true }
+        })
+      : []
 
-    if (cursos.length === 0) {
-      return ApiResponse.error(request, 'No se encontraron los cursos seleccionados', 404)
+    const ebooks = ebooks_ids.length
+      ? await prisma.ebook.findMany({
+          where: { id: { in: ebooks_ids } },
+          select: { id: true, titulo: true, moneda: true }
+        })
+      : []
+
+    if (cursos.length === 0 && ebooks.length === 0) {
+      return ApiResponse.error(request, 'No se encontraron los cursos/ebooks seleccionados', 404)
     }
 
-    const firstCourseMoneda = cursos[0].moneda || 'PEN'
+    const firstCourseMoneda = cursos[0]?.moneda || ebooks[0]?.moneda || 'PEN'
 
     // 4. Procesar cada estudiante
     const resultados = []
@@ -52,7 +70,7 @@ export async function POST(request: Request) {
     for (const usuario_id of usuarios_ids) {
       const estudiante = await prisma.usuario.findUnique({
         where: { id: usuario_id },
-        include: { inscripciones: true }
+        include: { inscripciones: true, ebook_accesos: true }
       })
 
       if (!estudiante) {
@@ -60,21 +78,25 @@ export async function POST(request: Request) {
         continue
       }
 
-      // Filtrar cursos en los que NO está inscrito
+      // Filtrar cursos en los que NO está inscrito y ebooks a los que NO tiene acceso
       const cursosParaInscribir = cursos.filter(c => !estudiante.inscripciones.some(ins => ins.curso_id === c.id))
+      const ebooksParaDar = ebooks.filter(e => !estudiante.ebook_accesos.some(acc => acc.ebook_id === e.id))
 
-      if (cursosParaInscribir.length === 0) {
+      if (cursosParaInscribir.length === 0 && ebooksParaDar.length === 0) {
         resultados.push({
           usuario_id,
           nombre: `${estudiante.nombre} ${estudiante.apellido}`,
           status: 'skipped',
-          message: 'El estudiante ya está inscrito en todos los cursos seleccionados'
+          message: 'El estudiante ya tiene acceso a todos los cursos/ebooks seleccionados'
         })
         continue
       }
 
+      const totalItems = cursosParaInscribir.length + ebooksParaDar.length
+      const precioPorItem = precio / totalItems
+
       try {
-        // Crear Pedido e Inscripciones en una transacción por estudiante
+        // Crear Pedido, Inscripciones y Accesos a ebooks en una transacción por estudiante
         await prisma.$transaction(async tx => {
           const pedido = await tx.pedido.create({
             data: {
@@ -88,18 +110,29 @@ export async function POST(request: Request) {
               numero_comprobante: numero_comprobante,
               pagado_en: estado === 'COMPLETADO' ? new Date() : null,
               detalles: {
-                create: cursosParaInscribir.map(c => ({
-                  curso_id: c.id,
-                  precio_unitario: precio / cursosParaInscribir.length,
-                  subtotal: precio / cursosParaInscribir.length,
-                  total: precio / cursosParaInscribir.length,
-                  cantidad: 1
-                }))
+                create: [
+                  ...cursosParaInscribir.map(c => ({
+                    tipo_item: 'CURSO',
+                    curso_id: c.id,
+                    precio_unitario: precioPorItem,
+                    subtotal: precioPorItem,
+                    total: precioPorItem,
+                    cantidad: 1
+                  })),
+                  ...ebooksParaDar.map(e => ({
+                    tipo_item: 'EBOOK',
+                    ebook_id: e.id,
+                    precio_unitario: precioPorItem,
+                    subtotal: precioPorItem,
+                    total: precioPorItem,
+                    cantidad: 1
+                  }))
+                ]
               }
             }
           })
 
-          // Solo inscribir al estudiante si el pedido queda COMPLETADO
+          // Solo inscribir/dar acceso si el pedido queda COMPLETADO
           if (estado === 'COMPLETADO') {
             await Promise.all(
               cursosParaInscribir.map(c => {
@@ -116,6 +149,17 @@ export async function POST(request: Request) {
                 })
               })
             )
+
+            await Promise.all(
+              ebooksParaDar.map(e =>
+                tx.ebookAcceso.create({
+                  data: {
+                    usuario_id: usuario_id,
+                    ebook_id: e.id
+                  }
+                })
+              )
+            )
           }
         })
 
@@ -125,7 +169,11 @@ export async function POST(request: Request) {
           const pedidoCompleto = await prisma.pedido.findFirst({
             where: { usuario_id, total: precio, moneda: firstCourseMoneda },
             orderBy: { creado_en: 'desc' },
-            include: { detalles: { include: { curso: { select: { titulo: true } } } } }
+            include: {
+              detalles: {
+                include: { curso: { select: { titulo: true } }, ebook: { select: { titulo: true } } }
+              }
+            }
           })
 
           if (pedidoCompleto) {
@@ -142,7 +190,7 @@ export async function POST(request: Request) {
               moneda: pedidoCompleto.moneda,
               metodoPago: metodo_pago || 'Manual',
               cursos: pedidoCompleto.detalles.map(d => ({
-                titulo: d.curso.titulo,
+                titulo: d.curso?.titulo ?? d.ebook?.titulo ?? '',
                 precio: Number(d.total)
               })),
               appUrl

@@ -81,6 +81,10 @@ export default withAuth(
           path.startsWith('/login') ||
           path.startsWith('/register') ||
           path.startsWith('/cursos') ||
+          path.startsWith('/landing') ||
+          path.startsWith('/diplomados') ||
+          path.startsWith('/especializaciones') ||
+          path.startsWith('/ebooks') ||
           path.startsWith('/rutas') ||
           path.startsWith('/proyectos') ||
           path.startsWith('/mantenimiento') ||
@@ -92,6 +96,7 @@ export default withAuth(
           path.startsWith('/libro-de-reclamaciones') ||
           path.startsWith('/terminos-y-condiciones') ||
           path.startsWith('/politica-de-cambios-y-devoluciones') ||
+          path.startsWith('/politica-de-privacidad') ||
           path.startsWith('/forgot-password') ||
           path.startsWith('/reset-password') ||
           path.startsWith('/verificar-certificado') ||
@@ -122,6 +127,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.svg|.*\\.mp4|.*\\.webm|.*\\.gif).*)'
+    '/((?!api|_next/static|_next/image|favicon.ico|manifest\\.json|sw\\.js|workbox-.*|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.svg|.*\\.mp4|.*\\.webm|.*\\.mkv|.*\\.gif).*)'
   ]
 }

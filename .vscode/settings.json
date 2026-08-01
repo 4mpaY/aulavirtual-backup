@@ -1,7 +1,4 @@
 {
-  // JS
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  // JSON
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"
   },
@@ -44,7 +41,6 @@
   "markdown.extension.toc.updateOnSave": false,
   "files.insertFinalNewline": true,
   "editor.linkedEditing": true,
-  "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.words": [
     "iconify",
     "tanstack",
@@ -56,5 +52,20 @@
   },
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, tsconfig.json, .eslintrc.json, .hintrc, esbuild.config.mjs",
+    "next.config.js": "next-env.d.ts, turbo.json",
+    "Dockerfile": "compose.production.yml, compose.yml",
+    "dockerfile.new": "compose.prod.yml, compose.dev.yml, compose.cert.yml, .dockerignore",
+    "*.css": "*.css.map",
+    ".env": ".env.example"
+  },
+  "material-icon-theme.files.associations": {
+    "compose.cert.yml": "docker",
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   }
 }

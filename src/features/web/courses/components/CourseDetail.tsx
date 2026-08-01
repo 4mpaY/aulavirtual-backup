@@ -37,6 +37,7 @@ import { useSession } from 'next-auth/react'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
 import HydratedDate from '@/utils/components/HydratedDate'
 import UserAvatar from '@/utils/components/UserAvatar'
+import PdfViewer from '@/features/estudiante/player/components/PdfViewer'
 import VideoPlayer from '@/features/estudiante/player/components/VideoPlayer'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 
@@ -102,7 +103,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
 
   const handleFreeEnroll = async () => {
     if (!session) {
-      openLogin()
+      openLogin(undefined, handleFreeEnroll)
 
       return
     }
@@ -133,7 +134,7 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
 
   const handleEnroll = () => {
     if (!session) {
-      openLogin()
+      openLogin(undefined, () => router.push(`/checkout/${course.slug}`))
 
       return
     }
@@ -161,11 +162,11 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
 
   const displayDate = isLive
     ? {
-        label: 'Inicio',
-        value: course.fecha_inicio
-          ? <HydratedDate date={course.fecha_inicio} format="date" options={{ day: '2-digit', month: '2-digit', year: 'numeric' }} />
-          : 'Próximamente'
-      }
+      label: 'Inicio',
+      value: course.fecha_inicio
+        ? <HydratedDate date={course.fecha_inicio} format="date" options={{ day: '2-digit', month: '2-digit', year: 'numeric' }} />
+        : 'Próximamente'
+    }
     : null
 
   const defaultBeneficios = [
@@ -194,9 +195,8 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
     { text: 'Materiales y adicionales', active: true },
     { text: 'Seguimiento académico', active: true },
     { text: 'Evaluación programada', active: true },
-    { text: 'Evaluación en cualquier momento', active: false },
     { text: 'Recuperación de evaluación', active: false },
-    { text: 'Certificado por Ecoambiental o CIP', active: false },
+    { text: 'Certificación', active: false },
   ]
 
   return (
@@ -661,7 +661,9 @@ const CourseDetail = ({ course }: CourseDetailProps) => {
           </IconButton>
         </DialogTitle>
         <DialogContent dividers sx={{ p: 0, bgcolor: 'black' }}>
-          {previewLesson && <VideoPlayer url={(previewLesson as any).video_url} tipo="VIDEO" />}
+          {previewLesson && ((previewLesson as any).es_pdf
+            ? <PdfViewer url={(previewLesson as any).video_url} />
+            : <VideoPlayer url={(previewLesson as any).video_url} tipo="VIDEO" />)}
         </DialogContent>
       </Dialog>
 

@@ -8,6 +8,7 @@ import { Box, CircularProgress } from '@mui/material'
 
 interface PayPalPaymentButtonProps {
   cursoIds: string[]
+  ebookIds?: string[]
   codigoCupon?: string
   onSuccess: (pedidoId: string) => void
   onError: (error: string) => void
@@ -15,6 +16,7 @@ interface PayPalPaymentButtonProps {
 
 export const PayPalPaymentButton = ({
   cursoIds,
+  ebookIds = [],
   codigoCupon,
   onSuccess,
   onError
@@ -30,7 +32,7 @@ export const PayPalPaymentButton = ({
       const response = await fetch('/api/paypal/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cursoIds, codigoCupon })
+        body: JSON.stringify({ cursoIds, ebookIds, codigoCupon })
       })
 
       const data = await response.json()

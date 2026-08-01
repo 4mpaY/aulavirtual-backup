@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth'
 
 import { Providers } from '@/components/Providers'
 import { getConfigs } from '@/utils/libs/config'
+import { resolveFaviconUrl } from '@/utils/functions/syncFavicon'
 import { getAuthOptions } from '@/utils/configs/auth'
 import { plus_jakarta_sans } from '@core/theme'
 
@@ -14,14 +15,22 @@ export async function generateMetadata(): Promise<Metadata> {
   const configs = await getConfigs()
   const title = configs.TEMPLATE_NAME || 'Aula Virtual'
   const slogan = configs.TEMPLATE_SLOGAN || ''
-  const logo = configs.TEMPLATE_LOGO || '/favicon.ico'
+  const logo = resolveFaviconUrl(configs)
 
   return {
     title: slogan ? `${title} - ${slogan}` : title,
     description: slogan,
+    manifest: '/manifest.json',
     icons: {
-      icon: logo
-    }
+      icon: logo,
+      shortcut: logo,
+      apple: '/icons/apple-touch-icon.png',
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'black-translucent',
+      title,
+    },
   }
 }
 
@@ -30,7 +39,7 @@ function hexToRgb(hex: string): string {
   const r = parseInt(clean.slice(0, 2), 16) || 0
   const g = parseInt(clean.slice(2, 4), 16) || 0
   const b = parseInt(clean.slice(4, 6), 16) || 0
-  
+
   return `${r}, ${g}, ${b}`
 }
 
@@ -39,7 +48,7 @@ function darkenHex(hex: string, factor: number): string {
   const r = Math.round((parseInt(clean.slice(0, 2), 16) || 0) * factor)
   const g = Math.round((parseInt(clean.slice(2, 4), 16) || 0) * factor)
   const b = Math.round((parseInt(clean.slice(4, 6), 16) || 0) * factor)
-  
+
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
 }
 
@@ -54,11 +63,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const primaryDark = configs.PRIMARY_COLOR_DARK || '#9196F2'
 
   // Colores web (con fallback al design system teal)
-  const webPrimary  = configs.PRIMARY_COLOR_MAIN  || '#25927F'
-  const webLight    = configs.PRIMARY_COLOR_LIGHT || '#BDD962'
-  const webDark     = configs.PRIMARY_COLOR_DARK  || '#025E44'
+  const webPrimary = configs.PRIMARY_COLOR_MAIN || '#25927F'
+  const webLight = configs.PRIMARY_COLOR_LIGHT || '#BDD962'
+  const webDark = configs.PRIMARY_COLOR_DARK || '#025E44'
   const webDarkDeep = darkenHex(webDark, 0.45)  // muy oscuro → reemplaza #012d22
-  const webDarkMid  = darkenHex(webDark, 0.72)  // oscuro medio → reemplaza #0f4438
+  const webDarkMid = darkenHex(webDark, 0.72)  // oscuro medio → reemplaza #0f4438
 
   return (
     <html lang='es' suppressHydrationWarning className={`${plus_jakarta_sans.variable} ${plus_jakarta_sans.className}`}>

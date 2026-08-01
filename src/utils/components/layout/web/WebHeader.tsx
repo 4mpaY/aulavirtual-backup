@@ -1,11 +1,15 @@
 'use client'
 
-import { Button } from '@mui/material'
+import { useState } from 'react'
+
+import { Button, IconButton } from '@mui/material'
 import { useSession } from 'next-auth/react'
+import { Menu } from 'lucide-react'
 
 import Logo from '@components/layout/shared/Logo'
 import UserDropdown from '@components/layout/shared/UserDropdown'
 import CartIcon from '@/features/web/cart/components/CartIcon'
+import MobileNavDrawer from '@/utils/components/layout/web/MobileNavDrawer'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import { useConfig } from '@/contexts/ConfigContext'
 
@@ -19,9 +23,10 @@ interface WebHeaderProps {
   initialCategories?: Category[]
   platformName?: string
   platformSlogan?: string
+  empresasHabilitado?: boolean
 }
 
-export default function WebHeader({ initialCategories = [], platformName = 'Aula Virtual', platformSlogan = 'Aprende sin límites' }: WebHeaderProps) {
+export default function WebHeader({ initialCategories = [], platformName = 'Aula Virtual', platformSlogan = 'Aprende sin límites', empresasHabilitado = true }: WebHeaderProps) {
   void initialCategories
   void platformName
   void platformSlogan
@@ -29,6 +34,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
   const { openLogin, openRegister } = useAuthModal()
   const configs = useConfig()
   const primaryColor = configs.COLOR_PRIMARIO || '#02115C'
+  const [navOpen, setNavOpen] = useState(false)
 
   return (
     <header
@@ -38,8 +44,9 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
       {/* Logo */}
       <Logo />
 
-      {/* Auth Buttons */}
+      {/* Right side */}
       <div className="flex items-center gap-3">
+
         <CartIcon />
         {session ? (
           <UserDropdown />
@@ -48,7 +55,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
             <Button
               onClick={() => openLogin()}
               size="small"
-              sx={{ fontWeight: 700, fontSize: '0.7rem', color: '#02115C', fontFamily: 'Inter, sans-serif' }}
+              sx={{ display: { xs: 'none', sm: 'inline-flex' }, fontWeight: 700, fontSize: '0.9rem', color: '#02115C', fontFamily: 'Inter, sans-serif' }}
             >
               Iniciar Sesión
             </Button>
@@ -59,7 +66,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
               sx={{
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 700,
-                fontSize: '0.7rem',
+                fontSize: '0.9rem',
                 borderRadius: '8px',
                 backgroundColor: primaryColor,
                 display: { xs: 'none', sm: 'inline-flex' },
@@ -70,7 +77,20 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
             </Button>
           </>
         )}
+
+        <IconButton
+          onClick={() => setNavOpen(true)}
+          aria-label="Abrir menú"
+          sx={{
+            display: { xs: 'inline-flex', sm: 'none' },
+            color: '#02115C',
+          }}
+        >
+          <Menu size={26} />
+        </IconButton>
       </div>
+
+      <MobileNavDrawer open={navOpen} onClose={() => setNavOpen(false)} empresasHabilitado={empresasHabilitado} />
     </header>
   )
 }

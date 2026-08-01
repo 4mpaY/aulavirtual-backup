@@ -1,0 +1,78 @@
+/* Fuentes personalizadas disponibles para los campos de texto de las plantillas
+ * de certificado. Los nombres de familia deben coincidir exactamente con las
+ * claves registradas en el generador de PDF: api/_shared/certificados/generators/fontRegistry.ts */
+
+@font-face {
+  font-family: 'montserrat';
+  src: url('/fonts/certificados/Montserrat-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'montserrat';
+  src: url('/fonts/certificados/Montserrat-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'playfair';
+  src: url('/fonts/certificados/PlayfairDisplay-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'playfair';
+  src: url('/fonts/certificados/PlayfairDisplay-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'poppins';
+  src: url('/fonts/certificados/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'poppins';
+  src: url('/fonts/certificados/Poppins-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'nunito';
+  src: url('/fonts/certificados/Nunito-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'nunito';
+  src: url('/fonts/certificados/Nunito-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'dancingscript';
+  src: url('/fonts/certificados/DancingScript-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'dancingscript';
+  src: url('/fonts/certificados/DancingScript-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

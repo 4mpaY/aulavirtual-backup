@@ -18,25 +18,38 @@ interface CouponData {
     total: number
 }
 
-interface CheckoutViewProps {
-    courses: {
-        id: string
-        titulo: string
-        slug: string
-        miniatura?: string
-        precio: number
-        moneda: string
-        profesor: {
-            nombre: string
-            apellido: string
-        }
-    }[]
+export interface CourseCheckoutItem {
+    id: string
+    titulo: string
+    slug: string
+    miniatura?: string
+    precio: number
+    moneda: string
+    profesor: { nombre: string; apellido: string }
 }
 
-const CheckoutView = ({ courses }: CheckoutViewProps) => {
+export interface EbookCheckoutItem {
+    id: string
+    titulo: string
+    slug: string
+    miniatura?: string
+    precio: number
+    moneda: string
+}
+
+interface CheckoutViewProps {
+    courses: CourseCheckoutItem[]
+    ebooks: EbookCheckoutItem[]
+}
+
+const CheckoutView = ({ courses, ebooks }: CheckoutViewProps) => {
     const [appliedCoupon, setAppliedCoupon] = useState<CouponData | null>(null)
 
-    const firstCourseSlug = courses.length > 0 ? courses[0].slug : 'cursos'
+    const hasOnlyEbooks = courses.length === 0 && ebooks.length > 0
+
+    const breadcrumbBack = hasOnlyEbooks
+        ? { label: 'Ebooks', href: '/ebooks' }
+        : { label: 'Cursos', href: courses[0] ? `/cursos/${courses[0].slug}` : '/cursos' }
 
     return (
         <Box sx={{ bgcolor: '#f8fafc', minHeight: 'calc(100vh - 64px)', fontFamily: FONT }}>
@@ -51,11 +64,10 @@ const CheckoutView = ({ courses }: CheckoutViewProps) => {
                 <Box aria-hidden sx={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
 
                 <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-                    {/* Breadcrumb */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap', mb: 2 }}>
                         {[
                             { label: 'Inicio', href: '/' },
-                            { label: 'Curso', href: `/cursos/${firstCourseSlug}` },
+                            breadcrumbBack,
                         ].map((item, i) => (
                             <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                                 <Link href={item.href} style={{ fontFamily: FONT, fontSize: '0.8125rem', fontWeight: 500, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>
@@ -89,6 +101,7 @@ const CheckoutView = ({ courses }: CheckoutViewProps) => {
                     <Grid item xs={12} lg={4} sx={{ order: { xs: 1, lg: 2 } }}>
                         <OrderSummary
                             courses={courses}
+                            ebooks={ebooks}
                             appliedCoupon={appliedCoupon}
                             onCouponApplied={setAppliedCoupon}
                         />
@@ -97,6 +110,7 @@ const CheckoutView = ({ courses }: CheckoutViewProps) => {
                     <Grid item xs={12} lg={8} sx={{ order: { xs: 2, lg: 1 } }}>
                         <PaymentForm
                             courses={courses}
+                            ebooks={ebooks}
                             appliedCouponCode={appliedCoupon?.codigo}
                             finalTotal={appliedCoupon ? appliedCoupon.total : undefined}
                         />

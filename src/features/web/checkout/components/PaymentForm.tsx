@@ -31,14 +31,12 @@ import { PayPalScriptProvider } from '@paypal/react-paypal-js'
 import { useConfig } from '@/contexts/ConfigContext'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import AppModal from '@/utils/components/AppModal'
-import IzipayScript from './IzipayScript'
 import CulqiScript from './CulqiScript'
 import { PayPalPaymentButton } from './PayPalPaymentButton'
 import { useCart } from '../../cart/context/CartContext'
 
 declare global {
   interface Window {
-    Izipay: any
     Culqi: any
   }
 }
@@ -58,6 +56,12 @@ interface PaymentFormProps {
     id: string
     titulo: string
     slug: string
+    precio: number
+    moneda: string
+  }[]
+  ebooks: {
+    id: string
+    titulo: string
     precio: number
     moneda: string
   }[]
@@ -148,7 +152,7 @@ const CopyRow = ({ label, value, onCopy }: { label: string; value: string; onCop
   </Box>
 )
 
-const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProps) => {
+const PaymentForm = ({ courses, ebooks = [], appliedCouponCode, finalTotal }: PaymentFormProps) => {
   const { data: session } = useSession()
   const router = useRouter()
   const { clearCart } = useCart()
@@ -186,9 +190,9 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const [numeroComprobante, setNumeroComprobante] = useState('')
   const [comprobanteError, setComprobanteError] = useState<string | null>(null)
 
-  const subtotal = courses.reduce((acc, c) => acc + Number(c.precio), 0)
+  const subtotal = [...courses, ...ebooks].reduce((acc, i) => acc + Number(i.precio), 0)
   const displayTotal = finalTotal !== undefined ? finalTotal : subtotal
-  const currencySymbol = courses[0]?.moneda === 'USD' ? '$' : 'S/'
+  const currencySymbol = (courses[0] || ebooks[0])?.moneda === 'USD' ? '$' : 'S/'
 
   useEffect(() => {
     if (session?.user) {
@@ -232,8 +236,13 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   const handlePaymentSuccess = useCallback(() => {
     setPaymentSuccess(true)
     clearCart()
-    setTimeout(() => router.push('/estudiante/mis-cursos'), 2000)
-  }, [router, clearCart])
+
+    const dest = courses.length === 0 && ebooks.length > 0
+      ? '/estudiante/mis-ebooks'
+      : '/estudiante/mis-cursos'
+
+    setTimeout(() => router.push(dest), 2000)
+  }, [router, clearCart, courses.length, ebooks.length])
 
   const validateComprobante = useCallback(() => {
     if (configs.PEDIDOS_SOLICITAR_COMPROBANTE === 'false') return true
@@ -262,26 +271,6 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
     return true
   }, [configs.PEDIDOS_SOLICITAR_COMPROBANTE, tipoComprobante, numeroComprobante])
-
-  const handlePaymentResponse = useCallback(async (response: any, pedidoId: string) => {
-    try {
-      const confirmRes = await fetch('/api/izipay/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pedidoId, response })
-      })
-
-      const confirmData = await confirmRes.json()
-
-      if (response.code === '00') {
-        confirmRes.ok ? handlePaymentSuccess() : setPaymentError(confirmData.message || 'Error al confirmar el pago')
-      } else {
-        setPaymentError(response.messageUser || 'El pago no fue completado')
-      }
-    } catch {
-      setPaymentError('Error inesperado al confirmar el pago')
-    }
-  }, [handlePaymentSuccess])
 
   const handleCulqiToken = useCallback(async (token: string, email: string) => {
     try {
@@ -323,6 +312,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
+          ebookIds: ebooks.map(e => e.id),
           codigoCupon: appliedCouponCode,
           gateway: 'IZIPAY',
           tipoComprobante,
@@ -334,16 +324,19 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pago')
 
-      const { iziConfig, token, keyRSA, pedidoId } = dataRaw.result
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
 
-      if (!window.Izipay) throw new Error('El SDK de Izipay no se ha cargado.')
+        return
+      }
 
-      const checkout = new window.Izipay({ config: iziConfig })
+      const { paymentURL } = dataRaw.result
 
-      checkout.LoadForm({ authorization: token, keyRSA, callbackResponse: (r: any) => handlePaymentResponse(r, pedidoId) })
+      if (!paymentURL) throw new Error('No se pudo obtener la URL de pago de Izipay.')
+
+      window.location.href = paymentURL
     } catch (error: any) {
       setPaymentError(error.message || 'Ocurrió un error inesperado')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -367,6 +360,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
+          ebookIds: ebooks.map(e => e.id),
           codigoCupon: appliedCouponCode,
           gateway: 'CULQI',
           tipoComprobante,
@@ -377,6 +371,12 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const dataRaw = await response.json()
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pedido')
+
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
+
+        return
+      }
 
       const { pedidoId, culqiOrderId, rsaId, rsaPublicKey } = dataRaw.result
 
@@ -420,6 +420,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
+          ebookIds: ebooks.map(e => e.id),
           codigoCupon: appliedCouponCode,
           gateway: 'MANUAL',
           metodoPagoManualId: selectedMetodoManualId,
@@ -508,6 +509,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cursoIds: courses.map(c => c.id),
+          ebookIds: ebooks.map(e => e.id),
           codigoCupon: appliedCouponCode,
           gateway: 'MERCADOPAGO',
           tipoComprobante,
@@ -518,6 +520,12 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
       const dataRaw = await response.json()
 
       if (!response.ok) throw new Error(dataRaw.message || 'Error al iniciar el pago con Mercado Pago')
+
+      if (dataRaw.result?.gratuito) {
+        handlePaymentSuccess()
+
+        return
+      }
 
       const { mpSandboxInitPoint, mpInitPoint } = dataRaw.result
 
@@ -559,7 +567,6 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
   return (
     <>
       <Paper elevation={0} sx={{ p: { xs: 3, md: 4 }, borderRadius: '24px', bgcolor: 'white', border: '1px solid', borderColor: 'divider' }}>
-        <IzipayScript />
         <CulqiScript
           publicKey={configs.CULQI_PUBLIC_KEY || ''}
           settings={culqiSettings || { currency: courses[0]?.moneda || 'PEN', amount: Math.round(displayTotal * 100) }}
@@ -758,7 +765,7 @@ const PaymentForm = ({ courses, appliedCouponCode, finalTotal }: PaymentFormProp
                     <TermsCheck checked={acceptedTerms} onChange={setAcceptedTerms} />
                     {acceptedTerms ? (
                       <PayPalScriptProvider options={{ clientId: paypalClientId, currency: 'USD' }}>
-                        <PayPalPaymentButton cursoIds={courses.map(c => c.id)} codigoCupon={appliedCouponCode} onSuccess={handlePaymentSuccess} onError={(err) => setPaymentError(err)} />
+                        <PayPalPaymentButton cursoIds={courses.map(c => c.id)} ebookIds={ebooks.map(e => e.id)} codigoCupon={appliedCouponCode} onSuccess={handlePaymentSuccess} onError={(err) => setPaymentError(err)} />
                       </PayPalScriptProvider>
                     ) : (
                       <Alert severity='info' sx={{ borderRadius: 2 }}>Acepta los términos y condiciones para habilitar el pago con PayPal.</Alert>

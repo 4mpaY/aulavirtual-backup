@@ -76,7 +76,7 @@ export async function GET(request: Request) {
         where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } },
         select: { certificado_habilitado: true }
       }),
-      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true, titulo: true } })
+      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true, titulo: true, numero_asesor: true } })
     ])
 
     const precioCert = curso?.precio_certificado ? Number(curso.precio_certificado) : null
@@ -89,10 +89,12 @@ export async function GET(request: Request) {
             codigoVerificacion: certificado.codigo_verificacion,
             emitidoEn: certificado.emitido_en,
             cursoTitulo: certificado.curso.titulo,
-            nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+            nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`,
+            archivoPdf: (certificado.datos as any)?.archivo_pdf || null
           }
         : null,
       cursoTitulo: curso?.titulo ?? null,
+      numeroAsesor: curso?.numero_asesor ?? null,
       elegibilidad,
       pagoPendiente: pagoPendiente || false,
       precioCertificado: precioCert
@@ -250,7 +252,8 @@ export async function POST(request: Request) {
           codigoVerificacion: certificado.codigo_verificacion,
           emitidoEn: certificado.emitido_en,
           cursoTitulo: certificado.curso.titulo,
-          nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+          nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`,
+          archivoPdf: (certificado.datos as any)?.archivo_pdf || null
         }
       },
       201

@@ -22,6 +22,7 @@ import {
 import CustomTextField from '@core/components/mui/TextField'
 import MediaLibrary from '../MediaLibrary'
 import { sanitizeDatetimeInput, toLocalDatetimeLocalValue } from '@/utils/functions/sanitizeDatetime'
+import { blockDialogCloseWhile } from '@/utils/functions/dialogClose'
 
 type Recurso = { nombre: string; url: string; tipo?: 'enlace' | 'archivo' }
 
@@ -33,7 +34,7 @@ function inferTipo(r: Recurso): 'enlace' | 'archivo' {
 
 function getFileExt(url: string): string {
   const ext = url.split('?')[0].split('.').pop()?.toUpperCase() ?? ''
-  const known = ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'ZIP', 'PNG', 'JPG', 'JPEG', 'MP4', 'WEBM', 'PPT', 'PPTX']
+  const known = ['PDF', 'DOC', 'DOCX', 'XLS', 'XLSX', 'ZIP', 'PNG', 'JPG', 'JPEG', 'MP4', 'WEBM', 'MKV', 'PPT', 'PPTX']
 
   return known.includes(ext) ? ext : 'FILE'
 }
@@ -69,7 +70,12 @@ interface LessonEditDialogProps {
 export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }: LessonEditDialogProps) {
   const [title, setTitle] = useState('')
   const [duration, setDuration] = useState<number | string>('')
-  const [videoUrl, setVideoUrl] = useState('')
+  const [videoUrlEnlace, setVideoUrlEnlace] = useState('')
+  const [videoUrlPrivado, setVideoUrlPrivado] = useState('')
+  const [videoSource, setVideoSource] = useState<'enlace' | 'privado'>('enlace')
+  const [openMediaVideo, setOpenMediaVideo] = useState(false)
+  const [esPdf, setEsPdf] = useState(false)
+  const [openMediaPdf, setOpenMediaPdf] = useState(false)
   const [esEnVivo, setEsEnVivo] = useState(false)
   const [fechaProgramada, setFechaProgramada] = useState('')
   const [fechaFin, setFechaFin] = useState('')
@@ -87,7 +93,25 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     if (lessonData) {
       setTitle(lessonData.titulo || '')
       setDuration(lessonData.duracion || '')
-      setVideoUrl(lessonData.video_url || '')
+
+      const isPrivadoVideo = !!lessonData.video_url && lessonData.video_url.includes('/api/videos/stream/')
+
+      setVideoSource(isPrivadoVideo ? 'privado' : 'enlace')
+      setEsPdf(lessonData.es_pdf || false)
+
+      if (lessonData.video_url) {
+        if (isPrivadoVideo) {
+          setVideoUrlPrivado(lessonData.video_url)
+          setVideoUrlEnlace('')
+        } else {
+          setVideoUrlEnlace(lessonData.video_url)
+          setVideoUrlPrivado('')
+        }
+      } else {
+        setVideoUrlEnlace('')
+        setVideoUrlPrivado('')
+      }
+
       setEsEnVivo(lessonData.es_en_vivo || false)
 
       setFechaProgramada(lessonData.fecha_programada ? toLocalDatetimeLocalValue(lessonData.fecha_programada) : '')
@@ -99,7 +123,10 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     } else {
       setTitle('')
       setDuration('')
-      setVideoUrl('')
+      setVideoUrlEnlace('')
+      setVideoUrlPrivado('')
+      setVideoSource('enlace')
+      setEsPdf(false)
       setEsEnVivo(false)
       setFechaProgramada('')
       setFechaFin('')
@@ -146,8 +173,11 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     onSave({
       titulo: title,
       duracion: duration ? Number(duration) : null,
-      video_url: videoUrl || null,
+      video_url: esPdf
+        ? videoUrlEnlace || null
+        : (videoSource === 'enlace' ? videoUrlEnlace : videoUrlPrivado) || null,
       es_en_vivo: esEnVivo,
+      es_pdf: !esEnVivo && esPdf,
       fecha_programada: sanitizeDatetimeInput(fechaProgramada),
       fecha_fin: sanitizeDatetimeInput(fechaFin),
       enlace_reunion: enlaceReunion || null,
@@ -162,7 +192,13 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
     : null
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth='sm'>
+    <Dialog
+      open={open}
+      onClose={blockDialogCloseWhile(isSaving, onClose)}
+      disableEscapeKeyDown={isSaving}
+      fullWidth
+      maxWidth='sm'
+    >
       <DialogTitle>Editar Lección</DialogTitle>
       <DialogContent dividers>
         <Stack spacing={4} sx={{ mt: 2 }}>
@@ -235,16 +271,134 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
               />
             </>
           ) : (
-            <CustomTextField
-              fullWidth
-              label='URL del Video (Vimeo / Youtube)'
-              placeholder='https://vimeo.com/...'
-              value={videoUrl}
-              onChange={e => setVideoUrl(e.target.value)}
-              InputProps={{
-                startAdornment: <InputAdornment position='start'><i className='tabler-brand-vimeo text-xl text-textSecondary' /></InputAdornment>
-              }}
-            />
+            <Stack spacing={3}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={esPdf}
+                    onChange={e => {
+                      setEsPdf(e.target.checked)
+                      setVideoUrlEnlace('')
+                      setVideoUrlPrivado('')
+                    }}
+                    color='primary'
+                  />
+                }
+                label={
+                  <Box>
+                    <Typography variant='body2' fontWeight={600}>¿El contenido es un PDF?</Typography>
+                    <Typography variant='caption' color='text.secondary'>Activa esto si en lugar de un video, el contenido de esta lección es un documento PDF.</Typography>
+                  </Box>
+                }
+              />
+
+              {esPdf ? (
+                <Box>
+                  <Typography variant='caption' sx={{ mb: 1, display: 'block', fontWeight: 600 }}>Archivo PDF de la Lección</Typography>
+                  {videoUrlEnlace ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+                      <i className='tabler-file-type-pdf text-xl text-error' />
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant='body2' fontWeight={600} noWrap>{videoUrlEnlace.split('/').pop()}</Typography>
+                        <Typography variant='caption' color='text.secondary' noWrap>{videoUrlEnlace}</Typography>
+                      </Box>
+                      <IconButton size='small' color='error' onClick={() => setVideoUrlEnlace('')}>
+                        <i className='tabler-trash text-base' />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <Button
+                      variant='outlined'
+                      size='small'
+                      startIcon={<i className='tabler-upload' />}
+                      onClick={() => setOpenMediaPdf(true)}
+                    >
+                      Seleccionar o Subir PDF
+                    </Button>
+                  )}
+                </Box>
+              ) : (
+                <>
+                  {/* Selector de origen del video */}
+                  <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', display: 'flex', mb: 1 }}>
+                    {(['enlace', 'privado'] as const).map((source) => (
+                      <Button
+                        key={source}
+                        onClick={() => {
+                          setVideoSource(source)
+
+
+                          // Si cambia a privado, limpiar enlace externo
+                          if (source === 'privado' && videoUrlEnlace) {
+                            setVideoUrlEnlace('')
+                          }
+
+
+                          // Si cambia a enlace, limpiar video privado en stream
+                          if (source === 'enlace' && videoUrlPrivado.includes('/api/videos/stream/')) {
+                            setVideoUrlPrivado('')
+                          }
+                        }}
+                        fullWidth
+                        disableRipple
+                        startIcon={<i className={source === 'enlace' ? 'tabler-link text-base' : 'tabler-video text-base'} />}
+                        sx={{
+                          borderRadius: 0,
+                          py: 1,
+                          fontWeight: videoSource === source ? 700 : 400,
+                          fontSize: '0.8rem',
+                          color: videoSource === source ? 'primary.main' : 'text.secondary',
+                          backgroundColor: videoSource === source ? 'action.selected' : 'transparent',
+                          borderBottom: videoSource === source ? '2px solid' : '2px solid transparent',
+                          borderBottomColor: videoSource === source ? 'primary.main' : 'transparent',
+                          '&:hover': { backgroundColor: 'action.hover' },
+                        }}
+                      >
+                        {source === 'enlace' ? 'Enlace externo' : 'Subir video privado'}
+                      </Button>
+                    ))}
+                  </Box>
+
+                  {videoSource === 'enlace' ? (
+                    <CustomTextField
+                      fullWidth
+                      label='URL del Video (Vimeo / Youtube)'
+                      placeholder='https://vimeo.com/...'
+                      value={videoUrlEnlace}
+                      onChange={e => setVideoUrlEnlace(e.target.value)}
+                      InputProps={{
+                        startAdornment: <InputAdornment position='start'><i className='tabler-brand-vimeo text-xl text-textSecondary' /></InputAdornment>
+                      }}
+                    />
+                  ) : (
+                    <Box>
+                      <Typography variant='caption' sx={{ mb: 1, display: 'block', fontWeight: 600 }}>Archivo de Video Privado (.mp4, .webm, .mkv)</Typography>
+                      {videoUrlPrivado && videoUrlPrivado.includes('/api/videos/stream/') ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
+                          <i className='tabler-video text-xl text-primary' />
+                          <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant='body2' fontWeight={600} noWrap>{videoUrlPrivado.split('/').pop()}</Typography>
+                            <Typography variant='caption' color='text.secondary' noWrap>{videoUrlPrivado}</Typography>
+                          </Box>
+                          <IconButton size='small' color='error' onClick={() => setVideoUrlPrivado('')}>
+                            <i className='tabler-trash text-base' />
+                          </IconButton>
+                        </Box>
+                      ) : (
+                        <Button
+                          variant='outlined'
+                          size='small'
+                          startIcon={<i className='tabler-upload' />}
+                          onClick={() => setOpenMediaVideo(true)}
+                        >
+                          Seleccionar o Subir Video
+                        </Button>
+                      )}
+                    </Box>
+                  )}
+                </>
+              )}
+            </Stack>
           )}
 
           <CustomTextField
@@ -478,6 +632,28 @@ export function LessonEditDialog({ open, onClose, lessonData, onSave, isSaving }
               setOpenMediaResources(false)
             }}
             title='Seleccionar Recurso'
+            acceptType='OTRO'
+          />
+
+          <MediaLibrary
+            open={openMediaVideo}
+            onClose={() => setOpenMediaVideo(false)}
+            onSelect={(url: string) => {
+              setVideoUrlPrivado(url)
+              setOpenMediaVideo(false)
+            }}
+            title='Seleccionar o Subir Video Privado'
+            acceptType='VIDEO'
+          />
+
+          <MediaLibrary
+            open={openMediaPdf}
+            onClose={() => setOpenMediaPdf(false)}
+            onSelect={(url: string) => {
+              setVideoUrlEnlace(url)
+              setOpenMediaPdf(false)
+            }}
+            title='Seleccionar o Subir PDF de la Lección'
             acceptType='OTRO'
           />
         </Stack>

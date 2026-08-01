@@ -10,6 +10,8 @@ import {
   CircularProgress
 } from '@mui/material'
 
+import { blockDialogCloseWhile } from '@/utils/functions/dialogClose'
+
 interface CustomAlertDialogProps {
   open: boolean
   title: string
@@ -34,7 +36,11 @@ const CustomAlertDialog = ({
   color = 'primary'
 }: CustomAlertDialogProps) => {
   return (
-    <Dialog open={open} onClose={loading ? undefined : onClose}>
+    <Dialog
+      open={open}
+      onClose={blockDialogCloseWhile(loading, onClose)}
+      disableEscapeKeyDown={loading}
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{description}</DialogContentText>

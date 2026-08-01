@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 
 export interface CartItem {
     id: string
+    type: 'CURSO' | 'EBOOK'
     titulo: string
     slug: string
     miniatura?: string
@@ -30,10 +31,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [cart, setCart] = useState<CartItem[]>([])
     const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false)
 
-    // Load cart from localStorage on mount
     useEffect(() => {
         try {
-            const savedCart = localStorage.getItem('cart:v1')
+            const savedCart = localStorage.getItem('cart:v2')
 
             if (savedCart) {
                 setCart(JSON.parse(savedCart))
@@ -43,10 +43,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [])
 
-    // Save cart to localStorage on changes
     useEffect(() => {
         try {
-            localStorage.setItem('cart:v1', JSON.stringify(cart))
+            localStorage.setItem('cart:v2', JSON.stringify(cart))
         } catch {
             // Safari private mode, quota exceeded, or disabled
         }
@@ -58,7 +57,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
             return [...prev, item]
         })
-        setIsCartDrawerOpen(true) // Open cart drawer on adding item
+        setIsCartDrawerOpen(true)
     }
 
     const removeFromCart = (id: string) => {

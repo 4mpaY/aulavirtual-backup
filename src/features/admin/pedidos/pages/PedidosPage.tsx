@@ -41,8 +41,10 @@ import CustomTextField from '@core/components/mui/TextField'
 
 import type { ThemeColor } from '@/@core/types'
 import type { Pedido } from '../entity/Pedido'
+import { getDetalleInfo } from '../entity/Pedido'
 import { usePedidos, useDeletePedido } from '../hooks/usePedidos'
 import { AxiosPedido } from '../http/axiosPedido'
+import { useCursosLista } from '@/features/admin/cursos/hooks/useCursos'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import HydratedDate from '@/utils/components/HydratedDate'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
@@ -72,7 +74,11 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
   const [estadoFiltro, setEstadoFiltro] = useState('TODOS')
   const [nroPedido, setNroPedido] = useState('')
   const [nombre, setNombre] = useState('')
+  const [fechaInicio, setFechaInicio] = useState('')
+  const [fechaFin, setFechaFin] = useState('')
+  const [cursoId, setCursoId] = useState('')
 
+  const { data: cursosLista } = useCursosLista()
   const { mutateAsync: deletePedido, isPending: isDeleting } = useDeletePedido()
   const [deleteInfo, setDeleteInfo] = useState<{ open: boolean, id: string | null }>({ open: false, id: null })
   const [isExporting, setIsExporting] = useState(false)
@@ -84,14 +90,28 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
       const session = await getSession()
       const token = session?.user?.accessToken ?? null
       const axiosPedido = new AxiosPedido({ getAuthToken: () => token })
-      const res = await axiosPedido.getAll({ estado: estadoFiltro, nro_pedido: nroPedido, nombre, limit: '5000' })
+
+      const res = await axiosPedido.getAll({
+        estado: estadoFiltro,
+        nro_pedido: nroPedido,
+        nombre,
+        curso_id: cursoId,
+        fecha_inicio: fechaInicio,
+        fecha_fin: fechaFin,
+        limit: '5000'
+      })
+
       const todos: Pedido[] = res?.pedidos ?? []
 
       const filas = todos.map(p => ({
         '# Pedido': `#${String(p.numero_pedido).padStart(6, '0')}`,
         Estudiante: `${p.usuario?.nombre ?? ''} ${p.usuario?.apellido ?? ''}`.trim(),
         Correo: p.usuario?.correo ?? '',
-        'Curso(s)': p.detalles?.map(d => d.curso?.titulo).join(' | ') ?? '',
+        'Ítem(s)': p.detalles?.map(d => {
+          const { titulo, esEbook } = getDetalleInfo(d)
+
+          return esEbook ? `${titulo} (Ebook)` : titulo
+        }).join(' | ') ?? '',
         Total: `${p.moneda} ${Number(p.total).toFixed(2)}`,
         Cupón: p.cupon?.codigo ?? '',
         'Método de pago': p.metodo_pago?.toLowerCase().replace('_', ' ') ?? '',
@@ -134,6 +154,9 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
       estado: estadoFiltro,
       nro_pedido: nroPedido,
       nombre: nombre,
+      curso_id: cursoId,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
       page: String(pagination.pageIndex + 1),
       limit: String(pagination.pageSize)
     },
@@ -181,14 +204,27 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
         )
       }),
       columnHelper.accessor('detalles', {
-        header: 'Curso(s)',
+        header: 'Ítem(s)',
         cell: ({ row }) => (
-          <div className='flex flex-col'>
-            {row.original.detalles?.map((detalle, index) => (
-              <Typography key={index} variant='body2' color='text.primary'>
-                {detalle.curso?.titulo}
-              </Typography>
-            ))}
+          <div className='flex flex-col gap-1'>
+            {row.original.detalles?.map((detalle, index) => {
+              const { titulo, esEbook } = getDetalleInfo(detalle)
+
+              return (
+                <div key={index} className='flex items-center gap-2'>
+                  <Typography variant='body2' color='text.primary'>
+                    {titulo}
+                  </Typography>
+                  <Chip
+                    label={esEbook ? 'Ebook' : 'Curso'}
+                    size='small'
+                    color={esEbook ? 'info' : 'default'}
+                    variant='tonal'
+                    sx={{ height: 20, fontSize: '0.65rem' }}
+                  />
+                </div>
+              )
+            })}
           </div>
         )
       }),
@@ -311,53 +347,102 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
   return (
     <Card>
       <CardHeader title='Gestión de Pedidos' className='pbe-4' />
-      <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
-        <CustomTextField
-          select
-          value={table.getState().pagination.pageSize}
-          onChange={e => table.setPageSize(Number(e.target.value))}
-          className='is-[70px]'
-        >
-          <MenuItem value='10'>10</MenuItem>
-          <MenuItem value='25'>25</MenuItem>
-          <MenuItem value='50'>50</MenuItem>
-        </CustomTextField>
-        <div className='flex flex-wrap items-center gap-4 is-full sm:is-auto'>
+      <div className='flex flex-col gap-4 p-6 border-bs'>
+        <div className='flex justify-between flex-col items-start md:flex-row md:items-end gap-4'>
           <CustomTextField
             select
-            value={estadoFiltro}
-            onChange={e => {
-              setEstadoFiltro(e.target.value)
-              table.setPageIndex(0)
-            }}
-            className='is-full sm:is-[180px]'
+            label='Mostrar'
+            value={table.getState().pagination.pageSize}
+            onChange={e => table.setPageSize(Number(e.target.value))}
+            className='is-[70px]'
           >
-            <MenuItem value='TODOS'>Todos los estados</MenuItem>
-            <MenuItem value='COMPLETADO'>Pagados (Completados)</MenuItem>
-            <MenuItem value='PENDIENTE'>Pendientes</MenuItem>
-            <MenuItem value='CANCELADO'>Cancelados</MenuItem>
+            <MenuItem value='10'>10</MenuItem>
+            <MenuItem value='25'>25</MenuItem>
+            <MenuItem value='50'>50</MenuItem>
           </CustomTextField>
 
-          <DebouncedInput
-            value={nroPedido}
-            onChange={val => {
-              setNroPedido(String(val))
-              table.setPageIndex(0)
-            }}
-            placeholder='Buscar # Pedido'
-            className='is-full sm:is-[160px]'
-          />
+          <div className='flex flex-wrap items-end gap-4 is-full md:is-auto'>
+            <CustomTextField
+              select
+              label='Estado'
+              value={estadoFiltro}
+              onChange={e => {
+                setEstadoFiltro(e.target.value)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[170px]'
+            >
+              <MenuItem value='TODOS'>Todos los estados</MenuItem>
+              <MenuItem value='COMPLETADO'>Pagados (Completados)</MenuItem>
+              <MenuItem value='PENDIENTE'>Pendientes</MenuItem>
+              <MenuItem value='CANCELADO'>Cancelados</MenuItem>
+            </CustomTextField>
 
-          <DebouncedInput
-            value={nombre}
-            onChange={val => {
-              setNombre(String(val))
-              table.setPageIndex(0)
-            }}
-            placeholder='Buscar Estudiante...'
-            className='is-full sm:is-[200px]'
-          />
+            <DebouncedInput
+              value={nroPedido}
+              onChange={val => {
+                setNroPedido(String(val))
+                table.setPageIndex(0)
+              }}
+              label='# Pedido'
+              placeholder='Buscar...'
+              className='is-full sm:is-[140px]'
+            />
 
+            <DebouncedInput
+              value={nombre}
+              onChange={val => {
+                setNombre(String(val))
+                table.setPageIndex(0)
+              }}
+              label='Estudiante'
+              placeholder='Nombre o correo...'
+              className='is-full sm:is-[190px]'
+            />
+
+            <CustomTextField
+              select
+              label='Curso'
+              value={cursoId}
+              onChange={e => {
+                setCursoId(e.target.value)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[190px]'
+            >
+              <MenuItem value=''>Todos los cursos</MenuItem>
+              {cursosLista?.map(curso => (
+                <MenuItem key={curso.id} value={curso.id}>
+                  {curso.titulo}
+                </MenuItem>
+              ))}
+            </CustomTextField>
+
+            <CustomTextField
+              type='date'
+              label='Desde'
+              value={fechaInicio}
+              onChange={e => {
+                setFechaInicio(e.target.value)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[150px]'
+            />
+
+            <CustomTextField
+              type='date'
+              label='Hasta'
+              value={fechaFin}
+              onChange={e => {
+                setFechaFin(e.target.value)
+                table.setPageIndex(0)
+              }}
+              className='is-full sm:is-[150px]'
+            />
+          </div>
+        </div>
+
+        <div className='flex flex-wrap justify-end gap-4'>
           <Button
             variant='contained'
             color='success'
