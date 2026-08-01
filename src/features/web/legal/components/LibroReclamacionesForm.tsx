@@ -137,9 +137,9 @@ export default function LibroReclamacionesForm() {
           esta institución cuenta con un Libro de Reclamaciones Virtual a su disposición.
         </Typography>
         <Box sx={{ mt: 2, textAlign: 'left', bgcolor: 'white', p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-          <Typography variant="caption" display="block"><strong>PROVEEDOR:</strong> NOMBRE DE TU EMPRESA</Typography>
-          <Typography variant="caption" display="block"><strong>RUC:</strong> 20600000000 </Typography>
-          <Typography variant="caption" display="block"><strong>DOMICILIO:</strong> [DIRECCIÓN]</Typography>
+          <Typography variant="caption" display="block"><strong>PROVEEDOR:</strong> PROQALL E.I.R.L</Typography>
+          <Typography variant="caption" display="block"><strong>RUC:</strong> 20613875388</Typography>
+          <Typography variant="caption" display="block"><strong>DOMICILIO:</strong> PJ. SAN CARLOS NRO. SN CPMEN CONCEPCION (S77991182 PARADERO HUAYCHULO)</Typography>
         </Box>
       </Box>
 

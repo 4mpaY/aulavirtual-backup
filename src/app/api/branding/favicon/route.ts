@@ -4,7 +4,6 @@ import { join } from 'path'
 import { NextResponse } from 'next/server'
 
 import { resolveFaviconUrl } from '@/utils/functions/syncFavicon'
-import { getConfigs } from '@/utils/libs/config'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,8 +31,7 @@ async function readPublicFile(relativePath: string): Promise<{ buffer: Buffer; c
 }
 
 export async function GET() {
-  const configs = await getConfigs()
-  const faviconUrl = resolveFaviconUrl(configs)
+  const faviconUrl = resolveFaviconUrl()
   const candidates = [faviconUrl, '/favicon.ico'].filter(Boolean)
 
   for (const path of candidates) {

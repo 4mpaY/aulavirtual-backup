@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const configs = await getConfigs()
   const title = configs.TEMPLATE_NAME || 'Aula Virtual'
   const slogan = configs.TEMPLATE_SLOGAN || ''
-  const logo = resolveFaviconUrl(configs)
+  const logo = resolveFaviconUrl()
 
   return {
     title: slogan ? `${title} - ${slogan}` : title,

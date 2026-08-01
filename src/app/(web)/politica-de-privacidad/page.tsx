@@ -3,7 +3,7 @@ import React from 'react'
 import { Box, Container, Typography, Divider } from '@mui/material'
 
 export const metadata = {
-  title: 'Política de Privacidad | ARM Asset Reliability Management',
+  title: 'Política de Privacidad | PROQALL',
 }
 
 export default function PoliticaDePrivacidadPage() {
@@ -14,13 +14,13 @@ export default function PoliticaDePrivacidadPage() {
           Política de Privacidad
         </Typography>
         <Typography variant="body1" color="text.secondary" textAlign="center" mb={6}>
-          Última actualización: Marzo de 2026
+          Última actualización: Julio de 2026
         </Typography>
 
         <Box sx={{ '& h4': { color: 'var(--web-dark, #025E44)', fontWeight: 800, mt: 5, mb: 2 }, '& p': { mb: 2, lineHeight: 1.8 } }}>
 
           <Typography paragraph>
-            En <strong>[NOMBRE DE EMPRESA]</strong> valoramos la confianza que nuestros usuarios depositan al
+            En <strong>PROQALL E.I.R.L</strong> valoramos la confianza que nuestros usuarios depositan al
             compartir su información personal. Esta Política de Privacidad describe cómo recopilamos, usamos,
             almacenamos y protegemos los datos personales de quienes acceden a nuestra Aula Virtual, de acuerdo
             con la <strong>Ley N° 29733, Ley de Protección de Datos Personales</strong>, y su reglamento.
@@ -55,7 +55,7 @@ export default function PoliticaDePrivacidadPage() {
           <Typography variant="h4">4. Derechos del Usuario (ARCO)</Typography>
           <Typography paragraph>
             El usuario puede ejercer sus derechos de <strong>Acceso, Rectificación, Cancelación y Oposición</strong>{' '}
-            sobre sus datos personales, enviando una solicitud a <strong>flyup.sale@gmail.com</strong>, adjuntando
+            sobre sus datos personales, enviando una solicitud a <strong>helderalexisml@gmail.com</strong>, adjuntando
             copia de su documento de identidad para validar la titularidad de la solicitud.
           </Typography>
 
@@ -76,7 +76,7 @@ export default function PoliticaDePrivacidadPage() {
           <Typography variant="h4">7. Contacto</Typography>
           <Typography paragraph>
             Para consultas sobre el tratamiento de sus datos personales, escríbanos a{' '}
-            <strong>flyup.sale@gmail.com</strong>. De acuerdo a la legislación de protección al consumidor
+            <strong>helderalexisml@gmail.com</strong>. De acuerdo a la legislación de protección al consumidor
             vigente, también ponemos a su disposición nuestro{' '}
             <a href="/libro-de-reclamaciones" style={{ color: 'var(--web-dark, #025E44)', textDecoration: 'underline' }}>
               Libro de Reclamaciones
