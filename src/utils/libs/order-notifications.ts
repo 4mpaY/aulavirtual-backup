@@ -34,7 +34,7 @@ export async function sendOrderConfirmationEmail(pedidoId: string) {
 
     // 2. Obtener configuraciones básicas (Logo, Nombre sitio)
     const configs = await getConfigs()
-    const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const platformName = 'Aula Virtual'
     let platformLogo = configs.TEMPLATE_LOGO || ''
 
     // 🔐 SEGURIDAD: Convertir ruta relativa a absoluta para correos
@@ -190,8 +190,7 @@ export async function sendAdminEnrollmentNotification(pedidoId: string) {
       return
     }
 
-    const configs = await getConfigs()
-    const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const platformName = 'Aula Virtual'
     const baseURL = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '')
     const primaryColor = '#25927F'
 

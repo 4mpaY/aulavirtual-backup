@@ -159,21 +159,17 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
 
           {/* Acciones */}
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title={!cert.datos?.archivo_pdf ? 'Tu certificado está en trámite, comunícate con el asesor.' : ''}>
-              <span style={{ display: 'flex', flex: 1 }}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  size="small"
-                  startIcon={<i className={!cert.datos?.archivo_pdf ? 'tabler-clock' : 'tabler-download'} />}
-                  onClick={handleDownload}
-                  disabled={downloading || !cert.datos?.archivo_pdf}
-                  sx={{ borderRadius: 2, fontWeight: 600, fontSize: '0.78rem' }}
-                >
-                  {downloading ? 'Descargando...' : !cert.datos?.archivo_pdf ? 'En trámite' : 'Descargar PDF'}
-                </Button>
-              </span>
-            </Tooltip>
+            <Button
+              fullWidth
+              variant="contained"
+              size="small"
+              startIcon={<i className="tabler-download" />}
+              onClick={handleDownload}
+              disabled={downloading}
+              sx={{ borderRadius: 2, fontWeight: 600, fontSize: '0.78rem' }}
+            >
+              {downloading ? 'Descargando...' : 'Descargar PDF'}
+            </Button>
             <Tooltip title="Verificar certificado">
               <Button
                 variant="outlined"

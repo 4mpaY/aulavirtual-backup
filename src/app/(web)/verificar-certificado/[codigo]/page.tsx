@@ -65,7 +65,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
   ])
 
   const primaryColor = configs.PRIMARY_COLOR_MAIN
-  const templateName = configs.TEMPLATE_NAME
+  const templateName = configs.CERTIFICADO_INSTITUTION_NAME || 'Aula Virtual'
   const logoUrl = configs.TEMPLATE_LOGO
 
   if (!certificado) {

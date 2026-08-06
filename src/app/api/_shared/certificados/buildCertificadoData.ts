@@ -67,8 +67,8 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
   const colorPrimario = configs.PRIMARY_COLOR_MAIN ?? '#131FF2'
   const [pr, pg, pb] = hexToRgb(colorPrimario)
   const logoUrl = configs.TEMPLATE_LOGO || '/images/logo.png'
-  const nombreInstitucion = configs.CERTIFICADO_INSTITUTION_NAME || configs.TEMPLATE_NAME || 'Aula Virtual'
-  const slogan = configs.CERTIFICADO_SLOGAN || configs.TEMPLATE_SLOGAN || 'Capacitación Especializada'
+  const nombreInstitucion = configs.CERTIFICADO_INSTITUTION_NAME || 'Aula Virtual'
+  const slogan = configs.CERTIFICADO_SLOGAN || 'Capacitación Especializada'
   const disclaimer = configs.CERTIFICADO_DISCLAIMER || ''
   const institutionUrl = configs.CERTIFICADO_INSTITUTION_URL || ''
 

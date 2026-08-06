@@ -55,7 +55,7 @@ export type Config = {
 }
 
 const themeConfig: Config = {
-  templateName: process.env.NEXT_PUBLIC_TEMPLATE_NAME || '',
+  templateName: process.env.NEXT_PUBLIC_TEMPLATE_NAME || 'Aula Virtual',
   templateSlogan:
     process.env.NEXT_PUBLIC_TEMPLATE_SLOGAN !== undefined
       ? process.env.NEXT_PUBLIC_TEMPLATE_SLOGAN

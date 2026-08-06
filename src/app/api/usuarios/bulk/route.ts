@@ -7,7 +7,6 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import { sendMail } from '@/utils/libs/mailer'
-import { getConfigs } from '@/utils/libs/config'
 import { getWelcomeTemplate } from '@/utils/libs/email-templates'
 
 const MAX_BULK = 500
@@ -142,8 +141,7 @@ export async function POST(request: Request) {
 
         // Enviar correo de bienvenida con credenciales
         try {
-          const configs = await getConfigs()
-          const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+          const platformName = 'Aula Virtual'
 
           const emailHtml = getWelcomeTemplate({
             platformName,

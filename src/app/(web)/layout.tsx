@@ -25,8 +25,8 @@ const getCategorias = unstable_cache(
 const WebLayout = async ({ children }: { children: React.ReactNode }) => {
   const [categories, configs] = await Promise.all([getCategorias(), getConfigs()])
 
-  const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
-  const platformSlogan = configs.TEMPLATE_SLOGAN || 'Aprende sin límites'
+  const platformName = 'Aula Virtual'
+  const platformSlogan = 'Aprende sin límites'
   const empresasHabilitado = configs.WEB_EMPRESAS_HABILITADO !== 'false'
 
   return (

@@ -646,10 +646,9 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     CERTIFICADO_INSTITUTION_URL: '',
     TEMPLATE_LOGO: '',
     SITE_FAVICON: '',
-    SETTINGS_COOKIE_NAME: 'arm',
-    PRIMARY_COLOR_MAIN: '#131FF2',
-    PRIMARY_COLOR_LIGHT: '#242CBF',
-    PRIMARY_COLOR_DARK: '#9196F2',
+    PRIMARY_COLOR_MAIN: '#25927F',
+    PRIMARY_COLOR_LIGHT: '#BDD962',
+    PRIMARY_COLOR_DARK: '#025E44',
     PAYPAL_ENABLED: 'true',
     PAYPAL_CLIENT_ID: '',
     PAYPAL_API_URL: 'https://api-m.sandbox.paypal.com',
@@ -1296,23 +1295,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label='WhatsApp'
-                  value={config.WHATSAPP_NUMERO}
-                  onChange={(e) => handleInputChange('WHATSAPP_NUMERO', e.target.value)}
-                  placeholder='+51 999 999 999'
-                  helperText='Tu número con o sin código de país (ej: +51 999 999 999 o 51999999999). Se usa en el botón flotante y el ícono de WhatsApp del footer.'
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position='start'>
-                        <i className='tabler-brand-whatsapp' style={{ fontSize: 18, color: '#25D366' }} />
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
                   label='Facebook'
                   placeholder='https://www.facebook.com/tu-página'
                   value={config.SOCIAL_FACEBOOK_URL}
@@ -1610,6 +1592,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   label='Nombre de la Plataforma'
                   value={config.TEMPLATE_NAME}
                   onChange={(e) => handleInputChange('TEMPLATE_NAME', e.target.value)}
+                  helperText='Se usa solo en el título/metadata de las páginas (pestaña del navegador, buscadores).'
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -1618,15 +1601,35 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   label='Slogan'
                   value={config.TEMPLATE_SLOGAN}
                   onChange={(e) => handleInputChange('TEMPLATE_SLOGAN', e.target.value)}
+                  helperText='Se usa solo en el título/metadata de las páginas.'
                 />
               </Grid>
+            </Grid>
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <SectionLabel>WhatsApp (Botón Flotante)</SectionLabel>
+            <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+              Número al que se envían los mensajes del botón flotante de WhatsApp y el ícono del footer.
+            </Typography>
+            <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
-                  label='Nombre de Cookie'
-                  value={config.SETTINGS_COOKIE_NAME}
-                  onChange={(e) => handleInputChange('SETTINGS_COOKIE_NAME', e.target.value)}
-                  helperText='Prefijo usado para cookies de configuración del tema'
+                  label='WhatsApp'
+                  value={config.WHATSAPP_NUMERO}
+                  onChange={(e) => handleInputChange('WHATSAPP_NUMERO', e.target.value)}
+                  placeholder='+51 999 999 999'
+                  helperText='Tu número con o sin código de país (ej: +51 999 999 999 o 51999999999).'
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position='start'>
+                        <i className='tabler-brand-whatsapp' style={{ fontSize: 18, color: '#25D366' }} />
+                      </InputAdornment>
+                    )
+                  }}
                 />
               </Grid>
             </Grid>

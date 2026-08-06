@@ -10,7 +10,7 @@ import { buildWhatsAppUrl, normalizeWhatsAppNumber } from '@/utils/functions/wha
 
 export function ContactList() {
   const configs = useConfig()
-  const waNumber = normalizeWhatsAppNumber(configs.WHATSAPP_NUMERO) || '51959436827'
+  const waNumber = normalizeWhatsAppNumber(configs.WHATSAPP_NUMERO) || '51928510125'
   const waHref = buildWhatsAppUrl(configs.WHATSAPP_NUMERO)
 
   return (

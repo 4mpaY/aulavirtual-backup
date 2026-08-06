@@ -1,4 +1,4 @@
-const DEFAULT_WHATSAPP_NUMBER = '51959436827'
+const DEFAULT_WHATSAPP_NUMBER = '51928510125'
 
 /**
  * Extrae solo los dígitos de un número de WhatsApp, soportando valores

@@ -3,7 +3,6 @@ import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { handleApiError } from '@/utils/libs/validation'
 import { sendMail } from '@/utils/libs/mailer'
-import { getConfigs } from '@/utils/libs/config'
 import { getOTPTemplate } from '@/utils/libs/email-templates'
 
 /**
@@ -52,8 +51,7 @@ export async function POST(request: Request) {
     console.log(`[Forgot-Password] Registro PasswordReset creado para: ${correo}. Código: ${codigo}`)
 
     // 4. Enviar correo con OTP
-    const configs = await getConfigs()
-    const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+    const platformName = 'Aula Virtual'
 
     const emailHtml = getOTPTemplate({
       platformName,

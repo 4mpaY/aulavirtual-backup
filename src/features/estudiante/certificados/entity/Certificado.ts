@@ -3,7 +3,7 @@ export interface CertificadoCurso {
   titulo: string
   slug: string
   miniatura: string | null
-  duracion: number | null
+  duracion: string | null
   nivel: string | null
   profesor: {
     nombre: string

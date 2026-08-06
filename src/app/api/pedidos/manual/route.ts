@@ -2,7 +2,6 @@ import { handleApiError, validateRequest } from '@/utils/libs/validation'
 
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { crearPedidoManualSchema } from '@/schemas/pedido.schema'
-import { getConfigs } from '@/utils/libs/config'
 import { getOrderConfirmationTemplate } from '@/utils/libs/email-templates'
 import prisma from '@/utils/libs/prisma'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
@@ -178,8 +177,7 @@ export async function POST(request: Request) {
           })
 
           if (pedidoCompleto) {
-            const configs = await getConfigs()
-            const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+            const platformName = 'Aula Virtual'
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
             const emailHtml = getOrderConfirmationTemplate({

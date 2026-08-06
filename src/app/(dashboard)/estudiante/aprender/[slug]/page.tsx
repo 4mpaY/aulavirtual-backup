@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 
-import { AxiosPlayer } from '@/features/estudiante/player/http/axiosPlayer'
 import CoursePlayerView from '@/features/estudiante/player/components/CoursePlayerView'
+import { UnenrolledError, getPlayerCourseData } from '@/features/estudiante/player/server/getPlayerCourseData'
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { prisma } from '@/lib/prisma';
 
@@ -32,22 +32,12 @@ export default async function LearningPage({ params, searchParams }: { params: {
     phoneNumberProfesor = profesorByCurso.profesor.celular
   }
 
-  const token = session.user?.accessToken ?? null
-
-  const axiosPlayer = new AxiosPlayer({
-    getAuthToken: () => token
-  })
-
   try {
-    const data = await axiosPlayer.getPlayerData(params.slug)
-
-    console.log(data)
+    const data = await getPlayerCourseData({ id: session.user!.id, rol: session.user!.rol }, params.slug)
 
     return <CoursePlayerView course={data.course} initialLessonId={searchParams.leccion} initialExamenId={searchParams.examen} phoneNumberProfesor={phoneNumberProfesor} />
-  } catch (err: any) {
-    const code = err?.code || err?.error
-
-    if (code === 'UNCISCRIBED') {
+  } catch (err) {
+    if (err instanceof UnenrolledError) {
       redirect(`/cursos/${params.slug}`)
     }
 

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import MisCertificadosPage from '@/features/estudiante/certificados/components/MisCertificadosPage'
-import { AxiosMisCertificados } from '@/features/estudiante/certificados/http/axiosMisCertificados'
+import { getMisCertificados } from '@/features/estudiante/certificados/server/getMisCertificados'
 
 export default async function MisCertificadosPageRoute() {
   const session = await getAuthSession()
@@ -11,16 +11,7 @@ export default async function MisCertificadosPageRoute() {
     redirect('/login')
   }
 
-  const token = session.user?.accessToken ?? null
-  const client = new AxiosMisCertificados({ getAuthToken: () => token })
-
-  let certificados: any[] = []
-
-  try {
-    certificados = await client.getAll()
-  } catch (error) {
-    console.error('Error fetching certificates:', error)
-  }
+  const certificados = await getMisCertificados(session.user!.id)
 
   return <MisCertificadosPage initialCertificados={certificados} />
 }

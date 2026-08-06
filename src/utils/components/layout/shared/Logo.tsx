@@ -92,8 +92,8 @@ const Logo = ({ enlargeSquare = false }: LogoProps = {}) => {
   const { layout } = settings
 
   const templateLogo = configs.TEMPLATE_LOGO || themeConfig.templateLogo
-  const templateName = configs.TEMPLATE_NAME || themeConfig.templateName
-  const templateSlogan = configs.TEMPLATE_SLOGAN || themeConfig.templateSlogan
+  const templateName = themeConfig.templateName
+  const templateSlogan = themeConfig.templateSlogan
 
   const handleImgLoad = (e: SyntheticEvent<HTMLImageElement>) => {
     if (!enlargeSquare) return

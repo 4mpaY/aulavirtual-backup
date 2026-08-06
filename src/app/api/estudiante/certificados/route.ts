@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic'
 
-import prisma from '@/utils/libs/prisma'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
+import { getMisCertificados } from '@/features/estudiante/certificados/server/getMisCertificados'
 
 /**
  * GET /api/estudiante/certificados
@@ -15,35 +15,9 @@ export async function GET(request: Request) {
 
     if (!auth.authorized) return auth.error
 
-    const certificados = await prisma.certificado.findMany({
-      where: { usuario_id: auth.user.id },
-      include: {
-        curso: {
-          select: {
-            id: true,
-            titulo: true,
-            slug: true,
-            miniatura: true,
-            duracion: true,
-            nivel: true,
-            profesor: {
-              select: { nombre: true, apellido: true }
-            }
-          }
-        }
-      },
-      orderBy: { emitido_en: 'desc' }
-    })
+    const certificados = await getMisCertificados(auth.user.id)
 
-    return ApiResponse.success(request, {
-      certificados: certificados.map(c => ({
-        id: c.id,
-        codigo_verificacion: c.codigo_verificacion,
-        emitido_en: c.emitido_en,
-        datos: c.datos,
-        curso: c.curso
-      }))
-    })
+    return ApiResponse.success(request, { certificados })
   } catch (error) {
     return handleApiError(error, request)
   }

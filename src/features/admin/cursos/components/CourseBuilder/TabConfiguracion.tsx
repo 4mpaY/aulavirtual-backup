@@ -3,30 +3,25 @@
 import { useState } from 'react'
 
 import {
-    Box,
-    Button,
-    Chip,
-    Divider,
-    FormControlLabel,
-    Grid,
-    MenuItem,
-    Switch,
-    Typography
+  Box,
+  Button,
+  Chip,
+  Divider,
+  FormControlLabel,
+  Grid,
+  MenuItem,
+  Switch,
+  Typography
 } from '@mui/material'
-
 import { useSnackbar } from 'notistack'
 
-import { useCambiarEstadoCurso, useEditCurso } from '../../hooks/useCursos'
-
-import type { Curso } from '../../entity/Curso'
 import CustomTextField from '@core/components/mui/TextField'
-import { sanitizeDatetimeInput, toLocalDateInputValue } from '@/utils/functions/sanitizeDatetime'
-import MediaLibrary from '../MediaLibrary'
-import CourseThumbnail from '@/utils/components/CourseThumbnail'
-import { IconButton } from '@mui/material'
-import { usePlantillasCertificado } from '../../../plantillas-certificado/hooks/usePlantillasCertificado'
-import { PLANTILLAS_CERTIFICADO_FIJAS } from '../../../plantillas-certificado/entity/plantillasFijas'
+
 import { useFirmantes } from '../../../firmantes/hooks/useFirmantes'
+import { PLANTILLAS_CERTIFICADO_FIJAS } from '../../../plantillas-certificado/entity/plantillasFijas'
+import { usePlantillasCertificado } from '../../../plantillas-certificado/hooks/usePlantillasCertificado'
+import type { Curso } from '../../entity/Curso'
+import { useCambiarEstadoCurso, useEditCurso } from '../../hooks/useCursos'
 
 interface TabConfiguracionProps {
     curso: Curso
