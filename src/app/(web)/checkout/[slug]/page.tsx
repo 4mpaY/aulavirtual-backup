@@ -41,7 +41,7 @@ export default async function CheckoutPage({ params }: { params: { slug: string 
 
 export async function generateMetadata() {
     return {
-        title: `Checkout - Comprar Curso | Aula Virtual`,
+        title: 'Checkout - Comprar Curso',
         description: 'Finaliza tu inscripción y comienza a aprender hoy mismo.'
     }
 }

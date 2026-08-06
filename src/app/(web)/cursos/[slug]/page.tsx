@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     if (!course) return { title: 'Curso no encontrado' }
 
     return {
-        title: `${course.titulo} | Aula Virtual`,
+        title: course.titulo,
         description: course.descripcion || 'Detalles del curso en nuestra plataforma EdTech.'
     }
 }

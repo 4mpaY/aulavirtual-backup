@@ -9,7 +9,7 @@ import { AxiosDashboard } from '@/features/admin/dashboard/http/axiosDashboard'
 import { getAuthOptions } from '@/utils/configs/auth'
 
 export const metadata = {
-  title: 'Panel de Control | Aula Virtual'
+  title: 'Panel de Control'
 }
 
 export default async function Page() {

@@ -7,7 +7,7 @@ import { MisEbooksList } from '@/features/estudiante/mis-ebooks/components/MisEb
 import prisma from '@/utils/libs/prisma'
 
 export const metadata = {
-  title: 'Mis Ebooks | Aula Virtual',
+  title: 'Mis Ebooks',
 }
 
 export default async function Page() {

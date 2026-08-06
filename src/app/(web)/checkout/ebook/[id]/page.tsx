@@ -6,7 +6,7 @@ import CheckoutView from '@/features/web/checkout/components/CheckoutView'
 
 export async function generateMetadata() {
   return {
-    title: 'Checkout - Comprar Ebook | Aula Virtual',
+    title: 'Checkout - Comprar Ebook',
     description: 'Finaliza tu compra y accede a tu ebook.',
   }
 }

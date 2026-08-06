@@ -6,7 +6,7 @@ import { AxiosDashboard } from '@/features/estudiante/dashboard/http/axiosDashbo
 import type { DashboardData } from '@/features/estudiante/dashboard/entity/Dashboard'
 
 export const metadata = {
-  title: 'Mi Dashboard | Aula Virtual',
+  title: 'Mi Dashboard',
   description: 'Resumen de tu actividad académica: cursos, progreso y certificados.'
 }
 

@@ -1,5 +1,7 @@
 import { createTransport } from 'nodemailer'
 
+import { getConfigs } from '@/utils/libs/config'
+
 interface SendMailOptions {
   to: string
   subject: string
@@ -34,8 +36,11 @@ export const sendMail = async ({ to, subject, html, attachments }: SendMailOptio
       return false
     }
 
+    const configs = await getConfigs()
+    const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
+
     const mailOptions = {
-      from: process.env.SMTP_FROM || `"Aula Virtual" <${process.env.SMTP_USER}>`,
+      from: process.env.SMTP_FROM || `"${platformName}" <${process.env.SMTP_USER}>`,
       to,
       subject,
       html,

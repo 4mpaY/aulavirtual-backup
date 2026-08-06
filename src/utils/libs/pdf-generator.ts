@@ -4,7 +4,7 @@ import { jsPDF } from 'jspdf'
  * Genera un PDF con el detalle del pedido.
  * Retorna un Buffer con el contenido del PDF.
  */
-export async function generateOrderPDF(pedido: any): Promise<Buffer> {
+export async function generateOrderPDF(pedido: any, platformName = 'Aula Virtual'): Promise<Buffer> {
   const doc = new jsPDF()
 
   // Margen y posición inicial
@@ -68,7 +68,7 @@ export async function generateOrderPDF(pedido: any): Promise<Buffer> {
   y += 20
   doc.setFontSize(10)
   doc.setTextColor(100, 100, 100)
-  doc.text('Gracias por confiar en nuestra Aula Virtual.', margin, y)
+  doc.text(`Gracias por confiar en ${platformName}.`, margin, y)
   doc.text('Puedes acceder a tus cursos desde tu panel de estudiante.', margin, y + 5)
 
   // Convertir a Buffer (usando arraybuffer en Node)

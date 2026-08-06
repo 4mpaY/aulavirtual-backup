@@ -20,7 +20,6 @@ import ConveniosSection from '@/features/web/home/components/ConveniosSection'
 import WhyChooseUsSection from '@/features/web/home/components/WhyChooseUsSection'
 
 export const metadata = {
-  title: 'Aula Virtual - Aprende sin límites',
   description: 'Plataforma de aprendizaje online con cursos especializados y certificados.',
 }
 

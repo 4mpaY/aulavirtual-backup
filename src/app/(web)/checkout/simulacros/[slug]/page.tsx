@@ -45,7 +45,7 @@ export default async function CheckoutSimulacroPage({ params }: { params: { slug
 
 export async function generateMetadata() {
   return {
-    title: `Comprar Simulacro | Aula Virtual`,
+    title: 'Comprar Simulacro',
     description: 'Adquiere acceso al simulacro y pon a prueba tus conocimientos.'
   }
 }

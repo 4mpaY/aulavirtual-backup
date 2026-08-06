@@ -6,7 +6,7 @@ import { AxiosPlanSuscripcion } from '@/features/admin/planes-suscripcion/http/a
 import { AxiosCursoAdmin } from '@/features/admin/cursos/http/axiosCursoAdmin'
 
 export const metadata = {
-  title: 'Planes de Suscripción | Aula Virtual'
+  title: 'Planes de Suscripción'
 }
 
 export default async function Page() {

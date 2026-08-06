@@ -8,6 +8,7 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import { sendMail } from '@/utils/libs/mailer'
 import { getWelcomeTemplate } from '@/utils/libs/email-templates'
+import { getConfigs } from '@/utils/libs/config'
 
 const MAX_BULK = 500
 
@@ -35,6 +36,9 @@ export async function POST(request: Request) {
 
     const exitosos: number[] = []
     const errores: { fila: number; correo: string; mensaje: string }[] = []
+
+    const mailConfigs = await getConfigs()
+    const platformName = mailConfigs.TEMPLATE_NAME || 'Aula Virtual'
 
     for (let i = 0; i < usuarios.length; i++) {
       const fila = i + 2 // fila 1 = cabecera, datos empiezan en fila 2
@@ -141,8 +145,6 @@ export async function POST(request: Request) {
 
         // Enviar correo de bienvenida con credenciales
         try {
-          const platformName = 'Aula Virtual'
-
           const emailHtml = getWelcomeTemplate({
             platformName,
             customerName: String(nombre),

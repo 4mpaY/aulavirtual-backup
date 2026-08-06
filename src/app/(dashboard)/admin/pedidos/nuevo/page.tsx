@@ -1,7 +1,7 @@
 import { ManualPedidoForm } from '@/features/admin/pedidos/components/ManualPedidoForm'
 
 export const metadata = {
-    title: 'Nuevo Pedido Manual | Aula Virtual'
+    title: 'Nuevo Pedido Manual'
 }
 
 export default function Page() {

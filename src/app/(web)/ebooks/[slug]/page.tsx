@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props) {
 
   return ebook
     ? { title: `${ebook.titulo} | Ebooks`, description: ebook.descripcion ?? undefined }
-    : { title: 'Ebook | Aula Virtual' }
+    : { title: 'Ebook' }
 }
 
 export default async function EbookDetailPage({ params }: Props) {

@@ -4,7 +4,7 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 import FirmantesPage from '@/features/admin/firmantes/pages/FirmantesPage'
 
 export const metadata = {
-  title: 'Firmantes | Aula Virtual'
+  title: 'Firmantes'
 }
 
 export default async function Page() {

@@ -7,6 +7,7 @@ import prisma from '@/utils/libs/prisma'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { sendMail } from '@/utils/libs/mailer'
 import { sendAdminEnrollmentNotification } from '@/utils/libs/order-notifications'
+import { getConfigs } from '@/utils/libs/config'
 
 /**
  * POST /api/pedidos/manual
@@ -177,7 +178,8 @@ export async function POST(request: Request) {
           })
 
           if (pedidoCompleto) {
-            const platformName = 'Aula Virtual'
+            const mailConfigs = await getConfigs()
+            const platformName = mailConfigs.TEMPLATE_NAME || 'Aula Virtual'
             const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
             const emailHtml = getOrderConfirmationTemplate({

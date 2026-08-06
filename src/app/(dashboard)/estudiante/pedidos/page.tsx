@@ -8,7 +8,7 @@ import { AxiosPedidoEstudiante } from '@/features/estudiante/mis-pedidos/http/ax
 import type { PedidoEstudiante } from '@/features/estudiante/mis-pedidos/entity/PedidoEstudiante'
 
 export const metadata = {
-  title: 'Mis Pedidos | Aula Virtual'
+  title: 'Mis Pedidos'
 }
 
 export default async function Page() {

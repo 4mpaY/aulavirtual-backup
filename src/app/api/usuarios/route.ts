@@ -9,6 +9,7 @@ import { requireAdmin } from '@/utils/libs/auth-helpers'
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { sendMail } from '@/utils/libs/mailer'
 import { getWelcomeTemplate } from '@/utils/libs/email-templates'
+import { getConfigs } from '@/utils/libs/config'
 
 /**
  * GET /api/usuarios
@@ -196,7 +197,8 @@ export async function POST(request: Request) {
     
     // 📧 Enviar correo de bienvenida con credenciales
     try {
-      const platformName = 'Aula Virtual'
+      const configs = await getConfigs()
+      const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
 
       const emailHtml = getWelcomeTemplate({
         platformName,

@@ -9,7 +9,7 @@ import ProfessorsCarousel from '@/features/web/nosotros/components/ProfessorsCar
 import { MisionVisionSection, ValoresSection } from '@/features/web/nosotros/components/NosotrosInteractive'
 
 export const metadata = {
-  title: 'Nosotros - Aula Virtual',
+  title: 'Nosotros',
   description: 'Conoce quiénes somos, nuestra misión, visión y los valores que guían nuestra plataforma educativa.',
 }
 

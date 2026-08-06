@@ -4,7 +4,7 @@ import { PlanesPublicos } from '@/features/web/suscripciones/components/PlanesPu
 import type { PlanPublico } from '@/features/estudiante/suscripciones/entity/Suscripcion'
 
 export const metadata = {
-  title: 'Planes de Suscripción | Aula Virtual',
+  title: 'Planes de Suscripción',
   description: 'Accede a todos nuestros cursos con un plan de suscripción mensual, trimestral, semestral o anual.'
 }
 

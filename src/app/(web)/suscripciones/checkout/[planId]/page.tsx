@@ -47,6 +47,6 @@ export async function generateMetadata({ params }: { params: { planId: string } 
   const plan = await getPlan(params.planId)
 
   return {
-    title: plan ? `Suscribirse a ${plan.nombre} | Aula Virtual` : 'Checkout Suscripción',
+    title: plan ? `Suscribirse a ${plan.nombre}` : 'Checkout Suscripción',
   }
 }

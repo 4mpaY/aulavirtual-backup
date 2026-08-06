@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props) {
     select: { titulo: true },
   })
 
-  return { title: ebook ? `${ebook.titulo} | Mis Ebooks` : 'Ebook | Aula Virtual' }
+  return { title: ebook ? `${ebook.titulo} | Mis Ebooks` : 'Ebook' }
 }
 
 export default async function Page({ params }: Props) {

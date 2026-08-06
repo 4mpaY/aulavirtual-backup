@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     if (!ruta) return { title: 'Ruta no encontrada' }
 
     return {
-      title: `${ruta.titulo} | Aula Virtual`,
+      title: ruta.titulo,
       description: ruta.descripcion || 'Detalles de la ruta de aprendizaje en nuestra plataforma EdTech.'
     }
   } catch {

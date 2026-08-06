@@ -9,7 +9,7 @@ import { AxiosPedido } from '@/features/admin/pedidos/http/axiosPedido'
 import type { Pedido } from '@/features/admin/pedidos/entity/Pedido'
 
 export const metadata = {
-  title: 'Gestión de Pedidos | Aula Virtual'
+  title: 'Gestión de Pedidos'
 }
 
 export default async function Page() {

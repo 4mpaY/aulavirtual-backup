@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 
   return {
-    title: `Lanzamiento: ${course.titulo} | Aula Virtual`,
+    title: `Lanzamiento: ${course.titulo}`,
     description: course.descripcion || `Únete al lanzamiento de ${course.titulo}`
   }
 }

@@ -19,7 +19,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const logo = resolveFaviconUrl(configs)
 
   return {
-    title: slogan ? `${title} - ${slogan}` : title,
+    title: {
+      default: slogan ? `${title} - ${slogan}` : title,
+      template: `%s | ${title}`
+    },
     description: slogan,
     manifest: '/manifest.json',
     icons: {

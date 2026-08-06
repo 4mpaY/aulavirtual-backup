@@ -4,6 +4,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { handleApiError } from '@/utils/libs/validation'
 import { sendMail } from '@/utils/libs/mailer'
 import { getOTPTemplate } from '@/utils/libs/email-templates'
+import { getConfigs } from '@/utils/libs/config'
 
 /**
  * POST /api/auth/forgot-password
@@ -51,7 +52,8 @@ export async function POST(request: Request) {
     console.log(`[Forgot-Password] Registro PasswordReset creado para: ${correo}. Código: ${codigo}`)
 
     // 4. Enviar correo con OTP
-    const platformName = 'Aula Virtual'
+    const configs = await getConfigs()
+    const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
 
     const emailHtml = getOTPTemplate({
       platformName,

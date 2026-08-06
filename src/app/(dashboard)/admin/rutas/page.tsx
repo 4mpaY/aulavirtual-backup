@@ -9,7 +9,7 @@ import { AxiosRuta } from '@/features/admin/rutas/http/axiosRuta'
 import type { Ruta } from '@/features/admin/rutas/entity/Ruta'
 
 export const metadata = {
-  title: 'Gestión de Rutas | Aula Virtual'
+  title: 'Gestión de Rutas'
 }
 
 export default async function Page() {

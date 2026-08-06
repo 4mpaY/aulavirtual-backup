@@ -159,7 +159,8 @@ export async function POST(request: Request) {
 
     // 📧 Enviar correo de confirmación de pedido
     try {
-      const platformName = 'Aula Virtual'
+      const mailConfigs = await getConfigs()
+      const platformName = mailConfigs.TEMPLATE_NAME || 'Aula Virtual'
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
       const emailHtml = getOrderConfirmationTemplate({

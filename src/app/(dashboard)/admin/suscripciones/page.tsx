@@ -4,7 +4,7 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { SuscripcionesAdminPage } from '@/features/admin/suscripciones/pages/SuscripcionesAdminPage'
 
 export const metadata = {
-  title: 'Suscripciones | Aula Virtual'
+  title: 'Suscripciones'
 }
 
 export default async function Page() {

@@ -5,7 +5,7 @@ import EnterpriseCTASection from '@/features/web/home/components/EnterpriseCTASe
 import { getConfig } from '@/utils/libs/config'
 
 export const metadata = {
-  title: 'Soluciones Corporativas - Aula Virtual',
+  title: 'Soluciones Corporativas',
   description: 'Descubre nuestros planes corporativos y capacita a tu equipo con los mejores profesionales del sector.',
 }
 
