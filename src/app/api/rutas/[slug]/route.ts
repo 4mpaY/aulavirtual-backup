@@ -36,7 +36,8 @@ export async function GET(request: Request, { params }: { params: { slug: string
     const formattedCursos = ruta.cursos.map(rc => ({
       ...rc.curso,
       total_modulos: rc.curso._count.modulos,
-      orden: rc.orden
+      orden: rc.orden,
+      seccion_id: rc.seccion_id
     }))
 
     return ApiResponse.success(request, { ...ruta, cursos: formattedCursos })

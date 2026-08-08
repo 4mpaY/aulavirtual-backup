@@ -1,30 +1,27 @@
-export const dynamic = 'force-dynamic'
-
 import { NextResponse } from 'next/server'
 
-import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertificadoData'
-import { getConfigs } from '@/utils/libs/config'
-import { getGenerator } from '@/app/api/_shared/certificados/generators'
+import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
-import { requireAuth } from '@/utils/libs/auth-helpers'
+import { getConfigs } from '@/utils/libs/config'
+import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertificadoData'
+import { getGenerator } from '@/app/api/_shared/certificados/generators'
 
-/**
- * GET /api/estudiante/certificado/[certificadoId]/pdf
- * Descarga el PDF del certificado (Estudiante).
- * La plantilla se resuelve desde la configuración CERTIFICADO_PLANTILLA.
- */
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: Request, { params }: { params: { certificadoId: string } }) {
   try {
     const auth = await requireAuth(request)
 
-    if (!auth.authorized) return auth.error
+    if (!auth.authorized) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+    }
 
     const { certificadoId } = params
     const reqUrl = new URL(request.url)
     const previewFlag = reqUrl.searchParams.get('preview') === 'true'
 
-    // ── Carga paralela principal ──────────────────────────────────────
+    // 1. Cargar certificado con relaciones básicas
     const [certificado, configs] = await Promise.all([
       prisma.certificado.findUnique({
         where: { id: certificadoId },
@@ -42,6 +39,13 @@ export async function GET(request: Request, { params }: { params: { certificadoI
               }
             }
           },
+          ruta: {
+            select: {
+              id: true,
+              titulo: true,
+              slug: true
+            }
+          },
           usuario: { select: { nombre: true, apellido: true } }
         }
       }),
@@ -57,51 +61,61 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
+    const isRuta = !certificado.curso_id
+    const cursoIdStr = (certificado.curso_id || '') as string
+
     // ── Carga secundaria ──────────────────────────────────────────────
     const [inscripcion, usuarioCompleto, intentosExamen, modulosCurso] = await Promise.all([
-      prisma.inscripcion.findUnique({
-        where: {
-          usuario_id_curso_id: {
-            usuario_id: certificado.usuario_id,
-            curso_id: certificado.curso_id
-          }
-        },
-        select: { completado_en: true, inscrito_en: true, nota_final: true }
-      }),
+      !isRuta
+        ? prisma.inscripcion.findUnique({
+            where: {
+              usuario_id_curso_id: {
+                usuario_id: certificado.usuario_id,
+                curso_id: cursoIdStr
+              }
+            },
+            select: { completado_en: true, inscrito_en: true, nota_final: true }
+          })
+        : Promise.resolve(null),
       prisma.usuario.findUnique({
         where: { id: certificado.usuario_id },
         select: { avatar: true }
       }),
-      prisma.intentoExamen.findMany({
-        where: {
-          usuario_id: certificado.usuario_id,
-          esta_aprobado: true,
-          examen: { curso_id: certificado.curso_id, modulo_id: { not: null } }
-        },
-        select: { puntaje: true, examen: { select: { modulo_id: true, peso: true } } },
-        orderBy: { enviado_en: 'desc' }
-      }),
-      prisma.modulo.findMany({
-        where: { curso_id: certificado.curso_id },
-        orderBy: { orden: 'asc' },
-        select: {
-          id: true,
-          titulo: true,
-          orden: true,
-          lecciones: {
+      !isRuta
+        ? prisma.intentoExamen.findMany({
+            where: {
+              usuario_id: certificado.usuario_id,
+              esta_aprobado: true,
+              examen: { curso_id: cursoIdStr, modulo_id: { not: null } }
+            },
+            select: { puntaje: true, examen: { select: { modulo_id: true, peso: true } } },
+            orderBy: { enviado_en: 'desc' }
+          })
+        : Promise.resolve([]),
+      !isRuta
+        ? prisma.modulo.findMany({
+            where: { curso_id: cursoIdStr },
             orderBy: { orden: 'asc' },
-            select: { id: true, titulo: true, orden: true, duracion: true }
-          }
-        }
-      })
+            select: {
+              id: true,
+              titulo: true,
+              orden: true,
+              lecciones: {
+                orderBy: { orden: 'asc' },
+                select: { id: true, titulo: true, orden: true, duracion: true }
+              }
+            }
+          })
+        : Promise.resolve([])
     ])
 
     // fecha_fin del curso
-    const [cursoFechaFinRow] = await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
-      SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
-    `
-
-    const cursoFechaFin = cursoFechaFinRow?.fecha_fin ?? null
+    const cursoFechaFin = !isRuta
+      ? (await prisma.curso.findUnique({
+          where: { id: cursoIdStr },
+          select: { fecha_fin: true }
+        }))?.fecha_fin ?? null
+      : null
 
     // ── Gerente General ───────────────────────────────────────────────
     const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID
@@ -115,7 +129,10 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     // ── Construir datos del certificado ───────────────────────────────
     const certData = await buildCertificadoData({
-      certificado: { ...certificado, curso: { ...certificado.curso, modulos: modulosCurso } } as any,
+      certificado: {
+        ...certificado,
+        curso: isRuta ? null : { ...certificado.curso, modulos: modulosCurso }
+      } as any,
       configs,
       inscripcion,
       usuarioAvatar: usuarioCompleto?.avatar,

@@ -33,6 +33,8 @@ export interface Ruta {
   actualizado_en: string
   total_cursos?: number
   cursos: CursoEnRuta[]
+  escuela_id?: string | null
+  escuela?: { id: string; nombre: string }
 }
 
 export interface CreateRutaDto {
@@ -43,4 +45,5 @@ export interface CreateRutaDto {
   beneficios?: Benefit[]
   secciones?: RutaSeccion[]
   esta_activo: boolean
+  escuela_id?: string | null
 }

@@ -30,6 +30,14 @@ export async function GET(request: Request) {
               select: { nombre: true, apellido: true }
             }
           }
+        },
+        ruta: {
+          select: {
+            id: true,
+            titulo: true,
+            slug: true,
+            miniatura: true
+          }
         }
       },
       orderBy: { emitido_en: 'desc' }
@@ -40,7 +48,8 @@ export async function GET(request: Request) {
         id: c.id,
         codigo_verificacion: c.codigo_verificacion,
         emitido_en: c.emitido_en,
-        curso: c.curso
+        curso: c.curso,
+        ruta: c.ruta
       }))
     })
   } catch (error) {

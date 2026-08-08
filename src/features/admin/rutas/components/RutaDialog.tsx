@@ -22,6 +22,7 @@ import MediaLibrary from '@/features/admin/cursos/components/MediaLibrary'
 
 import type { CreateRutaDto, Benefit, Ruta } from '../entity/Ruta'
 import { useCreateRuta, useUpdateRuta } from '../hooks/useRutas'
+import { useEscuelas } from '@/features/admin/escuelas'
 
 const DEFAULT_BENEFITS: Benefit[] = [
   { title: 'Secuencia lógica', desc: 'Contenido progresivo diseñado por expertos para tu maestría.', icon: 'tabler-list-numbers' },
@@ -39,6 +40,7 @@ interface RutaDialogProps {
 export const RutaDialog = ({ open, onClose, ruta }: RutaDialogProps) => {
   const createRuta = useCreateRuta()
   const updateRuta = useUpdateRuta()
+  const { data: escuelas = [] } = useEscuelas()
 
   const [openMedia, setOpenMedia] = useState(false)
 
@@ -49,7 +51,8 @@ export const RutaDialog = ({ open, onClose, ruta }: RutaDialogProps) => {
       descripcion: '',
       miniatura: '',
       beneficios: DEFAULT_BENEFITS,
-      esta_activo: true
+      esta_activo: true,
+      escuela_id: ''
     }
   })
 
@@ -66,7 +69,8 @@ export const RutaDialog = ({ open, onClose, ruta }: RutaDialogProps) => {
         descripcion: ruta.descripcion || '',
         miniatura: ruta.miniatura || '',
         beneficios: (ruta.beneficios && ruta.beneficios.length > 0) ? (ruta.beneficios as Benefit[]) : DEFAULT_BENEFITS,
-        esta_activo: ruta.esta_activo
+        esta_activo: ruta.esta_activo,
+        escuela_id: ruta.escuela_id || ''
       })
     } else {
       reset({
@@ -75,7 +79,8 @@ export const RutaDialog = ({ open, onClose, ruta }: RutaDialogProps) => {
         descripcion: '',
         miniatura: '',
         beneficios: DEFAULT_BENEFITS,
-        esta_activo: true
+        esta_activo: true,
+        escuela_id: ''
       })
     }
   }, [ruta, reset])
@@ -152,6 +157,30 @@ export const RutaDialog = ({ open, onClose, ruta }: RutaDialogProps) => {
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
                   />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name='escuela_id'
+                control={control}
+                render={({ field, fieldState }) => (
+                  <CustomTextField
+                    select
+                    fullWidth
+                    label='Escuela'
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
+                  >
+                    <MenuItem value=''>Sin Escuela</MenuItem>
+                    {escuelas.map((e) => (
+                      <MenuItem key={e.id} value={e.id}>
+                        {e.nombre}
+                      </MenuItem>
+                    ))}
+                  </CustomTextField>
                 )}
               />
             </Grid>

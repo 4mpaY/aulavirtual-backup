@@ -9,9 +9,10 @@ type CertificadoConRelaciones = {
   codigo_verificacion: string
   emitido_en: Date
   usuario_id: string
-  curso_id: string
+  curso_id: string | null
+  ruta_id?: string | null
   datos: unknown
-  curso: {
+  curso?: {
     titulo: string
     duracion: string | null
     tipo_emision: string
@@ -29,7 +30,12 @@ type CertificadoConRelaciones = {
       orden: number
       lecciones: Array<{ id: string; titulo: string; orden: number; duracion: number | null }>
     }>
-  }
+  } | null
+  ruta?: {
+    id: string
+    titulo: string
+    slug: string
+  } | null
   usuario: { nombre: string; apellido: string }
 }
 
@@ -78,19 +84,32 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
       ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
       : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
 
-  // ── Curso ──
-  const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
-  const cursoDuracion = snapshot?.curso?.duracion || certificado.curso.duracion
-  const cursoModalidad = snapshot?.curso?.tipo_emision || certificado.curso.tipo_emision
-  const cursoVigenciaMeses = snapshot?.curso?.vigencia_meses ?? certificado.curso.vigencia_meses ?? null
+  const isRuta = !!certificado.ruta_id || !!snapshot?.ruta
+
+  // ── Curso / Ruta ──
+  const cursoTitulo = isRuta
+    ? (snapshot?.ruta?.titulo || certificado.ruta?.titulo || 'Ruta de Aprendizaje')
+    : (snapshot?.curso?.titulo || certificado.curso?.titulo || '')
+
+  const cursoDuracion = isRuta
+    ? 'Completo'
+    : (snapshot?.curso?.duracion || certificado.curso?.duracion || '')
+
+  const cursoModalidad = isRuta
+    ? 'VIRTUAL'
+    : (snapshot?.curso?.tipo_emision || certificado.curso?.tipo_emision || 'ASINCRONO')
+
+  const cursoVigenciaMeses = isRuta
+    ? null
+    : (snapshot?.curso?.vigencia_meses ?? certificado.curso?.vigencia_meses ?? null)
 
   // ── Fechas ──
-  const esSincrono = certificado.curso.tipo_emision === 'SINCRONO'
+  const esSincrono = !isRuta && certificado.curso?.tipo_emision === 'SINCRONO'
   const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
 
   const fechaInicioVal =
     snapshot?.fechas?.inicio_curso ||
-    (esSincrono ? certificado.curso.fecha_inicio : inscripcion?.inscrito_en || certificado.emitido_en)
+    (esSincrono ? certificado.curso?.fecha_inicio : inscripcion?.inscrito_en || certificado.emitido_en)
 
   const fechaFinVal =
     snapshot?.fechas?.culminacion ||
@@ -102,8 +121,8 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     (inscripcion?.inscrito_en ? calcularFechaCaducidadCurso(inscripcion.inscrito_en, cursoVigenciaMeses) : null)
 
   // ── Firmas ──
-  const profesorSnapshot = snapshot?.profesor || certificado.curso.profesor
-  const mostrarFirmaDocente = configs.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'
+  const profesorSnapshot = isRuta ? null : (snapshot?.profesor || certificado.curso?.profesor)
+  const mostrarFirmaDocente = !isRuta && configs.CERTIFICADO_MOSTRAR_FIRMA_DOCENTE !== 'false'
 
   // ── QR ──
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${reqUrl.protocol}//${reqUrl.host}`
@@ -175,7 +194,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     cursoModalidad,
 
     // se usa como respaldo para certificados antiguos o inscripciones previas a la migración
-    modulos: certificado.curso.modulos,
+    modulos: certificado.curso?.modulos || [],
     fechaEmisionVal,
     fechaInicioVal,
     fechaFinVal,

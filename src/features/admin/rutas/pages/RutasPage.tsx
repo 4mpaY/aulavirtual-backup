@@ -37,6 +37,7 @@ import type { Ruta } from '../entity/Ruta'
 import { useRutas, useDeleteRuta } from '../hooks/useRutas'
 import { RutaDialog } from '../components/RutaDialog'
 import { RutaCursosDialog } from '../components/RutaCursosDialog'
+import { useEscuelas } from '@/features/admin/escuelas/hooks/useEscuelas'
 
 const columnHelper = createColumnHelper<Ruta>()
 
@@ -46,6 +47,7 @@ interface RutasPageProps {
 
 export const RutasPage = ({ initialData }: RutasPageProps) => {
   const { data: rutas = [], isLoading } = useRutas(initialData)
+  const { data: escuelas = [] } = useEscuelas()
   const deleteRuta = useDeleteRuta()
 
   const [openRutaDialog, setOpenRutaDialog] = useState(false)
@@ -53,6 +55,12 @@ export const RutasPage = ({ initialData }: RutasPageProps) => {
   const [selectedRuta, setSelectedRuta] = useState<Ruta | null>(null)
 
   const [globalFilter, setGlobalFilter] = useState('')
+  const [escuelaFiltro, setEscuelaFiltro] = useState('todas')
+
+  const filteredRutas = useMemo(() => {
+    if (escuelaFiltro === 'todas') return rutas
+    return rutas.filter(r => r.escuela_id === escuelaFiltro)
+  }, [rutas, escuelaFiltro])
 
   const handleEdit = useCallback((ruta: Ruta) => {
     setSelectedRuta(ruta)
@@ -115,6 +123,14 @@ export const RutasPage = ({ initialData }: RutasPageProps) => {
           </Box>
         )
       }),
+      columnHelper.accessor('escuela', {
+        header: 'Escuela',
+        cell: ({ row }) => (
+          <Typography variant='body2' fontWeight={500}>
+            {row.original.escuela?.nombre || '-'}
+          </Typography>
+        )
+      }),
       columnHelper.accessor('total_cursos' as any, {
         header: 'Cursos',
         cell: ({ row }) => (
@@ -165,7 +181,7 @@ export const RutasPage = ({ initialData }: RutasPageProps) => {
   )
 
   const table = useReactTable({
-    data: rutas,
+    data: filteredRutas,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),

@@ -7,7 +7,6 @@ import { getConfigs } from '@/utils/libs/config'
 import prisma from '@/utils/libs/prisma'
 import WebFooter from '@/utils/components/layout/web/WebFooter'
 import WebHeader from '@/utils/components/layout/web/WebHeader'
-import MobileBottomNav from '@/utils/components/layout/web/MobileBottomNav'
 import ScrollAnimations from '@/utils/components/layout/web/ScrollAnimations'
 import PWAInstalledToast from '@/features/web/home/components/PWAInstalledToast'
 
@@ -22,8 +21,17 @@ const getCategorias = unstable_cache(
   { revalidate: 300 }
 )
 
+const getEscuelas = unstable_cache(
+  () =>
+    prisma.escuela.findMany({
+      orderBy: { orden: 'asc' }
+    }),
+  ['web-escuelas'],
+  { revalidate: 300 }
+)
+
 const WebLayout = async ({ children }: { children: React.ReactNode }) => {
-  const [categories, configs] = await Promise.all([getCategorias(), getConfigs()])
+  const [categories, escuelas, configs] = await Promise.all([getCategorias(), getEscuelas(), getConfigs()])
 
   const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
   const platformSlogan = configs.TEMPLATE_SLOGAN || 'Aprende sin límites'
@@ -32,7 +40,7 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthModalProvider>
       <div className="web-layout min-h-screen bg-white flex flex-col">
-        <WebHeader initialCategories={categories} platformName={platformName} platformSlogan={platformSlogan} />
+        <WebHeader initialCategories={categories} initialEscuelas={escuelas} platformName={platformName} platformSlogan={platformSlogan} />
         <div className="flex flex-1" style={{ paddingTop: 'var(--navbar-height)' }}>
           <main className="flex-1 flex flex-col min-w-0 pb-16 sm:pb-0">
             <div className="flex-1">
@@ -41,8 +49,6 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
             <WebFooter platformName={platformName} />
           </main>
         </div>
-        {/* Bottom nav: visible solo en mobile */}
-        <MobileBottomNav empresasHabilitado={empresasHabilitado} />
         <ScrollAnimations />
         <PWAInstalledToast />
       </div>

@@ -24,6 +24,11 @@ export async function GET(request: Request, { params }: { params: { codigo: stri
             nivel: true,
           }
         },
+        ruta: {
+          select: {
+            titulo: true
+          }
+        },
         usuario: {
           select: {
             nombre: true,
@@ -40,6 +45,11 @@ export async function GET(request: Request, { params }: { params: { codigo: stri
       }, { status: 404 })
     }
 
+    const isRuta = !certificado.curso_id
+    const cursoTitulo = isRuta ? (certificado.ruta?.titulo || 'Ruta de Aprendizaje') : (certificado.curso?.titulo || '')
+    const cursoDuracion = isRuta ? 'Completo' : (certificado.curso?.duracion || null)
+    const cursoNivel = isRuta ? 'Todos' : (certificado.curso?.nivel || null)
+
     // Retornamos los datos públicos del certificado
     return NextResponse.json({
       status: true,
@@ -47,9 +57,9 @@ export async function GET(request: Request, { params }: { params: { codigo: stri
         codigo_verificacion: certificado.codigo_verificacion,
         emitido_en: certificado.emitido_en,
         estudiante: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`,
-        curso: certificado.curso.titulo,
-        duracion: certificado.curso.duracion,
-        nivel: certificado.curso.nivel,
+        curso: cursoTitulo,
+        duracion: cursoDuracion,
+        nivel: cursoNivel,
         valido: true
       }
     })

@@ -218,7 +218,30 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           }
         )}
       >
-        <LoginIllustration src={characterIllustration} alt='character-illustration' />
+        <div className='flex flex-col items-center justify-center gap-4 z-[2]'>
+          <img
+            src='/images/agenda/logo-sin-fondo.png'
+            alt='logo'
+            style={{
+              maxInlineSize: '420px',
+              blockSize: 'auto',
+              objectFit: 'contain'
+            }}
+          />
+          <Typography
+            variant='h1'
+            sx={{
+              fontFamily: 'Outfit, sans-serif',
+              fontWeight: 900,
+              fontSize: '4.5rem',
+              color: 'var(--agenda-primary, #006F65)',
+              letterSpacing: '0.05em',
+              lineHeight: 1
+            }}
+          >
+            2050
+          </Typography>
+        </div>
         {!hidden && (
           <MaskImg
             alt='mask'

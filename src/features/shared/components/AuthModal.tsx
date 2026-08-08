@@ -273,6 +273,7 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
       maxWidth="sm"
       fullWidth
       scroll="paper"
+      disableScrollLock
       PaperProps={{
         sx: {
           borderRadius: { xs: '16px', sm: '24px' },

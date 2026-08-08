@@ -53,6 +53,13 @@ export default async function VerificarCertificadoPage({ params }: Props) {
             miniatura: true
           }
         },
+        ruta: {
+          select: {
+            titulo: true,
+            slug: true,
+            miniatura: true
+          }
+        },
         usuario: {
           select: {
             nombre: true,
@@ -117,7 +124,10 @@ export default async function VerificarCertificadoPage({ params }: Props) {
       ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
       : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
 
-  const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
+  const isRuta = !certificado.curso_id
+  const cursoTitulo = isRuta
+    ? (snapshot?.ruta?.titulo || certificado.ruta?.titulo || 'Ruta de Aprendizaje')
+    : (snapshot?.curso?.titulo || certificado.curso?.titulo || '')
   const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
 
   const fechaEmision = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
@@ -231,7 +241,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
             <Grid item xs={12} md={6}>
               <Box
                 sx={{
-                  p: 3,
+                  p: 4,
                   bgcolor: 'rgba(var(--web-primary-rgb, 37, 146, 127), 0.05)',
                   borderRadius: 4,
                   border: '1px solid',
@@ -240,7 +250,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
                 }}
               >
                 <Typography variant="overline" color="text.secondary" fontWeight="bold">
-                  Curso Completado
+                  {isRuta ? 'Ruta de Aprendizaje' : 'Curso Completado'}
                 </Typography>
                 <Typography variant="h6" fontWeight="bold" sx={{ mt: 1, mb: 2, lineHeight: 1.3 }}>
                   {cursoTitulo}
@@ -248,7 +258,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
                 <Button
                   variant="text"
                   component={Link}
-                  href={`/cursos/${certificado.curso.slug}`}
+                  href={isRuta ? `/escuelas/${certificado.ruta?.slug ?? ''}` : `/cursos/${certificado.curso?.slug ?? ''}`}
                   sx={{
                     color: primaryColor,
                     fontWeight: 'bold',

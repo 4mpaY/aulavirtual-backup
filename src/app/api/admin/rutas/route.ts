@@ -19,6 +19,9 @@ export async function GET(request: Request) {
 
     const rutas = await prisma.rutaAprendizaje.findMany({
       include: {
+        escuela: {
+          select: { nombre: true, id: true }
+        },
         _count: {
           select: { cursos: true }
         }
@@ -49,7 +52,7 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'No tienes permisos para realizar esta acción', 403)
     }
 
-    const { titulo, slug, descripcion, miniatura, beneficios, esta_activo } = await request.json()
+    const { titulo, slug, descripcion, miniatura, beneficios, esta_activo, escuela_id } = await request.json()
 
     if (!titulo || !slug) {
       return ApiResponse.error(request, 'El título y el slug son requeridos', 400)
@@ -62,7 +65,8 @@ export async function POST(request: Request) {
         descripcion,
         miniatura,
         beneficios: beneficios || [],
-        esta_activo: esta_activo ?? true
+        esta_activo: esta_activo ?? true,
+        escuela_id: escuela_id || null
       }
     })
 

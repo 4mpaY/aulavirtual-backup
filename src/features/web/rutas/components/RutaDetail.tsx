@@ -388,7 +388,7 @@ const RutaDetail = ({ ruta }: RutaDetailProps) => {
       </Box>
 
       {/* Course Sequence Section */}
-      <Container id="cursos-ruta" maxWidth={false} sx={{ mt: -6, px: { xs: 4, md: 8, lg: 12 }, position: 'relative', zIndex: 2 }}>
+      <Container id="cursos-ruta" maxWidth={false} sx={{ mt: 8, px: { xs: 4, md: 8, lg: 12 }, position: 'relative', zIndex: 2 }}>
         <Grid container spacing={8}>
           <Grid item xs={12} lg={8}>
             <Typography variant="h4" sx={{ fontWeight: 900, mb: 6, color: 'text.primary' }}>

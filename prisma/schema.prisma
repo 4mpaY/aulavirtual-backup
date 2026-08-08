@@ -494,19 +494,23 @@ model RespuestaIntento {
 }
 
 model Certificado {
-  id                  String   @id @default(uuid())
-  codigo_verificacion String   @unique
-  emitido_en          DateTime @default(now())
+  id                  String           @id @default(uuid())
+  codigo_verificacion String           @unique
+  emitido_en          DateTime         @default(now())
   usuario_id          String
-  curso_id            String
+  curso_id            String?
+  ruta_id             String?
   datos               Json?
-  numero_intento      Int      @default(1)
-  curso               Curso    @relation(fields: [curso_id], references: [id], onDelete: Cascade)
-  usuario             Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  numero_intento      Int              @default(1)
+  curso               Curso?           @relation(fields: [curso_id], references: [id], onDelete: Cascade)
+  ruta                RutaAprendizaje? @relation(fields: [ruta_id], references: [id], onDelete: Cascade)
+  usuario             Usuario          @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 
   @@unique([usuario_id, curso_id])
+  @@unique([usuario_id, ruta_id])
   @@index([usuario_id])
   @@index([curso_id])
+  @@index([ruta_id])
   @@map("certificados")
 }
 
@@ -640,8 +644,26 @@ model RutaAprendizaje {
   beneficios     Json?         @default("[]")
   secciones      Json?         @default("[]")
   cursos         CursoEnRuta[]
+  escuela_id     String?
+  escuela        Escuela?      @relation(fields: [escuela_id], references: [id], onDelete: SetNull)
+  certificados   Certificado[]
 
+  @@index([escuela_id])
   @@map("rutas_aprendizaje")
+}
+
+model Escuela {
+  id             String            @id @default(uuid())
+  nombre         String            @unique
+  slug           String            @unique
+  descripcion    String?
+  estado         String            @default("DISPONIBLE") // DISPONIBLE, PROXIMAMENTE, MEDIANTE_ALIANZAS, EN_DESARROLLO
+  orden          Int               @default(0)
+  creado_en      DateTime          @default(now())
+  actualizado_en DateTime          @updatedAt
+  rutas          RutaAprendizaje[]
+
+  @@map("escuelas")
 }
 
 model CursoEnRuta {

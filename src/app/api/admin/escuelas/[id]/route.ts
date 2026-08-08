@@ -6,8 +6,8 @@ import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
 
 /**
- * GET /api/admin/rutas/[id]
- * Detalle de una ruta con sus cursos
+ * GET /api/admin/escuelas/[id]
+ * Detalle de una escuela
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -15,40 +15,26 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     if (!auth.authorized || auth.user.rol !== 'ADMIN') return ApiResponse.error(request, 'No autorizado', 403)
 
-    const ruta = await prisma.rutaAprendizaje.findUnique({
+    const escuela = await prisma.escuela.findUnique({
       where: { id: params.id },
       include: {
-        cursos: {
-          orderBy: { orden: 'asc' },
-          include: {
-            curso: {
-              select: { id: true, titulo: true, miniatura: true }
-            }
-          }
+        rutas: {
+          select: { id: true, titulo: true, slug: true }
         }
       }
     })
 
-    if (!ruta) return ApiResponse.error(request, 'Ruta no encontrada', 404)
+    if (!escuela) return ApiResponse.error(request, 'Escuela no encontrada', 404)
 
-    // Formateamos los cursos para que tengan la estructura esperada: { id, titulo, miniatura, orden }
-    const formattedCursos = ruta.cursos.map(rc => ({
-      id: rc.curso.id,
-      titulo: rc.curso.titulo,
-      miniatura: rc.curso.miniatura,
-      orden: rc.orden,
-      seccion_id: rc.seccion_id
-    }))
-
-    return ApiResponse.success(request, { ...ruta, cursos: formattedCursos })
+    return ApiResponse.success(request, escuela)
   } catch (error) {
     return handleApiError(error, request)
   }
 }
 
 /**
- * PUT /api/admin/rutas/[id]
- * Actualiza una ruta
+ * PUT /api/admin/escuelas/[id]
+ * Actualiza una escuela
  */
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -56,31 +42,29 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     if (!auth.authorized || auth.user.rol !== 'ADMIN') return ApiResponse.error(request, 'No autorizado', 403)
 
-    const { titulo, slug, descripcion, miniatura, beneficios, esta_activo, escuela_id } = await request.json()
+    const { nombre, slug, descripcion, estado, orden } = await request.json()
 
-    await prisma.rutaAprendizaje.update({
+    await prisma.escuela.update({
       where: { id: params.id },
       data: {
-        titulo,
+        nombre,
         slug,
         descripcion,
-        miniatura,
-        beneficios,
-        esta_activo,
-        escuela_id: escuela_id || null,
+        estado,
+        orden: Number(orden) || 0,
         actualizado_en: new Date()
       }
     })
 
-    return ApiResponse.success(request, { message: 'Ruta actualizada' })
+    return ApiResponse.success(request, { message: 'Escuela actualizada' })
   } catch (error) {
     return handleApiError(error, request)
   }
 }
 
 /**
- * DELETE /api/admin/rutas/[id]
- * Elimina una ruta
+ * DELETE /api/admin/escuelas/[id]
+ * Elimina una escuela
  */
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -88,11 +72,11 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
     if (!auth.authorized || auth.user.rol !== 'ADMIN') return ApiResponse.error(request, 'No autorizado', 403)
 
-    await prisma.rutaAprendizaje.delete({
+    await prisma.escuela.delete({
       where: { id: params.id }
     })
 
-    return ApiResponse.success(request, { message: 'Ruta eliminada' })
+    return ApiResponse.success(request, { message: 'Escuela eliminada' })
   } catch (error) {
     return handleApiError(error, request)
   }

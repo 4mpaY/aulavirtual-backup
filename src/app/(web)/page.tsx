@@ -93,29 +93,31 @@ function Hero() {
             style={{
               position: 'absolute',
               left: 0,
-              top: '50%',
+              top: '46%',
               transform: `translateY(-50%) translateX(${current === idx ? 0 : 32}px)`,
               opacity: current === idx ? 1 : 0,
               transition: 'opacity 1s ease, transform 1s ease',
               maxWidth: '640px',
               pointerEvents: current === idx ? 'auto' : 'none',
+              paddingLeft: '1.25rem',
+              paddingRight: '1.25rem',
             }}
           >
-            <span style={{ display: 'inline-block', fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', padding: '0.4rem 1rem', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.2)', marginBottom: '2rem' }}>
+            <span style={{ display: 'inline-block', fontFamily: 'Outfit, sans-serif', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', padding: '0.4rem 1rem', borderRadius: '9999px', border: '1px solid rgba(255,255,255,0.2)', marginBottom: 'clamp(0.75rem, 2vh, 1.5rem)' }}>
               {slide.eyebrow}
             </span>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, letterSpacing: '-0.04em', color: '#ffffff', lineHeight: 0.9, display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
-              <span style={{ fontSize: 'clamp(3.5rem, 8vw, 6rem)' }}>{slide.title}</span>
-              <span style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', opacity: 0.8, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{slide.subtitle}</span>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, letterSpacing: '-0.04em', color: '#ffffff', lineHeight: 0.9, display: 'flex', flexDirection: 'column', marginBottom: 'clamp(0.75rem, 2vh, 1.5rem)' }}>
+              <span style={{ fontSize: 'clamp(2rem, 8vw, 5.5rem)' }}>{slide.title}</span>
+              <span style={{ fontSize: 'clamp(1.2rem, 5vw, 3rem)', opacity: 0.8, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{slide.subtitle}</span>
             </h1>
-            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(1rem, 2vw, 1.25rem)', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, marginBottom: '3rem' }}>
+            <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 'clamp(0.85rem, 2vw, 1.15rem)', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, marginBottom: 'clamp(1.25rem, 4vh, 3rem)' }}>
               {slide.description}
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
-              <Link href="/cursos" className="btn-primary-agenda" style={{ fontSize: '1rem', padding: '1rem 2.5rem', color: '#fff' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(0.75rem, 2vw, 1.25rem)' }}>
+              <Link href="/cursos" className="btn-primary-agenda" style={{ fontSize: '0.9rem', padding: '0.75rem clamp(1.5rem, 4vw, 2.5rem)', color: '#fff' }}>
                 Comenzar ahora <ArrowRight size={20} />
               </Link>
-              <Link href="/nosotros" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2.5rem', borderRadius: '9999px', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '1rem', color: '#ffffff', border: '2px solid rgba(255,255,255,0.6)', background: 'transparent', textDecoration: 'none' }}>
+              <Link href="/nosotros" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem clamp(1.5rem, 4vw, 2.5rem)', borderRadius: '9999px', fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: '#ffffff', border: '2px solid rgba(255,255,255,0.6)', background: 'transparent', textDecoration: 'none' }}>
                 Conócenos
               </Link>
             </div>
@@ -128,7 +130,7 @@ function Hero() {
       <div style={{ position: 'absolute', bottom: '2.5rem', left: 0, right: 0, zIndex: 4 }}>
         <div className="container-page" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <div style={{ display: 'flex' }}>
+            <div className="hidden sm:flex">
               {[1, 2, 3, 4].map(i => (
                 <div key={i} style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.2)', background: 'rgba(0,111,101,0.3)', backdropFilter: 'blur(4px)', overflow: 'hidden', marginLeft: i > 1 ? '-12px' : 0 }}>
                   <Image src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" width={42} height={42} />
