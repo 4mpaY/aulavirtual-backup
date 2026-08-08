@@ -38,7 +38,7 @@ interface CourseBuilderPageProps {
 }
 
 export function CourseBuilderPage({ cursoId, profesores, listPath = '/admin/cursos' }: CourseBuilderPageProps) {
-    const { data: curso, isLoading, isError, refetch } = useCurso(cursoId)
+    const { data: curso, isLoading, isError, error, refetch } = useCurso(cursoId)
     const [activeTab, setActiveTab] = useState('1')
     const router = useRouter()
     const { data: session } = useSession()
@@ -52,6 +52,17 @@ export function CourseBuilderPage({ cursoId, profesores, listPath = '/admin/curs
     }
 
     if (isError || !curso) {
+        const status = (error as any)?.statusCode ?? (error as any)?.response?.status
+
+        if (status === 401) {
+            return (
+                <Box display='flex' justifyContent='center' alignItems='center' flexDirection='column' gap={2} p={8}>
+                    <Typography>Tu sesión expiró. Redirigiendo al inicio de sesión…</Typography>
+                    <CircularProgress />
+                </Box>
+            )
+        }
+
         return (
             <Box display='flex' justifyContent='center' alignItems='center' flexDirection='column' gap={2} p={8}>
                 <Typography color='error'>No se pudo cargar el curso. Verifica que existe o intenta recargar la página.</Typography>
