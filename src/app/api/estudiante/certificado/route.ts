@@ -346,6 +346,7 @@ export async function POST(request: Request) {
 
     const fechaEmision = new Date().toISOString().slice(0, 10).replace(/-/g, '')
     const dni = usuarioData?.numero_documento?.replace(/\D/g, '') || 'SINDNI'
+
     const codigoCurso =
       cursoData?.codigo || cursoData?.slug?.slice(0, 12).toUpperCase() || cursoId.slice(0, 8).toUpperCase()
 

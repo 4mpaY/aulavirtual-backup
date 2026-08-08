@@ -59,7 +59,8 @@ export const RutasPage = ({ initialData }: RutasPageProps) => {
 
   const filteredRutas = useMemo(() => {
     if (escuelaFiltro === 'todas') return rutas
-    return rutas.filter(r => r.escuela_id === escuelaFiltro)
+    
+return rutas.filter(r => r.escuela_id === escuelaFiltro)
   }, [rutas, escuelaFiltro])
 
   const handleEdit = useCallback((ruta: Ruta) => {

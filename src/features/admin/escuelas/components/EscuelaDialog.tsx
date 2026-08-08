@@ -74,6 +74,7 @@ export const EscuelaDialog = ({ open, onClose, escuela }: EscuelaDialogProps) =>
         await createEscuela.mutateAsync(data)
         Swal.fire({ title: '¡Éxito!', text: 'Escuela creada correctamente', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 })
       }
+
       onClose()
     } catch (err: any) {
       Swal.fire({ title: 'Error', text: err.response?.data?.message || 'Error al guardar la escuela', icon: 'error' })

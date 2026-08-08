@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+
 import { Box } from '@mui/material'
 
 import prisma from '@/utils/libs/prisma'

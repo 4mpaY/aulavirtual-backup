@@ -125,9 +125,11 @@ export default async function VerificarCertificadoPage({ params }: Props) {
       : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
 
   const isRuta = !certificado.curso_id
+
   const cursoTitulo = isRuta
     ? (snapshot?.ruta?.titulo || certificado.ruta?.titulo || 'Ruta de Aprendizaje')
     : (snapshot?.curso?.titulo || certificado.curso?.titulo || '')
+
   const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
 
   const fechaEmision = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {

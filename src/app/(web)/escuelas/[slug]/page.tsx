@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
-import { Container, Box, Grid, Typography, Chip } from '@mui/material'
+
 import Link from 'next/link'
+
+import { Container, Box, Grid, Typography, Chip } from '@mui/material'
 
 import prisma from '@/utils/libs/prisma'
 import RutasCatalog from '@/features/web/rutas/components/RutasCatalog'
@@ -51,7 +53,8 @@ async function getEscuelaWithRutas(slug: string) {
     }
   } catch (err) {
     console.error('Error fetching escuela:', err)
-    return null
+    
+return null
   }
 }
 
