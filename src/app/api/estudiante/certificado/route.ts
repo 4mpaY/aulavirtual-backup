@@ -145,7 +145,10 @@ export async function GET(request: Request) {
         where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId! } },
         select: { certificado_habilitado: true }
       }),
-      prisma.curso.findUnique({ where: { id: cursoId! }, select: { precio_certificado: true, titulo: true } })
+      prisma.curso.findUnique({
+        where: { id: cursoId! },
+        select: { precio_certificado: true, titulo: true, numero_asesor: true }
+      })
     ])
 
     const precioCert = curso?.precio_certificado ? Number(curso.precio_certificado) : null

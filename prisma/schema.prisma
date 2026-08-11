@@ -8,45 +8,45 @@ datasource db {
 }
 
 model Usuario {
-  id                      String                     @id @default(uuid())
-  correo                  String                     @unique
-  contrasena              String?
-  nombre                  String
-  numero_documento        String?                    @unique
-  apellido                String
-  slug                    String?                    @unique
-  avatar                  String?
-  biografia               String?
-  celular                 String?
-  rol                     Rol                        @default(ESTUDIANTE)
-  esta_activo             Boolean                    @default(true)
-  creado_en               DateTime                   @default(now())
-  actualizado_en          DateTime                   @updatedAt
-  google_id               String?                    @unique
-  cargo                   String?
-  firma                   String?
-  certificados            Certificado[]
-  comentarios             Comentario[]
-  cursos_dictados         Curso[]                    @relation("ProfesorCursos")
-  inscripciones           Inscripcion[]
-  inscripciones_simulacro InscripcionSimulacro[]
-  intentos_examen         IntentoExamen[]
-  notificaciones          Notificacion[]
-  pedidos                 Pedido[]
-  progreso_cursos         ProgresoCurso[]
-  progreso_lecciones      ProgresoLeccion[]
-  valoraciones            ValoracionCurso[]
-  suscripciones           Suscripcion[]
-  entregas_trabajo        EntregaTrabajo[]
-  entregas_actividad      EntregaActividad[]
-  eventos_externos        EventoExterno[]
-  ebook_accesos           EbookAcceso[]
-  ebook_annotaciones      EbookAnnotacion[]
-  participaciones_chat    ParticipanteConversacion[]
-  mensajes_enviados       MensajeChat[]              @relation("MensajesEnviados")
-  asistencias             asistencias[]
-  supervisores_alumnos_alumno_idTousuarios     supervisores_alumnos[] @relation("supervisores_alumnos_alumno_idTousuarios")
-  supervisores_alumnos_supervisor_idTousuarios supervisores_alumnos[] @relation("supervisores_alumnos_supervisor_idTousuarios")
+  id                                           String                     @id @default(uuid())
+  correo                                       String                     @unique
+  contrasena                                   String?
+  nombre                                       String
+  numero_documento                             String?                    @unique
+  apellido                                     String
+  slug                                         String?                    @unique
+  avatar                                       String?
+  biografia                                    String?
+  celular                                      String?
+  rol                                          Rol                        @default(ESTUDIANTE)
+  esta_activo                                  Boolean                    @default(true)
+  creado_en                                    DateTime                   @default(now())
+  actualizado_en                               DateTime                   @updatedAt
+  google_id                                    String?                    @unique
+  cargo                                        String?
+  firma                                        String?
+  certificados                                 Certificado[]
+  comentarios                                  Comentario[]
+  cursos_dictados                              Curso[]                    @relation("ProfesorCursos")
+  inscripciones                                Inscripcion[]
+  inscripciones_simulacro                      InscripcionSimulacro[]
+  intentos_examen                              IntentoExamen[]
+  notificaciones                               Notificacion[]
+  pedidos                                      Pedido[]
+  progreso_cursos                              ProgresoCurso[]
+  progreso_lecciones                           ProgresoLeccion[]
+  valoraciones                                 ValoracionCurso[]
+  suscripciones                                Suscripcion[]
+  entregas_trabajo                             EntregaTrabajo[]
+  entregas_actividad                           EntregaActividad[]
+  eventos_externos                             EventoExterno[]
+  ebook_accesos                                EbookAcceso[]
+  ebook_annotaciones                           EbookAnnotacion[]
+  participaciones_chat                         ParticipanteConversacion[]
+  mensajes_enviados                            MensajeChat[]              @relation("MensajesEnviados")
+  asistencias                                  asistencias[]
+  supervisores_alumnos_alumno_idTousuarios     supervisores_alumnos[]     @relation("supervisores_alumnos_alumno_idTousuarios")
+  supervisores_alumnos_supervisor_idTousuarios supervisores_alumnos[]     @relation("supervisores_alumnos_supervisor_idTousuarios")
 
   @@index([rol])
   @@map("usuarios")
@@ -152,6 +152,7 @@ model Curso {
   id                    String            @id @default(uuid())
   titulo                String
   slug                  String            @unique
+  codigo                String?           @unique
   descripcion           String?
   miniatura             String?
   video_presentacion    String?
@@ -166,6 +167,7 @@ model Curso {
   firmante_1_id         String?
   firmante_2_id         String?
   precio                Decimal           @default(0) @db.Decimal(10, 2)
+  precio_falso          Decimal           @default(0) @db.Decimal(10, 2)
   moneda                String            @default("PEN")
   numero_asesor         String?
   creado_en             DateTime          @default(now())
@@ -173,11 +175,14 @@ model Curso {
   profesor_id           String
   categoria_id          String?
   nivel                 NivelCurso?
+  tipo                  TipoCurso         @default(CURSO)
   beneficios            Json?             @default("[]")
   incluye               Json?             @default("[]")
   metodologia           Json?             @default("[]")
   objetivos             Json?             @default("[]")
   fecha_inicio          DateTime?
+  fecha_fin             DateTime?
+  vigencia_meses        Int?
   precio_oferta         Decimal?          @db.Decimal(10, 2)
   brochure              String?
   landing_active        Boolean           @default(false)
@@ -208,6 +213,7 @@ model Curso {
   @@index([firmante_2_id])
   @@index([estado])
   @@index([tipo_emision])
+  @@index([tipo])
   @@map("cursos")
 }
 

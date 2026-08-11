@@ -1,56 +1,33 @@
 import { NextResponse } from 'next/server'
 
-import { requireAuth } from '@/utils/libs/auth-helpers'
-import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
-import { getConfigs } from '@/utils/libs/config'
-import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertificadoData'
-import { getGenerator } from '@/app/api/_shared/certificados/generators'
+import { handleApiError } from '@/utils/libs/validation'
+import { requireAuth } from '@/utils/libs/auth-helpers'
+import { getPdfBuffer } from '@/app/api/_shared/certificados/getPdfBuffer'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * GET /api/estudiante/certificado/[certificadoId]/pdf
+ * Descarga el PDF del certificado (Estudiante).
+ * La plantilla se resuelve: override del curso > configuración global CERTIFICADO_PLANTILLA > 'clasico'.
+ * Si tiene un PDF estático importado, lo sirve; si no, lo genera dinámicamente.
+ */
 export async function GET(request: Request, { params }: { params: { certificadoId: string } }) {
   try {
     const auth = await requireAuth(request)
 
-    if (!auth.authorized) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-    }
+    if (!auth.authorized) return auth.error
 
     const { certificadoId } = params
     const reqUrl = new URL(request.url)
     const previewFlag = reqUrl.searchParams.get('preview') === 'true'
 
-    // 1. Cargar certificado con relaciones básicas
-    const [certificado, configs] = await Promise.all([
-      prisma.certificado.findUnique({
-        where: { id: certificadoId },
-        include: {
-          curso: {
-            select: {
-              titulo: true,
-              duracion: true,
-              nivel: true,
-              fecha_inicio: true,
-              vigencia_meses: true,
-              tipo_emision: true,
-              profesor: {
-                select: { nombre: true, apellido: true, cargo: true, firma: true }
-              }
-            }
-          },
-          ruta: {
-            select: {
-              id: true,
-              titulo: true,
-              slug: true
-            }
-          },
-          usuario: { select: { nombre: true, apellido: true } }
-        }
-      }),
-      getConfigs()
-    ])
+    // Verificar ownership
+    const certificado = await prisma.certificado.findUnique({
+      where: { id: certificadoId },
+      select: { usuario_id: true }
+    })
 
     if (!certificado) {
       return NextResponse.json({ error: 'Certificado no encontrado' }, { status: 404 })
@@ -60,95 +37,9 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
 
-    const isRuta = !certificado.curso_id
-    const cursoIdStr = (certificado.curso_id || '') as string
+    const { buffer, filename } = await getPdfBuffer(certificadoId, reqUrl, previewFlag)
 
-    // ── Carga secundaria ──────────────────────────────────────────────
-    const [inscripcion, usuarioCompleto, intentosExamen, modulosCurso] = await Promise.all([
-      !isRuta
-        ? prisma.inscripcion.findUnique({
-            where: {
-              usuario_id_curso_id: {
-                usuario_id: certificado.usuario_id,
-                curso_id: cursoIdStr
-              }
-            },
-            select: { completado_en: true, inscrito_en: true, nota_final: true }
-          })
-        : Promise.resolve(null),
-      prisma.usuario.findUnique({
-        where: { id: certificado.usuario_id },
-        select: { avatar: true }
-      }),
-      !isRuta
-        ? prisma.intentoExamen.findMany({
-            where: {
-              usuario_id: certificado.usuario_id,
-              esta_aprobado: true,
-              examen: { curso_id: cursoIdStr, modulo_id: { not: null } }
-            },
-            select: { puntaje: true, examen: { select: { modulo_id: true, peso: true } } },
-            orderBy: { enviado_en: 'desc' }
-          })
-        : Promise.resolve([]),
-      !isRuta
-        ? prisma.modulo.findMany({
-            where: { curso_id: cursoIdStr },
-            orderBy: { orden: 'asc' },
-            select: {
-              id: true,
-              titulo: true,
-              orden: true,
-              lecciones: {
-                orderBy: { orden: 'asc' },
-                select: { id: true, titulo: true, orden: true, duracion: true }
-              }
-            }
-          })
-        : Promise.resolve([])
-    ])
-
-    // fecha_fin del curso
-    const cursoFechaFin = !isRuta
-      ? (await prisma.curso.findUnique({
-          where: { id: cursoIdStr },
-          select: { fecha_fin: true }
-        }))?.fecha_fin ?? null
-      : null
-
-    // ── Gerente General ───────────────────────────────────────────────
-    const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID
-
-    const gerenteGeneral = gerenteGeneralId
-      ? await prisma.usuario.findUnique({
-          where: { id: gerenteGeneralId },
-          select: { nombre: true, apellido: true, cargo: true, firma: true }
-        })
-      : null
-
-    // ── Construir datos del certificado ───────────────────────────────
-    const certData = await buildCertificadoData({
-      certificado: {
-        ...certificado,
-        curso: isRuta ? null : { ...certificado.curso, modulos: modulosCurso }
-      } as any,
-      configs,
-      inscripcion,
-      usuarioAvatar: usuarioCompleto?.avatar,
-      intentosExamen,
-      cursoFechaFin,
-      reqUrl,
-      previewFlag
-    })
-
-    certData.gerenteGeneral = gerenteGeneral
-
-    // ── Seleccionar plantilla y generar PDF ───────────────────────────
-    const plantilla = configs.CERTIFICADO_PLANTILLA || 'clasico'
-    const generarPDF = getGenerator(plantilla)
-    const pdfBuffer = await generarPDF(certData)
-
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
