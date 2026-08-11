@@ -44,6 +44,9 @@ model Usuario {
   ebook_annotaciones      EbookAnnotacion[]
   participaciones_chat    ParticipanteConversacion[]
   mensajes_enviados       MensajeChat[]              @relation("MensajesEnviados")
+  asistencias             asistencias[]
+  supervisores_alumnos_alumno_idTousuarios     supervisores_alumnos[] @relation("supervisores_alumnos_alumno_idTousuarios")
+  supervisores_alumnos_supervisor_idTousuarios supervisores_alumnos[] @relation("supervisores_alumnos_supervisor_idTousuarios")
 
   @@index([rol])
   @@map("usuarios")
@@ -204,7 +207,7 @@ model Curso {
   @@index([firmante_1_id])
   @@index([firmante_2_id])
   @@index([estado])
-  @@index([tipo])
+  @@index([tipo_emision])
   @@map("cursos")
 }
 
