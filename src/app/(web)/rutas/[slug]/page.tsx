@@ -47,9 +47,31 @@ export default async function RutaDetailPage({ params }: { params: { slug: strin
       }))
     }
 
+    // Verificar si el usuario está inscrito
+    const { getCurrentUser } = await import('@/utils/libs/auth-helpers')
+    const user = await getCurrentUser()
+    let isInscrito = false
+
+    if (user?.id) {
+      const prismaAny = prisma as any
+
+      const inscripcion = await prismaAny.inscripcionRuta.findUnique({
+        where: {
+          usuario_id_ruta_id: {
+            usuario_id: user.id,
+            ruta_id: ruta.id
+          }
+        }
+      })
+
+      if (inscripcion) {
+        isInscrito = true
+      }
+    }
+
     return (
       <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
-        <RutaDetail ruta={serializedRuta as any} />
+        <RutaDetail ruta={serializedRuta as any} isInscrito={isInscrito} />
       </Box>
     )
   } catch (error) {

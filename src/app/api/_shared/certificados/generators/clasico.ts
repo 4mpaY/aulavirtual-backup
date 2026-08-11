@@ -231,7 +231,12 @@ export const generarClasico: GeneratorFn = async data => {
   doc.setFontSize(12)
   doc.setTextColor(100, 100, 100)
   doc.setFont('helvetica', 'normal')
-  doc.text('Por haber concluido y aprobado con éxito el curso de:', cx, y, { align: 'center' })
+
+  const subtitleText = data.isRuta 
+    ? 'Por haber culminado satisfactoriamente la ruta de aprendizaje:' 
+    : 'Por haber culminado satisfactoriamente el curso de:'
+
+  doc.text(subtitleText, cx, y, { align: 'center' })
   y += 10
 
   doc.setFontSize(20)

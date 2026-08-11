@@ -1,4 +1,4 @@
-generator client {
+﻿generator client {
   provider = "prisma-client-js"
 }
 
@@ -47,7 +47,6 @@ model Usuario {
   asistencias                                  asistencias[]
   supervisores_alumnos_alumno_idTousuarios     supervisores_alumnos[]     @relation("supervisores_alumnos_alumno_idTousuarios")
   supervisores_alumnos_supervisor_idTousuarios supervisores_alumnos[]     @relation("supervisores_alumnos_supervisor_idTousuarios")
-  inscripciones_ruta                           InscripcionRuta[]
 
   @@index([rol])
   @@map("usuarios")
@@ -711,7 +710,6 @@ model RutaAprendizaje {
   escuela_id     String?
   escuela        Escuela?      @relation(fields: [escuela_id], references: [id], onDelete: SetNull)
   certificados   Certificado[]
-  inscripciones_ruta InscripcionRuta[]
 
   @@index([escuela_id])
   @@map("rutas_aprendizaje")
@@ -1264,17 +1262,4 @@ enum NivelSimulacro {
 enum TipoActividad {
   ARCHIVO
   FORMULARIO
-}
-
-model InscripcionRuta {
-  id String @id @default(uuid())
-  usuario_id String
-  ruta_id String
-  inscrito_en DateTime @default(now())
-  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  ruta RutaAprendizaje @relation(fields: [ruta_id], references: [id], onDelete: Cascade)
-  @@unique([usuario_id, ruta_id])
-  @@index([usuario_id])
-  @@index([ruta_id])
-  @@map("inscripciones_ruta")
 }

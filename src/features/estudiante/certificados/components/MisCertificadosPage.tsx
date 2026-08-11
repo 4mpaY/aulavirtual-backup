@@ -26,25 +26,14 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
   const { enqueueSnackbar } = useSnackbar()
   const [downloading, setDownloading] = useState(false)
 
-  const handleDownload = async () => {
-    setDownloading(true)
+  const handleDownload = () => {
+    const a = document.createElement('a')
 
-    try {
-      const token = session?.user?.accessToken ?? null
-      const client = new AxiosMisCertificados({ getAuthToken: () => token })
-      const blob = await client.downloadPdf(cert.id)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-
-      a.href = url
-      a.download = `certificado-${cert.codigo_verificacion}.pdf`
-      a.click()
-      URL.revokeObjectURL(url)
-    } catch {
-      enqueueSnackbar('Error al descargar el certificado', { variant: 'error' })
-    } finally {
-      setDownloading(false)
-    }
+    a.href = `/api/estudiante/certificado/${cert.id}/pdf`
+    a.download = `certificado-${cert.codigo_verificacion}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
   }
 
   const handleCopyCode = () => {
@@ -166,18 +155,18 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
 
           {/* Acciones */}
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title={!cert.datos?.archivo_pdf ? 'Tu certificado está en trámite, comunícate con el asesor.' : ''}>
+            <Tooltip title="">
               <span style={{ display: 'flex', flex: 1 }}>
                 <Button
                   fullWidth
                   variant="contained"
                   size="small"
-                  startIcon={<i className={!cert.datos?.archivo_pdf ? 'tabler-clock' : 'tabler-download'} />}
+                  startIcon={<i className="tabler-download" />}
                   onClick={handleDownload}
-                  disabled={downloading || !cert.datos?.archivo_pdf}
+                  disabled={downloading}
                   sx={{ borderRadius: 2, fontWeight: 600, fontSize: '0.78rem' }}
                 >
-                  {downloading ? 'Descargando...' : !cert.datos?.archivo_pdf ? 'En trámite' : 'Descargar PDF'}
+                  {downloading ? 'Descargando...' : 'Descargar PDF'}
                 </Button>
               </span>
             </Tooltip>

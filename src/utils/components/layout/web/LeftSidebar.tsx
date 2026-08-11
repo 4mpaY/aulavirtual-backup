@@ -9,7 +9,7 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
-import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, MonitorSmartphone, BookText, ClipboardList, Repeat2 } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, LayoutDashboard, BookMarked, LogOut, MonitorSmartphone, BookText, ClipboardList, Repeat2, Route } from 'lucide-react'
 
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import { usePWAInstall } from '@/utils/hooks/usePWAInstall'
@@ -238,6 +238,7 @@ export default function LeftSidebar({
                       ...(user?.rol === 'ADMIN' ? [{ label: 'Panel de Administración', icon: LayoutDashboard, href: '/admin/dashboard' }] : []),
                       ...(user?.rol === 'ESTUDIANTE' ? [
                         { label: 'Mis Cursos', icon: BookMarked, href: '/estudiante/mis-cursos' },
+                        { label: 'Mis Rutas', icon: Route, href: '/estudiante/mis-rutas' },
                         { label: 'Mis Notas', icon: BookText, href: '/estudiante/mis-notas' }
                       ] : []),
                     ].map(({ label, icon: Icon, href }) => (

@@ -113,10 +113,17 @@ export const useCourseStore = create<CourseState>((set) => ({
             const completed = allLessons.filter(l => l.completada).length
             const percentage = allLessons.length > 0 ? Math.round((completed / allLessons.length) * 100) : 0
 
+            const firstUncompletedLesson = allLessons.find(l => !l.completada)
+            const targetLessonId = firstUncompletedLesson?.id || allLessons[0]?.id
+
             return {
                 course,
                 progressPercentage: percentage,
-                currentLessonId: state.currentLessonId || course.modulos[0]?.lecciones[0]?.id,
+                currentLessonId: targetLessonId,
+                currentView: percentage >= 100 ? 'certificate' : 'lesson',
+                currentExamenId: null,
+                currentActividadId: null,
+                certificateId: null,
                 examStatus: percentage >= 100 ? 'available' : 'locked'
             }
         })

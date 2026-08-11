@@ -90,6 +90,7 @@ export interface CertificadoData {
 
   // ── Flags ──
   previewFlag: boolean
+  isRuta: boolean
 }
 
 /**

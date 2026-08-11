@@ -61,12 +61,13 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
     <ScrollWrapper
       {...(isBreakpointReached
         ? {
-          className: 'bs-full overflow-y-auto overflow-x-hidden',
+          className: 'bs-full overflow-y-auto overflow-x-hidden no-scrollbar',
           onScroll: container => scrollMenu(container, false)
         }
         : {
           options: { wheelPropagation: false, suppressScrollX: true },
-          onScrollY: container => scrollMenu(container, true)
+          onScrollY: container => scrollMenu(container, true),
+          className: 'no-scrollbar'
         })}
     >
       {/* Incase you also want to scroll NavHeader to scroll with Vertical Menu, remove NavHeader from above and paste it below this comment */}
@@ -92,6 +93,9 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             </MenuItem>
             <MenuItem href='/estudiante/mis-cursos' icon={<i className='tabler-book' />}>
               Mis Cursos
+            </MenuItem>
+            <MenuItem href='/estudiante/mis-rutas' icon={<i className='tabler-route' />}>
+              Mis Rutas
             </MenuItem>
             <MenuItem href='/estudiante/mis-notas' icon={<i className='tabler-file-description' />}>
               Mis Notas

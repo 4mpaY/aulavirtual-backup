@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 
 import {
     Box,
@@ -69,6 +69,26 @@ const CourseContentSidebar = ({ onLessonSelect }: CourseContentSidebarProps) => 
             })
             .filter(Boolean) as any[]
     }, [course?.modulos, searchQuery])
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            let activeId = currentLessonId
+
+            if (currentView === 'exam') activeId = currentExamenId as string | undefined
+            if (currentView === 'activity') activeId = currentActividadId as string | undefined
+
+            if (activeId) {
+                const el = document.getElementById(`sidebar-item-${activeId}`)
+
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }
+            }
+        }, 300)
+
+        
+return () => clearTimeout(timer)
+    }, [currentLessonId, currentView, currentExamenId, currentActividadId])
 
     return (
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: 'background.paper' }}>

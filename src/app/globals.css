@@ -440,3 +440,5 @@ code {
 .swal2-container {
   z-index: 1400 !important;
 }
+
+.layout-vertical-nav { overflow: hidden !important; }

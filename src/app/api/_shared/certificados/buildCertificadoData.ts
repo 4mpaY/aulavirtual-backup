@@ -211,6 +211,7 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     notasPorModulo,
     intentosExamen,
     notaInscripcion: snapshot?.nota_final ?? inscripcion?.nota_final ?? null,
-    previewFlag
+    previewFlag,
+    isRuta
   }
 }

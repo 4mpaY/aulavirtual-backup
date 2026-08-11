@@ -39,7 +39,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
 
     const { buffer, filename } = await getPdfBuffer(certificadoId, reqUrl, previewFlag)
 
-    return new NextResponse(new Uint8Array(buffer), {
+    return new NextResponse(buffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',

@@ -50,6 +50,7 @@ interface RutaDetailProps {
     beneficios?: { title: string; desc: string; icon: string }[] | null
     secciones?: RutaSeccion[] | null
   }
+  isInscrito?: boolean
 }
 
 const DEFAULT_BENEFITS = [
@@ -160,7 +161,7 @@ const CourseCard = ({ curso, index, total }: { curso: CursoEnRuta; index: number
   )
 }
 
-const RutaDetail = ({ ruta }: RutaDetailProps) => {
+const RutaDetail = ({ ruta, isInscrito }: RutaDetailProps) => {
   return (
     <Box sx={{ pb: 10, bgcolor: '#f8fafc' }}>
       {/* New Premium Hero Section - Aligned with CourseDetail */}
