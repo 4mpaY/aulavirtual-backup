@@ -14,7 +14,8 @@ export default async function LearningPage({ params, searchParams }: { params: {
 
   const profesorByCurso = await prisma.curso.findUnique({
     where: { slug: params.slug },
-    include: {
+    select: {
+      numero_asesor: true,
       profesor: {
         select: {
           celular: true,
@@ -25,7 +26,9 @@ export default async function LearningPage({ params, searchParams }: { params: {
 
   let phoneNumberProfesor = "51994356180"
 
-  if (profesorByCurso && profesorByCurso.profesor && profesorByCurso.profesor.celular) {
+  if (profesorByCurso?.numero_asesor) {
+    phoneNumberProfesor = profesorByCurso.numero_asesor
+  } else if (profesorByCurso?.profesor?.celular) {
     phoneNumberProfesor = profesorByCurso.profesor.celular
   }
 
@@ -38,14 +41,18 @@ export default async function LearningPage({ params, searchParams }: { params: {
   try {
     const data = await axiosPlayer.getPlayerData(params.slug)
 
-    console.log(data)
-
     return <CoursePlayerView course={data.course} initialLessonId={searchParams.leccion} initialExamenId={searchParams.examen} phoneNumberProfesor={phoneNumberProfesor} />
   } catch (err: any) {
     const code = err?.code || err?.error
 
     if (code === 'UNCISCRIBED') {
       redirect(`/cursos/${params.slug}`)
+    }
+
+    const status = err?.statusCode ?? err?.response?.status
+
+    if (status === 401) {
+      redirect(`/login?sessionExpired=1&callbackUrl=${encodeURIComponent(`/estudiante/aprender/${params.slug}`)}`)
     }
 
     notFound()

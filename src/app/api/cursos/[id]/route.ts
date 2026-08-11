@@ -47,6 +47,12 @@ const cursoInclude = {
   categoria: {
     select: { id: true, nombre: true }
   },
+  firmante_1: {
+    select: { id: true, nombre: true, cargo: true }
+  },
+  firmante_2: {
+    select: { id: true, nombre: true, cargo: true }
+  },
   modulos: {
     orderBy: { orden: 'asc' as const },
     include: {

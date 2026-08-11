@@ -15,11 +15,11 @@ const axiosCertificadoFactory = () => {
 }
 
 export const useCertificados = (
-  params: { page: number; limit: number; buscar?: string; codigo?: string; nombre?: string },
+  params: { page: number; limit: number; buscar?: string; fechaInicio?: string; fechaFin?: string },
   initialData?: CertificadosResponse['result']
 ) => {
   const isDefault =
-    params.page === 1 && params.limit === 10 && !params.buscar && !params.codigo && !params.nombre
+    params.page === 1 && params.limit === 10 && !params.buscar && !params.fechaInicio && !params.fechaFin
 
   return useQuery({
     queryKey: ['admin-certificados', params],
@@ -40,6 +40,36 @@ export const useCreateCertificado = () => {
       const axiosCertificado = axiosCertificadoFactory()
 
       return await axiosCertificado.create(payload)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-certificados'] })
+    }
+  })
+}
+
+export const useImportarCertificados = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (formData: FormData) => {
+      const axiosCertificado = axiosCertificadoFactory()
+
+      return await axiosCertificado.importarCertificados(formData)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-certificados'] })
+    }
+  })
+}
+
+export const useDeleteCertificado = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ id, type }: { id: string; type: 'imported' | 'all' }) => {
+      const axiosCertificado = axiosCertificadoFactory()
+
+      return await axiosCertificado.delete(id, type)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-certificados'] })

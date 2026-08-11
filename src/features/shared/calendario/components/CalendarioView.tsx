@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 
 import {
   Box,
+  Button,
   Card,
   Checkbox,
   Chip,
@@ -26,16 +27,39 @@ import listPlugin from '@fullcalendar/list'
 import timeGridPlugin from '@fullcalendar/timegrid'
 
 import { EventoModal } from './EventoModal'
+import { EventoExternoFormModal } from './EventoExternoFormModal'
 
 import { useCalendario } from '../hooks/useCalendario'
+import type { EventoExterno } from '../entity/EventoExterno'
 
 
 const FILTROS = [
   { tipo: 'CLASE_VIVO', label: 'Clase en vivo', color: '#1565C0', icon: 'tabler-video' },
   { tipo: 'EXAMEN', label: 'Examen', color: '#C62828', icon: 'tabler-file-text' },
   { tipo: 'CURSO_INICIO', label: 'Inicio de curso', color: '#2E7D32', icon: 'tabler-book-open' },
-  { tipo: 'CURSO_FIN', label: 'Fin de curso', color: '#E65100', icon: 'tabler-flag' }
+  { tipo: 'CURSO_FIN', label: 'Fin de curso', color: '#E65100', icon: 'tabler-flag' },
+  { tipo: 'EVENTO_EXTERNO', label: 'Evento personal', color: '#6A1B9A', icon: 'tabler-note' }
 ]
+
+function eventoExternoDesdeExtendedProps(evento: {
+  title: string
+  start: string
+  end?: string
+  extendedProps: Record<string, any>
+}): EventoExterno {
+  return {
+    id: evento.extendedProps.eventoExternoId,
+    titulo: evento.title,
+    descripcion: evento.extendedProps.descripcion ?? null,
+    fecha_inicio: evento.start,
+    fecha_fin: evento.end ?? null,
+    todo_el_dia: !!evento.extendedProps.todoElDia,
+    color: evento.extendedProps.color ?? null,
+    usuario_id: '',
+    creado_en: '',
+    actualizado_en: ''
+  }
+}
 
 const VISTAS = [
   { key: 'dayGridMonth', label: 'Mes' },
@@ -149,6 +173,8 @@ export function CalendarioView() {
 
   const [eventoSeleccionado, setEventoSeleccionado] = useState<any>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const [formModalOpen, setFormModalOpen] = useState(false)
+  const [eventoExternoEditando, setEventoExternoEditando] = useState<EventoExterno | null>(null)
   const [vistaActiva, setVistaActiva] = useState('dayGridMonth')
   const [tituloMes, setTituloMes] = useState('')
 
@@ -187,13 +213,27 @@ export function CalendarioView() {
   }
 
   const handleEventClick = (arg: EventClickArg) => {
-    setEventoSeleccionado({
+    const evento = {
       title: arg.event.title,
       start: arg.event.startStr,
       end: arg.event.endStr || undefined,
       extendedProps: arg.event.extendedProps
-    })
+    }
+
+    if (evento.extendedProps?.tipo === 'EVENTO_EXTERNO') {
+      setEventoExternoEditando(eventoExternoDesdeExtendedProps(evento))
+      setFormModalOpen(true)
+
+      return
+    }
+
+    setEventoSeleccionado(evento)
     setModalOpen(true)
+  }
+
+  const handleNuevoEvento = () => {
+    setEventoExternoEditando(null)
+    setFormModalOpen(true)
   }
 
   const toggleFiltro = (tipo: string) => {
@@ -300,7 +340,19 @@ export function CalendarioView() {
               return (
                 <Box
                   key={ev.id}
-                  onClick={() => { setEventoSeleccionado({ title: ev.title, start: ev.start, end: ev.end, extendedProps: ev.extendedProps }); setModalOpen(true) }}
+                  onClick={() => {
+                    const evento = { title: ev.title, start: ev.start, end: ev.end, extendedProps: ev.extendedProps }
+
+                    if (evento.extendedProps?.tipo === 'EVENTO_EXTERNO') {
+                      setEventoExternoEditando(eventoExternoDesdeExtendedProps(evento))
+                      setFormModalOpen(true)
+
+                      return
+                    }
+
+                    setEventoSeleccionado(evento)
+                    setModalOpen(true)
+                  }}
                   sx={{
                     mx: 1.5, mb: 1, px: 1.5, py: 1.25,
                     borderRadius: 2, cursor: 'pointer',
@@ -358,8 +410,17 @@ export function CalendarioView() {
             </Typography>
           </Box>
 
-          {/* Hoy + vistas */}
+          {/* Hoy + vistas + nuevo evento */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Button
+              variant='contained'
+              size='small'
+              onClick={handleNuevoEvento}
+              startIcon={<i className='tabler-plus' />}
+              sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 700, bgcolor: '#6A1B9A', '&:hover': { bgcolor: '#4A148C' } }}
+            >
+              Nuevo evento
+            </Button>
             <Chip
               label='Hoy'
               onClick={() => calendarRef.current?.getApi().today()}
@@ -418,6 +479,11 @@ export function CalendarioView() {
       </Card>
 
       <EventoModal open={modalOpen} handleClose={() => setModalOpen(false)} basePath={basePath} evento={eventoSeleccionado} />
+      <EventoExternoFormModal
+        open={formModalOpen}
+        handleClose={() => setFormModalOpen(false)}
+        eventoExterno={eventoExternoEditando}
+      />
     </Box>
   )
 }

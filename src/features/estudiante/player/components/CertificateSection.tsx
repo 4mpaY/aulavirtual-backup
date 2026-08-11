@@ -16,6 +16,7 @@ interface CertificateData {
     emitidoEn: string
     cursoTitulo: string
     nombreCompleto: string
+    archivoPdf: string | null
 }
 
 interface Elegibilidad {
@@ -91,6 +92,7 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
     const [precioCertificado, setPrecioCertificado] = useState<number | null>(null)
     const [cursoTitulo, setCursoTitulo] = useState<string | null>(null)
     const [whatsappNumero, setWhatsappNumero] = useState<string | null>(null)
+    const [numeroAsesor, setNumeroAsesor] = useState<string | null>(null)
     const autoGeneradoRef = useRef(false)
 
     useEffect(() => {
@@ -110,6 +112,7 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
                     setPagoPendiente(res.data.result.pagoPendiente ?? false)
                     setPrecioCertificado(res.data.result.precioCertificado ?? null)
                     setCursoTitulo(res.data.result.cursoTitulo ?? null)
+                    setNumeroAsesor(res.data.result.numeroAsesor ?? null)
                     setWhatsappNumero(resPago?.data?.result?.whatsapp_numero || null)
                 } else {
                     setFetchError(true)
@@ -361,28 +364,52 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
                                 {certificado.codigoVerificacion}
                             </Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                            <Button
-                                variant="contained"
-                                size="small"
-                                onClick={handleDescargar}
-                                disabled={downloading}
-                                startIcon={downloading ? <CircularProgress size={14} color="inherit" /> : <i className="tabler-download" />}
-                                sx={{ bgcolor: '#025E44', borderRadius: '10px', textTransform: 'none', fontWeight: 700, boxShadow: 'none', '&:hover': { bgcolor: '#014d36', boxShadow: 'none' } }}
-                            >
-                                {downloading ? 'Descargando...' : 'Descargar PDF'}
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                href={`/verificar-certificado/${certificado.codigoVerificacion}`}
-                                target="_blank"
-                                startIcon={<i className="tabler-external-link" />}
-                                sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
-                            >
-                                Verificar
-                            </Button>
-                        </Box>
+                        
+                        {certificado.archivoPdf ? (
+                            <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                                <Button
+                                    variant="contained"
+                                    size="small"
+                                    onClick={handleDescargar}
+                                    disabled={downloading}
+                                    startIcon={downloading ? <CircularProgress size={14} color="inherit" /> : <i className="tabler-download" />}
+                                    sx={{ bgcolor: '#025E44', borderRadius: '10px', textTransform: 'none', fontWeight: 700, boxShadow: 'none', '&:hover': { bgcolor: '#014d36', boxShadow: 'none' } }}
+                                >
+                                    {downloading ? 'Descargando...' : 'Descargar PDF'}
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    href={`/verificar-certificado/${certificado.codigoVerificacion}`}
+                                    target="_blank"
+                                    startIcon={<i className="tabler-external-link" />}
+                                    sx={{ borderRadius: '10px', textTransform: 'none', fontWeight: 600 }}
+                                >
+                                    Verificar
+                                </Button>
+                            </Box>
+                        ) : (
+                            <Box sx={{ mt: 2, p: 2.5, borderRadius: '12px', bgcolor: 'rgba(217,119,6,0.06)', border: '1px solid rgba(217,119,6,0.1)' }}>
+                                <Typography variant="body2" sx={{ color: '#d97706', mb: 2, fontWeight: 500 }}>
+                                    Tu certificado está en trámite. Por favor, comunícate con el asesor del curso para solicitar la descarga de tu certificado.
+                                </Typography>
+                                <Button
+                                    component="a"
+                                    href={`https://wa.me/${(numeroAsesor || whatsappNumero || '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, acabo de finalizar el curso "${cursoTitulo || ''}" y quisiera obtener mi certificado (Código: ${certificado.codigoVerificacion}).`)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    variant="contained"
+                                    size="small"
+                                    startIcon={<i className="tabler-brand-whatsapp" />}
+                                    sx={{
+                                        bgcolor: '#25D366', color: '#fff', borderRadius: '10px', textTransform: 'none',
+                                        fontWeight: 700, boxShadow: 'none', '&:hover': { bgcolor: '#1ea952', boxShadow: 'none' }
+                                    }}
+                                >
+                                    Contactar con el asesor del curso
+                                </Button>
+                            </Box>
+                        )}
                     </Box>
                 </Box>
             </Wrapper>

@@ -17,7 +17,9 @@ export interface Certificado {
   emitido_en: string
   usuario: CertificadoUsuario
   curso: CertificadoCurso
+  datos?: any
 }
+
 
 export interface CertificadosResponse {
   status: boolean

@@ -162,6 +162,7 @@ export async function GET(request: Request) {
           }
         : null,
       cursoTitulo: curso?.titulo ?? null,
+      numeroAsesor: curso?.numero_asesor ?? null,
       elegibilidad,
       pagoPendiente: pagoPendiente || false,
       precioCertificado: precioCert
@@ -396,7 +397,8 @@ export async function POST(request: Request) {
           codigoVerificacion: certificado.codigo_verificacion,
           emitidoEn: certificado.emitido_en,
           cursoTitulo: certificado.curso?.titulo,
-          nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+          nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`,
+          archivoPdf: (certificado.datos as any)?.archivo_pdf || null
         }
       },
       201

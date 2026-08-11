@@ -2,8 +2,6 @@
 
 import { Avatar, Box, Paper, Typography, Chip } from '@mui/material'
 
-import { Icon } from '@iconify/react'
-
 import type { MensajeChatItem } from '../entity/Chat'
 
 interface Props {
@@ -58,7 +56,7 @@ export default function MensajeBurbuja({ mensaje, esMio }: Props) {
                 />
               ) : (
                 <Chip
-                  icon={<Icon icon='tabler:file' />}
+                  icon={<i className='tabler-file text-[16px]' />}
                   label={mensaje.adjunto.nombre}
                   component='a'
                   href={mensaje.adjunto.url}
@@ -82,10 +80,9 @@ export default function MensajeBurbuja({ mensaje, esMio }: Props) {
             {formatHora(mensaje.creado_en)}
           </Typography>
           {esMio && (
-            <Icon
-              icon={mensaje.leido ? 'tabler:checks' : 'tabler:check'}
-              width={14}
-              color={mensaje.leido ? '#4caf50' : undefined}
+            <i
+              className={`${mensaje.leido ? 'tabler-checks' : 'tabler-check'} text-[14px]`}
+              style={{ color: mensaje.leido ? '#4caf50' : undefined }}
             />
           )}
         </Box>

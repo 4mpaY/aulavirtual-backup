@@ -32,7 +32,10 @@ export const listarPedidosQuerySchema = z.object({
   estado: z.string().default('COMPLETADO'),
   buscar: z.string().trim().optional(),
   nro_pedido: z.string().trim().optional(),
-  nombre: z.string().trim().optional()
+  nombre: z.string().trim().optional(),
+  curso_id: z.string().uuid().optional(),
+  fecha_inicio: z.string().trim().optional(),
+  fecha_fin: z.string().trim().optional()
 })
 
 export type ListarPedidosQuery = z.infer<typeof listarPedidosQuerySchema>

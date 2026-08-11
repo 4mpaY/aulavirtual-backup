@@ -11,6 +11,7 @@ import { Menu, X } from 'lucide-react'
 
 import UserDropdown from '@components/layout/shared/UserDropdown'
 import CartIcon from '@/features/web/cart/components/CartIcon'
+import MobileNavDrawer from '@/utils/components/layout/web/MobileNavDrawer'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 
 export interface Category {
@@ -31,6 +32,7 @@ interface WebHeaderProps {
   initialEscuelas?: EscuelaPublic[]
   platformName?: string
   platformSlogan?: string
+  empresasHabilitado?: boolean
 }
 
 export default function WebHeader({ initialCategories = [], initialEscuelas = [], platformName = 'Aula Virtual', platformSlogan }: WebHeaderProps) {

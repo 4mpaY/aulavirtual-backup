@@ -56,7 +56,6 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       return NextResponse.json({ error: 'Certificado no encontrado' }, { status: 404 })
     }
 
-    // ── Verificar ownership ──────────────────────────────────────────
     if (certificado.usuario_id !== auth.user.id && auth.user.rol !== 'ADMIN') {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
     }
@@ -153,8 +152,8 @@ export async function GET(request: Request, { params }: { params: { certificadoI
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `${previewFlag ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
-        'Content-Length': pdfBuffer.byteLength.toString()
+        'Content-Disposition': `${previewFlag ? 'inline' : 'attachment'}; filename="${filename}"`,
+        'Content-Length': buffer.byteLength.toString()
       }
     })
   } catch (error) {

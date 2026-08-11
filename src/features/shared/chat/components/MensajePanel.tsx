@@ -7,7 +7,6 @@ import {
   IconButton, InputAdornment, TextField, Tooltip, Typography
 } from '@mui/material'
 
-import { Icon } from '@iconify/react'
 import { useSession } from 'next-auth/react'
 
 import MensajeBurbuja from './MensajeBurbuja'
@@ -147,13 +146,13 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
         {otro && (
           <Tooltip title='Ver perfil'>
             <IconButton size='small' onClick={() => setPerfilOpen(true)}>
-              <Icon icon='tabler:user-circle' />
+              <i className='tabler-user-circle text-[20px]' />
             </IconButton>
           </Tooltip>
         )}
         <Tooltip title='Cerrar'>
           <IconButton size='small' onClick={onCerrar}>
-            <Icon icon='tabler:chevron-left' />
+            <i className='tabler-chevron-left text-[20px]' />
           </IconButton>
         </Tooltip>
       </Box>
@@ -175,7 +174,7 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
           </Box>
         ) : mensajes.length === 0 ? (
           <Box display='flex' flexDirection='column' alignItems='center' pt={6} gap={1}>
-            <Icon icon='tabler:message-off' width={40} color='text.disabled' />
+            <i className='tabler-message-off text-[40px] text-textDisabled' />
             <Typography variant='body2' color='text.disabled'>
               Inicia la conversación
             </Typography>
@@ -201,11 +200,11 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={adjuntoPreview.url} alt={adjuntoPreview.nombre} style={{ height: 48, borderRadius: 4 }} />
           ) : (
-            <Icon icon='tabler:file' width={24} />
+            <i className='tabler-file text-[24px]' />
           )}
           <Typography variant='caption' flex={1} noWrap>{adjuntoPreview.nombre}</Typography>
           <IconButton size='small' onClick={() => { setAdjuntoFile(null); setAdjuntoPreview(null) }}>
-            <Icon icon='tabler:x' width={16} />
+            <i className='tabler-x text-[16px]' />
           </IconButton>
         </Box>
       )}
@@ -226,7 +225,7 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
         />
         <Tooltip title='Adjuntar archivo'>
           <IconButton size='small' onClick={() => inputFileRef.current?.click()} disabled={subiendoAdjunto}>
-            <Icon icon='tabler:paperclip' />
+            <i className='tabler-paperclip text-[20px]' />
           </IconButton>
         </Tooltip>
         <TextField
@@ -255,13 +254,13 @@ export default function MensajePanel({ conversacion, onCerrar }: Props) {
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
                 borderRadius: 2,
-                '&:hover': { bgcolor: 'primary.dark' },
+                '&:not(.Mui-disabled):hover': { bgcolor: 'secondary.main' },
                 '&.Mui-disabled': { bgcolor: 'action.disabledBackground', color: 'action.disabled' }
               }}
             >
               {enviar.isPending
                 ? <CircularProgress size={20} color='inherit' />
-                : <Icon icon='tabler:send' />
+                : <i className='tabler-send text-[20px]' />
               }
             </IconButton>
           </span>

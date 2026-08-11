@@ -22,29 +22,23 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
-    const codigo = searchParams.get('codigo') || ''
-    const nombre = searchParams.get('nombre') || ''
+    const fechaInicio = searchParams.get('fechaInicio') || ''
+    const fechaFin = searchParams.get('fechaFin') || ''
 
     const skip = (page - 1) * limit
 
     // Filtros
     const conditions: any[] = []
 
-
-    if (codigo) {
+    if (fechaInicio) {
       conditions.push({
-        codigo_verificacion: { contains: codigo, mode: 'insensitive' }
+        emitido_en: { gte: new Date(`${fechaInicio}T00:00:00.000Z`) }
       })
     }
 
-    if (nombre) {
+    if (fechaFin) {
       conditions.push({
-        usuario: {
-          OR: [
-            { nombre: { contains: nombre, mode: 'insensitive' } },
-            { apellido: { contains: nombre, mode: 'insensitive' } }
-          ]
-        }
+        emitido_en: { lte: new Date(`${fechaFin}T23:59:59.999Z`) }
       })
     }
 

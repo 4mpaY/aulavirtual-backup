@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { Badge, Box, Drawer, Fab, Tooltip } from '@mui/material'
 
-import { Icon } from '@iconify/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 
@@ -106,7 +105,7 @@ export default function ChatWidget() {
               gap={2}
               color='text.disabled'
             >
-              <Icon icon='tabler:message-circle' width={56} />
+              <i className='tabler-message-circle text-[56px]' />
               <Box textAlign='center'>
                 Selecciona una conversación<br />o inicia una nueva
               </Box>

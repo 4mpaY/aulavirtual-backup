@@ -1,0 +1,11 @@
+Fuentes incluidas en este directorio (usadas en el editor de certificados
+personalizados y embebidas en los PDF generados):
+
+- Montserrat       (Julieta Ulanovsky)
+- Playfair Display (Claus Eggers Sørensen)
+- Poppins          (Indian Type Foundry)
+- Nunito           (Vernon Adams, Cyreal, Jacques Le Bailly)
+- Dancing Script   (Impallari Type)
+
+Todas provienen de Google Fonts y se distribuyen bajo la
+SIL Open Font License, Version 1.1: https://scripts.sil.org/OFL

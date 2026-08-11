@@ -8,7 +8,15 @@ import { buildCertificadoData } from '@/app/api/_shared/certificados/buildCertif
 import { getGenerator } from '@/app/api/_shared/certificados/generators'
 
 export const dynamic = 'force-dynamic'
+import { handleApiError } from '@/utils/libs/validation'
+import { requireAdmin } from '@/utils/libs/auth-helpers'
+import { getPdfBuffer } from '@/app/api/_shared/certificados/getPdfBuffer'
 
+/**
+ * GET /api/admin/certificados/[id]/download
+ * Descarga el PDF del certificado (solo ADMIN).
+ * La plantilla se resuelve: override del curso > configuración global CERTIFICADO_PLANTILLA > 'clasico'.
+ */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
     const auth = await requireAuth(request)
@@ -147,13 +155,16 @@ export async function GET(request: Request, { params }: { params: { id: string }
     const plantilla = configs.CERTIFICADO_PLANTILLA || 'clasico'
     const generarPDF = getGenerator(plantilla)
     const pdfBuffer = await generarPDF(certData)
+    const forceDynamic = reqUrl.searchParams.get('dynamic') === 'true'
 
-    return new NextResponse(pdfBuffer, {
+    const { buffer, filename } = await getPdfBuffer(id, reqUrl, previewFlag, forceDynamic)
+
+    return new NextResponse(buffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `${previewFlag ? 'inline' : 'attachment'}; filename="certificado-${certificado.codigo_verificacion}.pdf"`,
-        'Content-Length': pdfBuffer.byteLength.toString()
+        'Content-Disposition': `${previewFlag ? 'inline' : 'attachment'}; filename="${filename}"`,
+        'Content-Length': buffer.byteLength.toString()
       }
     })
   } catch (error) {

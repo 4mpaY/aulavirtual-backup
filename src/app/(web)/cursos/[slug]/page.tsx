@@ -28,7 +28,11 @@ async function getCourseData(slug: string, token: string | null) {
     }
 }
 
-export default async function CourseDetailPage({ params }: { params: { slug: string } }) {
+export default async function CourseDetailPage({ 
+    params
+}: { 
+    params: { slug: string }
+}) {
     const session = await getAuthSession()
     const token = session?.user?.accessToken ?? null
     
@@ -37,6 +41,11 @@ export default async function CourseDetailPage({ params }: { params: { slug: str
     if (!course) {
         notFound()
     }
+
+    // Redirigir a la landing page para todos los cursos (si no lo ha comprado) - DESACTIVADO POR PETICIÓN
+    // if (!course.es_comprado && searchParams?.skipLanding !== 'true') {
+    //     redirect(`/landing/${course.slug}`)
+    // }
 
     return (
         <Box sx={{ flexGrow: 1, bgcolor: 'background.default' }}>
