@@ -25,6 +25,12 @@ export async function resolverFirmantes(opts: {
 }): Promise<{ firmante1: SignatarioData | null; firmante2: SignatarioData | null }> {
   const { cursoFirmante1, cursoFirmante2, configs } = opts
 
+  // Interruptor global: si está desactivado, ningún certificado dibuja Firmante 1/2
+  // (equivalente a CERTIFICADO_MOSTRAR_FIRMA_DOCENTE, pero para este sistema).
+  if (configs.CERTIFICADO_MOSTRAR_FIRMANTES === 'false') {
+    return { firmante1: null, firmante2: null }
+  }
+
   const idsAResolver: string[] = []
 
   if (!cursoFirmante1 && configs.CERTIFICADO_FIRMANTE_1_ID) idsAResolver.push(configs.CERTIFICADO_FIRMANTE_1_ID)

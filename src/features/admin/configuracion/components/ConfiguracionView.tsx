@@ -314,6 +314,26 @@ function CertificadosSettings({ config, onInputChange }: { config: any; onInputC
           de certificado <strong>personalizadas</strong>. Los valores de aquí son el firmante por defecto; cada
           curso puede elegir su propio Firmante 1 / Firmante 2 desde su configuración, sin afectar a este valor global.
         </Typography>
+        <Paper variant='outlined' sx={{ p: 2, mb: 3 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={config.CERTIFICADO_MOSTRAR_FIRMANTES !== 'false'}
+                onChange={(e) => onInputChange('CERTIFICADO_MOSTRAR_FIRMANTES', e.target.checked ? 'true' : 'false')}
+                color='primary'
+              />
+            }
+            label={
+              <Box>
+                <Typography variant='body2' fontWeight={600}>Mostrar Firmante 1 / Firmante 2</Typography>
+                <Typography variant='caption' color='text.secondary'>
+                  Si está desactivado, ningún certificado con plantilla personalizada mostrará Firmante 1/2,
+                  aunque el curso o la configuración global tengan uno seleccionado.
+                </Typography>
+              </Box>
+            }
+          />
+        </Paper>
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             <TextField
@@ -462,6 +482,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     CULQI_RSA_PUBLIC_KEY: '',
     CERTIFICADO_GERENTE_GENERAL_ID: '',
     CERTIFICADO_PLANTILLA: 'clasico',
+    CERTIFICADO_MOSTRAR_FIRMANTES: 'true',
     PAGO_MANUAL_ENABLED: 'false',
     PAGO_MANUAL_WHATSAPP_NUMERO: '',
     PAGO_MANUAL_WHATSAPP_MENSAJE: '',

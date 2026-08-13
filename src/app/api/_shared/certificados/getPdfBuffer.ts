@@ -5,6 +5,7 @@ import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
 import { buildCertificadoData } from './buildCertificadoData'
 import { getGenerator } from './generators'
+import { resolverFirmantes } from './resolverFirmantes'
 
 export async function getPdfBuffer(
   certificadoId: string,
@@ -26,8 +27,15 @@ export async function getPdfBuffer(
             fecha_fin: true,
             vigencia_meses: true,
             tipo_emision: true,
+            certificado_plantilla: true,
             profesor: {
               select: { nombre: true, apellido: true, cargo: true, firma: true }
+            },
+            firmante_1: {
+              select: { nombre: true, cargo: true, firma: true, sello: true }
+            },
+            firmante_2: {
+              select: { nombre: true, cargo: true, firma: true, sello: true }
             }
           }
         },
@@ -123,8 +131,18 @@ return { buffer, filename }
 
   certData.gerenteGeneral = gerenteGeneral
 
+  const { firmante1, firmante2 } = await resolverFirmantes({
+    cursoFirmante1: certificado.curso.firmante_1,
+    cursoFirmante2: certificado.curso.firmante_2,
+    configs
+  })
+
+  certData.firmante1 = firmante1
+  certData.firmante2 = firmante2
+
   // ── Seleccionar plantilla y generar PDF ───────────────────────────
-  const plantilla = configs.CERTIFICADO_PLANTILLA || 'clasico'
+  // Prioridad: override del curso (certificado_plantilla) > configuración global > 'clasico'.
+  const plantilla = certificado.curso.certificado_plantilla || configs.CERTIFICADO_PLANTILLA || 'clasico'
   const generarPDF = await getGenerator(plantilla)
   const pdfBuffer = await generarPDF(certData)
 
