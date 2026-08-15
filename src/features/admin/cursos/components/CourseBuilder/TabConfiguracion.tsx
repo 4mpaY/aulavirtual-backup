@@ -1,10 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 
 import Link from 'next/link'
 
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Alert,
     Box,
     Button,
@@ -13,6 +17,7 @@ import {
     FormControlLabel,
     Grid,
     MenuItem,
+    Stack,
     Switch,
     Typography
 } from '@mui/material'
@@ -27,7 +32,75 @@ import { usePlantillasCertificado } from '../../../plantillas-certificado/hooks/
 import { PLANTILLAS_CERTIFICADO_FIJAS } from '../../../plantillas-certificado/entity/plantillasFijas'
 import { useFirmantes } from '../../../firmantes/hooks/useFirmantes'
 
+function SectionLabel({ children }: { children: string }) {
+    return (
+        <Typography
+            variant='overline'
+            sx={{ color: 'text.secondary', fontWeight: 600, letterSpacing: 1.2, display: 'block', mb: 1 }}
+        >
+            {children}
+        </Typography>
+    )
+}
 
+interface SettingsAccordionProps {
+    icon: string
+    title: string
+    subtitle?: ReactNode
+    chip?: { label: string; color?: 'default' | 'success' | 'warning' }
+    switchProps?: { checked: boolean; onChange: (checked: boolean) => void; disabled?: boolean }
+    children: ReactNode
+}
+
+function SettingsAccordion({ icon, title, subtitle, chip, switchProps, children }: SettingsAccordionProps) {
+    return (
+        <Accordion
+            variant='outlined'
+            sx={{ borderRadius: '8px !important', '&:before': { display: 'none' }, mb: 1 }}
+        >
+            <AccordionSummary
+                expandIcon={<i className='tabler-chevron-down' style={{ fontSize: 18 }} />}
+                sx={{ px: 3, py: 1.5, minHeight: 64 }}
+            >
+                <Stack direction='row' alignItems='center' spacing={2} sx={{ flex: 1, mr: 2 }}>
+                    <Box
+                        sx={{
+                            width: 40, height: 40, borderRadius: 2,
+                            bgcolor: 'action.selected',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}
+                    >
+                        <i className={icon} style={{ fontSize: 20 }} />
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                        <Typography variant='subtitle1' fontWeight={600} lineHeight={1.2}>{title}</Typography>
+                        {subtitle && <Typography variant='caption' color='text.secondary'>{subtitle}</Typography>}
+                    </Box>
+                    {chip && (
+                        <Chip
+                            label={chip.label}
+                            color={chip.color || 'default'}
+                            size='small'
+                            sx={{ fontWeight: 600 }}
+                        />
+                    )}
+                    {switchProps && (
+                        <Switch
+                            checked={switchProps.checked}
+                            size='small'
+                            disabled={switchProps.disabled}
+                            onClick={e => e.stopPropagation()}
+                            onChange={e => switchProps.onChange(e.target.checked)}
+                        />
+                    )}
+                </Stack>
+            </AccordionSummary>
+            <AccordionDetails sx={{ px: 3, pb: 3, pt: 1 }}>
+                {children}
+            </AccordionDetails>
+        </Accordion>
+    )
+}
 
 interface TabConfiguracionProps {
     curso: Curso
@@ -48,6 +121,8 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
     const [precioCertificado, setPrecioCertificado] = useState<number | ''>(curso.precio_certificado ?? '')
     const [vigenciaMeses, setVigenciaMeses] = useState<number | ''>((curso as any).vigencia_meses ?? '')
     const [certificadoPlantilla, setCertificadoPlantilla] = useState(curso.certificado_plantilla ?? '')
+    const [modoCertificado, setModoCertificado] = useState<'AUTOMATICO' | 'MANUAL'>(curso.modo_certificado ?? 'AUTOMATICO')
+    const [certificacionHabilitada, setCertificacionHabilitada] = useState(curso.certificacion_habilitada ?? true)
     const [firmante1Id, setFirmante1Id] = useState(curso.firmante_1_id ?? '')
     const [firmante2Id, setFirmante2Id] = useState(curso.firmante_2_id ?? '')
 
@@ -111,6 +186,40 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
         }
     }
 
+    const handleSaveModoCertificado = async (esManual: boolean) => {
+        const nuevoModo = esManual ? 'MANUAL' : 'AUTOMATICO'
+
+        try {
+            await editMutation.mutateAsync({ id: curso.id, data: { modo_certificado: nuevoModo } })
+            setModoCertificado(nuevoModo)
+            enqueueSnackbar(
+                esManual
+                    ? 'El certificado ahora requiere subida manual del PDF'
+                    : 'El certificado ahora se habilita automáticamente al finalizar el curso',
+                { variant: 'success' }
+            )
+            onSuccess()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al actualizar el modo de certificado', { variant: 'error' })
+        }
+    }
+
+    const handleSaveCertificacionHabilitada = async (valor: boolean) => {
+        try {
+            await editMutation.mutateAsync({ id: curso.id, data: { certificacion_habilitada: valor } })
+            setCertificacionHabilitada(valor)
+            enqueueSnackbar(
+                valor
+                    ? 'Certificación habilitada: los alumnos que cumplan los requisitos ya pueden certificarse'
+                    : 'Certificación deshabilitada: ningún alumno podrá obtener el certificado hasta que la vuelvas a habilitar',
+                { variant: 'success' }
+            )
+            onSuccess()
+        } catch (error: any) {
+            enqueueSnackbar(error?.message || 'Error al actualizar la habilitación de certificación', { variant: 'error' })
+        }
+    }
+
     const handleSavePrivado = async (valor: boolean) => {
         try {
             await editMutation.mutateAsync({ id: curso.id, data: { es_privado: valor } })
@@ -143,11 +252,72 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
         }
     }
 
+    const plantillaSeleccionada = opcionesPlantillaCertificado.find(p => p.id === certificadoPlantilla)
+
     return (
         <Grid container spacing={4}>
-            {/* Precio */}
+            {/* Estado del Curso */}
             <Grid item xs={12}>
-                <Typography variant='h6' sx={{ mb: 2 }}>Precio</Typography>
+                <Typography variant='h6' sx={{ mb: 2 }}>Estado del Curso</Typography>
+                <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
+                    Estado actual: <Chip
+                        size='small'
+                        variant='tonal'
+                        label={curso.estado === 'BORRADOR' ? 'Borrador' : curso.estado === 'PUBLICADO' ? 'Publicado' : 'Archivado'}
+                        color={curso.estado === 'BORRADOR' ? 'warning' : curso.estado === 'PUBLICADO' ? 'success' : 'secondary'}
+                    />
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    {curso.estado !== 'PUBLICADO' && (
+                        <Button
+                            variant='contained'
+                            color='success'
+                            onClick={() => handleChangeEstado('PUBLICADO')}
+                            disabled={estadoMutation.isPending}
+                            startIcon={<i className='tabler-world' />}
+                        >
+                            Publicar Curso
+                        </Button>
+                    )}
+                    {curso.estado === 'PUBLICADO' && (
+                        <Button
+                            variant='contained'
+                            color='secondary'
+                            onClick={() => handleChangeEstado('ARCHIVADO')}
+                            disabled={estadoMutation.isPending}
+                            startIcon={<i className='tabler-archive' />}
+                        >
+                            Archivar
+                        </Button>
+                    )}
+                    {curso.estado !== 'BORRADOR' && (
+                        <Button
+                            variant='outlined'
+                            onClick={() => handleChangeEstado('BORRADOR')}
+                            disabled={estadoMutation.isPending}
+                            startIcon={<i className='tabler-pencil' />}
+                        >
+                            Volver a Borrador
+                        </Button>
+                    )}
+                </Box>
+                {curso.estado !== 'PUBLICADO' && (
+                    <Typography variant='caption' color='text.disabled' sx={{ mt: 2, display: 'block' }}>
+                        Para publicar se requiere al menos 1 módulo con 1 lección publicada.
+                    </Typography>
+                )}
+            </Grid>
+
+            {/* Precio y Acceso */}
+            <Grid item xs={12}>
+                <SectionLabel>Precio y Acceso</SectionLabel>
+            </Grid>
+            <Grid item xs={12}>
+                <SettingsAccordion
+                    icon='tabler-cash-banknote'
+                    title='Precio y Acceso'
+                    subtitle={esGratis ? 'Gratis' : `${moneda} ${precio}`}
+                >
                 <FormControlLabel
                     control={
                         <Switch
@@ -271,13 +441,19 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                         Número para contactar sobre dudas de los certificados o en general (incluir código de país, ej. +51 987 654 321)
                     </Typography>
                 </Box>
+                </SettingsAccordion>
             </Grid>
 
-            <Grid item xs={12}><Divider /></Grid>
-
-            {/* Diseño de Certificado */}
+            {/* Certificado */}
             <Grid item xs={12}>
-                <Typography variant='h6' sx={{ mb: 1 }}>Diseño de Certificado</Typography>
+                <SectionLabel>Certificado</SectionLabel>
+            </Grid>
+            <Grid item xs={12}>
+                <SettingsAccordion
+                    icon='tabler-certificate'
+                    title='Diseño de Certificado'
+                    subtitle={plantillaSeleccionada ? plantillaSeleccionada.nombre : 'Diseño general'}
+                >
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
                     Elige un diseño de certificado específico para este curso. Si dejas &quot;Usar el diseño general&quot;,
                     se usará la plantilla configurada globalmente en Configuración &gt; Certificación.
@@ -304,14 +480,11 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                         Guardar Diseño
                     </Button>
                 </Box>
-            </Grid>
 
-            <Grid item xs={12}><Divider /></Grid>
+                <Divider sx={{ my: 3 }} />
 
-            {/* Firmante 1 / Firmante 2 (solo aplica a plantillas personalizadas) */}
-            <Grid item xs={12}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, mb: 1 }}>
-                    <Typography variant='h6'>Firmante 1 / Firmante 2</Typography>
+                <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ mb: 1 }}>
+                    <Typography variant='subtitle2'>Firmantes</Typography>
                     <Button
                         variant='outlined'
                         size='small'
@@ -321,7 +494,7 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                     >
                         Gestionar firmantes
                     </Button>
-                </Box>
+                </Stack>
                 <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
                     Solo aplica si este curso usa una plantilla de certificado personalizada con campos de
                     Firmante 1/2. Si dejas &quot;Usar el firmante por defecto&quot;, se usará el firmante global
@@ -367,106 +540,119 @@ export function TabConfiguracion({ curso, onSuccess }: TabConfiguracionProps) {
                         Guardar Firmantes
                     </Button>
                 </Box>
+                </SettingsAccordion>
             </Grid>
 
-            <Grid item xs={12}><Divider /></Grid>
-
-            {/* Visibilidad */}
             <Grid item xs={12}>
-                <Typography variant='h6' sx={{ mb: 1 }}>Visibilidad</Typography>
-                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
+                <SettingsAccordion
+                    icon='tabler-rubber-stamp'
+                    title='Modo de Emisión'
+                    chip={{
+                        label: modoCertificado === 'MANUAL' ? 'Manual' : 'Automático',
+                        color: modoCertificado === 'MANUAL' ? 'warning' : 'success'
+                    }}
+                    switchProps={{
+                        checked: modoCertificado === 'MANUAL',
+                        onChange: checked => handleSaveModoCertificado(checked),
+                        disabled: editMutation.isPending
+                    }}
+                >
+                <Typography variant='body2' color='text.secondary'>
+                    Define si el certificado de este curso se habilita para descarga automáticamente al finalizar,
+                    o si requiere que un administrador suba el PDF firmado manualmente (por ejemplo, cuando una
+                    entidad externa debe firmarlo).
+                </Typography>
+                <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 1 }}>
+                    {modoCertificado === 'MANUAL'
+                        ? 'Requiere firma externa (el admin debe subir el PDF firmado manualmente antes de que el alumno pueda descargarlo)'
+                        : 'El alumno puede descargar su certificado automáticamente al finalizar el curso'}
+                </Typography>
+                </SettingsAccordion>
+            </Grid>
+
+            <Grid item xs={12}>
+                <SettingsAccordion
+                    icon='tabler-toggle-right'
+                    title='Habilitación de Certificado'
+                    chip={{
+                        label: certificacionHabilitada ? 'Habilitada' : 'Deshabilitada',
+                        color: certificacionHabilitada ? 'success' : 'warning'
+                    }}
+                    switchProps={{
+                        checked: certificacionHabilitada,
+                        onChange: checked => handleSaveCertificacionHabilitada(checked),
+                        disabled: editMutation.isPending
+                    }}
+                >
+                <Typography variant='body2' color='text.secondary'>
+                    Controla si los alumnos pueden obtener el certificado de este curso, sin importar si ya
+                    cumplieron el progreso y las evaluaciones requeridas. Es independiente del &quot;Modo de
+                    Emisión&quot; (que solo define cómo se entrega el PDF): úsala para cursos síncronos donde
+                    no quieres que se certifiquen hasta que las clases en vivo realmente hayan terminado, o para
+                    retener la certificación de cualquier curso hasta el momento que decidas.
+                </Typography>
+                <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mt: 1 }}>
+                    {certificacionHabilitada
+                        ? 'Los alumnos que completen el curso pueden obtener su certificado normalmente.'
+                        : 'Ningún alumno podrá obtener el certificado, aunque haya completado el curso, hasta que la habilites.'}
+                </Typography>
+                </SettingsAccordion>
+            </Grid>
+
+            {/* Comportamiento del Curso */}
+            <Grid item xs={12}>
+                <SectionLabel>Comportamiento del Curso</SectionLabel>
+            </Grid>
+            <Grid item xs={12}>
+                <SettingsAccordion
+                    icon='tabler-eye'
+                    title='Visibilidad'
+                    chip={{
+                        label: esPrivado ? 'Privado' : 'Público',
+                        color: esPrivado ? 'warning' : 'success'
+                    }}
+                    switchProps={{
+                        checked: esPrivado,
+                        onChange: checked => handleSavePrivado(checked),
+                        disabled: editMutation.isPending
+                    }}
+                >
+                <Typography variant='body2' color='text.secondary'>
                     Un curso privado no aparece en el catálogo público. Solo el administrador puede asignarlo manualmente a un pedido.
                 </Typography>
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={esPrivado}
-                            onChange={e => handleSavePrivado(e.target.checked)}
-                            disabled={editMutation.isPending}
-                        />
-                    }
-                    label={esPrivado ? 'Curso privado (no visible en catálogo)' : 'Curso público (visible en catálogo)'}
-                />
+                </SettingsAccordion>
             </Grid>
 
-            <Grid item xs={12}><Divider /></Grid>
-
-            {/* Finalización */}
-            <Grid item xs={12}>
-                <Typography variant='h6' sx={{ mb: 1 }}>Finalización</Typography>
-                <Typography variant='body2' color='text.secondary' sx={{ mb: 2 }}>
-                    Permite al alumno completar todas las lecciones con un clic para acceder al certificado inmediatamente, sin necesidad de marcarlas una por una.
-                </Typography>
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={completarAutomatico}
-                            onChange={e => handleSaveCompletarAutomatico(e.target.checked)}
-                            disabled={editMutation.isPending}
-                        />
-                    }
-                    label={completarAutomatico ? 'Completado automático habilitado' : 'Completado automático deshabilitado'}
-                />
-            </Grid>
-
-            <Grid item xs={12}><Divider /></Grid>
-
-            {/* Estado */}
-            <Grid item xs={12}>
-                <Typography variant='h6' sx={{ mb: 2 }}>Estado del Curso</Typography>
-                <Typography variant='body2' color='text.secondary' sx={{ mb: 3 }}>
-                    Estado actual: <Chip
-                        size='small'
-                        variant='tonal'
-                        label={curso.estado === 'BORRADOR' ? 'Borrador' : curso.estado === 'PUBLICADO' ? 'Publicado' : 'Archivado'}
-                        color={curso.estado === 'BORRADOR' ? 'warning' : curso.estado === 'PUBLICADO' ? 'success' : 'secondary'}
-                    />
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                    {curso.estado !== 'PUBLICADO' && (
-                        <Button
-                            variant='contained'
-                            color='success'
-                            onClick={() => handleChangeEstado('PUBLICADO')}
-                            disabled={estadoMutation.isPending}
-                            startIcon={<i className='tabler-world' />}
-                        >
-                            Publicar Curso
-                        </Button>
-                    )}
-                    {curso.estado === 'PUBLICADO' && (
-                        <Button
-                            variant='contained'
-                            color='secondary'
-                            onClick={() => handleChangeEstado('ARCHIVADO')}
-                            disabled={estadoMutation.isPending}
-                            startIcon={<i className='tabler-archive' />}
-                        >
-                            Archivar
-                        </Button>
-                    )}
-                    {curso.estado !== 'BORRADOR' && (
-                        <Button
-                            variant='outlined'
-                            onClick={() => handleChangeEstado('BORRADOR')}
-                            disabled={estadoMutation.isPending}
-                            startIcon={<i className='tabler-pencil' />}
-                        >
-                            Volver a Borrador
-                        </Button>
-                    )}
-                </Box>
-                {curso.estado !== 'PUBLICADO' && (
-                    <Typography variant='caption' color='text.disabled' sx={{ mt: 2, display: 'block' }}>
-                        Para publicar se requiere al menos 1 módulo con 1 lección publicada.
+            {curso.tipo_emision === 'ASINCRONO' && (
+                <Grid item xs={12}>
+                    <SettingsAccordion
+                        icon='tabler-checklist'
+                        title='Finalización Automática'
+                        chip={{
+                            label: completarAutomatico ? 'Habilitado' : 'Deshabilitado',
+                            color: completarAutomatico ? 'success' : 'default'
+                        }}
+                        switchProps={{
+                            checked: completarAutomatico,
+                            onChange: checked => handleSaveCompletarAutomatico(checked),
+                            disabled: editMutation.isPending
+                        }}
+                    >
+                    <Typography variant='body2' color='text.secondary'>
+                        Permite al alumno completar todas las lecciones con un clic para acceder al certificado inmediatamente, sin necesidad de marcarlas una por una.
                     </Typography>
-                )}
-            </Grid>
-
-            <Grid item xs={12}><Divider /></Grid>
-
-
-
+                    </SettingsAccordion>
+                </Grid>
+            )}
+            {curso.tipo_emision !== 'ASINCRONO' && (
+                <Grid item xs={12}>
+                    <Alert severity='info'>
+                        La finalización automática (completar todas las lecciones con un clic) solo está disponible
+                        para cursos asincrónicos, ya que en cursos síncronos o mixtos las lecciones representan
+                        sesiones en vivo que aún no han ocurrido.
+                    </Alert>
+                </Grid>
+            )}
         </Grid>
     )
 }

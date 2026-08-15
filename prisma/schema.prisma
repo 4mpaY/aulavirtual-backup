@@ -162,6 +162,8 @@ model Curso {
   completar_automatico Boolean           @default(false)
   precio_certificado   Decimal?          @db.Decimal(10, 2)
   certificado_plantilla String?
+  modo_certificado     ModoCertificado   @default(AUTOMATICO)
+  certificacion_habilitada Boolean       @default(true)
   firmante_1_id        String?
   firmante_2_id        String?
   precio               Decimal           @default(0) @db.Decimal(10, 2)
@@ -815,6 +817,11 @@ enum TipoEmision {
   SINCRONO
   ASINCRONO
   MIXTO
+}
+
+enum ModoCertificado {
+  AUTOMATICO
+  MANUAL
 }
 
 enum NivelCurso {

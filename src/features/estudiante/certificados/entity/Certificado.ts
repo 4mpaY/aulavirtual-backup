@@ -5,6 +5,7 @@ export interface CertificadoCurso {
   miniatura: string | null
   duracion: number | null
   nivel: string | null
+  modo_certificado: 'AUTOMATICO' | 'MANUAL'
   profesor: {
     nombre: string
     apellido: string

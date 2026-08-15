@@ -23,26 +23,6 @@ export default function MisCursosPage() {
             </Box>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: { xs: 'stretch', sm: 'flex-end' } }}>
               <Button
-                variant="outlined"
-                color="primary"
-                size="medium"
-                sx={{ borderRadius: '10px' }}
-                startIcon={<i className="tabler-certificate" />}
-                href="/diplomados"
-              >
-                Diplomados
-              </Button>
-              <Button
-                variant="outlined"
-                color="primary"
-                size="medium"
-                sx={{ borderRadius: '10px' }}
-                startIcon={<i className="tabler-school" />}
-                href="/especializaciones"
-              >
-                Especializaciones
-              </Button>
-              <Button
                 variant="contained"
                 color="primary"
                 size="medium"
