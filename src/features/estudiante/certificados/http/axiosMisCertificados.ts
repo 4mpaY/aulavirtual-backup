@@ -34,7 +34,10 @@ export class AxiosMisCertificados extends AxiosInternalHttpClient {
 
   async downloadPdf(id: string): Promise<Blob> {
     try {
-      const res = await this.client.get(`${getBaseURL()}/api/estudiante/certificado/${id}/pdf`, {
+      // Endpoint singular ("certificado"), fuera del baseURL plural ("certificados")
+      // de esta clase: se sobreescribe baseURL por request para no duplicar el path.
+      const res = await this.client.get(`/api/estudiante/certificado/${id}/pdf`, {
+        baseURL: getBaseURL(),
         responseType: 'blob'
       })
 

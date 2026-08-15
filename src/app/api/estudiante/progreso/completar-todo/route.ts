@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     const curso = await prisma.curso.findUnique({
       where: { id: cursoId },
-      select: { id: true, completar_automatico: true }
+      select: { id: true, completar_automatico: true, tipo_emision: true }
     })
 
     if (!curso) {
@@ -33,6 +33,14 @@ export async function POST(request: Request) {
 
     if (!curso.completar_automatico) {
       return ApiResponse.error(request, 'Este curso no tiene habilitada la finalización automática', 403)
+    }
+
+    if (curso.tipo_emision !== 'ASINCRONO') {
+      return ApiResponse.error(
+        request,
+        'La finalización automática solo está disponible para cursos asincrónicos',
+        403
+      )
     }
 
     const inscripcion = await prisma.inscripcion.findFirst({

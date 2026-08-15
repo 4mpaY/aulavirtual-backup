@@ -253,7 +253,7 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
                 <Grid item xs={12} key="certificate-section">
                     <CertificateSection
                         cursoId={storeCourse.id}
-                        completarAutomatico={(course as any).completar_automatico ?? false}
+                        completarAutomatico={(course as any).tipo_emision === 'ASINCRONO' && ((course as any).completar_automatico ?? false)}
                         onAllLessonsCompleted={() => {
                             const allLessons = storeCourse.modulos?.flatMap((m: any) => m.lecciones) ?? []
 
@@ -769,7 +769,7 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
                     {activeTab === 3 && storeCourse && (
                         <CertificateSection
                             cursoId={storeCourse.id}
-                            completarAutomatico={(course as any).completar_automatico ?? false}
+                            completarAutomatico={(course as any).tipo_emision === 'ASINCRONO' && ((course as any).completar_automatico ?? false)}
                             onAllLessonsCompleted={() => {
                                 const allLessons = storeCourse.modulos?.flatMap((m: any) => m.lecciones) ?? []
 

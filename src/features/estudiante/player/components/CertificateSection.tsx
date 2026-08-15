@@ -93,6 +93,8 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
     const [cursoTitulo, setCursoTitulo] = useState<string | null>(null)
     const [whatsappNumero, setWhatsappNumero] = useState<string | null>(null)
     const [numeroAsesor, setNumeroAsesor] = useState<string | null>(null)
+    const [modoCertificado, setModoCertificado] = useState<'AUTOMATICO' | 'MANUAL'>('AUTOMATICO')
+    const [certificacionHabilitada, setCertificacionHabilitada] = useState(true)
     const autoGeneradoRef = useRef(false)
 
     useEffect(() => {
@@ -113,6 +115,8 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
                     setPrecioCertificado(res.data.result.precioCertificado ?? null)
                     setCursoTitulo(res.data.result.cursoTitulo ?? null)
                     setNumeroAsesor(res.data.result.numeroAsesor ?? null)
+                    setModoCertificado(res.data.result.modoCertificado ?? 'AUTOMATICO')
+                    setCertificacionHabilitada(res.data.result.certificacionHabilitada ?? true)
                     setWhatsappNumero(resPago?.data?.result?.whatsapp_numero || null)
                 } else {
                     setFetchError(true)
@@ -133,6 +137,7 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
             !loading &&
             !certificado &&
             !pagoPendiente &&
+            certificacionHabilitada &&
             elegibilidad?.isEligible &&
             elegibilidad?.totalExamenes === 0 &&
             !autoGeneradoRef.current
@@ -146,7 +151,7 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
                 .catch(() => {})
                 .finally(() => setGenerating(false))
         }
-    }, [loading, certificado, pagoPendiente, elegibilidad, cursoId])
+    }, [loading, certificado, pagoPendiente, certificacionHabilitada, elegibilidad, cursoId])
 
     const handleCompletarTodo = async () => {
         setCompletandoTodo(true)
@@ -217,12 +222,14 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
     // ── Wrapper visual ──────────────────────────────────────────────
     const Wrapper = ({ children }: { children: React.ReactNode }) => {
         const hasPago = pagoPendiente && !certificado
+        const pendienteHabilitacion = !certificado && !hasPago && elegibilidad?.isEligible && !certificacionHabilitada
+        const puedeObtener = elegibilidad?.isEligible && !pendienteHabilitacion
 
         const borderColor = certificado
             ? 'success.light'
             : hasPago
                 ? '#f59e0b'
-                : elegibilidad?.isEligible
+                : puedeObtener
                     ? 'primary.light'
                     : 'divider'
 
@@ -230,7 +237,7 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
             ? 'rgba(22,163,74,0.06)'
             : hasPago
                 ? 'rgba(245,158,11,0.06)'
-                : elegibilidad?.isEligible
+                : puedeObtener
                     ? 'rgba(2,94,68,0.06)'
                     : 'rgba(0,0,0,0.02)'
 
@@ -246,9 +253,11 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
             ? 'Certificado de finalización obtenido'
             : hasPago
                 ? 'Requiere pago para obtenerlo'
-                : elegibilidad?.isEligible
-                    ? '¡Puedes obtener tu certificado!'
-                    : 'Completa el curso para obtenerlo'
+                : pendienteHabilitacion
+                    ? 'Curso completado — certificación pendiente de habilitación'
+                    : puedeObtener
+                        ? '¡Puedes obtener tu certificado!'
+                        : 'Completa el curso para obtenerlo'
 
         return (
             <Box sx={{
@@ -365,7 +374,7 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
                             </Typography>
                         </Box>
                         
-                        {certificado.archivoPdf ? (
+                        {(certificado.archivoPdf || modoCertificado === 'AUTOMATICO') ? (
                             <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
                                 <Button
                                     variant="contained"
@@ -506,7 +515,25 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
 
     return (
         <Wrapper>
-            {el.isEligible ? (
+            {el.isEligible && !certificacionHabilitada ? (
+
+                /* Elegible pero la certificación del curso aún no está habilitada */
+                <Box sx={{ textAlign: 'center' }}>
+                    <Box sx={{
+                        width: 72, height: 72, borderRadius: '50%', mx: 'auto', mb: 2,
+                        bgcolor: 'action.hover',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <i className="tabler-hourglass" style={{ fontSize: '2rem', color: '#94a3b8' }} />
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>
+                        Has completado el curso
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        La certificación de este curso aún no está habilitada. Se habilitará próximamente; no necesitas hacer nada más.
+                    </Typography>
+                </Box>
+            ) : el.isEligible ? (
 
                 /* Elegible */
                 <Box sx={{ textAlign: 'center' }}>
