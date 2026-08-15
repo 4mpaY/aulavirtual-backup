@@ -4,6 +4,7 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
 import { requireAuth } from '@/utils/libs/auth-helpers'
+import { contarCertificadosCurso, formatearCodigoCertificado } from '@/app/api/_shared/certificados/generarCodigoCertificado'
 
 /** Calcula el promedio ponderado de las evaluaciones del estudiante en un curso.
  *  Los exámenes sin intentar cuentan como 0. */
@@ -76,7 +77,16 @@ export async function GET(request: Request) {
         where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } },
         select: { certificado_habilitado: true }
       }),
-      prisma.curso.findUnique({ where: { id: cursoId }, select: { precio_certificado: true, titulo: true, numero_asesor: true } })
+      prisma.curso.findUnique({
+        where: { id: cursoId },
+        select: {
+          precio_certificado: true,
+          titulo: true,
+          numero_asesor: true,
+          modo_certificado: true,
+          certificacion_habilitada: true
+        }
+      })
     ])
 
     const precioCert = curso?.precio_certificado ? Number(curso.precio_certificado) : null
@@ -95,6 +105,8 @@ export async function GET(request: Request) {
         : null,
       cursoTitulo: curso?.titulo ?? null,
       numeroAsesor: curso?.numero_asesor ?? null,
+      modoCertificado: curso?.modo_certificado ?? 'AUTOMATICO',
+      certificacionHabilitada: curso?.certificacion_habilitada ?? true,
       elegibilidad,
       pagoPendiente: pagoPendiente || false,
       precioCertificado: precioCert
@@ -128,12 +140,21 @@ export async function POST(request: Request) {
       }),
       prisma.curso.findUnique({
         where: { id: cursoId },
-        select: { precio_certificado: true, codigo: true, slug: true }
+        select: { precio_certificado: true, codigo: true, slug: true, certificacion_habilitada: true }
       })
     ])
 
     if (!inscripcion || inscripcion.estado !== 'ACTIVO') {
       return ApiResponse.error(request, 'No estás inscrito en este curso', 403)
+    }
+
+    // 1a. Verificar que la certificación esté habilitada para este curso
+    if (curso && !curso.certificacion_habilitada) {
+      return ApiResponse.error(
+        request,
+        'La certificación de este curso aún no está habilitada. Contacta al administrador.',
+        403
+      )
     }
 
     // 1b. Verificar pago del certificado si aplica
@@ -191,7 +212,7 @@ export async function POST(request: Request) {
       }),
       prisma.usuario.findUnique({
         where: { id: auth.user.id },
-        select: { nombre: true, apellido: true, numero_documento: true }
+        select: { nombre: true, apellido: true }
       })
     ])
 
@@ -199,15 +220,14 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'Curso no encontrado', 404)
     }
 
-    // 5. Generar código de verificación único: {CODIGO_CURSO}-{YYYYMMDD}-{DNI}-{NN}
-    const fechaEmision = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-    const dni = usuarioData?.numero_documento?.replace(/\D/g, '') || 'SINDNI'
+    // 5. Generar código de verificación único: {CODIGO_CURSO}-{YYMMDD}-{NNNNNN}
+    const ahora = new Date()
 
     const codigoCurso =
       cursoData?.codigo || cursoData?.slug?.slice(0, 12).toUpperCase() || cursoId.slice(0, 8).toUpperCase()
 
-    const numeroIntento = 1
-    const codigoVerificacion = `${codigoCurso}-${fechaEmision}-${dni}-${String(numeroIntento).padStart(2, '0')}`
+    let numeroSecuencial = (await contarCertificadosCurso(cursoId)) + 1
+    let codigoVerificacion = formatearCodigoCertificado(codigoCurso, ahora, numeroSecuencial)
 
     const datosSnapshot = {
       curso: {
@@ -231,18 +251,37 @@ export async function POST(request: Request) {
       }
     }
 
-    const certificado = await prisma.certificado.create({
-      data: {
-        usuario_id: auth.user.id,
-        curso_id: cursoId,
-        codigo_verificacion: codigoVerificacion,
-        datos: datosSnapshot as any
-      },
-      include: {
-        curso: { select: { titulo: true } },
-        usuario: { select: { nombre: true, apellido: true } }
+    let certificado
+
+    for (let intento = 0; intento < 3; intento++) {
+      try {
+        certificado = await prisma.certificado.create({
+          data: {
+            usuario_id: auth.user.id,
+            curso_id: cursoId,
+            codigo_verificacion: codigoVerificacion,
+            datos: datosSnapshot as any
+          },
+          include: {
+            curso: { select: { titulo: true } },
+            usuario: { select: { nombre: true, apellido: true } }
+          }
+        })
+        break
+      } catch (error: any) {
+        if (error?.code === 'P2002' && intento < 2) {
+          numeroSecuencial += 1
+          codigoVerificacion = formatearCodigoCertificado(codigoCurso, ahora, numeroSecuencial)
+          continue
+        }
+        
+        throw error
       }
-    })
+    }
+
+    if (!certificado) {
+      throw new Error('No se pudo generar un código de verificación único para el certificado')
+    }
 
     return ApiResponse.success(
       request,

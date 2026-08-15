@@ -106,6 +106,8 @@ export interface Curso {
   completar_automatico: boolean
   precio_certificado: number | null
   certificado_plantilla: string | null
+  modo_certificado: 'AUTOMATICO' | 'MANUAL'
+  certificacion_habilitada: boolean
   precio: number
   precio_falso: number
   moneda: string

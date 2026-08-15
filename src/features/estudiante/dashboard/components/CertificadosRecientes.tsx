@@ -51,7 +51,9 @@ function CertCard({ cert }: { cert: DashboardCertificado }) {
 
       a.href = url
       a.download = `certificado-${cert.codigo_verificacion}.pdf`
+      document.body.appendChild(a)
       a.click()
+      document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch {
       enqueueSnackbar('Error al descargar el certificado', { variant: 'error' })
