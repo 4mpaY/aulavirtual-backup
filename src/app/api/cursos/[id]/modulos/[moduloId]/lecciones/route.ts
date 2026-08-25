@@ -59,6 +59,7 @@ export async function POST(request: Request, { params }: { params: { id: string;
         video_url: validation.data.video_url || null,
         es_vista_previa: validation.data.es_vista_previa || false,
         es_en_vivo: validation.data.es_en_vivo || false,
+        es_pdf: validation.data.es_pdf || false,
         fecha_programada: validation.data.fecha_programada ? new Date(validation.data.fecha_programada) : null,
         fecha_fin: validation.data.fecha_fin ? new Date(validation.data.fecha_fin) : null,
         recursos: validation.data.recursos || [],

@@ -29,6 +29,7 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
     buscar?: string
     codigo?: string
     nombre?: string
+    emision?: string
   }): Promise<CertificadosResponse['result']> {
     try {
       return await this.iGet<CertificadosResponse['result']>('', { params })
@@ -37,10 +38,10 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
     }
   }
 
-  async downloadPdf(id: string, preview = false): Promise<Blob> {
+  async downloadPdf(id: string, options?: { preview?: boolean, frontPageOnly?: boolean }): Promise<Blob> {
     try {
       const res = await this.client.get(`/${id}/download`, {
-        params: { preview },
+        params: { preview: options?.preview, frontPageOnly: options?.frontPageOnly },
         responseType: 'blob'
       })
 
@@ -53,6 +54,22 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
   async create(payload: CreateCertificadoPayload): Promise<any> {
     try {
       return await this.iPost<any>('', payload)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async importarMasivo(certificados: any[]): Promise<any> {
+    try {
+      return await this.iPost<any>('/import', { certificados })
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async delete(id: string): Promise<any> {
+    try {
+      return await this.client.delete(`/${id}`)
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

@@ -26,6 +26,7 @@ import { useSnackbar } from 'notistack'
 
 import { useMedia, useUploadMedia, useDeleteMedia, useUploadPrivateVideo } from '../hooks/useMedia'
 import CustomAlertDialog from '../../../../components/CustomAlertDialog'
+import { blockDialogCloseWhile } from '@/utils/functions/dialogClose'
 
 const ALLOWED_VIDEO_TYPES = [
   'video/mp4',
@@ -126,6 +127,8 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
       return
     }
 
+    event.target.value = ''
+
     try {
       let result
 
@@ -143,10 +146,13 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
         })
       }
 
+      setUploadProgress(null)
       onSelect(result.url, result.nombre)
       onClose()
     } catch (error) {
+      setUploadProgress(null)
       console.error('Error al subir archivo', error)
+      enqueueSnackbar('Error al subir el archivo', { variant: 'error' })
     }
   }
 
@@ -158,17 +164,20 @@ const MediaLibrary = ({ open, onClose, onSelect, title = 'Biblioteca de Medios',
     return acceptType ? m.tipo === acceptType : true
   })
 
+  const isUploading = uploadMutation.isPending || uploadVideoMutation.isPending || uploadProgress !== null
+
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={blockDialogCloseWhile(isUploading, onClose)}
+      disableEscapeKeyDown={isUploading}
       maxWidth="md"
       fullWidth
       PaperProps={{ sx: { borderRadius: '20px', minHeight: '600px' } }}
     >
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 0 }}>
         <Typography variant="h5" sx={{ fontWeight: 800 }}>{title}</Typography>
-        <IconButton onClick={onClose} size="small">
+        <IconButton onClick={onClose} size="small" disabled={isUploading}>
           <i className="tabler-x" />
         </IconButton>
       </DialogTitle>

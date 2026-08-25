@@ -1,3 +1,5 @@
+import dynamic from 'next/dynamic'
+
 // MUI Imports
 import Button from '@mui/material/Button'
 
@@ -20,6 +22,11 @@ import ScrollToTop from '@core/components/scroll-to-top'
 
 // Util Imports
 import { getMode, getSystemMode } from '@core/utils/serverHelpers'
+
+const ChatWidget = dynamic(
+  () => import('@/features/shared/chat/components/ChatWidget'),
+  { ssr: false }
+)
 
 const Layout = async ({ children }: ChildrenType) => {
   // Vars
@@ -51,6 +58,7 @@ const Layout = async ({ children }: ChildrenType) => {
           <i className='tabler-arrow-up' />
         </Button>
       </ScrollToTop>
+      <ChatWidget />
     </Providers>
   )
 }

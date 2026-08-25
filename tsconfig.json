@@ -73,6 +73,7 @@
   "exclude": [
     "node_modules",
     "_soutrainingcenter_temp",
+    "_soutrainingcenter_temp",
     "src/features/sout/components/NavLink.tsx",
     "src/features/sout/components/SEO.tsx",
     "src/features/sout/components/ui/accordion.tsx",

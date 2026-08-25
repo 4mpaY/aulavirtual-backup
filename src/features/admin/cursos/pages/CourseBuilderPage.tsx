@@ -26,16 +26,18 @@ import { TabDetallesPremium } from '../components/CourseBuilder/TabDetallesPremi
 import { TabComentarios } from '../components/CourseBuilder/TabComentarios'
 import { TabEvaluacion } from '../components/CourseBuilder/TabEvaluacion'
 import { TabValoraciones } from '../components/CourseBuilder/TabValoraciones'
-import { TabTrabajos } from '../components/CourseBuilder/TabTrabajos'
+import { TabRevisionActividades } from '../components/CourseBuilder/TabRevisionActividades'
+import { TabAsistencias } from '../components/CourseBuilder/TabAsistencias'
 
 import { useCurso } from '../hooks/useCursos'
 
 interface CourseBuilderPageProps {
-    cursoId: string
-    profesores: { id: string; nombre: string; apellido: string }[]
+  cursoId: string
+  profesores: { id: string; nombre: string; apellido: string }[]
+  listPath?: string
 }
 
-export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProps) {
+export function CourseBuilderPage({ cursoId, profesores, listPath = '/admin/cursos' }: CourseBuilderPageProps) {
     const { data: curso, isLoading, isError, refetch } = useCurso(cursoId)
     const [activeTab, setActiveTab] = useState('1')
     const router = useRouter()
@@ -80,7 +82,7 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                 </Box>
                 <Button
                     variant='outlined'
-                    onClick={() => router.push(session?.user?.rol === 'ADMIN' ? '/admin/cursos' : '/profesor/mis-cursos')}
+                    onClick={() => router.push(session?.user?.rol === 'ADMIN' ? listPath : '/profesor/mis-cursos')}
                     startIcon={<i className='tabler-arrow-left' />}
                 >
                     Volver a Cursos
@@ -98,7 +100,8 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                         <Tab icon={<i className='tabler-settings' />} iconPosition='start' label='Configuración' value='3' />
                         <Tab icon={<i className='tabler-message' />} iconPosition='start' label='Comentarios' value='5' />
                         <Tab icon={<i className='tabler-star-filled' />} iconPosition='start' label='Valoraciones' value='7' />
-                        <Tab icon={<i className='tabler-file-analytics' />} iconPosition='start' label='Revisar Trabajos' value='8' />
+                        <Tab icon={<i className='tabler-file-check' />} iconPosition='start' label='Actividades' value='9' />
+                        <Tab icon={<i className='tabler-users' />} iconPosition='start' label='Asistencias' value='10' />
                     </TabList>
 
                     <TabPanel value='1' sx={{ p: 5 }}>
@@ -129,8 +132,12 @@ export function CourseBuilderPage({ cursoId, profesores }: CourseBuilderPageProp
                         <TabValoraciones cursoId={curso.id} />
                     </TabPanel>
 
-                    <TabPanel value='8' sx={{ p: 5 }}>
-                        <TabTrabajos cursoId={curso.id} curso={curso} />
+                    <TabPanel value='9' sx={{ p: 5 }}>
+                        <TabRevisionActividades cursoId={curso.id} curso={curso} />
+                    </TabPanel>
+
+                    <TabPanel value='10' sx={{ p: 5 }}>
+                        <TabAsistencias cursoId={curso.id} curso={curso} />
                     </TabPanel>
                 </Card>
             </TabContext>

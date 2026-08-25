@@ -12,7 +12,8 @@ import {
   MenuItem,
   TablePagination,
   Tooltip,
-  Typography
+  Typography,
+  Chip
 } from '@mui/material'
 import {
   createColumnHelper,
@@ -28,6 +29,7 @@ import { toast } from 'react-toastify'
 import { AxiosCertificado } from '../http/axiosCertificado'
 import type { Certificado } from '../entity/Certificado'
 import { CreateCertificadoModal } from './CreateCertificadoModal'
+import { ImportCertificadosModal } from './ImportCertificadosModal'
 import CustomTextField from '@core/components/mui/TextField'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 import HydratedDate from '@/utils/components/HydratedDate'
@@ -44,10 +46,11 @@ interface CertificadosTableProps {
 }
 
 export function CertificadosTable({ initialData }: CertificadosTableProps) {
-  const [params, setParams] = useState({ page: 1, limit: 10, codigo: '', nombre: '' })
+  const [params, setParams] = useState({ page: 1, limit: 10, codigo: '', nombre: '', emision: 'todos' })
   const [modalOpen, setModalOpen] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
 
-  const { data, isLoading } = useCertificados(params, initialData || undefined)
+  const { data, isLoading, refetch } = useCertificados(params, initialData || undefined)
 
   const certificados = data?.certificados || []
   const total = data?.paginacion?.total || 0
@@ -90,13 +93,35 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       }
 
       const axiosCertificado = new AxiosCertificado({ getAuthToken })
-      const blob = await axiosCertificado.downloadPdf(certificado.id, true)
+      const blob = await axiosCertificado.downloadPdf(certificado.id, { preview: true })
       const url = window.URL.createObjectURL(blob)
 
       window.open(url, '_blank')
     } catch (err: any) {
       console.error('Error previewing certificate:', err)
       toast.error('Error al visualizar el certificado')
+    }
+  }
+
+  const handleDelete = async (certificado: Certificado) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar el certificado con código ${certificado.codigo_verificacion}?`)) {
+      return
+    }
+
+    try {
+      const getAuthToken = async () => {
+        const s = await getSession()
+        return s?.user?.accessToken ?? null
+      }
+
+      const axiosCertificado = new AxiosCertificado({ getAuthToken })
+      await axiosCertificado.delete(certificado.id)
+      
+      toast.success('Certificado eliminado correctamente')
+      refetch() // Fetch latest data from server
+    } catch (err: any) {
+      console.error('Error deleting certificate:', err)
+      toast.error('Error al eliminar el certificado')
     }
   }
 
@@ -113,35 +138,61 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       }),
       columnHelper.accessor('usuario', {
         header: 'Estudiante',
-        cell: ({ row }) => (
-          <Box className='flex items-center gap-3'>
-            <Avatar
-              src={row.original.usuario.avatar || undefined}
-              imgProps={{ referrerPolicy: 'no-referrer' }}
-            />
-            <Box className='flex flex-col'>
-              <Typography color='text.primary' sx={{ fontWeight: 500 }}>
-                {row.original.usuario.nombre} {row.original.usuario.apellido}
-              </Typography>
-              <Typography variant='caption' color='text.secondary'>
-                {row.original.usuario.correo}
-              </Typography>
+        cell: ({ row }) => {
+          const usuario = row.original.usuario
+          const datosManuales = (row.original as any).datos?.usuario
+
+          const nombre = usuario?.nombre || datosManuales?.nombre || 'Desconocido'
+          const apellido = usuario?.apellido || datosManuales?.apellido || ''
+          const correo = usuario?.correo || ''
+          const avatar = usuario?.avatar || undefined
+
+          return (
+            <Box className='flex items-center gap-3'>
+              <Avatar
+                src={avatar}
+                imgProps={{ referrerPolicy: 'no-referrer' }}
+              />
+              <Box className='flex flex-col'>
+                <Typography color='text.primary' sx={{ fontWeight: 500 }}>
+                  {nombre} {apellido}
+                </Typography>
+                {correo && (
+                  <Typography variant='caption' color='text.secondary'>
+                    {correo}
+                  </Typography>
+                )}
+              </Box>
             </Box>
-          </Box>
-        )
+          )
+        }
       }),
       columnHelper.accessor('curso', {
         header: 'Curso',
-        cell: ({ row }) => <Typography color='text.primary'>{row.original.curso.titulo}</Typography>
+        cell: ({ row }) => {
+          const cursoTitulo = row.original.curso?.titulo || (row.original as any).datos?.curso?.titulo || 'Desconocido'
+          return <Typography color='text.primary'>{cursoTitulo}</Typography>
+        }
       }),
       columnHelper.accessor('codigo_verificacion', {
         header: 'Código',
-        cell: ({ row }) => (
-          <Typography variant='body2' sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
-            {row.original.codigo_verificacion}
-          </Typography>
-        )
+        cell: ({ row }) => {
+          const isManual = (row.original as any).datos?.emision_manual === true
+          if (isManual) {
+            return (
+              <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.disabled' }}>
+                -
+              </Typography>
+            )
+          }
+          return (
+            <Typography variant='body2' sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
+              {row.original.codigo_verificacion}
+            </Typography>
+          )
+        }
       }),
+
       columnHelper.accessor('emitido_en', {
         header: 'Fecha Emisión',
         cell: ({ row }) => (
@@ -149,6 +200,21 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
             <HydratedDate date={row.original.emitido_en} format="date" />
           </Typography>
         )
+      }),
+      columnHelper.display({
+        id: 'tipo_emision',
+        header: 'Emisión',
+        cell: ({ row }) => {
+          const isManual = (row.original as any).datos?.emision_manual === true
+          return (
+            <Chip 
+              label={isManual ? 'Manual' : 'Automático'} 
+              size="small" 
+              color={isManual ? 'warning' : 'success'} 
+              sx={{ fontWeight: 500 }}
+            />
+          )
+        }
       }),
       columnHelper.display({
         id: 'acciones',
@@ -163,6 +229,11 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
             <Tooltip title='Descargar PDF'>
               <IconButton onClick={() => handleDownload(row.original)} color='primary' size='small'>
                 <i className='tabler-download text-[22px]' />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title='Eliminar'>
+              <IconButton onClick={() => handleDelete(row.original)} color='error' size='small'>
+                <i className='tabler-trash text-[22px]' />
               </IconButton>
             </Tooltip>
           </Box>
@@ -237,12 +308,30 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
               placeholder='Filtrar por estudiante'
               className='is-full sm:is-auto'
             />
+            <CustomTextField
+              select
+              value={params.emision}
+              onChange={e => setParams(prev => ({ ...prev, emision: String(e.target.value), page: 1 }))}
+              sx={{ width: 140 }}
+              SelectProps={{ MenuProps: { disableScrollLock: true } }}
+            >
+              <MenuItem value="todos">Todos</MenuItem>
+              <MenuItem value="automatico">Automáticos</MenuItem>
+              <MenuItem value="manual">Manuales</MenuItem>
+            </CustomTextField>
+            <Button
+              variant='outlined'
+              startIcon={<i className='tabler-upload text-[16px]' />}
+              onClick={() => setImportModalOpen(true)}
+            >
+              Importar Excel
+            </Button>
             <Button
               variant='contained'
               startIcon={<i className='tabler-plus text-[16px]' />}
               onClick={() => setModalOpen(true)}
             >
-              Crear Certificado
+              Crear
             </Button>
           </Box>
         </Box>
@@ -296,7 +385,22 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
           }}
         />
       </Card>
-      <CreateCertificadoModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <CreateCertificadoModal 
+        open={modalOpen} 
+        onClose={() => setModalOpen(false)} 
+        onSuccess={() => {
+          setParams(prev => ({ ...prev, page: 1 }))
+          refetch()
+        }}
+      />
+      <ImportCertificadosModal 
+        open={importModalOpen} 
+        onClose={() => setImportModalOpen(false)} 
+        onSuccess={() => {
+          setParams(prev => ({ ...prev, page: 1 }))
+          refetch()
+        }}
+      />
     </>
   )
 }

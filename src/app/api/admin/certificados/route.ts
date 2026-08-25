@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import prisma from '@/utils/libs/prisma'
+import { Prisma } from '@prisma/client'
 
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
@@ -24,6 +25,7 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '10')
     const codigo = searchParams.get('codigo') || ''
     const nombre = searchParams.get('nombre') || ''
+    const emision = searchParams.get('emision') || 'todos'
 
     const skip = (page - 1) * limit
 
@@ -46,6 +48,27 @@ export async function GET(request: Request) {
           ]
         }
       })
+    }
+
+    if (emision === 'manual') {
+      conditions.push({
+        datos: { path: ['emision_manual'], equals: true }
+      })
+    } else if (emision === 'automatico') {
+      // Debido a cómo PostgreSQL maneja los NULLs en consultas JSON, 
+      // buscar los que no tienen 'emision_manual' puede omitir los registros donde la clave no existe.
+      // La forma más segura es obtener los IDs de los manuales y excluirlos.
+      const manuales = await prisma.certificado.findMany({
+        where: { datos: { path: ['emision_manual'], equals: true } },
+        select: { id: true }
+      })
+      const manualIds = manuales.map((c: any) => c.id)
+
+      if (manualIds.length > 0) {
+        conditions.push({
+          id: { notIn: manualIds }
+        })
+      }
     }
 
     const where: any = conditions.length > 0 ? { AND: conditions } : {}

@@ -238,7 +238,7 @@ export const generarCorporativo: GeneratorFn = async data => {
   doc.setFontSize(7)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(200, 200, 200)
-  doc.text(`Código: ${codigoVerificacion}`, margin, H - 4)
+  if (codigoVerificacion) doc.text(`Código: ${codigoVerificacion}`, margin, H - 4)
   doc.text(`Emitido: ${fechaFirmadaTxt}`, W / 2, H - 4, { align: 'center' })
 
   // Vigencia a la derecha, misma altura que el código
@@ -249,6 +249,10 @@ export const generarCorporativo: GeneratorFn = async data => {
     { align: 'right' }
   )
   if (institutionUrl) doc.text(institutionUrl, W - margin - qrSz - 14, H - 4, { align: 'right' })
+
+  if (data.frontPageOnly) {
+    return doc.output('arraybuffer')
+  }
 
   // ── PÁGINA 2 ─────────────────────────────────────────────────────────
   doc.addPage()
@@ -425,7 +429,7 @@ export const generarCorporativo: GeneratorFn = async data => {
   doc.setFontSize(T.small)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(200, 200, 200)
-  doc.text(`Código: ${codigoVerificacion}`, p2margin, H - 3)
+  if (codigoVerificacion) doc.text(`Código: ${codigoVerificacion}`, p2margin, H - 3)
   if (disclaimer) doc.text(disclaimer.substring(0, 80), W / 2, H - 3, { align: 'center' })
 
   return doc.output('arraybuffer')
