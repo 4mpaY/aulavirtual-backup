@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Button } from '@sout/components/ui/button'
+
 import { Menu, X, Phone } from 'lucide-react'
+
+import { Button } from '@sout/components/ui/button'
 import { cn } from '@sout/lib/utils'
 import logo from '@sout/assets/logo.jpeg'
 import SoutUserMenu from '@sout/components/auth/SoutUserMenu'
@@ -29,8 +32,10 @@ const Header = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
     }
+
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    
+return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {

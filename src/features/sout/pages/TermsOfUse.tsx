@@ -1,6 +1,5 @@
 import Header from "@sout/components/layout/Header";
 import Footer from "@sout/components/layout/Footer";
-import { FileText } from "lucide-react";
 
 const TermsOfUse = () => {
   return (
@@ -251,7 +250,7 @@ const TermsOfUse = () => {
                 SOUT Training Center proporciona capacitación educativa de alta calidad, sin embargo:
               </p>
               <ul className="list-disc pl-6 mb-4 text-gray-700 space-y-2">
-                <li>El sitio web se proporciona "tal cual" sin garantías de ningún tipo</li>
+                <li>El sitio web se proporciona &quot;tal cual&quot; sin garantías de ningún tipo</li>
                 <li>No garantizamos que el sitio esté libre de errores, interrupciones o virus</li>
                 <li>No somos responsables por decisiones tomadas con base en la información del sitio</li>
                 <li>No somos responsables por el uso indebido de las técnicas aprendidas en nuestros cursos</li>
@@ -308,7 +307,7 @@ const TermsOfUse = () => {
               <p className="text-gray-700 leading-relaxed">
                 SOUT Training Center se reserva el derecho de modificar estos Términos de Uso en cualquier
                 momento. Las modificaciones entrarán en vigor inmediatamente después de su publicación en
-                el sitio web. La fecha de "Última actualización" al inicio de este documento indicará
+                el sitio web. La fecha de &quot;Última actualización&quot; al inicio de este documento indicará
                 cuándo se realizaron cambios. Tu uso continuo del sitio después de modificaciones constituye
                 tu aceptación de los nuevos términos.
               </p>

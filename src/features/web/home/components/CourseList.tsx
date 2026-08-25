@@ -9,9 +9,10 @@ interface CourseListProps {
   courses: any[]
   loading?: boolean
   error?: string | null
+  emptySearchMessage?: string
 }
 
-const CourseList = ({ courses, loading, error }: CourseListProps) => {
+const CourseList = ({ courses, loading, error, emptySearchMessage = 'No encontramos cursos que coincidan con tu búsqueda.' }: CourseListProps) => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
@@ -32,7 +33,7 @@ const CourseList = ({ courses, loading, error }: CourseListProps) => {
     return (
       <Box sx={{ py: 10, textAlign: 'center' }}>
         <Typography variant="h5" color="text.secondary" sx={{ fontWeight: 500 }}>
-          No encontramos cursos que coincidan con tu búsqueda.
+          {emptySearchMessage}
         </Typography>
         <Typography variant="body1" color="text.disabled" sx={{ mt: 1 }}>
           Prueba con otras palabras clave o categorías.

@@ -1,9 +1,12 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import { Button } from "@sout/components/ui/button";
+
 import Link from 'next/link';
+
 import { ChevronRight, ChevronLeft } from "lucide-react";
+
+import { Button } from "@sout/components/ui/button";
 import { cn } from "@sout/lib/utils";
 import heroImage from "@sout/assets/curso1.jpeg";
 import drivingImage from "@sout/assets/carrousel1.jpeg";
@@ -79,6 +82,7 @@ const HeroSection = () => {
   // Auto-rotate features in slide 1 (mobile only)
   useEffect(() => {
     const featuresCount = slides[0].features?.length || 0;
+
     if (featuresCount === 0) return;
 
     const interval = setInterval(() => {
@@ -91,6 +95,7 @@ const HeroSection = () => {
   // Auto-rotate offerings in slide 3 (mobile only)
   useEffect(() => {
     const offeringsCount = slides[2].offerings?.length || 0;
+
     if (offeringsCount === 0) return;
 
     const interval = setInterval(() => {
@@ -100,10 +105,6 @@ const HeroSection = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-  };
-
   const goToPrevious = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
@@ -111,9 +112,6 @@ const HeroSection = () => {
   const goToNext = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
-
-  const currentSlideData = slides[currentSlide];
-  const currentBackgroundImage = currentSlideData.backgroundImage;
 
   return (
     <section 

@@ -25,13 +25,15 @@ import CommentsSection from './CommentsSection'
 import CompletionSummary from './CompletionSummary'
 import CourseContentSidebar from './CourseContentSidebar'
 import ExamSection from './ExamSection'
+import ActividadSection from './ActividadSection'
 import LessonContent from './LessonContent'
 import LiveLessonPlaceholder from './LiveLessonPlaceholder'
+import PdfViewer from './PdfViewer'
 import RatingModal from './RatingModal'
 import VideoPlayer from './VideoPlayer'
-import { LessonTrabajo } from './LessonTrabajo'
 
 import { useCourseStore } from '../store/useCourseStore'
+import { getModuleItems } from '../utils/moduleItems'
 
 interface CoursePlayerViewProps {
     course: {
@@ -59,13 +61,15 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
         currentView,
         examenId,
         currentExamenId,
+        currentActividadId,
         progressPercentage,
         setCourse,
         setCurrentLessonId,
         updateLessonProgress,
         setExamenId,
         setExamStatus,
-        openExam
+        openExam,
+        openActividad
     } = useCourseStore()
 
     const [mounted, setMounted] = useState(false)
@@ -191,14 +195,7 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
         const allItems: any[] = []
 
         storeCourse.modulos.forEach(module => {
-            const moduleItems = [
-                ...module.lecciones.map((l: any) => ({ ...l, tipo: 'leccion' })),
-                ...(storeCourse.examenes || [])
-                    .filter((ex: any) => ex.modulo_id === module.id && ex.tipo === 'INTERMEDIO')
-                    .map((ex: any) => ({ ...ex, tipo: 'examen' }))
-            ].sort((a, b) => (a.orden || 0) - (b.orden || 0))
-
-            allItems.push(...moduleItems)
+            allItems.push(...getModuleItems(module, storeCourse.examenes))
         })
 
         const idx = allItems.findIndex(item => item.id === currentExamenId)
@@ -207,7 +204,8 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
             const nextItem = allItems[idx + 1]
 
             if (nextItem.tipo === 'leccion') setCurrentLessonId(nextItem.id)
-            else openExam(nextItem.id)
+            else if (nextItem.tipo === 'examen') openExam(nextItem.id)
+            else openActividad(nextItem.id)
         } else {
             const firstLesson = storeCourse.modulos[0]?.lecciones[0]
 
@@ -226,6 +224,17 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
                         onExamPassed={handleExamPassed}
                         isFinalExam={currentExamenId === examenId}
                         onContinue={handleContinueAfterExam}
+                    />
+                </Grid>
+            )
+        }
+
+        if (currentView === 'activity' && currentActividadId) {
+            return (
+                <Grid item xs={12} key="activity-section">
+                    <ActividadSection
+                        actividadId={currentActividadId}
+                        onEntregaSuccess={refetchCourse}
                     />
                 </Grid>
             )
@@ -351,6 +360,8 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
                                 fechaFin={currentLesson.fecha_fin}
                                 enlaceReunion={currentLesson.enlace_reunion}
                             />
+                        ) : currentLesson?.es_pdf ? (
+                            <PdfViewer url={currentLesson?.video_url} />
                         ) : (
                             <VideoPlayer url={currentLesson?.video_url || undefined} tipo="VIDEO" onEnded={handleVideoEnded} />
                         )}
@@ -518,15 +529,6 @@ const CoursePlayerView = ({ course, phoneNumberProfesor, initialLessonId, initia
                                         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Contenido de esta lección</Typography>
                                     </Box>
                                     <LessonContent titulo="" descripcion={currentLesson.contenido} recursos={[]} />
-                                </Box>
-                            )}
-                            {currentLesson?.trabajo && (
-                                <Box sx={{ mt: 5 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                                        <Box sx={{ width: 3, height: 18, bgcolor: '#025E44', borderRadius: 2 }} />
-                                        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Trabajo de la lección</Typography>
-                                    </Box>
-                                    <LessonTrabajo trabajo={currentLesson.trabajo} onUploadSuccess={refetchCourse} />
                                 </Box>
                             )}
                             {!(course as any).descripcion && !(course as any).que_aprenderas && !currentLesson?.contenido && (

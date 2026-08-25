@@ -1,11 +1,14 @@
 'use client'
 
+import Link from 'next/link'
+
+import { Target, Eye, CheckCircle } from 'lucide-react'
+
 import Header from '@sout/components/layout/Header'
 import Footer from '@sout/components/layout/Footer'
 import PageHero from '@sout/components/layout/PageHero'
 import { Button } from '@sout/components/ui/button'
-import Link from 'next/link'
-import { Target, Eye, CheckCircle } from 'lucide-react'
+
 import heroImage from '@sout/assets/historial.jpeg'
 import nscLogo from '@sout/assets/nsc-menu.png'
 import marcaLogo from '@sout/assets/ccl.png'

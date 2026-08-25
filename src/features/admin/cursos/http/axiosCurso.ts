@@ -366,4 +366,120 @@ export class AxiosCurso extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  // ===================== ACTIVIDADES =====================
+
+  async getActividades(cursoId: string): Promise<{ actividades: any[] }> {
+    try {
+      return await this.iGet<{ actividades: any[] }>(`/${cursoId}/actividades`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async getActividadById(cursoId: string, actId: string): Promise<{ actividad: any }> {
+    try {
+      return await this.iGet<{ actividad: any }>(`/${cursoId}/actividades/${actId}`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async createActividad(cursoId: string, data: any): Promise<{ actividad: any }> {
+    try {
+      return await this.iPost<{ actividad: any }>(`/${cursoId}/actividades`, data)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async updateActividad(cursoId: string, actId: string, data: any): Promise<{ actividad: any }> {
+    try {
+      return await this.iPatch<{ actividad: any }>(`/${cursoId}/actividades/${actId}`, data)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async deleteActividad(cursoId: string, actId: string): Promise<{ message: string }> {
+    try {
+      return await this.iDelete<{ message: string }>(`/${cursoId}/actividades/${actId}`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async createPreguntaActividad(cursoId: string, actId: string, data: any): Promise<{ pregunta: any }> {
+    try {
+      return await this.iPost<{ pregunta: any }>(`/${cursoId}/actividades/${actId}/preguntas`, data)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async updatePreguntaActividad(cursoId: string, actId: string, pregId: string, data: any): Promise<{ pregunta: any }> {
+    try {
+      return await this.iPatch<{ pregunta: any }>(`/${cursoId}/actividades/${actId}/preguntas/${pregId}`, data)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async deletePreguntaActividad(cursoId: string, actId: string, pregId: string): Promise<{ message: string }> {
+    try {
+      return await this.iDelete<{ message: string }>(`/${cursoId}/actividades/${actId}/preguntas/${pregId}`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async getEntregasActividad(cursoId: string, actId: string): Promise<{ entregas: any[]; pendientes: any[]; actividad?: any }> {
+    try {
+      return await this.iGet<{ entregas: any[]; pendientes: any[]; actividad?: any }>(`/${cursoId}/actividades/${actId}/entregas`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async calificarEntregaActividad(cursoId: string, actId: string, entId: string, data: { nota: number | null; comentario_docente?: string }): Promise<{ entrega: any }> {
+    try {
+      return await this.iPatch<{ entrega: any }>(`/${cursoId}/actividades/${actId}/entregas/${entId}`, data)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async reorderActividadesModulo(cursoId: string, moduloId: string, items: { id: string; orden: number }[]): Promise<any> {
+    try {
+      return await this.iPatch(`/${cursoId}/modulos/${moduloId}/actividades/reordenar`, { items })
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  // ===================== ASISTENCIAS =====================
+
+  async getAsistenciasLeccion(cursoId: string, leccionId: string): Promise<any[]> {
+    try {
+      return await this.iGet<any[]>(`/${cursoId}/lecciones/${leccionId}/asistencias`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async updateAsistenciasLeccion(cursoId: string, leccionId: string, data: { usuario_id: string; asistio: boolean }[]): Promise<{ success: boolean; message: string }> {
+    try {
+      return await this.iPost<{ success: boolean; message: string }>(`/${cursoId}/lecciones/${leccionId}/asistencias`, data)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async getResumenAsistencias(cursoId: string): Promise<any[]> {
+    try {
+      return await this.iGet<any[]>(`/${cursoId}/asistencias/resumen`)
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

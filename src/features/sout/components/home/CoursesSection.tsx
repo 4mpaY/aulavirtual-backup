@@ -1,18 +1,12 @@
 'use client'
 
 import Link from 'next/link';
-import { Button } from "@sout/components/ui/button";
+
 import { Clock, Users, Award, ChevronRight } from "lucide-react";
+
+import { Button } from "@sout/components/ui/button";
 import curso1 from "@sout/assets/curso1.jpeg";
 import firstAidTraining from "@sout/assets/rcp.png";
-import fireTraining from "@sout/assets/fire-training.jpg";
-import competencia from "@sout/assets/competencia.jpeg";
-import carro from "@sout/assets/carro.jpeg";
-import cuatrimoto from "@sout/assets/cuatrimoto.jpeg";
-import carrousel2 from "@sout/assets/carrousel2.jpeg";
-import defensivo from "@sout/assets/defensivo.jpeg";
-import fatigaImg from "@sout/assets/fatiga.jpeg";
-import instructorImg from "@sout/assets/intructor.jpeg";
 import practicaslima from "@sout/assets/modelolima.jpeg";
 import operador from "@sout/assets/operador.jpeg";
 

@@ -1,6 +1,5 @@
 import Header from "@sout/components/layout/Header";
 import Footer from "@sout/components/layout/Footer";
-import { Shield } from "lucide-react";
 
 const PrivacyPolicy = () => {
   return (
@@ -222,7 +221,7 @@ const PrivacyPolicy = () => {
               <p className="text-gray-700 leading-relaxed mb-4">
                 <strong>¿Cómo ejercer tus derechos?</strong><br />
                 Envía un correo electrónico a <a href="mailto:administracion@soutrainingcenter.com" className="text-red-600 hover:underline">
-                  administracion@soutrainingcenter.com</a> con el asunto "Ejercicio de Derechos ARCO"
+                  administracion@soutrainingcenter.com</a> con el asunto &quot;Ejercicio de Derechos ARCO&quot;
                 e incluye tu nombre completo, DNI, el derecho que deseas ejercer y una copia de tu documento de identidad.
               </p>
               <p className="text-gray-700 leading-relaxed">
@@ -250,7 +249,7 @@ const PrivacyPolicy = () => {
               <p className="text-gray-700 leading-relaxed">
                 Podemos actualizar esta Política de Privacidad ocasionalmente para reflejar cambios en
                 nuestras prácticas o por razones legales. Te notificaremos sobre cambios importantes
-                publicando la nueva política en nuestro sitio web con la fecha de "Última actualización".
+                publicando la nueva política en nuestro sitio web con la fecha de &quot;Última actualización&quot;.
                 Te recomendamos revisar esta página periódicamente.
               </p>
             </section>

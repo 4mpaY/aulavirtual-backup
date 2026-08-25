@@ -407,6 +407,7 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                         <MenuItem value={Rol.ESTUDIANTE}>Estudiante</MenuItem>
                         <MenuItem value={Rol.PROFESOR}>Profesor</MenuItem>
                         <MenuItem value={Rol.ADMIN}>Administrador</MenuItem>
+                        <MenuItem value={Rol.SUPERVISOR}>Supervisor</MenuItem>
                       </CustomTextField>
                     </Grid>
 

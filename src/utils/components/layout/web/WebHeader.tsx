@@ -38,8 +38,9 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
       {/* Logo */}
       <Logo />
 
-      {/* Auth Buttons */}
+      {/* Right side */}
       <div className="flex items-center gap-3">
+
         <CartIcon />
         {session ? (
           <UserDropdown />
@@ -48,7 +49,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
             <Button
               onClick={() => openLogin()}
               size="small"
-              sx={{ fontWeight: 700, fontSize: '0.7rem', color: '#02115C', fontFamily: 'Inter, sans-serif' }}
+              sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#02115C', fontFamily: 'Inter, sans-serif' }}
             >
               Iniciar Sesión
             </Button>
@@ -59,7 +60,7 @@ export default function WebHeader({ initialCategories = [], platformName = 'Aula
               sx={{
                 fontFamily: 'Inter, sans-serif',
                 fontWeight: 700,
-                fontSize: '0.7rem',
+                fontSize: '0.9rem',
                 borderRadius: '8px',
                 backgroundColor: primaryColor,
                 display: { xs: 'none', sm: 'inline-flex' },

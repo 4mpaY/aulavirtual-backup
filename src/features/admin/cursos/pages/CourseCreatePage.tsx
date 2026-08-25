@@ -35,9 +35,13 @@ import CustomTextField from '@core/components/mui/TextField'
 import { crearCursoSchema, type CrearCursoDto } from '@/schemas/curso.schema'
 import { sanitizeDatetimeInput } from '@/utils/functions/sanitizeDatetime'
 import MediaLibrary from '../components/MediaLibrary'
+import { CategoriaSubcategoriaSelect } from '../components/CategoriaSubcategoriaSelect'
+import { TipoProgramaSelect } from '../components/TipoProgramaSelect'
 
 import { useCreateCurso } from '../hooks/useCursos'
 import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
+import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
+import { getTipoProgramaConfig } from '@/utils/configs/tipoPrograma'
 
 interface CourseCreatePageProps {
   profesores: { id: string; nombre: string; apellido: string }[]
@@ -53,11 +57,14 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
   const [activeTab, setActiveTab] = useState('1')
   const [openMedia, setOpenMedia] = useState(false)
   const [openBrochure, setOpenBrochure] = useState(false)
+  const [categoriaPadreId, setCategoriaPadreId] = useState('')
+  const [subcategoriaId, setSubcategoriaId] = useState('')
 
   const initialValues: CrearCursoDto = {
     titulo: '',
     descripcion: '',
     categoria_id: null,
+    tipo: 'CURSO' as TipoPrograma,
     profesor_id: profesores.length > 0 ? profesores[0].id : '',
     tipo_emision: 'ASINCRONO',
     es_gratis: false,
@@ -81,8 +88,9 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
       }
 
       const result = await createMutation.mutateAsync(payload)
+      const tipoConfig = getTipoProgramaConfig(values.tipo)
 
-      enqueueSnackbar('Curso creado exitosamente', { variant: 'success' })
+      enqueueSnackbar(`${tipoConfig.label} creado exitosamente`, { variant: 'success' })
 
       const redirectBase = session?.user?.rol === 'ADMIN' ? '/admin/cursos' : '/profesor/mis-cursos'
 
@@ -103,10 +111,10 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant='h4' fontWeight={600}>
-            Nuevo Curso
+            Nuevo programa educativo
           </Typography>
           <Typography variant='body2' color='text.secondary'>
-            Configura los detalles de tu nuevo programa educativo
+            Configura los detalles del programa. El tipo define si aparecerá en Cursos, Diplomados o Especializaciones.
           </Typography>
         </Box>
         <Button
@@ -123,7 +131,10 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
         validationSchema={toFormikValidationSchema(crearCursoSchema)}
         onSubmit={handleSubmit}
       >
-        {({ values, errors, touched, handleChange, handleBlur, handleSubmit: handleFormikSubmit, isSubmitting, setFieldValue }) => (
+        {({ values, errors, touched, handleChange, handleBlur, handleSubmit: handleFormikSubmit, isSubmitting, setFieldValue }) => {
+          const tipoConfig = getTipoProgramaConfig(values.tipo)
+
+          return (
           <form onSubmit={handleFormikSubmit}>
             <TabContext value={activeTab}>
               <Card>
@@ -139,7 +150,7 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                       <Grid item xs={12}>
                         <CustomTextField
                           fullWidth
-                          label='Título del Curso *'
+                          label='Título del programa *'
                           name='titulo'
                           placeholder='Ej: Especialización en Gestión Ambiental'
                           value={values.titulo}
@@ -173,24 +184,27 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                         />
                       </Grid>
 
-                      <Grid item xs={12} sm={6}>
-                        <CustomTextField
-                          select
-                          fullWidth
-                          label='Categoría'
-                          name='categoria_id'
-                          value={values.categoria_id || ''}
-                          onChange={handleChange}
-                          disabled={isSubmitting}
-                        >
-                          <MenuItem value=''>Sin categoría</MenuItem>
-                          {categorias.map(cat => (
-                            <MenuItem key={cat.id} value={cat.id}>
-                              {cat.nombre}
-                            </MenuItem>
-                          ))}
-                        </CustomTextField>
-                      </Grid>
+                      <TipoProgramaSelect
+                        value={values.tipo}
+                        onChange={tipo => setFieldValue('tipo', tipo)}
+                        disabled={isSubmitting}
+                      />
+
+                      <CategoriaSubcategoriaSelect
+                        categorias={categorias}
+                        categoriaPadreId={categoriaPadreId}
+                        subcategoriaId={subcategoriaId}
+                        onCategoriaPadreChange={padreId => {
+                          setCategoriaPadreId(padreId)
+                          setSubcategoriaId('')
+                          setFieldValue('categoria_id', padreId || null)
+                        }}
+                        onSubcategoriaChange={subId => {
+                          setSubcategoriaId(subId)
+                          setFieldValue('categoria_id', subId || categoriaPadreId || null)
+                        }}
+                        disabled={isSubmitting}
+                      />
 
                       <Grid item xs={12} sm={6}>
                         <CustomTextField
@@ -524,14 +538,15 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                       disabled={isSubmitting || !values.titulo.trim() || !values.profesor_id}
                       startIcon={isSubmitting ? <CircularProgress size={20} color='inherit' /> : <i className='tabler-device-floppy' />}
                     >
-                      {isSubmitting ? 'Creando...' : 'Finalizar y Crear Curso'}
+                      {isSubmitting ? 'Creando...' : `Finalizar y Crear ${tipoConfig.label}`}
                     </Button>
                   </Box>
                 </CardContent>
               </Card>
             </TabContext>
           </form>
-        )}
+          )
+        }}
       </Formik>
     </Box>
   )

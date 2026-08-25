@@ -1,26 +1,29 @@
 'use client'
 
-import Header from "@sout/components/layout/Header";
-import Footer from "@sout/components/layout/Footer";
-import PageHero from "@sout/components/layout/PageHero";
-import { Button } from "@sout/components/ui/button";
-import { Input } from "@sout/components/ui/input";
-import { Textarea } from "@sout/components/ui/textarea";
 import { useState } from "react";
+
 import {
   Phone,
   Mail,
   MapPin,
   Clock,
   Send,
-  MessageCircle,
   Facebook,
 } from "lucide-react";
+
+import Header from "@sout/components/layout/Header";
+import Footer from "@sout/components/layout/Footer";
+import PageHero from "@sout/components/layout/PageHero";
+import { Button } from "@sout/components/ui/button";
+import { Input } from "@sout/components/ui/input";
+import { Textarea } from "@sout/components/ui/textarea";
+
 import { useToast } from "@sout/hooks/use-toast";
 import wstp from "@sout/assets/wstp.svg";
 
 const Contact = () => {
   const { toast } = useToast();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -35,13 +38,15 @@ const Contact = () => {
 
     // Validar teléfono (solo números)
     const phoneRegex = /^[0-9\s+()-]*$/;
+
     if (!phoneRegex.test(formData.phone)) {
       toast({
         title: "Error en el teléfono",
         description: "El teléfono debe contener solo números y símbolos válidos (+, -, espacios)",
         variant: "destructive",
       });
-      return;
+      
+return;
     }
 
     // Validar longitud mínima de mensaje
@@ -51,7 +56,8 @@ const Contact = () => {
         description: "Por favor, describe con más detalle tus necesidades (mínimo 10 caracteres)",
         variant: "destructive",
       });
-      return;
+      
+return;
     }
 
     // Construir mensaje para WhatsApp con todos los campos
@@ -73,6 +79,7 @@ Espero su respuesta. Gracias.`;
 
     // Abrir WhatsApp con el mensaje
     const whatsappUrl = `https://wa.me/51977959001?text=${encodeURIComponent(message)}`;
+
     window.open(whatsappUrl, '_blank');
 
     // Limpiar formulario
@@ -303,6 +310,7 @@ Espero su respuesta. Gracias.`;
                         value={formData.phone}
                         onChange={(e) => {
                           const value = e.target.value.replace(/[^0-9+\s()-]/g, '');
+
                           setFormData({ ...formData, phone: value });
                         }}
                         required

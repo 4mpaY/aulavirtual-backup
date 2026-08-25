@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const path = require('path')
+const withPWA = require('@ducanh2912/next-pwa').default
 
 // 🔐 SEGURIDAD: Headers HTTP de seguridad para todas las rutas
 const securityHeaders = [
@@ -36,9 +37,10 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https: *", // 🖼️ FLEXIBLE: Permite imágenes de cualquier sitio seguro
-      "connect-src 'self' https://*.izipay.pe https://*.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com https://*.culqi.com",
+      "connect-src 'self' ws: wss: https://*.izipay.pe https://*.paypal.com https://api-m.paypal.com https://api-m.sandbox.paypal.com https://*.culqi.com",
       "frame-src 'self' blob: https: *", // 📺 FLEXIBLE: Permite videos/iframes de cualquier sitio seguro (YouTube, Vimeo, Wistia, etc.) + blob: para visor PDF
       "media-src 'self' blob: data: http://localhost https: *",
+      "worker-src 'self'",
       "object-src 'none'",
       "base-uri 'self'"
     ].join('; ')
@@ -78,6 +80,19 @@ const nextConfig = {
       { source: '/mantenimiento/:path*', destination: '/', permanent: false },
     ]
   },
+  async rewrites() {
+    return [
+      {
+        source: '/favicon.ico',
+        destination: '/api/branding/favicon',
+      },
+    ]
+  },
+  async redirects() {
+    return [
+      { source: '/rutas/:path*', destination: '/', permanent: false },
+    ]
+  },
   async headers() {
     return [
       {
@@ -110,4 +125,10 @@ const nextConfig = {
   }
 }
 
-module.exports = nextConfig
+module.exports = withPWA({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  reloadOnOnline: true,
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+})(nextConfig)

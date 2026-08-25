@@ -4,10 +4,12 @@
 import classnames from 'classnames'
 
 // Component Imports
-import NavToggle from './NavToggle'
-import Logo from '@components/layout/shared/Logo'
-import UserDropdown from '@components/layout/shared/UserDropdown'
+import ChatNavbarButton from '@components/layout/shared/ChatNavbarButton'
 import NotificationsDropdown from '@components/layout/shared/NotificationsDropdown'
+import UserDropdown from '@components/layout/shared/UserDropdown'
+
+import Logo from '@components/layout/shared/Logo'
+import NavToggle from './NavToggle'
 
 // Hook Imports
 import useHorizontalNav from '@menu/hooks/useHorizontalNav'
@@ -29,6 +31,7 @@ const NavbarContent = () => {
         {!isBreakpointReached && <Logo />}
       </div>
       <div className='flex items-center gap-2'>
+        <ChatNavbarButton />
         <NotificationsDropdown />
         <UserDropdown />
       </div>

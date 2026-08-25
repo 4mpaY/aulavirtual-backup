@@ -84,6 +84,7 @@ export interface CertificadoData {
 
   // ── Flags ──
   previewFlag: boolean
+  frontPageOnly?: boolean
 }
 
 /**

@@ -3,30 +3,27 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { Home, BookOpen, Users, Award, Map, BookText, ClipboardList } from 'lucide-react'
+import { Home, BookOpen, Users, Award, Building2 } from 'lucide-react'
 
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },
   { title: 'Cursos', url: '/cursos', icon: BookOpen, key: 'cursos' },
-  { title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' },
-  { title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' },
-  { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
+
+  // { title: 'Simulacros', url: '/simulacros', icon: ClipboardList, key: 'simulacros' },
+  // { title: 'Ebooks', url: '/ebooks', icon: BookText, key: 'ebooks' },
+  // { title: 'Rutas', url: '/rutas', icon: Map, key: 'rutas' },
   { title: 'Nosotros', url: '/nosotros', icon: Users, key: 'nosotros' },
   { title: 'Certificado', url: '/verificar-certificado', icon: Award, key: 'certificado' },
 ]
 
 export default function MobileBottomNav({
-  rutasHabilitado = true,
+  empresasHabilitado = true,
 }: {
-  rutasHabilitado?: boolean
+  empresasHabilitado?: boolean
 }) {
   const pathname = usePathname()
 
-  const navItems = ALL_NAV_ITEMS.filter(item => {
-    if (item.key === 'rutas' && !rutasHabilitado) return false
-
-    return true
-  })
+  const navItems = ALL_NAV_ITEMS
 
   const isActive = (url: string) => {
     if (url === '/') return pathname === '/'
@@ -77,6 +74,35 @@ export default function MobileBottomNav({
           </Link>
         )
       })}
+
+      {empresasHabilitado && (
+        <Link
+          href="/empresas"
+          className="no-underline flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors"
+          style={{ color: isActive('/empresas') ? 'var(--web-primary, #25927F)' : '#94a3b8' }}
+        >
+          <div
+            className="flex items-center justify-center rounded-xl transition-all duration-200"
+            style={{
+              width: '36px',
+              height: '28px',
+              backgroundColor: isActive('/empresas') ? 'rgba(var(--web-primary-rgb, 37, 146, 127),0.1)' : 'transparent',
+            }}
+          >
+            <Building2 size={isActive('/empresas') ? 22 : 20} strokeWidth={isActive('/empresas') ? 2.5 : 1.8} />
+          </div>
+          <span
+            style={{
+              fontFamily: 'Poppins, sans-serif',
+              fontSize: '0.625rem',
+              fontWeight: isActive('/empresas') ? 700 : 500,
+              lineHeight: 1,
+            }}
+          >
+            Empresas
+          </span>
+        </Link>
+      )}
     </nav>
   )
 }

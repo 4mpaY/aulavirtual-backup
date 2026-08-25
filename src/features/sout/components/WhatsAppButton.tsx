@@ -1,6 +1,7 @@
 'use client'
 
 import { Phone } from 'lucide-react'
+
 import whatsappIcon from '@sout/assets/wstp.svg'
 
 const FloatingContactButtons = () => {

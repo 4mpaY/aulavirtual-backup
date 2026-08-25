@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       const u = usuarios[i]
 
       try {
-        const { nombre, apellido, correo, contrasena, numero_documento, celular, rol } = u
+        const { nombre, apellido, correo, contrasena, numero_documento, celular, rol, curso_id } = u
 
         if (!nombre || !apellido || !correo || !contrasena || !numero_documento) {
           errores.push({ fila, correo: correo || '', mensaje: 'Faltan campos requeridos' })
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
           counter++
         }
 
-        await prisma.usuario.create({
+        const nuevoUsuario = await prisma.usuario.create({
           data: {
             correo: String(correo).toLowerCase().trim(),
             contrasena: hashedPassword,
@@ -77,11 +77,74 @@ export async function POST(request: Request) {
           }
         })
 
-        // 📧 Enviar correo de bienvenida con credenciales
+        // Matricular en cursos si se proporcionaron curso_id (soporta múltiples UUIDs separados por coma)
+        if (curso_id && String(curso_id).trim()) {
+          const cursosIds = String(curso_id).split(',').map((s: string) => s.trim()).filter(Boolean)
+
+          try {
+            const cursos = await prisma.curso.findMany({
+              where: { id: { in: cursosIds } },
+              select: { id: true, moneda: true }
+            })
+
+            const idsNoEncontrados = cursosIds.filter((id: string) => !cursos.find(c => c.id === id))
+
+            if (idsNoEncontrados.length > 0) {
+              errores.push({ fila, correo: String(correo), mensaje: `Cursos no encontrados: ${idsNoEncontrados.join(', ')}` })
+            }
+
+            if (cursos.length > 0) {
+              await prisma.$transaction(async tx => {
+                const pedido = await tx.pedido.create({
+                  data: {
+                    usuario_id: nuevoUsuario.id,
+                    total: 0,
+                    moneda: cursos[0].moneda || 'PEN',
+                    estado: 'COMPLETADO',
+                    mensaje: 'Matrícula masiva generada por administrador',
+                    pagado_en: new Date(),
+                    detalles: {
+                      create: cursos.map(c => ({
+                        tipo_item: 'CURSO',
+                        curso_id: c.id,
+                        precio_unitario: 0,
+                        subtotal: 0,
+                        total: 0,
+                        cantidad: 1
+                      }))
+                    }
+                  }
+                })
+
+                await Promise.all(
+                  cursos.map(c =>
+                    tx.inscripcion.create({
+                      data: {
+                        usuario_id: nuevoUsuario.id,
+                        curso_id: c.id,
+                        pedido_id: pedido.id,
+                        estado: 'ACTIVO',
+                        inscrito_en: new Date()
+                      }
+                    })
+                  )
+                )
+              })
+            }
+          } catch (inscErr: any) {
+            const mensaje = inscErr?.code === 'P2002'
+              ? 'Usuario ya estaba inscrito en uno de los cursos'
+              : 'Error al matricular, usuario creado sin matrícula'
+
+            errores.push({ fila, correo: String(correo), mensaje })
+          }
+        }
+
+        // Enviar correo de bienvenida con credenciales
         try {
           const configs = await getConfigs()
           const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
-          
+
           const emailHtml = getWelcomeTemplate({
             platformName,
             customerName: String(nombre),
