@@ -49,7 +49,11 @@ export async function GET(request: Request) {
     const tipoParam = searchParams.get('tipo')
 
     const tipoFilter =
-      tipoParam === 'DIPLOMADO' || tipoParam === 'ESPECIALIZACION' || tipoParam === 'CURSO'
+      tipoParam === 'DIPLOMADO' ||
+      tipoParam === 'ESPECIALIZACION' ||
+      tipoParam === 'CURSO' ||
+      tipoParam === 'SEMINARIO' ||
+      tipoParam === 'TALLER'
         ? tipoParam
         : undefined
 

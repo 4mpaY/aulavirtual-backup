@@ -11,7 +11,7 @@ export const crearCursoSchema = z.object({
     .max(200, 'El título no puede exceder 200 caracteres'),
   descripcion: z.string().trim().max(5000, 'La descripción no puede exceder 5000 caracteres').optional(),
   categoria_id: z.string().uuid('ID de categoría inválido').optional().nullable(),
-  tipo: z.enum(['CURSO', 'DIPLOMADO', 'ESPECIALIZACION']).default('CURSO'),
+  tipo: z.enum(['CURSO', 'DIPLOMADO', 'ESPECIALIZACION', 'SEMINARIO', 'TALLER']).default('CURSO'),
   profesor_id: z.string().uuid('ID de profesor inválido'),
   tipo_emision: z.enum(['SINCRONO', 'ASINCRONO', 'MIXTO']).default('ASINCRONO'),
 
@@ -49,7 +49,7 @@ export const actualizarCursoSchema = z.object({
     .optional(),
   descripcion: z.string().trim().max(5000, 'La descripción no puede exceder 5000 caracteres').optional().nullable(),
   categoria_id: z.string().uuid('ID de categoría inválido').optional().nullable(),
-  tipo: z.enum(['CURSO', 'DIPLOMADO', 'ESPECIALIZACION']).optional(),
+  tipo: z.enum(['CURSO', 'DIPLOMADO', 'ESPECIALIZACION', 'SEMINARIO', 'TALLER']).optional(),
   profesor_id: z.string().uuid('ID de profesor inválido').optional(),
   tipo_emision: z.enum(['SINCRONO', 'ASINCRONO', 'MIXTO']).optional(),
   nivel: z.enum(['BASICO', 'INTERMEDIO', 'AVANZADO']).optional().nullable(),
@@ -105,7 +105,7 @@ export const listarCursosQuerySchema = z.object({
   buscar: z.string().optional(),
   estado: z.enum(['BORRADOR', 'PUBLICADO', 'ARCHIVADO', '']).optional(),
   categoria_id: z.string().uuid().optional(),
-  tipo: z.enum(['CURSO', 'DIPLOMADO', 'ESPECIALIZACION']).optional(),
+  tipo: z.enum(['CURSO', 'DIPLOMADO', 'ESPECIALIZACION', 'SEMINARIO', 'TALLER']).optional(),
   profesor_id: z.string().uuid().optional()
 })
 

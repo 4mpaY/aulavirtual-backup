@@ -7,6 +7,7 @@ import type { ChildrenType, Direction } from '@core/types'
 import { ConfigProvider } from '@/contexts/ConfigContext'
 import { NextAuthProvider } from '@/contexts/nextAuthProvider'
 import { ReactQueryProvider } from '@/components/ReactQueryProvider'
+import SessionGuard from '@/components/SessionGuard'
 import { VerticalNavProvider } from '@menu/contexts/verticalNavContext'
 import { SettingsProvider } from '@core/contexts/settingsContext'
 import ThemeProvider from '@components/theme'
@@ -45,6 +46,7 @@ export const Providers = (props: Props) => {
     return (
         <ConfigProvider configs={configs}>
             <NextAuthProvider session={session}>
+                <SessionGuard>
                 <ReactQueryProvider>
                     <VerticalNavProvider>
                         <SettingsProvider settingsCookie={settings} mode={mode} demoName={demoName}>
@@ -59,6 +61,7 @@ export const Providers = (props: Props) => {
                         </SettingsProvider>
                     </VerticalNavProvider>
                 </ReactQueryProvider>
+                </SessionGuard>
             </NextAuthProvider>
         </ConfigProvider>
     )

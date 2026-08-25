@@ -3,6 +3,7 @@ import type { AxiosStatic } from 'axios'
 
 import { getBaseURL } from '@/utils/env'
 import { AxiosInternalHttpClient } from '@/features/shared/http/httpClient'
+import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
 
 type Params = {
   axiosLib?: AxiosStatic
@@ -21,7 +22,7 @@ export class AxiosWebCursos extends AxiosInternalHttpClient {
     })
   }
 
-  async getCatalog(tipo?: 'CURSO' | 'DIPLOMADO' | 'ESPECIALIZACION'): Promise<{ courses: any[], categories: any[] }> {
+  async getCatalog(tipo?: TipoPrograma): Promise<{ courses: any[], categories: any[] }> {
     try {
       const query = tipo ? `?tipo=${tipo}` : ''
       const payload = await this.iGet<{ courses: any[], categories: any[] }>(`/catalogo${query}`)

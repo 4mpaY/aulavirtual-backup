@@ -466,6 +466,8 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
               <MenuItem value='CURSO'>Cursos</MenuItem>
               <MenuItem value='DIPLOMADO'>Diplomados</MenuItem>
               <MenuItem value='ESPECIALIZACION'>Especializaciones</MenuItem>
+              <MenuItem value='SEMINARIO'>Seminarios</MenuItem>
+              <MenuItem value='TALLER'>Talleres</MenuItem>
             </CustomTextField>
             <CustomTextField
               select

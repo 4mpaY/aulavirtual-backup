@@ -5,7 +5,7 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 import { signOut, useSession } from 'next-auth/react'
 
@@ -45,7 +45,6 @@ export default function LeftSidebar({
   empresasHabilitado?: boolean
 }) {
   const pathname = usePathname()
-  const router = useRouter()
   const [expanded, setExpanded] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [menuPos, setMenuPos] = useState({ bottom: 0, left: 0 })
@@ -71,8 +70,7 @@ export default function LeftSidebar({
 
   const handleLogout = async () => {
     setUserMenuOpen(false)
-    await signOut({ redirect: false })
-    router.push('/')
+    await signOut({ callbackUrl: '/' })
   }
 
   const user = session?.user as any

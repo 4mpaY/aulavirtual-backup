@@ -67,9 +67,11 @@ export function getDefaultFaviconPath(): string {
 }
 
 export function resolveFaviconUrl(configs: Record<string, string>): string {
-  if (configs.SITE_FAVICON?.trim()) {
+  // Solo usar el favicon personalizado si existe y no está vacío
+  if (configs.SITE_FAVICON && configs.SITE_FAVICON.trim().length > 0) {
     return FAVICON_PUBLIC_PATH
   }
 
+  // Por defecto usar el favicon.ico de public/
   return '/favicon.ico'
 }

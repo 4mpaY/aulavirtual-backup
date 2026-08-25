@@ -45,6 +45,7 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
   const [selectedLevel, setSelectedLevel] = useState('all')
   const [selectedPrice, setSelectedPrice] = useState('all')
   const [selectedModality, setSelectedModality] = useState('all')
+  const [selectedTipo, setSelectedTipo] = useState('all')
   const [sortBy, setSortBy] = useState('recent')
   const { itemCount, setIsCartDrawerOpen } = useCart()
 
@@ -75,8 +76,9 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
         (selectedPrice === 'free' ? course.es_gratis : !course.es_gratis)
 
       const matchesModality = selectedModality === 'all' || course.tipo_emision === selectedModality
+      const matchesTipo = selectedTipo === 'all' || course.tipo === selectedTipo
 
-      return matchesSearch && matchesCategory && matchesLevel && matchesPrice && matchesModality
+      return matchesSearch && matchesCategory && matchesLevel && matchesPrice && matchesModality && matchesTipo
     })
 
     // Aplicar ordenamiento
@@ -89,7 +91,7 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
 
       return 0
     })
-  }, [courses, searchTerm, selectedCategory, selectedLevel, selectedPrice, selectedModality, sortBy])
+  }, [courses, searchTerm, selectedCategory, selectedLevel, selectedPrice, selectedModality, selectedTipo, sortBy])
 
   const clearFilters = () => {
     setSearchTerm('')
@@ -97,6 +99,7 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
     setSelectedLevel('all')
     setSelectedPrice('all')
     setSelectedModality('all')
+    setSelectedTipo('all')
     setSortBy('recent')
   }
 
@@ -105,6 +108,7 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
     selectedLevel !== 'all' ||
     selectedPrice !== 'all' ||
     selectedModality !== 'all' ||
+    selectedTipo !== 'all' ||
     sortBy !== 'recent'
 
 
@@ -281,6 +285,39 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
                   <MenuItem value="all">Tipo / Precio</MenuItem>
                   <MenuItem value="free">Gratuito</MenuItem>
                   <MenuItem value="premium">Premium</MenuItem>
+                </TextField>
+
+                {/* Tipo de Programa */}
+                <TextField
+                  select
+                  size="small"
+                  value={selectedTipo}
+                  onChange={(e) => setSelectedTipo(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <i className="tabler-books" style={{ color: selectedTipo !== 'all' ? 'var(--mui-palette-primary-main)' : '#64748b' }} />
+                      </InputAdornment>
+                    ),
+                    sx: {
+                      borderRadius: '16px',
+                      border: '1.5px solid',
+                      borderColor: selectedTipo !== 'all' ? 'var(--mui-palette-primary-main)' : 'transparent',
+                      '& fieldset': { border: 'none' },
+                      bgcolor: selectedTipo !== 'all' ? 'primary.50' : '#f8fafc',
+                      color: selectedTipo !== 'all' ? 'primary.main' : 'inherit',
+                      fontWeight: 700,
+                      transition: 'all 0.2s ease'
+                    }
+                  }}
+                  sx={{ minWidth: 155, flexShrink: 0 }}
+                >
+                  <MenuItem value="all">Tipo de Programa</MenuItem>
+                  <MenuItem value="CURSO">Curso</MenuItem>
+                  <MenuItem value="DIPLOMADO">Diplomado</MenuItem>
+                  <MenuItem value="ESPECIALIZACION">Especialización</MenuItem>
+                  <MenuItem value="SEMINARIO">Seminario</MenuItem>
+                  <MenuItem value="TALLER">Taller</MenuItem>
                 </TextField>
 
                 {/* Modalidad */}

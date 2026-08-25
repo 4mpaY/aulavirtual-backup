@@ -75,6 +75,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang='es' suppressHydrationWarning className={`${plus_jakarta_sans.variable} ${plus_jakarta_sans.className}`}>
+      <head>
+        {/* Favicon estático de respaldo — garantiza que siempre se muestre public/favicon.ico */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body className='flex is-full min-bs-full flex-col' id="__next">
         <style dangerouslySetInnerHTML={{
           __html: `

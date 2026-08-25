@@ -70,6 +70,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const [error, setError] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [registerUrl, setRegisterUrl] = useState('/register')
+  const [sessionMessage, setSessionMessage] = useState<{ type: 'warning' | 'error'; text: string } | null>(null)
 
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
@@ -86,10 +87,25 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const authBackground = useImageVariant(mode, lightImg, darkImg)
 
   useEffect(() => {
-    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl')
+    const params = new URLSearchParams(window.location.search)
+    const callbackUrl = params.get('callbackUrl')
+    const expired = params.get('expired')
+    const deactivated = params.get('deactivated')
 
     if (callbackUrl) {
       setRegisterUrl(`/register?callbackUrl=${callbackUrl}`)
+    }
+
+    if (expired === '1') {
+      setSessionMessage({
+        type: 'warning',
+        text: 'Tu sesión ha expirado. Por favor inicia sesión nuevamente.'
+      })
+    } else if (deactivated === '1') {
+      setSessionMessage({
+        type: 'error',
+        text: 'Tu cuenta ha sido desactivada. Contacta al administrador.'
+      })
     }
   }, [])
 
@@ -236,6 +252,12 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
             <Typography variant='h4'>{`Bienvenido! 👋🏻`}</Typography>
             <Typography>Inicia sesión en tu cuenta para continuar</Typography>
           </div>
+
+          {sessionMessage && (
+            <Alert severity={sessionMessage.type} className='mb-2'>
+              {sessionMessage.text}
+            </Alert>
+          )}
 
           {error && (
             <Alert severity='error' className='mb-4'>

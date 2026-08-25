@@ -1,4 +1,4 @@
-export type TipoPrograma = 'CURSO' | 'DIPLOMADO' | 'ESPECIALIZACION'
+export type TipoPrograma = 'CURSO' | 'DIPLOMADO' | 'ESPECIALIZACION' | 'SEMINARIO' | 'TALLER'
 
 export const TIPO_PROGRAMA_CONFIG = {
   CURSO: {
@@ -57,6 +57,44 @@ export const TIPO_PROGRAMA_CONFIG = {
     gestionTitle: 'Gestión de Especializaciones',
     buscarPlaceholder: 'Buscar especialización',
     cargandoLabel: 'Cargando especializaciones...'
+  },
+  SEMINARIO: {
+    label: 'Seminario',
+    labelPlural: 'Seminarios',
+    adminBasePath: '/admin/cursos',
+    webPath: '/cursos',
+    catalogTitle: 'Catálogo de Seminarios',
+    catalogDescription: 'Seminarios especializados con expertos del sector para actualizar tus conocimientos.',
+    catalogSectionTitle: 'Nuestros Seminarios',
+    catalogSectionSubtitle: 'Aprende de manera intensiva con los mejores especialistas.',
+    catalogEmptySearch: 'No encontramos seminarios que coincidan con tu búsqueda.',
+    searchPlaceholder: 'Buscar seminario por título o descripción...',
+    homeTitle: 'Seminarios destacados',
+    homeSubtitle: 'Aprende de manera intensiva con los mejores especialistas',
+    emptyMessage: 'Próximamente habrá seminarios disponibles.',
+    nuevoLabel: 'Nuevo Seminario',
+    gestionTitle: 'Gestión de Seminarios',
+    buscarPlaceholder: 'Buscar seminario',
+    cargandoLabel: 'Cargando seminarios...'
+  },
+  TALLER: {
+    label: 'Taller',
+    labelPlural: 'Talleres',
+    adminBasePath: '/admin/cursos',
+    webPath: '/cursos',
+    catalogTitle: 'Catálogo de Talleres',
+    catalogDescription: 'Talleres prácticos para desarrollar habilidades aplicadas desde el primer día.',
+    catalogSectionTitle: 'Nuestros Talleres',
+    catalogSectionSubtitle: 'Aprende haciendo con talleres diseñados para la práctica.',
+    catalogEmptySearch: 'No encontramos talleres que coincidan con tu búsqueda.',
+    searchPlaceholder: 'Buscar taller por título o descripción...',
+    homeTitle: 'Talleres destacados',
+    homeSubtitle: 'Desarrolla habilidades prácticas con nuestros talleres',
+    emptyMessage: 'Próximamente habrá talleres disponibles.',
+    nuevoLabel: 'Nuevo Taller',
+    gestionTitle: 'Gestión de Talleres',
+    buscarPlaceholder: 'Buscar taller',
+    cargandoLabel: 'Cargando talleres...'
   }
 } as const
 
