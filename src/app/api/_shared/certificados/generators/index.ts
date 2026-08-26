@@ -4,6 +4,7 @@ import { generarClasicoResumido } from './clasico_resumido'
 import { generarCorporativo } from './corporativo'
 import { generarModerno } from './moderno'
 import { generarElegante } from './elegante'
+import { generarSout } from './sout'
 
 export const PLANTILLAS = {
   clasico: {
@@ -41,6 +42,13 @@ export const PLANTILLAS = {
     paginas: 2,
     thumbnail: '/images/plantillas-certificado/elegante.png',
   },
+  sout: {
+    id: 'sout',
+    nombre: 'Sout',
+    descripcion: 'Diseño personalizado con fondo gráfico.',
+    paginas: 2,
+    thumbnail: '/certificados/1.png',
+  },
 } as const
 
 export type PlantillaId = keyof typeof PLANTILLAS
@@ -55,8 +63,9 @@ export function getGenerator(plantilla: string): GeneratorFn {
     case 'corporativo': return generarCorporativo
     case 'moderno':     return generarModerno
     case 'elegante':    return generarElegante
+    case 'sout':        return generarSout
     default:            return generarClasico
   }
 }
 
-export { generarClasico, generarClasicoResumido, generarCorporativo, generarModerno, generarElegante }
+export { generarClasico, generarClasicoResumido, generarCorporativo, generarModerno, generarElegante, generarSout }

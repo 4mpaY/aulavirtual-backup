@@ -56,7 +56,12 @@ export async function GET(req: Request) {
         avatar: true,
         rol: true,
         cargo: true,
-        firma: true
+        firma: true,
+        licencia: true,
+        equipo_opera: true,
+        empresa: true,
+        ciudad: true,
+        pais: true
       }
     })
 
@@ -102,8 +107,10 @@ export async function PUT(req: Request) {
       return NextResponse.json({ status: false, message: 'No autorizado' }, { status: 401 })
     }
 
-    const { nombre, apellido, celular, numero_documento, biografia, contrasena, avatar, cargo, firma } =
-      await req.json()
+    const {
+      nombre, apellido, celular, numero_documento, biografia, contrasena, avatar, cargo, firma,
+      licencia, equipo_opera, empresa, ciudad, pais
+    } = await req.json()
 
     if (!nombre || !apellido || !numero_documento) {
       return NextResponse.json({ status: false, message: 'Faltan campos obligatorios' }, { status: 400 })
@@ -125,7 +132,12 @@ export async function PUT(req: Request) {
       biografia,
       avatar,
       cargo,
-      firma
+      firma,
+      licencia,
+      equipo_opera,
+      empresa,
+      ciudad,
+      pais
     }
 
     // Verify document uniqueness if changed
@@ -172,6 +184,12 @@ export async function PUT(req: Request) {
         cargo: true,
         slug: true,
         firma: true,
+        licencia: true,
+        equipo_opera: true,
+        empresa: true,
+        ciudad: true,
+        pais: true,
+        codigo_instructor_nsc: true,
         esta_activo: true,
         actualizado_en: true
       }

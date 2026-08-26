@@ -64,8 +64,8 @@ export async function GET(request: Request) {
     }
 
     const [certificado, elegibilidad, inscripcion, curso] = await Promise.all([
-      prisma.certificado.findUnique({
-        where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } },
+      prisma.certificado.findFirst({
+        where: { usuario_id: auth.user.id, curso_id: cursoId },
         include: {
           curso: { select: { titulo: true } },
           usuario: { select: { nombre: true, apellido: true } }
@@ -88,8 +88,8 @@ export async function GET(request: Request) {
             id: certificado.id,
             codigoVerificacion: certificado.codigo_verificacion,
             emitidoEn: certificado.emitido_en,
-            cursoTitulo: certificado.curso.titulo,
-            nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+            cursoTitulo: certificado.curso?.titulo || '',
+            nombreCompleto: `${certificado.usuario?.nombre || ''} ${certificado.usuario?.apellido || ''}`.trim()
           }
         : null,
       cursoTitulo: curso?.titulo ?? null,
@@ -164,8 +164,8 @@ export async function POST(request: Request) {
     }
 
     // 3. Verificar si ya existe un certificado
-    const certificadoExistente = await prisma.certificado.findUnique({
-      where: { usuario_id_curso_id: { usuario_id: auth.user.id, curso_id: cursoId } }
+    const certificadoExistente = await prisma.certificado.findFirst({
+      where: { usuario_id: auth.user.id, curso_id: cursoId }
     })
 
     if (certificadoExistente) {
@@ -249,8 +249,8 @@ export async function POST(request: Request) {
           id: certificado.id,
           codigoVerificacion: certificado.codigo_verificacion,
           emitidoEn: certificado.emitido_en,
-          cursoTitulo: certificado.curso.titulo,
-          nombreCompleto: `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+          cursoTitulo: certificado.curso?.titulo || '',
+          nombreCompleto: `${certificado.usuario?.nombre || ''} ${certificado.usuario?.apellido || ''}`.trim()
         }
       },
       201

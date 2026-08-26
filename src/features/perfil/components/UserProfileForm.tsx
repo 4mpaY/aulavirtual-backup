@@ -17,7 +17,8 @@ import {
   IconButton,
   Tooltip,
   Badge,
-  InputAdornment
+  InputAdornment,
+  MenuItem
 } from '@mui/material'
 import { toast } from 'react-toastify'
 import axios from 'axios'
@@ -50,6 +51,12 @@ export default function UserProfileForm({ user }: Props) {
     biografia: user.biografia || '',
     cargo: user.cargo || '',
     firma: user.firma || '',
+    licencia: user.licencia || '',
+    equipo_opera: user.equipo_opera || '',
+    empresa: user.empresa || '',
+    ciudad: user.ciudad || '',
+    pais: user.pais || 'Perú',
+    codigo_instructor_nsc: user.codigo_instructor_nsc || '',
     contrasena: '',
     confirmarContrasena: ''
   })
@@ -244,6 +251,35 @@ export default function UserProfileForm({ user }: Props) {
                   value={formData.celular}
                   onChange={handleChange}
                 />
+              </Grid>
+
+              {/* Información adicional para certificados */}
+              <Grid item xs={12}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mt: 2, mb: 1 }}>Información Adicional (Certificados)</Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Licencia" name="licencia" value={formData.licencia} onChange={handleChange} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Equipo que opera" name="equipo_opera" value={formData.equipo_opera} onChange={handleChange} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Empresa" name="empresa" value={formData.empresa} onChange={handleChange} />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField select fullWidth label="País" name="pais" value={formData.pais} onChange={handleChange}>
+                  {['Perú', 'Colombia', 'Chile', 'Ecuador', 'Bolivia', 'Argentina', 'México', 'España', 'Otro'].map(p => (
+                    <MenuItem key={p} value={p}>{p}</MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField select fullWidth label="Ciudad" name="ciudad" value={formData.ciudad} onChange={handleChange} disabled={!formData.pais}>
+                  <MenuItem value=""><em>Seleccione</em></MenuItem>
+                  {['Lima', 'Arequipa', 'Trujillo', 'Chiclayo', 'Piura', 'Iquitos', 'Cusco', 'Huancayo', 'Tacna', 'Ica', 'Juliaca', 'Cajamarca', 'Pucallpa', 'Ayacucho', 'Huánuco', 'Tarapoto', 'Puno', 'Tumbes', 'Otra'].map(c => (
+                    <MenuItem key={c} value={c}>{c}</MenuItem>
+                  ))}
+                </TextField>
               </Grid>
 
               {/* Editor de biografía: estructurado para profesores, libre para estudiantes */}

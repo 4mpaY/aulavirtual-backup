@@ -18,7 +18,9 @@ import {
   Alert,
   Divider,
   IconButton,
-  Chip
+  Chip,
+  FormControlLabel,
+  Switch
 } from '@mui/material'
 
 import { toast } from 'react-toastify'
@@ -59,6 +61,7 @@ export function CreateCertificadoModal({ open, onClose, onSuccess }: Props) {
   const [duracion, setDuracion] = useState('')
   const [docenteNombre, setDocenteNombre] = useState('')
   const [docenteCargo, setDocenteCargo] = useState('')
+  const [homologacion, setHomologacion] = useState(false)
 
   // ── Estado de duplicado ──
   const [duplicado, setDuplicado] = useState<{ id: string; codigo: string } | null>(null)
@@ -126,6 +129,7 @@ export function CreateCertificadoModal({ open, onClose, onSuccess }: Props) {
     setDuracion('')
     setDocenteNombre('')
     setDocenteCargo('')
+    setHomologacion(false)
     setDuplicado(null)
   }
 
@@ -152,6 +156,7 @@ export function CreateCertificadoModal({ open, onClose, onSuccess }: Props) {
         duracion_override: duracion || undefined,
         docente_nombre_override: docenteNombre || undefined,
         docente_cargo_override: docenteCargo || undefined,
+        homologacion,
         reemplazar
       })
 
@@ -368,6 +373,24 @@ export function CreateCertificadoModal({ open, onClose, onSuccess }: Props) {
               onChange={e => setDuracion(e.target.value)}
               placeholder='Ej: 40 horas académicas'
               helperText='Dejar vacío para usar la duración del curso'
+            />
+          </Grid>
+          
+          <Grid item xs={12} md={4} sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={homologacion}
+                  onChange={(e) => setHomologacion(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label={
+                <Box>
+                  <Typography variant="body2" fontWeight={600}>Aplica Homologación (SOUT)</Typography>
+                  <Typography variant="caption" color="text.secondary">Pinta la bolita de homologación en el PDF</Typography>
+                </Box>
+              }
             />
           </Grid>
 

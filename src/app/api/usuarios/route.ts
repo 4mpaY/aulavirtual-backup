@@ -122,8 +122,10 @@ export async function POST(request: Request) {
       return validation.error
     }
 
-    const { correo, contrasena, nombre, apellido, numero_documento, celular, rol, biografia, avatar, cargo, firma } =
-      validation.data
+    const { 
+      correo, contrasena, nombre, apellido, numero_documento, celular, rol, biografia, avatar, cargo, firma,
+      licencia, equipo_opera, empresa, ciudad, pais, codigo_instructor_nsc
+    } = validation.data
 
     // Verificar si el correo ya existe
     const correoExistente = await prisma.usuario.findUnique({
@@ -162,6 +164,13 @@ export async function POST(request: Request) {
       counter++;
     }
 
+    // Auto-generar código de instructor si es profesor y no se proveyó uno
+    let finalCodigoInstructor = codigo_instructor_nsc || null;
+
+    if (rol === 'PROFESOR' && !finalCodigoInstructor) {
+      finalCodigoInstructor = `NSC-${numero_documento}`;
+    }
+
     // Crear usuario
     const nuevoUsuario = await prisma.usuario.create({
       data: {
@@ -176,6 +185,12 @@ export async function POST(request: Request) {
         avatar: avatar || null,
         cargo: cargo || null,
         firma: firma || null,
+        licencia: licencia || null,
+        equipo_opera: equipo_opera || null,
+        empresa: empresa || null,
+        ciudad: ciudad || null,
+        pais: pais || null,
+        codigo_instructor_nsc: finalCodigoInstructor,
         slug
       },
       select: {
@@ -191,7 +206,13 @@ export async function POST(request: Request) {
         firma: true,
         rol: true,
         esta_activo: true,
-        creado_en: true
+        creado_en: true,
+        licencia: true,
+        equipo_opera: true,
+        empresa: true,
+        ciudad: true,
+        pais: true,
+        codigo_instructor_nsc: true
       }
     })
     

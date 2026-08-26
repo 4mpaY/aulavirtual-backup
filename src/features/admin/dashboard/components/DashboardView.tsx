@@ -86,10 +86,25 @@ export function DashboardView({ initialData }: DashboardViewProps) {
   if (isLoading) return <LinearProgress />
   if (!data) return <Typography>Error cargando datos</Typography>
 
-  const { resumen, ventasPorMes, pedidosRecientes, cursosPopulares, inscripcionesRecientes } = data
+  const { 
+    resumen = {} as any, 
+    ventasPorMes = [], 
+    pedidosRecientes = [], 
+    cursosPopulares = [], 
+    inscripcionesRecientes = [] 
+  } = data || {}
 
-  const maxVenta = Math.max(...ventasPorMes.map((v: any) => v.total), 1)
-  const maxInscripciones = Math.max(...cursosPopulares.map((c: any) => c._count.inscripciones), 1)
+  let maxVenta = 1;
+  let maxInscripciones = 1;
+
+  try {
+    maxVenta = Math.max(...ventasPorMes.map((v: any) => v.total), 1)
+    maxInscripciones = Math.max(...cursosPopulares.map((c: any) => c._count.inscripciones), 1)
+  } catch (e: any) {
+    console.error('Error in DashboardView render calculations:', e);
+    
+return <Typography color="error">Error en cálculos: {e.message}</Typography>;
+  }
 
   return (
     <Grid container spacing={6}>

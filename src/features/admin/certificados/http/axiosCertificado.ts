@@ -75,6 +75,14 @@ export class AxiosCertificado extends AxiosInternalHttpClient {
     }
   }
 
+  async toggleHomologacion(id: string, homologacion: boolean): Promise<any> {
+    try {
+      return await this.client.patch(`/${id}/homologacion`, { homologacion })
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
   async buscarUsuarios(q: string): Promise<UsuarioBusqueda[]> {
     try {
       const res = await this.iGet<{ usuarios: UsuarioBusqueda[] }>('/buscar-usuarios', { params: { q } })

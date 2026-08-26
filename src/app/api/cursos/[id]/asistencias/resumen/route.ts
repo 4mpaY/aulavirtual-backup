@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
+
 import prisma from '@/utils/libs/prisma'
 import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 
@@ -8,6 +10,7 @@ export async function GET(
 ) {
   try {
     const auth = await requireProfesorOrAdmin(req)
+
     if (!auth.authorized) return auth.error
 
     const { id: cursoId } = params
@@ -52,7 +55,9 @@ export async function GET(
         clasesFaltadas: 0,
         porcentaje: 0
       }))
-      return NextResponse.json(resumen)
+
+      
+return NextResponse.json(resumen)
     }
 
     // 3. Obtener todas las asistencias del curso (de las lecciones de los módulos del curso)
@@ -72,6 +77,7 @@ export async function GET(
       const asistenciasAlumno = asistencias.filter(a => a.usuario_id === insc.usuario.id)
       
       const clasesAsistidas = asistenciasAlumno.filter(a => a.asistio).length
+
       // Las faltas son (Total de lecciones del curso - clases asistidas)
       // Ojo: Si el profesor no ha marcado asistencia de una clase futura, igual contaría como falta.
       // Pero esta fue la indicación acordada en el plan: "sobre el total de lecciones del curso".
@@ -94,6 +100,7 @@ export async function GET(
     return NextResponse.json(resumen)
   } catch (error: any) {
     console.error('[GET_ASISTENCIAS_RESUMEN]', error)
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+    
+return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

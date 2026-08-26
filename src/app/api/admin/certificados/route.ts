@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic'
 
-import prisma from '@/utils/libs/prisma'
 import { Prisma } from '@prisma/client'
+
+import prisma from '@/utils/libs/prisma'
 
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
@@ -62,6 +63,7 @@ export async function GET(request: Request) {
         where: { datos: { path: ['emision_manual'], equals: true } },
         select: { id: true }
       })
+
       const manualIds = manuales.map((c: any) => c.id)
 
       if (manualIds.length > 0) {
@@ -140,6 +142,7 @@ export async function POST(request: Request) {
       duracion_override,
       docente_nombre_override,
       docente_cargo_override,
+      homologacion,
       reemplazar = false
     } = body
 
@@ -150,7 +153,10 @@ export async function POST(request: Request) {
     // Verificar que el usuario existe
     const usuario = await prisma.usuario.findUnique({
       where: { id: usuario_id },
-      select: { id: true, nombre: true, apellido: true, correo: true, numero_documento: true }
+      select: { 
+        id: true, nombre: true, apellido: true, correo: true, numero_documento: true,
+        licencia: true, equipo_opera: true, empresa: true, ciudad: true, pais: true
+      }
     })
 
     if (!usuario) {
@@ -180,8 +186,8 @@ export async function POST(request: Request) {
     }
 
     // Verificar si ya existe un certificado para esta combinación
-    const existente = await prisma.certificado.findUnique({
-      where: { usuario_id_curso_id: { usuario_id, curso_id } }
+    const existente = await prisma.certificado.findFirst({
+      where: { usuario_id, curso_id }
     })
 
     if (existente && !reemplazar) {
@@ -199,7 +205,15 @@ export async function POST(request: Request) {
     const fechaEmision = fecha_emision ? parseDateOnly(fecha_emision) : new Date()
 
     const snapshot = {
-      usuario: { nombre: usuario.nombre, apellido: usuario.apellido },
+      usuario: { 
+        nombre: usuario.nombre, 
+        apellido: usuario.apellido,
+        licencia: usuario.licencia,
+        equipo_opera: usuario.equipo_opera,
+        empresa: usuario.empresa,
+        ciudad: usuario.ciudad,
+        pais: usuario.pais
+      },
       curso: {
         titulo: curso.titulo,
         tipo_emision: curso.tipo_emision,
@@ -217,7 +231,8 @@ export async function POST(request: Request) {
         cargo: docente_cargo_override || curso.profesor.cargo,
         firma: curso.profesor.firma
       },
-      emision_manual: true
+      emision_manual: true,
+      homologacion: homologacion === true
     }
 
     let certificado

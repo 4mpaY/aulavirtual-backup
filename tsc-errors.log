@@ -1,0 +1,35 @@
+src/app/(web)/verificar-certificado/[codigo]/page.tsx(118,12): error TS18047: 'certificado.usuario' is possibly 'null'.
+src/app/(web)/verificar-certificado/[codigo]/page.tsx(118,42): error TS18047: 'certificado.usuario' is possibly 'null'.
+src/app/(web)/verificar-certificado/[codigo]/page.tsx(120,50): error TS18047: 'certificado.curso' is possibly 'null'.
+src/app/(web)/verificar-certificado/[codigo]/page.tsx(251,36): error TS18047: 'certificado.curso' is possibly 'null'.
+src/app/api/admin/certificados/import/route.ts(77,28): error TS2339: Property 'cargo' does not exist on type 'AuthUser'.
+src/app/api/admin/certificados/import/route.ts(78,28): error TS2339: Property 'firma' does not exist on type 'AuthUser'.
+src/app/api/estudiante/certificado/route.ts(91,26): error TS18047: 'certificado.curso' is possibly 'null'.
+src/app/api/estudiante/certificado/route.ts(92,32): error TS18047: 'certificado.usuario' is possibly 'null'.
+src/app/api/estudiante/certificado/route.ts(92,62): error TS18047: 'certificado.usuario' is possibly 'null'.
+src/app/api/estudiante/certificado/route.ts(252,24): error TS18047: 'certificado.curso' is possibly 'null'.
+src/app/api/estudiante/certificado/route.ts(253,30): error TS18047: 'certificado.usuario' is possibly 'null'.
+src/app/api/estudiante/certificado/route.ts(253,60): error TS18047: 'certificado.usuario' is possibly 'null'.
+src/app/api/public/certificados/[codigo]/route.ts(49,24): error TS18047: 'certificado.usuario' is possibly 'null'.
+src/app/api/public/certificados/[codigo]/route.ts(49,54): error TS18047: 'certificado.usuario' is possibly 'null'.
+src/app/api/public/certificados/[codigo]/route.ts(50,16): error TS18047: 'certificado.curso' is possibly 'null'.
+src/app/api/public/certificados/[codigo]/route.ts(51,19): error TS18047: 'certificado.curso' is possibly 'null'.
+src/app/api/public/certificados/[codigo]/route.ts(52,16): error TS18047: 'certificado.curso' is possibly 'null'.
+src/app/api/supervisor/alumnos/route.ts(71,13): error TS7034: Variable 'detallesNotas' implicitly has type 'any[]' in some locations where its type cannot be determined.
+src/app/api/supervisor/alumnos/route.ts(90,11): error TS7005: Variable 'detallesNotas' implicitly has an 'any[]' type.
+src/features/admin/dashboard/components/DashboardView.tsx(113,39): error TS2339: Property 'ingresosMesActual' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(117,26): error TS2339: Property 'crecimientoIngresos' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(123,39): error TS2339: Property 'ingresos' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(126,58): error TS2339: Property 'ticketPromedio' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(132,26): error TS2339: Property 'estudiantes' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(140,26): error TS2339: Property 'profesores' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(149,26): error TS2339: Property 'cursos' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(152,32): error TS2339: Property 'cursosPublicados' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(158,26): error TS2339: Property 'pedidosPendientes' does not exist on type '{}'.
+src/features/admin/dashboard/components/DashboardView.tsx(166,26): error TS2339: Property 'certificadosEmitidos' does not exist on type '{}'.
+src/features/admin/usuarios/components/UsuarioDetallesModal.tsx(38,7): error TS2741: Property 'SUPERVISOR' is missing in type '{ ADMIN: string; PROFESOR: string; ESTUDIANTE: string; }' but required in type '{ ADMIN: string; PROFESOR: string; ESTUDIANTE: string; SUPERVISOR: string; }'.
+src/features/sout/lib/getPublicCourses.ts(88,40): error TS2551: Property 'precio_certificado_ipg' does not exist on type '{ _count: { modulos: number; }; categoria: { id: string; nombre: string; slug: string; } | null; profesor: { id: string; nombre: string; apellido: string; slug: string | null; avatar: string | null; }; } & { ...; }'. Did you mean 'precio_certificado'?
+src/features/sout/lib/getPublicCourses.ts(88,87): error TS2551: Property 'precio_certificado_ipg' does not exist on type '{ _count: { modulos: number; }; categoria: { id: string; nombre: string; slug: string; } | null; profesor: { id: string; nombre: string; apellido: string; slug: string | null; avatar: string | null; }; } & { ...; }'. Did you mean 'precio_certificado'?
+src/features/sout/lib/getPublicCourses.ts(89,40): error TS2551: Property 'precio_certificado_cip' does not exist on type '{ _count: { modulos: number; }; categoria: { id: string; nombre: string; slug: string; } | null; profesor: { id: string; nombre: string; apellido: string; slug: string | null; avatar: string | null; }; } & { ...; }'. Did you mean 'precio_certificado'?
+src/features/sout/lib/getPublicCourses.ts(89,87): error TS2551: Property 'precio_certificado_cip' does not exist on type '{ _count: { modulos: number; }; categoria: { id: string; nombre: string; slug: string; } | null; profesor: { id: string; nombre: string; apellido: string; slug: string | null; avatar: string | null; }; } & { ...; }'. Did you mean 'precio_certificado'?
+src/utils/components/layout/web/LeftSidebar.tsx(166,20): error TS2304: Cannot find name 'MonitorSmartphone'.

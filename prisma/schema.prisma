@@ -25,6 +25,12 @@ model Usuario {
   google_id               String?                @unique
   cargo                   String?
   firma                   String?
+  licencia                String?
+  equipo_opera            String?
+  empresa                 String?
+  ciudad                  String?
+  pais                    String?
+  codigo_instructor_nsc   String?
   certificados            Certificado[]
   comentarios             Comentario[]
   cursos_dictados         Curso[]                @relation("ProfesorCursos")

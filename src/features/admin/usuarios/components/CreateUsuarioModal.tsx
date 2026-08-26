@@ -44,7 +44,13 @@ const CreateUsuarioModal = ({ open, handleClose, onSuccess }: CreateUsuarioModal
     rol: Rol.ESTUDIANTE,
     esta_activo: true,
     cargo: '',
-    firma: ''
+    firma: '',
+    licencia: '',
+    equipo_opera: '',
+    empresa: '',
+    ciudad: '',
+    pais: 'Perú',
+    codigo_instructor_nsc: ''
   }
 
   const handleSubmit = async (values: CrearUsuarioDto, { setSubmitting, resetForm }: FormikHelpers<CrearUsuarioDto>) => {
@@ -213,6 +219,99 @@ const CreateUsuarioModal = ({ open, handleClose, onSuccess }: CreateUsuarioModal
                       />
                     </Grid>
                   </>
+                )}
+
+                {/* Sección: Información Adicional (Certificados) */}
+                <Grid item xs={12} sx={{ mt: 2 }}>
+                  <Typography variant='overline' color='text.disabled' sx={{ mb: 1, display: 'block' }}>
+                    Información Adicional (Certificados)
+                  </Typography>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    fullWidth
+                    label='Licencia'
+                    name='licencia'
+                    value={values.licencia}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={isSubmitting}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    fullWidth
+                    label='Equipo que opera'
+                    name='equipo_opera'
+                    value={values.equipo_opera}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={isSubmitting}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <CustomTextField
+                    fullWidth
+                    label='Empresa'
+                    name='empresa'
+                    value={values.empresa}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={isSubmitting}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <CustomTextField
+                    select
+                    fullWidth
+                    label='País'
+                    name='pais'
+                    value={values.pais}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={isSubmitting}
+                  >
+                    {['Perú', 'Colombia', 'Chile', 'Ecuador', 'Bolivia', 'Argentina', 'México', 'España', 'Otro'].map(p => (
+                      <MenuItem key={p} value={p}>{p}</MenuItem>
+                    ))}
+                  </CustomTextField>
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <CustomTextField
+                    select
+                    fullWidth
+                    label='Ciudad'
+                    name='ciudad'
+                    value={values.ciudad}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    disabled={isSubmitting || !values.pais}
+                  >
+                    <MenuItem value=""><em>Seleccione</em></MenuItem>
+                    {['Lima', 'Arequipa', 'Trujillo', 'Chiclayo', 'Piura', 'Iquitos', 'Cusco', 'Huancayo', 'Tacna', 'Ica', 'Juliaca', 'Cajamarca', 'Pucallpa', 'Ayacucho', 'Huánuco', 'Tarapoto', 'Puno', 'Tumbes', 'Otra'].map(c => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
+                  </CustomTextField>
+                </Grid>
+
+                {(values.rol === Rol.ADMIN || values.rol === Rol.PROFESOR) && (
+                  <Grid item xs={12} sm={6}>
+                    <CustomTextField
+                      fullWidth
+                      label='Código Instructor NSC'
+                      name='codigo_instructor_nsc'
+                      value={values.codigo_instructor_nsc}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      disabled={isSubmitting}
+                      helperText="Si se deja vacío, se generará uno automáticamente"
+                    />
+                  </Grid>
                 )}
 
                 {/* Sección: Contacto y Cuenta */}

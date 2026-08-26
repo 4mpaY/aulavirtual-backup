@@ -44,9 +44,5 @@ export function getDefaultFaviconPath(): string {
 }
 
 export function resolveFaviconUrl(configs: Record<string, string>): string {
-  if (configs.SITE_FAVICON?.trim()) {
-    return FAVICON_PUBLIC_PATH
-  }
-
-  return configs.TEMPLATE_LOGO || '/favicon.ico'
+  return '/favicon.jpg'
 }

@@ -109,6 +109,12 @@ const PLANTILLAS_CERTIFICADO = [
     descripcion: 'Fondo crema con bordes ornamentales. Estilo universitario.',
     thumbnail: '/images/plantillas-certificado/elegante.png',
   },
+  {
+    id: 'sout',
+    nombre: 'Sout',
+    descripcion: 'Diseño personalizado con fondo gráfico.',
+    thumbnail: '/certificados/1.png',
+  },
 ]
 
 function CertificadosSettings({ config, onInputChange }: { config: any; onInputChange: (clave: string, valor: string) => void }) {

@@ -85,6 +85,16 @@ export interface CertificadoData {
   // ── Flags ──
   previewFlag: boolean
   frontPageOnly?: boolean
+
+  // ── Extra Datos para SOUT ──
+  homologacion?: boolean
+  usuarioExtra?: {
+    licencia?: string | null
+    equipo_opera?: string | null
+    empresa?: string | null
+    ciudad_pais?: string | null
+  }
+  codigo_instructor_nsc?: string | null
 }
 
 /**

@@ -84,6 +84,8 @@ export async function getPublicCourses(): Promise<{
         ...course,
         precio: Number(course.precio),
         precio_falso: course.precio_falso != null ? Number(course.precio_falso) : null,
+        precio_certificado: course.precio_certificado != null ? Number(course.precio_certificado) : null,
+        precio_oferta: course.precio_oferta != null ? Number(course.precio_oferta) : null,
         es_comprado: userId ? userCourseIds.has(course.id) : false,
         _count: { ...course._count, lecciones: leccionesCount },
         profesor: {

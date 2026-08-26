@@ -320,28 +320,30 @@ export const generarElegante: GeneratorFn = async data => {
 
   let yL = p2Y + 12
 
-  const promedios = Object.values(notasPorModulo).map(e => {
+  const promediosPorModulo = Object.values(notasPorModulo).map(e => {
     const r = e.puntaje / e.count
 
     return r > 20 ? r / 5 : r
   })
 
-  const nf =
-    promedios.length > 0
-      ? promedios.reduce((a, b) => a + b, 0) / promedios.length
+  const notaFinal =
+    promediosPorModulo.length > 0
+      ? promediosPorModulo.reduce((a, b) => a + b, 0) / promediosPorModulo.length
       : (() => {
-          const r = notaInscripcion ?? null
+          const r = notaInscripcion !== null ? Number(notaInscripcion) : null
 
-          return r !== null ? (r > 20 ? r / 5 : r) : null
+          if (r !== null && isNaN(r)) return null
+          
+return r !== null ? (r > 20 ? r / 5 : r) : null
         })()
 
-  const nd = nf !== null ? nf.toFixed(2) : '---'
-  const pct = nf !== null ? Math.min(nf / 20, 1) : 0
+  const notaDisplay = notaFinal !== null ? Number(notaFinal).toFixed(2) : '---'
+  const pct = notaFinal !== null ? Math.min(notaFinal / 20, 1) : 0
 
   doc.setFontSize(T.sc)
   doc.setFont('helvetica', 'bold')
   doc.setTextColor(pr, pg, pb)
-  doc.text(nd, cL + cW2 / 2, yL + 8, { align: 'center' })
+  doc.text(notaDisplay, cL + cW2 / 2, yL + 8, { align: 'center' })
   doc.setFontSize(T.s)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(...MUTED)

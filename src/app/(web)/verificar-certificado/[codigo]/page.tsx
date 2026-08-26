@@ -115,9 +115,9 @@ export default async function VerificarCertificadoPage({ params }: Props) {
   const nombreCompleto =
     (snapshot?.usuario?.nombre && snapshot?.usuario?.apellido)
       ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
-      : `${certificado.usuario.nombre} ${certificado.usuario.apellido}`
+      : `${certificado.usuario?.nombre || ''} ${certificado.usuario?.apellido || ''}`.trim()
 
-  const cursoTitulo = snapshot?.curso?.titulo || certificado.curso.titulo
+  const cursoTitulo = snapshot?.curso?.titulo || certificado.curso?.titulo
   const fechaEmisionVal = snapshot?.fechas?.emision || certificado.emitido_en
 
   const fechaEmision = new Date(fechaEmisionVal).toLocaleDateString('es-PE', {
@@ -248,7 +248,7 @@ export default async function VerificarCertificadoPage({ params }: Props) {
                 <Button
                   variant="text"
                   component={Link}
-                  href={`/cursos/${certificado.curso.slug}`}
+                  href={`/cursos/${certificado.curso?.slug || ''}`}
                   sx={{
                     color: primaryColor,
                     fontWeight: 'bold',

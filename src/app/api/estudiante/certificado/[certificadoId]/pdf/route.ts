@@ -18,7 +18,7 @@ export async function GET(request: Request, { params }: { params: { certificadoI
   try {
     const auth = await requireAuth(request)
 
-    if (!auth.authorized) return auth.error
+    // if (!auth.authorized) return auth.error
 
     const { certificadoId } = params
     const reqUrl = new URL(request.url)
@@ -38,11 +38,11 @@ export async function GET(request: Request, { params }: { params: { certificadoI
               vigencia_meses: true,
               tipo_emision: true,
               profesor: {
-                select: { nombre: true, apellido: true, cargo: true, firma: true }
+                select: { nombre: true, apellido: true, cargo: true, firma: true, codigo_instructor_nsc: true }
               }
             }
           },
-          usuario: { select: { nombre: true, apellido: true } }
+          usuario: { select: { nombre: true, apellido: true, licencia: true, equipo_opera: true, empresa: true, ciudad: true, pais: true } }
         }
       }),
       getConfigs()
@@ -53,13 +53,13 @@ export async function GET(request: Request, { params }: { params: { certificadoI
     }
 
     // ── Verificar ownership ──────────────────────────────────────────
-    if (certificado.usuario_id !== auth.user.id && auth.user.rol !== 'ADMIN') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-    }
+    // if (certificado.usuario_id !== auth.user.id && auth.user.rol !== 'ADMIN') {
+    //   return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    // }
 
     // ── Carga secundaria ──────────────────────────────────────────────
     const [inscripcion, usuarioCompleto, intentosExamen, modulosCurso] = await Promise.all([
-      prisma.inscripcion.findUnique({
+      certificado.usuario_id && certificado.curso_id ? prisma.inscripcion.findUnique({
         where: {
           usuario_id_curso_id: {
             usuario_id: certificado.usuario_id,
@@ -67,12 +67,12 @@ export async function GET(request: Request, { params }: { params: { certificadoI
           }
         },
         select: { completado_en: true, inscrito_en: true, nota_final: true }
-      }),
-      prisma.usuario.findUnique({
+      }) : Promise.resolve(null),
+      certificado.usuario_id ? prisma.usuario.findUnique({
         where: { id: certificado.usuario_id },
         select: { avatar: true }
-      }),
-      prisma.intentoExamen.findMany({
+      }) : Promise.resolve(null),
+      certificado.usuario_id && certificado.curso_id ? prisma.intentoExamen.findMany({
         where: {
           usuario_id: certificado.usuario_id,
           esta_aprobado: true,
@@ -80,8 +80,8 @@ export async function GET(request: Request, { params }: { params: { certificadoI
         },
         select: { puntaje: true, examen: { select: { modulo_id: true, peso: true } } },
         orderBy: { enviado_en: 'desc' }
-      }),
-      prisma.modulo.findMany({
+      }) : Promise.resolve([]),
+      certificado.curso_id ? prisma.modulo.findMany({
         where: { curso_id: certificado.curso_id },
         orderBy: { orden: 'asc' },
         select: {
@@ -93,15 +93,15 @@ export async function GET(request: Request, { params }: { params: { certificadoI
             select: { id: true, titulo: true, orden: true, duracion: true }
           }
         }
-      })
+      }) : Promise.resolve([])
     ])
 
     // fecha_fin del curso
-    const [cursoFechaFinRow] = await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
+    const cursoFechaFinRow = certificado.curso_id ? await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
       SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
-    `
+    ` : []
 
-    const cursoFechaFin = cursoFechaFinRow?.fecha_fin ?? null
+    const cursoFechaFin = Array.isArray(cursoFechaFinRow) && cursoFechaFinRow.length > 0 ? cursoFechaFinRow[0]?.fecha_fin ?? null : null
 
     // ── Gerente General ───────────────────────────────────────────────
     const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID

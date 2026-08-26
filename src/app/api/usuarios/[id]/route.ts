@@ -48,6 +48,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
         esta_activo: true,
         creado_en: true,
         actualizado_en: true,
+        licencia: true,
+        equipo_opera: true,
+        empresa: true,
+        ciudad: true,
+        pais: true,
+        codigo_instructor_nsc: true,
         inscripciones: {
           select: {
             id: true,
@@ -165,7 +171,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         firma: true,
         rol: true,
         esta_activo: true,
-        actualizado_en: true
+        actualizado_en: true,
+        licencia: true,
+        equipo_opera: true,
+        empresa: true,
+        ciudad: true,
+        pais: true,
+        codigo_instructor_nsc: true
       }
     })
 

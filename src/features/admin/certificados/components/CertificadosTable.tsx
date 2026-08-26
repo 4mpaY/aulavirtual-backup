@@ -13,7 +13,8 @@ import {
   TablePagination,
   Tooltip,
   Typography,
-  Chip
+  Chip,
+  Switch
 } from '@mui/material'
 import {
   createColumnHelper,
@@ -70,8 +71,12 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
 
+      const datosManuales = (certificado as any).datos?.usuario
+      const nombre = certificado.usuario?.nombre || datosManuales?.nombre || 'usuario'
+      const codigo = certificado.codigo_verificacion || 'manual'
+
       a.href = url
-      a.download = `certificado-${certificado.usuario.nombre.toLowerCase()}-${certificado.codigo_verificacion}.pdf`
+      a.download = `certificado-${nombre.toLowerCase()}-${codigo}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -111,10 +116,13 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     try {
       const getAuthToken = async () => {
         const s = await getSession()
-        return s?.user?.accessToken ?? null
+
+        
+return s?.user?.accessToken ?? null
       }
 
       const axiosCertificado = new AxiosCertificado({ getAuthToken })
+
       await axiosCertificado.delete(certificado.id)
       
       toast.success('Certificado eliminado correctamente')
@@ -122,6 +130,30 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     } catch (err: any) {
       console.error('Error deleting certificate:', err)
       toast.error('Error al eliminar el certificado')
+    }
+  }
+
+  const handleToggleHomologacion = async (certificado: Certificado) => {
+    try {
+      const getAuthToken = async () => {
+        const s = await getSession()
+
+        
+return s?.user?.accessToken ?? null
+      }
+      
+      const currentHomologacion = (certificado as any).datos?.homologacion || false
+      const newHomologacion = !currentHomologacion
+
+      const axiosCertificado = new AxiosCertificado({ getAuthToken })
+
+      await axiosCertificado.toggleHomologacion(certificado.id, newHomologacion)
+      
+      toast.success(newHomologacion ? 'Homologación activada' : 'Homologación desactivada')
+      refetch()
+    } catch (err: any) {
+      console.error('Error toggling homologation:', err)
+      toast.error('Error al actualizar la homologación')
     }
   }
 
@@ -171,13 +203,16 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         header: 'Curso',
         cell: ({ row }) => {
           const cursoTitulo = row.original.curso?.titulo || (row.original as any).datos?.curso?.titulo || 'Desconocido'
-          return <Typography color='text.primary'>{cursoTitulo}</Typography>
+
+          
+return <Typography color='text.primary'>{cursoTitulo}</Typography>
         }
       }),
       columnHelper.accessor('codigo_verificacion', {
         header: 'Código',
         cell: ({ row }) => {
           const isManual = (row.original as any).datos?.emision_manual === true
+
           if (isManual) {
             return (
               <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.disabled' }}>
@@ -185,7 +220,9 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
               </Typography>
             )
           }
-          return (
+
+          
+return (
             <Typography variant='body2' sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
               {row.original.codigo_verificacion}
             </Typography>
@@ -206,7 +243,9 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         header: 'Emisión',
         cell: ({ row }) => {
           const isManual = (row.original as any).datos?.emision_manual === true
-          return (
+
+          
+return (
             <Chip 
               label={isManual ? 'Manual' : 'Automático'} 
               size="small" 
@@ -219,25 +258,37 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       columnHelper.display({
         id: 'acciones',
         header: () => <Box className='w-full text-right'>Acciones</Box>,
-        cell: ({ row }) => (
-          <Box className='flex items-center justify-end w-full gap-1'>
-            <Tooltip title='Vista previa'>
-              <IconButton onClick={() => handlePreview(row.original)} color='secondary' size='small'>
-                <i className='tabler-eye text-[22px]' />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title='Descargar PDF'>
-              <IconButton onClick={() => handleDownload(row.original)} color='primary' size='small'>
-                <i className='tabler-download text-[22px]' />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title='Eliminar'>
-              <IconButton onClick={() => handleDelete(row.original)} color='error' size='small'>
-                <i className='tabler-trash text-[22px]' />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )
+        cell: ({ row }) => {
+          const homologado = (row.original as any).datos?.homologacion || false
+
+          return (
+            <Box className='flex items-center justify-end w-full gap-1'>
+              <Tooltip title={homologado ? 'Desactivar homologación' : 'Activar homologación'}>
+                <Switch
+                  size="small"
+                  checked={homologado}
+                  onChange={() => handleToggleHomologacion(row.original)}
+                  color="success"
+                />
+              </Tooltip>
+              <Tooltip title='Vista previa'>
+                <IconButton onClick={() => handlePreview(row.original)} color='secondary' size='small'>
+                  <i className='tabler-eye text-[22px]' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Descargar PDF'>
+                <IconButton onClick={() => handleDownload(row.original)} color='primary' size='small'>
+                  <i className='tabler-download text-[22px]' />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Eliminar'>
+                <IconButton onClick={() => handleDelete(row.original)} color='error' size='small'>
+                  <i className='tabler-trash text-[22px]' />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )
+        }
       })
     ],
     [params.page, params.limit]

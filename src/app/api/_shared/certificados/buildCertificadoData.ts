@@ -22,6 +22,7 @@ type CertificadoConRelaciones = {
       apellido: string
       cargo: string | null
       firma: string | null
+      codigo_instructor_nsc?: string | null
     }
     modulos: Array<{
       id: string
@@ -30,7 +31,16 @@ type CertificadoConRelaciones = {
       lecciones: Array<{ id: string; titulo: string; orden: number; duracion: number | null }>
     }>
   }
-  usuario: { nombre: string; apellido: string }
+  usuario: { 
+    nombre: string; 
+    apellido: string;
+    licencia?: string | null;
+    equipo_opera?: string | null;
+    empresa?: string | null;
+    ciudad?: string | null;
+    pais?: string | null;
+    ciudad_pais?: string | null;
+  }
 }
 
 type IntentoData = {
@@ -191,6 +201,18 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     intentosExamen,
     notaInscripcion: snapshot?.nota_final ?? inscripcion?.nota_final ?? null,
     previewFlag,
-    frontPageOnly: frontPageOnly || snapshot?.emision_manual === true
+    frontPageOnly: frontPageOnly,
+    homologacion: snapshot?.homologacion === true,
+    usuarioExtra: {
+      licencia: snapshot?.usuario?.licencia ?? certificado.usuario?.licencia,
+      equipo_opera: snapshot?.usuario?.equipo_opera ?? certificado.usuario?.equipo_opera,
+      empresa: snapshot?.usuario?.empresa ?? certificado.usuario?.empresa,
+      ciudad_pais: snapshot?.usuario?.ciudad_pais ?? certificado.usuario?.ciudad_pais ?? (
+        (snapshot?.usuario?.ciudad || certificado.usuario?.ciudad) && (snapshot?.usuario?.pais || certificado.usuario?.pais)
+          ? `${snapshot?.usuario?.ciudad || certificado.usuario?.ciudad} - ${snapshot?.usuario?.pais || certificado.usuario?.pais}`
+          : (snapshot?.usuario?.ciudad || certificado.usuario?.ciudad) || (snapshot?.usuario?.pais || certificado.usuario?.pais)
+      )
+    },
+    codigo_instructor_nsc: snapshot?.profesor?.codigo_instructor_nsc ?? certificado.curso?.profesor?.codigo_instructor_nsc
   }
 }

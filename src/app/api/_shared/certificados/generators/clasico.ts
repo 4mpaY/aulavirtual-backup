@@ -454,12 +454,14 @@ export const generarClasico: GeneratorFn = async data => {
     promediosPorModulo.length > 0
       ? promediosPorModulo.reduce((a, b) => a + b, 0) / promediosPorModulo.length
       : (() => {
-          const raw = notaInscripcion ?? null
+          const raw = notaInscripcion !== null ? Number(notaInscripcion) : null
 
-          return raw !== null ? (raw > 20 ? raw / 5 : raw) : null
+          if (raw !== null && isNaN(raw)) return null
+          
+return raw !== null ? (raw > 20 ? raw / 5 : raw) : null
         })()
 
-  const notaDisplay = notaFinal !== null ? notaFinal.toFixed(2) : '---'
+  const notaDisplay = notaFinal !== null ? Number(notaFinal).toFixed(2) : '---'
 
   doc.setFontSize(T.score)
   doc.setFont('helvetica', 'bold')

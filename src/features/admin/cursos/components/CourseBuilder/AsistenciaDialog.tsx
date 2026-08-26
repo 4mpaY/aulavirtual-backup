@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+
 import {
   Dialog,
   DialogTitle,
@@ -37,11 +38,13 @@ export function AsistenciaDialog({ open, onClose, cursoId, leccion }: Asistencia
     cursoId,
     leccion?.id || ''
   )
+
   const updateMutation = useUpdateAsistenciasLeccion()
 
   useEffect(() => {
     if (alumnos) {
       const initialAsistencias: Record<string, boolean> = {}
+
       alumnos.forEach((al: any) => {
         initialAsistencias[al.usuarioId] = al.asistio
       })
@@ -58,6 +61,7 @@ export function AsistenciaDialog({ open, onClose, cursoId, leccion }: Asistencia
 
   const handleSave = async () => {
     if (!leccion) return
+
     try {
       const dataToSave = Object.entries(asistencias).map(([usuarioId, asistio]) => ({
         usuario_id: usuarioId,

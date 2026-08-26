@@ -8,6 +8,7 @@ import { handleApiError } from '@/utils/libs/validation'
 export async function POST(request: Request) {
   try {
     const auth = await requireAdmin(request)
+
     if (!auth.authorized) return auth.error
 
     const adminUser = auth.user
@@ -38,15 +39,21 @@ export async function POST(request: Request) {
       // Parse dates (expected format DD/MM/YYYY)
       const parseDateOnly = (s: string) => {
         if (!s) return null
+
+
         // If it's Excel serialized date or string with /
         if (typeof s === 'number') {
            // excel serial date
            const date = new Date((s - (25567 + 1)) * 86400 * 1000)
-           return date
+
+           
+return date
         }
+
         if (typeof s === 'string') {
           if (s.includes('/')) {
             const parts = s.split('/')
+
             if (parts.length === 3) {
               return new Date(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}T12:00:00.000Z`)
             }
@@ -54,7 +61,9 @@ export async function POST(request: Request) {
              return new Date(`${s}T12:00:00.000Z`)
           }
         }
-        return new Date(`${s}T12:00:00.000Z`) // fallback
+
+        
+return new Date(`${s}T12:00:00.000Z`) // fallback
       }
 
       const fEmision = fecha_emision ? parseDateOnly(fecha_emision) : new Date()
@@ -74,8 +83,8 @@ export async function POST(request: Request) {
         profesor: {
           nombre: adminUser.nombre,
           apellido: adminUser.apellido,
-          cargo: adminUser.cargo || 'Director',
-          firma: adminUser.firma || null
+          cargo: (adminUser as any).cargo || 'Director',
+          firma: (adminUser as any).firma || null
         },
         emision_manual: true
       }
@@ -90,6 +99,7 @@ export async function POST(request: Request) {
           datos: snapshot
         }
       })
+
       generados.push({
         id: nuevoCertificado.id,
         nombre: nombres,

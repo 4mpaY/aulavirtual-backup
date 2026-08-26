@@ -42,6 +42,7 @@ export interface CreateCertificadoPayload {
   duracion_override?: string
   docente_nombre_override?: string
   docente_cargo_override?: string
+  homologacion?: boolean
   reemplazar?: boolean
 }
 
