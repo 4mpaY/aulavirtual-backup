@@ -21,13 +21,15 @@ interface Props {
 const ROL_LABELS: Record<string, string> = {
   ADMIN: 'Administrador',
   PROFESOR: 'Profesor',
-  ESTUDIANTE: 'Estudiante'
+  ESTUDIANTE: 'Estudiante',
+  SUPERVISOR: 'Supervisor'
 }
 
 const ROL_COLORS: Record<string, 'default' | 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success'> = {
   ADMIN: 'error',
   PROFESOR: 'primary',
-  ESTUDIANTE: 'success'
+  ESTUDIANTE: 'success',
+  SUPERVISOR: 'warning'
 }
 
 export default function PerfilContactoModal({ open, handleClose, usuario, cursos }: Props) {

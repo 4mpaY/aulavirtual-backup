@@ -24,7 +24,8 @@ interface Props {
 const ROL_LABELS: Record<string, string> = {
   ADMIN: 'Administrador',
   PROFESOR: 'Profesor',
-  ESTUDIANTE: 'Estudiante'
+  ESTUDIANTE: 'Estudiante',
+  SUPERVISOR: 'Supervisor'
 }
 
 export default function MensajePanel({ conversacion, onCerrar }: Props) {

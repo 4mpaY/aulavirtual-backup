@@ -69,7 +69,7 @@ export async function GET() {
         const examenesCurso = alumno.intentos_examen.filter(i => i.examen.curso_id === inscripcion.curso.id);
         
         let notaPromedio = 0;
-        let detallesNotas = [];
+        let detallesNotas: any[] = [];
         
         if (examenesCurso.length > 0) {
           const sum = examenesCurso.reduce((acc, intento) => acc + (intento.puntaje || 0), 0);
