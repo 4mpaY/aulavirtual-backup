@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
+
 import prisma from '@/utils/libs/prisma'
 import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 
@@ -56,7 +58,8 @@ export async function GET(
     return NextResponse.json(alumnos)
   } catch (error: any) {
     console.error('[GET_ASISTENCIAS]', error)
-    return NextResponse.json({ error: 'Error interno del servidor', details: error?.message, stack: error?.stack }, { status: 500 })
+    
+return NextResponse.json({ error: 'Error interno del servidor', details: error?.message, stack: error?.stack }, { status: 500 })
   }
 }
 
@@ -66,6 +69,7 @@ export async function POST(
 ) {
   try {
     const auth = await requireProfesorOrAdmin(req)
+
     if (!auth.authorized) return auth.error
 
     const { leccionId } = params
@@ -100,6 +104,7 @@ export async function POST(
     return NextResponse.json({ success: true, message: 'Asistencias actualizadas correctamente' })
   } catch (error: any) {
     console.error('[POST_ASISTENCIAS]', error)
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+    
+return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

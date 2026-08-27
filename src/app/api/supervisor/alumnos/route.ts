@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { getAuthSession } from "@/utils/libs/auth-helpers";
 import prisma from "@/utils/libs/prisma";
 
@@ -72,6 +73,7 @@ export async function GET() {
         
         if (examenesCurso.length > 0) {
           const sum = examenesCurso.reduce((acc, intento) => acc + (intento.puntaje || 0), 0);
+
           notaPromedio = sum / examenesCurso.length;
           
           detallesNotas = examenesCurso.map(intento => ({
@@ -104,6 +106,7 @@ export async function GET() {
     return NextResponse.json({ alumnos: formattedData });
   } catch (error) {
     console.error("Error al obtener alumnos del supervisor:", error);
-    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+    
+return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }

@@ -126,9 +126,7 @@ module.exports = {
     },
     {
       files: [
-        'src/features/sout/components/ui/**/*',
-        'src/features/sout/components/NavLink.tsx',
-        'src/features/sout/components/SEO.tsx'
+        'src/features/sout/**/*'
       ],
       rules: {
         'import/no-unresolved': 'off',

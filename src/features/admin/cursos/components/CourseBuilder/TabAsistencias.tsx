@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React from 'react'
+
 import {
   Box,
-  Card,
   CircularProgress,
   Typography,
   Avatar,

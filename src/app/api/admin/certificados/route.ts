@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 
 import prisma from '@/utils/libs/prisma'
-import { Prisma } from '@prisma/client'
 
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAdmin } from '@/utils/libs/auth-helpers'
@@ -62,6 +61,7 @@ export async function GET(request: Request) {
         where: { datos: { path: ['emision_manual'], equals: true } },
         select: { id: true }
       })
+
       const manualIds = manuales.map((c: any) => c.id)
 
       if (manualIds.length > 0) {
@@ -180,8 +180,8 @@ export async function POST(request: Request) {
     }
 
     // Verificar si ya existe un certificado para esta combinación
-    const existente = await prisma.certificado.findUnique({
-      where: { usuario_id_curso_id: { usuario_id, curso_id } }
+    const existente = await prisma.certificado.findFirst({
+      where: { usuario_id, curso_id }
     })
 
     if (existente && !reemplazar) {

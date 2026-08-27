@@ -92,12 +92,15 @@ export async function GET(request: Request, { params }: { params: { id: string }
       }) : Promise.resolve([])
     ])
 
-    // fecha_fin del curso (campo con query raw para compatibilidad)
-    const cursoFechaFinRow = certificado.curso_id ? await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
-      SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
-    ` : []
+    // fecha_fin del curso
+    const cursoDetalle = certificado.curso_id
+      ? await prisma.curso.findUnique({
+          where: { id: certificado.curso_id },
+          select: { fecha_fin: true }
+        })
+      : null
 
-    const cursoFechaFin = Array.isArray(cursoFechaFinRow) && cursoFechaFinRow.length > 0 ? cursoFechaFinRow[0]?.fecha_fin ?? null : null
+    const cursoFechaFin = cursoDetalle?.fecha_fin ?? null
 
     // ── Gerente General ───────────────────────────────────────────────
     const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID

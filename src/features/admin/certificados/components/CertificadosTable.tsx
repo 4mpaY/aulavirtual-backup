@@ -111,10 +111,12 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     try {
       const getAuthToken = async () => {
         const s = await getSession()
+
         return s?.user?.accessToken ?? null
       }
 
       const axiosCertificado = new AxiosCertificado({ getAuthToken })
+
       await axiosCertificado.delete(certificado.id)
       
       toast.success('Certificado eliminado correctamente')
@@ -171,13 +173,16 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         header: 'Curso',
         cell: ({ row }) => {
           const cursoTitulo = row.original.curso?.titulo || (row.original as any).datos?.curso?.titulo || 'Desconocido'
-          return <Typography color='text.primary'>{cursoTitulo}</Typography>
+
+          
+return <Typography color='text.primary'>{cursoTitulo}</Typography>
         }
       }),
       columnHelper.accessor('codigo_verificacion', {
         header: 'Código',
         cell: ({ row }) => {
           const isManual = (row.original as any).datos?.emision_manual === true
+
           if (isManual) {
             return (
               <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.disabled' }}>
@@ -185,7 +190,9 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
               </Typography>
             )
           }
-          return (
+
+          
+return (
             <Typography variant='body2' sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
               {row.original.codigo_verificacion}
             </Typography>
@@ -206,7 +213,9 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         header: 'Emisión',
         cell: ({ row }) => {
           const isManual = (row.original as any).datos?.emision_manual === true
-          return (
+
+          
+return (
             <Chip 
               label={isManual ? 'Manual' : 'Automático'} 
               size="small" 
@@ -240,6 +249,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
         )
       })
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [params.page, params.limit]
   )
 

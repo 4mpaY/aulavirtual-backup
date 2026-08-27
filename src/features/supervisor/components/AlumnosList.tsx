@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Eye } from 'lucide-react';
 
 export default function AlumnosList({ alumnos, onOpenCourses }: { alumnos: any[], onOpenCourses: (alumno: any) => void }) {

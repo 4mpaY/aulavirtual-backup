@@ -1,17 +1,21 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
+
 import {
   Alert, Box, Button, Chip, CircularProgress, Divider,
   Stack, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Tooltip, Typography, TextField, LinearProgress, IconButton
+  TableHead, TableRow, Typography, TextField, LinearProgress, IconButton
 } from '@mui/material'
 import * as XLSX from 'xlsx'
 import JSZip from 'jszip'
+// eslint-disable-next-line import/no-unresolved
 import { saveAs } from 'file-saver'
 import { toast } from 'react-toastify'
-import { AxiosCertificado } from '../http/axiosCertificado'
+
 import { getSession } from 'next-auth/react'
+
+import { AxiosCertificado } from '../http/axiosCertificado'
 import AppModal from '@/utils/components/AppModal'
 
 type Step = 'upload' | 'preview' | 'result'
@@ -44,13 +48,16 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
       fecha_culminacion: '01/02/2023',
       fecha_emision: '05/02/2023'
     }])
+
     const wb = XLSX.utils.book_new()
+
     XLSX.utils.book_append_sheet(wb, ws, 'Plantilla')
     XLSX.writeFile(wb, 'plantilla_certificados.xlsx')
   }
 
   const parseFile = (file: File) => {
     const reader = new FileReader()
+
     reader.onload = (evt) => {
       const bstr = evt.target?.result
       const wb = XLSX.read(bstr, { type: 'binary', cellDates: true, dateNF: 'dd/mm/yyyy' })
@@ -68,9 +75,11 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
         fecha_emision: row.fecha_emision || '',
         errores: [] // To track errors per row if needed
       }))
+
       setData(normalizedData)
       setStep('preview')
     }
+
     reader.readAsBinaryString(file)
   }
 
@@ -83,17 +92,20 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
     e.preventDefault()
     setDragging(false)
     const file = e.dataTransfer.files[0]
+
     if (file) handleFile(file)
   }
 
   const handleChange = (index: number, field: string, value: string) => {
     const newData = [...data]
+
     newData[index][field] = value
     setData(newData)
   }
 
   const handleDelete = (index: number) => {
     const newData = [...data]
+
     newData.splice(index, 1)
     setData(newData)
   }
@@ -111,6 +123,7 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
     // validación básica
     for (let i = 0; i < data.length; i++) {
        const row = data[i]
+
        if (!row.nombres || !row.apellidos || !row.nombre_curso) {
            return toast.error(`Fila ${i + 1}: Nombres, apellidos y curso son obligatorios.`)
        }
@@ -122,8 +135,11 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
     try {
       const getAuthToken = async () => {
         const s = await getSession()
-        return s?.user?.accessToken ?? null
+
+        
+return s?.user?.accessToken ?? null
       }
+
       const axiosCertificado = new AxiosCertificado({ getAuthToken })
 
       // 1. Create certificates in DB
@@ -134,7 +150,8 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
       if (generados.length === 0) {
         toast.warning('No se generaron certificados.')
         setLoading(false)
-        return
+        
+return
       }
 
       setGeneradosCount(generados.length)
@@ -142,19 +159,24 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
       
       // 2. Download PDFs and zip
       const zip = new JSZip()
+
       for (let i = 0; i < generados.length; i++) {
         const cert = generados[i]
+
         try {
           const blob = await axiosCertificado.downloadPdf(cert.id, { frontPageOnly: true })
           const filename = `certificado-${cert.nombre.trim()}-${cert.apellido.trim()}-${cert.codigo}.pdf`.toLowerCase().replace(/\s+/g, '-')
+
           zip.file(filename, blob)
         } catch (e) {
           console.error('Error downloading pdf for', cert, e)
         }
+
         setProgress(((i + 1) / generados.length) * 100)
       }
 
       const zipBlob = await zip.generateAsync({ type: 'blob' })
+
       saveAs(zipBlob, `certificados-masivos-${Date.now()}.zip`)
 
       if (onSuccess) onSuccess()
