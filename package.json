@@ -19,6 +19,7 @@
     "db:seed": "dotenv -- tsx ./prisma/seed/main",
     "db:seed:chat": "dotenv -- tsx ./prisma/seed/chat-demo",
     "db:seed:pedidos": "dotenv -- tsx ./prisma/seed/pedidos-demo",
+    "db:seed:diplomados": "dotenv -- tsx ./prisma/seed/diplomados-inpe",
     "db:reset": "dotenv -e .env -- pnpm prisma migrate reset"
   },
   "prisma": {

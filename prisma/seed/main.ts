@@ -114,6 +114,8 @@ async function main() {
     { id, nombre, url: '/uploads/cursos/plataforma-educativa.pdf', tipo: 'archivo' }
   ]
 
+  const DEFAULT_MINIATURA = '/uploads/cursos/default/icono-academy-default.jpg'
+
   await prisma.curso.upsert({
     where: { slug: 'costos-presupuestos-obra-s10' },
     update: {},
@@ -121,7 +123,7 @@ async function main() {
       titulo: 'Elaboración de Costos y Presupuestos de Obra con S10 y MS Project',
       slug: 'costos-presupuestos-obra-s10',
       descripcion: 'Aprende a elaborar presupuestos de obra, análisis de precios unitarios y programación de proyectos usando S10 y MS Project.',
-      miniatura: '/uploads/cursos/default/elaboracion-de-costos.jpg',
+      miniatura: DEFAULT_MINIATURA,
       precio: 179.00,
       precio_falso: 249.00,
       moneda: 'PEN',
@@ -275,7 +277,7 @@ async function main() {
       titulo: 'Valorización y Liquidación de Obras Públicas por Contrata',
       slug: 'valorizacion-liquidacion-obras-contrata',
       descripcion: 'Domina el proceso de valorización mensual y liquidación técnico-financiera de obras públicas ejecutadas por contrata.',
-      miniatura: '/uploads/cursos/default/valorizacion.jpg',
+      miniatura: DEFAULT_MINIATURA,
       precio: 169.00,
       precio_falso: 219.00,
       moneda: 'PEN',
@@ -421,7 +423,7 @@ async function main() {
       titulo: 'Lean Construction: Gestión Eficiente de Proyectos de Construcción',
       slug: 'lean-construction-gestion-proyectos',
       descripcion: 'Aplica la filosofía Lean y sus herramientas para eliminar pérdidas y optimizar la planificación de proyectos de construcción.',
-      miniatura: '/uploads/cursos/default/lean-construccion.jpg',
+      miniatura: DEFAULT_MINIATURA,
       precio: 199.00,
       precio_falso: 259.00,
       moneda: 'PEN',
@@ -569,7 +571,7 @@ async function main() {
       titulo: 'Construcción, Mantenimiento y Rehabilitación de Carreteras',
       slug: 'construccion-mantenimiento-rehabilitacion-carreteras',
       descripcion: 'Conoce el diseño, construcción, mantenimiento y rehabilitación de vías, pavimentos y estructuras viales.',
-      miniatura: '/uploads/cursos/default/constrtuccion-y-mantenimiento.jpg',
+      miniatura: DEFAULT_MINIATURA,
       precio: 189.00,
       precio_falso: 239.00,
       moneda: 'PEN',
@@ -709,7 +711,7 @@ async function main() {
       titulo: 'Seguridad y Salud Ocupacional en Obras de Construcción',
       slug: 'seguridad-salud-ocupacional-obras',
       descripcion: 'Aprende a gestionar la seguridad y salud en el trabajo en obras de construcción conforme a la normativa vigente.',
-      miniatura: '/uploads/cursos/default/seguridad-y-salud.jpg',
+      miniatura: DEFAULT_MINIATURA,
       precio: 149.00,
       precio_falso: 199.00,
       moneda: 'PEN',
@@ -1201,7 +1203,7 @@ async function main() {
         { icono: 'GraduationCap', titulo: 'Asesoría Académica', descripcion: 'Contamos con un foro de preguntas y respuestas en todo nuestros cursos.' },
         { icono: 'Monitor', titulo: 'Plataforma Virtual', descripcion: 'Finalizado el curso o especialización y una vez obtenida la certificación, contarás con un periodo adicional de acceso a la plataforma virtual, conforme a las políticas académicas vigentes.' },
         { icono: 'ClipboardList', titulo: 'Seguimiento académico', descripcion: 'Realizamos seguimiento y asesoramiento continuo en el proceso de tu aprendizaje.' },
-        { icono: 'FileCheck', titulo: 'Certificación Única', descripcion: 'Nuestros certificados cuenta con código único de validación además de un código QR para poder verificar la autenticidad.' },
+        { icono: 'FileCheck', titulo: 'Certificación Única', descripcion: 'Nuestros certificados cuentan con código único de validación además de un código QR para poder verificar la autenticidad.' },
         { icono: 'BookOpen', titulo: 'Cursos asincrónicos', descripcion: 'Contamos con cursos o especializaciones grabadas con acceso 24/7.' },
       ]),
       descripcion: 'Tarjetas de la sección "¿Por qué elegirnos?" en la página principal (JSON)'

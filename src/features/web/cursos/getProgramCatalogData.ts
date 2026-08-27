@@ -1,7 +1,7 @@
 import { AxiosWebCursos } from '@/features/web/cursos/http/axiosWebCursos'
 import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
 
-export async function getProgramCatalogData(tipo: TipoPrograma, token: string | null) {
+export async function getProgramCatalogData(tipo?: TipoPrograma, token: string | null = null) {
   try {
     const axiosWebCursos = new AxiosWebCursos({ getAuthToken: () => token })
     const data = await axiosWebCursos.getCatalog(tipo)

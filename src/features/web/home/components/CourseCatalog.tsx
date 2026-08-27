@@ -51,14 +51,27 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
 
   const searchParams = useSearchParams()
 
-  // Sincronizar selectedCategory con la URL
+  // Sincronizar selectedCategory y selectedTipo con la URL
   useEffect(() => {
     const catId = searchParams.get('categoria')
+    const tipoParam = searchParams.get('tipo')
 
     if (catId) {
       setSelectedCategory(catId)
     } else {
       setSelectedCategory('all')
+    }
+
+    if (tipoParam) {
+      const upper = tipoParam.toUpperCase()
+
+      if (['CURSO', 'DIPLOMADO', 'ESPECIALIZACION', 'SEMINARIO', 'TALLER'].includes(upper)) {
+        setSelectedTipo(upper)
+      } else {
+        setSelectedTipo('all')
+      }
+    } else {
+      setSelectedTipo('all')
     }
   }, [searchParams])
 
