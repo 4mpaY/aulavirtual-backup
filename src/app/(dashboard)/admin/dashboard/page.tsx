@@ -16,10 +16,7 @@ export default async function Page() {
   const options = await getAuthOptions()
   const session = await getServerSession(options)
 
-  console.log('[Dashboard Page] Server Session:', session ? 'Encontrada' : 'Nula')
-
   if (!session) {
-    console.log('[Dashboard Page] Redirigiendo a /login (Sesión Nula)')
     redirect('/login')
   }
 

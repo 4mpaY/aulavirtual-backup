@@ -23,19 +23,6 @@ export function verifyVadsSignature(params: URLSearchParams, claveHash: string):
 
   const computed = createHmac('sha256', claveHash).update(signatureContents).digest('base64')
 
-  // TEMPORAL: diagnóstico para depurar la verificación de firma end-to-end.
-  // No se loguea la clave en sí, solo metadatos para detectar espacios/saltos de línea invisibles.
-  console.log('[IZIPAY_SIGNATURE][DEBUG] vadsKeys (orden usado):', JSON.stringify(vadsKeys))
-  console.log(
-    '[IZIPAY_SIGNATURE][DEBUG] claveHash length:', claveHash.length,
-    '| trimmed length:', claveHash.trim().length,
-    '| tiene \\r:', claveHash.includes('\r'),
-    '| tiene \\n:', claveHash.includes('\n'),
-    '| tiene espacio:', claveHash.includes(' ')
-  )
-  console.log('[IZIPAY_SIGNATURE][DEBUG] Computado:', computed)
-  console.log('[IZIPAY_SIGNATURE][DEBUG] Recibido:', receivedSignature)
-
   return safeCompare(computed, receivedSignature)
 }
 

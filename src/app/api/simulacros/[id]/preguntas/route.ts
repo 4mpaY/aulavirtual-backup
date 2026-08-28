@@ -1,7 +1,5 @@
 export const dynamic = 'force-dynamic'
 
-import { randomUUID } from 'crypto'
-
 import { z } from 'zod'
 
 import prisma from '@/utils/libs/prisma'
@@ -27,27 +25,25 @@ const preguntaSchema = z.object({
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
-    const preguntas: any[] = await prisma.$queryRaw`
-      SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden
-      FROM "PreguntaSimulacro"
-      WHERE simulacro_id = ${params.id}
-      ORDER BY orden ASC
-    `
+    const preguntas = await prisma.preguntaSimulacro.findMany({
+      where: { simulacro_id: params.id },
+      orderBy: { orden: 'asc' },
+      select: {
+        id: true,
+        enunciado: true,
+        tema: true,
+        fundamento: true,
+        audio_url: true,
+        imagen_url: true,
+        orden: true,
+        opciones: {
+          orderBy: { orden: 'asc' },
+          select: { id: true, texto: true, es_correcta: true, orden: true }
+        }
+      }
+    })
 
-    const preguntasConOpciones = await Promise.all(
-      preguntas.map(async (pq: any) => {
-        const opciones: any[] = await prisma.$queryRaw`
-          SELECT id, texto, es_correcta, orden
-          FROM "OpcionPreguntaSimulacro"
-          WHERE pregunta_id = ${pq.id}
-          ORDER BY orden ASC
-        `
-
-        return { ...pq, opciones }
-      })
-    )
-
-    return ApiResponse.success(request, preguntasConOpciones)
+    return ApiResponse.success(request, preguntas)
   } catch (error) {
     return handleApiError(error, request)
   }
@@ -59,11 +55,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
     if (!auth.authorized) return auth.error
 
-    const simulacro: any[] = await prisma.$queryRaw`
-      SELECT id FROM "Simulacro" WHERE id = ${params.id} LIMIT 1
-    `
+    const simulacro = await prisma.simulacro.findUnique({
+      where: { id: params.id },
+      select: { id: true }
+    })
 
-    if (simulacro.length === 0) return ApiResponse.error(request, 'Simulacro no encontrado', 404)
+    if (!simulacro) return ApiResponse.error(request, 'Simulacro no encontrado', 404)
 
     const body = await request.json()
     const parsed = preguntaSchema.safeParse(body)
@@ -71,30 +68,40 @@ export async function POST(request: Request, { params }: { params: { id: string 
     if (!parsed.success) return ApiResponse.error(request, 'Datos inválidos', 400)
 
     const { enunciado, tema, fundamento, audio_url, imagen_url, orden, opciones } = parsed.data
-    const preguntaId = randomUUID()
 
-    await prisma.$executeRaw`
-      INSERT INTO "PreguntaSimulacro" (id, simulacro_id, enunciado, tema, fundamento, audio_url, imagen_url, orden, creado_en)
-      VALUES (${preguntaId}, ${params.id}, ${enunciado}, ${tema ?? null}, ${fundamento ?? null}, ${audio_url ?? null}, ${imagen_url ?? null}, ${orden}, NOW())
-    `
+    const pregunta = await prisma.preguntaSimulacro.create({
+      data: {
+        simulacro_id: params.id,
+        enunciado,
+        tema: tema ?? null,
+        fundamento: fundamento ?? null,
+        audio_url: audio_url ?? null,
+        imagen_url: imagen_url ?? null,
+        orden,
+        opciones: {
+          create: opciones.map(op => ({
+            texto: op.texto,
+            es_correcta: op.es_correcta,
+            orden: op.orden
+          }))
+        }
+      },
+      select: {
+        id: true,
+        enunciado: true,
+        tema: true,
+        fundamento: true,
+        audio_url: true,
+        imagen_url: true,
+        orden: true,
+        opciones: {
+          orderBy: { orden: 'asc' },
+          select: { id: true, texto: true, es_correcta: true, orden: true }
+        }
+      }
+    })
 
-    for (const op of opciones) {
-      await prisma.$executeRaw`
-        INSERT INTO "OpcionPreguntaSimulacro" (id, pregunta_id, texto, es_correcta, orden)
-        VALUES (${randomUUID()}, ${preguntaId}, ${op.texto}, ${op.es_correcta}, ${op.orden})
-      `
-    }
-
-    // Devolver la pregunta creada con sus opciones
-    const [pregunta]: any[] = await prisma.$queryRaw`
-      SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden FROM "PreguntaSimulacro" WHERE id = ${preguntaId}
-    `
-
-    const opcionesCreadas: any[] = await prisma.$queryRaw`
-      SELECT id, texto, es_correcta, orden FROM "OpcionPreguntaSimulacro" WHERE pregunta_id = ${preguntaId} ORDER BY orden
-    `
-
-    return ApiResponse.success(request, { ...pregunta, opciones: opcionesCreadas }, 201)
+    return ApiResponse.success(request, pregunta, 201)
   } catch (error) {
     return handleApiError(error, request)
   }

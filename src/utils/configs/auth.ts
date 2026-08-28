@@ -260,7 +260,7 @@ export const getAuthOptions = async (): Promise<NextAuthOptions> => {
 
     secret: process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET,
 
-    debug: process.env.NODE_ENV === 'development'
+    debug: process.env.NEXTAUTH_DEBUG === 'true'
   }
 }
 

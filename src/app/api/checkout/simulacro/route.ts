@@ -23,14 +23,14 @@ export async function POST(request: Request) {
     }
 
     // 1. Obtener simulacro y verificar inscripción existente
-    const simulacros: any[] = await prisma.$queryRaw`
-      SELECT id, titulo, precio, moneda, es_gratis, estado FROM "Simulacro" WHERE id = ${simulacroId} LIMIT 1`
+    const simulacro = await prisma.simulacro.findUnique({
+      where: { id: simulacroId },
+      select: { id: true, titulo: true, precio: true, moneda: true, es_gratis: true, estado: true }
+    })
 
-    if (simulacros.length === 0) {
+    if (!simulacro) {
       return ApiResponse.error(request, 'Simulacro no encontrado', 404)
     }
-
-    const simulacro = simulacros[0]
 
     if (simulacro.estado !== 'PUBLICADO') {
       return ApiResponse.error(request, 'El simulacro no está disponible', 400)
@@ -41,19 +41,23 @@ export async function POST(request: Request) {
     }
 
     // Verificar inscripción existente
-    const inscExistente: any[] = await prisma.$queryRaw`
-      SELECT id FROM inscripciones_simulacro
-      WHERE usuario_id = ${auth.user.id} AND simulacro_id = ${simulacroId} AND estado = 'ACTIVO'
-      LIMIT 1`
+    const inscExistente = await prisma.inscripcionSimulacro.findFirst({
+      where: {
+        usuario_id: auth.user.id,
+        simulacro_id: simulacroId,
+        estado: 'ACTIVO'
+      },
+      select: { id: true }
+    })
 
-    if (inscExistente.length > 0) {
+    if (inscExistente) {
       return ApiResponse.error(request, 'Ya tienes acceso a este simulacro', 400)
     }
 
     const total = Number(simulacro.precio)
     const moneda: string = simulacro.moneda || 'PEN'
 
-    // 2. Crear pedido
+    // 2. Crear pedido con su detalle
     const pedido = await prisma.pedido.create({
       data: {
         usuario_id: auth.user.id,
@@ -63,16 +67,18 @@ export async function POST(request: Request) {
         tipo_comprobante: tipoComprobante,
         numero_comprobante: numeroComprobante,
         ...(gateway === 'MANUAL' && metodoPagoManualId ? { metodo_pago_manual_id: metodoPagoManualId } : {}),
+        detalles: {
+          create: {
+            simulacro_id: simulacroId,
+            precio_unitario: simulacro.precio,
+            descuento: 0,
+            subtotal: simulacro.precio,
+            total: simulacro.precio,
+            cantidad: 1
+          }
+        }
       }
     })
-
-    // Insertar detalle con simulacro_id via raw (Prisma client no conoce esta columna aún)
-    const { randomUUID } = await import('crypto')
-    const detalleId = randomUUID()
-
-    await prisma.$executeRaw`
-      INSERT INTO detalles_pedido (id, pedido_id, simulacro_id, precio_unitario, descuento, subtotal, total, cantidad)
-      VALUES (${detalleId}, ${pedido.id}, ${simulacroId}, ${simulacro.precio}, 0, ${simulacro.precio}, ${simulacro.precio}, 1)`
 
     // 3. Gateway MANUAL
     if (gateway === 'MANUAL') {
@@ -172,10 +178,6 @@ export async function POST(request: Request) {
         customer: { email: auth.user.email || undefined }
       }
 
-      // TEMPORAL: diagnóstico para confirmar qué se envía a Izipay y qué responde.
-      console.log('[IZIPAY_SIM][DEBUG] appUrl:', appUrl, '| returnUrl:', returnUrl)
-      console.log('[IZIPAY_SIM][DEBUG] Payload CreatePaymentOrder:', JSON.stringify(orderPayload))
-
       const orderResponse = await fetch(`${endpoint}/api-payment/V4/Charge/CreatePaymentOrder`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: basicAuth },
@@ -183,8 +185,6 @@ export async function POST(request: Request) {
       })
 
       const orderData = await orderResponse.json()
-
-      console.log('[IZIPAY_SIM][DEBUG] Respuesta CreatePaymentOrder:', JSON.stringify(orderData))
 
       if (!orderResponse.ok || orderData.status !== 'SUCCESS') {
         console.error('[IZIPAY_SIM] Error creando orden de pago:', orderData)

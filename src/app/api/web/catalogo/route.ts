@@ -66,7 +66,13 @@ export async function GET(request: Request) {
         include: {
           profesor: { select: { id: true, nombre: true, apellido: true, avatar: true } },
           categoria: { select: { id: true, nombre: true, slug: true } },
-          _count: { select: { modulos: true } }
+          modulos: {
+            select: {
+              _count: {
+                select: { lecciones: true }
+              }
+            }
+          }
         },
         orderBy: { creado_en: 'desc' }
       }),
@@ -88,19 +94,19 @@ export async function GET(request: Request) {
       userCourseIds = new Set(inscripciones.map(i => i.curso_id))
     }
 
-    const coursesWithLecciones = await Promise.all(
-      courses.map(async course => {
-        const leccionesCount = await prisma.leccion.count({
-          where: { modulo: { curso_id: course.id } }
-        })
+    const coursesWithLecciones = courses.map(course => {
+      const { modulos, ...rest } = course
+      const leccionesCount = (modulos || []).reduce((acc, m) => acc + (m._count?.lecciones || 0), 0)
 
-        return {
-          ...course,
-          es_comprado: userId ? userCourseIds.has(course.id) : false,
-          _count: { ...course._count, lecciones: leccionesCount }
+      return {
+        ...rest,
+        es_comprado: userId ? userCourseIds.has(course.id) : false,
+        _count: {
+          modulos: modulos?.length || 0,
+          lecciones: leccionesCount
         }
-      })
-    )
+      }
+    })
 
     return ApiResponse.success(request, {
       courses: coursesWithLecciones,

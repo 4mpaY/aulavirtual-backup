@@ -168,24 +168,35 @@ export async function POST(request: Request, { params }: { params: { examenId: s
       })
 
       if (examenesCurso.length > 0) {
-        // Obtener mejor intento para cada examen
-        const intentosPorExamen = await Promise.all(
-          examenesCurso.map(async ex => {
-            const mejorIntento = await tx.intentoExamen.findFirst({
-              where: {
-                usuario_id: auth.user.id,
-                examen_id: ex.id
-              },
-              orderBy: { puntaje: 'desc' }
-            })
+        const examIds = examenesCurso.map(ex => ex.id)
+        const todosLosIntentos = await tx.intentoExamen.findMany({
+          where: {
+            usuario_id: auth.user.id,
+            examen_id: { in: examIds }
+          },
+          select: {
+            examen_id: true,
+            puntaje: true
+          }
+        })
 
-            return {
-              examenId: ex.id,
-              peso: ex.peso,
-              puntaje: mejorIntento?.puntaje ?? null
-            }
-          })
-        )
+        const mejorPuntajeMap = new Map<string, number>()
+
+        for (const it of todosLosIntentos) {
+          if (it.puntaje == null) continue
+
+          const actual = mejorPuntajeMap.get(it.examen_id)
+
+          if (actual === undefined || it.puntaje > actual) {
+            mejorPuntajeMap.set(it.examen_id, it.puntaje)
+          }
+        }
+
+        const intentosPorExamen = examenesCurso.map(ex => ({
+          examenId: ex.id,
+          peso: ex.peso,
+          puntaje: mejorPuntajeMap.get(ex.id) ?? null
+        }))
 
         // Calcular nota ponderada: Σ(puntaje[i] × peso[i]) / Σ(peso[i])
         const intentosConPuntaje = intentosPorExamen.filter(i => i.puntaje !== null)

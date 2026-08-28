@@ -1,10 +1,20 @@
 import { PrismaClient } from '@prisma/client'
 
+const getDatabaseUrl = () => {
+  const url = process.env.DATABASE_URL || ''
+
+  if (!url || url.includes('connection_limit')) return url
+
+  const separator = url.includes('?') ? '&' : '?'
+
+  return `${url}${separator}connection_limit=10&pool_timeout=30`
+}
+
 const prismaClientSingleton = () => {
   return new PrismaClient({
     datasources: {
       db: {
-        url: `${process.env.DATABASE_URL}&connection_limit=10&pool_timeout=30`,
+        url: getDatabaseUrl(),
       },
     },
   })

@@ -13,37 +13,49 @@ export async function GET(request: Request) {
 
     const { user } = auth
 
-    // Usamos queryRaw porque el cliente Prisma aún no tiene el modelo inscripcionSimulacro
-    // (pendiente de regenerar con pnpm db:client:generate)
-    const rows = await prisma.$queryRaw<any[]>`
-      SELECT
-        s.id,
-        s.titulo,
-        s.slug,
-        s.miniatura,
-        s.nivel,
-        s.duracion,
-        s.numero_preguntas,
-        s.area_tematica,
-        s.es_gratis,
-        s.precio,
-        s.moneda,
-        ins.id        AS inscripcion_id,
-        ins.inscrito_en,
-        ins.intentos,
-        ins.mejor_puntaje
-      FROM inscripciones_simulacro ins
-      JOIN "Simulacro" s ON s.id = ins.simulacro_id
-      WHERE ins.usuario_id = ${user.id}
-        AND ins.estado = 'ACTIVO'
-      ORDER BY ins.inscrito_en DESC
-    `
+    const inscripciones = await prisma.inscripcionSimulacro.findMany({
+      where: {
+        usuario_id: user.id,
+        estado: 'ACTIVO'
+      },
+      include: {
+        simulacro: {
+          select: {
+            id: true,
+            titulo: true,
+            slug: true,
+            miniatura: true,
+            nivel: true,
+            duracion: true,
+            numero_preguntas: true,
+            area_tematica: true,
+            es_gratis: true,
+            precio: true,
+            moneda: true
+          }
+        }
+      },
+      orderBy: {
+        inscrito_en: 'desc'
+      }
+    })
 
-    const simulacros = rows.map(r => ({
-      ...r,
-      precio: Number(r.precio),
-      intentos: Number(r.intentos),
-      mejor_puntaje: r.mejor_puntaje != null ? Number(r.mejor_puntaje) : null,
+    const simulacros = inscripciones.map(ins => ({
+      id: ins.simulacro.id,
+      titulo: ins.simulacro.titulo,
+      slug: ins.simulacro.slug,
+      miniatura: ins.simulacro.miniatura,
+      nivel: ins.simulacro.nivel,
+      duracion: ins.simulacro.duracion,
+      numero_preguntas: ins.simulacro.numero_preguntas,
+      area_tematica: ins.simulacro.area_tematica,
+      es_gratis: ins.simulacro.es_gratis,
+      precio: Number(ins.simulacro.precio),
+      moneda: ins.simulacro.moneda,
+      inscripcion_id: ins.id,
+      inscrito_en: ins.inscrito_en,
+      intentos: ins.intentos,
+      mejor_puntaje: ins.mejor_puntaje != null ? Number(ins.mejor_puntaje) : null
     }))
 
     return ApiResponse.success(request, { simulacros })

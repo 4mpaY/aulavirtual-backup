@@ -28,9 +28,7 @@ export function MiPedidoDetallePage() {
   const router = useRouter()
   const { id } = params
 
-  const { data, isLoading, isError, error } = useMiPedido(id as string)
-
-  console.log('[MiPedidoDetalle] id:', id, 'data:', data, 'isError:', isError, 'error:', error)
+  const { data, isLoading, isError } = useMiPedido(id as string)
 
   if (isLoading) return <Card><CardContent>Cargando información del pedido...</CardContent></Card>
   if (isError || !data?.data) return <Card><CardContent>Error al cargar el pedido o no existe.</CardContent></Card>

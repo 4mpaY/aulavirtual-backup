@@ -6,7 +6,6 @@ import { Box, Button, Chip, CircularProgress, Divider, Tab, Tabs, TextField, Typ
 import { Icon } from '@iconify/react'
 import { useSnackbar } from 'notistack'
 import axios from 'axios'
-import * as XLSX from 'xlsx'
 
 import { getBaseURL } from '@/utils/env'
 import AppModal from '@/utils/components/AppModal'
@@ -100,7 +99,8 @@ function parsearExcel(rows: any[]): PreguntaParseada[] {
   })
 }
 
-function descargarPlantillaExcel() {
+async function descargarPlantillaExcel() {
+  const XLSX = await import('xlsx')
   const datos = [
     COLUMNAS_EXCEL,
     ['¿Cuál es la capital de Perú?', 'Geografía', 'Lima es la capital desde la fundación virreinal.', 'Lima', 'Cusco', 'Arequipa', 'Trujillo', '', '', 'A'],
@@ -150,7 +150,8 @@ export default function ImportarPreguntasModal({ open, onClose, simulacroId, tok
 
     const reader = new FileReader()
 
-    reader.onload = e => {
+    reader.onload = async e => {
+      const XLSX = await import('xlsx')
       const data = new Uint8Array(e.target?.result as ArrayBuffer)
       const wb = XLSX.read(data, { type: 'array' })
       const ws = wb.Sheets[wb.SheetNames[0]]

@@ -74,39 +74,58 @@ export async function GET(request: Request) {
           categoria: {
             select: { id: true, nombre: true }
           },
+          modulos: {
+            select: {
+              _count: {
+                select: { lecciones: true }
+              }
+            }
+          },
           _count: {
-            select: { modulos: true, inscripciones: true }
+            select: { modulos: true, inscripciones: true, valoraciones: true }
           }
         }
       }),
       prisma.curso.count({ where })
     ])
 
-    // Contar lecciones por curso y obtener promedio de valoraciones
-    const cursosConEstadisticas = await Promise.all(
-      cursos.map(async curso => {
-        const [leccionesCount, valoracionesStats] = await Promise.all([
-          prisma.leccion.count({
-            where: { modulo: { curso_id: curso.id } }
-          }),
-          prisma.valoracionCurso.aggregate({
-            where: { curso_id: curso.id },
-            _avg: { puntuacion: true },
-            _count: { id: true }
-          })
-        ])
+    const cursoIds = cursos.map(c => c.id)
 
-        return {
-          ...curso,
-          _count: {
-            ...curso._count,
-            lecciones: leccionesCount,
-            valoraciones: valoracionesStats._count.id
-          },
-          promedio_valoracion: valoracionesStats._avg.puntuacion || 0
+    const valoracionesStats = cursoIds.length > 0
+      ? await prisma.valoracionCurso.groupBy({
+          by: ['curso_id'],
+          where: { curso_id: { in: cursoIds } },
+          _avg: { puntuacion: true },
+          _count: { id: true }
+        })
+      : []
+
+    const valoracionesMap = new Map(
+      valoracionesStats.map(stat => [
+        stat.curso_id,
+        {
+          promedio: stat._avg.puntuacion || 0,
+          total: stat._count.id || 0
         }
-      })
+      ])
     )
+
+    const cursosConEstadisticas = cursos.map(curso => {
+      const { modulos, ...rest } = curso
+      const leccionesCount = (modulos || []).reduce((acc, m) => acc + (m._count?.lecciones || 0), 0)
+      const valInfo = valoracionesMap.get(curso.id)
+
+      return {
+        ...rest,
+        _count: {
+          ...curso._count,
+          modulos: modulos?.length || 0,
+          lecciones: leccionesCount,
+          valoraciones: valInfo?.total || curso._count.valoraciones || 0
+        },
+        promedio_valoracion: valInfo?.promedio || 0
+      }
+    })
 
     return ApiResponse.success(request, {
       cursos: cursosConEstadisticas,

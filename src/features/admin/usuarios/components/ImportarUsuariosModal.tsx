@@ -7,8 +7,6 @@ import {
   Stack, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Tooltip, Typography
 } from '@mui/material'
-import * as XLSX from 'xlsx'
-
 import AppModal from '@/utils/components/AppModal'
 import { useImportarUsuarios } from '../hooks/useUsuarios'
 
@@ -61,7 +59,8 @@ function validarFila(row: any, fila: number): FilaPreview {
   return { fila, nombre, apellido, correo, contrasena, numero_documento, celular, curso_id, errores }
 }
 
-function descargarPlantilla() {
+async function descargarPlantilla() {
+  const XLSX = await import('xlsx')
   const datos = [
     COLUMNAS_PLANTILLA,
     ['Juan', 'Pérez', 'juan.perez@ejemplo.com', 'clave1234', '12345678', '987654321', ''],
@@ -74,14 +73,14 @@ function descargarPlantilla() {
   XLSX.writeFile(wb, 'plantilla_usuarios.xlsx')
 }
 
-function descargarReporteErrores(errores: { fila: number; correo: string; mensaje: string }[]) {
+async function descargarReporteErrores(errores: { fila: number; correo: string; mensaje: string }[]) {
+  const XLSX = await import('xlsx')
   const datos = [
     ['Fila', 'Correo', 'Motivo del error'],
     ...errores.map(e => [e.fila, e.correo, e.mensaje])
   ]
 
   const ws = XLSX.utils.aoa_to_sheet(datos)
-
   const wb = XLSX.utils.book_new()
 
   XLSX.utils.book_append_sheet(wb, ws, 'Errores')
@@ -106,7 +105,8 @@ export default function ImportarUsuariosModal({ open, handleClose }: ImportarUsu
   const parsearArchivo = (file: File) => {
     const reader = new FileReader()
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
+      const XLSX = await import('xlsx')
       const data = new Uint8Array(e.target?.result as ArrayBuffer)
       const wb = XLSX.read(data, { type: 'array' })
       const ws = wb.Sheets[wb.SheetNames[0]]

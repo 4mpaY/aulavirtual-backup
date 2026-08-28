@@ -39,9 +39,11 @@ export async function GET(request: Request) {
       prisma.curso.count({ where: { estado: 'PUBLICADO' } }),
       prisma.pedido.count({ where: { estado: 'PENDIENTE' } }),
       prisma.certificado.count(),
-      prisma.pedido.findMany({
+      // ✅ Aggregate: no carga filas a memoria, una sola query SQL
+      prisma.pedido.aggregate({
         where: { estado: 'COMPLETADO' },
-        select: { total: true }
+        _sum: { total: true },
+        _count: { id: true }
       }),
       prisma.pedido.findMany({
         where: { estado: 'COMPLETADO', pagado_en: { gte: inicioHistorico } },
@@ -83,7 +85,8 @@ export async function GET(request: Request) {
       })
     ])
 
-    const totalIngresos = pedidosCompletados.reduce((acc, p) => acc + Number(p.total), 0)
+    const totalIngresos = Number(pedidosCompletados._sum.total ?? 0)
+    const ticketPromedio = pedidosCompletados._count.id > 0 ? totalIngresos / pedidosCompletados._count.id : 0
 
     const ingresosMesActual = pedidosParaSerie
       .filter(p => p.pagado_en && p.pagado_en >= inicioMesActual)
@@ -99,8 +102,6 @@ export async function GET(request: Request) {
         : ingresosMesActual > 0
           ? 100
           : 0
-
-    const ticketPromedio = pedidosCompletados.length > 0 ? totalIngresos / pedidosCompletados.length : 0
 
     const ventasPorMes = Array.from({ length: 6 }).map((_, i) => {
       const mesInicio = new Date(ahora.getFullYear(), ahora.getMonth() - (5 - i), 1)

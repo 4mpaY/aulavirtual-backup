@@ -28,7 +28,6 @@ import {
   useReactTable,
   getSortedRowModel
 } from '@tanstack/react-table'
-import * as XLSX from 'xlsx'
 
 import classnames from 'classnames'
 
@@ -119,6 +118,7 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
         Fecha: p.creado_en ? new Date(p.creado_en).toLocaleDateString('es-PE') : ''
       }))
 
+      const XLSX = await import('xlsx')
       const ws = XLSX.utils.json_to_sheet(filas)
       const wb = XLSX.utils.book_new()
 

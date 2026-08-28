@@ -21,8 +21,6 @@ import {
   Button
 } from '@mui/material'
 
-import * as XLSX from 'xlsx'
-
 import AppModal from '@/utils/components/AppModal'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 
@@ -117,7 +115,7 @@ export default function CourseStudentsModal({
     }
   }
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     if (!data?.alumnos || data.alumnos.length === 0) return
 
     const exportData = data.alumnos.map((a: any) => {
@@ -151,6 +149,7 @@ export default function CourseStudentsModal({
       return baseObj
     })
 
+    const XLSX = await import('xlsx')
     const worksheet = XLSX.utils.json_to_sheet(exportData)
     const workbook = XLSX.utils.book_new()
 

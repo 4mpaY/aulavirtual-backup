@@ -36,8 +36,9 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'Se requiere al menos un artículo en el carrito', 400)
     }
 
-    // 1. Obtener cursos/ebooks y verificar accesos/inscripciones existentes en paralelo
-    const [cursos, ebooks, inscripcionesExistentes, accesosExistentes] = await Promise.all([
+    // 1. Obtener configs, cursos/ebooks y verificar accesos/inscripciones existentes en paralelo
+    const [configs, cursos, ebooks, inscripcionesExistentes, accesosExistentes] = await Promise.all([
+      getConfigs(),
       hasCursos
         ? prisma.curso.findMany({ where: { id: { in: cursoIds } } })
         : Promise.resolve([]),
@@ -177,8 +178,7 @@ export async function POST(request: Request) {
 
     // 5. Enviar correo de confirmación
     try {
-      const mailConfigs = await getConfigs()
-      const platformName = mailConfigs.TEMPLATE_NAME || 'Aula Virtual'
+      const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
       const emailHtml = getOrderConfirmationTemplate({
@@ -243,7 +243,6 @@ export async function POST(request: Request) {
 
     // 8. Izipay (Lyra / MiCuentaWeb - Charge/CreatePaymentOrder)
     if (gateway === 'IZIPAY') {
-      const configs = await getConfigs()
       const endpoint = configs.IZIPAY_ENDPOINT
       const restUser = configs.IZIPAY_REST_USER
       const restPassword = configs.IZIPAY_REST_PASSWORD
@@ -252,23 +251,19 @@ export async function POST(request: Request) {
         return ApiResponse.error(request, 'La pasarela Izipay no está configurada correctamente', 500)
       }
 
-      // IMPORTANTE: `request.url` en Next.js standalone (Docker) se construye con las
-      // variables HOSTNAME/PORT del propio proceso (ej. "0.0.0.0:3000"), no con el Host
-      // real del cliente detrás de nginx. Los headers x-forwarded-* sí reflejan el host
-      // público real (confirmado con tráfico real de Izipay), así que se leen directo.
       const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host')
       const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
 
       const appUrl = (
         (forwardedHost ? `${forwardedProto}://${forwardedHost}` : '') ||
-        process.env.APP_URL ||
         process.env.NEXT_PUBLIC_APP_URL ||
-        ''
+        process.env.APP_URL ||
+        new URL(request.url).origin
       ).replace(/\/$/, '')
 
       const returnUrl = `${appUrl}/api/izipay/return?pedidoId=${pedido.id}`
       const basicAuth = 'Basic ' + Buffer.from(`${restUser}:${restPassword}`).toString('base64')
-      const expirationDate = new Date(Date.now() + 30 * 60 * 1000).toISOString()
+      const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
 
       const orderPayload = {
         amount: Math.round(Number(total) * 100),
@@ -282,10 +277,6 @@ export async function POST(request: Request) {
         customer: { email: auth.user.email || undefined }
       }
 
-      // TEMPORAL: diagnóstico para confirmar qué se envía a Izipay y qué responde.
-      console.log('[IZIPAY][DEBUG] appUrl:', appUrl, '| returnUrl:', returnUrl)
-      console.log('[IZIPAY][DEBUG] Payload CreatePaymentOrder:', JSON.stringify(orderPayload))
-
       const orderResponse = await fetch(`${endpoint}/api-payment/V4/Charge/CreatePaymentOrder`, {
         method: 'POST',
         headers: {
@@ -297,26 +288,17 @@ export async function POST(request: Request) {
 
       const orderData = await orderResponse.json()
 
-      console.log('[IZIPAY][DEBUG] Respuesta CreatePaymentOrder:', JSON.stringify(orderData))
-
       if (!orderResponse.ok || orderData.status !== 'SUCCESS') {
         console.error('[IZIPAY] Error creando orden de pago:', orderData)
 
         return ApiResponse.error(request, 'Error al iniciar el pago con Izipay', 500)
       }
 
-      const paymentURL = orderData.answer.paymentURL
-
-      await prisma.pedido.update({
-        where: { id: pedido.id },
-        data: { url_pago: paymentURL }
-      })
-
       return ApiResponse.success(
         request,
         {
-          message: 'Pasarela preparada correctamente',
-          paymentURL,
+          message: 'Orden de pago Izipay creada',
+          paymentUrl: orderData.answer.paymentURL,
           pedidoId: pedido.id
         },
         201
@@ -325,7 +307,6 @@ export async function POST(request: Request) {
 
     // 9. Culqi
     if (gateway === 'CULQI') {
-      const configs = await getConfigs()
       const privateKey = configs.CULQI_PRIVATE_KEY
 
       if (!privateKey || privateKey.includes('placeholder')) {
@@ -383,7 +364,6 @@ export async function POST(request: Request) {
 
     // 10. Mercado Pago
     if (gateway === 'MERCADOPAGO') {
-      const configs = await getConfigs()
       const accessToken = configs.MP_ACCESS_TOKEN
 
       if (!accessToken) {
