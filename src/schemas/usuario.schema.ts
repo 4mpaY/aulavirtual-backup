@@ -68,7 +68,8 @@ export const crearUsuarioSchema = z.object({
   empresa: z.string().trim().optional().or(z.literal('')),
   ciudad: z.string().trim().optional().or(z.literal('')),
   pais: z.string().trim().optional().or(z.literal('')),
-  codigo_instructor_nsc: z.string().trim().optional().or(z.literal(''))
+  codigo_instructor_nsc: z.string().trim().optional().or(z.literal('')),
+  foto_auto: z.string().trim().url('URL de foto inválida').optional().or(z.literal(''))
 })
 
 export type CrearUsuarioDto = z.infer<typeof crearUsuarioSchema>
@@ -141,7 +142,8 @@ export const actualizarUsuarioSchema = z.object({
   empresa: z.string().trim().optional().or(z.literal('')),
   ciudad: z.string().trim().optional().or(z.literal('')),
   pais: z.string().trim().optional().or(z.literal('')),
-  codigo_instructor_nsc: z.string().trim().optional().or(z.literal(''))
+  codigo_instructor_nsc: z.string().trim().optional().or(z.literal('')),
+  foto_auto: z.string().trim().url('URL de foto inválida').optional().or(z.literal(''))
 })
 
 export type ActualizarUsuarioDto = z.infer<typeof actualizarUsuarioSchema>
@@ -187,6 +189,12 @@ export const actualizarPerfilSchema = z.object({
   firma: z
     .string()
     .trim()
+    .optional()
+    .or(z.literal('')),
+  foto_auto: z
+    .string()
+    .trim()
+    .url('URL de foto inválida')
     .optional()
     .or(z.literal('')),
 })

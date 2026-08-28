@@ -17,11 +17,12 @@
     "db:migration:dev": "prisma migrate dev",
     "db:migration:deploy": "prisma migrate deploy",
     "db:seed": "dotenv -- tsx ./prisma/seed/main",
+    "db:seed:sout": "dotenv -- tsx ./prisma/seed/sout-courses",
     "db:seed:chat": "dotenv -- tsx ./prisma/seed/chat-demo",
     "db:reset": "dotenv -e .env -- pnpm prisma migrate reset"
   },
   "prisma": {
-    "seed": "tsx prisma/seed_student.ts"
+    "seed": "tsx prisma/seed/main.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -22,13 +22,15 @@ interface Props {
 const ROL_LABELS: Record<string, string> = {
   ADMIN: 'Admin',
   PROFESOR: 'Profesor',
-  ESTUDIANTE: 'Alumno'
+  ESTUDIANTE: 'Alumno',
+  SUPERVISOR: 'Supervisor'
 }
 
 const ROL_COLORS: Record<string, 'default' | 'primary' | 'secondary' | 'error' | 'warning' | 'info' | 'success'> = {
   ADMIN: 'error',
   PROFESOR: 'primary',
-  ESTUDIANTE: 'success'
+  ESTUDIANTE: 'success',
+  SUPERVISOR: 'warning'
 }
 
 export default function NuevaConversacionModal({ open, handleClose, onConversacionIniciada }: Props) {

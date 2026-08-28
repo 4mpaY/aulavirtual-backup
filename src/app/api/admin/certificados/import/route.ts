@@ -22,9 +22,16 @@ export async function POST(request: Request) {
     const generados = []
 
     for (const cert of certificados) {
-      const { 
+      const {
         nombres, 
-        apellidos, 
+        apellidos,
+        numero_documento,
+        correo,
+        licencia,
+        equipo_opera,
+        empresa,
+        ciudad_pais,
+        foto_auto,
         nombre_curso, 
         duracion, 
         fecha_inicio, 
@@ -69,7 +76,17 @@ return new Date(`${s}T12:00:00.000Z`) // fallback
       const fEmision = fecha_emision ? parseDateOnly(fecha_emision) : new Date()
       
       const snapshot = {
-        usuario: { nombre: nombres, apellido: apellidos },
+        usuario: { 
+          nombre: nombres, 
+          apellido: apellidos,
+          numero_documento,
+          correo,
+          licencia,
+          equipo_opera,
+          empresa,
+          ciudad_pais,
+          foto_auto
+        },
         curso: {
           titulo: nombre_curso,
           tipo_emision: 'ASINCRONO',
@@ -81,8 +98,8 @@ return new Date(`${s}T12:00:00.000Z`) // fallback
           culminacion: fecha_culminacion ? parseDateOnly(fecha_culminacion)?.toISOString() : null
         },
         profesor: {
-          nombre: adminUser.nombre,
-          apellido: adminUser.apellido,
+          nombre: adminUser.nombre || '',
+          apellido: adminUser.apellido || '',
           cargo: (adminUser as any).cargo || 'Director',
           firma: (adminUser as any).firma || null
         },

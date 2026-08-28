@@ -5,11 +5,10 @@ import React, { useRef, useState } from 'react'
 import {
   Alert, Box, Button, Chip, CircularProgress, Divider,
   Stack, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Tooltip, Typography, TextField, LinearProgress, IconButton
+  TableHead, TableRow, Typography, TextField, LinearProgress, IconButton
 } from '@mui/material'
 import * as XLSX from 'xlsx'
-import JSZip from 'jszip'
-import { saveAs } from 'file-saver'
+
 import { toast } from 'react-toastify'
 
 import { getSession } from 'next-auth/react'
@@ -41,6 +40,13 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
     const ws = XLSX.utils.json_to_sheet([{
       nombres: 'Juan Carlos',
       apellidos: 'Perez Gomez',
+      numero_documento: '12345678',
+      correo: 'juan@example.com',
+      licencia: 'A-1',
+      equipo_opera: 'Montacargas',
+      empresa: 'Constructora S.A.',
+      ciudad_pais: 'Lima - Perú',
+      foto_auto: 'https://ejemplo.com/foto.jpg',
       nombre_curso: 'Curso de React',
       duracion: '40 horas',
       fecha_inicio: '01/01/2023',
@@ -67,6 +73,13 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
       const normalizedData = parsedData.map((row: any) => ({
         nombres: row.nombres || '',
         apellidos: row.apellidos || '',
+        numero_documento: row.numero_documento || '',
+        correo: row.correo || '',
+        licencia: row.licencia || '',
+        equipo_opera: row.equipo_opera || '',
+        empresa: row.empresa || '',
+        ciudad_pais: row.ciudad_pais || '',
+        foto_auto: row.foto_auto || '',
         nombre_curso: row.nombre_curso || '',
         duracion: row.duracion || '',
         fecha_inicio: row.fecha_inicio || '',
@@ -111,7 +124,9 @@ export function ImportCertificadosModal({ open, onClose, onSuccess }: any) {
 
   const handleAdd = () => {
     setData([...data, {
-      nombres: '', apellidos: '', nombre_curso: '', duracion: '',
+      nombres: '', apellidos: '', numero_documento: '', correo: '', licencia: '',
+      equipo_opera: '', empresa: '', ciudad_pais: '', foto_auto: '',
+      nombre_curso: '', duracion: '',
       fecha_inicio: '', fecha_culminacion: '', fecha_emision: ''
     }])
   }
@@ -156,28 +171,9 @@ return
       setGeneradosCount(generados.length)
       setStep('result')
       
-      // 2. Download PDFs and zip
-      const zip = new JSZip()
-
-      for (let i = 0; i < generados.length; i++) {
-        const cert = generados[i]
-
-        try {
-          const blob = await axiosCertificado.downloadPdf(cert.id, { frontPageOnly: true })
-          const filename = `certificado-${cert.nombre.trim()}-${cert.apellido.trim()}-${cert.codigo}.pdf`.toLowerCase().replace(/\s+/g, '-')
-
-          zip.file(filename, blob)
-        } catch (e) {
-          console.error('Error downloading pdf for', cert, e)
-        }
-
-        setProgress(((i + 1) / generados.length) * 100)
-      }
-
-      const zipBlob = await zip.generateAsync({ type: 'blob' })
-
-      saveAs(zipBlob, `certificados-masivos-${Date.now()}.zip`)
-
+      // Ya no generamos el zip aquí
+      toast.success('Certificados subidos correctamente')
+      
       if (onSuccess) onSuccess()
     } catch (error) {
       console.error(error)
@@ -266,8 +262,15 @@ return
                 <TableRow>
                   <TableCell>Nombres</TableCell>
                   <TableCell>Apellidos</TableCell>
+                  <TableCell>DNI</TableCell>
+                  <TableCell>Correo</TableCell>
                   <TableCell>Curso</TableCell>
                   <TableCell>Duración</TableCell>
+                  <TableCell>Licencia</TableCell>
+                  <TableCell>Equipo</TableCell>
+                  <TableCell>Empresa</TableCell>
+                  <TableCell>Ciudad/País</TableCell>
+                  <TableCell>Foto Auto (URL)</TableCell>
                   <TableCell>Fecha Inicio</TableCell>
                   <TableCell>Fecha Fin</TableCell>
                   <TableCell>Fecha Emisión</TableCell>
@@ -279,8 +282,15 @@ return
                   <TableRow key={idx}>
                     <TableCell><TextField size="small" value={row.nombres} onChange={e => handleChange(idx, 'nombres', e.target.value)} sx={{ minWidth: 160 }} /></TableCell>
                     <TableCell><TextField size="small" value={row.apellidos} onChange={e => handleChange(idx, 'apellidos', e.target.value)} sx={{ minWidth: 160 }} /></TableCell>
+                    <TableCell><TextField size="small" value={row.numero_documento} onChange={e => handleChange(idx, 'numero_documento', e.target.value)} sx={{ minWidth: 100 }} /></TableCell>
+                    <TableCell><TextField size="small" value={row.correo} onChange={e => handleChange(idx, 'correo', e.target.value)} sx={{ minWidth: 160 }} /></TableCell>
                     <TableCell><TextField size="small" value={row.nombre_curso} onChange={e => handleChange(idx, 'nombre_curso', e.target.value)} sx={{ minWidth: 220 }} /></TableCell>
                     <TableCell><TextField size="small" value={row.duracion} onChange={e => handleChange(idx, 'duracion', e.target.value)} sx={{ minWidth: 100 }}/></TableCell>
+                    <TableCell><TextField size="small" value={row.licencia} onChange={e => handleChange(idx, 'licencia', e.target.value)} sx={{ minWidth: 100 }} /></TableCell>
+                    <TableCell><TextField size="small" value={row.equipo_opera} onChange={e => handleChange(idx, 'equipo_opera', e.target.value)} sx={{ minWidth: 100 }} /></TableCell>
+                    <TableCell><TextField size="small" value={row.empresa} onChange={e => handleChange(idx, 'empresa', e.target.value)} sx={{ minWidth: 100 }} /></TableCell>
+                    <TableCell><TextField size="small" value={row.ciudad_pais} onChange={e => handleChange(idx, 'ciudad_pais', e.target.value)} sx={{ minWidth: 120 }} /></TableCell>
+                    <TableCell><TextField size="small" value={row.foto_auto} onChange={e => handleChange(idx, 'foto_auto', e.target.value)} sx={{ minWidth: 150 }} /></TableCell>
                     <TableCell>
                       <TextField size="small" placeholder="DD/MM/YYYY" value={row.fecha_inicio} onChange={e => handleChange(idx, 'fecha_inicio', e.target.value)} sx={{ minWidth: 150 }} />
                     </TableCell>
@@ -317,7 +327,7 @@ return
                  onClick={handleGenerate}
                  startIcon={<i className='tabler-upload' />}
                >
-                 Generar y Descargar ZIP
+                 Subir datos
                </Button>
             </Stack>
           </Stack>
@@ -343,7 +353,7 @@ return
                <i className='tabler-circle-check' style={{ fontSize: 72, color: '#28c76f' }} />
                <Typography variant='h4' fontWeight={700} sx={{ mt: 2 }}>¡Proceso Terminado!</Typography>
                <Typography variant='body1' color='text.secondary' sx={{ mb: 3 }}>
-                 Se crearon {generadosCount} certificados exitosamente y el archivo ZIP se ha descargado.
+                 Se crearon {generadosCount} certificados exitosamente en la base de datos.
                </Typography>
                <Button variant="contained" onClick={handleClose} size="large">
                  Cerrar y ver tabla

@@ -1,12 +1,11 @@
-import { fetchImageBuffer, compressImageForPdf, formatDateLong } from './utils'
+import { fetchImageBuffer, compressImageForPdf } from './utils'
 import type { GeneratorFn } from './types'
 
 export const generarSout: GeneratorFn = async data => {
   const {
-    pr, pg, pb, logoBuffer, logoUrl, base64Logo, nombreInstitucion, slogan, disclaimer, institutionUrl,
-    nombreCompleto, avatarBuffer, cursoTitulo, cursoDuracion, fechaEmisionVal, fechaInicioVal,
-    fechaFinVal, vigenciaHastaVal, gerenteGeneral, profesorSnapshot, mostrarFirmaDocente,
-    codigoVerificacion, qrDataUrl, modulos, notasPorModulo, notaInscripcion, previewFlag,
+    nombreCompleto, avatarBuffer, cursoTitulo, cursoDuracion, fechaEmisionVal,
+    gerenteGeneral, profesorSnapshot,
+    codigoVerificacion, qrDataUrl, modulos, notasPorModulo, notaInscripcion,
     homologacion, usuarioExtra, codigo_instructor_nsc
   } = data
 
@@ -116,6 +115,28 @@ export const generarSout: GeneratorFn = async data => {
   doc.text(descripcionLines, cx, yCenter, { align: 'center' })
   
   yCenter += descripcionLines.length * 5 + 25
+
+  // -- Foto del Auto (Derecha) --
+  if (data.fotoAutoBuffer) {
+    try {
+      const { buffer, mimeType } = await compressImageForPdf(data.fotoAutoBuffer, { maxWidth: 500, format: 'jpeg', quality: 85 })
+      const fotoAutoDataUrl = `data:${mimeType};base64,${buffer.toString('base64')}`
+
+      const fw = 75
+      const fh = 55
+      const fx = pageWidth - fw - 25 // Margen derecho
+      const fy = (pageHeight / 2) - (fh / 2) - 20 // Centro vertical un poco más arriba
+
+      // Dibujar borde sutil
+      doc.setDrawColor(200, 200, 200)
+      doc.setLineWidth(0.5)
+      doc.roundedRect(fx - 1, fy - 1, fw + 2, fh + 2, 2, 2, 'S')
+      
+      doc.addImage(fotoAutoDataUrl, 'JPEG', fx, fy, fw, fh)
+    } catch (e) {
+      // Ignorar si falla la compresión/renderizado
+    }
+  }
 
   // -- Firmas --
   doc.setFontSize(10)

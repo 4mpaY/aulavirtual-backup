@@ -17,6 +17,7 @@ export interface Usuario {
   ciudad?: string | null
   pais?: string | null
   codigo_instructor_nsc?: string | null
+  foto_auto?: string | null
   rol: Rol
   esta_activo: boolean
   creado_en: string

@@ -17,6 +17,7 @@ import { crearUsuarioSchema, type CrearUsuarioDto } from '@/schemas/usuario.sche
 
 import { useCreateUsuario } from '../hooks/useUsuarios'
 import SignatureUpload from './SignatureUpload'
+import ImageUpload from './ImageUpload'
 
 type CreateUsuarioModalProps = {
   open: boolean
@@ -50,7 +51,8 @@ const CreateUsuarioModal = ({ open, handleClose, onSuccess }: CreateUsuarioModal
     empresa: '',
     ciudad: '',
     pais: 'Perú',
-    codigo_instructor_nsc: ''
+    codigo_instructor_nsc: '',
+    foto_auto: ''
   }
 
   const handleSubmit = async (values: CrearUsuarioDto, { setSubmitting, resetForm }: FormikHelpers<CrearUsuarioDto>) => {
@@ -297,6 +299,19 @@ const CreateUsuarioModal = ({ open, handleClose, onSuccess }: CreateUsuarioModal
                       <MenuItem key={c} value={c}>{c}</MenuItem>
                     ))}
                   </CustomTextField>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant='subtitle2' sx={{ mb: 2 }}>Foto del Auto (Para Certificado)</Typography>
+                  <ImageUpload
+                    value={values.foto_auto || ''}
+                    onChange={(url) => setFieldValue('foto_auto', url)}
+                    disabled={isSubmitting}
+                    label="Subir Foto de Auto"
+                    description="Formato horizontal recomendado"
+                    width={200}
+                    height={150}
+                  />
                 </Grid>
 
                 {(values.rol === Rol.ADMIN || values.rol === Rol.PROFESOR) && (

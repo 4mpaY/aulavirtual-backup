@@ -13,7 +13,7 @@ import { Home, BookOpen, Users, Award, Map, Building2, LogIn, UserPlus, User, La
 
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import { usePWAInstall } from '@/utils/hooks/usePWAInstall'
-import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
+
 
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', icon: Home, key: 'inicio' },

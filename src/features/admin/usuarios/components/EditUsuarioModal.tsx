@@ -31,6 +31,7 @@ import ProfesorBioEditor from '@/features/perfil/components/ProfesorBioEditor'
 
 import { useUsuario, useEditUsuario } from '../hooks/useUsuarios'
 import SignatureUpload from './SignatureUpload'
+import ImageUpload from './ImageUpload'
 
 type EditUsuarioModalProps = {
   open: boolean
@@ -105,7 +106,8 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
     empresa: usuario.empresa || '',
     ciudad: usuario.ciudad || '',
     pais: usuario.pais || 'Perú',
-    codigo_instructor_nsc: usuario.codigo_instructor_nsc || ''
+    codigo_instructor_nsc: usuario.codigo_instructor_nsc || '',
+    foto_auto: usuario.foto_auto || ''
   }
 
   const getInitials = (nombre: string, apellido: string) =>
@@ -472,6 +474,19 @@ const EditUsuarioModal = ({ open, handleClose, usuarioId, onSuccess }: EditUsuar
                         />
                       </Grid>
                     )}
+
+                    <Grid item xs={12}>
+                      <Typography variant='subtitle2' sx={{ mb: 2 }}>Foto del Auto (Para Certificado)</Typography>
+                      <ImageUpload
+                        value={values.foto_auto || ''}
+                        onChange={(url) => setFieldValue('foto_auto', url)}
+                        disabled={isSubmitting}
+                        label="Subir Foto de Auto"
+                        description="Formato horizontal recomendado"
+                        width={200}
+                        height={150}
+                      />
+                    </Grid>
 
                     <Grid item xs={12}><Divider /></Grid>
 

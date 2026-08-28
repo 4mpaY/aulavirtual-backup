@@ -29,6 +29,7 @@ import UserAvatar from '@/utils/components/UserAvatar'
 import { AxiosPerfil } from '../http/axiosPerfil'
 import type { Perfil } from '../entity/Perfil'
 import SignatureUpload from '../../admin/usuarios/components/SignatureUpload'
+import ImageUpload from '../../admin/usuarios/components/ImageUpload'
 import ProfesorBioEditor from './ProfesorBioEditor'
 
 interface Props {
@@ -57,6 +58,7 @@ export default function UserProfileForm({ user }: Props) {
     ciudad: user.ciudad || '',
     pais: user.pais || 'Perú',
     codigo_instructor_nsc: user.codigo_instructor_nsc || '',
+    foto_auto: user.foto_auto || '',
     contrasena: '',
     confirmarContrasena: ''
   })
@@ -280,6 +282,18 @@ export default function UserProfileForm({ user }: Props) {
                     <MenuItem key={c} value={c}>{c}</MenuItem>
                   ))}
                 </TextField>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography variant="subtitle2" sx={{ mb: 2, mt: 1 }}>Foto del Auto (Para Certificado)</Typography>
+                <ImageUpload
+                  value={formData.foto_auto || ''}
+                  onChange={(url) => setFormData(prev => ({ ...prev, foto_auto: url }))}
+                  label="Subir Foto de Auto"
+                  description="Formato horizontal recomendado"
+                  width={200}
+                  height={150}
+                />
               </Grid>
 
               {/* Editor de biografía: estructurado para profesores, libre para estudiantes */}

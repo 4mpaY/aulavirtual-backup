@@ -17,7 +17,6 @@ export const generarClasicoResumido: GeneratorFn = async data => {
     nombreInstitucion,
     slogan,
     nombreCompleto,
-    avatarBuffer,
     cursoTitulo,
     cursoDuracion,
     fechaEmisionVal,

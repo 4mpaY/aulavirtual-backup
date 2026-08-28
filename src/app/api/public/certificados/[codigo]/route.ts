@@ -40,16 +40,28 @@ export async function GET(request: Request, { params }: { params: { codigo: stri
       }, { status: 404 })
     }
 
+    const snapshot = certificado.datos as any
+
+    const estudiante =
+      (snapshot?.usuario?.nombre && snapshot?.usuario?.apellido)
+        ? `${snapshot.usuario.nombre} ${snapshot.usuario.apellido}`
+        : `${certificado.usuario?.nombre || ''} ${certificado.usuario?.apellido || ''}`.trim() || 'Estudiante'
+
+    const curso = snapshot?.curso?.titulo || certificado.curso?.titulo || ''
+    const duracion = snapshot?.curso?.duracion || certificado.curso?.duracion || ''
+    const nivel = snapshot?.curso?.nivel || certificado.curso?.nivel || ''
+    const emitido_en = snapshot?.fechas?.emision || certificado.emitido_en
+
     // Retornamos los datos públicos del certificado
     return NextResponse.json({
       status: true,
       result: {
         codigo_verificacion: certificado.codigo_verificacion,
-        emitido_en: certificado.emitido_en,
-        estudiante: `${certificado.usuario?.nombre || ''} ${certificado.usuario?.apellido || ''}`.trim(),
-        curso: certificado.curso?.titulo || '',
-        duracion: certificado.curso?.duracion || '',
-        nivel: certificado.curso?.nivel || '',
+        emitido_en,
+        estudiante,
+        curso,
+        duracion,
+        nivel,
         valido: true
       }
     })

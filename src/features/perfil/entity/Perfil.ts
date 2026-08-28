@@ -16,4 +16,5 @@ export interface Perfil {
   ciudad?: string | null
   pais?: string | null
   codigo_instructor_nsc?: string | null
+  foto_auto?: string | null
 }

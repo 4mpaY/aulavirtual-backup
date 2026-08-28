@@ -25,7 +25,7 @@ async function main() {
     }
   })
 
-  const profesorPassword = await bcrypt.hash('Profesor123!', 10)
+  const profesorPassword = await bcrypt.hash('Profesor123@', 10)
 
   const profesor = await prisma.usuario.upsert({
     where: { correo: 'profesor@gmail.com' },
@@ -1193,6 +1193,7 @@ async function main() {
   for (const s of simulacros) {
     console.log(`   - ${s.titulo} (${s.nivel}, ${s.es_gratis ? 'gratis' : 'S/. ' + s.precio})`)
   }
+
 }
 
 main()

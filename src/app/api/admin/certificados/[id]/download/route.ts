@@ -7,7 +7,7 @@ import { getConfigs } from '@/utils/libs/config'
 import { getGenerator } from '@/app/api/_shared/certificados/generators'
 import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
-import { requireAdmin } from '@/utils/libs/auth-helpers'
+
 
 /**
  * GET /api/admin/certificados/[id]/download
@@ -42,7 +42,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
               }
             }
           },
-          usuario: { select: { nombre: true, apellido: true, licencia: true, equipo_opera: true, empresa: true, ciudad: true, pais: true } }
+          usuario: { select: { nombre: true, apellido: true, licencia: true, equipo_opera: true, empresa: true, ciudad: true, pais: true, foto_auto: true } }
         }
       }),
       getConfigs()
@@ -91,12 +91,15 @@ export async function GET(request: Request, { params }: { params: { id: string }
       }) : Promise.resolve([])
     ])
 
-    // fecha_fin del curso (campo con query raw para compatibilidad)
-    const cursoFechaFinRow = certificado.curso_id ? await prisma.$queryRaw<Array<{ fecha_fin: Date | null }>>`
-      SELECT fecha_fin FROM cursos WHERE id = ${certificado.curso_id}
-    ` : []
+    // fecha_fin del curso
+    const cursoDetalle = certificado.curso_id
+      ? await prisma.curso.findUnique({
+          where: { id: certificado.curso_id },
+          select: { fecha_fin: true }
+        })
+      : null
 
-    const cursoFechaFin = Array.isArray(cursoFechaFinRow) && cursoFechaFinRow.length > 0 ? cursoFechaFinRow[0]?.fecha_fin ?? null : null
+    const cursoFechaFin = cursoDetalle?.fecha_fin ?? null
 
     // ── Gerente General ───────────────────────────────────────────────
     const gerenteGeneralId = configs.CERTIFICADO_GERENTE_GENERAL_ID

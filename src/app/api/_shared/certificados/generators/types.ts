@@ -93,7 +93,9 @@ export interface CertificadoData {
     equipo_opera?: string | null
     empresa?: string | null
     ciudad_pais?: string | null
+    foto_auto?: string | null
   }
+  fotoAutoBuffer?: Buffer | null
   codigo_instructor_nsc?: string | null
 }
 

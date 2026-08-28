@@ -103,7 +103,7 @@ export function DashboardView({ initialData }: DashboardViewProps) {
   } catch (e: any) {
     console.error('Error in DashboardView render calculations:', e);
     
-return <Typography color="error">Error en cálculos: {e.message}</Typography>;
+    return <Typography color="error">Error en cálculos: {e.message}</Typography>;
   }
 
   return (

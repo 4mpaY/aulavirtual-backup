@@ -61,7 +61,8 @@ export async function GET(req: Request) {
         equipo_opera: true,
         empresa: true,
         ciudad: true,
-        pais: true
+        pais: true,
+        foto_auto: true
       }
     })
 
@@ -109,7 +110,7 @@ export async function PUT(req: Request) {
 
     const {
       nombre, apellido, celular, numero_documento, biografia, contrasena, avatar, cargo, firma,
-      licencia, equipo_opera, empresa, ciudad, pais
+      licencia, equipo_opera, empresa, ciudad, pais, foto_auto
     } = await req.json()
 
     if (!nombre || !apellido || !numero_documento) {
@@ -137,7 +138,8 @@ export async function PUT(req: Request) {
       equipo_opera,
       empresa,
       ciudad,
-      pais
+      pais,
+      foto_auto
     }
 
     // Verify document uniqueness if changed
@@ -190,6 +192,7 @@ export async function PUT(req: Request) {
         ciudad: true,
         pais: true,
         codigo_instructor_nsc: true,
+        foto_auto: true,
         esta_activo: true,
         actualizado_en: true
       }

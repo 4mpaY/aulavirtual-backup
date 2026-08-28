@@ -26,6 +26,8 @@ import {
 import { getSession } from 'next-auth/react'
 
 import { toast } from 'react-toastify'
+import JSZip from 'jszip'
+import { saveAs } from 'file-saver'
 
 import { AxiosCertificado } from '../http/axiosCertificado'
 import type { Certificado } from '../entity/Certificado'
@@ -50,6 +52,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
   const [params, setParams] = useState({ page: 1, limit: 10, codigo: '', nombre: '', emision: 'todos' })
   const [modalOpen, setModalOpen] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
+  const [isGeneratingZip, setIsGeneratingZip] = useState(false)
 
   const { data, isLoading, refetch } = useCertificados(params, initialData || undefined)
 
@@ -89,6 +92,53 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     }
   }
 
+  const handleDownloadZip = async () => {
+    if (certificados.length === 0) return toast.warning('No hay certificados para generar')
+    
+    setIsGeneratingZip(true)
+    const toastId = toast.loading(`Generando ZIP para ${certificados.length} certificados...`)
+
+    try {
+      const getAuthToken = async () => {
+        const s = await getSession()
+
+        
+return s?.user?.accessToken ?? null
+      }
+
+      const axiosCertificado = new AxiosCertificado({ getAuthToken })
+      const zip = new JSZip()
+
+      for (let i = 0; i < certificados.length; i++) {
+        const cert = certificados[i]
+
+        try {
+          const blob = await axiosCertificado.downloadPdf(cert.id, { frontPageOnly: true })
+          const datosManuales = (cert as any).datos?.usuario
+          const nombre = cert.usuario?.nombre || datosManuales?.nombre || 'usuario'
+          const apellido = cert.usuario?.apellido || datosManuales?.apellido || ''
+          const codigo = cert.codigo_verificacion || 'manual'
+          const filename = `certificado-${nombre.trim()}-${apellido.trim()}-${codigo}.pdf`.toLowerCase().replace(/\s+/g, '-')
+
+          zip.file(filename, blob)
+        } catch (e) {
+          console.error('Error downloading pdf for', cert, e)
+        }
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' })
+
+      saveAs(zipBlob, `certificados-${Date.now()}.zip`)
+
+      toast.update(toastId, { render: 'ZIP generado exitosamente', type: 'success', isLoading: false, autoClose: 3000 })
+    } catch (error) {
+      console.error(error)
+      toast.update(toastId, { render: 'Error al generar el ZIP', type: 'error', isLoading: false, autoClose: 3000 })
+    } finally {
+      setIsGeneratingZip(false)
+    }
+  }
+
   const handlePreview = async (certificado: Certificado) => {
     try {
       const getAuthToken = async () => {
@@ -117,8 +167,7 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
       const getAuthToken = async () => {
         const s = await getSession()
 
-        
-return s?.user?.accessToken ?? null
+        return s?.user?.accessToken ?? null
       }
 
       const axiosCertificado = new AxiosCertificado({ getAuthToken })
@@ -138,8 +187,7 @@ return s?.user?.accessToken ?? null
       const getAuthToken = async () => {
         const s = await getSession()
 
-        
-return s?.user?.accessToken ?? null
+        return s?.user?.accessToken ?? null
       }
       
       const currentHomologacion = (certificado as any).datos?.homologacion || false
@@ -291,6 +339,7 @@ return (
         }
       })
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [params.page, params.limit]
   )
 
@@ -376,6 +425,15 @@ return (
               onClick={() => setImportModalOpen(true)}
             >
               Importar Excel
+            </Button>
+            <Button
+              variant='outlined'
+              color='secondary'
+              startIcon={isGeneratingZip ? <i className='tabler-loader animate-spin text-[16px]' /> : <i className='tabler-file-zip text-[16px]' />}
+              onClick={handleDownloadZip}
+              disabled={isGeneratingZip || certificados.length === 0}
+            >
+              {isGeneratingZip ? 'Generando...' : 'Generar ZIP'}
             </Button>
             <Button
               variant='contained'

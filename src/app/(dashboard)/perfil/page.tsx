@@ -3,9 +3,7 @@ import { redirect } from 'next/navigation'
 import { Typography, Container, Box } from '@mui/material'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-
-
-import { AxiosPerfil } from '@/features/perfil/http/axiosPerfil'
+import prisma from '@/utils/libs/prisma'
 import UserProfileForm from '@/features/perfil/components/UserProfileForm'
 
 export const metadata = {
@@ -20,18 +18,34 @@ export default async function PerfilPage() {
     redirect('/login')
   }
 
-  const token = session.user?.accessToken ?? null
-
-  const axiosPerfil = new AxiosPerfil({
-    getAuthToken: () => token
-  })
-
   let user = null
 
   try {
-    user = await axiosPerfil.get(token)
+    user = await prisma.usuario.findUnique({
+      where: { correo: session.user.email },
+      select: {
+        id: true,
+        nombre: true,
+        apellido: true,
+        correo: true,
+        numero_documento: true,
+        celular: true,
+        avatar: true,
+        biografia: true,
+        rol: true,
+        cargo: true,
+        firma: true,
+        licencia: true,
+        equipo_opera: true,
+        empresa: true,
+        ciudad: true,
+        pais: true,
+        codigo_instructor_nsc: true,
+        foto_auto: true
+      }
+    })
   } catch (error) {
-    console.error('Error fetching user profile:', error)
+    console.error('Error fetching user profile from database:', error)
   }
 
   if (!user) {

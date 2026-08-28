@@ -243,7 +243,7 @@ export function SimulacrosPage({ initialData }: Props) {
           </table>
         </div>
 
-        <TablePaginationComponent table={table} />
+        <TablePaginationComponent table={table as any} />
       </Card>
 
       <DeleteSimulacroModal

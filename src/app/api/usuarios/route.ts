@@ -77,6 +77,7 @@ export async function GET(request: Request) {
           biografia: true,
           cargo: true,
           firma: true,
+          foto_auto: true,
           rol: true,
           esta_activo: true,
           creado_en: true,
@@ -124,7 +125,7 @@ export async function POST(request: Request) {
 
     const { 
       correo, contrasena, nombre, apellido, numero_documento, celular, rol, biografia, avatar, cargo, firma,
-      licencia, equipo_opera, empresa, ciudad, pais, codigo_instructor_nsc
+      licencia, equipo_opera, empresa, ciudad, pais, codigo_instructor_nsc, foto_auto
     } = validation.data
 
     // Verificar si el correo ya existe
@@ -191,6 +192,7 @@ export async function POST(request: Request) {
         ciudad: ciudad || null,
         pais: pais || null,
         codigo_instructor_nsc: finalCodigoInstructor,
+        foto_auto: foto_auto || null,
         slug
       },
       select: {
@@ -212,7 +214,8 @@ export async function POST(request: Request) {
         empresa: true,
         ciudad: true,
         pais: true,
-        codigo_instructor_nsc: true
+        codigo_instructor_nsc: true,
+        foto_auto: true
       }
     })
     

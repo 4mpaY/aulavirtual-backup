@@ -54,6 +54,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         ciudad: true,
         pais: true,
         codigo_instructor_nsc: true,
+        foto_auto: true,
         inscripciones: {
           select: {
             id: true,
@@ -177,7 +178,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         empresa: true,
         ciudad: true,
         pais: true,
-        codigo_instructor_nsc: true
+        codigo_instructor_nsc: true,
+        foto_auto: true
       }
     })
 

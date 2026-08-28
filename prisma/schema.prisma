@@ -31,6 +31,7 @@ model Usuario {
   ciudad                  String?
   pais                    String?
   codigo_instructor_nsc   String?
+  foto_auto               String?
   certificados            Certificado[]
   comentarios             Comentario[]
   cursos_dictados         Curso[]                @relation("ProfesorCursos")

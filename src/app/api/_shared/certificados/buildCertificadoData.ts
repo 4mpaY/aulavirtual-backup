@@ -40,6 +40,7 @@ type CertificadoConRelaciones = {
     ciudad?: string | null;
     pais?: string | null;
     ciudad_pais?: string | null;
+    foto_auto?: string | null;
   }
 }
 
@@ -156,6 +157,23 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     }
   }
 
+  const userFotoAutoUrl = snapshot?.usuario?.foto_auto || certificado.usuario?.foto_auto
+  const rawFotoAutoBuffer = userFotoAutoUrl ? await fetchImageBuffer(userFotoAutoUrl) : null
+  let fotoAutoBuffer: Buffer | null = null
+
+  if (rawFotoAutoBuffer) {
+    try {
+      const { default: sharp } = await import('sharp')
+      const meta = await sharp(rawFotoAutoBuffer).metadata()
+      const fotoAutoFormat: 'png' | 'jpeg' = meta.hasAlpha ? 'png' : 'jpeg'
+      const { buffer: compressedFotoAuto } = await compressImageForPdf(rawFotoAutoBuffer, { maxWidth: 400, format: fotoAutoFormat, quality: 85 })
+
+      fotoAutoBuffer = compressedFotoAuto
+    } catch {
+      fotoAutoBuffer = rawFotoAutoBuffer
+    }
+  }
+
   // ── Rendimiento: calcula notas por módulo ──
   const notasPorModulo: Record<string, { puntaje: number; count: number }> = {}
 
@@ -201,18 +219,20 @@ export async function buildCertificadoData(opts: BuildCertificadoDataOptions): P
     intentosExamen,
     notaInscripcion: snapshot?.nota_final ?? inscripcion?.nota_final ?? null,
     previewFlag,
-    frontPageOnly: frontPageOnly,
+    frontPageOnly: frontPageOnly || false,
     homologacion: snapshot?.homologacion === true,
     usuarioExtra: {
-      licencia: snapshot?.usuario?.licencia ?? certificado.usuario?.licencia,
-      equipo_opera: snapshot?.usuario?.equipo_opera ?? certificado.usuario?.equipo_opera,
-      empresa: snapshot?.usuario?.empresa ?? certificado.usuario?.empresa,
-      ciudad_pais: snapshot?.usuario?.ciudad_pais ?? certificado.usuario?.ciudad_pais ?? (
+      licencia: snapshot?.usuario?.licencia || certificado.usuario?.licencia,
+      equipo_opera: snapshot?.usuario?.equipo_opera || certificado.usuario?.equipo_opera,
+      empresa: snapshot?.usuario?.empresa || certificado.usuario?.empresa,
+      ciudad_pais: snapshot?.usuario?.ciudad_pais || certificado.usuario?.ciudad_pais || (
         (snapshot?.usuario?.ciudad || certificado.usuario?.ciudad) && (snapshot?.usuario?.pais || certificado.usuario?.pais)
           ? `${snapshot?.usuario?.ciudad || certificado.usuario?.ciudad} - ${snapshot?.usuario?.pais || certificado.usuario?.pais}`
           : (snapshot?.usuario?.ciudad || certificado.usuario?.ciudad) || (snapshot?.usuario?.pais || certificado.usuario?.pais)
-      )
+      ),
+      foto_auto: userFotoAutoUrl
     },
-    codigo_instructor_nsc: snapshot?.profesor?.codigo_instructor_nsc ?? certificado.curso?.profesor?.codigo_instructor_nsc
+    fotoAutoBuffer,
+    codigo_instructor_nsc: snapshot?.profesor?.codigo_instructor_nsc || certificado.curso?.profesor?.codigo_instructor_nsc
   }
 }
