@@ -44,19 +44,6 @@ import Logo from '@components/layout/shared/Logo'
 import Link from '@components/Link'
 
 // Styled Custom Components
-const RegisterIllustration = styled('img')(({ theme }) => ({
-  zIndex: 2,
-  blockSize: 'auto',
-  maxBlockSize: 600,
-  maxInlineSize: '100%',
-  margin: theme.spacing(12),
-  [theme.breakpoints.down(1536)]: {
-    maxBlockSize: 550
-  },
-  [theme.breakpoints.down('lg')]: {
-    maxBlockSize: 450
-  }
-}))
 
 const MaskImg = styled('img')({
   blockSize: 'auto',
@@ -99,13 +86,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
     }
   }, [])
 
-  const characterIllustration = useImageVariant(
-    mode,
-    lightIllustration,
-    darkIllustration,
-    borderedLightIllustration,
-    borderedDarkIllustration
-  )
+
 
   const {
     control,
@@ -208,7 +189,30 @@ const Register = ({ mode }: { mode: SystemMode }) => {
           }
         )}
       >
-        <RegisterIllustration src={characterIllustration} alt='character-illustration' />
+        <div className='flex flex-col items-center justify-center gap-4 z-[2]'>
+          <img
+            src='/images/agenda/logo-sin-fondo.png'
+            alt='logo'
+            style={{
+              maxInlineSize: '420px',
+              blockSize: 'auto',
+              objectFit: 'contain'
+            }}
+          />
+          <Typography
+            variant='h1'
+            sx={{
+              fontFamily: 'Outfit, sans-serif',
+              fontWeight: 900,
+              fontSize: '4.5rem',
+              color: 'var(--agenda-primary, #006F65)',
+              letterSpacing: '0.05em',
+              lineHeight: 1
+            }}
+          >
+            2050
+          </Typography>
+        </div>
         {!hidden && (
           <MaskImg
             alt='mask'
