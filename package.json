@@ -23,7 +23,7 @@
     "db:reset": "dotenv -e .env -- pnpm prisma migrate reset"
   },
   "prisma": {
-    "seed": "tsx prisma/seed_student.ts"
+    "seed": "tsx prisma/seed/main.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

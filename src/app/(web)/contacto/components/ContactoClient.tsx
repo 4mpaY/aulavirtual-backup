@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 
-import { Phone, Mail, MapPin } from 'lucide-react'
+import { Phone, Mail, MapPin, Facebook } from 'lucide-react'
 
 import ScrollReveal from '@/features/web/home/components/ScrollReveal'
 import { useConfig } from '@/contexts/ConfigContext'
@@ -10,13 +10,16 @@ import { useConfig } from '@/contexts/ConfigContext'
 export function ContactList() {
   const configs = useConfig()
   const waNumber = configs.WHATSAPP_NUMERO || '51994356180'
+  const email = configs.EMAIL_CONTACTO || 'agenda2050peru@gmail.com'
+  const address = configs.DIRECCION || 'Lima, Perú'
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
       {[
-        { icon: MapPin, title: 'Ubicación', info: 'Arequipa, Perú' },
+        { icon: MapPin, title: 'Ubicación', info: address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` },
         { icon: Phone, title: 'WhatsApp', info: `+${waNumber}`, href: `https://wa.me/${waNumber}` },
-        { icon: Mail, title: 'Email', info: 'arm.confiabilidad@gmail.com', href: 'mailto:arm.confiabilidad@gmail.com' },
+        { icon: Mail, title: 'Email', info: email, href: `mailto:${email}` },
+        { icon: Facebook, title: 'Facebook', info: 'Agenda 2050', href: 'https://www.facebook.com/agenda2050peru' },
       ].map((item, i) => (
         <ScrollReveal key={i} delay={i * 0.1}>
           <div

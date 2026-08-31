@@ -3,7 +3,7 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
-import { MessageCircle, Mail, MapPin, Instagram, Linkedin, Sparkles } from 'lucide-react'
+import { MessageCircle, Mail, MapPin, Instagram, Linkedin, Facebook, Sparkles } from 'lucide-react'
 
 import HydratedDate from '@/utils/components/HydratedDate'
 import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
@@ -49,6 +49,7 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               {[
+                { href: 'https://www.facebook.com/agenda2050peru', icon: <Facebook size={18} />, label: 'Facebook' },
                 { href: 'https://www.instagram.com/agenda2050peru/', icon: <Instagram size={18} />, label: 'Instagram' },
                 { href: 'https://www.linkedin.com/company/agenda2050', icon: <Linkedin size={18} />, label: 'LinkedIn' },
                 { href: 'https://www.tiktok.com/@agenda2050peru', icon: <TikTokIcon size={18} />, label: 'TikTok' },

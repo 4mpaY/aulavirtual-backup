@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { MessageCircle, Phone, Mail, MapPin, ArrowRight, Instagram, Linkedin, Globe } from 'lucide-react'
+import { MessageCircle, Phone, Mail, MapPin, ArrowRight, Instagram, Linkedin, Globe, Facebook } from 'lucide-react'
 
 import { getConfigs } from '@/utils/libs/config'
 
@@ -105,15 +105,15 @@ export default async function ContactoPage() {
           <div style={{ background: 'linear-gradient(135deg, #012d22 0%, #025E44 100%)', borderRadius: '3rem', padding: '3rem', border: 'none', boxShadow: '0 8px 40px rgba(2,94,68,0.25)' }}>
             <h3 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 900, fontSize: '1.5rem', color: '#ffffff', marginBottom: '2rem' }}>Nuestra Ubicación</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', gap: '1.25rem' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDD962', flexShrink: 0 }}>
+              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', gap: '1.25rem', textDecoration: 'none' }} className="group">
+                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDD962', flexShrink: 0, transition: 'all 0.3s' }} className="group-hover:bg-[#BDD962] group-hover:text-[#012d22]">
                   <MapPin size={20} />
                 </div>
                 <div>
                   <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>Sede Central</p>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>{address}</p>
                 </div>
-              </div>
+              </a>
 
               <div style={{ display: 'flex', gap: '1.25rem' }}>
                 <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BDD962', flexShrink: 0 }}>
@@ -152,6 +152,7 @@ export default async function ContactoPage() {
                 <p style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.85rem', color: '#BDD962', marginBottom: '1rem' }}>Redes Oficiales</p>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   {[
+                    { href: 'https://www.facebook.com/agenda2050peru', icon: <Facebook size={20} />, label: 'Facebook' },
                     { href: 'https://www.instagram.com/agenda2050peru/', icon: <Instagram size={20} />, label: 'Instagram' },
                     { href: 'https://www.linkedin.com/company/agenda2050', icon: <Linkedin size={20} />, label: 'LinkedIn' },
                     { href: 'https://www.tiktok.com/@agenda2050peru', icon: <TikTokIcon size={20} />, label: 'TikTok' },
@@ -173,7 +174,7 @@ export default async function ContactoPage() {
           {/* Mapa */}
           <div style={{ borderRadius: '3rem', overflow: 'hidden', boxShadow: '0 8px 40px rgba(2,94,68,0.2)', border: '3px solid #025E44', aspectRatio: '1 / 1', position: 'relative' }}>
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.123456789!2d-76.971!3d-12.085!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTLCsDA1JzA2LjAiUyA3Niw1OCcxNS42Ilc!5e0!3m2!1ses!2spe!4v1234567890123"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
               allowFullScreen
               loading="lazy"
