@@ -9,6 +9,8 @@ import WebFooter from '@/utils/components/layout/web/WebFooter'
 import WebHeader from '@/utils/components/layout/web/WebHeader'
 import ScrollAnimations from '@/utils/components/layout/web/ScrollAnimations'
 import PWAInstalledToast from '@/features/web/home/components/PWAInstalledToast'
+import SplashScreen from '@/utils/components/layout/web/SplashScreen'
+import FloatingContactButtons from '@/utils/components/layout/web/FloatingContactButtons'
 
 const getCategorias = unstable_cache(
   () =>
@@ -35,7 +37,6 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
 
   const platformName = configs.TEMPLATE_NAME || 'Aula Virtual'
   const platformSlogan = configs.TEMPLATE_SLOGAN || 'Aprende sin límites'
-  const empresasHabilitado = configs.WEB_EMPRESAS_HABILITADO !== 'false'
 
   return (
     <AuthModalProvider>
@@ -51,6 +52,8 @@ const WebLayout = async ({ children }: { children: React.ReactNode }) => {
         </div>
         <ScrollAnimations />
         <PWAInstalledToast />
+        <FloatingContactButtons />
+        <SplashScreen platformName={platformName} platformSlogan={platformSlogan} logoUrl={configs.TEMPLATE_LOGO || '/images/agenda/logo-sin-fondo.png'} />
       </div>
     </AuthModalProvider>
   )

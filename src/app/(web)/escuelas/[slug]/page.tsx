@@ -58,12 +58,21 @@ return null
   }
 }
 
+const ESCUELA_IMAGES: Record<string, string> = {
+  'tecnologia-e-innovacion': '/images/escuelas/escuela-tecnologia.jpg',
+  'ciudadano-digital-2050': '/images/escuelas/ciudadano-digital.jpg',
+  'gestion-social-desarrollo-sostenible': '/images/escuelas/gestion-social.jpg',
+  'erp-transformacion-empresarial': '/images/escuelas/transformacion-empresarial.jpg',
+  'gestion-industria-5-0-innovacion': '/images/escuelas/gestion-proyectos.jpg'
+}
+
 export default async function EscuelaDetailPage({ params }: { params: { slug: string } }) {
   const escuela = await getEscuelaWithRutas(params.slug)
 
   if (!escuela) notFound()
 
   const isDisponible = escuela.estado === 'DISPONIBLE'
+  const escuelaImg = ESCUELA_IMAGES[params.slug]
 
   const ESTADO_LABELS: Record<string, string> = {
     DISPONIBLE: 'Disponible',
@@ -94,6 +103,21 @@ export default async function EscuelaDetailPage({ params }: { params: { slug: st
           marginBottom: '4rem'
         }}
       >
+        {escuelaImg && (
+          <div
+            aria-hidden
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `url(${escuelaImg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              opacity: 0.16,
+              filter: 'blur(1px)',
+              pointerEvents: 'none'
+            }}
+          />
+        )}
         <div
           aria-hidden
           style={{

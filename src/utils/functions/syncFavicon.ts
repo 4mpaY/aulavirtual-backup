@@ -66,8 +66,8 @@ export function getDefaultFaviconPath(): string {
   return FAVICON_PUBLIC_PATH
 }
 
-export function resolveFaviconUrl(configs: Record<string, string>): string {
-  if (configs.SITE_FAVICON?.trim()) {
+export function resolveFaviconUrl(configs?: Record<string, string>): string {
+  if (configs?.SITE_FAVICON?.trim()) {
     return FAVICON_PUBLIC_PATH
   }
 
