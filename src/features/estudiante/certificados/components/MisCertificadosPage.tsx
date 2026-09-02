@@ -26,14 +26,27 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
   const { enqueueSnackbar } = useSnackbar()
   const [downloading, setDownloading] = useState(false)
 
-  const handleDownload = () => {
-    const a = document.createElement('a')
+  const handleDownload = async () => {
+    setDownloading(true)
 
-    a.href = `/api/estudiante/certificado/${cert.id}/pdf`
-    a.download = `certificado-${cert.codigo_verificacion}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
+    try {
+      const token = session?.user?.accessToken ?? null
+      const client = new AxiosMisCertificados({ getAuthToken: () => token })
+      const blob = await client.downloadPdf(cert.id)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+
+      a.href = url
+      a.download = `certificado-${cert.codigo_verificacion}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      enqueueSnackbar('Error al descargar el certificado', { variant: 'error' })
+    } finally {
+      setDownloading(false)
+    }
   }
 
   const handleCopyCode = () => {
@@ -47,12 +60,7 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
     year: 'numeric'
   })
 
-  const isRuta = !cert.curso && !!cert.ruta
-  const titulo = isRuta ? cert.ruta!.titulo : cert.curso!.titulo
-  const miniatura = isRuta ? cert.ruta!.miniatura : cert.curso!.miniatura
-  const nivel = isRuta ? null : cert.curso!.nivel
-  const profesor = isRuta ? null : cert.curso!.profesor
-  const duracion = isRuta ? null : cert.curso!.duracion
+  const puedeDescargar = !!cert.datos?.archivo_pdf || cert.curso.modo_certificado === 'AUTOMATICO'
 
   return (
     <Card sx={{
@@ -70,12 +78,12 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
     }}>
       {/* Miniatura / Banner */}
       <Box sx={{ position: 'relative' }}>
-        {miniatura ? (
+        {cert.curso.miniatura ? (
           <CardMedia
             component="img"
             height={140}
-            image={miniatura}
-            alt={titulo}
+            image={cert.curso.miniatura}
+            alt={cert.curso.titulo}
             sx={{ objectFit: 'cover' }}
           />
         ) : (
@@ -90,31 +98,48 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
           </Box>
         )}
 
-        {/* Badge tipo */}
-        <Chip
-          label={isRuta ? 'Ruta de Aprendizaje' : (nivel && NIVEL_LABELS[nivel]) || 'Curso'}
-          size="small"
-          sx={{
-            position: 'absolute', top: 10, right: 10,
-            bgcolor: isRuta ? 'primary.main' : 'rgba(0,0,0,0.55)', color: '#fff',
-            fontWeight: 600, fontSize: '0.7rem'
-          }}
-        />
+        {/* Badge nivel */}
+        {cert.curso.nivel && (
+          <Chip
+            label={NIVEL_LABELS[cert.curso.nivel] ?? cert.curso.nivel}
+            size="small"
+            sx={{
+              position: 'absolute', top: 10, right: 10,
+              bgcolor: 'rgba(0,0,0,0.55)', color: '#fff',
+              fontWeight: 600, fontSize: '0.7rem'
+            }}
+          />
+        )}
+
+        {/* Badge emisión manual */}
+        {cert.datos?.emision_manual && (
+          <Tooltip title="Este certificado fue emitido manualmente por un administrador">
+            <Chip
+              icon={<i className="tabler-hand-stop" style={{ fontSize: '0.8rem' }} />}
+              label="Emitido manualmente"
+              size="small"
+              sx={{
+                position: 'absolute', top: 10, left: 10,
+                bgcolor: 'rgba(0,0,0,0.55)', color: '#fff',
+                fontWeight: 600, fontSize: '0.7rem',
+                '& .MuiChip-icon': { color: '#fff' }
+              }}
+            />
+          </Tooltip>
+        )}
       </Box>
 
       <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1, p: 2.5 }}>
-        {/* Titulo */}
+        {/* Curso */}
         <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3, mb: 0.5 }}>
-          {titulo}
+          {cert.curso.titulo}
         </Typography>
 
         {/* Profesor */}
-        {profesor && (
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <i className="tabler-user" style={{ fontSize: '0.85rem' }} />
-            {profesor.nombre} {profesor.apellido}
-          </Typography>
-        )}
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <i className="tabler-user" style={{ fontSize: '0.85rem' }} />
+          {cert.curso.profesor.nombre} {cert.curso.profesor.apellido}
+        </Typography>
 
         {/* Fecha de emisión */}
         <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -123,10 +148,10 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
         </Typography>
 
         {/* Duración */}
-        {duracion && (
+        {cert.curso.duracion && (
           <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <i className="tabler-clock" style={{ fontSize: '0.85rem' }} />
-            {duracion} horas
+            {cert.curso.duracion} horas
           </Typography>
         )}
 
@@ -155,18 +180,18 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
 
           {/* Acciones */}
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="">
+            <Tooltip title={!puedeDescargar ? 'Tu certificado está en trámite, comunícate con el asesor.' : ''}>
               <span style={{ display: 'flex', flex: 1 }}>
                 <Button
                   fullWidth
                   variant="contained"
                   size="small"
-                  startIcon={<i className="tabler-download" />}
+                  startIcon={<i className={!puedeDescargar ? 'tabler-clock' : 'tabler-download'} />}
                   onClick={handleDownload}
-                  disabled={downloading}
+                  disabled={downloading || !puedeDescargar}
                   sx={{ borderRadius: 2, fontWeight: 600, fontSize: '0.78rem' }}
                 >
-                  {downloading ? 'Descargando...' : 'Descargar PDF'}
+                  {downloading ? 'Descargando...' : !puedeDescargar ? 'En trámite' : 'Descargar PDF'}
                 </Button>
               </span>
             </Tooltip>
@@ -209,7 +234,6 @@ interface MisCertificadosPageProps {
 export default function MisCertificadosPage({ initialCertificados }: MisCertificadosPageProps) {
   const { data: session } = useSession()
   const [search, setSearch] = useState('')
-  const [activeTab, setActiveTab] = useState<'CURSO' | 'RUTA'>('CURSO')
 
   const { data: certificados = initialCertificados, isLoading } = useQuery<MiCertificado[]>({
     queryKey: ['mis-certificados'],
@@ -223,18 +247,10 @@ export default function MisCertificadosPage({ initialCertificados }: MisCertific
     staleTime: 60_000
   })
 
-  const filtered = certificados.filter(c => {
-    const isRutaCert = !c.curso && !!c.ruta
-    const matchesTab = activeTab === 'RUTA' ? isRutaCert : !isRutaCert
-
-    const matchText = isRutaCert
-      ? c.ruta?.titulo.toLowerCase().includes(search.toLowerCase())
-      : c.curso?.titulo.toLowerCase().includes(search.toLowerCase())
-
-    const matchCode = c.codigo_verificacion.toLowerCase().includes(search.toLowerCase())
-
-    return matchesTab && (matchText || matchCode)
-  })
+  const filtered = certificados.filter(c =>
+    c.curso.titulo.toLowerCase().includes(search.toLowerCase()) ||
+    c.codigo_verificacion.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <Box sx={{ py: { xs: 4, md: 6 } }}>
@@ -260,30 +276,12 @@ export default function MisCertificadosPage({ initialCertificados }: MisCertific
           )}
         </Box>
 
-        {/* Tabs */}
-        <Box sx={{ display: 'flex', gap: 2, mb: 5, borderBottom: '1px solid', borderColor: 'divider', pb: 2 }}>
-          <Button
-            onClick={() => setActiveTab('CURSO')}
-            variant={activeTab === 'CURSO' ? 'contained' : 'text'}
-            sx={{ borderRadius: '99px', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}
-          >
-            Cursos
-          </Button>
-          <Button
-            onClick={() => setActiveTab('RUTA')}
-            variant={activeTab === 'RUTA' ? 'contained' : 'text'}
-            sx={{ borderRadius: '99px', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}
-          >
-            Rutas de Aprendizaje
-          </Button>
-        </Box>
-
         {/* Buscador */}
         {certificados.length > 0 && (
           <Box sx={{ mb: 4, maxWidth: { xs: '100%', sm: 400 } }}>
             <CustomTextField
               fullWidth
-              placeholder="Buscar por título o código..."
+              placeholder="Buscar por curso o código..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               InputProps={{
@@ -327,7 +325,7 @@ export default function MisCertificadosPage({ initialCertificados }: MisCertific
               Aún no tienes certificados
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Completa un curso o una ruta de aprendizaje para obtener tu certificado.
+              Completa un curso y aprueba el examen final para obtener tu primer certificado.
             </Typography>
             <Button
               variant="contained"
@@ -341,7 +339,7 @@ export default function MisCertificadosPage({ initialCertificados }: MisCertific
         ) : filtered.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 10 }}>
             <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 700 }}>
-              No se encontraron certificados de {activeTab === 'RUTA' ? 'rutas' : 'cursos'} para &quot;{search}&quot;
+              No se encontraron resultados para &quot;{search}&quot;
             </Typography>
           </Box>
         ) : (

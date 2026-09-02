@@ -26,6 +26,7 @@ export async function GET(request: Request) {
             miniatura: true,
             duracion: true,
             nivel: true,
+            modo_certificado: true,
             profesor: {
               select: { nombre: true, apellido: true }
             }

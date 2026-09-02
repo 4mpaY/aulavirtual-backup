@@ -166,48 +166,50 @@ model Curso {
   completar_automatico  Boolean           @default(false)
   precio_certificado    Decimal?          @db.Decimal(10, 2)
   certificado_plantilla String?
-  firmante_1_id         String?
-  firmante_2_id         String?
-  precio                Decimal           @default(0) @db.Decimal(10, 2)
-  precio_falso          Decimal           @default(0) @db.Decimal(10, 2)
-  moneda                String            @default("PEN")
-  numero_asesor         String?
-  creado_en             DateTime          @default(now())
-  actualizado_en        DateTime          @updatedAt
-  profesor_id           String
-  categoria_id          String?
-  nivel                 NivelCurso?
-  tipo                  TipoCurso         @default(CURSO)
-  beneficios            Json?             @default("[]")
-  incluye               Json?             @default("[]")
-  metodologia           Json?             @default("[]")
-  objetivos             Json?             @default("[]")
-  fecha_inicio          DateTime?
-  fecha_fin             DateTime?
-  vigencia_meses        Int?
-  precio_oferta         Decimal?          @db.Decimal(10, 2)
-  brochure              String?
-  landing_active        Boolean           @default(false)
-  landing_timer         DateTime?
-  landing_wsp_link      String?
-  landing_bg_image      String?
-  landing_flyer_image   String?
-  orden                 Int               @default(0)
-  actividades           Actividad[]
-  certificados          Certificado[]
-  cupones               CuponCurso[]
-  categoria             Categoria?        @relation(fields: [categoria_id], references: [id])
-  firmante_1            Firmante?         @relation("CursoFirmante1", fields: [firmante_1_id], references: [id])
-  firmante_2            Firmante?         @relation("CursoFirmante2", fields: [firmante_2_id], references: [id])
-  profesor              Usuario           @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
-  planes                CursoEnPlan[]
-  rutas                 CursoEnRuta[]
-  detalles_pedido       DetallePedido[]
-  examenes              Examen[]
-  inscripciones         Inscripcion[]
-  modulos               Modulo[]
-  progreso              ProgresoCurso[]
-  valoraciones          ValoracionCurso[]
+  modo_certificado     ModoCertificado   @default(AUTOMATICO)
+  certificacion_habilitada Boolean       @default(true)
+  firmante_1_id        String?
+  firmante_2_id        String?
+  precio               Decimal           @default(0) @db.Decimal(10, 2)
+  precio_falso         Decimal           @default(0) @db.Decimal(10, 2)
+  moneda               String            @default("PEN")
+  numero_asesor        String?
+  creado_en            DateTime          @default(now())
+  actualizado_en       DateTime          @updatedAt
+  profesor_id          String
+  categoria_id         String?
+  nivel                NivelCurso?
+  tipo                 TipoCurso         @default(CURSO)
+  beneficios           Json?             @default("[]")
+  incluye              Json?             @default("[]")
+  metodologia          Json?             @default("[]")
+  objetivos            Json?             @default("[]")
+  fecha_inicio         DateTime?
+  fecha_fin            DateTime?
+  vigencia_meses       Int?
+  precio_oferta        Decimal?          @db.Decimal(10, 2)
+  brochure             String?
+  landing_active       Boolean           @default(false)
+  landing_timer        DateTime?
+  landing_wsp_link     String?
+  landing_bg_image     String?
+  landing_flyer_image  String?
+  orden                Int               @default(0)
+  actividades          Actividad[]
+  certificados         Certificado[]
+  cupones              CuponCurso[]
+  categoria            Categoria?        @relation(fields: [categoria_id], references: [id])
+  firmante_1           Firmante?         @relation("CursoFirmante1", fields: [firmante_1_id], references: [id])
+  firmante_2           Firmante?         @relation("CursoFirmante2", fields: [firmante_2_id], references: [id])
+  profesor             Usuario           @relation("ProfesorCursos", fields: [profesor_id], references: [id], onDelete: Cascade)
+  planes               CursoEnPlan[]
+  rutas                CursoEnRuta[]
+  detalles_pedido      DetallePedido[]
+  examenes             Examen[]
+  inscripciones        Inscripcion[]
+  modulos              Modulo[]
+  progreso             ProgresoCurso[]
+  valoraciones         ValoracionCurso[]
 
   @@index([profesor_id])
   @@index([categoria_id])
@@ -1174,6 +1176,11 @@ enum TipoEmision {
   SINCRONO
   ASINCRONO
   MIXTO
+}
+
+enum ModoCertificado {
+  AUTOMATICO
+  MANUAL
 }
 
 enum NivelCurso {

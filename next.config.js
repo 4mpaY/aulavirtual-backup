@@ -50,6 +50,12 @@ const nextConfig = {
   // NOTA: sin output: 'standalone'. La app usa un server.js personalizado (Socket.IO)
   // que requiere el árbol completo de node_modules en runtime; el output "standalone"
   // solo incluye lo que Next traza de las rutas/páginas y descarta server.js.
+  experimental: {
+    // 'sharp' es un módulo nativo (bindings .node); si webpack lo empaqueta en vez de
+    // dejarlo como require() nativo, los route handlers que lo usan (generación de PDF
+    // de certificados) pueden fallar o tumbar el proceso de Node a mitad de la respuesta.
+    serverComponentsExternalPackages: ['sharp']
+  },
   webpack: (config) => {
     config.resolve.alias.canvas = false
     config.resolve.alias.encoding = false
