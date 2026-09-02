@@ -22,8 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
     description: slogan,
     manifest: '/manifest.json',
     icons: {
-      icon: logo,
-      shortcut: logo,
+      icon: '/favicon.ico',
+      shortcut: '/favicon.ico',
       apple: '/icons/apple-touch-icon.png',
     },
     appleWebApp: {

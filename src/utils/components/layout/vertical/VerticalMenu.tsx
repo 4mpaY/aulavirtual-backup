@@ -134,6 +134,9 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             <MenuItem href='/admin/categorias' icon={<i className='tabler-category' />}>
               Categorías
             </MenuItem>
+            <MenuItem href='/admin/escuelas' icon={<i className='tabler-school' />}>
+              Escuelas
+            </MenuItem>
             <MenuItem href='/admin/cursos' icon={<i className='tabler-book' />}>
               Cursos
             </MenuItem>
@@ -147,9 +150,6 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
                 Simulacros
               </MenuItem>
             )}
-            <MenuItem href='/admin/escuelas' icon={<i className='tabler-school' />}>
-              Escuelas
-            </MenuItem>
             <MenuItem href='/admin/rutas' icon={<i className='tabler-route' />}>
               Rutas Aprendizaje
             </MenuItem>

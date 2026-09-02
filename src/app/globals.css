@@ -430,6 +430,68 @@ code {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* Escuelas grid responsive — 2 columnas en desktop, 1 en mobile */
+.schools-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.75rem;
+}
+@media (max-width: 980px) {
+  .schools-grid-2col {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.school-card-horizontal {
+  background: #ffffff;
+  border: 1px solid #e2ebe6;
+  border-radius: 1.75rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  box-shadow: 0 10px 30px rgba(1, 45, 34, 0.04);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.school-card-horizontal:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(0, 111, 101, 0.12);
+  border-color: var(--agenda-primary, #025E44);
+}
+.school-card-horizontal:hover .school-card-img {
+  transform: scale(1.08);
+}
+.school-card-image-col {
+  position: relative;
+  width: 38%;
+  min-height: 290px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.school-card-content-col {
+  padding: 1.6rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  justify-content: space-between;
+}
+@media (max-width: 640px) {
+  .school-card-horizontal {
+    flex-direction: column;
+  }
+  .school-card-image-col {
+    width: 100%;
+    height: 200px;
+    min-height: 200px;
+  }
+  .school-card-content-col {
+    padding: 1.35rem 1.25rem;
+  }
+}
+
+
 /* SweetAlert2 — match system typography */
 .swal2-popup,
 .swal2-popup * {

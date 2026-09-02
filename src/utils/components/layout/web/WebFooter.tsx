@@ -33,7 +33,7 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(0,111,101,0.4), transparent)' }} />
 
       <div className="container-page" style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '4rem' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
 
           {/* Logo + descripción */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -67,6 +67,33 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
             </div>
           </div>
 
+          {/* Menú */}
+          <div>
+            <h4 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', marginBottom: '2rem' }}>
+              Menú
+            </h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {[
+                { label: 'Capacitaciones', href: '/cursos' },
+                { label: 'Empleabilidad', href: '/empleabilidad' },
+                { label: 'Certificación', href: '/certificacion' },
+                { label: 'Nosotros', href: '/nosotros' },
+                { label: 'Contacto', href: '/contacto' },
+                ...(rutasHabilitado ? [{ label: 'Rutas', href: '/rutas' }] : []),
+              ].map(link => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color 0.2s' }}
+                    className="hover:text-[var(--agenda-primary)]"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Contacto */}
           <div>
             <h4 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', marginBottom: '2rem' }}>
@@ -88,22 +115,16 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
             </ul>
           </div>
 
-          {/* Menú */}
+          {/* Legal y Seguridad */}
           <div>
             <h4 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', marginBottom: '2rem' }}>
-              Menú
+              Legal y Seguridad
             </h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
               {[
-                { label: 'Capacitaciones', href: '/cursos' },
-                { label: 'Empleabilidad', href: '/empleabilidad' },
-                { label: 'Certificación', href: '/certificacion' },
-                { label: 'Nosotros', href: '/nosotros' },
-                { label: 'Contacto', href: '/contacto' },
-                ...(rutasHabilitado ? [{ label: 'Rutas', href: '/rutas' }] : []),
                 { label: 'Términos y condiciones', href: '/terminos-y-condiciones' },
-                { label: 'Política de Devoluciones', href: '/politica-de-cambios-y-devoluciones' },
                 { label: 'Política de Privacidad', href: '/politica-de-privacidad' },
+                { label: 'Política de Devoluciones', href: '/politica-de-cambios-y-devoluciones' },
               ].map(link => (
                 <li key={link.href}>
                   <Link
@@ -116,33 +137,60 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
                 </li>
               ))}
             </ul>
-          </div>
 
-          {/* Misión */}
-          <div>
-            <h4 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#ffffff', marginBottom: '2rem' }}>
-              Nuestra Misión
-            </h4>
-            <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '1.5rem', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontStyle: 'italic', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7 }}>
-                &ldquo;La educación abre caminos. La tecnología los multiplica. Nuestra misión es darte las llaves de ese futuro.&rdquo;
-              </p>
-              <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--agenda-primary)', fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                <Sparkles size={14} /> AGENDA
-              </div>
+            {/* Libro de Reclamaciones */}
+            <div>
+              <Link
+                href="/libro-de-reclamaciones"
+                aria-label="Libro de Reclamaciones Digital"
+                className="inline-block transition-transform duration-200 hover:scale-105"
+                style={{
+                  display: 'inline-block',
+                  backgroundColor: '#ffffff',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  lineHeight: 0
+                }}
+              >
+                <Image
+                  src="/images/libro-reclamaciones.png"
+                  alt="Libro de Reclamaciones Digital"
+                  width={140}
+                  height={56}
+                  style={{ objectFit: 'contain', width: '135px', height: 'auto', display: 'block' }}
+                />
+              </Link>
             </div>
-
-            {/* WhatsApp button */}
-            <a
-              href={`https://wa.me/${waNumber}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary-agenda"
-              style={{ marginTop: '1.5rem', fontSize: '0.8rem', padding: '0.65rem 1.25rem' }}
-            >
-              <MessageCircle size={16} /> WhatsApp
-            </a>
           </div>
+        </div>
+
+        {/* Franja Horizontal de Misión Institucional */}
+        <div
+          style={{
+            marginTop: '3.5rem',
+            padding: '1.25rem 2rem',
+            borderRadius: '1rem',
+            background: 'linear-gradient(90deg, rgba(0, 111, 101, 0.08) 0%, rgba(37, 146, 127, 0.15) 50%, rgba(0, 111, 101, 0.08) 100%)',
+            border: '1px solid rgba(37, 146, 127, 0.25)',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.75rem 1.25rem',
+            textAlign: 'center'
+          }}
+        >
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--agenda-primary)' }}>
+            <Sparkles size={16} />
+            <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+              NUESTRA MISIÓN
+            </span>
+          </div>
+          <span style={{ color: 'rgba(255,255,255,0.25)', display: 'none' }} className="sm:inline">•</span>
+          <p style={{ margin: 0, fontFamily: 'Inter, sans-serif', fontSize: '0.875rem', fontStyle: 'italic', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>
+            &ldquo;La educación abre caminos. La tecnología los multiplica. Nuestra misión es darte las llaves de ese futuro.&rdquo;
+          </p>
         </div>
       </div>
 
@@ -153,22 +201,31 @@ const WebFooter = async ({ platformName = 'Aula Virtual' }: WebFooterProps) => {
             <p>© <HydratedDate date={new Date()} format="year" /> AGENDA 2050 PERÚ</p>
             <p>Marca comercial de AGENDA 2030 PERÚ S.A.C.</p>
           </div>
-          <div style={{ display: 'flex', gap: '2rem' }}>
-            {[
-              { label: 'Términos', href: '/terminos-y-condiciones' },
-              { label: 'Privacidad', href: '/politica-de-cambios-y-devoluciones' },
-              { label: 'Certificado', href: '/verificar-certificado' },
-            ].map(l => (
-              <Link
-                key={l.href}
-                href={l.href}
-                style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
-                className="hover:text-white"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
+          <a
+            href="https://flyup.pe"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.65rem',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.8rem',
+              color: 'rgba(255,255,255,0.6)',
+              textDecoration: 'none',
+              transition: 'all 0.2s ease'
+            }}
+            className="hover:!text-white hover:opacity-100"
+          >
+            <span>Desarrollado por</span>
+            <Image
+              src="/images/fly.png"
+              alt="Fly Up"
+              width={160}
+              height={50}
+              style={{ objectFit: 'contain', height: '32px', width: 'auto', display: 'inline-block' }}
+            />
+          </a>
         </div>
       </div>
     </footer>
