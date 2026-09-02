@@ -265,7 +265,7 @@ export function TabDetallesPremium({ curso, onSuccess }: any) {
           }}>
             <i className='tabler-info-circle' style={{ fontSize: '1.5rem', color: 'var(--mui-palette-info-main)' }} />
             <Typography variant='body2' sx={{ color: 'info.main', fontWeight: 500 }}>
-              Personaliza tus iconos en: <a href="https://tabler-icons.io/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', fontWeight: 800, textDecoration: 'underline' }}>tabler-icons.io</a>
+              Personaliza tus iconos en: <a href="https://tabler.io/icons" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', fontWeight: 800, textDecoration: 'underline' }}>tabler.io/icons</a>
             </Typography>
           </Box>
         </Stack>

@@ -24,6 +24,33 @@ export async function GET(request: Request) {
       orderBy: { orden: 'asc' }
     })
 
+    // Normalizar órdenes para evitar ceros y saltos (deben ser estrictamente 1, 2, 3...)
+    let needsNormalization = false
+
+    for (let i = 0; i < escuelas.length; i++) {
+      if (escuelas[i].orden !== i + 1) {
+        needsNormalization = true
+        break
+      }
+    }
+
+    if (needsNormalization) {
+      await prisma.$transaction(
+        escuelas.map((esc, index) =>
+          prisma.escuela.update({
+            where: { id: esc.id },
+            data: { orden: index + 1 }
+          })
+        )
+      )
+
+      const normalized = await prisma.escuela.findMany({
+        orderBy: { orden: 'asc' }
+      })
+
+      return ApiResponse.success(request, normalized)
+    }
+
     return ApiResponse.success(request, escuelas)
   } catch (error) {
     return handleApiError(error, request)
@@ -48,6 +75,17 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'El nombre y el slug son requeridos', 400)
     }
 
+    let calculatedOrden = Number(orden)
+
+    if (!calculatedOrden || calculatedOrden <= 0) {
+      const maxEscuela = await prisma.escuela.findFirst({
+        orderBy: { orden: 'desc' },
+        select: { orden: true }
+      })
+
+      calculatedOrden = (maxEscuela?.orden || 0) + 1
+    }
+
     const escuela = await prisma.escuela.create({
       data: {
         nombre,
@@ -55,7 +93,7 @@ export async function POST(request: Request) {
         descripcion,
         imagen,
         estado: estado || 'DISPONIBLE',
-        orden: Number(orden) || 0
+        orden: calculatedOrden
       }
     })
 

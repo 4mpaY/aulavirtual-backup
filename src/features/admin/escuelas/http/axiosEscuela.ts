@@ -71,4 +71,14 @@ export class AxiosEscuela extends AxiosInternalHttpClient {
       throw err?.response?.data ?? err
     }
   }
+
+  async reorder(items: { id: string; orden: number }[]): Promise<any> {
+    try {
+      const result = await this.iPatch<any>('/reordenar', { items })
+
+      return result
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
 }

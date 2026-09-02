@@ -60,6 +60,16 @@ const DEFAULT_BENEFITS = [
   { title: 'Soporte premium', desc: 'Acompañamiento constante durante todo el proceso.', icon: 'tabler-headset' }
 ]
 
+const formatIconClass = (iconName?: string | null) => {
+  if (!iconName) return 'tabler-star'
+  const trimmed = iconName.trim()
+
+  if (trimmed.startsWith('tabler-')) return trimmed
+  if (trimmed.startsWith('ti ti-')) return trimmed
+
+  return `tabler-${trimmed}`
+}
+
 const StepCircle = styled(Box)(({ theme }) => ({
   width: 44,
   height: 44,
@@ -374,7 +384,7 @@ const RutaDetail = ({ ruta, isInscrito }: RutaDetailProps) => {
                         mb: 2
                       }}
                     >
-                      <i className={item.icon} style={{ fontSize: '1.5rem' }} />
+                      <i className={formatIconClass(item.icon)} style={{ fontSize: '1.5rem' }} />
                     </Box>
                     <Box>
                       <Typography sx={{ fontSize: { xs: '0.9rem', md: '1.1rem' }, fontWeight: 800, mb: { xs: 0.5, md: 1 }, color: 'white', lineHeight: 1.2 }}>{item.title}</Typography>
@@ -492,7 +502,7 @@ const RutaDetail = ({ ruta, isInscrito }: RutaDetailProps) => {
                           justifyContent: 'center',
                           color: 'primary.light'
                         }}>
-                          <i className={item.icon} style={{ fontSize: '1.75rem' }} />
+                          <i className={formatIconClass(item.icon)} style={{ fontSize: '1.75rem' }} />
                         </Box>
                         <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '1rem', color: 'white' }}>{item.title}</Typography>
                       </Stack>

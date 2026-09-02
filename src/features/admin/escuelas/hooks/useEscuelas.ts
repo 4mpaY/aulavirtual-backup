@@ -80,3 +80,16 @@ export function useDeleteEscuela() {
     onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.ESCUELAS })
   })
 }
+
+export function useReorderEscuelas() {
+  const qc = useQueryClient()
+  const axiosEscuela = axiosEscuelaFactory()
+
+  return useMutation({
+    mutationFn: async ({ items }: { items: { id: string; orden: number }[] }) => {
+      return await axiosEscuela.reorder(items)
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.ESCUELAS })
+  })
+}
+

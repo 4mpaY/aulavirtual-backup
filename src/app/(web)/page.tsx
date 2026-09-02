@@ -431,7 +431,7 @@ function NuestrasEscuelas() {
         <div className="schools-grid-2col stagger-container">
           {schoolsData.map((school, i) => {
             const config = getEstadoConfig(school.estado)
-            const numberFormatted = (i + 1).toString().padStart(2, '0')
+            const numberFormatted = (school.orden || i + 1).toString().padStart(2, '0')
             
             return (
               <div

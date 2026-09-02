@@ -72,7 +72,7 @@ export default async function EscuelaDetailPage({ params }: { params: { slug: st
   if (!escuela) notFound()
 
   const isDisponible = escuela.estado === 'DISPONIBLE'
-  const escuelaImg = ESCUELA_IMAGES[params.slug]
+  const escuelaImg = escuela.imagen || ESCUELA_IMAGES[params.slug]
 
   const ESTADO_LABELS: Record<string, string> = {
     DISPONIBLE: 'Disponible',

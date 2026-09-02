@@ -54,7 +54,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         descripcion,
         imagen,
         estado,
-        orden: Number(orden) || 0,
+        ...(orden !== undefined && orden !== null ? { orden: Number(orden) } : {}),
         actualizado_en: new Date()
       }
     })
@@ -80,6 +80,22 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     await prisma.escuela.delete({
       where: { id: params.id }
     })
+
+    // Reindexar correlativamente (1..N) el orden de las escuelas restantes
+    const remainingEscuelas = await prisma.escuela.findMany({
+      orderBy: { orden: 'asc' }
+    })
+
+    if (remainingEscuelas.length > 0) {
+      await prisma.$transaction(
+        remainingEscuelas.map((esc, index) =>
+          prisma.escuela.update({
+            where: { id: esc.id },
+            data: { orden: index + 1 }
+          })
+        )
+      )
+    }
 
     revalidateTag('web-escuelas')
 

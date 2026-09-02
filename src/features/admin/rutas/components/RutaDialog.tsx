@@ -12,7 +12,8 @@ import {
   MenuItem,
   Typography,
   Box,
-  IconButton
+  IconButton,
+  InputAdornment
 } from '@mui/material'
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import Swal from 'sweetalert2'
@@ -283,10 +284,27 @@ export const RutaDialog = ({ open, onClose, ruta }: RutaDialogProps) => {
 
             {/* Beneficios Section */}
             <Grid item xs={12}>
-              <Typography variant='h6' sx={{ mb: 2, mt: 4, fontWeight: 700 }}>Beneficios (4 Tarjetas)</Typography>
-              <Typography variant='caption' sx={{ mb: 4, display: 'block', color: 'text.secondary' }}>
+              <Typography variant='h6' sx={{ mb: 1, mt: 4, fontWeight: 700 }}>Beneficios (4 Tarjetas)</Typography>
+              <Typography variant='caption' sx={{ mb: 2, display: 'block', color: 'text.secondary' }}>
                 Configura los 4 puntos clave que se muestran en el detalle de la ruta.
               </Typography>
+
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.5,
+                p: 3,
+                mb: 3,
+                borderRadius: '12px',
+                bgcolor: 'info.lighterOpacity',
+                border: '1px dashed',
+                borderColor: 'info.main'
+              }}>
+                <i className='tabler-info-circle' style={{ fontSize: '1.5rem', color: 'var(--mui-palette-info-main)' }} />
+                <Typography variant='body2' sx={{ color: 'info.main', fontWeight: 500 }}>
+                  Personaliza tus iconos en: <a href="https://tabler.io/icons" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', fontWeight: 800, textDecoration: 'underline' }}>tabler.io/icons</a>
+                </Typography>
+              </Box>
               
               <Grid container spacing={4}>
                 {benefitFields.map((field, index) => (
@@ -299,17 +317,32 @@ export const RutaDialog = ({ open, onClose, ruta }: RutaDialogProps) => {
                             name={`beneficios.${index}.icon`}
                             control={control}
                             rules={{ required: 'Icono requerido' }}
-                            render={({ field: iconField, fieldState }) => (
-                              <CustomTextField
-                                {...iconField}
-                                fullWidth
-                                label='Icono (Tabler)'
-                                placeholder='tabler-star'
-                                size='small'
-                                error={!!fieldState.error}
-                                helperText={fieldState.error?.message}
-                              />
-                            )}
+                            render={({ field: iconField, fieldState }) => {
+                              const iconName = iconField.value ? iconField.value.trim() : ''
+
+                              const formattedClass = iconName
+                                ? (iconName.startsWith('tabler-') ? iconName : iconName.startsWith('ti ti-') ? iconName : `tabler-${iconName}`)
+                                : 'tabler-star'
+
+                              return (
+                                <CustomTextField
+                                  {...iconField}
+                                  fullWidth
+                                  label='Icono (Tabler)'
+                                  placeholder='star o tabler-star'
+                                  size='small'
+                                  error={!!fieldState.error}
+                                  helperText={fieldState.error?.message}
+                                  InputProps={{
+                                    startAdornment: (
+                                      <InputAdornment position='start'>
+                                        <i className={formattedClass} style={{ fontSize: '1.25rem', color: 'var(--mui-palette-primary-main)' }} />
+                                      </InputAdornment>
+                                    )
+                                  }}
+                                />
+                              )
+                            }}
                           />
                         </Grid>
                         <Grid item xs={12} sm={8}>
