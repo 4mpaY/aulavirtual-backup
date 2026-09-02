@@ -147,7 +147,7 @@ export async function GET(request: Request) {
         select: { certificado_habilitado: true }
       }),
       prisma.curso.findUnique({
-        where: { id: cursoId },
+        where: { id: cursoId || '' },
         select: {
           precio_certificado: true,
           titulo: true,

@@ -60,7 +60,7 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
     year: 'numeric'
   })
 
-  const puedeDescargar = !!cert.datos?.archivo_pdf || cert.curso.modo_certificado === 'AUTOMATICO'
+  const puedeDescargar = !!cert.datos?.archivo_pdf || cert.curso?.modo_certificado === 'AUTOMATICO'
 
   return (
     <Card sx={{
@@ -78,12 +78,12 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
     }}>
       {/* Miniatura / Banner */}
       <Box sx={{ position: 'relative' }}>
-        {cert.curso.miniatura ? (
+        {cert.curso?.miniatura ? (
           <CardMedia
             component="img"
             height={140}
             image={cert.curso.miniatura}
-            alt={cert.curso.titulo}
+            alt={cert.curso?.titulo || ''}
             sx={{ objectFit: 'cover' }}
           />
         ) : (
@@ -99,7 +99,7 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
         )}
 
         {/* Badge nivel */}
-        {cert.curso.nivel && (
+        {cert.curso?.nivel && (
           <Chip
             label={NIVEL_LABELS[cert.curso.nivel] ?? cert.curso.nivel}
             size="small"
@@ -132,14 +132,16 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
       <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1, p: 2.5 }}>
         {/* Curso */}
         <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.3, mb: 0.5 }}>
-          {cert.curso.titulo}
+          {cert.curso?.titulo || 'Certificado'}
         </Typography>
 
         {/* Profesor */}
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <i className="tabler-user" style={{ fontSize: '0.85rem' }} />
-          {cert.curso.profesor.nombre} {cert.curso.profesor.apellido}
-        </Typography>
+        {cert.curso?.profesor && (
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <i className="tabler-user" style={{ fontSize: '0.85rem' }} />
+            {cert.curso.profesor.nombre} {cert.curso.profesor.apellido}
+          </Typography>
+        )}
 
         {/* Fecha de emisión */}
         <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -148,7 +150,7 @@ function CertificadoCard({ cert }: { cert: MiCertificado }) {
         </Typography>
 
         {/* Duración */}
-        {cert.curso.duracion && (
+        {cert.curso?.duracion && (
           <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <i className="tabler-clock" style={{ fontSize: '0.85rem' }} />
             {cert.curso.duracion} horas
@@ -248,7 +250,7 @@ export default function MisCertificadosPage({ initialCertificados }: MisCertific
   })
 
   const filtered = certificados.filter(c =>
-    c.curso.titulo.toLowerCase().includes(search.toLowerCase()) ||
+    (c.curso?.titulo || '').toLowerCase().includes(search.toLowerCase()) ||
     c.codigo_verificacion.toLowerCase().includes(search.toLowerCase())
   )
 

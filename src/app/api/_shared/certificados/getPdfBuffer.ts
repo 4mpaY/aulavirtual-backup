@@ -147,8 +147,8 @@ return { buffer, filename }
   certData.gerenteGeneral = gerenteGeneral
 
   const { firmante1, firmante2 } = await resolverFirmantes({
-    cursoFirmante1: certificado.curso.firmante_1,
-    cursoFirmante2: certificado.curso.firmante_2,
+    cursoFirmante1: certificado.curso?.firmante_1 ?? null,
+    cursoFirmante2: certificado.curso?.firmante_2 ?? null,
     configs
   })
 
@@ -157,7 +157,7 @@ return { buffer, filename }
 
   // ── Seleccionar plantilla y generar PDF ───────────────────────────
   // Prioridad: override del curso (certificado_plantilla) > configuración global > 'clasico'.
-  const plantilla = certificado.curso.certificado_plantilla || configs.CERTIFICADO_PLANTILLA || 'clasico'
+  const plantilla = certificado.curso?.certificado_plantilla || configs.CERTIFICADO_PLANTILLA || 'clasico'
   const generarPDF = await getGenerator(plantilla)
   const pdfBuffer = await generarPDF(certData)
 
