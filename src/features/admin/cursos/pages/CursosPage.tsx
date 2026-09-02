@@ -59,7 +59,7 @@ import TablePaginationComponent from '@/utils/components/others/TablePaginationC
 import type { ThemeColor } from '@/@core/types'
 import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
 import tableStyles from '@core/styles/table.module.css'
-import { useCursos, useReorderCursos } from '../hooks/useCursos'
+import { useCursos, useReorderCursos, useDuplicateCurso } from '../hooks/useCursos'
 import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
 import { getTipoProgramaColor, getTipoProgramaLabel } from '@/utils/configs/tipoProgramaOptions'
 
@@ -149,6 +149,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   })
 
   const reorderMutation = useReorderCursos()
+  const duplicateMutation = useDuplicateCurso()
 
   const cursos = useMemo(() => data?.cursos ?? (pagination.pageIndex === 0 ? initialDataCursos : []), [data, initialDataCursos, pagination.pageIndex])
   const totalCursos = useMemo(() => data?.paginacion?.total ?? initialDataCursos.length, [data, initialDataCursos.length])
@@ -176,7 +177,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
     setOrderedCursos(reordered)
 
     const baseIndex = pagination.pageIndex * pagination.pageSize
-    const items = reordered.map((c, i) => ({ id: c.id, orden: baseIndex + i }))
+    const items = reordered.map((c, i) => ({ id: c.id, orden: baseIndex + i + 1 }))
 
     await reorderMutation.mutateAsync({ items })
   }
@@ -191,6 +192,16 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
     setOpenStudentsModal(true)
   }
 
+  const handleDuplicateClick = async (curso: Curso) => {
+    if (window.confirm(`¿Estás seguro de que quieres duplicar el curso "${curso.titulo}"?`)) {
+      try {
+        await duplicateMutation.mutateAsync(curso.id)
+      } catch (err) {
+        console.error('Error al duplicar curso', err)
+      }
+    }
+  }
+
   const columns = useMemo<ColumnDef<Curso, any>[]>(
     () => [
       columnHelper.display({
@@ -200,10 +211,10 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
       }),
       columnHelper.display({
         id: 'numero',
-        header: '#',
+        header: 'Orden',
         cell: ({ row }) => (
           <Typography color='text.secondary' variant='body2'>
-            {pagination.pageIndex * pagination.pageSize + row.index + 1}
+            {row.original.orden}
           </Typography>
         )
       }),
@@ -365,12 +376,17 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
       }),
       columnHelper.display({
         id: 'acciones',
-        header: () => <div className='w-full text-right'>Acciones</div>,
+        header: () => <div className='w-full text-center'>Acciones</div>,
         cell: ({ row }) => (
-          <div className='flex items-center justify-end w-full gap-1'>
+          <div className='flex items-center justify-center w-full gap-1'>
             <Tooltip title='Ver Alumnos Inscritos'>
               <IconButton onClick={() => handleViewStudentsClick(row.original)}>
                 <i className='tabler-users text-[22px] text-textSecondary' />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title='Duplicar'>
+              <IconButton onClick={() => handleDuplicateClick(row.original)} disabled={duplicateMutation.isPending}>
+                <i className='tabler-copy text-[22px] text-textSecondary' />
               </IconButton>
             </Tooltip>
             <Tooltip title='Ver en Reproductor (Moderación)'>
@@ -399,7 +415,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
         )
       })
     ],
-    [pagination]
+    [duplicateMutation.isPending, handleDuplicateClick]
   )
 
   const table = useReactTable({
@@ -433,7 +449,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   return (
     <>
       <Card>
-        <CardHeader title='Gestión de Cursos' className='pbe-4' />
+        <CardHeader title='Gestión de Capacitaciones' className='pbe-4' />
         <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
           <CustomTextField
             select
@@ -456,7 +472,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
               className='is-full sm:is-[200px]'
             >
               <MenuItem value='all'>Todos los tipos</MenuItem>
-              <MenuItem value='CURSO'>Cursos</MenuItem>
+              <MenuItem value='CURSO'>Capacitaciones</MenuItem>
               <MenuItem value='DIPLOMADO'>Diplomados</MenuItem>
               <MenuItem value='ESPECIALIZACION'>Especializaciones</MenuItem>
             </CustomTextField>
@@ -480,7 +496,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                 setGlobalFilter(String(value))
                 table.setPageIndex(0)
               }}
-              placeholder='Buscar curso'
+              placeholder='Buscar capacitación'
               className='is-full sm:is-auto'
             />
             <Button
@@ -490,7 +506,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
               component='a'
               className='is-full sm:is-auto'
             >
-              Nuevo Curso
+              Nueva Capacitación
             </Button>
           </div>
         </div>

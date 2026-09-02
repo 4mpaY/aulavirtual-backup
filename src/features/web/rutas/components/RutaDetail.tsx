@@ -393,7 +393,7 @@ const RutaDetail = ({ ruta, isInscrito }: RutaDetailProps) => {
         <Grid container spacing={8}>
           <Grid item xs={12} lg={8}>
             <Typography variant="h4" sx={{ fontWeight: 900, mb: 6, color: 'text.primary' }}>
-              Tu camino hacia la <span style={{ color: 'var(--mui-palette-primary-main)' }}>maestría</span>
+              Tu camino hacia la <span style={{ color: 'var(--mui-palette-primary-main)' }}>especialización</span>
             </Typography>
 
             <Stack spacing={0}>

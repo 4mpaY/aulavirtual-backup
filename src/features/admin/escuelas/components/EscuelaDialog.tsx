@@ -40,6 +40,7 @@ export const EscuelaDialog = ({ open, onClose, escuela }: EscuelaDialogProps) =>
       nombre: '',
       slug: '',
       descripcion: '',
+      imagen: '',
       estado: 'DISPONIBLE',
       orden: 0
     }
@@ -51,6 +52,7 @@ export const EscuelaDialog = ({ open, onClose, escuela }: EscuelaDialogProps) =>
         nombre: escuela.nombre,
         slug: escuela.slug,
         descripcion: escuela.descripcion || '',
+        imagen: escuela.imagen || '',
         estado: escuela.estado,
         orden: escuela.orden
       })
@@ -59,6 +61,7 @@ export const EscuelaDialog = ({ open, onClose, escuela }: EscuelaDialogProps) =>
         nombre: '',
         slug: '',
         descripcion: '',
+        imagen: '',
         estado: 'DISPONIBLE',
         orden: 0
       })
@@ -149,6 +152,22 @@ export const EscuelaDialog = ({ open, onClose, escuela }: EscuelaDialogProps) =>
                     multiline
                     label='Descripción'
                     placeholder='Escribe una descripción corta de la escuela...'
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Controller
+                name='imagen'
+                control={control}
+                render={({ field, fieldState }) => (
+                  <CustomTextField
+                    {...field}
+                    fullWidth
+                    label='URL de la Imagen'
+                    placeholder='https://ejemplo.com/imagen.jpg'
+                    error={!!fieldState.error}
+                    helperText={fieldState.error?.message}
                   />
                 )}
               />

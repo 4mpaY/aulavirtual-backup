@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
 
+import { revalidateTag } from 'next/cache'
+
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
@@ -42,7 +44,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     if (!auth.authorized || auth.user.rol !== 'ADMIN') return ApiResponse.error(request, 'No autorizado', 403)
 
-    const { nombre, slug, descripcion, estado, orden } = await request.json()
+    const { nombre, slug, descripcion, imagen, estado, orden } = await request.json()
 
     await prisma.escuela.update({
       where: { id: params.id },
@@ -50,11 +52,14 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         nombre,
         slug,
         descripcion,
+        imagen,
         estado,
         orden: Number(orden) || 0,
         actualizado_en: new Date()
       }
     })
+
+    revalidateTag('web-escuelas')
 
     return ApiResponse.success(request, { message: 'Escuela actualizada' })
   } catch (error) {
@@ -75,6 +80,8 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     await prisma.escuela.delete({
       where: { id: params.id }
     })
+
+    revalidateTag('web-escuelas')
 
     return ApiResponse.success(request, { message: 'Escuela eliminada' })
   } catch (error) {

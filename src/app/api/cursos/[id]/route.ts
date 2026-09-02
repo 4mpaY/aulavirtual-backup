@@ -283,8 +283,20 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       )
     }
 
-    await prisma.curso.delete({
-      where: { id }
+    await prisma.$transaction(async (tx) => {
+      await tx.curso.delete({
+        where: { id }
+      })
+
+      // Reordenar los cursos que estaban después de este
+      await tx.curso.updateMany({
+        where: {
+          orden: { gt: curso.orden }
+        },
+        data: {
+          orden: { decrement: 1 }
+        }
+      })
     })
 
     return ApiResponse.success(request, { message: 'Curso eliminado exitosamente' })

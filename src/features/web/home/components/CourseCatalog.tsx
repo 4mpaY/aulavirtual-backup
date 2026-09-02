@@ -52,7 +52,7 @@ const CourseCatalog = ({ courses, categories, tipo = 'CURSO' }: CourseCatalogPro
   const [subSubcategoriaId, setSubSubcategoriaId] = useState('')
   const [selectedPrice, setSelectedPrice] = useState('all')
   const [selectedModality, setSelectedModality] = useState('all')
-  const [sortBy, setSortBy] = useState('recent')
+  const [sortBy, setSortBy] = useState('default')
   const { itemCount, setIsCartDrawerOpen } = useCart()
 
   const searchParams = useSearchParams()
@@ -214,7 +214,9 @@ return
     })
 
     return [...filtered].sort((a, b) => {
-      if (sortBy === 'recent') {
+      if (sortBy === 'default') {
+        return (a.orden || 0) - (b.orden || 0)
+      } else if (sortBy === 'recent') {
         return new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime()
       } else if (sortBy === 'alphabetical') {
         return a.titulo.localeCompare(b.titulo)
@@ -228,7 +230,7 @@ return
     setSearchTerm('')
     setSelectedPrice('all')
     setSelectedModality('all')
-    setSortBy('recent')
+    setSortBy('default')
     setCategoriaPadreId('')
     setSubcategoriaId('')
     setSubSubcategoriaId('')
@@ -240,7 +242,7 @@ return
     subSubcategoriaId !== '' ||
     selectedPrice !== 'all' ||
     selectedModality !== 'all' ||
-    sortBy !== 'recent'
+    sortBy !== 'default'
 
   return (
     <Box sx={{ bgcolor: '#f8fafc', minHeight: '100vh', pb: 10 }}>
@@ -406,13 +408,19 @@ return 'Cualquier Modalidad'
                 <CatalogFilterSelect
                   value={sortBy}
                   onChange={setSortBy}
-                  placeholder="Recientes primero"
+                  placeholder="Orden Sugerido"
                   active
                   iconClass="tabler-sort-ascending"
                   minWidth={170}
                   variant="sort"
-                  getLabel={(v) => (v === 'alphabetical' ? 'A - Z' : 'Recientes primero')}
+                  getLabel={(v) => {
+                    if (v === 'alphabetical') return 'A - Z'
+                    if (v === 'recent') return 'Recientes primero'
+                    
+return 'Orden Sugerido'
+                  }}
                   options={[
+                    { value: 'default', label: 'Orden Sugerido' },
                     { value: 'recent', label: 'Recientes primero' },
                     { value: 'alphabetical', label: 'A - Z' },
                   ]}

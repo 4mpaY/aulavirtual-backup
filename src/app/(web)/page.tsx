@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { GraduationCap, Video, Monitor, PlayCircle, BadgeCheck, Briefcase, ArrowRight, BookOpen, Clock, Tag, Laptop, Globe, Leaf, Building2, Cpu, Layers, Award, Rocket, Sparkles, CheckCircle2, Compass, ShieldCheck, TrendingUp, ChevronLeft, ChevronRight, Play, Pause, Check } from 'lucide-react'
 
 import TeachersSection from '@/features/web/home/components/TeachersSection'
+import { getEscuelasConRutas } from './actions'
 
 export default function HomePage() {
   return (
@@ -385,82 +386,33 @@ function Stats() {
   )
 }
 
-const SCHOOLS = [
-  {
-    number: '01',
-    title: 'Escuela de Tecnología e Innovación',
-    slug: 'tecnologia-e-innovacion',
-    image: '/images/escuelas/escuela-tecnologia.jpg',
-    state: 'Disponible',
-    isAvailable: true,
-    stateColor: '#10b981',
-    stateBg: 'rgba(16, 185, 129, 0.15)',
-    stateBorder: 'rgba(16, 185, 129, 0.35)',
-    desc: 'Fortalece competencias en programación, bases de datos, análisis de datos, inteligencia artificial y automatización para la industria moderna.',
-    topics: ['Algoritmos', 'Python', 'POO', 'Bases de datos SQL', 'Power BI', 'Inteligencia Artificial', 'Automatización'],
-    btnText: 'Explorar Escuela',
-    href: '/escuelas/tecnologia-e-innovacion'
-  },
-  {
-    number: '02',
-    title: 'Escuela Ciudadano Digital 2050',
-    slug: 'ciudadano-digital-2050',
-    image: '/images/escuelas/ciudadano-digital.jpg',
-    state: 'Disponible',
-    isAvailable: true,
-    stateColor: '#10b981',
-    stateBg: 'rgba(16, 185, 129, 0.15)',
-    stateBorder: 'rgba(16, 185, 129, 0.35)',
-    desc: 'Acerca la inteligencia artificial y las herramientas digitales a profesionales, técnicos y ciudadanos de diferentes niveles de experiencia.',
-    topics: ['IA para la vida y el trabajo', 'Prompt Engineering', 'Productividad con IA', 'Emprendimiento Digital', 'Python para no programadores'],
-    btnText: 'Explorar Escuela',
-    href: '/escuelas/ciudadano-digital-2050'
-  },
-  {
-    number: '03',
-    title: 'Escuela de Gestión Social y Desarrollo Sostenible',
-    slug: 'gestion-social-desarrollo-sostenible',
-    image: '/images/escuelas/gestion-social.jpg',
-    state: 'Próximamente',
-    isAvailable: false,
-    stateColor: '#f59e0b',
-    stateBg: 'rgba(245, 158, 11, 0.15)',
-    stateBorder: 'rgba(245, 158, 11, 0.35)',
-    desc: 'Capacidades de vanguardia para la gestión de relaciones comunitarias, responsabilidad social, prevención de conflictos socioambientales e inversión de impacto.',
-    topics: ['Relaciones Comunitarias', 'Responsabilidad Social', 'Gestión de Conflictos', 'Desarrollo Territorial', 'Inversión Social', 'Proyectos de Inversión'],
-    btnText: 'Próximamente'
-  },
-  {
-    number: '04',
-    title: 'Escuela ERP y Transformación Empresarial',
-    slug: 'erp-transformacion-empresarial',
-    image: '/images/escuelas/transformacion-empresarial.jpg',
-    state: 'Mediante alianzas',
-    isAvailable: false,
-    stateColor: '#3b82f6',
-    stateBg: 'rgba(59, 130, 246, 0.15)',
-    stateBorder: 'rgba(59, 130, 246, 0.35)',
-    desc: 'Especialización en sistemas integrados de gestión empresarial y transformación organizacional mediante alianzas estratégicas.',
-    topics: ['Fundamentos ERP', 'SAP S/4HANA', 'SAP MM & SD', 'SAP Analytics', 'Gestión de Procesos'],
-    btnText: 'Mediante alianzas'
-  },
-  {
-    number: '05',
-    title: 'Escuela de Gestión, Industria 5.0 e Innovación',
-    slug: 'gestion-industria-5-0-innovacion',
-    image: '/images/escuelas/gestion-proyectos.jpg',
-    state: 'En desarrollo',
-    isAvailable: false,
-    stateColor: '#8b5cf6',
-    stateBg: 'rgba(139, 92, 246, 0.15)',
-    stateBorder: 'rgba(139, 92, 246, 0.35)',
-    desc: 'Gestión ágil de proyectos, innovación tecnológica, gemelos digitales e industria 5.0 aplicada a operaciones de alta complejidad.',
-    topics: ['Gestión de Proyectos', 'Industria 5.0', 'Gemelos Digitales', 'Liderazgo & Innovación', 'Transformación Digital'],
-    btnText: 'En desarrollo'
-  },
-]
+const getEstadoConfig = (estado: string) => {
+  switch (estado) {
+    case 'DISPONIBLE': return { text: 'Disponible', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.35)', isAvailable: true }
+    case 'PROXIMAMENTE': return { text: 'Próximamente', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.35)', isAvailable: false }
+    case 'MEDIANTE_ALIANZAS': return { text: 'Mediante alianzas', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.35)', isAvailable: false }
+    case 'EN_DESARROLLO': return { text: 'En desarrollo', color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.35)', isAvailable: false }
+    default: return { text: 'No disponible', color: '#6b7280', bg: 'rgba(107, 114, 128, 0.15)', border: 'rgba(107, 114, 128, 0.35)', isAvailable: false }
+  }
+}
 
 function NuestrasEscuelas() {
+  const [schoolsData, setSchoolsData] = useState<any[]>([])
+
+  useEffect(() => {
+    async function loadEscuelas() {
+      try {
+        const data = await getEscuelasConRutas()
+
+        setSchoolsData(data)
+      } catch (error) {
+        console.error('Error cargando escuelas:', error)
+      }
+    }
+
+    loadEscuelas()
+  }, [])
+
   return (
     <section style={{ padding: '7rem 0', background: 'linear-gradient(180deg, #f8faf9 0%, #ffffff 100%)', position: 'relative' }}>
       <div className="container-page">
@@ -477,207 +429,222 @@ function NuestrasEscuelas() {
 
         {/* Grid de Tarjetas Horizontales (2 por fila) */}
         <div className="schools-grid-2col stagger-container">
-          {SCHOOLS.map((school, i) => (
-            <div
-              key={i}
-              data-animate="zoom-in-sm"
-              className="school-card-horizontal"
-            >
-              {/* Columna Izquierda: Imagen + Badges */}
-              <div className="school-card-image-col">
-                <Image
-                  src={school.image}
-                  alt={school.title}
-                  fill
-                  className="school-card-img"
-                  style={{
-                    objectFit: 'cover',
-                    transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
-                  }}
-                />
-                {/* Degradado envolvente */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'linear-gradient(180deg, rgba(1, 45, 34, 0.2) 0%, rgba(1, 45, 34, 0.85) 100%)'
-                  }}
-                />
-
-                {/* Badges Flotantes sobre la Imagen */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '1rem',
-                    left: '1rem',
-                    right: '1rem',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '0.4rem',
-                    zIndex: 2
-                  }}
-                >
-                  <span
+          {schoolsData.map((school, i) => {
+            const config = getEstadoConfig(school.estado)
+            const numberFormatted = (i + 1).toString().padStart(2, '0')
+            
+            return (
+              <div
+                key={i}
+                data-animate="zoom-in-sm"
+                className="school-card-horizontal"
+              >
+                {/* Columna Izquierda: Imagen + Badges */}
+                <div className="school-card-image-col">
+                  {school.imagen ? (
+                    <Image
+                      src={school.imagen}
+                      alt={school.nombre}
+                      fill
+                      className="school-card-img"
+                      style={{
+                        objectFit: 'cover',
+                        transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+                      }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: 'var(--agenda-accent)' }} />
+                  )}
+                  {/* Degradado envolvente */}
+                  <div
                     style={{
-                      fontFamily: 'Outfit, sans-serif',
-                      fontWeight: 900,
-                      fontSize: '0.75rem',
-                      letterSpacing: '0.08em',
-                      color: '#ffffff',
-                      background: 'rgba(255, 255, 255, 0.18)',
-                      backdropFilter: 'blur(8px)',
-                      padding: '0.3rem 0.75rem',
-                      borderRadius: '999px',
-                      border: '1px solid rgba(255, 255, 255, 0.25)'
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(180deg, rgba(1, 45, 34, 0.2) 0%, rgba(1, 45, 34, 0.85) 100%)'
                     }}
-                  >
-                    ESCUELA {school.number}
-                  </span>
+                  />
 
-                  <span
+                  {/* Badges Flotantes sobre la Imagen */}
+                  <div
                     style={{
-                      background: school.stateBg,
-                      color: school.stateColor,
-                      border: `1px solid ${school.stateBorder}`,
-                      backdropFilter: 'blur(8px)',
-                      padding: '0.3rem 0.75rem',
-                      borderRadius: '999px',
-                      fontSize: '0.72rem',
-                      fontWeight: 800,
-                      fontFamily: 'Outfit, sans-serif',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.04em',
-                      display: 'inline-flex',
+                      position: 'absolute',
+                      top: '1rem',
+                      left: '1rem',
+                      right: '1rem',
+                      display: 'flex',
+                      flexWrap: 'wrap',
                       alignItems: 'center',
-                      gap: '5px'
+                      justifyContent: 'space-between',
+                      gap: '0.4rem',
+                      zIndex: 2
                     }}
                   >
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: school.stateColor, display: 'inline-block' }} />
-                    {school.state}
-                  </span>
-                </div>
-              </div>
+                    <span
+                      style={{
+                        fontFamily: 'Outfit, sans-serif',
+                        fontWeight: 900,
+                        fontSize: '0.75rem',
+                        letterSpacing: '0.08em',
+                        color: '#ffffff',
+                        background: 'rgba(255, 255, 255, 0.18)',
+                        backdropFilter: 'blur(8px)',
+                        padding: '0.3rem 0.75rem',
+                        borderRadius: '999px',
+                        border: '1px solid rgba(255, 255, 255, 0.25)'
+                      }}
+                    >
+                      ESCUELA {numberFormatted}
+                    </span>
 
-              {/* Columna Derecha: Contenido, Temas y Acción */}
-              <div className="school-card-content-col">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {/* Título de la Escuela */}
-                  <h3
-                    style={{
-                      fontFamily: 'Outfit, sans-serif',
-                      fontWeight: 900,
-                      fontSize: '1.2rem',
-                      color: '#012d22',
-                      lineHeight: 1.25,
-                      margin: 0
-                    }}
-                  >
-                    {school.title}
-                  </h3>
-
-                  {/* Descripción */}
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.88rem', color: '#555', lineHeight: 1.6, margin: 0 }}>
-                    {school.desc}
-                  </p>
-
-                  {/* Áreas de Especialización */}
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                      <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--agenda-primary)' }} />
-                      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.72rem', fontWeight: 800, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-                        Áreas de Especialización:
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                      {school.topics.map((t, j) => (
-                        <span
-                          key={j}
-                          style={{
-                            background: '#f4f8f6',
-                            border: '1px solid #dce8e2',
-                            padding: '0.28rem 0.65rem',
-                            borderRadius: '0.55rem',
-                            fontSize: '0.76rem',
-                            fontFamily: 'Inter, sans-serif',
-                            color: '#2d3748',
-                            fontWeight: 500,
-                            display: 'inline-flex',
-                            alignItems: 'center'
-                          }}
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
+                    <span
+                      style={{
+                        background: config.bg,
+                        color: config.color,
+                        border: `1px solid ${config.border}`,
+                        backdropFilter: 'blur(8px)',
+                        padding: '0.3rem 0.75rem',
+                        borderRadius: '999px',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        fontFamily: 'Outfit, sans-serif',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px'
+                      }}
+                    >
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: config.color, display: 'inline-block' }} />
+                      {config.text}
+                    </span>
                   </div>
                 </div>
 
-                {/* Botón CTA alineado al fondo */}
-                <div style={{ marginTop: '1.25rem', paddingTop: '0.5rem' }}>
-                  {school.isAvailable && school.href ? (
-                    <Link
-                      href={school.href}
-                      className="btn-primary-agenda"
+                {/* Columna Derecha: Contenido, Temas y Acción */}
+                <div className="school-card-content-col">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {/* Título de la Escuela */}
+                    <h3
                       style={{
-                        padding: '0.75rem 1.25rem',
-                        textAlign: 'center',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        fontSize: '0.9rem',
-                        fontWeight: 800,
-                        width: '100%',
-                        borderRadius: '999px',
-                        background: 'linear-gradient(135deg, #012d22 0%, #025E44 100%)',
-                        color: '#ffffff',
-                        boxShadow: '0 6px 16px rgba(2, 94, 68, 0.25)',
-                        border: 'none',
-                        textDecoration: 'none',
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      {school.btnText} <ArrowRight size={16} color="#BDD962" />
-                    </Link>
-                  ) : (
-                    <div
-                      style={{
-                        padding: '0.75rem 1.25rem',
-                        textAlign: 'center',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        fontSize: '0.84rem',
-                        fontWeight: 800,
                         fontFamily: 'Outfit, sans-serif',
-                        width: '100%',
-                        borderRadius: '999px',
-                        background: 'rgba(2, 94, 68, 0.05)',
-                        border: '1.5px solid #d8e5df',
-                        color: '#025E44',
-                        cursor: 'default',
-                        userSelect: 'none'
+                        fontWeight: 900,
+                        fontSize: '1.2rem',
+                        color: '#012d22',
+                        lineHeight: 1.25,
+                        margin: 0
                       }}
                     >
-                      <span
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          backgroundColor: school.stateColor,
-                          display: 'inline-block'
-                        }}
-                      />
-                      <span>{school.btnText}</span>
+                      {school.nombre}
+                    </h3>
+
+                    {/* Descripción */}
+                    <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.88rem', color: '#555', lineHeight: 1.6, margin: 0 }}>
+                      {school.descripcion}
+                    </p>
+
+                    {/* Rutas */}
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                        <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--agenda-primary)' }} />
+                        <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: '0.72rem', fontWeight: 800, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
+                          Rutas:
+                        </p>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                        {school.rutas && school.rutas.length > 0 ? (
+                          school.rutas.map((r: any, j: number) => (
+                            <span
+                              key={j}
+                              style={{
+                                background: '#f4f8f6',
+                                border: '1px solid #dce8e2',
+                                padding: '0.28rem 0.65rem',
+                                borderRadius: '0.55rem',
+                                fontSize: '0.76rem',
+                                fontFamily: 'Inter, sans-serif',
+                                color: '#2d3748',
+                                fontWeight: 500,
+                                display: 'inline-flex',
+                                alignItems: 'center'
+                              }}
+                            >
+                              {r.titulo}
+                            </span>
+                          ))
+                        ) : (
+                          <span style={{ fontSize: '0.8rem', color: '#888', fontStyle: 'italic', fontFamily: 'Inter, sans-serif' }}>
+                            Nuevas rutas próximamente...
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Botón CTA alineado al fondo */}
+                  <div style={{ marginTop: '1.25rem', paddingTop: '0.5rem' }}>
+                    {config.isAvailable ? (
+                      <Link
+                        href={`/escuelas/${school.slug}`}
+                        className="btn-primary-agenda"
+                        style={{
+                          padding: '0.75rem 1.25rem',
+                          textAlign: 'center',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          fontSize: '0.9rem',
+                          fontWeight: 800,
+                          width: '100%',
+                          borderRadius: '999px',
+                          background: 'linear-gradient(135deg, #012d22 0%, #025E44 100%)',
+                          color: '#ffffff',
+                          boxShadow: '0 6px 16px rgba(2, 94, 68, 0.25)',
+                          border: 'none',
+                          textDecoration: 'none',
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        Explorar Escuela <ArrowRight size={16} color="#BDD962" />
+                      </Link>
+                    ) : (
+                      <div
+                        style={{
+                          padding: '0.75rem 1.25rem',
+                          textAlign: 'center',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          fontSize: '0.84rem',
+                          fontWeight: 800,
+                          fontFamily: 'Outfit, sans-serif',
+                          width: '100%',
+                          borderRadius: '999px',
+                          background: 'rgba(2, 94, 68, 0.05)',
+                          border: '1.5px solid #d8e5df',
+                          color: '#025E44',
+                          cursor: 'default',
+                          userSelect: 'none'
+                        }}
+                      >
+                        <span
+                          style={{
+                            width: '6px',
+                            height: '6px',
+                            borderRadius: '50%',
+                            backgroundColor: config.color,
+                            display: 'inline-block'
+                          }}
+                        />
+                        {config.text}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
@@ -1542,6 +1509,7 @@ function DocentesHomeSection() {
 
   return <TeachersSection teachers={teachers} />
 }
+
 
 
 

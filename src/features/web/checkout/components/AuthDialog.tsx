@@ -15,7 +15,8 @@ import {
     CircularProgress,
     Stack,
     Grid,
-    Divider
+    Divider,
+    MenuItem
 } from '@mui/material'
 import { signIn } from 'next-auth/react'
 import { useForm, Controller } from 'react-hook-form'
@@ -232,12 +233,26 @@ const AuthDialog = ({ open, onClose, initialMode = 'login' }: AuthDialogProps) =
                                     )}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={12} sm={4}>
+                                <Controller
+                                    name="tipo_documento"
+                                    control={registerControl}
+                                    render={({ field }) => (
+                                        <CustomTextField {...field} select fullWidth label="Tipo" error={!!registerErrors.tipo_documento} helperText={registerErrors.tipo_documento?.message} disabled={isLoading}>
+                                            <MenuItem value="DNI">DNI</MenuItem>
+                                            <MenuItem value="CE">CE</MenuItem>
+                                            <MenuItem value="PASAPORTE">Pasaporte</MenuItem>
+                                            <MenuItem value="OTRO">Otro</MenuItem>
+                                        </CustomTextField>
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={8}>
                                 <Controller
                                     name="numero_documento"
                                     control={registerControl}
                                     render={({ field }) => (
-                                        <CustomTextField {...field} fullWidth label="DNI" error={!!registerErrors.numero_documento} helperText={registerErrors.numero_documento?.message} disabled={isLoading} />
+                                        <CustomTextField {...field} fullWidth label="N° de Doc." error={!!registerErrors.numero_documento} helperText={registerErrors.numero_documento?.message} disabled={isLoading} />
                                     )}
                                 />
                             </Grid>

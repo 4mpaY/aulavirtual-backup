@@ -69,6 +69,17 @@ export class AxiosCurso extends AxiosInternalHttpClient {
       const payload = await this.iDelete<{ message: string }>(`/${id}`)
 
       return payload
+
+    } catch (err: any) {
+      throw err?.response?.data ?? err
+    }
+  }
+
+  async duplicate(id: string): Promise<{ curso: Curso }> {
+    try {
+      const payload = await this.iPost<{ curso: Curso }>(`/${id}/duplicar`, {})
+
+      return payload
     } catch (err: any) {
       throw err?.response?.data ?? err
     }

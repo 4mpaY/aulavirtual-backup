@@ -64,7 +64,7 @@ export async function GET(request: Request) {
           categoria: { select: { id: true, nombre: true, slug: true } },
           _count: { select: { modulos: true } }
         },
-        orderBy: { creado_en: 'desc' }
+        orderBy: { orden: 'asc' }
       }),
       prisma.categoria.findMany({
         where: {
@@ -102,7 +102,7 @@ export async function GET(request: Request) {
 
     if (userId) {
       const inscripciones = await prisma.inscripcion.findMany({
-        where: { usuario_id: userId, estado: 'ACTIVO' },
+        where: { usuario_id: userId, estado: { in: ['ACTIVO', 'COMPLETADO'] } },
         select: { curso_id: true }
       })
 

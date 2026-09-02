@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const {
       usuarios_ids,
       cursos_ids,
-      ebooks_ids,
+      rutas_ids,
       precio,
       estado,
       metodo_pago,
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       numero_comprobante
     } = validation.data
 
-    // 3. Obtener información de los cursos y ebooks seleccionados
+    // 3. Obtener información de los cursos y rutas seleccionados
     const cursos = cursos_ids.length
       ? await prisma.curso.findMany({
           where: { id: { in: cursos_ids } },
@@ -51,18 +51,18 @@ export async function POST(request: Request) {
         })
       : []
 
-    const ebooks = ebooks_ids.length
-      ? await prisma.ebook.findMany({
-          where: { id: { in: ebooks_ids } },
-          select: { id: true, titulo: true, moneda: true }
+    const rutas = rutas_ids.length
+      ? await prisma.rutaAprendizaje.findMany({
+          where: { id: { in: rutas_ids } },
+          select: { id: true, titulo: true, cursos: { select: { curso_id: true } } }
         })
       : []
 
-    if (cursos.length === 0 && ebooks.length === 0) {
-      return ApiResponse.error(request, 'No se encontraron los cursos/ebooks seleccionados', 404)
+    if (cursos.length === 0 && rutas.length === 0) {
+      return ApiResponse.error(request, 'No se encontraron las capacitaciones/rutas seleccionadas', 404)
     }
 
-    const firstCourseMoneda = cursos[0]?.moneda || ebooks[0]?.moneda || 'PEN'
+    const firstCourseMoneda = cursos[0]?.moneda || 'PEN'
 
     // 4. Procesar cada estudiante
     const resultados = []
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
     for (const usuario_id of usuarios_ids) {
       const estudiante = await prisma.usuario.findUnique({
         where: { id: usuario_id },
-        include: { inscripciones: true, ebook_accesos: true }
+        include: { inscripciones: true, inscripciones_ruta: true }
       })
 
       if (!estudiante) {
@@ -78,21 +78,43 @@ export async function POST(request: Request) {
         continue
       }
 
-      // Filtrar cursos en los que NO está inscrito y ebooks a los que NO tiene acceso
+      // Filtrar cursos y rutas en los que NO está inscrito
       const cursosParaInscribir = cursos.filter(c => !estudiante.inscripciones.some(ins => ins.curso_id === c.id))
-      const ebooksParaDar = ebooks.filter(e => !estudiante.ebook_accesos.some(acc => acc.ebook_id === e.id))
+      const rutasParaInscribir = rutas.filter(r => !estudiante.inscripciones_ruta.some(ins => ins.ruta_id === r.id))
 
-      if (cursosParaInscribir.length === 0 && ebooksParaDar.length === 0) {
+      // Extraer cursos de las rutas seleccionadas
+      const cursosDeRutasIds = new Set<string>()
+
+      rutasParaInscribir.forEach(ruta => {
+        ruta.cursos.forEach(c => cursosDeRutasIds.add(c.curso_id))
+      })
+
+      // Agregar los cursos de las rutas a la lista de cursos para inscribir (si no están ya y si no los tiene el estudiante)
+      const cursosAdicionales = await prisma.curso.findMany({
+        where: { id: { in: Array.from(cursosDeRutasIds) } },
+        select: { id: true, titulo: true }
+      })
+
+      const cursosFinalesParaInscribir = [
+        ...cursosParaInscribir,
+        ...cursosAdicionales.filter(
+          ca => 
+            !cursosParaInscribir.some(c => c.id === ca.id) && 
+            !estudiante.inscripciones.some(ins => ins.curso_id === ca.id)
+        )
+      ]
+
+      if (cursosFinalesParaInscribir.length === 0 && rutasParaInscribir.length === 0) {
         resultados.push({
           usuario_id,
           nombre: `${estudiante.nombre} ${estudiante.apellido}`,
           status: 'skipped',
-          message: 'El estudiante ya tiene acceso a todos los cursos/ebooks seleccionados'
+          message: 'El estudiante ya tiene acceso a todas las capacitaciones/rutas seleccionadas'
         })
         continue
       }
 
-      const totalItems = cursosParaInscribir.length + ebooksParaDar.length
+      const totalItems = cursosFinalesParaInscribir.length + rutasParaInscribir.length
       const precioPorItem = precio / totalItems
 
       try {
@@ -119,9 +141,9 @@ export async function POST(request: Request) {
                     total: precioPorItem,
                     cantidad: 1
                   })),
-                  ...ebooksParaDar.map(e => ({
-                    tipo_item: 'EBOOK',
-                    ebook_id: e.id,
+                  ...rutasParaInscribir.map(r => ({
+                    tipo_item: 'RUTA',
+                    ruta_id: r.id,
                     precio_unitario: precioPorItem,
                     subtotal: precioPorItem,
                     total: precioPorItem,
@@ -135,7 +157,7 @@ export async function POST(request: Request) {
           // Solo inscribir/dar acceso si el pedido queda COMPLETADO
           if (estado === 'COMPLETADO') {
             await Promise.all(
-              cursosParaInscribir.map(c => {
+              cursosFinalesParaInscribir.map(c => {
                 const fechaInscripcion = new Date()
 
                 return tx.inscripcion.create({
@@ -151,11 +173,11 @@ export async function POST(request: Request) {
             )
 
             await Promise.all(
-              ebooksParaDar.map(e =>
-                tx.ebookAcceso.create({
+              rutasParaInscribir.map(r =>
+                tx.inscripcionRuta.create({
                   data: {
                     usuario_id: usuario_id,
-                    ebook_id: e.id
+                    ruta_id: r.id
                   }
                 })
               )
@@ -171,7 +193,7 @@ export async function POST(request: Request) {
             orderBy: { creado_en: 'desc' },
             include: {
               detalles: {
-                include: { curso: { select: { titulo: true } }, ebook: { select: { titulo: true } } }
+                include: { curso: { select: { titulo: true } }, ruta: { select: { titulo: true } } }
               }
             }
           })
@@ -190,7 +212,7 @@ export async function POST(request: Request) {
               moneda: pedidoCompleto.moneda,
               metodoPago: metodo_pago || 'Manual',
               cursos: pedidoCompleto.detalles.map(d => ({
-                titulo: d.curso?.titulo ?? d.ebook?.titulo ?? '',
+                titulo: d.curso?.titulo ?? d.ruta?.titulo ?? '',
                 precio: Number(d.total)
               })),
               appUrl
@@ -212,7 +234,7 @@ export async function POST(request: Request) {
           usuario_id,
           nombre: `${estudiante.nombre} ${estudiante.apellido}`,
           status: 'success',
-          cursos: cursosParaInscribir.map(c => c.titulo)
+          cursos: cursosFinalesParaInscribir.map(c => c.titulo).concat(rutasParaInscribir.map(r => r.titulo))
         })
       } catch (error: any) {
         console.error(`Error procesando estudiante ${usuario_id}:`, error)

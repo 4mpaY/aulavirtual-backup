@@ -8,7 +8,7 @@ export const crearPedidoManualSchema = z
   .object({
     usuarios_ids: z.array(z.string().uuid('ID de usuario inválido')).min(1, 'Selecciona al menos un estudiante'),
     cursos_ids: z.array(z.string().uuid('ID de curso inválido')).default([]),
-    ebooks_ids: z.array(z.string().uuid('ID de ebook inválido')).default([]),
+    rutas_ids: z.array(z.string().uuid('ID de ruta inválido')).default([]),
     precio: z.coerce.number().min(0, 'El precio no puede ser negativo').max(1000000, 'El precio es demasiado alto'),
     estado: z.enum(['PENDIENTE', 'PROCESANDO', 'COMPLETADO', 'CANCELADO', 'REEMBOLSADO']).default('COMPLETADO'),
     metodo_pago: z.nativeEnum(MetodoPago).default(MetodoPago.TRANSFERENCIA),
@@ -16,8 +16,8 @@ export const crearPedidoManualSchema = z
     tipo_comprobante: z.string().optional().nullable(),
     numero_comprobante: z.string().optional().nullable()
   })
-  .refine(data => data.cursos_ids.length > 0 || data.ebooks_ids.length > 0, {
-    message: 'Selecciona al menos un curso o un ebook',
+  .refine(data => data.cursos_ids.length > 0 || data.rutas_ids.length > 0, {
+    message: 'Selecciona al menos una capacitación o una ruta',
     path: ['cursos_ids']
   })
 

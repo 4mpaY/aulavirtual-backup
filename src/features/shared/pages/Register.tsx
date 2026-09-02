@@ -12,6 +12,7 @@ import { signIn } from 'next-auth/react'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
@@ -100,7 +101,8 @@ const Register = ({ mode }: { mode: SystemMode }) => {
       confirmarContrasena: '',
       nombre: '',
       apellido: '',
-      numero_documento: '',
+      tipo_documento: 'DNI',
+    numero_documento: '',
       celular: ''
     }
   })
@@ -281,7 +283,30 @@ const Register = ({ mode }: { mode: SystemMode }) => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
+                <Controller
+                  name='tipo_documento'
+                  control={control}
+                  render={({ field }) => (
+                    <CustomTextField
+                      {...field}
+                      select
+                      fullWidth
+                      label='Tipo de Doc.'
+                      error={!!errors.tipo_documento}
+                      helperText={errors.tipo_documento?.message}
+                      disabled={isLoading}
+                    >
+                      <MenuItem value='DNI'>DNI</MenuItem>
+                      <MenuItem value='CE'>CE</MenuItem>
+                      <MenuItem value='PASAPORTE'>Pasaporte</MenuItem>
+                      <MenuItem value='OTRO'>Otro</MenuItem>
+                    </CustomTextField>
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={8}>
                 <Controller
                   name='numero_documento'
                   control={control}
@@ -289,7 +314,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
                     <CustomTextField
                       {...field}
                       fullWidth
-                      label='DNI'
+                      label='Número de Documento'
                       placeholder='12345678'
                       error={!!errors.numero_documento}
                       helperText={errors.numero_documento?.message}

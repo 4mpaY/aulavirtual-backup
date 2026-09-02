@@ -24,7 +24,8 @@ export async function POST(req: Request) {
     const prismaAny = prisma as any
 
     const rutaExistente = await prismaAny.rutaAprendizaje.findUnique({
-      where: { id: ruta_id }
+      where: { id: ruta_id },
+      include: { cursos: { select: { curso_id: true } } }
     })
 
     if (!rutaExistente) {
@@ -45,11 +46,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Ya estás inscrito a esta ruta' }, { status: 400 })
     }
 
-    // Crear la inscripción
-    await prismaAny.inscripcionRuta.create({
-      data: {
+    // Buscar inscripciones actuales del usuario para no duplicarlas
+    const inscripcionesActuales = await prismaAny.inscripcion.findMany({
+      where: { usuario_id: userId },
+      select: { curso_id: true }
+    })
+    
+    const cursosActualesIds = new Set(inscripcionesActuales.map((i: any) => i.curso_id))
+
+    const nuevosCursosAInscribir = rutaExistente.cursos
+      .filter((c: any) => !cursosActualesIds.has(c.curso_id))
+      .map((c: any) => ({
         usuario_id: userId,
-        ruta_id: ruta_id
+        curso_id: c.curso_id,
+        estado: 'ACTIVO',
+        inscrito_en: new Date()
+      }))
+
+    // Crear la inscripción a la ruta y a los cursos en una transacción
+    await prismaAny.$transaction(async (tx: any) => {
+      // 1. Inscripción a la ruta
+      await tx.inscripcionRuta.create({
+        data: {
+          usuario_id: userId,
+          ruta_id: ruta_id
+        }
+      })
+
+      // 2. Inscripción a los cursos que le faltan
+      if (nuevosCursosAInscribir.length > 0) {
+        await Promise.all(nuevosCursosAInscribir.map((cursoData: any) =>
+          tx.inscripcion.create({ data: cursoData })
+        ))
       }
     })
 

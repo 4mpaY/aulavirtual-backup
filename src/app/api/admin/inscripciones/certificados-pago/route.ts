@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
     const where: any = {
       curso: { precio_certificado: { not: null, gt: 0 } },
-      estado: 'ACTIVO'
+      estado: { in: ['ACTIVO', 'COMPLETADO'] }
     }
 
     if (soloSinHabilitar) {

@@ -109,6 +109,18 @@ export function useDeleteCurso() {
 }
 
 /**
+ * Hook para duplicar un curso
+ */
+export function useDuplicateCurso() {
+  const qc = useQueryClient()
+
+  return useMutation<{ curso: Curso }, any, string>({
+    mutationFn: async id => await axiosCurso.duplicate(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QUERY_KEY.CURSOS })
+  })
+}
+
+/**
  * Hook para cambiar estado del curso
  */
 export function useCambiarEstadoCurso() {

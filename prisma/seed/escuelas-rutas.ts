@@ -38,43 +38,49 @@ interface EscuelaSeed {
   descripcion: string
   estado: 'DISPONIBLE' | 'PROXIMAMENTE' | 'MEDIANTE_ALIANZAS' | 'EN_DESARROLLO'
   orden: number
+  imagen: string
 }
 
 const escuelasData: EscuelaSeed[] = [
   {
     nombre: 'Tecnología e Innovación',
     slug: 'tecnologia-e-innovacion',
-    descripcion: 'Programas de formación en programación, datos e inteligencia artificial.',
+    descripcion: 'Fortalece competencias en programación, bases de datos, análisis de datos, inteligencia artificial y automatización para la industria moderna.',
     estado: 'DISPONIBLE',
-    orden: 1
+    orden: 1,
+    imagen: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop'
   },
   {
     nombre: 'Ciudadano Digital 2050',
     slug: 'ciudadano-digital-2050',
-    descripcion: 'Formación integral en competencias digitales para el ciudadano del futuro.',
+    descripcion: 'Acerca la inteligencia artificial y las herramientas digitales a profesionales, técnicos y ciudadanos de diferentes niveles de experiencia.',
     estado: 'DISPONIBLE',
-    orden: 2
+    orden: 2,
+    imagen: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=600&auto=format&fit=crop'
   },
   {
     nombre: 'Gestión Social y Desarrollo Sostenible',
     slug: 'gestion-social-desarrollo-sostenible',
-    descripcion: 'Programas de gestión social y desarrollo sostenible. Próximamente disponible.',
+    descripcion: 'Capacidades de vanguardia para la gestión de relaciones comunitarias, responsabilidad social, prevención de conflictos socioambientales e inversión de impacto.',
     estado: 'PROXIMAMENTE',
-    orden: 3
+    orden: 3,
+    imagen: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=600&auto=format&fit=crop'
   },
   {
     nombre: 'ERP y Transformación Empresarial',
     slug: 'erp-transformacion-empresarial',
-    descripcion: 'Formación en sistemas ERP y transformación empresarial mediante alianzas estratégicas.',
+    descripcion: 'Especialización en sistemas integrados de gestión empresarial y transformación organizacional mediante alianzas estratégicas.',
     estado: 'MEDIANTE_ALIANZAS',
-    orden: 4
+    orden: 4,
+    imagen: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=600&auto=format&fit=crop'
   },
   {
     nombre: 'Gestión, Industria 5.0 e Innovación',
     slug: 'gestion-industria-5-0-innovacion',
-    descripcion: 'Programas de gestión, Industria 5.0 e innovación. Actualmente en desarrollo.',
+    descripcion: 'Gestión ágil de proyectos, innovación tecnológica, gemelos digitales e industria 5.0 aplicada a operaciones de alta complejidad.',
     estado: 'EN_DESARROLLO',
-    orden: 5
+    orden: 5,
+    imagen: 'https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=600&auto=format&fit=crop'
   }
 ]
 
@@ -375,7 +381,8 @@ async function main() {
         nombre: e.nombre,
         descripcion: e.descripcion,
         estado: e.estado,
-        orden: e.orden
+        orden: e.orden,
+        imagen: e.imagen
       },
       create: e
     })

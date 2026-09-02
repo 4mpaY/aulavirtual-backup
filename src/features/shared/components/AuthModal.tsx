@@ -16,7 +16,8 @@ import {
   Stack,
   Grid,
   Divider,
-  InputAdornment
+  InputAdornment,
+  MenuItem
 } from '@mui/material'
 import { signIn, useSession } from 'next-auth/react'
 import { useForm, Controller } from 'react-hook-form'
@@ -441,7 +442,29 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
                   )}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
+                <Controller
+                  name="tipo_documento"
+                  control={registerForm.control}
+                  render={({ field }) => (
+                    <CustomTextField
+                      {...field}
+                      select
+                      fullWidth
+                      label="Tipo de Doc."
+                      error={!!registerForm.formState.errors.tipo_documento}
+                      helperText={registerForm.formState.errors.tipo_documento?.message}
+                      disabled={isLoading}
+                    >
+                      <MenuItem value="DNI">DNI</MenuItem>
+                      <MenuItem value="CE">CE</MenuItem>
+                      <MenuItem value="PASAPORTE">Pasaporte</MenuItem>
+                      <MenuItem value="OTRO">Otro</MenuItem>
+                    </CustomTextField>
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} sm={8}>
                 <Controller
                   name="numero_documento"
                   control={registerForm.control}
@@ -449,7 +472,7 @@ const AuthModal = ({ open, mode, callbackUrl, onSuccess, onClose, onSwitchMode }
                     <CustomTextField
                       {...field}
                       fullWidth
-                      label="DNI"
+                      label="Número de Doc."
                       placeholder="12345678"
                       error={!!registerForm.formState.errors.numero_documento}
                       helperText={registerForm.formState.errors.numero_documento?.message}

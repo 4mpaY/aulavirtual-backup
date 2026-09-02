@@ -132,12 +132,7 @@ export const RutaCursosDialog = ({ open, onClose, rutaId }: RutaCursosDialogProp
 
   const { enqueueSnackbar } = useSnackbar()
   const [selectedCursos, setSelectedCursos] = useState<any[]>([])
-  const [sections, setSections] = useState<any[]>([])
   
-  // States for Editing Section
-  const [editSectionId, setEditSectionId] = useState<string | null>(null)
-  const [editTitle, setEditTitle] = useState('')
-
   // Sensors for DND
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -153,41 +148,13 @@ export const RutaCursosDialog = ({ open, onClose, rutaId }: RutaCursosDialogProp
   useEffect(() => {
     if (ruta) {
       setSelectedCursos(ruta.cursos || [])
-      setSections((ruta.secciones as any[]) || [])
     } else {
       setSelectedCursos([])
-      setSections([])
     }
   }, [ruta])
 
-  const handleAddSection = () => {
-    const newSection = {
-      id: crypto.randomUUID(),
-      titulo: 'Nueva Sección',
-      orden: sections.length + 1
-    }
 
-    setSections([...sections, newSection])
-  }
-
-  const handleEditSection = (seccion: any) => {
-    setEditSectionId(seccion.id)
-    setEditTitle(seccion.titulo)
-  }
-
-  const handleSaveSectionEdit = (id: string) => {
-    setSections(sections.map(s => s.id === id ? { ...s, titulo: editTitle } : s))
-    setEditSectionId(null)
-  }
-
-  const handleRemoveSection = (id: string) => {
-    if (window.confirm('¿Eliminar sección? Los cursos en esta sección quedarán sin asignar.')) {
-      setSections(sections.filter(s => s.id !== id))
-      setSelectedCursos(selectedCursos.map(c => c.seccion_id === id ? { ...c, seccion_id: null } : c))
-    }
-  }
-
-  const handleAddCurso = (curso: Curso | null, seccionId: string | null = null) => {
+  const handleAddCurso = (curso: Curso | null) => {
     if (!curso) return
 
     if (selectedCursos.some(c => c.id === curso.id)) {
@@ -200,7 +167,7 @@ export const RutaCursosDialog = ({ open, onClose, rutaId }: RutaCursosDialogProp
       id: curso.id, 
       titulo: curso.titulo, 
       miniatura: curso.miniatura, 
-      seccion_id: seccionId 
+      seccion_id: null 
     }])
   }
 
@@ -227,8 +194,8 @@ export const RutaCursosDialog = ({ open, onClose, rutaId }: RutaCursosDialogProp
     try {
       await manageCursos.mutateAsync({
         id: rutaId,
-        cursos: selectedCursos.map(c => ({ id: c.id, seccion_id: c.seccion_id })),
-        secciones: sections
+        cursos: selectedCursos.map(c => ({ id: c.id, seccion_id: null })),
+        secciones: []
       })
 
       enqueueSnackbar('Secuencia actualizada correctamente', { variant: 'success' })
@@ -250,150 +217,75 @@ export const RutaCursosDialog = ({ open, onClose, rutaId }: RutaCursosDialogProp
       </DialogTitle>
       
       <DialogContent dividers sx={{ p: 0, bgcolor: 'action.hover' }}>
-        <Box sx={{ p: 4, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button 
-            variant='tonal' 
-            startIcon={<i className='tabler-plus' />}
-            onClick={handleAddSection}
-          >
-            Añadir Sección
-          </Button>
-        </Box>
-        
-        <Box sx={{ p: 6, pt: 0 }}>
-             {sections.sort((a, b) => a.orden - b.orden).map((seccion) => {
-               const cursosInSection = selectedCursos.filter(c => c.seccion_id === seccion.id)
-               const isEditing = editSectionId === seccion.id
-
-               return (
-                 <Paper key={seccion.id} sx={{ mb: 6, p: 4, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-                   <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                     {isEditing ? (
-                       <Box sx={{ width: '100%', mr: 4 }}>
-                         <TextField 
-                           fullWidth 
-                           size='small' 
-                           label='Título' 
-                           value={editTitle} 
-                           onChange={e => setEditTitle(e.target.value)} 
-                           sx={{ mb: 2 }} 
-                         />
-                         <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-                           <Button size='small' variant='contained' onClick={() => handleSaveSectionEdit(seccion.id)}>Guardar</Button>
-                           <Button size='small' variant='outlined' color='secondary' onClick={() => setEditSectionId(null)}>Cancelar</Button>
-                         </Box>
-                       </Box>
-                     ) : (
-                       <Box>
-                         <Typography variant='h6' sx={{ fontWeight: 800, color: 'primary.main' }}>
-                           {seccion.titulo}
-                         </Typography>
-                       </Box>
-                     )}
-                     
-                     {!isEditing && (
-                       <Box sx={{ display: 'flex', gap: 1 }}>
-                         <IconButton size='small' onClick={() => handleEditSection(seccion)}>
-                           <i className='tabler-edit text-sm' />
-                         </IconButton>
-                         <IconButton size='small' color='error' onClick={() => handleRemoveSection(seccion.id)}>
-                           <i className='tabler-trash text-sm' />
-                         </IconButton>
-                       </Box>
-                     )}
-                   </Box>
-
-                    {/* Search for this section */}
-                    <Box sx={{ mb: 4 }}>
-                      <Autocomplete
-                        key={cursosInSection.length}
-                        options={cursosData?.cursos || []}
-                        getOptionLabel={(option) => option.titulo}
-                        onChange={(_, val) => handleAddCurso(val, seccion.id)}
-                        value={null}
-                        renderInput={(params) => (
-                          <TextField {...params} label={`Añadir curso a "${seccion.titulo}"...`} variant='outlined' fullWidth size='small' />
-                        )}
-                        renderOption={(props, option) => (
-                          <li {...props}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                              <Box
-                                    sx={{
-                                        width: 80,
-                                        height: 50,
-                                        borderRadius: '10px',
-                                        overflow: 'hidden',
-                                        flexShrink: 0,
-                                        border: '1px solid',
-                                        borderColor: 'divider'
-                                    }}
-                                >
-                                    <CourseThumbnail
-                                        src={option.miniatura}
-                                        title={option.titulo}
-                                        variant='simple'
-                                    />
-                                </Box>
-                              <Typography variant='body2'>{option.titulo}</Typography>
-                            </Box>
-                          </li>
-                        )}
-                      />
-                    </Box>
-
-                    {/* Sortable list for this section */}
-                    <DndContext
-                      sensors={sensors}
-                      collisionDetection={closestCenter}
-                      onDragEnd={handleDragEnd}
-                    >
-                      <SortableContext
-                        items={cursosInSection.map(c => c.id)}
-                        strategy={verticalListSortingStrategy}
+        <Box sx={{ p: 6 }}>
+          <Paper sx={{ p: 4, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ mb: 4 }}>
+              <Autocomplete
+                key={selectedCursos.length}
+                options={cursosData?.cursos || []}
+                getOptionLabel={(option) => option.titulo}
+                onChange={(_, val) => handleAddCurso(val)}
+                value={null}
+                renderInput={(params) => (
+                  <TextField {...params} label={`Añadir curso a la secuencia...`} variant='outlined' fullWidth size='small' />
+                )}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <Box
+                        sx={{
+                            width: 80,
+                            height: 50,
+                            borderRadius: '10px',
+                            overflow: 'hidden',
+                            flexShrink: 0,
+                            border: '1px solid',
+                            borderColor: 'divider'
+                        }}
                       >
-                        <List sx={{ p: 0 }}>
-                          {cursosInSection.map((curso, index) => (
-                            <SortableCourseItem 
-                              key={curso.id} 
-                              curso={curso} 
-                              index={index} 
-                              total={cursosInSection.length}
-                              onRemove={handleRemoveCurso}
-                            />
-                          ))}
-                        </List>
-                      </SortableContext>
-                    </DndContext>
-
-                    {cursosInSection.length === 0 && (
-                      <Box sx={{ py: 4, textAlign: 'center', bgcolor: 'action.disabledBackground', borderRadius: 1, border: '1px dashed', borderColor: 'divider' }}>
-                        <Typography variant='caption' color='text.disabled'>Aún no hay cursos en esta sección.</Typography>
+                        <CourseThumbnail
+                            src={option.miniatura}
+                            title={option.titulo}
+                            variant='simple'
+                        />
                       </Box>
-                    )}
-                 </Paper>
-               )
-             })}
+                      <Typography variant='body2'>{option.titulo}</Typography>
+                    </Box>
+                  </li>
+                )}
+              />
+            </Box>
 
-             {/* Unassigned Courses (if any exist from old version or mistake) */}
-             {selectedCursos.filter(c => !c.seccion_id).length > 0 && (
-               <Paper sx={{ mb: 6, p: 4, borderRadius: 2, border: '1px solid', borderColor: 'error.light', bgcolor: 'error.shades.50' }}>
-                  <Typography variant='subtitle2' color='error' sx={{ mb: 3, fontWeight: 800 }}>
-                    Cursos sin sección asignada:
-                  </Typography>
-                  <List sx={{ p: 0 }}>
-                    {selectedCursos.filter(c => !c.seccion_id).map((curso, index, arr) => (
-                      <SortableCourseItem 
-                        key={curso.id} 
-                        curso={curso} 
-                        index={index} 
-                        total={arr.length}
-                        onRemove={handleRemoveCurso}
-                      />
-                    ))}
-                  </List>
-               </Paper>
-             )}
-          </Box>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={selectedCursos.map(c => c.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <List sx={{ p: 0 }}>
+                  {selectedCursos.map((curso, index) => (
+                    <SortableCourseItem 
+                      key={curso.id} 
+                      curso={curso} 
+                      index={index} 
+                      total={selectedCursos.length}
+                      onRemove={handleRemoveCurso}
+                    />
+                  ))}
+                </List>
+              </SortableContext>
+            </DndContext>
+
+            {selectedCursos.length === 0 && (
+              <Box sx={{ py: 4, textAlign: 'center', bgcolor: 'action.disabledBackground', borderRadius: 1, border: '1px dashed', borderColor: 'divider' }}>
+                <Typography variant='caption' color='text.disabled'>Aún no hay cursos en esta secuencia.</Typography>
+              </Box>
+            )}
+          </Paper>
+        </Box>
       </DialogContent>
       
       <DialogActions sx={{ p: 6, pt: '24px !important' }}>

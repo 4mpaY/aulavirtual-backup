@@ -506,22 +506,20 @@ const CertificateSection = ({ cursoId, completarAutomatico, onAllLessonsComplete
                             : 'Has completado todas las lecciones y alcanzado el promedio requerido.'
                         }
                     </Typography>
-                    {/* Sin exámenes → auto-generado, no se muestra el botón */}
-                    {el.totalExamenes > 0 && (
-                        <Button
-                            variant="contained"
-                            onClick={handleGenerar}
-                            disabled={generating}
-                            startIcon={generating ? <CircularProgress size={18} color="inherit" /> : <i className="tabler-certificate" />}
-                            sx={{
-                                bgcolor: '#025E44', borderRadius: '12px', textTransform: 'none',
-                                fontWeight: 700, fontSize: '0.95rem', px: 4, py: 1.25,
-                                boxShadow: 'none', '&:hover': { bgcolor: '#014d36', boxShadow: 'none' }
-                            }}
-                        >
-                            {generating ? 'Generando certificado...' : 'Obtener mi Certificado'}
-                        </Button>
-                    )}
+                    {/* Botón para generar el certificado */}
+                    <Button
+                        variant="contained"
+                        onClick={handleGenerar}
+                        disabled={generating}
+                        startIcon={generating ? <CircularProgress size={18} color="inherit" /> : <i className="tabler-certificate" />}
+                        sx={{
+                            bgcolor: '#025E44', borderRadius: '12px', textTransform: 'none',
+                            fontWeight: 700, fontSize: '0.95rem', px: 4, py: 1.25,
+                            boxShadow: 'none', '&:hover': { bgcolor: '#014d36', boxShadow: 'none' }
+                        }}
+                    >
+                        {generating ? 'Generando certificado...' : 'Obtener mi Certificado'}
+                    </Button>
                 </Box>
             ) : (
 

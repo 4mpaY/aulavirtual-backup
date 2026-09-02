@@ -77,7 +77,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
         where: {
           usuario_id: userId,
           curso_id: course.id,
-          estado: 'ACTIVO'
+          estado: { in: ['ACTIVO', 'COMPLETADO'] }
         }
       })
 

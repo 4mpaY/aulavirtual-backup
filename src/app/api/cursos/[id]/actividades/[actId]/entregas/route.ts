@@ -61,7 +61,7 @@ export async function GET(request: Request, { params }: { params: { id: string; 
     })
 
     const inscripciones = await prisma.inscripcion.findMany({
-      where: { curso_id: cursoId, estado: 'ACTIVO' },
+      where: { curso_id: cursoId, estado: { in: ['ACTIVO', 'COMPLETADO'] } },
       select: { usuario: { select: { id: true, nombre: true, apellido: true, avatar: true, correo: true } } }
     })
 

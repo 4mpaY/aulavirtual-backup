@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
     const [inscripciones, totalCertificados, certificados] = await Promise.all([
       prisma.inscripcion.findMany({
-        where: { usuario_id: usuarioId, estado: 'ACTIVO' },
+        where: { usuario_id: usuarioId, estado: { in: ['ACTIVO', 'COMPLETADO'] } },
         include: {
           curso: {
             include: {

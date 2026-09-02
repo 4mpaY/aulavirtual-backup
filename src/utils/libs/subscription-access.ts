@@ -17,7 +17,7 @@ export async function puedeAccederCurso(
     include: { curso: { select: { vigencia_meses: true } } }
   })
 
-  if (inscripcion && inscripcion.estado === 'ACTIVO') {
+  if (inscripcion && ['ACTIVO', 'COMPLETADO'].includes(inscripcion.estado)) {
     const vigencia = inscripcion.curso.vigencia_meses ?? 0
 
     if (vigencia === 0) return { acceso: true, razon: 'INSCRIPCION' }

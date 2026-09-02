@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     }
 
     const inscripcion = await prisma.inscripcion.findFirst({
-      where: { usuario_id: auth.user.id, curso_id: cursoId, estado: 'ACTIVO' }
+      where: { usuario_id: auth.user.id, curso_id: cursoId, estado: { in: ['ACTIVO', 'COMPLETADO'] } }
     })
 
     if (!inscripcion) {

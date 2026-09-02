@@ -1,4 +1,7 @@
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+import { revalidateTag } from 'next/cache'
 
 import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireAuth } from '@/utils/libs/auth-helpers'
@@ -39,7 +42,7 @@ export async function POST(request: Request) {
       return ApiResponse.error(request, 'No tienes permisos para realizar esta acción', 403)
     }
 
-    const { nombre, slug, descripcion, estado, orden } = await request.json()
+    const { nombre, slug, descripcion, imagen, estado, orden } = await request.json()
 
     if (!nombre || !slug) {
       return ApiResponse.error(request, 'El nombre y el slug son requeridos', 400)
@@ -50,10 +53,13 @@ export async function POST(request: Request) {
         nombre,
         slug,
         descripcion,
+        imagen,
         estado: estado || 'DISPONIBLE',
         orden: Number(orden) || 0
       }
     })
+
+    revalidateTag('web-escuelas')
 
     return ApiResponse.success(request, { id: escuela.id, message: 'Escuela creada correctamente' })
   } catch (error: any) {

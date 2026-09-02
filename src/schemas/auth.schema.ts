@@ -49,10 +49,11 @@ export const registerSchema = z
       .trim()
       .min(2, 'El apellido debe tener al menos 2 caracteres')
       .max(50, 'El apellido no puede exceder 50 caracteres'),
+    tipo_documento: z.enum(['DNI', 'CE', 'PASAPORTE', 'OTRO']),
     numero_documento: z
       .string()
       .trim()
-      .regex(/^\d{8}$/, 'El DNI debe tener exactamente 8 dígitos'),
+      .min(1, 'El número de documento es requerido'),
     celular: z
       .string()
       .trim()
@@ -60,9 +61,22 @@ export const registerSchema = z
       .max(20, 'El celular es muy largo')
       .regex(/^\+?[0-9\s]+$/, 'Solo se permiten números, espacios y el signo + al inicio')
   })
-  .refine((data) => data.contrasena === data.confirmarContrasena, {
-    message: 'Las contraseñas no coinciden',
-    path: ['confirmarContrasena']
+  .superRefine((data, ctx) => {
+    if (data.contrasena !== data.confirmarContrasena) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Las contraseñas no coinciden',
+        path: ['confirmarContrasena']
+      })
+    }
+
+    if (data.tipo_documento === 'DNI' && !/^\d{8}$/.test(data.numero_documento)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'El DNI debe tener exactamente 8 dígitos',
+        path: ['numero_documento']
+      })
+    }
   })
 
 export type RegisterDto = z.infer<typeof registerSchema>

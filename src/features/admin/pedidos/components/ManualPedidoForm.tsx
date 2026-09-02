@@ -13,7 +13,12 @@ import {
     MenuItem,
     Autocomplete,
     Typography,
-    CircularProgress
+    CircularProgress,
+    FormControl,
+    FormLabel,
+    RadioGroup,
+    FormControlLabel,
+    Radio
 } from '@mui/material'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -26,21 +31,21 @@ import { crearPedidoManualSchema, type CrearPedidoManualDto } from '@/schemas/pe
 import { useCreatePedidoManual } from '../hooks/usePedidos'
 import { useUsuarios } from '@/features/admin/usuarios/hooks/useUsuarios'
 import { useCursos } from '@/features/admin/cursos/hooks/useCursos'
-import { useAdminEbooks } from '@/features/admin/ebooks/hooks/useEbooks'
+import { useRutas } from '@/features/admin/rutas/hooks/useRutas'
 
 export function ManualPedidoForm() {
     const router = useRouter()
     const { enqueueSnackbar } = useSnackbar()
     const [selectedCoursePrice, setSelectedCoursePrice] = useState<number>(0)
-    const [selectedEbookPrice, setSelectedEbookPrice] = useState<number>(0)
+    const [tipoPedido, setTipoPedido] = useState<'CAPACITACION' | 'RUTA'>('CAPACITACION')
 
     const { data: usuariosData, isLoading: isLoadingUsuarios } = useUsuarios({ limit: '1000' })
     const { data: cursosData, isLoading: isLoadingCursos } = useCursos()
-    const { data: ebooksData, isLoading: isLoadingEbooks } = useAdminEbooks({ estado: 'PUBLICADO' })
+    const { data: rutasData = [], isLoading: isLoadingRutas } = useRutas()
 
     const usuarios = (usuariosData?.usuarios || []).filter(u => u.rol === 'ESTUDIANTE')
     const cursos = (cursosData?.cursos || []).filter(c => c.estado === 'PUBLICADO')
-    const ebooks = ebooksData || []
+    const rutas = rutasData.filter(r => r.esta_activo)
 
     const {
         control,
@@ -52,7 +57,7 @@ export function ManualPedidoForm() {
         defaultValues: {
             usuarios_ids: [],
             cursos_ids: [],
-            ebooks_ids: [],
+            rutas_ids: [],
             estado: 'COMPLETADO' as const,
             metodo_pago: MetodoPago.TRANSFERENCIA,
             precio: 0,
@@ -116,7 +121,27 @@ export function ManualPedidoForm() {
                             />
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={12}>
+                            <FormControl>
+                                <FormLabel>Tipo de Ítem a Agregar</FormLabel>
+                                <RadioGroup
+                                    row
+                                    value={tipoPedido}
+                                    onChange={(e) => {
+                                        setTipoPedido(e.target.value as any)
+                                        setValue('cursos_ids', [])
+                                        setValue('rutas_ids', [])
+                                        setValue('precio', 0)
+                                        setSelectedCoursePrice(0)
+                                    }}
+                                >
+                                    <FormControlLabel value="CAPACITACION" control={<Radio />} label="Capacitaciones" />
+                                    <FormControlLabel value="RUTA" control={<Radio />} label="Rutas de Aprendizaje" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+
+                        {tipoPedido === 'CAPACITACION' && <Grid item xs={12} md={6}>
                             <Controller
                                 name='cursos_ids'
                                 control={control}
@@ -133,14 +158,14 @@ export function ManualPedidoForm() {
 
                                             const totalPrice = newValue.reduce((acc, curr) => acc + Number(curr.precio), 0)
 
-                                            setValue('precio', totalPrice + selectedEbookPrice)
+                                            setValue('precio', totalPrice)
                                             setSelectedCoursePrice(totalPrice)
                                         }}
                                         renderInput={(params) => (
                                             <CustomTextField
                                                 {...params}
-                                                label='Seleccionar Cursos'
-                                                placeholder='Busca cursos activos'
+                                                label='Seleccionar Capacitaciones'
+                                                placeholder='Busca capacitaciones activas'
                                                 error={!!errors.cursos_ids}
                                                 helperText={(errors.cursos_ids as any)?.message}
                                                 InputProps={{
@@ -157,40 +182,35 @@ export function ManualPedidoForm() {
                                     />
                                 )}
                             />
-                        </Grid>
+                        </Grid>}
 
-                        <Grid item xs={12} md={6}>
+                        {tipoPedido === 'RUTA' && <Grid item xs={12} md={6}>
                             <Controller
-                                name='ebooks_ids'
+                                name='rutas_ids'
                                 control={control}
                                 render={({ field: { value, onChange } }) => (
                                     <Autocomplete
                                         fullWidth
                                         multiple
-                                        options={ebooks}
+                                        options={rutas}
                                         getOptionLabel={(option) => option.titulo}
-                                        loading={isLoadingEbooks}
-                                        value={ebooks.filter((e) => value.includes(e.id))}
+                                        loading={isLoadingRutas}
+                                        value={rutas.filter((r) => value.includes(r.id))}
                                         onChange={(_, newValue) => {
-                                            onChange(newValue.map(e => e.id))
-
-                                            const totalPrice = newValue.reduce((acc, curr) => acc + Number(curr.precio), 0)
-
-                                            setValue('precio', selectedCoursePrice + totalPrice)
-                                            setSelectedEbookPrice(totalPrice)
+                                            onChange(newValue.map(r => r.id))
                                         }}
                                         renderInput={(params) => (
                                             <CustomTextField
                                                 {...params}
-                                                label='Seleccionar Ebooks'
-                                                placeholder='Busca ebooks publicados'
-                                                error={!!errors.ebooks_ids}
-                                                helperText={(errors.ebooks_ids as any)?.message}
+                                                label='Seleccionar Rutas de Aprendizaje'
+                                                placeholder='Busca rutas publicadas'
+                                                error={!!errors.rutas_ids}
+                                                helperText={(errors.rutas_ids as any)?.message}
                                                 InputProps={{
                                                     ...params.InputProps,
                                                     endAdornment: (
                                                         <Fragment>
-                                                            {isLoadingEbooks ? <CircularProgress color="inherit" size={20} /> : null}
+                                                            {isLoadingRutas ? <CircularProgress color="inherit" size={20} /> : null}
                                                             {params.InputProps.endAdornment}
                                                         </Fragment>
                                                     ),
@@ -200,7 +220,7 @@ export function ManualPedidoForm() {
                                     />
                                 )}
                             />
-                        </Grid>
+                        </Grid>}
 
                         <Grid item xs={12} md={4}>
                             <Controller
@@ -214,7 +234,7 @@ export function ManualPedidoForm() {
                                         label='Precio del Pedido'
                                         placeholder='0.00'
                                         error={!!errors.precio}
-                                        helperText={errors.precio ? errors.precio.message : `Precio total sugerido: ${selectedCoursePrice + selectedEbookPrice}`}
+                                        helperText={errors.precio ? errors.precio.message : `Precio total sugerido: ${tipoPedido === 'CAPACITACION' ? selectedCoursePrice : 0}`}
                                         InputProps={{
                                             startAdornment: <Typography sx={{ mr: 2, color: 'text.secondary' }}>PEN</Typography>
                                         }}

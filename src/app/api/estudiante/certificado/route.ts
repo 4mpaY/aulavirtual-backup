@@ -20,7 +20,7 @@ async function checkRutaCompletada(usuarioId: string, rutaId: string) {
     where: {
       usuario_id: usuarioId,
       curso_id: { in: cursoIds },
-      estado: 'ACTIVO',
+      estado: { in: ['ACTIVO', 'COMPLETADO'] },
       completado_en: { not: null }
     },
     select: { curso_id: true }
@@ -285,7 +285,7 @@ export async function POST(request: Request) {
       })
     ])
 
-    if (!inscripcion || inscripcion.estado !== 'ACTIVO') {
+    if (!inscripcion || !['ACTIVO', 'COMPLETADO'].includes(inscripcion.estado)) {
       return ApiResponse.error(request, 'No estás inscrito en este curso', 403)
     }
 
