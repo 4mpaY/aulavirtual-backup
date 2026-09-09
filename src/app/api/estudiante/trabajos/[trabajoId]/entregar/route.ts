@@ -7,10 +7,9 @@ import prisma from '@/utils/libs/prisma'
  * POST /api/estudiante/trabajos/[trabajoId]/entregar
  * Permite a un estudiante subir o actualizar su entrega para un trabajo.
  */
-export async function POST(
-  request: Request,
-  { params }: { params: { trabajoId: string } }
-) {
+export async function POST(request: Request, props: { params: Promise<{ trabajoId: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

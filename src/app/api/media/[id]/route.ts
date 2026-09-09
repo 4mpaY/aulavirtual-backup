@@ -10,7 +10,9 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
  * DELETE /api/media/[id]
  * Eliminar un archivo y su registro en la base de datos
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const { id } = params
 

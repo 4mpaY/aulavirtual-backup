@@ -10,7 +10,9 @@ import { puedeAccederCurso } from '@/utils/libs/subscription-access'
  * GET /api/estudiante/actividades/[actId]
  * Detalle de actividad para el estudiante (sin revelar respuestas correctas)
  */
-export async function GET(request: Request, { params }: { params: { actId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ actId: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

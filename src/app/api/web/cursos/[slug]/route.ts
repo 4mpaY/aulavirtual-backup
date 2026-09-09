@@ -10,7 +10,9 @@ import { handleApiError } from '@/utils/libs/validation'
  * Retorna el detalle completo de un solo curso publicado.
  * Calcula `es_comprado` dinámicamente si se recibe autenticación.
  */
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+
   try {
     const { slug } = params
 

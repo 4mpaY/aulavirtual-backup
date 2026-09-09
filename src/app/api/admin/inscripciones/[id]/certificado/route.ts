@@ -10,7 +10,9 @@ import { handleApiError } from '@/utils/libs/validation'
  * Habilita o deshabilita la descarga del certificado de una inscripción.
  * Usado para cursos gratuitos con certificado de pago.
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

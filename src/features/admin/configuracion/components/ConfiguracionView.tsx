@@ -1140,7 +1140,7 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
                   label='Número de WhatsApp'
                   value={config.PAGO_MANUAL_WHATSAPP_NUMERO || ''}
                   onChange={(e) => handleInputChange('PAGO_MANUAL_WHATSAPP_NUMERO', e.target.value)}
-                  helperText='Sin + ni espacios. Ej: 51959436827'
+                  helperText='Sin + ni espacios. Ej: 51977703661'
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position='start'>

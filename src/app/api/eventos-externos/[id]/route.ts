@@ -10,7 +10,9 @@ import { actualizarEventoExternoSchema } from '@/schemas/eventoExterno.schema'
  * PATCH /api/eventos-externos/[id]
  * Solo el creador del evento puede editarlo
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -65,7 +67,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * DELETE /api/eventos-externos/[id]
  * Solo el creador del evento puede eliminarlo
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

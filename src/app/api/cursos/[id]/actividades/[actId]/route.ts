@@ -35,7 +35,12 @@ async function checkAccess(cursoId: string, actId: string, auth: any, request: R
 /**
  * GET /api/cursos/[id]/actividades/[actId]
  */
-export async function GET(request: Request, { params }: { params: { id: string; actId: string } }) {
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ id: string; actId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 
@@ -60,7 +65,12 @@ export async function GET(request: Request, { params }: { params: { id: string; 
 /**
  * PATCH /api/cursos/[id]/actividades/[actId]
  */
-export async function PATCH(request: Request, { params }: { params: { id: string; actId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; actId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 
@@ -98,7 +108,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 /**
  * DELETE /api/cursos/[id]/actividades/[actId]
  */
-export async function DELETE(request: Request, { params }: { params: { id: string; actId: string } }) {
+export async function DELETE(
+  request: Request,
+  props: { params: Promise<{ id: string; actId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

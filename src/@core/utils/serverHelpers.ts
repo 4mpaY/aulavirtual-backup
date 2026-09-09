@@ -11,15 +11,15 @@ import type { DemoName, SystemMode, Mode } from '@core/types'
 import primaryColorConfig from '@/utils/configs/primaryColorConfig'
 import themeConfig from '@/utils/configs/themeConfig'
 
-export const getDemoName = (): DemoName => {
-  const headersList = headers()
+export const getDemoName = async (): Promise<DemoName | null> => {
+  const headersList = await headers()
 
   return headersList.get('X-server-header') as DemoName | null
 }
 
-export const getSettingsFromCookie = (): Settings => {
-  const cookieStore = cookies()
-  const demoName = getDemoName()
+export const getSettingsFromCookie = async (): Promise<Settings> => {
+  const cookieStore = await cookies()
+  const demoName = await getDemoName()
 
   const cookieName = demoName
     ? themeConfig.settingsCookieName.replace('demo-1', demoName)
@@ -50,8 +50,8 @@ export const getServerMode = () => {
   return mode === 'system' ? systemMode : mode
 }
 
-export const getSkin = () => {
-  const settingsCookie = getSettingsFromCookie()
+export const getSkin = async () => {
+  const settingsCookie = await getSettingsFromCookie()
 
   return settingsCookie.skin || 'default'
 }

@@ -8,7 +8,12 @@ import { handleApiError } from '@/utils/libs/validation'
 /**
  * POST /api/cursos/[id]/actividades/[actId]/preguntas
  */
-export async function POST(request: Request, { params }: { params: { id: string; actId: string } }) {
+export async function POST(
+  request: Request,
+  props: { params: Promise<{ id: string; actId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

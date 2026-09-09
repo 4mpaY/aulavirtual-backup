@@ -8,10 +8,9 @@ import prisma from '@/utils/libs/prisma'
  * Permite a un profesor o administrador calificar y dejar retroalimentación
  * sobre la entrega de un trabajo por parte de un estudiante.
  */
-export async function PATCH(
-  request: Request,
-  { params }: { params: { entregaId: string } }
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ entregaId: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

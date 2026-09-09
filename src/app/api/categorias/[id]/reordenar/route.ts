@@ -8,7 +8,9 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  * PATCH /api/categorias/[id]/reordenar
  * Reordenar las subcategorías de la categoría padre [id]
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

@@ -23,7 +23,7 @@ import { getProqallDocenteBySlug } from '@/branches/proqall/docentes'
 import { isProqallBranch } from '@/branches/proqall/isProqallBranch'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export const dynamic = 'force-dynamic'
@@ -83,7 +83,8 @@ async function getDocente(slug: string) {
   }
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props: Props) {
+  const params = await props.params;
   const docente = await getDocente(params.slug)
 
   if (!docente) return { title: 'Docente no encontrado' }
@@ -94,7 +95,8 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export default async function DocentePage({ params }: Props) {
+export default async function DocentePage(props: Props) {
+  const params = await props.params;
   const docente = await getDocente(params.slug)
 
   if (!docente) notFound()

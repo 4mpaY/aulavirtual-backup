@@ -7,7 +7,9 @@ import prisma from '@/utils/libs/prisma'
 import { actualizarPlanSchema } from '@/schemas/plan-suscripcion.schema'
 import { calcularCulqiIntervalo, culqiSuscripcion } from '@/utils/libs/culqi-suscripcion'
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -31,7 +33,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -101,7 +105,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

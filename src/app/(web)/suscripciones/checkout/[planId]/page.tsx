@@ -32,7 +32,9 @@ async function getCulqiPublicKey(): Promise<string> {
   return process.env.CULQI_PUBLIC_KEY ?? ''
 }
 
-export default async function SuscripcionCheckoutPage({ params }: { params: { planId: string } }) {
+export default async function SuscripcionCheckoutPage(props: { params: Promise<{ planId: string }> }) {
+  const params = await props.params;
+
   const [plan, culqiPublicKey] = await Promise.all([
     getPlan(params.planId),
     getCulqiPublicKey()
@@ -43,7 +45,8 @@ export default async function SuscripcionCheckoutPage({ params }: { params: { pl
   return <SuscripcionCheckoutView plan={plan} culqiPublicKey={culqiPublicKey} />
 }
 
-export async function generateMetadata({ params }: { params: { planId: string } }) {
+export async function generateMetadata(props: { params: Promise<{ planId: string }> }) {
+  const params = await props.params;
   const plan = await getPlan(params.planId)
 
   return {

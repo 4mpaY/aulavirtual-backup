@@ -8,7 +8,12 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  * POST /api/cursos/[id]/modulos/[moduloId]/lecciones
  * Crear una lección dentro de un módulo
  */
-export async function POST(request: Request, { params }: { params: { id: string; moduloId: string } }) {
+export async function POST(
+  request: Request,
+  props: { params: Promise<{ id: string; moduloId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

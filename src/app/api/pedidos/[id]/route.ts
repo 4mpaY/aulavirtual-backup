@@ -11,7 +11,9 @@ import { updatePedidoSchema } from '@/schemas/pedido.schema'
  * GET /api/pedidos/[id]
  * Obtener detalle de pedido (solo ADMIN)
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -49,7 +51,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * PATCH /api/pedidos/[id]
  * Actualizar pedido (solo ADMIN)
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -187,7 +191,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * DELETE /api/pedidos/[id]
  * Eliminar pedido e inscripciones vinculadas (solo ADMIN)
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

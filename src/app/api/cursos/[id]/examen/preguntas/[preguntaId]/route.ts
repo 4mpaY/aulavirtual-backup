@@ -3,7 +3,12 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 
-export async function PUT(request: Request, { params }: { params: { id: string; preguntaId: string } }) {
+export async function PUT(
+  request: Request,
+  props: { params: Promise<{ id: string; preguntaId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 
@@ -71,7 +76,12 @@ export async function PUT(request: Request, { params }: { params: { id: string; 
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string; preguntaId: string } }) {
+export async function DELETE(
+  request: Request,
+  props: { params: Promise<{ id: string; preguntaId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

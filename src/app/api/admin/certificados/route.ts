@@ -207,11 +207,11 @@ export async function POST(request: Request) {
         }
       })
     } else {
-      // Generar código de verificación: {CODIGO_CURSO}-{YYYYMMDD}-{DNI}-{NN}
-      const fechaStr = fechaEmision.toISOString().slice(0, 10).replace(/-/g, '')
+      // Generar código de verificación
       const dni = usuario.numero_documento?.replace(/\D/g, '') || 'SINDNI'
-      const codigoCurso = curso.codigo || curso.slug.slice(0, 12).toUpperCase()
-      const codigoVerificacion = `${codigoCurso}-${fechaStr}-${dni}-01`
+      const codigoCursoCorto = (curso.titulo || '').substring(0, 3).toUpperCase()
+      const dniCorto = dni.slice(-3)
+      const codigoVerificacion = `${codigoCursoCorto}-${dniCorto}-01`
 
       certificado = await prisma.certificado.create({
         data: {

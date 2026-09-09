@@ -13,7 +13,9 @@ import { getPdfBuffer } from '@/app/api/_shared/certificados/getPdfBuffer'
  * La plantilla se resuelve: override del curso > configuración global CERTIFICADO_PLANTILLA > 'clasico'.
  * Si tiene un PDF estático importado, lo sirve; si no, lo genera dinámicamente.
  */
-export async function GET(request: Request, { params }: { params: { certificadoId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ certificadoId: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

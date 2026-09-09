@@ -8,7 +8,9 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
  * Envía las respuestas del examen y califica automáticamente
  * Body: { respuestas: [{ preguntaId: string, opcionId: string }] }
  */
-export async function POST(request: Request, { params }: { params: { examenId: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ examenId: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

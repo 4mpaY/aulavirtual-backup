@@ -13,7 +13,9 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  * GET /api/usuarios/[id]
  * Obtener un usuario por ID (ADMIN o el mismo usuario)
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
 
     // Verificar autenticación
@@ -91,7 +93,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * PATCH /api/usuarios/[id]
  * Actualizar un usuario (ADMIN)
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     // Verificar que sea admin
     const auth = await requireAdmin(request)
@@ -179,7 +183,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * DELETE /api/usuarios/[id]
  * Eliminar un usuario (ADMIN)
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     // Verificar que sea admin
     const auth = await requireAdmin(request)

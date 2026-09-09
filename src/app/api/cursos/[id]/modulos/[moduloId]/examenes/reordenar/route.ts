@@ -10,8 +10,10 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  */
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string; moduloId: string } }
+  props: { params: Promise<{ id: string; moduloId: string }> }
 ) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

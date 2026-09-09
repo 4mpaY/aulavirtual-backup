@@ -25,7 +25,9 @@ const preguntaSchema = z.object({
   opciones: z.array(opcionSchema).min(2).max(6),
 })
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const preguntas: any[] = await prisma.$queryRaw`
       SELECT id, enunciado, tema, fundamento, audio_url, imagen_url, orden
@@ -53,7 +55,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

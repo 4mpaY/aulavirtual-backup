@@ -11,7 +11,8 @@ export const metadata: Metadata = {
   description: 'Edita el contenido y configuración del curso'
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getAuthSession()
 
   if (!session) {

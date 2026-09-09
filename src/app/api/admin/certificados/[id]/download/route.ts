@@ -11,7 +11,9 @@ import { getPdfBuffer } from '@/app/api/_shared/certificados/getPdfBuffer'
  * Descarga el PDF del certificado (solo ADMIN).
  * La plantilla se resuelve: override del curso > configuración global CERTIFICADO_PLANTILLA > 'clasico'.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

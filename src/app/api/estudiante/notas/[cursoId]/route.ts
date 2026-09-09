@@ -25,7 +25,9 @@ function toNotaFinalNumber(value: unknown): number | null {
   return Number.isFinite(n) ? n : null
 }
 
-export async function GET(request: Request, { params }: { params: { cursoId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ cursoId: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

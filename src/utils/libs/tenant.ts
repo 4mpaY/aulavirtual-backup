@@ -1,4 +1,4 @@
-import { headers } from 'next/headers'
+import { headers } from 'next/headers';
 
 /**
  * Helper para manejar la resolución de multitenancy por dominios.

@@ -7,7 +7,9 @@ import RutaDetail from '@/features/web/rutas/components/RutaDetail'
 
 const axiosRuta = new AxiosRuta()
 
-export default async function RutaDetailPage({ params }: { params: { slug: string } }) {
+export default async function RutaDetailPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+
   try {
     const ruta = await axiosRuta.getBySlug(params.slug)
 
@@ -33,7 +35,9 @@ export default async function RutaDetailPage({ params }: { params: { slug: strin
   }
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+
   try {
     const ruta = await axiosRuta.getBySlug(params.slug)
 

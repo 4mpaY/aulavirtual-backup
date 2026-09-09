@@ -10,7 +10,9 @@ import { completeOrder } from '@/utils/libs/order-service'
  * POST /api/admin/pedidos/[id]/completar
  * El admin completa un pedido manual tras verificar el voucher (solo ADMIN)
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

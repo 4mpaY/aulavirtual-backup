@@ -10,8 +10,10 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  */
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string; moduloId: string; leccionId: string } }
+  props: { params: Promise<{ id: string; moduloId: string; leccionId: string }> }
 ) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 
@@ -102,8 +104,10 @@ export async function PATCH(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string; moduloId: string; leccionId: string } }
+  props: { params: Promise<{ id: string; moduloId: string; leccionId: string }> }
 ) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

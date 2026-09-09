@@ -10,7 +10,9 @@ import { getConfigs } from '@/utils/libs/config'
  * GET /api/admin/firmantes/[id]
  * Obtiene un firmante (solo ADMIN)
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -32,7 +34,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * PATCH /api/admin/firmantes/[id]
  * Actualiza nombre, cargo, firma, sello o estado activo (solo ADMIN)
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -72,7 +76,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * es desactivarlo (PATCH { activo: false }), lo cual lo oculta de los
  * selectores sin romper certificados que lo referencien.
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

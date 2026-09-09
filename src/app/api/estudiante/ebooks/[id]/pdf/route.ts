@@ -14,7 +14,9 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
  * Sirve el PDF del ebook de forma segura (inline, sin descarga).
  * Solo accesible para usuarios autenticados con EbookAcceso registrado.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

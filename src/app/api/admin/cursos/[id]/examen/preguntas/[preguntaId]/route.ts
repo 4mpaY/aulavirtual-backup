@@ -4,7 +4,12 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import prisma from '@/utils/libs/prisma'
 
-export async function PUT(req: Request, { params }: { params: { id: string; preguntaId: string } }) {
+export async function PUT(
+  req: Request,
+  props: { params: Promise<{ id: string; preguntaId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const session = await getAuthSession()
 
@@ -84,7 +89,12 @@ export async function PUT(req: Request, { params }: { params: { id: string; preg
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string; preguntaId: string } }) {
+export async function DELETE(
+  req: Request,
+  props: { params: Promise<{ id: string; preguntaId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const session = await getAuthSession()
 

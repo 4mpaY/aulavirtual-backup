@@ -10,7 +10,9 @@ import { updateReclamacionSchema } from '@/schemas/reclamacion.schema'
  * PATCH /api/reclamaciones/[id]
  * Actualizar respuesta y estado de la reclamación (solo ADMIN)
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

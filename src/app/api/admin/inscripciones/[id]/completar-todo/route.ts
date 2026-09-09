@@ -10,7 +10,9 @@ import { handleApiError } from '@/utils/libs/validation'
  * Marca todas las lecciones del curso como completadas para el alumno de esa inscripción.
  * El admin puede hacer esto sin importar la configuración completar_automatico del curso.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

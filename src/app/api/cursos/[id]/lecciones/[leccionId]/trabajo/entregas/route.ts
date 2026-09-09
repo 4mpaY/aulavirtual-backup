@@ -10,8 +10,10 @@ import prisma from '@/utils/libs/prisma'
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string; leccionId: string } }
+  props: { params: Promise<{ id: string; leccionId: string }> }
 ) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

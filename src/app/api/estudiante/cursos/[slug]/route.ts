@@ -12,7 +12,9 @@ import { puedeAccederCurso } from '@/utils/libs/subscription-access'
 
 const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'dev-secret'
 
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+
   try {
     let user: any = null
 

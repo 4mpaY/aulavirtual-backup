@@ -24,8 +24,10 @@ async function verifyCursoAccess(request: Request, cursoId: string) {
  */
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string; examenId: string; preguntaId: string } }
+  props: { params: Promise<{ id: string; examenId: string; preguntaId: string }> }
 ) {
+  const params = await props.params;
+
   try {
     const access = await verifyCursoAccess(request, params.id)
 
@@ -72,8 +74,10 @@ export async function PATCH(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string; examenId: string; preguntaId: string } }
+  props: { params: Promise<{ id: string; examenId: string; preguntaId: string }> }
 ) {
+  const params = await props.params;
+
   try {
     const access = await verifyCursoAccess(request, params.id)
 

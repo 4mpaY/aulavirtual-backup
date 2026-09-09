@@ -8,7 +8,9 @@ import prisma from '@/utils/libs/prisma'
  * GET /api/web/docentes/[slug]
  * Retorna el perfil público de un docente: nombre, cargo, biografía, avatar y sus cursos publicados.
  */
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+
   try {
     const { slug } = params
 

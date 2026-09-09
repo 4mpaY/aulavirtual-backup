@@ -39,7 +39,12 @@ async function assertActividadAccess(cursoId: string, actId: string, auth: any, 
  * GET /api/cursos/[id]/actividades/[actId]/entregas
  * Lista entregas, pendientes y contexto de la actividad para revisión
  */
-export async function GET(request: Request, { params }: { params: { id: string; actId: string } }) {
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ id: string; actId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

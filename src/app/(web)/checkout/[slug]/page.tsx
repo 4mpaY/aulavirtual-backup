@@ -25,7 +25,8 @@ async function getCourseData(slug: string) {
     }
 }
 
-export default async function CheckoutPage({ params }: { params: { slug: string } }) {
+export default async function CheckoutPage(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
     const course = await getCourseData(params.slug)
 
     if (!course) {

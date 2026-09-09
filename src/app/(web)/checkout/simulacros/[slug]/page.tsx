@@ -15,7 +15,8 @@ async function getSimulacroData(slug: string) {
   }
 }
 
-export default async function CheckoutSimulacroPage({ params }: { params: { slug: string } }) {
+export default async function CheckoutSimulacroPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const simulacro = await getSimulacroData(params.slug)
 
   if (!simulacro) notFound()

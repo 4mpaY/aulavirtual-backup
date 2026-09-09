@@ -11,8 +11,10 @@ import { handleApiError } from '@/utils/libs/validation'
  */
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string; actId: string; entId: string } }
+  props: { params: Promise<{ id: string; actId: string; entId: string }> }
 ) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 
@@ -78,8 +80,10 @@ export async function PATCH(
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string; actId: string; entId: string } }
+  props: { params: Promise<{ id: string; actId: string; entId: string }> }
 ) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

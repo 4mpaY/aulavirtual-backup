@@ -23,7 +23,12 @@ const updateSchema = z.object({
   })).min(2).max(6).optional(),
 })
 
-export async function PATCH(request: Request, { params }: { params: { id: string; preguntaId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; preguntaId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -80,7 +85,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string; preguntaId: string } }) {
+export async function DELETE(
+  request: Request,
+  props: { params: Promise<{ id: string; preguntaId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

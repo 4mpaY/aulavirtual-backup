@@ -7,7 +7,9 @@ import { getConfig } from '@/utils/libs/config'
 import prisma from '@/utils/libs/prisma'
 
 // GET: Obtener comentarios APROBADOS de una lección (público)
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const leccionId = params.id
 
@@ -43,7 +45,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // POST: Crear un nuevo comentario o responder
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const session = await getAuthSession()
 

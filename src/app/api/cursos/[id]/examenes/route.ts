@@ -9,7 +9,9 @@ import { handleApiError } from '@/utils/libs/validation'
  * GET /api/cursos/[id]/examenes
  * Lista todos los exámenes del curso (FINAL e INTERMEDIOS)
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 
@@ -47,7 +49,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * POST /api/cursos/[id]/examenes
  * Crear un nuevo examen (FINAL o INTERMEDIO)
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

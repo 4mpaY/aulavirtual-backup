@@ -9,7 +9,9 @@ import prisma from '@/utils/libs/prisma'
  * GET /api/admin/rutas/[id]
  * Detalle de una ruta con sus cursos
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -50,7 +52,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * PUT /api/admin/rutas/[id]
  * Actualiza una ruta
  */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -81,7 +85,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
  * DELETE /api/admin/rutas/[id]
  * Elimina una ruta
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

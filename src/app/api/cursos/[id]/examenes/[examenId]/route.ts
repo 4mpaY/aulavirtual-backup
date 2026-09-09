@@ -25,7 +25,12 @@ async function verifyCursoAccess(request: Request, cursoId: string) {
  * GET /api/cursos/[id]/examenes/[examenId]
  * Obtener un examen con todas sus preguntas
  */
-export async function GET(request: Request, { params }: { params: { id: string; examenId: string } }) {
+export async function GET(
+  request: Request,
+  props: { params: Promise<{ id: string; examenId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const access = await verifyCursoAccess(request, params.id)
 
@@ -56,7 +61,12 @@ export async function GET(request: Request, { params }: { params: { id: string; 
  * PATCH /api/cursos/[id]/examenes/[examenId]
  * Actualizar configuración de un examen
  */
-export async function PATCH(request: Request, { params }: { params: { id: string; examenId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; examenId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const access = await verifyCursoAccess(request, params.id)
 
@@ -117,7 +127,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * DELETE /api/cursos/[id]/examenes/[examenId]
  * Eliminar un examen
  */
-export async function DELETE(request: Request, { params }: { params: { id: string; examenId: string } }) {
+export async function DELETE(
+  request: Request,
+  props: { params: Promise<{ id: string; examenId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const access = await verifyCursoAccess(request, params.id)
 

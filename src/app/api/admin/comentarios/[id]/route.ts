@@ -9,7 +9,9 @@ import prisma from '@/utils/libs/prisma'
  * PATCH /api/admin/comentarios/[id]
  * Actualiza el estado de un comentario (APROBADO | RECHAZADO)
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -40,7 +42,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * DELETE /api/admin/comentarios/[id]
  * Elimina un comentario y sus respuestas (cascade)
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

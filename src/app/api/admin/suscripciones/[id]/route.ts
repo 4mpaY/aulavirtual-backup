@@ -6,7 +6,9 @@ import { handleApiError } from '@/utils/libs/validation'
 import prisma from '@/utils/libs/prisma'
 import { culqiSuscripcion } from '@/utils/libs/culqi-suscripcion'
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

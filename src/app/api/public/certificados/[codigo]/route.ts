@@ -6,7 +6,9 @@ import prisma from '@/utils/libs/prisma'
  * GET /api/public/certificados/[codigo]
  * API pública para consultar la validez y datos de un certificado por su código.
  */
-export async function GET(request: Request, { params }: { params: { codigo: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ codigo: string }> }) {
+  const params = await props.params;
+
   try {
     const { codigo } = params
 

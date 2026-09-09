@@ -3,7 +3,7 @@ import { join } from 'path'
 
 import { NextResponse } from 'next/server'
 
-import { resolveFaviconUrl } from '@/utils/functions/syncFavicon'
+import { resolveFaviconUrl } from '@/utils/functions/resolveFavicon'
 
 export const dynamic = 'force-dynamic'
 

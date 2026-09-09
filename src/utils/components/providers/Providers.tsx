@@ -13,14 +13,14 @@ type Props = ChildrenType & {
   direction: Direction
 }
 
-const Providers = (props: Props) => {
+const Providers = async (props: Props) => {
   // Props
   const { children, direction } = props
 
   // Vars
   const mode = getMode()
-  const settingsCookie = getSettingsFromCookie()
-  const demoName = getDemoName()
+  const settingsCookie = await getSettingsFromCookie()
+  const demoName = await getDemoName()
   const systemMode = getSystemMode()
 
   return (

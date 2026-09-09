@@ -15,7 +15,7 @@ function generateSlug(text: string): string {
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/-+/g, '-');
 }
 
 /**
@@ -44,7 +44,9 @@ async function generateUniqueSlug(nombre: string): Promise<string> {
  * POST /api/categorias/[id]/hijos
  * Crear una subcategoría (hijo) para la categoría padre [id]
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

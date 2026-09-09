@@ -10,7 +10,9 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
  * Obtiene las preguntas de un examen (sin revelar respuestas correctas)
  * Valida que el estudiante esté inscrito y tenga 100% de progreso
  */
-export async function GET(request: Request, { params }: { params: { examenId: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ examenId: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

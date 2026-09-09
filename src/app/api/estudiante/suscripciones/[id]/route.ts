@@ -11,7 +11,9 @@ import { enviarEmailSuscripcionCancelada } from '@/utils/libs/suscripcion-emails
  * DELETE /api/estudiante/suscripciones/[id]
  * Cancela una suscripción del usuario
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

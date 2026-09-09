@@ -21,7 +21,9 @@ const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
  * POST /api/pedidos/[id]/voucher
  * Sube la imagen del comprobante de pago para un pedido PENDIENTE (solo el dueño del pedido)
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

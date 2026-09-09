@@ -9,7 +9,9 @@ import { requireAuth } from '@/utils/libs/auth-helpers'
 /**
  * POST /api/ebooks/[id]/acceso — Otorga acceso a un ebook (gratis o tras pago)
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -39,7 +41,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
 /**
  * GET /api/ebooks/[id]/acceso — Verifica si el usuario tiene acceso
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

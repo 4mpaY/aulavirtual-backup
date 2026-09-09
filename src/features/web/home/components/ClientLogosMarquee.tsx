@@ -61,7 +61,7 @@ export default function ClientLogosMarquee({ logos: logosFromProps }: Props) {
             marginBottom: '0.75rem',
           }}
         >
-          Empresas que confían en nosotros
+          CONVENIOS QUE NOS RESPALDAN
         </p>
         <h2
           style={{

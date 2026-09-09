@@ -23,14 +23,14 @@ type Props = ChildrenType & {
     configs?: Record<string, string>
 }
 
-export const Providers = (props: Props) => {
+export const Providers = async (props: Props) => {
     // Props
     const { children, direction = 'ltr', session, configs = {} } = props
 
     // Vars
     const mode = getMode()
-    const settingsCookie = getSettingsFromCookie()
-    const demoName = getDemoName()
+    const settingsCookie = await getSettingsFromCookie()
+    const demoName = await getDemoName()
     const systemMode = getSystemMode()
 
     // Override settings with DB primary color, ignoring any local cookie values to enforce global branding

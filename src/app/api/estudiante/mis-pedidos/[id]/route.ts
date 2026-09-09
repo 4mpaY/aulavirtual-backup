@@ -9,7 +9,9 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  * GET /api/estudiante/mis-pedidos/[id]
  * Obtener el detalle de un pedido del usuario autenticado
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

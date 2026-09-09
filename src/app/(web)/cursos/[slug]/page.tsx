@@ -28,14 +28,15 @@ async function getCourseData(slug: string, token: string | null) {
     }
 }
 
-export default async function CourseDetailPage({ 
-    params
-}: { 
-    params: { slug: string }
-}) {
+export default async function CourseDetailPage(
+    props: { 
+        params: Promise<{ slug: string }>
+    }
+) {
+    const params = await props.params;
     const session = await getAuthSession()
     const token = session?.user?.accessToken ?? null
-    
+
     const course = await getCourseData(params.slug, token)
 
     if (!course) {
@@ -54,7 +55,8 @@ export default async function CourseDetailPage({
     )
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+    const params = await props.params;
     const course = await getCourseData(params.slug, null)
 
     if (!course) return { title: 'Curso no encontrado' }

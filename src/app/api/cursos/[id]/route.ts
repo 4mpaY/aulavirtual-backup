@@ -18,7 +18,7 @@ function generateSlug(text: string): string {
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/-+/g, '-');
 }
 
 async function generateUniqueSlug(titulo: string, excludeId?: string): Promise<string> {
@@ -115,7 +115,9 @@ const cursoInclude = {
  * GET /api/cursos/[id]
  * Obtener curso completo con módulos, lecciones, profesor y categoría
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -148,7 +150,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * PATCH /api/cursos/[id]
  * Actualizar datos del curso
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 
@@ -242,7 +246,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * DELETE /api/cursos/[id]
  * Eliminar un curso (solo en estado BORRADOR)
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

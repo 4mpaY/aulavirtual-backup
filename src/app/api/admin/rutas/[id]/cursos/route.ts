@@ -7,7 +7,9 @@ import prisma from '@/utils/libs/prisma'
  * POST /api/admin/rutas/[id]/cursos
  * Gestiona los cursos dentro de una ruta (añadir/reordenar)
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
     

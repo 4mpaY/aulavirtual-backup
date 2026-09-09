@@ -8,7 +8,9 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  * PATCH /api/cursos/[id]/estado
  * Cambiar el estado del curso (BORRADOR → PUBLICADO → ARCHIVADO)
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

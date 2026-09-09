@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   description: 'Diseña la cara 1 y cara 2 de un certificado y posiciona sus campos dinámicos'
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getAuthSession()
 
   if (!session) redirect('/login')

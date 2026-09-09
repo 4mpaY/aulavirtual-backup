@@ -17,7 +17,7 @@ function generateSlug(text: string): string {
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/-+/g, '-');
 }
 
 /**
@@ -46,7 +46,9 @@ async function generateUniqueSlug(nombre: string, excludeId?: string): Promise<s
  * GET /api/categorias/[id]
  * Obtener una categoría por ID con sus hijos ordenados
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -93,7 +95,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * PATCH /api/categorias/[id]
  * Actualizar una categoría (solo ADMIN)
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -168,7 +172,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * DELETE /api/categorias/[id]
  * Eliminar una categoría (solo ADMIN)
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

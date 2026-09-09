@@ -11,7 +11,9 @@ export async function generateMetadata() {
   }
 }
 
-export default async function CheckoutEbookPage({ params }: { params: { id: string } }) {
+export default async function CheckoutEbookPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   const ebook = await prisma.ebook.findFirst({
     where: { OR: [{ id: params.id }, { slug: params.id }], estado: 'PUBLICADO' },
     select: { id: true, titulo: true, slug: true, miniatura: true, precio: true, moneda: true, es_gratis: true },

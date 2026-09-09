@@ -19,8 +19,9 @@ const CONTENT_TYPES: Record<string, string> = {
   mkv: 'video/x-matroska'
 }
 
-export async function GET(request: Request, { params }: { params: { path: string[] } }) {
+export async function GET(request: Request, props: { params: Promise<{ path: string[] }> }) {
   try {
+    const params = await props.params
     const pathSegments = params.path
 
     const filePath = join(process.cwd(), 'public', 'uploads', ...pathSegments)

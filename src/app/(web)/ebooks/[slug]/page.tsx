@@ -9,10 +9,12 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 import EbookDetail from '@/features/web/ebooks/components/EbookDetail'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props: Props) {
+  const params = await props.params;
+
   const ebook = await prisma.ebook.findFirst({
     where: { OR: [{ id: params.slug }, { slug: params.slug }], estado: 'PUBLICADO' },
     select: { titulo: true, descripcion: true },
@@ -23,7 +25,9 @@ export async function generateMetadata({ params }: Props) {
     : { title: 'Ebook | Aula Virtual' }
 }
 
-export default async function EbookDetailPage({ params }: Props) {
+export default async function EbookDetailPage(props: Props) {
+  const params = await props.params;
+
   const ebook = await prisma.ebook.findFirst({
     where: { OR: [{ id: params.slug }, { slug: params.slug }], estado: 'PUBLICADO' },
     select: {

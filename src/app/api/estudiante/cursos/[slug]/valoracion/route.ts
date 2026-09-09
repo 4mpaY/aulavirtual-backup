@@ -7,10 +7,9 @@ import { handleApiError } from '@/utils/libs/validation'
  * GET /api/estudiante/cursos/[slug]/valoracion
  * Obtiene la calificación del usuario para un curso específico usando el slug
  */
-export async function GET(
-  request: Request,
-  { params }: { params: { slug: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
@@ -42,10 +41,9 @@ export async function GET(
  * POST /api/estudiante/cursos/[slug]/valoracion
  * Crea o actualiza la calificación del usuario para un curso usando el slug
  */
-export async function POST(
-  request: Request,
-  { params }: { params: { slug: string } }
-) {
+export async function POST(request: Request, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

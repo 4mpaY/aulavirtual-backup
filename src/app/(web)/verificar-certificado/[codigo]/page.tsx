@@ -29,9 +29,9 @@ import prisma from '@/utils/libs/prisma'
 import { getConfigs } from '@/utils/libs/config'
 
 interface Props {
-  params: {
+  params: Promise<{
     codigo: string
-  }
+  }>
 }
 
 export const dynamic = 'force-dynamic'
@@ -39,7 +39,8 @@ export const dynamic = 'force-dynamic'
 /**
  * Página pública de verificación de certificados
  */
-export default async function VerificarCertificadoPage({ params }: Props) {
+export default async function VerificarCertificadoPage(props: Props) {
+  const params = await props.params;
   const { codigo } = params
 
   const [certificado, configs] = await Promise.all([

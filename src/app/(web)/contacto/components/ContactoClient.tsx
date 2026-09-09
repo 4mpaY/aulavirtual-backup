@@ -9,7 +9,7 @@ import { useConfig } from '@/contexts/ConfigContext'
 
 export function ContactList() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51977703661'
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
@@ -66,7 +66,7 @@ export function ContactList() {
 
 export function ContactActions() {
   const configs = useConfig()
-  const waNumber = configs.WHATSAPP_NUMERO || '51959436827'
+  const waNumber = configs.WHATSAPP_NUMERO || '51977703661'
 
   return (
     <ScrollReveal>

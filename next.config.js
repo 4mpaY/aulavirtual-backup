@@ -47,6 +47,9 @@ const securityHeaders = [
 
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    serverComponentsExternalPackages: ['sharp']
+  },
   // NOTA: sin output: 'standalone'. La app usa un server.js personalizado (Socket.IO)
   // que requiere el árbol completo de node_modules en runtime; el output "standalone"
   // solo incluye lo que Next traza de las rutas/páginas y descarta server.js.

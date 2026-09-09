@@ -3,7 +3,9 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
 import { requireProfesorOrAdmin } from '@/utils/libs/auth-helpers'
 import { handleApiError } from '@/utils/libs/validation'
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

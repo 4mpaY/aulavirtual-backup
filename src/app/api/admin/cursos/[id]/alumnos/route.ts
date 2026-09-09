@@ -7,10 +7,9 @@ import prisma from '@/utils/libs/prisma'
  * GET /api/admin/cursos/[id]/alumnos
  * Obtiene los alumnos inscritos en un curso, con opción de búsqueda
  */
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 

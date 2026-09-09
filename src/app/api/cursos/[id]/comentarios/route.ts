@@ -8,7 +8,9 @@ import { ApiResponse } from '@/utils/libs/apiResponse'
  * GET /api/cursos/[id]/comentarios
  * Obtener todos los comentarios de todas las lecciones de un curso
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

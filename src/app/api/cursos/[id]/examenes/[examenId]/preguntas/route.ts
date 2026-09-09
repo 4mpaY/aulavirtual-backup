@@ -7,7 +7,12 @@ import { handleApiError } from '@/utils/libs/validation'
  * POST /api/cursos/[id]/examenes/[examenId]/preguntas
  * Agregar una pregunta a un examen específico
  */
-export async function POST(request: Request, { params }: { params: { id: string; examenId: string } }) {
+export async function POST(
+  request: Request,
+  props: { params: Promise<{ id: string; examenId: string }> }
+) {
+  const params = await props.params;
+
   try {
     const auth = await requireProfesorOrAdmin(request)
 

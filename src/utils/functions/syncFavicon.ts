@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-import sharp from 'sharp'
+
 
 const BRANDING_DIR = join(process.cwd(), 'public', 'uploads', 'branding')
 const ICONS_DIR = join(process.cwd(), 'public', 'icons')
@@ -35,6 +35,8 @@ export async function syncFaviconFromUrl(sourceUrl: string): Promise<string> {
   await mkdir(BRANDING_DIR, { recursive: true })
   await mkdir(ICONS_DIR, { recursive: true })
 
+  const sharp = (await import('sharp')).default
+
   const faviconBuffer = await sharp(sourceBuffer)
     .resize(32, 32, {
       fit: 'contain',
@@ -62,10 +64,4 @@ export async function syncFaviconFromUrl(sourceUrl: string): Promise<string> {
   return FAVICON_PUBLIC_PATH
 }
 
-export function getDefaultFaviconPath(): string {
-  return FAVICON_PUBLIC_PATH
-}
 
-export function resolveFaviconUrl(): string {
-  return '/favicon.ico'
-}

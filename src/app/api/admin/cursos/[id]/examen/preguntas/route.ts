@@ -4,7 +4,9 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 
 import prisma from '@/utils/libs/prisma'
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const session = await getAuthSession()
 

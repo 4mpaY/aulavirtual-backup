@@ -8,10 +8,12 @@ import { getAuthSession } from '@/utils/libs/auth-helpers'
 import prisma from '@/utils/libs/prisma'
 
 interface Props {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata(props: Props) {
+  const params = await props.params;
+
   const ebook = await prisma.ebook.findFirst({
     where: { OR: [{ id: params.id }, { slug: params.id }] },
     select: { titulo: true },
@@ -20,7 +22,8 @@ export async function generateMetadata({ params }: Props) {
   return { title: ebook ? `${ebook.titulo} | Mis Ebooks` : 'Ebook | Aula Virtual' }
 }
 
-export default async function Page({ params }: Props) {
+export default async function Page(props: Props) {
+  const params = await props.params;
   const session = await getAuthSession()
 
   if (!session) redirect('/login')

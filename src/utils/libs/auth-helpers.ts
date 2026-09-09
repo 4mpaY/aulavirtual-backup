@@ -29,7 +29,7 @@ type AuthUser = {
  */
 async function getUserFromBearerToken(): Promise<AuthUser | null> {
   try {
-    const headersList = headers()
+    const headersList = await headers()
     const authorization = headersList.get('authorization')
 
     if (!authorization?.startsWith('Bearer ')) {

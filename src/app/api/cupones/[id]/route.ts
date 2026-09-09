@@ -9,7 +9,9 @@ import { sanitizeDatetimeInput } from '@/utils/functions/sanitizeDatetime'
 /**
  * GET /api/cupones/[id]
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -39,7 +41,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
 /**
  * PATCH /api/cupones/[id]
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 
@@ -103,7 +107,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 /**
  * DELETE /api/cupones/[id]
  */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAdmin(request)
 

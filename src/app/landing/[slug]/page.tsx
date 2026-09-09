@@ -33,7 +33,8 @@ async function getCourseForLanding(slug: string) {
   return course
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const course = await getCourseForLanding(params.slug)
 
   if (!course) {
@@ -46,7 +47,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function LandingPage({ params }: { params: { slug: string } }) {
+export default async function LandingPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const course = await getCourseForLanding(params.slug)
 
   if (!course) {

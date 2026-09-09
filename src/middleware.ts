@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server'
 
 import { withAuth } from 'next-auth/middleware'
-import { Rol } from '@prisma/client'
+
+const Rol = {
+  ADMIN: 'ADMIN',
+  PROFESOR: 'PROFESOR',
+  ESTUDIANTE: 'ESTUDIANTE'
+}
 
 export default withAuth(
   function middleware(req) {
@@ -18,7 +23,7 @@ export default withAuth(
     // Si tiene token y está intentando acceder a login/register
     if (token && (path.startsWith('/login') || path.startsWith('/register'))) {
       // Redirigir según rol
-      const rol = token.rol as Rol
+      const rol = token.rol as string
 
       if (rol === Rol.ADMIN) {
         return NextResponse.redirect(new URL('/admin/dashboard', req.url), { status: 302 })
@@ -33,7 +38,7 @@ export default withAuth(
 
     // Redirigir /dashboard genérico según rol
     if (path === '/dashboard') {
-      const rol = token?.rol as Rol
+      const rol = token?.rol as string
 
       if (rol === Rol.ADMIN) {
         return NextResponse.redirect(new URL('/admin/dashboard', req.url), { status: 302 })
@@ -47,7 +52,7 @@ export default withAuth(
     }
 
     // Verificar acceso a rutas según rol
-    const rol = token?.rol as Rol
+    const rol = token?.rol as string
 
     // Rutas de admin - solo ADMIN
     if (path.startsWith('/admin') && rol !== Rol.ADMIN) {

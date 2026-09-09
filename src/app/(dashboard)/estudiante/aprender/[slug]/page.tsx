@@ -5,7 +5,11 @@ import CoursePlayerView from '@/features/estudiante/player/components/CoursePlay
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { prisma } from '@/lib/prisma';
 
-export default async function LearningPage({ params, searchParams }: { params: { slug: string }; searchParams: { leccion?: string; examen?: string } }) {
+export default async function LearningPage(
+  props: { params: Promise<{ slug: string }>; searchParams: Promise<{ leccion?: string; examen?: string }> }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const session = await getAuthSession()
 
   if (!session) {
@@ -24,7 +28,7 @@ export default async function LearningPage({ params, searchParams }: { params: {
     }
   })
 
-  let phoneNumberProfesor = "51959436827"
+  let phoneNumberProfesor = "51977703661"
 
   if (profesorByCurso?.numero_asesor) {
     phoneNumberProfesor = profesorByCurso.numero_asesor

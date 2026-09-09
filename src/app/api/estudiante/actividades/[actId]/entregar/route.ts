@@ -8,10 +8,9 @@ import { puedeAccederCurso } from '@/utils/libs/subscription-access'
  * POST /api/estudiante/actividades/[actId]/entregar
  * Permite a un estudiante entregar una actividad (archivo o formulario)
  */
-export async function POST(
-  request: Request,
-  { params }: { params: { actId: string } }
-) {
+export async function POST(request: Request, props: { params: Promise<{ actId: string }> }) {
+  const params = await props.params;
+
   try {
     const auth = await requireAuth(request)
 
