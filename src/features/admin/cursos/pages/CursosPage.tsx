@@ -83,6 +83,9 @@ const columnHelper = createColumnHelper<Curso>()
 
 interface CursosPageProps {
   initialDataCursos: Curso[]
+  tipoPredeterminado?: TipoPrograma
+  titulo?: string
+  basePath?: string
 }
 
 // ─── Fila sortable ────────────────────────────────────────────────────────────
@@ -124,7 +127,7 @@ function SortableRow({
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function CursosPage({ initialDataCursos }: CursosPageProps) {
+export function CursosPage({ initialDataCursos, tipoPredeterminado, titulo = 'Gestión de Cursos', basePath = '/admin/cursos' }: CursosPageProps) {
   const [cursoToDelete, setCursoToDelete] = useState<Curso | null>(null)
   const [openDeleteModal, setOpenDeleteModal] = useState(false)
   const [openStudentsModal, setOpenStudentsModal] = useState(false)
@@ -132,7 +135,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   const [rowSelection, setRowSelection] = useState({})
   const [globalFilter, setGlobalFilter] = useState('')
   const [estadoFilter, setEstadoFilter] = useState<string>('all')
-  const [tipoFilter, setTipoFilter] = useState<'all' | TipoPrograma>('all')
+  const [tipoFilter, setTipoFilter] = useState<'all' | TipoPrograma>(tipoPredeterminado || 'all')
   const [orderedCursos, setOrderedCursos] = useState<Curso[]>([])
 
   const [pagination, setPagination] = useState({
@@ -145,7 +148,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
     limit: pagination.pageSize.toString(),
     buscar: globalFilter,
     estado: estadoFilter === 'all' ? '' : estadoFilter,
-    ...(tipoFilter !== 'all' ? { tipo: tipoFilter } : {})
+    ...(tipoPredeterminado ? { tipo: tipoPredeterminado } : (tipoFilter !== 'all' ? { tipo: tipoFilter } : {}))
   })
 
   const reorderMutation = useReorderCursos()
@@ -276,7 +279,9 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
           )
         }
       }),
-      columnHelper.display({
+
+      // Mostrar columna de tipo solo si no hay tipo predeterminado
+      ...(!tipoPredeterminado ? [columnHelper.display({
         id: 'tipo_programa',
         header: 'Tipo',
         cell: ({ row }) => (
@@ -287,7 +292,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
             color={getTipoProgramaColor(row.original.tipo)}
           />
         )
-      }),
+      })] : []),
       columnHelper.display({
         id: 'categoria',
         header: 'Categoría',
@@ -382,9 +387,9 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
                 <i className='tabler-player-play text-[22px] text-primary' />
               </IconButton>
             </Tooltip>
-            <Tooltip title='Editar curso (Course Builder)'>
+            <Tooltip title='Editar (Course Builder)'>
               <IconButton
-                href={`/admin/cursos/${row.original.id}`}
+                href={`${basePath}/${row.original.id}`}
                 component='a'
               >
                 <i className='tabler-edit text-[22px] text-textSecondary' />
@@ -399,7 +404,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
         )
       })
     ],
-    [pagination]
+    [pagination, basePath, tipoPredeterminado]
   )
 
   const table = useReactTable({
@@ -433,7 +438,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   return (
     <>
       <Card>
-        <CardHeader title='Gestión de Cursos' className='pbe-4' />
+        <CardHeader title={titulo} className='pbe-4' />
         <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
           <CustomTextField
             select
@@ -446,20 +451,22 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
             <MenuItem value='50'>50</MenuItem>
           </CustomTextField>
           <div className='flex flex-col sm:flex-row is-full sm:is-auto items-start sm:items-center gap-4'>
-            <CustomTextField
-              select
-              value={tipoFilter}
-              onChange={e => {
-                setTipoFilter(e.target.value as 'all' | TipoPrograma)
-                table.setPageIndex(0)
-              }}
-              className='is-full sm:is-[200px]'
-            >
-              <MenuItem value='all'>Todos los tipos</MenuItem>
-              <MenuItem value='CURSO'>Cursos</MenuItem>
-              <MenuItem value='DIPLOMADO'>Diplomados</MenuItem>
-              <MenuItem value='ESPECIALIZACION'>Especializaciones</MenuItem>
-            </CustomTextField>
+            {!tipoPredeterminado && (
+              <CustomTextField
+                select
+                value={tipoFilter}
+                onChange={e => {
+                  setTipoFilter(e.target.value as 'all' | TipoPrograma)
+                  table.setPageIndex(0)
+                }}
+                className='is-full sm:is-[200px]'
+              >
+                <MenuItem value='all'>Todos los tipos</MenuItem>
+                <MenuItem value='CURSO'>Cursos</MenuItem>
+                <MenuItem value='DIPLOMADO'>Diplomados</MenuItem>
+                <MenuItem value='ESPECIALIZACION'>Especializaciones</MenuItem>
+              </CustomTextField>
+            )}
             <CustomTextField
               select
               value={estadoFilter}
@@ -486,11 +493,11 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
             <Button
               variant='contained'
               startIcon={<i className='tabler-plus' />}
-              href='/admin/cursos/nuevo'
+              href={`${basePath}/nuevo`}
               component='a'
               className='is-full sm:is-auto'
             >
-              Nuevo Curso
+              Nuevo {tipoPredeterminado ? getTipoProgramaLabel(tipoPredeterminado) : 'Programa'}
             </Button>
           </div>
         </div>

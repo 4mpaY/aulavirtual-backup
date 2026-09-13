@@ -8,8 +8,8 @@ import { AxiosCurso } from '@/features/admin/cursos/http/axiosCurso'
 import type { Curso } from '@/features/admin/cursos/entity/Curso'
 
 export const metadata: Metadata = {
-    title: 'Gestión de Cursos',
-    description: 'Administra los cursos del aula virtual'
+    title: 'Gestión de Especializaciones',
+    description: 'Administra las especializaciones del aula virtual'
 }
 
 export default async function Page() {
@@ -28,12 +28,12 @@ export default async function Page() {
     let initialDataCursos: Curso[] = []
 
     try {
-        const response = await axiosCurso.searchAll({ page: '1', limit: '10', tipo: 'CURSO' })
+        const response = await axiosCurso.searchAll({ page: '1', limit: '10', tipo: 'ESPECIALIZACION' })
 
         initialDataCursos = response.cursos || []
     } catch (error) {
         console.error('Error fetching cursos:', error)
     }
 
-    return <CursosPage initialDataCursos={initialDataCursos} tipoPredeterminado="CURSO" titulo="Gestión de Cursos" basePath="/admin/cursos" />
+    return <CursosPage initialDataCursos={initialDataCursos} tipoPredeterminado="ESPECIALIZACION" titulo="Gestión de Especializaciones" basePath="/admin/especializaciones" />
 }

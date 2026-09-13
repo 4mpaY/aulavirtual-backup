@@ -36,7 +36,6 @@ import { crearCursoSchema, type CrearCursoDto } from '@/schemas/curso.schema'
 import { sanitizeDatetimeInput } from '@/utils/functions/sanitizeDatetime'
 import MediaLibrary from '../components/MediaLibrary'
 import { CategoriaSubcategoriaSelect } from '../components/CategoriaSubcategoriaSelect'
-import { TipoProgramaSelect } from '../components/TipoProgramaSelect'
 
 import { useCreateCurso } from '../hooks/useCursos'
 import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
@@ -45,9 +44,10 @@ import { getTipoProgramaConfig } from '@/utils/configs/tipoPrograma'
 
 interface CourseCreatePageProps {
   profesores: { id: string; nombre: string; apellido: string }[]
+  tipoPredeterminado?: TipoPrograma
 }
 
-export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
+export const CourseCreatePage = ({ profesores, tipoPredeterminado }: CourseCreatePageProps) => {
   const { data: session } = useSession()
   const { enqueueSnackbar } = useSnackbar()
   const router = useRouter()
@@ -64,7 +64,7 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
     titulo: '',
     descripcion: '',
     categoria_id: null,
-    tipo: 'CURSO' as TipoPrograma,
+    tipo: tipoPredeterminado || ('CURSO' as TipoPrograma),
     profesor_id: profesores.length > 0 ? profesores[0].id : '',
     tipo_emision: 'ASINCRONO',
     es_gratis: false,
@@ -184,11 +184,7 @@ export const CourseCreatePage = ({ profesores }: CourseCreatePageProps) => {
                         />
                       </Grid>
 
-                      <TipoProgramaSelect
-                        value={values.tipo}
-                        onChange={tipo => setFieldValue('tipo', tipo)}
-                        disabled={isSubmitting}
-                      />
+                      {/* El tipo se asigna por defecto, no se muestra el select */}
 
                       <CategoriaSubcategoriaSelect
                         categorias={categorias}

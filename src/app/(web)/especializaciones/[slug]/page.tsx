@@ -39,7 +39,7 @@ export default async function CourseDetailPage(
 
     const course = await getCourseData(params.slug, token)
 
-    if (!course || course.tipo !== 'CURSO') {
+    if (!course || course.tipo !== 'ESPECIALIZACION') {
         notFound()
     }
 

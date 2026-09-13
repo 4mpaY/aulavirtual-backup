@@ -130,6 +130,12 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
             <MenuItem href='/admin/cursos' icon={<i className='tabler-book' />}>
               Cursos
             </MenuItem>
+            <MenuItem href='/admin/diplomados' icon={<i className='tabler-certificate-2' />}>
+              Diplomados
+            </MenuItem>
+            <MenuItem href='/admin/especializaciones' icon={<i className='tabler-school' />}>
+              Especializaciones
+            </MenuItem>
             {isFeatureEnabled('ebooks') && (
               <MenuItem href='/admin/ebooks' icon={<i className='tabler-book-2' />}>
                 Ebooks

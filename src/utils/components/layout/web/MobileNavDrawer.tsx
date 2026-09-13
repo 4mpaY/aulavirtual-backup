@@ -19,6 +19,8 @@ import { isFeatureEnabled } from '@/utils/configs/projectFeatures'
 const ALL_NAV_ITEMS = [
   { title: 'Inicio', url: '/', key: 'inicio' },
   { title: 'Cursos', url: '/cursos', key: 'cursos' },
+  { title: 'Diplomados', url: '/diplomados', key: 'diplomados' },
+  { title: 'Especializaciones', url: '/especializaciones', key: 'especializaciones' },
   ...(isFeatureEnabled('simulacros') ? [{ title: 'Simulacros', url: '/simulacros', key: 'simulacros' as const }] : []),
   ...(isFeatureEnabled('ebooks') ? [{ title: 'Ebooks', url: '/ebooks', key: 'ebooks' as const }] : []),
   ...(isFeatureEnabled('rutas') ? [{ title: 'Rutas', url: '/rutas', key: 'rutas' as const }] : []),

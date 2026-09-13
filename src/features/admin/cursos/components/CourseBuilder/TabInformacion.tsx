@@ -25,7 +25,8 @@ import { useCategorias } from '@/features/admin/categorias/hooks/useCategorias'
 import type { Categoria } from '@/features/admin/categorias/entity/Categoria'
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
 import { CategoriaSubcategoriaSelect } from '../CategoriaSubcategoriaSelect'
-import { TipoProgramaSelect } from '../TipoProgramaSelect'
+
+// TipoProgramaSelect removed
 import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
 
 function resolveCategoriaSelection(categoriaId: string | null | undefined, categorias: Categoria[]) {
@@ -164,10 +165,7 @@ export function TabInformacion({ curso, profesores, onSuccess }: TabInformacionP
           onChange={handleChange}
         />
       </Grid>
-      <TipoProgramaSelect
-        value={form.tipo}
-        onChange={tipo => setForm(prev => ({ ...prev, tipo }))}
-      />
+      {/* El tipo del programa se mantiene oculto */}
 
       <CategoriaSubcategoriaSelect
         categorias={categorias}
