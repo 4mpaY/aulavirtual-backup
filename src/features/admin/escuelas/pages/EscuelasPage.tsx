@@ -44,8 +44,11 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 
 import tableStyles from '@core/styles/table.module.css'
+import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
+import ClientOnly from '@/utils/components/ClientOnly'
+
 import CourseThumbnail from '@/utils/components/CourseThumbnail'
 
 import type { Escuela } from '../entity/Escuela'
@@ -107,7 +110,7 @@ function SortableRow({
   )
 }
 
-export const EscuelasPage = ({ initialData }: EscuelasPageProps) => {
+const EscuelasPage = ({ initialData }: EscuelasPageProps) => {
   const { data: escuelas = [], isLoading } = useEscuelas(initialData)
   const deleteEscuela = useDeleteEscuela()
   const reorderEscuelas = useReorderEscuelas()
@@ -285,7 +288,8 @@ export const EscuelasPage = ({ initialData }: EscuelasPageProps) => {
   })
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <ClientOnly>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <Card sx={{ p: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4, flexWrap: 'wrap', gap: 4 }}>
           <Box>
@@ -410,5 +414,8 @@ export const EscuelasPage = ({ initialData }: EscuelasPageProps) => {
         escuela={selectedEscuela}
       />
     </Box>
+    </ClientOnly>
   )
 }
+
+export default EscuelasPage

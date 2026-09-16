@@ -1,12 +1,9 @@
 import { redirect } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-
-
-import { CuponesPage } from '@/features/admin/cupones/pages/CuponesPage'
+import CuponesPage from '@/features/admin/cupones/pages/CuponesPage'
 import { AxiosCupon } from '@/features/admin/cupones/http/axiosCupon'
 import { AxiosCursoAdmin } from '@/features/admin/cursos/http/axiosCursoAdmin'
-
 
 export const metadata = {
   title: 'Gestión de Cupones | Aula Virtual'
@@ -46,3 +43,5 @@ export default async function Page() {
 
   return <CuponesPage initialData={initialData} cursosInitialData={cursosDisponibles} />
 }
+
+

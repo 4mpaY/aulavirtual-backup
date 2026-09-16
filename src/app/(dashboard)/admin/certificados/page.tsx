@@ -1,11 +1,8 @@
 import { redirect } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-
-
-import { CertificadosTable } from '@/features/admin/certificados/components/CertificadosTable'
+import CertificadosTable from '@/features/admin/certificados/components/CertificadosTable'
 import { AxiosCertificado } from '@/features/admin/certificados/http/axiosCertificado'
-
 import type { CertificadosResponse } from '@/features/admin/certificados/entity/Certificado'
 
 export const metadata = {
@@ -35,3 +32,5 @@ export default async function Page() {
 
   return <CertificadosTable initialData={initialData} />
 }
+
+

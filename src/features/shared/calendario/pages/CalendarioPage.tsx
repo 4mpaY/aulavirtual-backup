@@ -1,20 +1,9 @@
-'use client'
+import { Box, Typography } from '@mui/material'
 
-import dynamic from 'next/dynamic'
+import ClientOnly from '@/utils/components/ClientOnly'
 
-import { Box, CircularProgress, Typography } from '@mui/material'
+import CalendarioView from '../components/CalendarioView'
 
-const CalendarioView = dynamic(
-  () => import('../components/CalendarioView').then(m => ({ default: m.CalendarioView })),
-  {
-    ssr: false,
-    loading: () => (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
-)
 
 export function CalendarioPage() {
   return (
@@ -25,7 +14,13 @@ export function CalendarioPage() {
           Clases en vivo, exámenes y fechas importantes de tus cursos
         </Typography>
       </Box>
-      <CalendarioView />
+      <ClientOnly>
+        <CalendarioView />
+      </ClientOnly>
     </Box>
   )
 }
+
+export default CalendarioPage
+
+

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import type { Metadata } from 'next'
 
-import { CursosPage } from '@/features/admin/cursos/pages/CursosPage'
+import CursosPage from '@/features/admin/cursos/pages/CursosPage'
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { AxiosCurso } from '@/features/admin/cursos/http/axiosCurso'
 import type { Curso } from '@/features/admin/cursos/entity/Curso'
@@ -37,3 +37,5 @@ export default async function Page() {
 
     return <CursosPage initialDataCursos={initialDataCursos} />
 }
+
+

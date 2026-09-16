@@ -2,9 +2,10 @@ import { redirect } from 'next/navigation'
 
 import { getServerSession } from 'next-auth'
 
+
 import { Typography, Box } from '@mui/material'
 
-import { DashboardView } from '@/features/admin/dashboard'
+import DashboardView from '@/features/admin/dashboard/components/DashboardView'
 import { AxiosDashboard } from '@/features/admin/dashboard/http/axiosDashboard'
 import { getAuthOptions } from '@/utils/configs/auth'
 
@@ -46,3 +47,5 @@ export default async function Page() {
     </Box>
   )
 }
+
+

@@ -1,12 +1,9 @@
 import { redirect } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-
-
-import { RutasPage } from '@/features/admin/rutas'
 import { AxiosRuta } from '@/features/admin/rutas/http/axiosRuta'
-
 import type { Ruta } from '@/features/admin/rutas/entity/Ruta'
+import RutasPage from '@/features/admin/rutas/pages/RutasPage'
 
 export const metadata = {
   title: 'Gestión de Rutas | Aula Virtual'
@@ -35,3 +32,5 @@ export default async function Page() {
 
   return <RutasPage initialData={initialData} />
 }
+
+

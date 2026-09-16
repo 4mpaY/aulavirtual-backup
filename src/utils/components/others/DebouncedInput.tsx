@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import type { TextFieldProps } from '@mui/material'
 
-import CustomTextField from '@/@core/components/mui/TextField'
+import CustomTextField from '@core/components/mui/TextField'
 
 export const DebouncedInput = ({
   value: initialValue,

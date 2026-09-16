@@ -548,3 +548,6 @@ export function PedidosPage({ initialData, initialTotal = 0 }: PedidosPageProps)
     </Card>
   )
 }
+
+export default PedidosPage
+

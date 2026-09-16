@@ -425,3 +425,6 @@ export const EbookViewer = ({ ebookId }: Props) => {
     </Box>
   )
 }
+
+export default EbookViewer
+

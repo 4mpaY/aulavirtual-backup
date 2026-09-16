@@ -296,3 +296,6 @@ return rutas.filter(r => r.escuela_id === escuelaFiltro)
     </>
   )
 }
+
+export default RutasPage
+

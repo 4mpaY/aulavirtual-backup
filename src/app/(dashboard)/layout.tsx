@@ -23,10 +23,8 @@ import ScrollToTop from '@core/components/scroll-to-top'
 // Util Imports
 import { getMode, getSystemMode } from '@core/utils/serverHelpers'
 
-const ChatWidget = dynamic(
-  () => import('@/features/shared/chat/components/ChatWidget'),
-  { ssr: false }
-)
+import ChatWidget from '@/features/shared/chat/components/ChatWidget'
+
 
 const Layout = async ({ children }: ChildrenType) => {
   // Vars

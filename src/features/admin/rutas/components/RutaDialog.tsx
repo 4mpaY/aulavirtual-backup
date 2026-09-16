@@ -23,7 +23,7 @@ import MediaLibrary from '@/features/admin/cursos/components/MediaLibrary'
 
 import type { CreateRutaDto, Benefit, Ruta } from '../entity/Ruta'
 import { useCreateRuta, useUpdateRuta } from '../hooks/useRutas'
-import { useEscuelas } from '@/features/admin/escuelas'
+import { useEscuelas } from '@/features/admin/escuelas/hooks/useEscuelas'
 
 const DEFAULT_BENEFITS: Benefit[] = [
   { title: 'Secuencia lógica', desc: 'Contenido progresivo diseñado por expertos para tu maestría.', icon: 'tabler-list-numbers' },

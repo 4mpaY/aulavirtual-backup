@@ -269,3 +269,6 @@ export function PlanesSuscripcionPage({ initialData, cursosInitialData }: Planes
     </>
   )
 }
+
+export default PlanesSuscripcionPage
+

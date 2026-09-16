@@ -31,7 +31,7 @@ export class AxiosInternalHttpClient {
 
     this.client.interceptors.response.use(
       res => res,
-      error => {
+      async error => {
         if (error?.response?.status === 401 && typeof window !== 'undefined') {
           handleSessionExpired()
         }
@@ -44,6 +44,10 @@ export class AxiosInternalHttpClient {
   protected parseResponse<T = any>(res: AxiosResponse): T {
     // Extraer `result` de la respuesta estandarizada, con fallback a res.data
     const data = res.data
+
+    if (typeof data === 'string' && data.trim().startsWith('<')) {
+      throw new Error('La respuesta del servidor no es válida (posible error de caché o Service Worker). Por favor recarga la página sin caché.')
+    }
 
     return data?.result !== undefined ? data.result : data
   }

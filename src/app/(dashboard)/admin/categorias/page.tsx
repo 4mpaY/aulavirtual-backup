@@ -2,10 +2,9 @@ import { redirect } from 'next/navigation'
 
 import type { Metadata } from 'next'
 
+
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-
-
-import { CategoriasPage } from '@/features/admin/categorias/pages/CategoriasPage'
+import CategoriasPage from '@/features/admin/categorias/pages/CategoriasPage'
 import type { Categoria } from '@/features/admin/categorias/entity/Categoria'
 import { AxiosCategoria } from '@/features/admin/categorias/http/axiosCategoria'
 
@@ -41,3 +40,5 @@ export default async function Page() {
 
   return <CategoriasPage initialDataCategorias={initialData} initialTotal={total} />
 }
+
+

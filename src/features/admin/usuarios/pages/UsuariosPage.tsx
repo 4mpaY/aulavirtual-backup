@@ -440,3 +440,6 @@ export function UsuariosPage({ initialDataUsuarios, initialTotal = 0 }: Usuarios
     </>
   )
 }
+
+export default UsuariosPage
+

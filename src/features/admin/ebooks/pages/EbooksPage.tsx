@@ -285,3 +285,6 @@ export const EbooksPage = () => {
     </>
   )
 }
+
+export default EbooksPage
+

@@ -89,6 +89,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             }
           `
         }} />
+        {process.env.NODE_ENV === 'development' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for (let registration of registrations) {
+                      registration.unregister();
+                    }
+                  });
+                }
+              `
+            }}
+          />
+        )}
         <Providers session={session} configs={configs}>
           {children}
         </Providers>
@@ -96,3 +111,4 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     </html>
   )
 }
+

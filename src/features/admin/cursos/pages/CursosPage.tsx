@@ -62,6 +62,8 @@ import tableStyles from '@core/styles/table.module.css'
 import { useCursos, useReorderCursos, useDuplicateCurso } from '../hooks/useCursos'
 import type { TipoPrograma } from '@/utils/configs/tipoPrograma'
 import { getTipoProgramaColor, getTipoProgramaLabel } from '@/utils/configs/tipoProgramaOptions'
+import ClientOnly from '@/utils/components/ClientOnly'
+
 
 type EstadoColorMap = {
   [key: string]: ThemeColor
@@ -447,7 +449,7 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
   const rows = table.getRowModel().rows
 
   return (
-    <>
+    <ClientOnly>
       <Card>
         <CardHeader title='Gestión de Capacitaciones' className='pbe-4' />
         <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
@@ -630,6 +632,10 @@ export function CursosPage({ initialDataCursos }: CursosPageProps) {
         }}
         onSuccess={() => refetch()}
       />
-    </>
+    </ClientOnly>
   )
 }
+
+export default CursosPage
+
+

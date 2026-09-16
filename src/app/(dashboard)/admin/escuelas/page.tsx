@@ -1,12 +1,9 @@
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
-
 import { redirect } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-import { EscuelasPage } from '@/features/admin/escuelas'
 import { AxiosEscuela } from '@/features/admin/escuelas/http/axiosEscuela'
 import type { Escuela } from '@/features/admin/escuelas/entity/Escuela'
+import EscuelasPage from '@/features/admin/escuelas/pages/EscuelasPage'
 
 export const metadata = {
   title: 'Gestión de Escuelas | Aula Virtual'
@@ -35,3 +32,4 @@ export default async function Page() {
 
   return <EscuelasPage initialData={initialData} />
 }
+

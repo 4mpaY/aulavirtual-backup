@@ -1296,3 +1296,6 @@ export function ConfiguracionView({ initialData }: ConfiguracionViewProps) {
     </Box>
   )
 }
+
+export default ConfiguracionView
+

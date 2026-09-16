@@ -40,6 +40,8 @@ import { CategoriasActions } from '../components/CategoriasActions'
 import { DebouncedInput } from '@/utils/components/others/DebouncedInput'
 import { fuzzyFilter } from '@/utils/components/others/FuzzyFilter'
 import TablePaginationComponent from '@/utils/components/others/TablePaginationComponent'
+import ClientOnly from '@/utils/components/ClientOnly'
+
 
 type StatusType = {
   [key: string]: ThemeColor
@@ -228,7 +230,7 @@ export function CategoriasPage({ initialDataCategorias, initialTotal = 0 }: Cate
   // para una experiencia más fluida. El overlay se maneja en el JSX.
 
   return (
-    <>
+    <ClientOnly>
       <Card>
         <CardHeader title='Gestión de Categorías' className='pbe-4' />
         <div className='flex justify-between flex-col items-start md:flex-row md:items-center p-6 border-bs gap-4'>
@@ -376,6 +378,10 @@ export function CategoriasPage({ initialDataCategorias, initialTotal = 0 }: Cate
         }}
         onSuccess={() => refetchCategorias()}
       />
-    </>
+    </ClientOnly>
   )
 }
+
+export default CategoriasPage
+
+

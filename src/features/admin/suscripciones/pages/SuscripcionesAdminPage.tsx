@@ -221,3 +221,6 @@ export function SuscripcionesAdminPage() {
     </Card>
   )
 }
+
+export default SuscripcionesAdminPage
+

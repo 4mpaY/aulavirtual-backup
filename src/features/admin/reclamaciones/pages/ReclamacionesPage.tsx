@@ -309,3 +309,6 @@ export function ReclamacionesPage({ initialData }: ReclamacionesPageProps) {
     </>
   )
 }
+
+export default ReclamacionesPage
+

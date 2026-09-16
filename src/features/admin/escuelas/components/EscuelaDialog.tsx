@@ -58,26 +58,28 @@ export const EscuelaDialog = ({ open, onClose, escuela }: EscuelaDialogProps) =>
   const currentImagen = watch('imagen')
 
   useEffect(() => {
-    if (escuela) {
-      reset({
-        nombre: escuela.nombre,
-        slug: escuela.slug,
-        descripcion: escuela.descripcion || '',
-        imagen: escuela.imagen || '',
-        estado: escuela.estado,
-        orden: escuela.orden
-      })
-    } else {
-      reset({
-        nombre: '',
-        slug: '',
-        descripcion: '',
-        imagen: '',
-        estado: 'DISPONIBLE',
-        orden: 0
-      })
+    if (open) {
+      if (escuela) {
+        reset({
+          nombre: escuela.nombre,
+          slug: escuela.slug,
+          descripcion: escuela.descripcion || '',
+          imagen: escuela.imagen || '',
+          estado: escuela.estado,
+          orden: escuela.orden
+        })
+      } else {
+        reset({
+          nombre: '',
+          slug: '',
+          descripcion: '',
+          imagen: '',
+          estado: 'DISPONIBLE',
+          orden: 0
+        })
+      }
     }
-  }, [escuela, reset])
+  }, [escuela, open, reset])
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

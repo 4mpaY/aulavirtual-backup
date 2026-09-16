@@ -1,10 +1,8 @@
-export const dynamic = 'force-dynamic'
-
 import { redirect } from 'next/navigation'
 
 import { Box } from '@mui/material'
 
-import { ConfiguracionView } from '@/features/admin/configuracion/components/ConfiguracionView'
+import ConfiguracionView from '@/features/admin/configuracion/components/ConfiguracionView'
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import prisma from '@/utils/libs/prisma'
 
@@ -35,3 +33,5 @@ export default async function Page() {
     </Box>
   )
 }
+
+

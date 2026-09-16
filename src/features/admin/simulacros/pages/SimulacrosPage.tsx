@@ -255,3 +255,6 @@ export function SimulacrosPage({ initialData }: Props) {
     </>
   )
 }
+
+export default SimulacrosPage
+

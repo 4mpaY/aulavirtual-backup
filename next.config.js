@@ -131,7 +131,8 @@ const nextConfig = {
 module.exports = withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
-  reloadOnOnline: true,
-  cacheOnFrontEndNav: true,
-  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: false,
+  cacheOnFrontEndNav: false,
+  aggressiveFrontEndNavCaching: false,
 })(nextConfig)
+

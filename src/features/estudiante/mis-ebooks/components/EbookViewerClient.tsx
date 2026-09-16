@@ -1,21 +1,15 @@
-'use client'
+import { Box } from '@mui/material'
 
-import dynamic from 'next/dynamic'
+import ClientOnly from '@/utils/components/ClientOnly'
 
-import { Box, CircularProgress } from '@mui/material'
+import EbookViewer from './EbookViewer'
 
-const EbookViewerDynamic = dynamic(
-  () => import('./EbookViewer').then(m => m.EbookViewer),
-  {
-    ssr: false,
-    loading: () => (
-      <Box sx={{ height: 'calc(100vh - 220px)', minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#1a1a1a', borderRadius: 2 }}>
-        <CircularProgress sx={{ color: '#fff' }} />
-      </Box>
-    ),
-  }
-)
 
 export default function EbookViewerClient({ ebookId }: { ebookId: string }) {
-  return <EbookViewerDynamic ebookId={ebookId} />
+  return (
+    <ClientOnly>
+      <EbookViewer ebookId={ebookId} />
+    </ClientOnly>
+  )
 }
+

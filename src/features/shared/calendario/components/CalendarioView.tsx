@@ -487,3 +487,6 @@ export function CalendarioView() {
     </Box>
   )
 }
+
+export default CalendarioView
+

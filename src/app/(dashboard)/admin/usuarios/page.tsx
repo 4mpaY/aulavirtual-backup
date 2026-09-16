@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation'
 
 import type { Metadata } from 'next'
 
-import { UsuariosPage } from '@/features/admin/usuarios/pages/UsuariosPage'
+
+import UsuariosPage from '@/features/admin/usuarios/pages/UsuariosPage'
 import type { Usuario } from '@/features/admin/usuarios/entity/Usuario'
 import { getAuthSession } from '@/utils/libs/auth-helpers'
 import { AxiosUsuario } from '@/features/admin/usuarios/http/axiosUsuario'
@@ -39,3 +40,5 @@ export default async function Page() {
 
   return <UsuariosPage initialDataUsuarios={initialData} initialTotal={total} />
 }
+
+

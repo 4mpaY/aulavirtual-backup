@@ -1,5 +1,7 @@
-import { ReclamacionesPage } from '@/features/admin/reclamaciones/pages/ReclamacionesPage'
+import ReclamacionesPage from '@/features/admin/reclamaciones/pages/ReclamacionesPage'
 
 export default function Page() {
   return <ReclamacionesPage />
 }
+
+

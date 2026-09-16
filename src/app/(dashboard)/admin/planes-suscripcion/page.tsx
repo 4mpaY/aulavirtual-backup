@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-import { PlanesSuscripcionPage } from '@/features/admin/planes-suscripcion/pages/PlanesSuscripcionPage'
+import PlanesSuscripcionPage from '@/features/admin/planes-suscripcion/pages/PlanesSuscripcionPage'
 import { AxiosPlanSuscripcion } from '@/features/admin/planes-suscripcion/http/axiosPlanSuscripcion'
 import { AxiosCursoAdmin } from '@/features/admin/cursos/http/axiosCursoAdmin'
 
@@ -31,3 +31,5 @@ export default async function Page() {
 
   return <PlanesSuscripcionPage initialData={initialData} cursosInitialData={cursosInitialData} />
 }
+
+

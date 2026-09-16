@@ -242,3 +242,6 @@ export function CuponesPage({ initialData, cursosInitialData }: CuponesPageProps
     </>
   )
 }
+
+export default CuponesPage
+

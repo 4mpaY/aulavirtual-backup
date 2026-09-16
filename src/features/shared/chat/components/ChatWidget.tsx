@@ -11,6 +11,7 @@ import ConversacionList from './ConversacionList'
 import MensajePanel from './MensajePanel'
 import { useUnreadCount, useConversaciones } from '../hooks/useChat'
 import { useChatSocket } from '../hooks/useChatSocket'
+import ClientOnly from '@/utils/components/ClientOnly'
 
 export default function ChatWidget() {
   const { data: session } = useSession()
@@ -50,6 +51,8 @@ export default function ChatWidget() {
   }
 
   return (
+    <ClientOnly>
+
     <>
       <Tooltip title='Mensajes' placement='left'>
         <Fab
@@ -114,5 +117,7 @@ export default function ChatWidget() {
         </Box>
       </Drawer>
     </>
+    </ClientOnly>
   )
 }
+

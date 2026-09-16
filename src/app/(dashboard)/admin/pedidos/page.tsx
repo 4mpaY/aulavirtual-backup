@@ -1,11 +1,8 @@
 import { redirect } from 'next/navigation'
 
 import { getAuthSession } from '@/utils/libs/auth-helpers'
-
-
-import { PedidosPage } from '@/features/admin/pedidos/pages/PedidosPage'
+import PedidosPage from '@/features/admin/pedidos/pages/PedidosPage'
 import { AxiosPedido } from '@/features/admin/pedidos/http/axiosPedido'
-
 import type { Pedido } from '@/features/admin/pedidos/entity/Pedido'
 
 export const metadata = {
@@ -39,3 +36,5 @@ export default async function Page() {
 
   return <PedidosPage initialData={initialData} initialTotal={initialTotal} />
 }
+
+

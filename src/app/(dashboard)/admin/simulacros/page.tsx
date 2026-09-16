@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 
 import type { Metadata } from 'next'
 
-import { SimulacrosPage } from '@/features/admin/simulacros/pages/SimulacrosPage'
+import SimulacrosPage from '@/features/admin/simulacros/pages/SimulacrosPage'
 import { AxiosSimulacro } from '@/features/admin/simulacros/http/axiosSimulacro'
 import type { Simulacro } from '@/features/admin/simulacros/entity/Simulacro'
 import { getAuthSession } from '@/utils/libs/auth-helpers'
@@ -32,3 +32,5 @@ export default async function Page() {
 
   return <SimulacrosPage initialData={initialData} />
 }
+
+

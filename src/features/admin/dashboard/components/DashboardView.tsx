@@ -314,3 +314,6 @@ export function DashboardView({ initialData }: DashboardViewProps) {
     </Grid>
   )
 }
+
+export default DashboardView
+

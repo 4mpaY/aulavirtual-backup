@@ -489,3 +489,6 @@ export function CertificadosTable({ initialData }: CertificadosTableProps) {
     </>
   )
 }
+
+export default CertificadosTable
+
