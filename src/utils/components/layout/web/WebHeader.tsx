@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import Link from 'next/link'
 import Image from 'next/image'
@@ -13,6 +13,7 @@ import UserDropdown from '@components/layout/shared/UserDropdown'
 import CartIcon from '@/features/web/cart/components/CartIcon'
 import MobileNavDrawer from '@/utils/components/layout/web/MobileNavDrawer'
 import { useAuthModal } from '@/contexts/AuthModalContext'
+import { getEscuelasConRutas } from '@/app/(web)/actions'
 
 export interface Category {
   id: string
@@ -42,6 +43,23 @@ export default function WebHeader({ initialCategories = [], initialEscuelas = []
   const { openLogin, openRegister } = useAuthModal()
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [escuelas, setEscuelas] = useState<EscuelaPublic[]>(initialEscuelas)
+
+  useEffect(() => {
+    async function loadEscuelas() {
+      try {
+        const data = await getEscuelasConRutas()
+
+        if (data && data.length > 0) {
+          setEscuelas(data)
+        }
+      } catch (error) {
+        console.error('Error cargando escuelas en navbar:', error)
+      }
+    }
+
+    loadEscuelas()
+  }, [])
 
   return (
     <>
@@ -113,7 +131,7 @@ export default function WebHeader({ initialCategories = [], initialEscuelas = []
                 className="absolute left-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-[rgba(0,111,101,0.08)] py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50"
                 style={{ backdropFilter: 'blur(20px)', backgroundColor: 'rgba(255, 255, 255, 0.96)' }}
               >
-                {initialEscuelas.map((esc) => (
+                {escuelas.map((esc) => (
                   <Link
                     key={esc.id}
                     href={`/escuelas/${esc.slug}`}
@@ -294,7 +312,7 @@ export default function WebHeader({ initialCategories = [], initialEscuelas = []
             <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.85rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(26,26,26,0.5)', padding: '0.5rem 0 0.2rem' }}>
               Escuelas
             </div>
-            {initialEscuelas.map((esc) => (
+            {escuelas.map((esc) => (
               <Link
                 key={esc.id}
                 href={`/escuelas/${esc.slug}`}
